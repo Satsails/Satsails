@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './channels/apple.dart' as apple;
+import './channels/greenwallet.dart' as greenwallet;
 
 void main() async {
   runApp(const MainApp());
@@ -12,7 +12,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: FutureBuilder<String>(
-        future: apple.Channel.getHelloWorld(),
+        future: greenwallet.Channel('ios_wallet').createNewWallet(),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
