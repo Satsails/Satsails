@@ -7,8 +7,7 @@ class Channel {
     platform = MethodChannel(channelName);
   }
 
-  Future<String> createNewWallet() async {
-    final String wallet = await platform.invokeMethod('createNewWallet', <String, dynamic>{'network': 'testnet-liquid'});
-    return wallet;
+  Future<String> generateMnemonic() async {
+    return await platform.invokeMethod('generateMnemonic');
   }
 }

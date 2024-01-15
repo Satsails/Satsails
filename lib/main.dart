@@ -12,7 +12,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: FutureBuilder<String>(
-        future: greenwallet.Channel('ios_wallet').createNewWallet(),
+        future: greenwallet.Channel('ios_wallet').generateMnemonic(),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
