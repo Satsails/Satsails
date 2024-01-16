@@ -1,5 +1,6 @@
 import UIKit
 import Flutter
+import greenaddress
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {

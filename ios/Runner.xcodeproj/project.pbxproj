@@ -10,8 +10,8 @@
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
-		511D32050CA95CE04F4CFA9F /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FEF6746A539D384EECAA6FA /* Pods_Runner.framework */; };
-		5321E2272B55EE3F001576DA /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53EC7E262B53299B000DA5CC /* Wallet.swift */; };
+		53A685AD2B56D71700150C98 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FEF6746A539D384EECAA6FA /* Pods_Runner.framework */; };
+		53A685AF2B56D72B00150C98 /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53EC7E262B53299B000DA5CC /* Wallet.swift */; };
 		53EC7E022B5303B8000DA5CC /* greenaddress.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EC7DFC2B5303B7000DA5CC /* greenaddress.framework */; };
 		53EC7E032B5303B8000DA5CC /* greenaddress.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 53EC7DFC2B5303B7000DA5CC /* greenaddress.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		53EC7E232B5304BF000DA5CC /* GreenAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53EC7E222B5304BF000DA5CC /* GreenAddress.swift */; };
@@ -63,7 +63,7 @@
 		3C2D5B4F703DA5201AAFFE11 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 		53EC7DFC2B5303B7000DA5CC /* greenaddress.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = greenaddress.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		53EC7E222B5304BF000DA5CC /* GreenAddress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GreenAddress.swift; path = libgdk/share/gdk/GreenAddress.swift; sourceTree = SOURCE_ROOT; };
-		53EC7E262B53299B000DA5CC /* Wallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wallet.swift; path = Runner/Wallet.swift; sourceTree = SOURCE_ROOT; };
+		53EC7E262B53299B000DA5CC /* Wallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wallet.swift; path = greenaddress/Wallet.swift; sourceTree = SOURCE_ROOT; };
 		58AD4C7FCE7C633975D739ED /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -102,7 +102,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				511D32050CA95CE04F4CFA9F /* Pods_Runner.framework in Frameworks */,
+				53A685AD2B56D71700150C98 /* Pods_Runner.framework in Frameworks */,
 				53EC7E022B5303B8000DA5CC /* greenaddress.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -121,6 +121,7 @@
 		53EC7DFD2B5303B7000DA5CC /* greenaddress */ = {
 			isa = PBXGroup;
 			children = (
+				53EC7E262B53299B000DA5CC /* Wallet.swift */,
 				53EC7E222B5304BF000DA5CC /* GreenAddress.swift */,
 			);
 			path = greenaddress;
@@ -163,7 +164,6 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
-				53EC7E262B53299B000DA5CC /* Wallet.swift */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
@@ -451,6 +451,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				53A685AF2B56D72B00150C98 /* Wallet.swift in Sources */,
 				53EC7E232B5304BF000DA5CC /* GreenAddress.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -459,7 +460,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5321E2272B55EE3F001576DA /* Wallet.swift in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 			);
