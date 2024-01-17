@@ -1,4 +1,5 @@
 import Flutter
+import Dispatch
 
 public class GDKWallet {
     var SUBACCOUNT_TYPE = "2of2"
@@ -8,50 +9,85 @@ public class GDKWallet {
     var session: GDKSession?
     var subaccountPointer: Any?
     var lastBlockHeight = 0
-
+    
     // Class method to create and return an instance of GDKWallet
     class func createNewWallet(createWith2FAEnabled: Bool, mnemonic: String? = nil) throws -> GDKWallet {
         let wallet = GDKWallet()
-
+        
         // You can pass in a mnemonic generated outside GDK if you want, or have
         // GDK generate it for you by omitting it. 2FA is enabled if chosen and
         // can be enabled/disabled at any point.
-        wallet.mnemonic = mnemonic ?? ""
-
+        wallet.mnemonic = mnemonic ?? "floor motor waste close enforce stadium image team club conduct wife exact"
+        
         // Session network name options are: testnet, mainnet.
         wallet.session = try? GDKSession()
         try? wallet.session?.connect(netParams: ["name": "testnet"])
-
+        
         let credentials = ["mnemonic": wallet.mnemonic]
         try? wallet.session?.registerUserSW(details: credentials).call()
         try? wallet.session?.loginUserSW(details: credentials).call()
-        try? wallet.fetchBlockHeight()
-
+        
         if createWith2FAEnabled {
             try? wallet.twofactorAuthEnabled(true)
         }
-
+        
         return wallet
     }
+    
+    
+    func fetchSubaccount() throws {
+        let credentials = ["mnemonic": self.mnemonic]
+        guard let subaccountsCall = try? session?.getSubaccounts(details: credentials) else {
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
+        }
 
-    // Method to fetch block height
-    func fetchBlockHeight() throws {
-        // New blocks are added to notifications as they are found, so we need to
-        // find the latest or, if there hasn't been one since we last checked,
-        // use the value set during login in the session's login method.
-        // The following provides an example of using GDK's notification queue.
+        // Use DummyResolve to continuously check the status
+        let subaccountsStatus = try DummyResolve(call: subaccountsCall)
 
-//        let q = self.session?.notifications
-//        while let notification = try? q?.get(block: true, timeout: 1) {
-//            if let event = notification["event"] as? String, event == "block" {
-//                if let blockHeight = notification["block"]?["block_height"] as? Int,
-//                    blockHeight > self.lastBlockHeight {
-//                    self.lastBlockHeight = blockHeight
-//                }
-//            }
-//        }
+        // Extract subaccounts data from the result
+        guard let result = subaccountsStatus["result"] as? [String: Any],
+              let subaccounts = result["subaccounts"] as? [[String: Any]] else {
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to extract subaccounts data"])
+        }
+
+        // Iterate through subaccounts and find the matching one
+        for subaccount in subaccounts {
+            if SUBACCOUNT_TYPE == subaccount["type"] as? String, SUBACCOUNT_NAME == subaccount["name"] as? String {
+                self.subaccountPointer = subaccount["pointer"]
+                return // Exit the loop once the matching subaccount is found
+            }
+        }
+
+        // If no matching subaccount is found, throw an error
+        throw NSError(domain: "com.example.wallet", code: 2, userInfo: ["error": "Cannot find the subaccount with name: \(SUBACCOUNT_NAME) and type: \(SUBACCOUNT_TYPE)"])
     }
 
+    func getReceiveAddress() throws -> String {
+        // Fetch the subaccount if it's not already fetched
+        if subaccountPointer == nil {
+            try fetchSubaccount()
+        }
+
+        let subAccount = ["subaccount": subaccountPointer]
+        
+        guard let receiveAddressCall = try? session?.getReceiveAddress(details: subAccount) else {
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get receive address"])
+        }
+
+        // Use DummyResolve to continuously check the status
+        let receiveAddressStatus = try DummyResolve(call: receiveAddressCall)
+
+        // Extract the receive address from the result
+        guard let result = receiveAddressStatus["result"] as? [String: Any],
+              let address = result["address"] as? String else {
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to extract receive address"])
+        }
+
+        return address
+    }
+
+    
+    
     // Method to enable/disable two-factor authentication
     func twofactorAuthEnabled(_ isEnabled: Bool) throws {
         // Implementation for enabling/disabling two-factor authentication
@@ -151,9 +187,11 @@ public class Wallet {
         let walletInit = GdkInit.defaults().run()
         
         do {
-            let newWallet = try GDKWallet.createNewWallet(createWith2FAEnabled: true)
-            // Handle successful creation, possibly by sending wallet data back to Flutter
-            result(newWallet)
+            let newWallet = try GDKWallet.createNewWallet(createWith2FAEnabled: false)
+            let subAccount = try? newWallet.fetchSubaccount()
+            let receiveAddress = try? newWallet.getReceiveAddress()
+            
+            result(receiveAddress)
         } catch {
             // Handle error, possibly by sending an error message back to Flutter
             result("WALLET_CREATION_ERROR: Failed to create wallet")

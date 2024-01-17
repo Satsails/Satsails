@@ -10,4 +10,8 @@ class Channel {
   Future<String> generateMnemonic() async {
     return await platform.invokeMethod('generateMnemonic');
   }
+
+  Future<String> registerUser() async {
+    return await platform.invokeMethod('registerUser');
+  }
 }
