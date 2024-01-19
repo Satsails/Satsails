@@ -14,7 +14,6 @@ dependencies:
   flutter_dotenv: ^5.1.0
   get_storage: ^2.1.1
   provider: ^6.1.1
-  flutter_bitcoin: ^1.0.1
 
 dev_dependencies:
   flutter_test:

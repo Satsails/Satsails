@@ -9,30 +9,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
-  bech32:
-    dependency: transitive
-    description:
-      name: bech32
-      sha256: "156cbace936f7720c79a79d16a03efad343b1ef17106716e04b8b8e39f99f7f7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.2"
-  bip32:
-    dependency: transitive
-    description:
-      name: bip32
-      sha256: "54787cd7a111e9d37394aabbf53d1fc5e2e0e0af2cd01c459147a97c0e3f8a97"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
-  bip39:
-    dependency: transitive
-    description:
-      name: bip39
-      sha256: de1ee27ebe7d96b84bb3a04a4132a0a3007dcdd5ad27dd14aa87a29d97c45edc
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.6"
   boolean_selector:
     dependency: transitive
     description:
@@ -41,14 +17,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
-  bs58check:
-    dependency: transitive
-    description:
-      name: bs58check
-      sha256: c4a164d42b25c2f6bc88a8beccb9fc7d01440f3c60ba23663a20a70faf484ea9
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
   characters:
     dependency: transitive
     description:
@@ -73,22 +41,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
-  convert:
-    dependency: transitive
-    description:
-      name: convert
-      sha256: "0f08b14755d163f6e2134cb58222dd25ea2a2ee8a195e53983d57c075324d592"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.1"
-  crypto:
-    dependency: transitive
-    description:
-      name: crypto
-      sha256: ff625774173754681d66daaf4a448684fb04b78f902da9cb3d308c19cc5e8bab
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.3"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -118,14 +70,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_bitcoin:
-    dependency: "direct main"
-    description:
-      name: flutter_bitcoin
-      sha256: "1a783c4d80f83b1ba5dedb4f18ebf522c90dd99e6fa0224b5228f68aa29b3442"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
   flutter_dotenv:
     dependency: "direct main"
     description:
@@ -163,14 +107,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
-  hex:
-    dependency: transitive
-    description:
-      name: hex
-      sha256: "4e7cd54e4b59ba026432a6be2dd9d96e4c5205725194997193bf871703b82c4a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
   http:
     dependency: "direct main"
     description:
@@ -187,14 +123,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
-  js:
-    dependency: transitive
-    description:
-      name: js
-      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.7"
   lints:
     dependency: transitive
     description:
@@ -307,14 +235,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
-  pointycastle:
-    dependency: transitive
-    description:
-      name: pointycastle
-      sha256: "7c1e5f0d23c9016c5bbd8b1473d0d3fb3fc851b876046039509e18e0c7485f2c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.7.3"
   provider:
     dependency: "direct main"
     description:
