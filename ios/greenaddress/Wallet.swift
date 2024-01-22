@@ -1,204 +1,6 @@
 import Flutter
 import Dispatch
 
-public class GDKWallet {
-    var SUBACCOUNT_TYPE = "p2pkh"
-    var SUBACCOUNT_NAME = ""
-    var PIN_DATA_FILENAME = "pin_data.json"
-    var mnemonic: String?
-    var session: GDKSession?
-    var subaccountPointer: Any?
-    var lastBlockHeight = 0
-    
-    // Class method to create and return an instance of GDKWallet
-    class func createNewWallet(createWith2FAEnabled: Bool, mnemonic: String? = nil) throws -> GDKWallet {
-        let wallet = GDKWallet()
-        
-        // You can pass in a mnemonic generated outside GDK if you want, or have
-        // GDK generate it for you by omitting it. 2FA is enabled if chosen and
-        // can be enabled/disabled at any point.
-        wallet.mnemonic = mnemonic ?? "floor motor waste close enforce stadium image team club conduct wife exact"
-        
-        // Session network name options are: testnet, mainnet.
-        wallet.session = try? GDKSession()
-        try? wallet.session?.connect(netParams: ["name": "electrum-mainnet"])
-        
-        let credentials = ["mnemonic": wallet.mnemonic]
-        try? wallet.session?.registerUserSW(details: credentials).call()
-        try? wallet.session?.loginUserSW(details: credentials).call()
-        
-        if createWith2FAEnabled {
-            try? wallet.twofactorAuthEnabled(true)
-        }
-        
-        return wallet
-    }
-    
-    func createSubAccount(params: CreateSubaccountParams) throws {
-        self.SUBACCOUNT_NAME = params.name
-        self.SUBACCOUNT_TYPE = params.type.rawValue
-        let accountType = ["name": params.name, "type": params.type.rawValue]
-        guard let subaccountsCreation = try? session?.createSubaccount(details: accountType) else {
-            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
-        }
-
-        let receiveAddressStatus = try? DummyResolve(call: subaccountsCreation)
-}
-    
-    
-    func fetchSubaccount(subAccountName: String, subAccountType: String) throws {
-        let credentials = ["mnemonic": self.mnemonic]
-        guard let subaccountsCall = try? session?.getSubaccounts(details: credentials) else {
-            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
-        }
-
-        // Use DummyResolve to continuously check the status
-        let subaccountsStatus = try DummyResolve(call: subaccountsCall)
-
-        // Extract subaccounts data from the result
-        guard let result = subaccountsStatus["result"] as? [String: Any],
-              let subaccounts = result["subaccounts"] as? [[String: Any]] else {
-            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to extract subaccounts data"])
-        }
-
-        // Iterate through subaccounts and find the matching one
-        for subaccount in subaccounts {
-            if subAccountType == subaccount["type"] as? String {
-                self.subaccountPointer = subaccount["pointer"]
-                return
-            }
-        }
-
-        // If no matching subaccount is found, throw an error
-        throw NSError(domain: "com.example.wallet", code: 2, userInfo: ["error": "Cannot find the subaccount with name: \(SUBACCOUNT_NAME) and type: \(SUBACCOUNT_TYPE)"])
-    }
-
-    func getReceiveAddress() throws -> String {
-        // Fetch the subaccount if it's not already fetched
-        if subaccountPointer == nil {
-//            try fetchSubaccount()
-        }
-
-        let subAccount = ["subaccount": subaccountPointer]
-        
-        guard let receiveAddressCall = try? session?.getReceiveAddress(details: subAccount) else {
-            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get receive address"])
-        }
-
-        // Use DummyResolve to continuously check the status
-        let receiveAddressStatus = try DummyResolve(call: receiveAddressCall)
-
-        // Extract the receive address from the result
-        guard let result = receiveAddressStatus["result"] as? [String: Any],
-              let address = result["address"] as? String else {
-            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to extract receive address"])
-        }
-
-        return address
-    }
-
-    
-    
-    // Method to enable/disable two-factor authentication
-    func twofactorAuthEnabled(_ isEnabled: Bool) throws {
-        // Implementation for enabling/disabling two-factor authentication
-    }
-}
-
-
-
-public class GDKSession: Session {
-    public var ephemeral = false
-    public var netParams = [String: Any]()
-
-    public override func connect(netParams: [String: Any]) throws {
-        self.netParams = netParams
-        try super.connect(netParams: netParams)
-    }
-
-    public override init() {
-        try! super.init()
-    }
-
-    deinit {
-        super.setNotificationHandler(notificationCompletionHandler: nil)
-    }
-
-    public func loginUserSW(details: [String: Any]) throws -> TwoFactorCall {
-        try loginUser(details: details)
-    }
-
-    public func loginUserHW(device: [String: Any]) throws -> TwoFactorCall {
-        try loginUser(details: [:], hw_device: ["device": device])
-    }
-
-    public func registerUserSW(details: [String: Any]) throws -> TwoFactorCall {
-        try registerUser(details: details)
-    }
-
-    public func registerUserHW(device: [String: Any]) throws -> TwoFactorCall {
-        try registerUser(details: [:], hw_device: ["device": device])
-    }
-
-    public override func setNotificationHandler(notificationCompletionHandler: NotificationCompletionHandler?) {
-        super.setNotificationHandler(notificationCompletionHandler: notificationCompletionHandler)
-    }
-}
-
-public struct GdkInit: Codable {
-    enum CodingKeys: String, CodingKey {
-        case datadir
-        case tordir
-        case registrydir
-        case logLevel = "log_level"
-    }
-    public let datadir: String?
-    public let tordir: String?
-    public let registrydir: String?
-    public let logLevel: String
-    public var breezSdkDir: String { "\(datadir ?? "")/breezSdk" }
-    
-    public static func defaults() -> GdkInit {
-        let appSupportDir = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-        let cacheDir = try? FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-        var logLevel = "none"
-#if DEBUG
-        logLevel = "info"
-#endif
-        return GdkInit(datadir: appSupportDir?.path,
-                       tordir: cacheDir?.path,
-                       registrydir: cacheDir?.path,
-                       logLevel: logLevel)
-    }
-    
-    public func run() {
-        try? gdkInit(config: self.toDict() ?? [:])
-        
-    }
-}
-
-public struct CreateSubaccountParams: Codable {
-    enum CodingKeys: String, CodingKey {
-        case name = "name"
-        case type = "type"
-        case recoveryMnemonic = "recovery_mnemonic"
-        case recoveryXpub = "recovery_xpub"
-    }
-
-    public let name: String
-    public let type: AccountType
-    public let recoveryMnemonic: String?
-    public let recoveryXpub: String?
-
-    public init(name: String, type: AccountType, recoveryMnemonic: String? = nil, recoveryXpub: String? = nil) {
-        self.name = name
-        self.type = type
-        self.recoveryMnemonic = recoveryMnemonic
-        self.recoveryXpub = recoveryXpub
-    }
-}
-
-
 public class Wallet {
     private var channel: FlutterMethodChannel?
 
@@ -209,27 +11,57 @@ public class Wallet {
 
     private func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
+        case "walletInit":
+            walletInit(result: result)
         case "generateMnemonic":
             getMnemonic(result: result)
+        case "newWalletSession":
+            newWalletSession(result: result)
+        case "createWallet":
+            result("createWallet")
+        case "getReceiveAddress":
+            result("getReceiveAddress")
+        case "getBalance":
+            result("getBalance")
+        case "createSubAccount":
+            result("createSubAccount")
+        case "getSubAccounts":
+            result("getSubAccounts")
+        case "getSubAccount":
+            result("getSubAccount")
+        case "getTransactions":
+            result("getTransactions")
+        case "createTransaction":
+            result("createTransaction")
         default:
             result(FlutterMethodNotImplemented)
         }
     }
 
-    private func getMnemonic(result: @escaping FlutterResult) {
+    private func walletInit(result: @escaping FlutterResult) {
         let walletInit = GdkInit.defaults().run()
-        
-        do {
-            let newWallet = try GDKWallet.createNewWallet(createWith2FAEnabled: false)
-            let createSubAccountParams = CreateSubaccountParams(name: "btc1231", type: .segWit)
-            let createSubAccount = try? newWallet.createSubAccount(params: createSubAccountParams)
-            let subAccount = try? newWallet.fetchSubaccount(subAccountName: "btc123", subAccountType: AccountType.segWit.rawValue)
-            let receiveAddress = try? newWallet.getReceiveAddress()
-            
-            result(receiveAddress)
-        } catch {
-            // Handle error, possibly by sending an error message back to Flutter
-            result("WALLET_CREATION_ERROR: Failed to create wallet")
-        }
     }
+
+    private func getMnemonic(result: @escaping FlutterResult) {
+        let mnemonic = try? generateMnemonic12()
+        result(mnemonic)
+    }
+    
+    private func newWalletSession(result: @escaping FlutterResult){
+        
+    }
+
+
+
+//        do {
+//            let newWallet = try GDKWallet.createNewWallet(createWith2FAEnabled: false)
+//            let createSubAccountParams = CreateSubaccountParams(name: "btc1231", type: .segWit)
+//            let createSubAccount = try? newWallet.createSubAccount(params: createSubAccountParams)
+//            let subAccount = try? newWallet.fetchSubaccount(subAccountName: "btc123", subAccountType: AccountType.segWit.rawValue)
+//            let receiveAddress = try? newWallet.getReceiveAddress()
+//
+//            result(receiveAddress)
+//        } catch {
+//            result("WALLET_CREATION_ERROR: Failed to create wallet")
+//        }
 }

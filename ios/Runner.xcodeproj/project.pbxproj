@@ -14,6 +14,8 @@
 		539765072B5867DD00B50BAB /* Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539765052B5867DD00B50BAB /* Codable.swift */; };
 		53A096912B5DA26900E590CB /* AccountType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A096902B5DA26900E590CB /* AccountType.swift */; };
 		53A096932B5EBEF700E590CB /* NetworkSecurityCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A096922B5EBEF700E590CB /* NetworkSecurityCase.swift */; };
+		53A096972B5EF86300E590CB /* WalletActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A096962B5EF86300E590CB /* WalletActions.swift */; };
+		53A096992B5EF8BE00E590CB /* GdkInit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A096982B5EF8BE00E590CB /* GdkInit.swift */; };
 		53A685AD2B56D71700150C98 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FEF6746A539D384EECAA6FA /* Pods_Runner.framework */; };
 		53A685AF2B56D72B00150C98 /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53EC7E262B53299B000DA5CC /* Wallet.swift */; };
 		53EC7E022B5303B8000DA5CC /* greenaddress.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EC7DFC2B5303B7000DA5CC /* greenaddress.framework */; };
@@ -69,6 +71,8 @@
 		539765052B5867DD00B50BAB /* Codable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Codable.swift; sourceTree = "<group>"; };
 		53A096902B5DA26900E590CB /* AccountType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountType.swift; sourceTree = "<group>"; };
 		53A096922B5EBEF700E590CB /* NetworkSecurityCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkSecurityCase.swift; sourceTree = "<group>"; };
+		53A096962B5EF86300E590CB /* WalletActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletActions.swift; sourceTree = "<group>"; };
+		53A096982B5EF8BE00E590CB /* GdkInit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GdkInit.swift; sourceTree = "<group>"; };
 		53EC7DFC2B5303B7000DA5CC /* greenaddress.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = greenaddress.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		53EC7E222B5304BF000DA5CC /* GreenAddress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GreenAddress.swift; path = libgdk/share/gdk/GreenAddress.swift; sourceTree = SOURCE_ROOT; };
 		53EC7E262B53299B000DA5CC /* Wallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wallet.swift; path = greenaddress/Wallet.swift; sourceTree = SOURCE_ROOT; };
@@ -132,8 +136,10 @@
 				53A096902B5DA26900E590CB /* AccountType.swift */,
 				539765052B5867DD00B50BAB /* Codable.swift */,
 				539765042B5867DD00B50BAB /* Wally.swift */,
+				53A096962B5EF86300E590CB /* WalletActions.swift */,
 				53A096922B5EBEF700E590CB /* NetworkSecurityCase.swift */,
 				53EC7E262B53299B000DA5CC /* Wallet.swift */,
+				53A096982B5EF8BE00E590CB /* GdkInit.swift */,
 				53EC7E222B5304BF000DA5CC /* GreenAddress.swift */,
 			);
 			path = greenaddress;
@@ -465,10 +471,12 @@
 			files = (
 				539765062B5867DD00B50BAB /* Wally.swift in Sources */,
 				53A685AF2B56D72B00150C98 /* Wallet.swift in Sources */,
+				53A096992B5EF8BE00E590CB /* GdkInit.swift in Sources */,
 				539765072B5867DD00B50BAB /* Codable.swift in Sources */,
 				53EC7E232B5304BF000DA5CC /* GreenAddress.swift in Sources */,
 				53A096932B5EBEF700E590CB /* NetworkSecurityCase.swift in Sources */,
 				53A096912B5DA26900E590CB /* AccountType.swift in Sources */,
+				53A096972B5EF86300E590CB /* WalletActions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

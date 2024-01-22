@@ -7,13 +7,13 @@ class Channel {
     platform = MethodChannel(channelName);
   }
 
+  Future<void> walletInit() async {
+    await platform.invokeMethod('walletInit');
+  }
+
   Future<String> generateMnemonic() async {
     String result = await platform.invokeMethod('generateMnemonic');
     print('Mnemonic: $result');
     return result;
-  }
-
-  Future<String> registerUser() async {
-    return await platform.invokeMethod('registerUser');
   }
 }
