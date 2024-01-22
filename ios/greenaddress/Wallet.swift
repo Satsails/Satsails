@@ -2,7 +2,7 @@ import Flutter
 import Dispatch
 
 public class GDKWallet {
-    var SUBACCOUNT_TYPE = "2of2"
+    var SUBACCOUNT_TYPE = "p2pkh"
     var SUBACCOUNT_NAME = ""
     var PIN_DATA_FILENAME = "pin_data.json"
     var mnemonic: String?
@@ -21,7 +21,7 @@ public class GDKWallet {
         
         // Session network name options are: testnet, mainnet.
         wallet.session = try? GDKSession()
-        try? wallet.session?.connect(netParams: ["name": "testnet"])
+        try? wallet.session?.connect(netParams: ["name": "electrum-mainnet"])
         
         let credentials = ["mnemonic": wallet.mnemonic]
         try? wallet.session?.registerUserSW(details: credentials).call()
@@ -34,8 +34,19 @@ public class GDKWallet {
         return wallet
     }
     
+    func createSubAccount(params: CreateSubaccountParams) throws {
+        self.SUBACCOUNT_NAME = params.name
+        self.SUBACCOUNT_TYPE = params.type.rawValue
+        let accountType = ["name": params.name, "type": params.type.rawValue]
+        guard let subaccountsCreation = try? session?.createSubaccount(details: accountType) else {
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
+        }
+
+        let receiveAddressStatus = try? DummyResolve(call: subaccountsCreation)
+}
     
-    func fetchSubaccount() throws {
+    
+    func fetchSubaccount(subAccountName: String, subAccountType: String) throws {
         let credentials = ["mnemonic": self.mnemonic]
         guard let subaccountsCall = try? session?.getSubaccounts(details: credentials) else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
@@ -52,9 +63,9 @@ public class GDKWallet {
 
         // Iterate through subaccounts and find the matching one
         for subaccount in subaccounts {
-            if SUBACCOUNT_TYPE == subaccount["type"] as? String, SUBACCOUNT_NAME == subaccount["name"] as? String {
+            if subAccountType == subaccount["type"] as? String {
                 self.subaccountPointer = subaccount["pointer"]
-                return // Exit the loop once the matching subaccount is found
+                return
             }
         }
 
@@ -65,7 +76,7 @@ public class GDKWallet {
     func getReceiveAddress() throws -> String {
         // Fetch the subaccount if it's not already fetched
         if subaccountPointer == nil {
-            try fetchSubaccount()
+//            try fetchSubaccount()
         }
 
         let subAccount = ["subaccount": subaccountPointer]
@@ -166,6 +177,28 @@ public struct GdkInit: Codable {
     }
 }
 
+public struct CreateSubaccountParams: Codable {
+    enum CodingKeys: String, CodingKey {
+        case name = "name"
+        case type = "type"
+        case recoveryMnemonic = "recovery_mnemonic"
+        case recoveryXpub = "recovery_xpub"
+    }
+
+    public let name: String
+    public let type: AccountType
+    public let recoveryMnemonic: String?
+    public let recoveryXpub: String?
+
+    public init(name: String, type: AccountType, recoveryMnemonic: String? = nil, recoveryXpub: String? = nil) {
+        self.name = name
+        self.type = type
+        self.recoveryMnemonic = recoveryMnemonic
+        self.recoveryXpub = recoveryXpub
+    }
+}
+
+
 public class Wallet {
     private var channel: FlutterMethodChannel?
 
@@ -188,7 +221,9 @@ public class Wallet {
         
         do {
             let newWallet = try GDKWallet.createNewWallet(createWith2FAEnabled: false)
-            let subAccount = try? newWallet.fetchSubaccount()
+            let createSubAccountParams = CreateSubaccountParams(name: "btc1231", type: .segWit)
+            let createSubAccount = try? newWallet.createSubAccount(params: createSubAccountParams)
+            let subAccount = try? newWallet.fetchSubaccount(subAccountName: "btc123", subAccountType: AccountType.segWit.rawValue)
             let receiveAddress = try? newWallet.getReceiveAddress()
             
             result(receiveAddress)

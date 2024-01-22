@@ -8,7 +8,9 @@ class Channel {
   }
 
   Future<String> generateMnemonic() async {
-    return await platform.invokeMethod('generateMnemonic');
+    String result = await platform.invokeMethod('generateMnemonic');
+    print('Mnemonic: $result');
+    return result;
   }
 
   Future<String> registerUser() async {
