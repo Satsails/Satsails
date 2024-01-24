@@ -29,22 +29,38 @@ public class GDKWallet {
     var session: GDKSession?
     var subaccountPointer: Any?
     var lastBlockHeight = 0
+    var greenAccountID = ""
     
-    class func createNewWallet(createWith2FAEnabled: Bool, mnemonic: String? = nil, connectionType: NetworkSecurityCase) throws -> GDKWallet {
+    class func createNewWallet(mnemonic: String? = nil, connectionType: String) throws -> GDKWallet {
         let wallet = GDKWallet()
         wallet.mnemonic = mnemonic ?? ""
-        wallet.session = try? GDKSession()
-        try? wallet.session?.connect(netParams: ["name": ""])
-        let credentials = ["mnemonic": wallet.mnemonic]
-        try? wallet.session?.registerUserSW(details: credentials).call()
-        try? wallet.session?.loginUserSW(details: credentials).call()
-        if createWith2FAEnabled {
-            try? wallet.twofactorAuthEnabled(true)
+        wallet.session = GDKSession()
+
+        do {
+            try wallet.session?.connect(netParams: ["name": connectionType])
+            let credentials = ["mnemonic": wallet.mnemonic]
+
+            try wallet.session?.registerUserSW(details: credentials)
+            try wallet.session?.loginUserSW(details: credentials)
+
+            return wallet
+        } catch {
+            // Handle errors related to connecting, registration, or login
+            throw error
         }
-        
-        return wallet
     }
-    
+
+    class func loginWithMnemonic(mnemonic: String? = nil,  connectionType: String) throws -> GDKWallet {
+        let wallet = GDKWallet()
+        wallet.mnemonic = mnemonic ?? ""
+        wallet.session = GDKSession()
+        try wallet.session?.connect(netParams: ["name": connectionType])
+        let credentials = ["mnemonic": wallet.mnemonic]
+        try wallet.session?.loginUserSW(details: credentials as [String : Any])
+
+        return GDKWallet()
+    }
+
     func createSubAccount(params: CreateSubaccountParams) throws {
         self.SUBACCOUNT_NAME = params.name
         self.SUBACCOUNT_TYPE = params.type.rawValue
@@ -53,13 +69,17 @@ public class GDKWallet {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
         }
 
-        let receiveAddressStatus = try? DummyResolve(call: subaccountsCreation)
+        _ = try? DummyResolve(call: subaccountsCreation)
 }
     
     
     func fetchSubaccount(subAccountName: String, subAccountType: String) throws {
+//        self.gaid = self.session.get_subaccount(self.subaccount_pointer).resolve()['receiving_id']
+//        # The subaccount's receiving_id is the Green Account ID (GAID)
+//        # required for user registration with Transfer-Restricted assets.
+//        # Notification queue always has the last block in after session login.
         let credentials = ["mnemonic": self.mnemonic]
-        guard let subaccountsCall = try? session?.getSubaccounts(details: credentials) else {
+        guard let subaccountsCall = try? session?.getSubaccounts(details: credentials as [String : Any]) else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
         }
 
@@ -81,7 +101,7 @@ public class GDKWallet {
     func getReceiveAddress() throws -> String {
         let subAccount = ["subaccount": subaccountPointer]
         
-        guard let receiveAddressCall = try? session?.getReceiveAddress(details: subAccount) else {
+        guard let receiveAddressCall = try? session?.getReceiveAddress(details: subAccount as [String : Any]) else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get receive address"])
         }
 
@@ -93,9 +113,5 @@ public class GDKWallet {
         }
 
         return address
-    }
-
-    func twofactorAuthEnabled(_ isEnabled: Bool) throws {
-        // Implementation for enabling/disabling two-factor authentication
     }
 }

@@ -8,23 +8,43 @@ public class Wallet {
         channel = FlutterMethodChannel(name: "ios_wallet", binaryMessenger: controller.binaryMessenger)
         channel?.setMethodCallHandler(handle)
     }
-
+    
     private func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "walletInit":
             walletInit(result: result)
-        case "generateMnemonic":
+        case "getMnemonic":
             getMnemonic(result: result)
-        case "newWalletSession":
-            newWalletSession(result: result)
+//        case "loginWithMnemonic":
+//            guard let args = call.arguments as? [String: Any],
+//                  let mnemonic = args["mnemonic"] as? String,
+//                  let connectionType = args["connectionType"] as? String else {
+//                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
+//                return
+//            }
+//            loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType, result: result)
         case "createWallet":
-            result("createWallet")
+            guard let args = call.arguments as? [String: Any],
+                  let mnemonic = args["mnemonic"] as? String,
+                  let connectionType = args["connectionType"] as? String else {
+                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
+                return
+            }
+            return createWallet(mnemonic: mnemonic, connectionType: connectionType, result: result)
         case "getReceiveAddress":
             result("getReceiveAddress")
         case "getBalance":
             result("getBalance")
         case "createSubAccount":
-            result("createSubAccount")
+            guard let args = call.arguments as? [String: Any],
+                  let name = args["name"] as? String,
+                  let mnemonic = args["mnemonic"] as? String,
+                  let connectionType = args["connectionType"] as? String,
+                  let walletType = args["walletType"] as? String else {
+                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Incorrect arguments", details: nil))
+                return
+            }
+            createSubAccount(result: result, name: name, walletType: walletType, mnemonic: mnemonic, connectionType: connectionType)
         case "getSubAccounts":
             result("getSubAccounts")
         case "getSubAccount":
@@ -39,7 +59,7 @@ public class Wallet {
     }
 
     private func walletInit(result: @escaping FlutterResult) {
-        let walletInit = GdkInit.defaults().run()
+        GdkInit.defaults().run()
     }
 
     private func getMnemonic(result: @escaping FlutterResult) {
@@ -47,8 +67,32 @@ public class Wallet {
         result(mnemonic)
     }
     
-    private func newWalletSession(result: @escaping FlutterResult){
-        
+    private func loginWithMnemonic(mnemonic: String, connectionType: String) -> GDKWallet? {
+            let wallet = try? GDKWallet.loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType)
+            return wallet
+    }
+    
+    private func createWallet(mnemonic: String, connectionType: String, result: @escaping FlutterResult){
+        do {
+            var wallet = try? GDKWallet.createNewWallet(mnemonic: mnemonic, connectionType: connectionType)
+            wallet = loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType)
+//            return default wallet
+        } catch {
+            
+            result(FlutterError(code: "LOGIN_ERROR", message: "Failed to create wallet", details: nil))
+        }
+    }
+    
+
+    private func createSubAccount(result: @escaping FlutterResult, name: String, walletType: String, mnemonic: String, connectionType: String) {
+//        return created wallet
+//        do {
+//            let wallet = loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType)
+//            let createSubAccountParams = CreateSubaccountParams(name: name, type: .standard)
+//            let createSubAccount: () = try? wallet.createSubAccount(params: createSubAccountParams)
+//        } catch {
+//            result(FlutterError(code: "SUBACCOUNT_CREATION_ERROR", message: "Failed to create subaccount", details: nil))
+//        }
     }
 
 
