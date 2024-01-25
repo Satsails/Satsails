@@ -61,11 +61,11 @@ public class GDKWallet {
         return GDKWallet()
     }
 
-    func createSubAccount(params: CreateSubaccountParams) throws {
-        self.SUBACCOUNT_NAME = params.name
-        self.SUBACCOUNT_TYPE = params.type.rawValue
-        let accountType = ["name": params.name, "type": params.type.rawValue]
-        guard let subaccountsCreation = try? session?.createSubaccount(details: accountType) else {
+    func createSubAccount(params: [String: String]) throws {
+        self.SUBACCOUNT_NAME = params["name"] ?? ""
+        self.SUBACCOUNT_TYPE = params["type"] ?? ""
+        let accountType = ["name": SUBACCOUNT_NAME, "type": SUBACCOUNT_TYPE]
+        guard let subaccountsCreation = try session?.createSubaccount(details: accountType) else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
         }
 
@@ -74,12 +74,8 @@ public class GDKWallet {
     
     
     func fetchSubaccount(subAccountName: String, subAccountType: String) throws {
-//        self.gaid = self.session.get_subaccount(self.subaccount_pointer).resolve()['receiving_id']
-//        # The subaccount's receiving_id is the Green Account ID (GAID)
-//        # required for user registration with Transfer-Restricted assets.
-//        # Notification queue always has the last block in after session login.
         let credentials = ["mnemonic": self.mnemonic]
-        guard let subaccountsCall = try? session?.getSubaccounts(details: credentials as [String : Any]) else {
+        guard let subaccountsCall = try? self.session?.getSubaccounts(details: credentials as [String : Any]) else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
         }
 
@@ -91,9 +87,12 @@ public class GDKWallet {
         }
 
         for subaccount in subaccounts {
-            if subAccountType == subaccount["type"] as? String {
+            if subAccountType == subaccount["type"] as? String || subAccountName == subaccount["name"] as? String  {
                 self.subaccountPointer = subaccount["pointer"]
-                return
+                let accountCall = try? self.session?.getSubaccount(subaccount: self.subaccountPointer as! UInt32)
+                let accountStatus = try DummyResolve(call: accountCall!)
+                let result = accountStatus["result"] as? [String: Any]
+                self.greenAccountID = result?["receiving_id"] as! String
             }
         }
     }

@@ -72,13 +72,12 @@ public class Wallet {
             return wallet
     }
     
-    private func createWallet(mnemonic: String, connectionType: String, result: @escaping FlutterResult){
+    private func createWallet(mnemonic: String, connectionType: String, result: @escaping FlutterResult) -> [String: String]{
         do {
-            var wallet = try? GDKWallet.createNewWallet(mnemonic: mnemonic, connectionType: connectionType)
-            wallet = loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType)
-//            return default wallet
+            var wallet = try GDKWallet.createNewWallet(mnemonic: mnemonic, connectionType: connectionType)
+            let subAccount = try wallet.fetchSubaccount(subAccountName: "", subAccountType: "")
+            return ["gaid": wallet.greenAccountID, "mnemonic": wallet.mnemonic]
         } catch {
-            
             result(FlutterError(code: "LOGIN_ERROR", message: "Failed to create wallet", details: nil))
         }
     }
