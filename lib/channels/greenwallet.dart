@@ -16,12 +16,14 @@ class Channel {
     String result = await platform.invokeMethod('getMnemonic');
     return result;
   }
-  Future<void> createWallet({String? mnemonic, String connectionType = 'electrum-mainnet'}) async {
+
+  Future<Map<String, dynamic>> createWallet({String? mnemonic, String connectionType = 'electrum-mainnet'}) async {
     mnemonic ??= await getMnemonic();
-     await platform.invokeMethod('createWallet', <String, dynamic>{
+    final walletInfo = await platform.invokeMethod('createWallet', <String, dynamic>{
       'mnemonic': mnemonic,
       'connectionType': connectionType,
     });
+    return Map<String, dynamic>.from(walletInfo);
   }
   //
   //

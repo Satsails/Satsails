@@ -9,8 +9,9 @@ void main() async {
 class MainApp extends StatelessWidget {
   const MainApp({Key? key});
 
-  Future<void> init() async {
-    await greenwallet.Channel('ios_wallet').createWallet(connectionType: 'mainnet');
+  Future<Map<String, dynamic>> init() async {
+    Map<String, dynamic> walletInfo = await greenwallet.Channel('ios_wallet').createWallet(connectionType: 'mainnet');
+    return walletInfo;
   }
 
   @override
@@ -18,16 +19,16 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       home: FutureBuilder(
         future: init(),
-        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
           } else {
             if (snapshot.hasError)
               return Text('Error: ${snapshot.error}');
             else
-              return const Scaffold(
+              return Scaffold(
                 body: Center(
-                  child: Text('Hello World'),
+                  child: Text('Wallet Info: ${snapshot.data.toString()}'),
                 ),
               );
           }

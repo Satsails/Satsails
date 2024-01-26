@@ -15,14 +15,6 @@ public class Wallet {
             walletInit(result: result)
         case "getMnemonic":
             getMnemonic(result: result)
-//        case "loginWithMnemonic":
-//            guard let args = call.arguments as? [String: Any],
-//                  let mnemonic = args["mnemonic"] as? String,
-//                  let connectionType = args["connectionType"] as? String else {
-//                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
-//                return
-//            }
-//            loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType, result: result)
         case "createWallet":
             guard let args = call.arguments as? [String: Any],
                   let mnemonic = args["mnemonic"] as? String,
@@ -30,7 +22,7 @@ public class Wallet {
                 result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
                 return
             }
-            return createWallet(mnemonic: mnemonic, connectionType: connectionType, result: result)
+            createWallet(mnemonic: mnemonic, connectionType: connectionType, result: result)
         case "getReceiveAddress":
             result("getReceiveAddress")
         case "getBalance":
@@ -69,18 +61,27 @@ public class Wallet {
     
     private func loginWithMnemonic(mnemonic: String, connectionType: String) -> GDKWallet? {
             let wallet = try? GDKWallet.loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType)
-            return wallet
+        return wallet
     }
     
-    private func createWallet(mnemonic: String, connectionType: String, result: @escaping FlutterResult) -> [String: String]{
+    private func createWallet(mnemonic: String, connectionType: String, result: @escaping FlutterResult) {
         do {
-            var wallet = try GDKWallet.createNewWallet(mnemonic: mnemonic, connectionType: connectionType)
-            let subAccount = try wallet.fetchSubaccount(subAccountName: "", subAccountType: "")
-            return ["gaid": wallet.greenAccountID, "mnemonic": wallet.mnemonic]
+            let wallet = try GDKWallet.createNewWallet(mnemonic: mnemonic, connectionType: connectionType)
+            do {
+                let subAccount = try wallet.fetchSubaccount(subAccountName: "", subAccountType: "")
+            } catch {
+                result(FlutterError(code: "SUBACCOUNT_ERROR", message: "Failed to fetch subaccount", details: nil))
+            };
+            let walletInfo: [String: Any] = ["gaid": wallet.greenAccountID, "mnemonic": wallet.mnemonic ?? ""]
+            result(walletInfo)
+            
         } catch {
-            result(FlutterError(code: "LOGIN_ERROR", message: "Failed to create wallet", details: nil))
+            result(FlutterError(code: "WALLET_CREATION_ERROR", message: "Failed to create wallet", details: nil))
         }
+        
     }
+
+
     
 
     private func createSubAccount(result: @escaping FlutterResult, name: String, walletType: String, mnemonic: String, connectionType: String) {
