@@ -37,10 +37,6 @@ public class Wallet {
                 return
             }
             createSubAccount(result: result, name: name, walletType: walletType, mnemonic: mnemonic, connectionType: connectionType)
-        case "getSubAccounts":
-            result("getSubAccounts")
-        case "getSubAccount":
-            result("getSubAccount")
         case "getTransactions":
             result("getTransactions")
         case "createTransaction":
@@ -72,7 +68,7 @@ public class Wallet {
             } catch {
                 result(FlutterError(code: "SUBACCOUNT_ERROR", message: "Failed to fetch subaccount", details: nil))
             };
-            let walletInfo: [String: Any] = ["gaid": wallet.greenAccountID, "mnemonic": wallet.mnemonic ?? ""]
+            let walletInfo: [String: Any] = ["gaid": wallet.greenAccountID, "mnemonic": wallet.mnemonic ?? "", "pointer": wallet.subaccountPointer]
             result(walletInfo)
             
         } catch {
@@ -82,20 +78,36 @@ public class Wallet {
     }
 
 
-    
-
     private func createSubAccount(result: @escaping FlutterResult, name: String, walletType: String, mnemonic: String, connectionType: String) {
-//        return created wallet
-//        do {
-//            let wallet = loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType)
-//            let createSubAccountParams = CreateSubaccountParams(name: name, type: .standard)
-//            let createSubAccount: () = try? wallet.createSubAccount(params: createSubAccountParams)
-//        } catch {
-//            result(FlutterError(code: "SUBACCOUNT_CREATION_ERROR", message: "Failed to create subaccount", details: nil))
-//        }
+        do {
+            guard let accountType = AccountType(rawValue: walletType) else {
+                result(FlutterError(code: "INVALID_WALLET_TYPE", message: "Invalid wallet type", details: nil))
+                return
+            }
+            guard let wallet = loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
+                result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
+                return
+            }
+            let createSubAccountParams = CreateSubaccountParams(name: name, type: accountType)
+            let createSubAccount: () = try wallet.createSubAccount(params: createSubAccountParams)
+            let subAccount = try wallet.fetchSubaccount(subAccountName: name, subAccountType: walletType)
+            let walletInfo: [String: Any] = ["gaid": wallet.greenAccountID, "mnemonic": wallet.mnemonic ?? "", "pointer": wallet.subaccountPointer]
+            result(walletInfo)
+        } catch {
+            result(FlutterError(code: "SUBACCOUNT_CREATION_ERROR", message: "Failed to create subaccount", details: nil))
+        }
     }
-
-
+    
+    private func getReceiveAddress(result: @escaping FlutterResult, pointer: Int64, mnemonic: String, connectionType: String) {
+        guard let wallet = loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
+            result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
+            return
+        }
+        wallet.subaccountPointer = pointer
+        let receiveAddress = try? wallet.getReceiveAddress()
+        result(receiveAddress)
+        
+    }
 
 //        do {
 //            let newWallet = try GDKWallet.createNewWallet(createWith2FAEnabled: false)

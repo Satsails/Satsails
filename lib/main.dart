@@ -9,9 +9,12 @@ void main() async {
 class MainApp extends StatelessWidget {
   const MainApp({Key? key});
 
-  Future<Map<String, dynamic>> init() async {
-    Map<String, dynamic> walletInfo = await greenwallet.Channel('ios_wallet').createWallet(connectionType: 'mainnet');
-    return walletInfo;
+  Future<String> init() async {
+    Map<String, dynamic> walletInfo = await greenwallet.Channel('ios_wallet').createWallet(connectionType: 'electrum-mainnet');
+    Map<String, dynamic> newWallet = await greenwallet.Channel('ios_wallet').createSubAccount(mnemonic: walletInfo['mnemonic']);
+    print('newWallet: $newWallet');
+    String address = await greenwallet.Channel('ios_wallet').getReceiveAddress(pointer: newWallet['pointer'], mnemonic: walletInfo['mnemonic'], connectionType: 'electrum-mainnet');
+    return address;
   }
 
   @override
@@ -19,7 +22,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       home: FutureBuilder(
         future: init(),
-        builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
           } else {

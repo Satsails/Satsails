@@ -58,14 +58,14 @@ public class GDKWallet {
         let credentials = ["mnemonic": wallet.mnemonic]
         try wallet.session?.loginUserSW(details: credentials as [String : Any])
 
-        return GDKWallet()
+        return wallet
     }
 
-    func createSubAccount(params: [String: String]) throws {
-        self.SUBACCOUNT_NAME = params["name"] ?? ""
-        self.SUBACCOUNT_TYPE = params["type"] ?? ""
+    func createSubAccount(params: CreateSubaccountParams) throws {
+        self.SUBACCOUNT_NAME = params.name
+        self.SUBACCOUNT_TYPE = params.type.rawValue
         let accountType = ["name": SUBACCOUNT_NAME, "type": SUBACCOUNT_TYPE]
-        guard let subaccountsCreation = try session?.createSubaccount(details: accountType) else {
+        guard let subaccountsCreation = try? session?.createSubaccount(details: accountType) else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
         }
 
@@ -94,6 +94,26 @@ public class GDKWallet {
                 let result = accountStatus["result"] as? [String: Any]
                 self.greenAccountID = result?["receiving_id"] as! String
             }
+        }
+    }
+    
+    func getAllSubaccounts(subAccountName: String, subAccountType: String) -> Result<[[String: Any]], Error> {
+        do {
+            let credentials = ["mnemonic": self.mnemonic]
+            guard let subaccountsCall = try? self.session?.getSubaccounts(details: credentials as [String : Any]) else {
+                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
+            }
+
+            let subaccountsStatus = try DummyResolve(call: subaccountsCall)
+
+            guard let result = subaccountsStatus["result"] as? [String: Any],
+                  let subaccounts = result["subaccounts"] as? [[String: Any]] else {
+                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to extract subaccounts data"])
+            }
+
+            return .success(subaccounts)
+        } catch {
+            return .failure(error)
         }
     }
 
