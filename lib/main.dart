@@ -12,7 +12,6 @@ class MainApp extends StatelessWidget {
   Future<String> init() async {
     Map<String, dynamic> walletInfo = await greenwallet.Channel('ios_wallet').createWallet(connectionType: 'electrum-mainnet');
     Map<String, dynamic> newWallet = await greenwallet.Channel('ios_wallet').createSubAccount(mnemonic: walletInfo['mnemonic']);
-    print('newWallet: $newWallet');
     String address = await greenwallet.Channel('ios_wallet').getReceiveAddress(pointer: newWallet['pointer'], mnemonic: walletInfo['mnemonic'], connectionType: 'electrum-mainnet');
     return address;
   }

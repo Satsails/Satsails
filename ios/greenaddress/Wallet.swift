@@ -3,7 +3,7 @@ import Dispatch
 
 public class Wallet {
     private var channel: FlutterMethodChannel?
-
+    
     public init(controller: FlutterViewController) {
         channel = FlutterMethodChannel(name: "ios_wallet", binaryMessenger: controller.binaryMessenger)
         channel?.setMethodCallHandler(handle)
@@ -24,7 +24,14 @@ public class Wallet {
             }
             createWallet(mnemonic: mnemonic, connectionType: connectionType, result: result)
         case "getReceiveAddress":
-            result("getReceiveAddress")
+            guard let args = call.arguments as? [String: Any],
+                  let mnemonic = args["mnemonic"] as? String,
+                  let connectionType = args["connectionType"] as? String,
+                  let pointer = args["pointer"] as? Int64 else {
+                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
+                return
+            }
+            getReceiveAddress(result: result, pointer: pointer, mnemonic: mnemonic, connectionType: connectionType)
         case "getBalance":
             result("getBalance")
         case "createSubAccount":
@@ -45,18 +52,18 @@ public class Wallet {
             result(FlutterMethodNotImplemented)
         }
     }
-
+    
     private func walletInit(result: @escaping FlutterResult) {
         GdkInit.defaults().run()
     }
-
+    
     private func getMnemonic(result: @escaping FlutterResult) {
         let mnemonic = try? generateMnemonic12()
         result(mnemonic)
     }
     
     private func loginWithMnemonic(mnemonic: String, connectionType: String) -> GDKWallet? {
-            let wallet = try? GDKWallet.loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType)
+        let wallet = try? GDKWallet.loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType)
         return wallet
     }
     
@@ -76,8 +83,8 @@ public class Wallet {
         }
         
     }
-
-
+    
+    
     private func createSubAccount(result: @escaping FlutterResult, name: String, walletType: String, mnemonic: String, connectionType: String) {
         do {
             guard let accountType = AccountType(rawValue: walletType) else {
@@ -108,16 +115,4 @@ public class Wallet {
         result(receiveAddress)
         
     }
-
-//        do {
-//            let newWallet = try GDKWallet.createNewWallet(createWith2FAEnabled: false)
-//            let createSubAccountParams = CreateSubaccountParams(name: "btc1231", type: .segWit)
-//            let createSubAccount = try? newWallet.createSubAccount(params: createSubAccountParams)
-//            let subAccount = try? newWallet.fetchSubaccount(subAccountName: "btc123", subAccountType: AccountType.segWit.rawValue)
-//            let receiveAddress = try? newWallet.getReceiveAddress()
-//
-//            result(receiveAddress)
-//        } catch {
-//            result("WALLET_CREATION_ERROR: Failed to create wallet")
-//        }
 }
