@@ -53,10 +53,19 @@ public class Wallet {
             createSubAccount(result: result, name: name, walletType: walletType, mnemonic: mnemonic, connectionType: connectionType)
         case "getTransactions":
             result("getTransactions")
-        case "createTransaction":
-            result("createTransaction")
-        case "fetchSubaccount":
-            result("fetchSubaccount")
+        case "sendToAddress":
+            result("sendToAddress")
+        case "getPointer":
+            guard let args = call.arguments as? [String: Any],
+                  let name = args["name"] as? String,
+                  let mnemonic = args["mnemonic"] as? String,
+                  let connectionType = args["connectionType"] as? String,
+                  let walletType = args["walletType"] as? String else {
+                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Incorrect arguments", details: nil))
+                return
+            }
+            getPointer(result: result,  connectionType: connectionType, mnemonic: mnemonic, name: name, walletType: walletType)
+            return
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -140,8 +149,27 @@ public class Wallet {
             let balance = try wallet?.getWalletBalance()
             result(balance)
         }catch let error as NSError {
-                result(FlutterError(code: "BALANCE_ERROR", message: "Error fetching balance: \(error.localizedDescription)", details: nil))
-            }
-            
+            result(FlutterError(code: "BALANCE_ERROR", message: "Error fetching balance: \(error.localizedDescription)", details: nil))
         }
+        
+    }
+    
+    private func getPointer(result: @escaping FlutterResult, connectionType: String, mnemonic: String, name: String, walletType: String) {
+        do{
+            guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
+                result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
+                return
+            }
+            guard let accountType = AccountType(rawValue: walletType) else {
+                result(FlutterError(code: "INVALID_WALLET_TYPE", message: "Invalid wallet type", details: nil))
+                return
+            }
+            let createSubAccountParams = CreateSubaccountParams(name: name, type: accountType);
+            let _: () = try wallet.createSubAccount(params: createSubAccountParams);
+            _ = try wallet.fetchSubaccount(subAccountName: name, subAccountType: walletType);
+            result(wallet.subaccountPointer as Any)
+        }catch let error as NSError {
+            result(FlutterError(code: "POINTER_ERROR", message: "Error getting pointer: \(error.localizedDescription)", details: nil))
+        }
+    }
 }

@@ -55,4 +55,14 @@ class Channel {
     });
     return Map<String, dynamic>.from(balance);
   }
+
+  Future<int> getPointer({String mnemonic= "", String connectionType = 'electrum-mainnet', String name = '', String walletType = 'p2pkh'}) async {
+    final pointer = await platform.invokeMethod('getPointer', <String, dynamic>{
+      'mnemonic': mnemonic,
+      'connectionType': connectionType,
+      'name': name,
+      'walletType': walletType,
+    });
+    return pointer;
+  }
 }

@@ -13,7 +13,7 @@ class MainApp extends StatelessWidget {
     Map<String, dynamic> walletInfo = await greenwallet.Channel('ios_wallet').createWallet(connectionType: 'electrum-mainnet');
     // Map<String, dynamic> newWallet = await greenwallet.Channel('ios_wallet').createSubAccount(mnemonic: walletInfo['mnemonic']);
     // String address = await greenwallet.Channel('ios_wallet').getReceiveAddress(pointer: newWallet['pointer'], mnemonic: walletInfo['mnemonic'], connectionType: 'electrum-mainnet');
-
+    // int pointer = await greenwallet.Channel('ios_wallet').getPointer(mnemonic: walletInfo['mnemonic']);
     Map<String, dynamic> balance = await greenwallet.Channel('ios_wallet').getBalance(pointer: walletInfo['pointer'], mnemonic: walletInfo['mnemonic'], connectionType: 'electrum-mainnet');
     return balance;
   }
