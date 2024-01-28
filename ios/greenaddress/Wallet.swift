@@ -33,7 +33,14 @@ public class Wallet {
             }
             getReceiveAddress(result: result, pointer: pointer, mnemonic: mnemonic, connectionType: connectionType)
         case "getBalance":
-            result("getBalance")
+            guard let args = call.arguments as? [String: Any],
+                  let mnemonic = args["mnemonic"] as? String,
+                  let connectionType = args["connectionType"] as? String,
+                  let pointer = args["pointer"] as? Int64 else {
+                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
+                return
+            }
+            getBalance(result: result, connectionType: connectionType, pointer: pointer, mnemonic: mnemonic)
         case "createSubAccount":
             guard let args = call.arguments as? [String: Any],
                   let name = args["name"] as? String,
@@ -48,6 +55,8 @@ public class Wallet {
             result("getTransactions")
         case "createTransaction":
             result("createTransaction")
+        case "fetchSubaccount":
+            result("fetchSubaccount")
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -62,20 +71,22 @@ public class Wallet {
         result(mnemonic)
     }
     
-    private func loginWithMnemonic(mnemonic: String, connectionType: String) -> GDKWallet? {
-        let wallet = try? GDKWallet.loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType)
+    private func loginWithMnemonic(mnemonic: String, connectionType: String) throws -> GDKWallet? {
+        let wallet =  GDKWallet()
+        try wallet.loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType)
         return wallet
     }
     
     private func createWallet(mnemonic: String, connectionType: String, result: @escaping FlutterResult) {
         do {
-            let wallet = try GDKWallet.createNewWallet(mnemonic: mnemonic, connectionType: connectionType)
+            let wallet =  GDKWallet()
+            try wallet.createNewWallet(mnemonic: mnemonic, connectionType: connectionType)
             do {
-                let subAccount = try wallet.fetchSubaccount(subAccountName: "", subAccountType: "")
+                _ = try wallet.fetchSubaccount(subAccountName: "", subAccountType: "")
             } catch {
                 result(FlutterError(code: "SUBACCOUNT_ERROR", message: "Failed to fetch subaccount", details: nil))
             };
-            let walletInfo: [String: Any] = ["gaid": wallet.greenAccountID, "mnemonic": wallet.mnemonic ?? "", "pointer": wallet.subaccountPointer]
+            let walletInfo: [String: Any] = ["gaid": wallet.greenAccountID, "mnemonic": wallet.mnemonic ?? "", "pointer": wallet.subaccountPointer as Any]
             result(walletInfo)
             
         } catch {
@@ -91,14 +102,14 @@ public class Wallet {
                 result(FlutterError(code: "INVALID_WALLET_TYPE", message: "Invalid wallet type", details: nil))
                 return
             }
-            guard let wallet = loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
+            guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
                 result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
                 return
             }
             let createSubAccountParams = CreateSubaccountParams(name: name, type: accountType)
-            let createSubAccount: () = try wallet.createSubAccount(params: createSubAccountParams)
-            let subAccount = try wallet.fetchSubaccount(subAccountName: name, subAccountType: walletType)
-            let walletInfo: [String: Any] = ["gaid": wallet.greenAccountID, "mnemonic": wallet.mnemonic ?? "", "pointer": wallet.subaccountPointer]
+            let _: () = try wallet.createSubAccount(params: createSubAccountParams)
+            _ = try wallet.fetchSubaccount(subAccountName: name, subAccountType: walletType)
+            let walletInfo: [String: Any] = ["gaid": wallet.greenAccountID, "mnemonic": wallet.mnemonic ?? "", "pointer": wallet.subaccountPointer as Any]
             result(walletInfo)
         } catch {
             result(FlutterError(code: "SUBACCOUNT_CREATION_ERROR", message: "Failed to create subaccount", details: nil))
@@ -106,13 +117,31 @@ public class Wallet {
     }
     
     private func getReceiveAddress(result: @escaping FlutterResult, pointer: Int64, mnemonic: String, connectionType: String) {
-        guard let wallet = loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
-            result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
-            return
+        do {
+            let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType)
+            wallet?.subaccountPointer = pointer
+            let receiveAddress = try wallet?.getReceiveAddress()
+            
+            guard let address = receiveAddress else {
+                result(FlutterError(code: "ADDRESS_ERROR", message: "Failed to get receive address", details: nil))
+                return
+            }
+            
+            result(address)
+        } catch let error as NSError {
+            result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic: \(error.localizedDescription)", details: nil))
         }
-        wallet.subaccountPointer = pointer
-        let receiveAddress = try? wallet.getReceiveAddress()
-        result(receiveAddress)
-        
     }
+    
+    private func getBalance(result: @escaping FlutterResult,  connectionType: String, pointer: Int64, mnemonic: String) {
+        do{
+            let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType)
+            wallet?.subaccountPointer = pointer
+            let balance = try wallet?.getWalletBalance()
+            result(balance)
+        }catch let error as NSError {
+                result(FlutterError(code: "BALANCE_ERROR", message: "Error fetching balance: \(error.localizedDescription)", details: nil))
+            }
+            
+        }
 }

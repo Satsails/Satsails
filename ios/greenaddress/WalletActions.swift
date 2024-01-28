@@ -1,3 +1,4 @@
+//Change error throwing from ns to expose them to flutter
 import Flutter
 
 public struct CreateSubaccountParams: Codable {
@@ -7,12 +8,12 @@ public struct CreateSubaccountParams: Codable {
         case recoveryMnemonic = "recovery_mnemonic"
         case recoveryXpub = "recovery_xpub"
     }
-
+    
     public let name: String
     public let type: AccountType
     public let recoveryMnemonic: String?
     public let recoveryXpub: String?
-
+    
     public init(name: String, type: AccountType, recoveryMnemonic: String? = nil, recoveryXpub: String? = nil) {
         self.name = name
         self.type = type
@@ -30,37 +31,74 @@ public class GDKWallet {
     var subaccountPointer: Any?
     var lastBlockHeight = 0
     var greenAccountID = ""
+    var blockHeight: UInt32 = 0
+    var uuid = UUID()
     
-    class func createNewWallet(mnemonic: String? = nil, connectionType: String) throws -> GDKWallet {
-        let wallet = GDKWallet()
-        wallet.mnemonic = mnemonic ?? ""
-        wallet.session = GDKSession()
-
+    public func newNotification(notification: [String: Any]?) {
+        guard let notificationEvent = notification?["event"] as? String,
+              let event = EventType(rawValue: notificationEvent),
+              let data = notification?[event.rawValue] as? [String: Any] else {
+            return
+        }
+        switch event {
+        case .Block:
+            guard let height = data["block_height"] as? UInt32 else { break }
+            blockHeight = height
+        case .Subaccount:
+            let txEvent = SubaccountEvent.from(data) as? SubaccountEvent
+            post(event: .Block, userInfo: data)
+            post(event: .Transaction, userInfo: data)
+        case .Transaction:
+            post(event: .Transaction, userInfo: data)
+            let txEvent = TransactionEvent.from(data) as? TransactionEvent
+            if txEvent?.type == "incoming" {
+                txEvent?.subAccounts.forEach { pointer in
+                    post(event: .AddressChanged, userInfo: ["pointer": UInt32(pointer)])
+                }
+            }
+            post(event: .Tor, userInfo: data)
+        case .Ticker:
+            post(event: .Ticker, userInfo: data)
+        default:
+            break
+        }
+    }
+    
+    public func post(event: EventType, object: Any? = nil, userInfo: [String: Any] = [:]) {
+        var data = userInfo
+        data["session_id"] = uuid.uuidString
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: event.rawValue),
+                                        object: object, userInfo: data)
+    }
+    
+    
+    func createNewWallet(mnemonic: String? = nil, connectionType: String) throws -> GDKWallet {
+        self.mnemonic = mnemonic ?? ""
+        self.session = GDKSession()
         do {
-            try wallet.session?.connect(netParams: ["name": connectionType])
-            let credentials = ["mnemonic": wallet.mnemonic]
-
-            try wallet.session?.registerUserSW(details: credentials)
-            try wallet.session?.loginUserSW(details: credentials)
-
-            return wallet
+            try self.session?.connect(netParams: ["name": connectionType])
+            let credentials = ["mnemonic": self.mnemonic]
+            
+            try self.session?.registerUserSW(details: credentials)
+            try self.session?.loginUserSW(details: credentials)
+            
+            return self
         } catch {
             // Handle errors related to connecting, registration, or login
             throw error
         }
     }
-
-    class func loginWithMnemonic(mnemonic: String? = nil,  connectionType: String) throws -> GDKWallet {
-        let wallet = GDKWallet()
-        wallet.mnemonic = mnemonic ?? ""
-        wallet.session = GDKSession()
-        try wallet.session?.connect(netParams: ["name": connectionType])
-        let credentials = ["mnemonic": wallet.mnemonic]
-        try wallet.session?.loginUserSW(details: credentials as [String : Any])
-
-        return wallet
+    
+    func loginWithMnemonic(mnemonic: String? = nil,  connectionType: String) throws -> GDKWallet {
+        self.mnemonic = mnemonic ?? ""
+        self.session = GDKSession()
+        try self.session?.connect(netParams: ["name": connectionType])
+        let credentials = ["mnemonic": self.mnemonic]
+        try self.session?.loginUserSW(details: credentials as [String : Any])
+        
+        return self
     }
-
+    
     func createSubAccount(params: CreateSubaccountParams) throws {
         self.SUBACCOUNT_NAME = params.name
         self.SUBACCOUNT_TYPE = params.type.rawValue
@@ -68,9 +106,9 @@ public class GDKWallet {
         guard let subaccountsCreation = try? session?.createSubaccount(details: accountType) else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
         }
-
+        
         _ = try? DummyResolve(call: subaccountsCreation)
-}
+    }
     
     
     func fetchSubaccount(subAccountName: String, subAccountType: String) throws {
@@ -78,14 +116,14 @@ public class GDKWallet {
         guard let subaccountsCall = try? self.session?.getSubaccounts(details: credentials as [String : Any]) else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
         }
-
+        
         let subaccountsStatus = try DummyResolve(call: subaccountsCall)
-
+        
         guard let result = subaccountsStatus["result"] as? [String: Any],
               let subaccounts = result["subaccounts"] as? [[String: Any]] else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to extract subaccounts data"])
         }
-
+        
         for subaccount in subaccounts {
             if subAccountType == subaccount["type"] as? String || subAccountName == subaccount["name"] as? String  {
                 self.subaccountPointer = subaccount["pointer"]
@@ -103,34 +141,57 @@ public class GDKWallet {
             guard let subaccountsCall = try? self.session?.getSubaccounts(details: credentials as [String : Any]) else {
                 throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
             }
-
+            
             let subaccountsStatus = try DummyResolve(call: subaccountsCall)
-
+            
             guard let result = subaccountsStatus["result"] as? [String: Any],
                   let subaccounts = result["subaccounts"] as? [[String: Any]] else {
                 throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to extract subaccounts data"])
             }
-
+            
             return .success(subaccounts)
         } catch {
             return .failure(error)
         }
     }
-
+    
     func getReceiveAddress() throws -> String {
         let subAccount = ["subaccount": subaccountPointer]
         
         guard let receiveAddressCall = try? session?.getReceiveAddress(details: subAccount as [String : Any]) else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get receive address"])
         }
-
+        
         let receiveAddressStatus = try DummyResolve(call: receiveAddressCall)
-
+        
         guard let result = receiveAddressStatus["result"] as? [String: Any],
               let address = result["address"] as? String else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to extract receive address"])
         }
-
+        
         return address
+    }
+    
+    func getWalletBalance() throws -> Any {
+        let params = ["subaccount": self.subaccountPointer, "num_confs": 0]
+        do{
+            guard let balanceCall = try? session?.getBalance(details: params as [String : Any]) else {
+                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to balance"])
+            }
+            let receiveAddressStatus = try DummyResolve(call: balanceCall)
+            return receiveAddressStatus["result"] ?? [:]
+        }
+        catch{
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "cannot get balance"])
+        }
+    }
+    
+    func getNotifications()throws -> GDKWallet{
+        do{
+            try self.session?.setNotificationHandler(notificationCompletionHandler: newNotification)
+        }catch{
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch notifications"])
+        }
+        return self
     }
 }

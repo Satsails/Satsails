@@ -18,6 +18,8 @@
 		53A096992B5EF8BE00E590CB /* GdkInit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A096982B5EF8BE00E590CB /* GdkInit.swift */; };
 		53A685AD2B56D71700150C98 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FEF6746A539D384EECAA6FA /* Pods_Runner.framework */; };
 		53A685AF2B56D72B00150C98 /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53EC7E262B53299B000DA5CC /* Wallet.swift */; };
+		53E2A5452B653BD5001A26F2 /* EventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53E2A5442B653BD5001A26F2 /* EventType.swift */; };
+		53E2A5472B66582F001A26F2 /* Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53E2A5462B66582F001A26F2 /* Events.swift */; };
 		53EC7E022B5303B8000DA5CC /* greenaddress.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EC7DFC2B5303B7000DA5CC /* greenaddress.framework */; };
 		53EC7E032B5303B8000DA5CC /* greenaddress.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 53EC7DFC2B5303B7000DA5CC /* greenaddress.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		53EC7E232B5304BF000DA5CC /* GreenAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53EC7E222B5304BF000DA5CC /* GreenAddress.swift */; };
@@ -73,6 +75,8 @@
 		53A096922B5EBEF700E590CB /* NetworkSecurityCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkSecurityCase.swift; sourceTree = "<group>"; };
 		53A096962B5EF86300E590CB /* WalletActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletActions.swift; sourceTree = "<group>"; };
 		53A096982B5EF8BE00E590CB /* GdkInit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GdkInit.swift; sourceTree = "<group>"; };
+		53E2A5442B653BD5001A26F2 /* EventType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventType.swift; sourceTree = "<group>"; };
+		53E2A5462B66582F001A26F2 /* Events.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Events.swift; sourceTree = "<group>"; };
 		53EC7DFC2B5303B7000DA5CC /* greenaddress.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = greenaddress.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		53EC7E222B5304BF000DA5CC /* GreenAddress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GreenAddress.swift; path = libgdk/share/gdk/GreenAddress.swift; sourceTree = SOURCE_ROOT; };
 		53EC7E262B53299B000DA5CC /* Wallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wallet.swift; path = greenaddress/Wallet.swift; sourceTree = SOURCE_ROOT; };
@@ -133,6 +137,8 @@
 		53EC7DFD2B5303B7000DA5CC /* greenaddress */ = {
 			isa = PBXGroup;
 			children = (
+				53E2A5462B66582F001A26F2 /* Events.swift */,
+				53E2A5442B653BD5001A26F2 /* EventType.swift */,
 				53A096902B5DA26900E590CB /* AccountType.swift */,
 				539765052B5867DD00B50BAB /* Codable.swift */,
 				539765042B5867DD00B50BAB /* Wally.swift */,
@@ -473,6 +479,8 @@
 				53A685AF2B56D72B00150C98 /* Wallet.swift in Sources */,
 				53A096992B5EF8BE00E590CB /* GdkInit.swift in Sources */,
 				539765072B5867DD00B50BAB /* Codable.swift in Sources */,
+				53E2A5472B66582F001A26F2 /* Events.swift in Sources */,
+				53E2A5452B653BD5001A26F2 /* EventType.swift in Sources */,
 				53EC7E232B5304BF000DA5CC /* GreenAddress.swift in Sources */,
 				53A096932B5EBEF700E590CB /* NetworkSecurityCase.swift in Sources */,
 				53A096912B5DA26900E590CB /* AccountType.swift in Sources */,

@@ -38,12 +38,21 @@ class Channel {
     return Map<String, dynamic>.from(walletInfo);
   }
 
-  Future<String> getReceiveAddress({int pointer = 1, String mnemonic= "", String connectionType = 'electrum-mainnet' }) async {
+  Future<String> getReceiveAddress({int pointer = 0, String mnemonic= "", String connectionType = 'electrum-mainnet' }) async {
     final address = await platform.invokeMethod('getReceiveAddress', <String, dynamic>{
       'pointer': pointer,
       'mnemonic': mnemonic,
       'connectionType': connectionType,
     });
     return address;
+  }
+
+  Future<Map<String, dynamic>> getBalance({int pointer = 0, String mnemonic= "", String connectionType = 'electrum-mainnet' }) async {
+    final balance = await platform.invokeMethod('getBalance', <String, dynamic>{
+      'pointer': pointer,
+      'mnemonic': mnemonic,
+      'connectionType': connectionType,
+    });
+    return Map<String, dynamic>.from(balance);
   }
 }
