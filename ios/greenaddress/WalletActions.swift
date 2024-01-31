@@ -30,7 +30,7 @@ public class GDKWallet {
     var session: GDKSession?
     var subaccountPointer: Any?
     var greenAccountID = ""
-    var chainBlockHeight: UInt32 = 0
+    var blockHeight: UInt32 = 0
     var uuid = UUID()
     
     public func newNotification(notification: [String: Any]?) {
@@ -42,7 +42,7 @@ public class GDKWallet {
         switch event {
         case .Block:
             guard let height = data["block_height"] as? UInt32 else { break }
-            self.chainBlockHeight = height
+            self.blockHeight = height
         case .Subaccount:
             _ = SubaccountEvent.from(data) as? SubaccountEvent
             post(event: .Block, userInfo: data)
@@ -166,41 +166,15 @@ public class GDKWallet {
         }
     }
     
-    func getWalletTransactions(count: Int, index: Int, pointer: Int64) throws -> [String: Any] {
-        var confirmationStatus: String?
-        var depthFromTip = 0
-        var allTransactions = [[String: Any]]()
-        var currentIndex = index
-
-        repeat {
-            do {
-                guard let transactionsCall = try self.session?.getTransactions(details: ["subaccount": pointer, "first": currentIndex, "count": count]),
-                      let transactions = try DummyResolve(call: transactionsCall) as? [String: Any],
-                      let transactionList = transactions["result"] as? [[String: Any]] else {
-                    throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get transactions"])
-                }
-
-                for var transaction in transactionList {
-                    confirmationStatus = "UNCONFIRMED"
-                    if let blockHeight = transaction["block_height"] as? Int,
-                       blockHeight > 0 {
-                        depthFromTip = Int(chainBlockHeight) - blockHeight
-                        if depthFromTip == 0 {
-                            confirmationStatus = "CONFIRMED"
-                        } else if depthFromTip > 0 {
-                            confirmationStatus = "FINAL"
-                        }
-                    }
-
-                    transaction["confirmation_status"] = confirmationStatus
-                    allTransactions.append(transaction)
-                }
-
-                currentIndex += 1
-
-            } catch {
-                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch transactions"])
+    func getWalletTransactions(count: Int, index: Int, pointer: Int64)throws -> [String: Any] {
+        let params = ["subaccount": pointer, "first": index, "count": count] as [String : Any]
+        do{
+            guard let transactionCall = try self.session?.getTransactions(details: params as [String : Any]) else {
+                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get transactions"])
             }
-        } while true
+            return try DummyResolve(call: transactionCall)
+        }catch{
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch transactions"])
+        }
     }
 }

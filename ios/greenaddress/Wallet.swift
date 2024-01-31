@@ -59,7 +59,7 @@ public class Wallet {
                 result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
                 return
             }
-            getTransactions(result: result, connectionType: connectionType, mneumonic: mnemonic, pointer: pointer)
+            getTransactions(result: result, connectionType: connectionType, mnemonic: mnemonic, pointer: pointer)
         case "sendToAddress":
             result("sendToAddress")
         case "getPointer":
@@ -181,17 +181,55 @@ public class Wallet {
     }
     
     private func getTransactions(result: @escaping FlutterResult, connectionType: String, mnemonic: String, pointer: Int64) {
+        var confirmationStatus: String = "UNCONFIRMED"
+        var allTxs: [[String: Any]] = []
+        var index: Int = 0
+        let count: Int = 30
+
         do {
             guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
                 result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
                 return
             }
             
-            let transactions = try wallet.getWalletTransactions(count: 30, index: 0, pointer: pointer)
+            while true {
+                let transactions = try wallet.getWalletTransactions(count: count, index: index, pointer: pointer)
+
+                if let result = transactions["result"] as? [String: Any],
+                   let transactionsArray = result["transactions"] as? [[String: Any]] {
+
+                    for var transaction in transactionsArray {
+                        confirmationStatus = "UNCONFIRMED"
+                        if let transactionBlockHeight = transaction["block_height"] as? Int, transactionBlockHeight > 0 {
+                            let depthFromTip = UInt32(wallet.blockHeight) - UInt32(transactionBlockHeight)
+                            
+                            if depthFromTip == 0 {
+                                confirmationStatus = "CONFIRMED"
+                            }
+                            if depthFromTip > 0 {
+                                confirmationStatus = "FINAL"
+                            }
+                        }
+                        transaction["confirmation_status"] = confirmationStatus
+                        allTxs.append(transaction)
+                    }
+
+                    if transactionsArray.count < count {
+                        break
+                    }
+                    index += 1
+
+                } else {
+                    result(FlutterError(code: "Invalid Transactions Format", message: "Transactions format is not as expected.", details: nil))
+                    return
+                }
+            }
             
-            result(transactions)
+            result(allTxs)
+            
         } catch let error as NSError {
             result(FlutterError(code: "Error Getting transactions", message: "Error getting transaction: \(error.localizedDescription)", details: nil))
         }
     }
+
 }
