@@ -74,4 +74,16 @@ class Channel {
     });
     return transactions;
   }
+
+  Future<Map<String, dynamic>> sendToAddress({String address = '', int pointer = 0, String mnemonic= "", String connectionType = 'electrum-mainnet', int amount = 0,  int assetId = 0}) async {
+    final transaction = await platform.invokeMethod('sendToAddress', <String, dynamic>{
+      'address': address,
+      'pointer': pointer,
+      'mnemonic': mnemonic,
+      'connectionType': connectionType,
+      'amount': amount,
+      'assetId': assetId,
+    });
+    return Map<String, dynamic>.from(transaction);
+  }
 }

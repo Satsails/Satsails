@@ -61,7 +61,17 @@ public class Wallet {
             }
             getTransactions(result: result, connectionType: connectionType, mnemonic: mnemonic, pointer: pointer)
         case "sendToAddress":
-            result("sendToAddress")
+            guard let args = call.arguments as? [String: Any],
+                  let mnemonic = args["mnemonic"] as? String,
+                  let pointer = args["pointer"] as? Int64,
+                  let connectionType = args["connectionType"] as? String,
+                  let address = args["address"] as? String,
+                  let amount = args["amount"] as? Int64,
+                  let assetId = args["assetId"] as? Int else {
+                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Incorrect arguments", details: nil))
+                return
+            }
+            sendToAddress(result: result, mnemonic: mnemonic, pointer: pointer, connectionType: connectionType, address: address, amount: amount, assetId: assetId)
         case "getPointer":
             guard let args = call.arguments as? [String: Any],
                   let name = args["name"] as? String,
@@ -185,7 +195,7 @@ public class Wallet {
         var allTxs: [[String: Any]] = []
         var index: Int = 0
         let count: Int = 30
-
+        
         do {
             guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
                 result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
@@ -194,10 +204,10 @@ public class Wallet {
             
             while true {
                 let transactions = try wallet.getWalletTransactions(count: count, index: index, pointer: pointer)
-
+                
                 if let result = transactions["result"] as? [String: Any],
                    let transactionsArray = result["transactions"] as? [[String: Any]] {
-
+                    
                     for var transaction in transactionsArray {
                         confirmationStatus = "UNCONFIRMED"
                         if let transactionBlockHeight = transaction["block_height"] as? Int, transactionBlockHeight > 0 {
@@ -213,12 +223,12 @@ public class Wallet {
                         transaction["confirmation_status"] = confirmationStatus
                         allTxs.append(transaction)
                     }
-
+                    
                     if transactionsArray.count < count {
                         break
                     }
                     index += 1
-
+                    
                 } else {
                     result(FlutterError(code: "Invalid Transactions Format", message: "Transactions format is not as expected.", details: nil))
                     return
@@ -232,4 +242,18 @@ public class Wallet {
         }
     }
 
+    private func sendToAddress(result: @escaping FlutterResult, mnemonic: String, pointer: Int64, connectionType: String, address: String, amount: Int64, assetId: Int) {
+        do {
+            guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
+                result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
+                return
+            }
+            wallet.subaccountPointer = pointer
+            let transaction: () = try wallet.sendToAddress(address: address, amount: amount, assetId: assetId)
+            result(transaction)
+        } catch let error as NSError {
+            result(FlutterError(code: "SEND_ERROR", message: "Error sending transaction: \(error.localizedDescription)", details: nil))
+        }
+    }
+    
 }
