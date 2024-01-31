@@ -65,4 +65,13 @@ class Channel {
     });
     return pointer;
   }
+
+  Future<Map<String, dynamic>> getTransactions({int pointer = 0, String mnemonic= "", String connectionType = 'electrum-mainnet'}) async {
+    final transactions = await platform.invokeMethod('getTransactions', <String, dynamic>{
+      'mnemonic': mnemonic,
+      'pointer': pointer,
+      'connectionType': connectionType,
+    });
+    return Map<String, dynamic>.from(transactions);
+  }
 }

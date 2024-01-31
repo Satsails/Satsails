@@ -52,7 +52,14 @@ public class Wallet {
             }
             createSubAccount(result: result, name: name, walletType: walletType, mnemonic: mnemonic, connectionType: connectionType)
         case "getTransactions":
-            result("getTransactions")
+            guard let args = call.arguments as? [String: Any],
+                  let mnemonic = args["mnemonic"] as? String,
+                  let pointer = args["pointer"] as? Int64,
+                  let connectionType = args["connectionType"] as? String else {
+                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
+                return
+            }
+            getTransactions(result: result, connectionType: connectionType, mneumonic: mnemonic, pointer: pointer)
         case "sendToAddress":
             result("sendToAddress")
         case "getPointer":
@@ -170,6 +177,21 @@ public class Wallet {
             result(wallet.subaccountPointer as Any)
         }catch let error as NSError {
             result(FlutterError(code: "POINTER_ERROR", message: "Error getting pointer: \(error.localizedDescription)", details: nil))
+        }
+    }
+    
+    private func getTransactions(result: @escaping FlutterResult, connectionType: String, mnemonic: String, pointer: Int64) {
+        do {
+            guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
+                result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
+                return
+            }
+            
+            let transactions = try wallet.getWalletTransactions(count: 30, index: 0, pointer: pointer)
+            
+            result(transactions)
+        } catch let error as NSError {
+            result(FlutterError(code: "Error Getting transactions", message: "Error getting transaction: \(error.localizedDescription)", details: nil))
         }
     }
 }

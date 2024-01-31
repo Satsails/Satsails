@@ -29,9 +29,8 @@ public class GDKWallet {
     var mnemonic: String?
     var session: GDKSession?
     var subaccountPointer: Any?
-    var lastBlockHeight = 0
     var greenAccountID = ""
-    var blockHeight: UInt32 = 0
+    var chainBlockHeight: UInt32 = 0
     var uuid = UUID()
     
     public func newNotification(notification: [String: Any]?) {
@@ -43,9 +42,9 @@ public class GDKWallet {
         switch event {
         case .Block:
             guard let height = data["block_height"] as? UInt32 else { break }
-            blockHeight = height
+            self.chainBlockHeight = height
         case .Subaccount:
-            let txEvent = SubaccountEvent.from(data) as? SubaccountEvent
+            _ = SubaccountEvent.from(data) as? SubaccountEvent
             post(event: .Block, userInfo: data)
             post(event: .Transaction, userInfo: data)
         case .Transaction:
@@ -92,6 +91,7 @@ public class GDKWallet {
     func loginWithMnemonic(mnemonic: String? = nil,  connectionType: String) throws -> GDKWallet {
         self.mnemonic = mnemonic ?? ""
         self.session = GDKSession()
+        self.session?.setNotificationHandler(notificationCompletionHandler: newNotification)
         try self.session?.connect(netParams: ["name": connectionType])
         let credentials = ["mnemonic": self.mnemonic]
         try self.session?.loginUserSW(details: credentials as [String : Any])
@@ -135,26 +135,6 @@ public class GDKWallet {
         }
     }
     
-    func getAllSubaccounts(subAccountName: String, subAccountType: String) -> Result<[[String: Any]], Error> {
-        do {
-            let credentials = ["mnemonic": self.mnemonic]
-            guard let subaccountsCall = try? self.session?.getSubaccounts(details: credentials as [String : Any]) else {
-                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
-            }
-            
-            let subaccountsStatus = try DummyResolve(call: subaccountsCall)
-            
-            guard let result = subaccountsStatus["result"] as? [String: Any],
-                  let subaccounts = result["subaccounts"] as? [[String: Any]] else {
-                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to extract subaccounts data"])
-            }
-            
-            return .success(subaccounts)
-        } catch {
-            return .failure(error)
-        }
-    }
-    
     func getReceiveAddress() throws -> String {
         let subAccount = ["subaccount": subaccountPointer]
         
@@ -186,12 +166,41 @@ public class GDKWallet {
         }
     }
     
-    func getNotifications()throws -> GDKWallet{
-        do{
-            try self.session?.setNotificationHandler(notificationCompletionHandler: newNotification)
-        }catch{
-            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch notifications"])
-        }
-        return self
+    func getWalletTransactions(count: Int, index: Int, pointer: Int64) throws -> [String: Any] {
+        var confirmationStatus: String?
+        var depthFromTip = 0
+        var allTransactions = [[String: Any]]()
+        var currentIndex = index
+
+        repeat {
+            do {
+                guard let transactionsCall = try self.session?.getTransactions(details: ["subaccount": pointer, "first": currentIndex, "count": count]),
+                      let transactions = try DummyResolve(call: transactionsCall) as? [String: Any],
+                      let transactionList = transactions["result"] as? [[String: Any]] else {
+                    throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get transactions"])
+                }
+
+                for var transaction in transactionList {
+                    confirmationStatus = "UNCONFIRMED"
+                    if let blockHeight = transaction["block_height"] as? Int,
+                       blockHeight > 0 {
+                        depthFromTip = Int(chainBlockHeight) - blockHeight
+                        if depthFromTip == 0 {
+                            confirmationStatus = "CONFIRMED"
+                        } else if depthFromTip > 0 {
+                            confirmationStatus = "FINAL"
+                        }
+                    }
+
+                    transaction["confirmation_status"] = confirmationStatus
+                    allTransactions.append(transaction)
+                }
+
+                currentIndex += 1
+
+            } catch {
+                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch transactions"])
+            }
+        } while true
     }
 }
