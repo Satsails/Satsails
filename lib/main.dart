@@ -9,16 +9,16 @@ void main() async {
 class MainApp extends StatelessWidget {
   const MainApp({Key? key});
 
-  Future<Map<String, dynamic>> init() async {
+  Future<String> init() async {
     String mnemonic = "jewel never off nice bar puzzle doll onion design erase holiday round";
-    Map<String, dynamic> walletInfo = await greenwallet.Channel('ios_wallet').createWallet(connectionType: 'electrum-testnet', mnemonic: mnemonic);
+    Map<String, dynamic> walletInfo = await greenwallet.Channel('ios_wallet').createWallet(connectionType: 'electrum-testnet-liquid', mnemonic: mnemonic);
     // Map<String, dynamic> newWallet = await greenwallet.Channel('ios_wallet').createSubAccount(mnemonic: walletInfo['mnemonic']);
-    // String address = await greenwallet.Channel('ios_wallet').getReceiveAddress(pointer: walletInfo['pointer'], mnemonic: mnemonic, connectionType: 'electrum-testnet');
+    // Map<String, dynamic> address = await greenwallet.Channel('ios_wallet').getReceiveAddress(pointer: walletInfo['pointer'], mnemonic: mnemonic, connectionType: 'electrum-testnet-liquid');
     // int pointer = await greenwallet.Channel('ios_wallet').getPointer(mnemonic: walletInfo['mnemonic']);
-    // Map<String, dynamic> balance = await greenwallet.Channel('ios_wallet').getBalance(pointer: walletInfo['pointer'], mnemonic: mnemonic, connectionType: 'electrum-testnet');
-    // List<Object?> transactions = await greenwallet.Channel('ios_wallet').getTransactions(mnemonic: mnemonic, connectionType: 'electrum-testnet', pointer: walletInfo['pointer']);
-    Map<String, dynamic> transactions = await greenwallet.Channel('ios_wallet').sendToAddress(mnemonic: mnemonic, connectionType: 'electrum-testnet', pointer: walletInfo['pointer'], address: "2MyPKpFPe8GjhkmHYGaXLgukMe4meTeDHZ3", amount: 10000);
-    return transactions;
+    // Map<String, dynamic> balance = await greenwallet.Channel('ios_wallet').getBalance(pointer: walletInfo['pointer'], mnemonic: mnemonic, connectionType: 'electrum-testnet-liquid');
+    // List<Object?> transactions = await greenwallet.Channel('ios_wallet').getTransactions(mnemonic: mnemonic, connectionType: 'electrum-testnet-liquid', pointer: walletInfo['pointer']);
+    String sendTransaction = await greenwallet.Channel('ios_wallet').sendToAddress(mnemonic: mnemonic, connectionType: 'electrum-testnet-liquid', pointer: walletInfo['pointer'], address: "vjU1yRKZbUb8uTt9D3o5tsKB5vBPzQi5bFfDCzQeFtkiQcN39ipaiiG3fKxLC3p1c7oGvoCkHmJRboGU", amount: 10000);
+    return sendTransaction;
   }
 
   @override
@@ -26,7 +26,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       home: FutureBuilder(
         future: init(),
-        builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
           } else {

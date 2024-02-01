@@ -241,7 +241,7 @@ public class Wallet {
             result(FlutterError(code: "Error Getting transactions", message: "Error getting transaction: \(error.localizedDescription)", details: nil))
         }
     }
-
+    
     private func sendToAddress(result: @escaping FlutterResult, mnemonic: String, pointer: Int64, connectionType: String, address: String, amount: Int64, assetId: Int) {
         do {
             guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
@@ -249,11 +249,10 @@ public class Wallet {
                 return
             }
             wallet.subaccountPointer = pointer
-            let transaction: () = try wallet.sendToAddress(address: address, amount: amount, assetId: assetId)
+            let transaction = try wallet.sendToAddress(address: address, amount: amount, assetId: assetId)
             result(transaction)
         } catch let error as NSError {
             result(FlutterError(code: "SEND_ERROR", message: "Error sending transaction: \(error.localizedDescription)", details: nil))
         }
     }
-    
 }
