@@ -188,26 +188,26 @@ public class GDKWallet {
             let result = unspentOutputsStatus["result"] as? [String: Any]
             let unspentPair = result?["unspent_outputs"] as? [String: Any] ?? [:]
             var coinType: String
-
+            
             if unspentPair["btc"] != nil {
                 coinType = "btc"
             } else {
                 coinType = "liquid"
             }
-
+            
             return ["utxos": unspentPair, "coinType": coinType]
         }catch{
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get UTXOs"])
         }
     }
-//needs struct of asset ids supported (usdt, leur and liquid)
-//  create blinding transaction for liquid
+    //needs struct of asset ids supported (usdt, leur and liquid)
+    //  create blinding transaction for liquid
     func sendToAddress(address: String, amount: Int64, assetId: String) throws -> String {
         do {
             let unspentOutputs = try getUnspentOutputs(numberOfConfs: 0)
             
             var paramsForCreateTransaction: [String: Any]
-
+            
             if unspentOutputs["coinType"] as? String == "btc" {
                 paramsForCreateTransaction = [
                     "addressees": [["address": address, "satoshi": amount]],
@@ -219,18 +219,18 @@ public class GDKWallet {
                     "utxos": unspentOutputs["utxos"]
                 ]
             }
-
+            
             guard let createTransactionCall = try self.session?.createTransaction(details: paramsForCreateTransaction) else {
-                 throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to create transaction"])
-             }
-
+                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to create transaction"])
+            }
+            
             // Resolve the createTransactionCall
             guard let createTransactionResolve = try DummyResolve(call: createTransactionCall) as? [String: Any] else {
                 throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign transaction"])
             }
             
             let createTransactionResult =  createTransactionResolve["result"] as? [String: Any] ?? [:]
-
+            
             // blind the transaction
             guard let bindTransactionCall = try self.session?.blindTransaction(details: createTransactionResult) else {
                 throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign transaction"])
@@ -250,12 +250,12 @@ public class GDKWallet {
             let signTransactionResolve = try DummyResolve(call: signTransactionCall)
             
             let signTransactionResult =  signTransactionResolve["result"] as? [String: Any] ?? [:]
-
+            
             // Send the transaction
             guard let sendToAddressCall = try self.session?.sendTransaction(details: signTransactionResult) else {
                 throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to send to address"])
             }
-
+            
             // Resolve the sendToAddressCall
             let sendToAddressStatus = try DummyResolve(call: sendToAddressCall)
             let result = sendToAddressStatus["result"] as? [String: Any]
@@ -266,5 +266,4 @@ public class GDKWallet {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to send to address"])
         }
     }
-
 }
