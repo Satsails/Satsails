@@ -75,7 +75,7 @@ class Channel {
     return transactions;
   }
 
-  Future<String> sendToAddress({String address = '', int pointer = 0, String mnemonic= "", String connectionType = 'electrum-mainnet', int amount = 0,  int assetId = 0}) async {
+  Future<String> sendToAddress({String address = '', int pointer = 0, String mnemonic= "", String connectionType = 'electrum-mainnet', int amount = 0,  String assetId = ""}) async {
     final transaction = await platform.invokeMethod('sendToAddress', <String, dynamic>{
       'address': address,
       'pointer': pointer,

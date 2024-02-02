@@ -200,8 +200,9 @@ public class GDKWallet {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get UTXOs"])
         }
     }
-
-    func sendToAddress(address: String, amount: Int64, assetId: Int) throws -> String {
+//needs struct of asset ids supported (usdt, leur and liquid)
+//  create blinding transaction for liquid
+    func sendToAddress(address: String, amount: Int64, assetId: String) throws -> String {
         do {
             let unspentOutputs = try getUnspentOutputs(numberOfConfs: 0)
             
@@ -210,12 +211,12 @@ public class GDKWallet {
             if unspentOutputs["coinType"] as? String == "btc" {
                 paramsForCreateTransaction = [
                     "addressees": [["address": address, "satoshi": amount]],
-                    "utxos": unspentOutputs
+                    "utxos": unspentOutputs["utxos"]
                 ]
             } else {
                 paramsForCreateTransaction = [
                     "addressees": [["address": address, "satoshi": amount, "asset_id": assetId]],
-                    "utxos": unspentOutputs
+                    "utxos": unspentOutputs["utxos"]
                 ]
             }
 
@@ -230,8 +231,19 @@ public class GDKWallet {
             
             let createTransactionResult =  createTransactionResolve["result"] as? [String: Any] ?? [:]
 
-            // Sign the transaction
-            guard let signTransactionCall = try self.session?.signTransaction(details: createTransactionResult) else {
+            // blind the transaction
+            guard let bindTransactionCall = try self.session?.blindTransaction(details: createTransactionResult) else {
+                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign transaction"])
+            }
+            
+            guard let blindTransactionResolve = try DummyResolve(call: bindTransactionCall) as? [String: Any] else {
+                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign transaction"])
+            }
+            
+            let blindTransactionResult =  blindTransactionResolve["result"] as? [String: Any] ?? [:]
+            
+            // sign the transaction
+            guard let signTransactionCall = try self.session?.signTransaction(details: blindTransactionResult) else {
                 throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign transaction"])
             }
             

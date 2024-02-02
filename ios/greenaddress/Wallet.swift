@@ -67,7 +67,7 @@ public class Wallet {
                   let connectionType = args["connectionType"] as? String,
                   let address = args["address"] as? String,
                   let amount = args["amount"] as? Int64,
-                  let assetId = args["assetId"] as? Int else {
+                  let assetId = args["assetId"] as? String else {
                 result(FlutterError(code: "INVALID_ARGUMENTS", message: "Incorrect arguments", details: nil))
                 return
             }
@@ -242,7 +242,7 @@ public class Wallet {
         }
     }
     
-    private func sendToAddress(result: @escaping FlutterResult, mnemonic: String, pointer: Int64, connectionType: String, address: String, amount: Int64, assetId: Int) {
+    private func sendToAddress(result: @escaping FlutterResult, mnemonic: String, pointer: Int64, connectionType: String, address: String, amount: Int64, assetId: String) {
         do {
             guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
                 result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
