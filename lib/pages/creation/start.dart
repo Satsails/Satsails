@@ -61,13 +61,17 @@ class Start extends StatelessWidget {
                           Navigator.pushNamed(context, '/set_pin');
                         },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan[400]!),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.cyan[400]!),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5.0),
                             ),
                           ),
-                          minimumSize: MaterialStateProperty.all<Size>(const Size(300.0, 60.0)), // Adjust these values to change the size of the button
+                          minimumSize: MaterialStateProperty.all<Size>(const Size(
+                              300.0,
+                              60.0)),
                         ),
                         child: const Text(
                           'Register Account',
@@ -78,13 +82,16 @@ class Start extends StatelessWidget {
                       ElevatedButton(
                         onPressed: null,
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Colors.grey!),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.grey!),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5.0),
                             ),
                           ),
-                          minimumSize: MaterialStateProperty.all<Size>(const Size(300.0, 60.0)),
+                          minimumSize: MaterialStateProperty.all<Size>(
+                              const Size(300.0, 60.0)),
                         ), // This disables the button
                         child: const Text(
                           'Recover account',

@@ -49,7 +49,7 @@ class _OpenPinState extends State<OpenPin> {
       bool authenticated = await _localAuth.authenticate(
         localizedReason: 'Please authenticate to open the app',
       );
-      if (false) {
+      if (authenticated) {
         Navigator.pushReplacementNamed(context, '/home');
       }
     }

@@ -25,10 +25,10 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       initialRoute: initialRoute,
       routes: {
-        '/': (context) => Start(),
+        '/': (context) => const Start(),
         '/seed_words': (context) => const SeedWords(),
         '/open_pin': (context) => OpenPin(),
-        '/set_pin': (context) => SetPin(),
+        '/set_pin': (context) => const SetPin(),
         '/home': (context) => Home(),
       },
     );
