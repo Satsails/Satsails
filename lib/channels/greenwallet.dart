@@ -1,5 +1,4 @@
 //TODO: here there should only be handling of the greenaddress method directly from c++. When doing for android all swift functionality must move to dart and the only channle should just be communicaiton with greenaddress
-import 'dart:ffi';
 import 'package:flutter/services.dart';
 
 class Channel {
