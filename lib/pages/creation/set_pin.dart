@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
+import '../../channels/greenwallet.dart' as greenwallet;
 
 class SetPin extends StatefulWidget {
   const SetPin({super.key});
@@ -10,19 +12,15 @@ class SetPin extends StatefulWidget {
 
 class _SetPinState extends State<SetPin> {
   final _formKey = GlobalKey<FormState>();
-  final _pinController = TextEditingController();
   final _storage = FlutterSecureStorage();
-
-  @override
-  void dispose() {
-    _pinController.dispose();
-    super.dispose();
-  }
+  String _pin = '';
 
   Future<void> _setPin() async {
     if (_formKey.currentState!.validate()) {
-      await _storage.write(key: 'pin', value: _pinController.text);
-      Navigator.pop(context);
+      await _storage.write(key: 'pin', value: _pin);
+      String mnemonic = await greenwallet.Channel('ios_wallet').getMnemonic();
+      await _storage.write(key: 'mnemonic', value: mnemonic);
+      Navigator.pushNamed(context, '/home');
     }
   }
 
@@ -32,31 +30,50 @@ class _SetPinState extends State<SetPin> {
       appBar: AppBar(
         title: Text('Set PIN'),
       ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: <Widget>[
-              TextFormField(
-                controller: _pinController,
-                decoration: const InputDecoration(
-                  labelText: 'Enter your PIN',
+      body: Center( // Wrap the Column with a Center widget
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center, // Center the Column's children vertically
+              children: <Widget>[
+                PinCodeTextField(
+                  appContext: context,
+                  length: 6,
+                  obscureText: true,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    _pin = value;
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a PIN';
+                    } else if (value.length != 6) {
+                      return 'PIN must be exactly 6 digits';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a PIN';
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.number,
-                obscureText: true,
-              ),
-              ElevatedButton(
-                onPressed: _setPin,
-                child: Text('Set PIN'),
-              ),
-            ],
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: _setPin,
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan[400]!),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
+                    ),
+                    minimumSize: MaterialStateProperty.all<Size>(const Size(300.0, 60.0)),
+                  ),
+                  child: const Text(
+                    'Set PIN',
+                    style: TextStyle(fontSize: 20.0, color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

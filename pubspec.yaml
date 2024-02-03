@@ -10,11 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  http: ^1.1.2
-  flutter_dotenv: ^5.1.0
-  get_storage: ^2.1.1
-  provider: ^6.1.1
   flutter_secure_storage: ^9.0.0
+  pin_code_fields: ^8.0.1
+  local_auth: ^2.1.8
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

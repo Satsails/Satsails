@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../channels/greenwallet.dart' as greenwallet;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SeedWords extends StatefulWidget {
   const SeedWords({Key? key}) : super(key: key);
@@ -10,6 +10,7 @@ class SeedWords extends StatefulWidget {
 
 class _SeedWordsState extends State<SeedWords> {
   String mnemonic = '';
+  final _storage = FlutterSecureStorage(); // Create an instance of FlutterSecureStorage
 
   @override
   void initState() {
@@ -18,8 +19,12 @@ class _SeedWordsState extends State<SeedWords> {
   }
 
   Future<void> initMnemonic() async {
-    mnemonic = await greenwallet.Channel('ios_wallet').getMnemonic();
-    setState(() {});
+    String? storedMnemonic = await _storage.read(key: 'mnemonic'); // Read the mnemonic words from secure storage
+    if (storedMnemonic != null) {
+      setState(() {
+        mnemonic = storedMnemonic;
+      });
+    }
   }
 
   @override

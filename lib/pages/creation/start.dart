@@ -13,7 +13,7 @@ class Start extends StatelessWidget {
           color: Colors.white,
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 30.0,
               ),
               const Expanded(
@@ -58,12 +58,8 @@ class Start extends StatelessWidget {
                       const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/pin');
+                          Navigator.pushNamed(context, '/set_pin');
                         },
-                        child: Text(
-                          'Register Account',
-                          style: TextStyle(fontSize: 20.0, color: Colors.white),
-                        ),
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan[400]!),
                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -71,16 +67,16 @@ class Start extends StatelessWidget {
                               borderRadius: BorderRadius.circular(5.0),
                             ),
                           ),
-                          minimumSize: MaterialStateProperty.all<Size>(Size(300.0, 60.0)), // Adjust these values to change the size of the button
+                          minimumSize: MaterialStateProperty.all<Size>(const Size(300.0, 60.0)), // Adjust these values to change the size of the button
+                        ),
+                        child: const Text(
+                          'Register Account',
+                          style: TextStyle(fontSize: 20.0, color: Colors.white),
                         ),
                       ),
                       const SizedBox(height: 10),
                       ElevatedButton(
-                        onPressed: null, // This disables the button
-                        child: Text(
-                          'Recover account',
-                          style: TextStyle(fontSize: 20.0, color: Colors.white),
-                        ),
+                        onPressed: null,
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(Colors.grey!),
                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -88,7 +84,11 @@ class Start extends StatelessWidget {
                               borderRadius: BorderRadius.circular(5.0),
                             ),
                           ),
-                          minimumSize: MaterialStateProperty.all<Size>(Size(300.0, 60.0)),
+                          minimumSize: MaterialStateProperty.all<Size>(const Size(300.0, 60.0)),
+                        ), // This disables the button
+                        child: const Text(
+                          'Recover account',
+                          style: TextStyle(fontSize: 20.0, color: Colors.white),
                         ),
                       ),
                     ],
