@@ -26,7 +26,7 @@ class Start extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      'SatSails',
+                      'CashSails',
                       style: TextStyle(
                         fontSize: 40.0,
                         color: Colors.black,
@@ -58,7 +58,7 @@ class Start extends StatelessWidget {
                       const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/seed_words');
+                          Navigator.pushNamed(context, '/pin');
                         },
                         child: Text(
                           'Register Account',

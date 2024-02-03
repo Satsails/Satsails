@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import './channels/greenwallet.dart' as greenwallet;
 import 'pages/creation/start.dart';
 import 'pages/creation/seed_words.dart';
+import 'pages/creation/set_pin.dart';
 
 void main() async {
   runApp(const MainApp());
@@ -18,6 +19,7 @@ class MainApp extends StatelessWidget {
       routes: {
         '/': (context) => Start(),
         '/seed_words': (context) => const SeedWords(),
+        '/set_pin': (context) => SetPin(),
       },
     );
   }
