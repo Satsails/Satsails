@@ -18,11 +18,12 @@ public class Wallet {
         case "createWallet":
             guard let args = call.arguments as? [String: Any],
                   let mnemonic = args["mnemonic"] as? String,
+                  let name = args["name"] as? String,
                   let connectionType = args["connectionType"] as? String else {
                 result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
                 return
             }
-            createWallet(mnemonic: mnemonic, connectionType: connectionType, result: result)
+            createWallet(mnemonic: mnemonic, connectionType: connectionType, name: name, result: result)
         case "getReceiveAddress":
             guard let args = call.arguments as? [String: Any],
                   let mnemonic = args["mnemonic"] as? String,
@@ -83,6 +84,15 @@ public class Wallet {
             }
             getPointer(result: result,  connectionType: connectionType, mnemonic: mnemonic, name: name, walletType: walletType)
             return
+        case "fetchAllSubAccounts":
+            guard let args = call.arguments as? [String: Any],
+                  let mnemonic = args["mnemonic"] as? String,
+                  let connectionType = args["connectionType"] as? String else {
+                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
+                return
+            }
+            fetchAllSubAccounts(result: result, mnemonic: mnemonic, connectionType: connectionType)
+            return
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -103,10 +113,10 @@ public class Wallet {
         return wallet
     }
     
-    private func createWallet(mnemonic: String, connectionType: String, result: @escaping FlutterResult) {
+    private func createWallet(mnemonic: String, connectionType: String, name: String, result: @escaping FlutterResult) {
         do {
             let wallet =  GDKWallet()
-            try wallet.createNewWallet(mnemonic: mnemonic, connectionType: connectionType)
+            try wallet.createNewWallet(mnemonic: mnemonic, connectionType: connectionType, name: name)
             do {
                 _ = try wallet.fetchSubaccount(subAccountName: "", subAccountType: "")
             } catch {
@@ -253,6 +263,19 @@ public class Wallet {
             result(transaction)
         } catch let error as NSError {
             result(FlutterError(code: "SEND_ERROR", message: "Error sending transaction: \(error.localizedDescription)", details: nil))
+        }
+    }
+
+    private func fetchAllSubAccounts(result: @escaping FlutterResult, mnemonic: String, connectionType: String) {
+        do {
+            guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
+                result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
+                return
+            }
+            let subAccounts = try wallet.fetchSubAccounts()
+            result(subAccounts)
+        } catch let error as NSError {
+            result(FlutterError(code: "SUBACCOUNT_ERROR", message: "Error fetching subaccounts: \(error.localizedDescription)", details: nil))
         }
     }
 }

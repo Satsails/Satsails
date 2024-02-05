@@ -17,10 +17,11 @@ class Channel {
     return result;
   }
 
-  Future<Map<String, dynamic>> createWallet({String? mnemonic, String connectionType = 'electrum-mainnet'}) async {
+  Future<Map<String, dynamic>> createWallet({String? mnemonic, String connectionType = 'electrum-mainnet', String name = ''}) async {
     mnemonic ??= await getMnemonic();
     final walletInfo = await platform.invokeMethod('createWallet', <String, dynamic>{
       'mnemonic': mnemonic,
+      'name': name,
       'connectionType': connectionType,
     });
     return Map<String, dynamic>.from(walletInfo);
@@ -84,5 +85,13 @@ class Channel {
       'assetId': assetId,
     });
     return transaction;
+  }
+
+  Future<Map<String, dynamic>> fetchAllSubAccounts({String mnemonic= "", String connectionType = 'electrum-mainnet'}) async {
+    final subaccounts = await platform.invokeMethod('fetchAllSubAccounts', <String, dynamic>{
+      'mnemonic': mnemonic,
+      'connectionType': connectionType,
+    });
+    return Map<String, dynamic>.from(subaccounts);
   }
 }

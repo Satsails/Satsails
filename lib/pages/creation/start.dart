@@ -26,7 +26,7 @@ class Start extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      'CashSails',
+                      'SatSails',
                       style: TextStyle(
                         fontSize: 40.0,
                         color: Colors.black,

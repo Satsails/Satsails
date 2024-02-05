@@ -71,13 +71,13 @@ public class GDKWallet {
     }
     
     
-    func createNewWallet(mnemonic: String? = nil, connectionType: String) throws -> GDKWallet {
+    func createNewWallet(mnemonic: String? = nil, connectionType: String, name: String) throws -> GDKWallet {
         self.mnemonic = mnemonic ?? ""
+        self.SUBACCOUNT_NAME = name
         self.session = GDKSession()
         do {
             try self.session?.connect(netParams: ["name": connectionType])
-            let credentials = ["mnemonic": self.mnemonic]
-            
+            let credentials = ["mnemonic": self.mnemonic, "name": name]
             try self.session?.registerUserSW(details: credentials)
             try self.session?.loginUserSW(details: credentials)
             
@@ -133,6 +133,22 @@ public class GDKWallet {
                 self.greenAccountID = result?["receiving_id"] as! String
             }
         }
+    }
+
+    func fetchSubAccounts() throws -> [String: Any] {
+        let credentials = ["mnemonic": self.mnemonic]
+        guard let subaccountsCall = try? self.session?.getSubaccounts(details: credentials as [String : Any]) else {
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
+        }
+
+        let subaccountsStatus = try DummyResolve(call: subaccountsCall)
+
+        guard let result = subaccountsStatus["result"] as? [String: Any],
+              let subaccounts = result["subaccounts"] as? [[String: Any]] else {
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to extract subaccounts data"])
+        }
+
+        return ["subaccounts": subaccounts]
     }
     
     func getReceiveAddress() throws -> [String: Any] {
