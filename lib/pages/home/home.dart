@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../channels/greenwallet.dart' as greenwallet;
 
 class Home extends StatefulWidget {
   @override
@@ -24,33 +22,102 @@ class _HomeState extends State<Home> {
     // Map<String, dynamic> walletInfo = await greenwallet.Channel('ios_wallet').fetchAllSubAccounts(mnemonic: mnemonic, connectionType: 'electrum-liquid');
   }
 
+// Inside the build method of your _HomeState class
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          Column(
-            children: [
-              Expanded(
-                child: Container(
-                  color: Colors.white,
-                  height: MediaQuery.of(context).padding.top + kToolbarHeight,
+          Container(
+            color: Colors.white,
+            child: Column(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: MediaQuery
+                        .of(context)
+                        .padding
+                        .top + kToolbarHeight,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 100),
+                        const Text(
+                          '1 BTC',
+                          style: TextStyle(fontSize: 30, color: Colors.black),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          '40000 USD',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Add logic to navigate or perform an action when the button is pressed
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.white),
+                            foregroundColor: MaterialStateProperty.all<Color>(
+                                Colors.black),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                                side: BorderSide(color: Colors.grey[800]!),
+                              ),
+                            ),
+                            elevation: MaterialStateProperty.all<double>(0.0),
+                          ),
+                          child: const Text('View Accounts'),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Container(
-                  color: Colors.blue,
-                  height: MediaQuery.of(context).padding.top + kToolbarHeight,
+                SizedBox(
+                  height: MediaQuery
+                      .of(context)
+                      .padding
+                      .top + kToolbarHeight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildCircularButton(Icons.add, 'Add Money', () {}),
+                      _buildCircularButton(
+                          Icons.swap_horizontal_circle, 'Exchange', () {}),
+                      _buildCircularButton(Icons.payment, 'Pay', () {}),
+                      _buildCircularButton(
+                          Icons.arrow_downward_sharp, 'Receive', () {}),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 20.0),
+                    elevation: 8.0,
+                    color: Colors.white,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20.0),
+                        topRight: Radius.circular(20.0),
+                      ),
+                    ),
+                    child: Container(
+                    ),
+                  ),
+                ),
+
+              ],
+            ),
           ),
           Column(
             children: [
               AppBar(
                 backgroundColor: Colors.white,
-                title: Opacity(
-                  opacity: 0.7,
+                title: SizedBox(
+                  height: 50,
                   child: TextField(
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
@@ -60,35 +127,25 @@ class _HomeState extends State<Home> {
                       ),
                       filled: true,
                       hintStyle: TextStyle(color: Colors.grey[800]),
-                      hintText: "Search for a transaction",
+                      hintText: "Search",
                       fillColor: Colors.white,
                     ),
                   ),
                 ),
-                leading: Opacity(
-                  opacity: 0.7,
-                  child: IconButton(
-                    icon: const Icon(Icons.settings, color: Colors.black),
-                    onPressed: () {
-                    },
-                  ),
+                leading: IconButton(
+                  icon: const Icon(Icons.settings, color: Colors.black),
+                  onPressed: () {},
                 ),
                 actions: <Widget>[
-                  Opacity(
-                    opacity: 0.7,
-                    child: IconButton(
-                      icon: const Icon(Icons.candlestick_chart_rounded, color: Colors.black),
-                      onPressed: () {
-                      },
-                    ),
+                  IconButton(
+                    icon: const Icon(
+                        Icons.candlestick_chart_rounded, color: Colors.black),
+                    onPressed: () {},
                   ),
-                  Opacity(
-                    opacity: 0.7,
-                    child: IconButton(
-                      icon: const Icon(Icons.currency_exchange_sharp, color: Colors.black),
-                      onPressed: () {
-                      },
-                    ),
+                  IconButton(
+                    icon: const Icon(
+                        Icons.account_balance, color: Colors.black),
+                    onPressed: () {},
                   ),
                 ],
               ),
@@ -97,5 +154,37 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
-   }
   }
+}
+
+Widget _buildCircularButton(IconData icon, String subtitle, VoidCallback onPressed) {
+  return Column(
+    children: [
+      InkWell(
+        onTap: onPressed,
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.black, width: 2.0),
+          ),
+          child: CircleAvatar(
+            backgroundColor: Colors.white,
+            radius: 25,
+            child: Icon(
+              icon,
+              color: Colors.black,
+              size: 25,
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        subtitle,
+        style: const TextStyle(fontSize: 10),
+      ),
+    ],
+  );
+}
+
+
