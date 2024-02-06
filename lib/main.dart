@@ -11,7 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final _storage = FlutterSecureStorage();
   String? mnemonic = await _storage.read(key: 'mnemonic');
-  runApp(MainApp(initialRoute: mnemonic == null ? '/' : '/open_pin'));
+  runApp(MainApp(initialRoute: mnemonic == null ? '/' : '/home'));
   await greenwallet.Channel('ios_wallet').walletInit();
 }
 
