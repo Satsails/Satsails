@@ -31,21 +31,18 @@ class _HomeState extends State<Home> {
       body: Stack(
         children: [
           AnimateGradient(
-            primaryBegin: Alignment.topLeft,
-            primaryEnd: Alignment.bottomLeft,
-            secondaryBegin: Alignment.bottomLeft,
-            secondaryEnd: Alignment.topRight,
             primaryColors: const [
-              Colors.blueAccent,
-              Colors.blueAccent,
-              Colors.white,
+              Color(0xFF001F3F), // Darker blue
+              Color(0xFF001F3F), // Light blue
+              Color(0xFF001F3F), // Lighter and less concentrated purplish shade
             ],
             secondaryColors: const [
-              Colors.white,
-              Colors.blueAccent,
-              Colors.blueAccent,
+              Color(0xFF001F3F), // Light lavender
+              Color(0xFF001F3F), // Light blue
+              Color(0xFFFF6F61), // Lighter and less concentrated purplish shade
             ],
-            duration: const Duration(seconds: 10),
+            duration: const Duration(seconds: 5),
+            reverse: true,
             child: Column(
               children: [
                 Expanded(
@@ -57,12 +54,12 @@ class _HomeState extends State<Home> {
                         const SizedBox(height: 100),
                         const Text(
                           '1 BTC',
-                          style: TextStyle(fontSize: 30, color: Colors.black),
+                          style: TextStyle(fontSize: 30, color: Colors.white),
                         ),
                         const SizedBox(height: 10),
                         const Text(
                           '40000 USD',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                          style: TextStyle(fontSize: 12, color: Colors.white),
                         ),
                         const SizedBox(height: 30),
                         ElevatedButton(
@@ -142,18 +139,18 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 leading: IconButton(
-                  icon: const Icon(Icons.settings, color: Colors.black), // Adjust opacity as needed
+                  icon: const Icon(Icons.settings, color: Colors.white), // Adjust opacity as needed
                   onPressed: () {},
                 ),
                 actions: <Widget>[
                   IconButton(
                     icon: const Icon(
-                        Icons.candlestick_chart_rounded, color: Colors.black), // Adjust opacity as needed
+                        Icons.candlestick_chart_rounded, color: Colors.white), // Adjust opacity as needed
                     onPressed: () {},
                   ),
                   IconButton(
                     icon: const Icon(
-                        Icons.account_balance, color: Colors.black), // Adjust opacity as needed
+                        Icons.account_balance, color: Colors.white), // Adjust opacity as needed
                     onPressed: () {},
                   ),
                 ],
@@ -190,7 +187,7 @@ Widget _buildCircularButton(IconData icon, String subtitle, VoidCallback onPress
       const SizedBox(height: 8),
       Text(
         subtitle,
-        style: const TextStyle(fontSize: 10),
+        style: const TextStyle(fontSize: 10, color: Colors.white),
       ),
     ],
   );
