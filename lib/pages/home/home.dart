@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:animate_gradient/animate_gradient.dart';
+import 'dart:ui';
 
 class Home extends StatefulWidget {
   @override
@@ -22,22 +24,33 @@ class _HomeState extends State<Home> {
     // Map<String, dynamic> walletInfo = await greenwallet.Channel('ios_wallet').fetchAllSubAccounts(mnemonic: mnemonic, connectionType: 'electrum-liquid');
   }
 
-// Inside the build method of your _HomeState class
+  // Inside the build method of your _HomeState class
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-            color: Colors.white,
+          AnimateGradient(
+            primaryBegin: Alignment.topLeft,
+            primaryEnd: Alignment.bottomLeft,
+            secondaryBegin: Alignment.bottomLeft,
+            secondaryEnd: Alignment.topRight,
+            primaryColors: const [
+              Colors.blueAccent,
+              Colors.blueAccent,
+              Colors.white,
+            ],
+            secondaryColors: const [
+              Colors.white,
+              Colors.blueAccent,
+              Colors.blueAccent,
+            ],
+            duration: const Duration(seconds: 10),
             child: Column(
               children: [
                 Expanded(
                   child: SizedBox(
-                    height: MediaQuery
-                        .of(context)
-                        .padding
-                        .top + kToolbarHeight,
+                    height: MediaQuery.of(context).padding.top + kToolbarHeight,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -51,18 +64,19 @@ class _HomeState extends State<Home> {
                           '40000 USD',
                           style: TextStyle(fontSize: 12, color: Colors.grey),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 30),
                         ElevatedButton(
                           onPressed: () {
                             // Add logic to navigate or perform an action when the button is pressed
                           },
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.white),
+                              Colors.white.withOpacity(0.8), // Adjust opacity as needed
+                            ),
                             foregroundColor: MaterialStateProperty.all<Color>(
-                                Colors.black),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
+                              Colors.black,
+                            ),
+                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30.0),
                                 side: BorderSide(color: Colors.grey[800]!),
@@ -77,10 +91,7 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 SizedBox(
-                  height: MediaQuery
-                      .of(context)
-                      .padding
-                      .top + kToolbarHeight,
+                  height: MediaQuery.of(context).padding.top + kToolbarHeight,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -97,25 +108,23 @@ class _HomeState extends State<Home> {
                   child: Card(
                     margin: const EdgeInsets.symmetric(horizontal: 20.0),
                     elevation: 8.0,
-                    color: Colors.white,
+                    color: Colors.white.withOpacity(0.9), // Adjust opacity as needed
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(20.0),
                         topRight: Radius.circular(20.0),
                       ),
                     ),
-                    child: Container(
-                    ),
+                    child: Container(),
                   ),
                 ),
-
               ],
             ),
           ),
           Column(
             children: [
               AppBar(
-                backgroundColor: Colors.white,
+                backgroundColor: Colors.transparent,
                 title: SizedBox(
                   height: 50,
                   child: TextField(
@@ -128,23 +137,23 @@ class _HomeState extends State<Home> {
                       filled: true,
                       hintStyle: TextStyle(color: Colors.grey[800]),
                       hintText: "Search",
-                      fillColor: Colors.white,
+                      fillColor: Colors.white.withOpacity(0.8), // Adjust opacity as needed
                     ),
                   ),
                 ),
                 leading: IconButton(
-                  icon: const Icon(Icons.settings, color: Colors.black),
+                  icon: const Icon(Icons.settings, color: Colors.black), // Adjust opacity as needed
                   onPressed: () {},
                 ),
                 actions: <Widget>[
                   IconButton(
                     icon: const Icon(
-                        Icons.candlestick_chart_rounded, color: Colors.black),
+                        Icons.candlestick_chart_rounded, color: Colors.black), // Adjust opacity as needed
                     onPressed: () {},
                   ),
                   IconButton(
                     icon: const Icon(
-                        Icons.account_balance, color: Colors.black),
+                        Icons.account_balance, color: Colors.black), // Adjust opacity as needed
                     onPressed: () {},
                   ),
                 ],
@@ -165,14 +174,14 @@ Widget _buildCircularButton(IconData icon, String subtitle, VoidCallback onPress
         child: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.black, width: 2.0),
+            border: Border.all(color: Colors.black.withOpacity(0.7)), // Adjust opacity as needed
           ),
           child: CircleAvatar(
-            backgroundColor: Colors.white,
+            backgroundColor: Colors.white.withOpacity(0.8), // Adjust opacity as needed
             radius: 25,
             child: Icon(
               icon,
-              color: Colors.black,
+              color: Colors.black.withOpacity(0.7), // Adjust opacity as needed
               size: 25,
             ),
           ),
@@ -186,5 +195,3 @@ Widget _buildCircularButton(IconData icon, String subtitle, VoidCallback onPress
     ],
   );
 }
-
-
