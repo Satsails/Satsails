@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:animate_gradient/animate_gradient.dart';
+import '../../channels/greenwallet.dart' as greenwallet;
 
 class Home extends StatefulWidget {
   @override
@@ -15,13 +16,14 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    // checkForWallets();
+    checkForWallets();
   }
 
   void checkForWallets() async {
     final _storage = const FlutterSecureStorage();
     String mnemonic = await _storage.read(key: 'mnemonic') ?? '';
-    // Map<String, dynamic> walletInfo = await greenwallet.Channel('ios_wallet').fetchAllSubAccounts(mnemonic: mnemonic, connectionType: 'electrum-liquid');
+    Map<String, dynamic> walletInfo = await greenwallet.Channel('ios_wallet').fetchAllSubAccounts(mnemonic: mnemonic, connectionType: 'electrum-liquid');
+    print(walletInfo);
   }
 
   @override
@@ -196,6 +198,7 @@ class _HomeState extends State<Home> {
 
   Widget _buildBottomNavigationBar() {
     return BottomNavigationBar(
+      backgroundColor: Color(0xFFFF6F61), // Set the color of the BottomNavigationBar to orange
       currentIndex: _currentIndex,
       onTap: (index) {
         setState(() {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import './channels/greenwallet.dart' as greenwallet;
 import 'pages/creation/start.dart';
-import 'pages/settings/seed_words.dart';
+import 'pages/settings/components/seed_words.dart';
 import 'pages/creation/set_pin.dart';
 import 'pages/login/open_pin.dart';
 import 'pages/home/home.dart';
