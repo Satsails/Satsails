@@ -69,10 +69,13 @@ class _HomeState extends State<Home> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // add all the accounts together and print usd and btc balance
             const SizedBox(height: 100),
             const Text('1 BTC', style: TextStyle(fontSize: 30, color: Colors.white)),
             const SizedBox(height: 10),
-            const Text('40000 USD', style: TextStyle(fontSize: 12, color: Colors.white)),
+            const Text('or', style: TextStyle(fontSize: 12, color: Colors.white)),
+            const SizedBox(height: 10),
+            const Text('40000 USD', style: TextStyle(fontSize: 13, color: Colors.white)),
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
@@ -105,7 +108,7 @@ class _HomeState extends State<Home> {
 
   Widget _buildActionButtons() {
     return SizedBox(
-      height: MediaQuery.of(context).padding.top + kToolbarHeight,
+      height: MediaQuery.of(context).padding.top + kToolbarHeight + 30,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -197,33 +200,40 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      backgroundColor: Color(0xFFFF6F61), // Set the color of the BottomNavigationBar to orange
-      currentIndex: _currentIndex,
-      onTap: (index) {
-        setState(() {
-          _currentIndex = index;
-        });
-      },
-      selectedFontSize: 12,
-      unselectedFontSize: 12,
-      iconSize: 24,
-      unselectedItemColor: Colors.black,
-      selectedItemColor: Colors.black,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.apps),
-          label: 'Apps',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.bar_chart),
-          label: 'Analytics',
-        ),
-      ],
+    return Theme(
+      data: Theme.of(context).copyWith(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+      ),
+      child: BottomNavigationBar(
+        backgroundColor: Colors.transparent,
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
+        iconSize: 24,
+        unselectedItemColor: Colors.white,
+        selectedItemColor: Colors.orangeAccent,
+        elevation: 0.0,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.apps),
+            label: 'Apps',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Analytics',
+          ),
+        ],
+      ),
     );
   }
 }
