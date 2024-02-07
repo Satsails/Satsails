@@ -1,8 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:animate_gradient/animate_gradient.dart';
-import 'dart:ui';
 
 class Home extends StatefulWidget {
   @override
@@ -10,7 +10,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  bool _isSwitched = false;
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -24,171 +24,204 @@ class _HomeState extends State<Home> {
     // Map<String, dynamic> walletInfo = await greenwallet.Channel('ios_wallet').fetchAllSubAccounts(mnemonic: mnemonic, connectionType: 'electrum-liquid');
   }
 
-  // Inside the build method of your _HomeState class
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          AnimateGradient(
-            primaryColors: const [
-              Color(0xFF001F3F), // Darker blue
-              Color(0xFF001F3F), // Light blue
-              Color(0xFF001F3F), // Lighter and less concentrated purplish shade
-            ],
-            secondaryColors: const [
-              Color(0xFF001F3F), // Light lavender
-              Color(0xFF001F3F), // Light blue
-              Color(0xFFFF6F61), // Lighter and less concentrated purplish shade
-            ],
-            duration: const Duration(seconds: 5),
-            reverse: true,
-            child: Column(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: MediaQuery.of(context).padding.top + kToolbarHeight,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 100),
-                        const Text(
-                          '1 BTC',
-                          style: TextStyle(fontSize: 30, color: Colors.white),
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          '40000 USD',
-                          style: TextStyle(fontSize: 12, color: Colors.white),
-                        ),
-                        const SizedBox(height: 30),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Add logic to navigate or perform an action when the button is pressed
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.white.withOpacity(0.8), // Adjust opacity as needed
-                            ),
-                            foregroundColor: MaterialStateProperty.all<Color>(
-                              Colors.black,
-                            ),
-                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                                side: BorderSide(color: Colors.grey[800]!),
-                              ),
-                            ),
-                            elevation: MaterialStateProperty.all<double>(0.0),
-                          ),
-                          child: const Text('View Accounts'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).padding.top + kToolbarHeight,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildCircularButton(Icons.add, 'Add Money', () {}),
-                      _buildCircularButton(
-                          Icons.swap_horizontal_circle, 'Exchange', () {}),
-                      _buildCircularButton(Icons.payment, 'Pay', () {}),
-                      _buildCircularButton(
-                          Icons.arrow_downward_sharp, 'Receive', () {}),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 20.0),
-                    elevation: 8.0,
-                    color: Colors.white.withOpacity(0.9), // Adjust opacity as needed
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20.0),
-                        topRight: Radius.circular(20.0),
-                      ),
-                    ),
-                    child: Container(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    return Stack(
+      children: [
+        AnimateGradient(
+          primaryColors: const [
+            Color(0xFF001F3F),
+            Color(0xFF001F3F),
+            Color(0xFF001F3F),
+          ],
+          secondaryColors: const [
+            Color(0xFF001F3F),
+            Color(0xFF001F3F),
+            Color(0xFFFF6F61),
+          ],
+          duration: const Duration(seconds: 15),
+          reverse: true,
+          child: Column(
             children: [
-              AppBar(
-                backgroundColor: Colors.transparent,
-                title: SizedBox(
-                  height: 50,
-                  child: TextField(
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                      filled: true,
-                      hintStyle: TextStyle(color: Colors.grey[800]),
-                      hintText: "Search",
-                      fillColor: Colors.white.withOpacity(0.8), // Adjust opacity as needed
-                    ),
-                  ),
-                ),
-                leading: IconButton(
-                  icon: const Icon(Icons.settings, color: Colors.white), // Adjust opacity as needed
-                  onPressed: () {},
-                ),
-                actions: <Widget>[
-                  IconButton(
-                    icon: const Icon(
-                        Icons.candlestick_chart_rounded, color: Colors.white), // Adjust opacity as needed
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: const Icon(
-                        Icons.account_balance, color: Colors.white), // Adjust opacity as needed
-                    onPressed: () {},
-                  ),
-                ],
-              ),
+              _buildTopSection(),
+              _buildActionButtons(),
+              _buildBottomNavigationBar(),
             ],
           ),
+        ),
+        _buildAppBar(),
+      ],
+    );
+  }
+
+  Widget _buildTopSection() {
+    return Expanded(
+      child: SizedBox(
+        height: MediaQuery.of(context).padding.top + kToolbarHeight,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 100),
+            const Text('1 BTC', style: TextStyle(fontSize: 30, color: Colors.white)),
+            const SizedBox(height: 10),
+            const Text('40000 USD', style: TextStyle(fontSize: 12, color: Colors.white)),
+            const SizedBox(height: 40),
+            ElevatedButton(
+              onPressed: () {
+                // Add logic to navigate or perform an action when the button is pressed
+              },
+              style: _buildElevatedButtonStyle(),
+              child: const Text('View Accounts'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  ButtonStyle _buildElevatedButtonStyle() {
+    return ButtonStyle(
+      backgroundColor: MaterialStateProperty.all<Color>(
+        Colors.white,
+      ),
+      foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          side: BorderSide(color: Colors.grey[800]!),
+        ),
+      ),
+      elevation: MaterialStateProperty.all<double>(0.0),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return SizedBox(
+      height: MediaQuery.of(context).padding.top + kToolbarHeight,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildCircularButton(Icons.add, 'Add Money', () {}),
+          _buildCircularButton(Icons.swap_horizontal_circle, 'Exchange', () {}),
+          _buildCircularButton(Icons.payment, 'Pay', () {}),
+          _buildCircularButton(Icons.arrow_downward_sharp, 'Receive', () {}),
+          _buildCircularButton(Icons.checklist, 'Transactions', () {}),
         ],
       ),
     );
   }
-}
 
-Widget _buildCircularButton(IconData icon, String subtitle, VoidCallback onPressed) {
-  return Column(
-    children: [
-      InkWell(
-        onTap: onPressed,
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.black.withOpacity(0.7)), // Adjust opacity as needed
-          ),
-          child: CircleAvatar(
-            backgroundColor: Colors.white.withOpacity(0.8), // Adjust opacity as needed
-            radius: 25,
-            child: Icon(
-              icon,
-              color: Colors.black.withOpacity(0.7), // Adjust opacity as needed
-              size: 25,
+  Widget _buildCircularButton(IconData icon, String subtitle, VoidCallback onPressed) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: onPressed,
+          child: Container(
+            margin: const EdgeInsets.only(top: 20),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.white, Colors.white],
+              ),
+              border: Border.all(color: Colors.black.withOpacity(0.7)),
+            ),
+            child: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              radius: 25,
+              child: Icon(
+                icon,
+                color: Colors.black.withOpacity(0.7),
+                size: 25,
+              ),
             ),
           ),
         ),
+        const SizedBox(height: 8),
+        Text(subtitle, style: const TextStyle(fontSize: 10, color: Colors.white)),
+      ],
+    );
+  }
+
+  Widget _buildAppBar() {
+    return Column(
+      children: [
+        AppBar(
+          backgroundColor: Colors.transparent,
+          title: _buildSearchTextField(),
+          leading: IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () {},
+          ),
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.candlestick_chart_rounded, color: Colors.white),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.account_balance, color: Colors.white),
+              onPressed: () {},
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchTextField() {
+    return SizedBox(
+      height: 50,
+      child: TextField(
+        textAlign: TextAlign.center,
+        decoration: InputDecoration(
+          contentPadding: const EdgeInsets.symmetric(vertical: 10),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+          filled: true,
+          hintStyle: TextStyle(color: Colors.grey[800]),
+          hintText: "Search",
+          fillColor: Colors.white
+        ),
       ),
-      const SizedBox(height: 8),
-      Text(
-        subtitle,
-        style: const TextStyle(fontSize: 10, color: Colors.white),
-      ),
-    ],
-  );
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return BottomNavigationBar(
+      currentIndex: _currentIndex,
+      onTap: (index) {
+        setState(() {
+          _currentIndex = index;
+        });
+      },
+      selectedFontSize: 12,
+      unselectedFontSize: 12,
+      iconSize: 24,
+      unselectedItemColor: Colors.black,
+      selectedItemColor: Colors.black,
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.apps),
+          label: 'Apps',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.bar_chart),
+          label: 'Analytics',
+        ),
+      ],
+    );
+  }
 }
+
