@@ -52,7 +52,7 @@ class _HomeState extends State<Home> {
         future: BalanceWrapper().calculateTotalValue(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasError) {
@@ -71,14 +71,14 @@ class _HomeState extends State<Home> {
                   const SizedBox(height: 100),
                   Text(
                     '${btcBalance.toStringAsFixed(8)} BTC',
-                    style: TextStyle(fontSize: 30, color: Colors.white),
+                    style: const TextStyle(fontSize: 30, color: Colors.white),
                   ),
                   const SizedBox(height: 10),
                   const Text('or', style: TextStyle(fontSize: 12, color: Colors.white)),
                   const SizedBox(height: 10),
                   Text(
                     '${usdBalance.toStringAsFixed(2)} USD',
-                    style: TextStyle(fontSize: 13, color: Colors.white),
+                    style: const TextStyle(fontSize: 13, color: Colors.white),
                   ),
                   const SizedBox(height: 40),
                   ElevatedButton(

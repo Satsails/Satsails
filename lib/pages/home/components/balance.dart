@@ -84,7 +84,8 @@ class BalanceWrapper {
   }
 
   Future<Map<String, double>> calculateTotalValue() async {
-    double currentBitcoinPrice = await getBitcoinPrice();
+    // double currentBitcoinPrice = await getBitcoinPrice();
+    double currentBitcoinPrice = 1000000;
     Future<double> bitcoinValue = calculateBitcoinValue(currentBitcoinPrice);
     Future<double> usdValue = calculateUSDValue(currentBitcoinPrice);
     List<double> values = await Future.wait([bitcoinValue, usdValue]);
