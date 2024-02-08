@@ -14,7 +14,8 @@ dependencies:
   pin_code_fields: ^8.0.1
   local_auth: ^2.1.8
   animate_gradient: ^0.0.2+1
-
+  web_socket_channel: ^2.4.0
+  http: ^1.2.0
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_test:

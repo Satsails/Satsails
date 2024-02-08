@@ -1,9 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:animate_gradient/animate_gradient.dart';
-import '../../channels/greenwallet.dart' as greenwallet;
+import './components/balance.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -12,19 +9,6 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    checkForWallets();
-  }
-
-  void checkForWallets() async {
-    final _storage = const FlutterSecureStorage();
-    String mnemonic = await _storage.read(key: 'mnemonic') ?? '';
-    Map<String, dynamic> walletInfo = await greenwallet.Channel('ios_wallet').fetchAllSubAccounts(mnemonic: mnemonic, connectionType: 'electrum-liquid');
-    print(walletInfo);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +27,9 @@ class _HomeState extends State<Home> {
             Color(0xFF001F3F),
           ],
           secondaryColors: const [
-            Color(0xFF001F3F),
-            Color(0xFF001F3F),
             Color(0xFFFF6F61),
+            Color(0xFF001F3F),
+            Color(0xFF001F3F),
           ],
           duration: const Duration(seconds: 15),
           reverse: true,
@@ -64,28 +48,51 @@ class _HomeState extends State<Home> {
 
   Widget _buildTopSection() {
     return Expanded(
-      child: SizedBox(
-        height: MediaQuery.of(context).padding.top + kToolbarHeight,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // add all the accounts together and print usd and btc balance
-            const SizedBox(height: 100),
-            const Text('1 BTC', style: TextStyle(fontSize: 30, color: Colors.white)),
-            const SizedBox(height: 10),
-            const Text('or', style: TextStyle(fontSize: 12, color: Colors.white)),
-            const SizedBox(height: 10),
-            const Text('40000 USD', style: TextStyle(fontSize: 13, color: Colors.white)),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () {
-                // Add logic to navigate or perform an action when the button is pressed
-              },
-              style: _buildElevatedButtonStyle(),
-              child: const Text('View Accounts'),
-            ),
-          ],
-        ),
+      child: FutureBuilder<Map<String, double>>(
+        future: BalanceWrapper().calculateTotalValue(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else {
+            double usdBalance = snapshot.data!["usd"]!;
+            double btcBalance = snapshot.data!["bitcoin"]!;
+
+            return SizedBox(
+              height: MediaQuery.of(context).padding.top + kToolbarHeight,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 100),
+                  Text(
+                    '${btcBalance.toStringAsFixed(8)} BTC',
+                    style: TextStyle(fontSize: 30, color: Colors.white),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text('or', style: TextStyle(fontSize: 12, color: Colors.white)),
+                  const SizedBox(height: 10),
+                  Text(
+                    '${usdBalance.toStringAsFixed(2)} USD',
+                    style: TextStyle(fontSize: 13, color: Colors.white),
+                  ),
+                  const SizedBox(height: 40),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Add logic to navigate or perform an action when the button is pressed
+                    },
+                    style: _buildElevatedButtonStyle(),
+                    child: const Text('View Accounts'),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
       ),
     );
   }
@@ -167,7 +174,7 @@ class _HomeState extends State<Home> {
           ),
           actions: <Widget>[
             IconButton(
-              icon: const Icon(Icons.candlestick_chart_rounded, color: Colors.white),
+              icon: const Icon(Icons.credit_card, color: Colors.white),
               onPressed: () {},
             ),
             IconButton(
@@ -186,14 +193,14 @@ class _HomeState extends State<Home> {
       child: TextField(
         textAlign: TextAlign.center,
         decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(vertical: 10),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30.0),
-          ),
-          filled: true,
-          hintStyle: TextStyle(color: Colors.grey[800]),
-          hintText: "Search",
-          fillColor: Colors.white
+            contentPadding: const EdgeInsets.symmetric(vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30.0),
+            ),
+            filled: true,
+            hintStyle: TextStyle(color: Colors.grey[800]),
+            hintText: "Search",
+            fillColor: Colors.white
         ),
       ),
     );
@@ -237,4 +244,3 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
