@@ -10,7 +10,7 @@ class SeedWords extends StatefulWidget {
 
 class _SeedWordsState extends State<SeedWords> {
   String mnemonic = '';
-  final _storage = FlutterSecureStorage(); // Create an instance of FlutterSecureStorage
+  final _storage = FlutterSecureStorage();
 
   @override
   void initState() {
@@ -19,7 +19,7 @@ class _SeedWordsState extends State<SeedWords> {
   }
 
   Future<void> initMnemonic() async {
-    String? storedMnemonic = await _storage.read(key: 'mnemonic'); // Read the mnemonic words from secure storage
+    String? storedMnemonic = await _storage.read(key: 'mnemonic');
     if (storedMnemonic != null) {
       setState(() {
         mnemonic = storedMnemonic;

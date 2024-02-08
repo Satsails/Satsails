@@ -170,7 +170,9 @@ class _HomeState extends State<Home> {
           title: _buildSearchTextField(),
           leading: IconButton(
             icon: const Icon(Icons.settings, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, '/settings');
+            },
           ),
           actions: <Widget>[
             IconButton(
