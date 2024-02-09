@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animate_gradient/animate_gradient.dart';
 import './components/balance.dart';
+import '../accounts/accounts.dart';
 import './components/search_modal.dart';
 import 'package:provider/provider.dart';
 import '../../providers/settings_provider.dart';
@@ -69,7 +70,7 @@ class _HomeState extends State<Home> {
             );
           } else {
             double usdBalance = snapshot.data!["usd"]!;
-            double btcBalance = snapshot.data!["bitcoin"]!;
+            double btcBalance = snapshot.data!["totalValueInBTC"]!;
 
             return SizedBox(
               height: MediaQuery
@@ -95,7 +96,12 @@ class _HomeState extends State<Home> {
                   const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: () {
-                      // Add logic to navigate or perform an action when the button is pressed
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Accounts(balances: snapshot.data!),
+                        ),
+                      );
                     },
                     style: _buildElevatedButtonStyle(),
                     child: const Text('View Accounts'),
@@ -263,7 +269,6 @@ class _HomeState extends State<Home> {
           ),
         ];
 
-        if (settingsProvider.proMode) {
           bottomNavBarItems.insert(
             1,
             const BottomNavigationBarItem(
@@ -271,7 +276,6 @@ class _HomeState extends State<Home> {
               label: 'Apps',
             ),
           );
-        }
 
         return Theme(
           data: Theme.of(context).copyWith(

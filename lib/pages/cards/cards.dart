@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ExchangeCalculator extends StatelessWidget {
+class Cards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(

@@ -49,30 +49,49 @@ class BalanceWrapper {
   }
 
 
-  Future<double> calculateUSDValue(double bitcoinPrice) async {
-    Map<String, dynamic> balance = await getBalance();
+  Future<Map<String, double>> calculateUSDValue(double bitcoinPrice, Map<String, dynamic> balance) async {
     int bitcoinValue = 0;
     bitcoinValue += balance["bitcoin"] as int;
     bitcoinValue += balance['liquid']['liquid'] as int;
     double bitcoinValueDouble = bitcoinValue.toDouble() / 100000000;
-    double usdValue = bitcoinValueDouble * bitcoinPrice + (balance['liquid']['usd'] / 100000000);
-    return usdValue;
+    double usdOnly = balance['liquid']['usd'] / 100000000;
+    double usdValue = bitcoinValueDouble * bitcoinPrice + (usdOnly);
+    Map<String, double> result = {
+      'usd': usdValue,
+      'usdOnly': usdOnly
+    };
+    return result;
   }
 
-  Future<double> calculateBitcoinValue(double bitcoinPrice) async {
-    Map<String, dynamic> balance = await getBalance();
-    int bitcoinValue = 0;
-    bitcoinValue += balance["bitcoin"] as int;
-    bitcoinValue += balance['liquid']['liquid'] as int;
+  Future<Map<String, double>> calculateBitcoinValue(double bitcoinPrice, Map<String, dynamic> balance) async {
+    int bitcoinValue = (balance["bitcoin"] as int) + (balance['liquid']['liquid'] as int);
 
-    double usdToValue = (balance['liquid']['usd'] / 100000000);
+    double usdToValue = balance['liquid']['usd'] / 100000000;
     double usdToBitcoin = usdToValue / bitcoinPrice;
     double bitcoinValueDouble = bitcoinValue.toDouble() / 100000000;
-
     bitcoinValueDouble += usdToBitcoin;
 
-    return bitcoinValueDouble;
+    double btc = balance["bitcoin"].toDouble() / 100000000;
+    double btcInUsd = balance["bitcoin"].toDouble() * bitcoinPrice / 100000000;
+
+    double lBtc = balance['liquid']['liquid'].toDouble() / 100000000;
+    double lBtcInUsd = balance['liquid']['liquid'].toDouble() * bitcoinPrice / 100000000;
+
+    double totalBtcOnly = btc + lBtc;
+    double totalBtcOnlyInUsd = totalBtcOnly * bitcoinPrice;
+    double totalValueInBTC = bitcoinValueDouble;
+
+    return {
+      'btc': btc,
+      'btcInUsd': btcInUsd,
+      'l-btc': lBtc,
+      'l-btcInUsd': lBtcInUsd,
+      'totalBtcOnly': totalBtcOnly,
+      'totalBtcOnlyInUsd': totalBtcOnlyInUsd,
+      'totalValueInBTC': totalValueInBTC,
+    };
   }
+
 
   Future<double> getBitcoinPrice() async {
     try {
@@ -85,15 +104,13 @@ class BalanceWrapper {
 
   Future<Map<String, double>> calculateTotalValue() async {
     // double currentBitcoinPrice = await getBitcoinPrice();
+    Map<String, dynamic> balance = await getBalance();
     double currentBitcoinPrice = 1000000;
-    Future<double> bitcoinValue = calculateBitcoinValue(currentBitcoinPrice);
-    Future<double> usdValue = calculateUSDValue(currentBitcoinPrice);
-    List<double> values = await Future.wait([bitcoinValue, usdValue]);
-
-    Map<String, double> result = {
-      'bitcoin': values[0],
-      'usd': values[1],
-    };
+    Future<Map<String, double>> bitcoinValue = calculateBitcoinValue(currentBitcoinPrice, balance);
+    Future<Map<String, double>> usd = calculateUSDValue(currentBitcoinPrice, balance);
+    Map<String, double> result = {};
+    result.addAll(await bitcoinValue);
+    result.addAll(await usd);
 
     return result;
   }
