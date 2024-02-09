@@ -66,8 +66,9 @@ class Accounts extends StatelessWidget {
             ),
             const SizedBox(height: 12.0),
             _buildAccountCard(
-              title: 'Lightening Network BTC',
+              title: 'Lightening Network',
               subtitle: 'Coming Soon',
+              disabled: true,
             ),
             _buildAutoManagementToggle(),
           ],
@@ -84,6 +85,7 @@ class Accounts extends StatelessWidget {
   }) {
     return Card(
       elevation: 4.0,
+      color: disabled ? Colors.grey[300] : Colors.white,
       child: ListTile(
         contentPadding: const EdgeInsets.all(12.0),
         title: Text(
@@ -93,7 +95,7 @@ class Accounts extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        subtitle: disabled ? null : Text(subtitle ?? ''),
+        subtitle: Text(subtitle ?? ''),
         trailing: Text(
           value ?? '',
           style: const TextStyle(

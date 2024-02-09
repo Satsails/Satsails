@@ -73,10 +73,7 @@ class _HomeState extends State<Home> {
             double btcBalance = snapshot.data!["totalValueInBTC"]!;
 
             return SizedBox(
-              height: MediaQuery
-                  .of(context)
-                  .padding
-                  .top + kToolbarHeight,
+              height: MediaQuery.of(context).padding.top + kToolbarHeight,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -99,7 +96,8 @@ class _HomeState extends State<Home> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Accounts(balances: snapshot.data!),
+                          builder: (context) =>
+                              Accounts(balances: snapshot.data!),
                         ),
                       );
                     },
@@ -140,10 +138,15 @@ class _HomeState extends State<Home> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildCircularButton(Icons.add, 'Add Money', () {}, Colors.grey),
-              _buildCircularButton(Icons.swap_horizontal_circle, 'Exchange', () {}, Colors.white),
-              _buildCircularButton(Icons.payment, 'Pay', () {}, Colors.white),
-              _buildCircularButton(Icons.arrow_downward_sharp, 'Receive', () {}, Colors.white),
-              _buildCircularButton(Icons.checklist, 'Transactions', () {}, Colors.white),
+              _buildCircularButton(Icons.swap_horizontal_circle, 'Exchange',
+                  () {
+                Navigator.pushNamed(context, '/exchange');
+              }, Colors.white),
+              _buildCircularButton(Icons.payments, 'Pay', () {}, Colors.white),
+              _buildCircularButton(
+                  Icons.arrow_downward_sharp, 'Receive', () {}, Colors.white),
+              _buildCircularButton(
+                  Icons.checklist, 'Transactions', () {}, Colors.white),
             ],
           ),
         );
@@ -151,8 +154,8 @@ class _HomeState extends State<Home> {
     );
   }
 
-
-  Widget _buildCircularButton(IconData icon, String subtitle, VoidCallback onPressed, Color color) {
+  Widget _buildCircularButton(
+      IconData icon, String subtitle, VoidCallback onPressed, Color color) {
     return Column(
       children: [
         InkWell(
@@ -269,13 +272,13 @@ class _HomeState extends State<Home> {
           ),
         ];
 
-          bottomNavBarItems.insert(
-            1,
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.apps, color: Colors.white),
-              label: 'Apps',
-            ),
-          );
+        bottomNavBarItems.insert(
+          1,
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.apps),
+            label: 'Apps',
+          ),
+        );
 
         return Theme(
           data: Theme.of(context).copyWith(

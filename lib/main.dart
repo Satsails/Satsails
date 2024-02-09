@@ -11,6 +11,8 @@ import 'pages/accounts/accounts.dart';
 import 'pages/creation/set_pin.dart';
 import 'pages/login/open_pin.dart';
 import 'pages/home/home.dart';
+import 'pages/exchange/exchange.dart';
+import 'pages/support/info.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +25,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => AccountsProvider()),
         // Add more providers as needed
       ],
-      child: MainApp(initialRoute: mnemonic == null ? '/' : '/accounts'),
+      child: MainApp(initialRoute: mnemonic == null ? '/' : '/home'),
     ),
   );
   await greenwallet.Channel('ios_wallet').walletInit();
@@ -45,6 +47,8 @@ class MainApp extends StatelessWidget {
         '/accounts': (context) => Accounts(balances: {},),
         '/settings': (context) => Settings(),
         '/set_pin': (context) => const SetPin(),
+        '/exchange': (context) => Exchange(),
+        '/info': (context) => Info(),
         '/home': (context) => Home(),
       },
     );

@@ -29,6 +29,8 @@ class _SettingsState extends State<Settings> {
             _buildDivider(),
             _buildSupportSection(),
             _buildDivider(),
+            _buildInfoSection(),
+            _buildDivider(),
             _buildFiatToggle(),
             _buildDivider(),
             _buildSeedSection(),
@@ -118,6 +120,16 @@ class _SettingsState extends State<Settings> {
       title: const Text('Support'),
       onTap: () {
         // Handle support section tap
+      },
+    );
+  }
+
+  Widget _buildInfoSection() {
+    return ListTile(
+      leading: const Icon(Icons.info),
+      title: const Text('Information'),
+      onTap: () {
+        Navigator.pushNamed(context, '/info');
       },
     );
   }
