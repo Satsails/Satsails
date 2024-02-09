@@ -17,7 +17,7 @@ void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => SettingsProvider(),
-      child: MainApp(initialRoute: mnemonic == null ? '/' : '/settings'),
+      child: MainApp(initialRoute: mnemonic == null ? '/' : '/home'),
     ),
   );
   await greenwallet.Channel('ios_wallet').walletInit();

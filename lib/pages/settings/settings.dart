@@ -37,6 +37,8 @@ class _SettingsState extends State<Settings> {
             _buildDivider(),
             _buildLanguageSection(),
             _buildDivider(),
+            _buildProModeToggle(),
+            _buildDivider(),
           ],
         ),
       ),
@@ -132,7 +134,27 @@ class _SettingsState extends State<Settings> {
           trailing: Switch(
             value: settingsProvider.fiatCapabilities,
             onChanged: (bool newValue) {
-              settingsProvider.setFiatCapabilities(newValue);
+              settingsProvider.setFiatCapabilities(false);
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProModeToggle() {
+    return Consumer<SettingsProvider>(
+      builder: (context, settingsProvider, child) {
+        return ListTile(
+          leading: const Icon(Icons.paragliding_rounded),
+          title: const Text('Enable Pro mode'),
+          onTap: () {
+            settingsProvider.setFiatCapabilities(!settingsProvider.proMode);
+          },
+          trailing: Switch(
+            value: settingsProvider.proMode,
+            onChanged: (bool newValue) {
+              settingsProvider.setProMode(false);
             },
           ),
         );

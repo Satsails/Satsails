@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:animate_gradient/animate_gradient.dart';
 import './components/balance.dart';
+import './components/search_modal.dart';
+import 'package:provider/provider.dart';
+import '../../providers/settings_provider.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -9,6 +12,11 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
+
+  void initState() {
+    super.initState();
+    Provider.of<SettingsProvider>(context, listen: false).loadPreferences();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +72,10 @@ class _HomeState extends State<Home> {
             double btcBalance = snapshot.data!["bitcoin"]!;
 
             return SizedBox(
-              height: MediaQuery.of(context).padding.top + kToolbarHeight,
+              height: MediaQuery
+                  .of(context)
+                  .padding
+                  .top + kToolbarHeight,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -74,7 +85,8 @@ class _HomeState extends State<Home> {
                     style: const TextStyle(fontSize: 30, color: Colors.white),
                   ),
                   const SizedBox(height: 10),
-                  const Text('or', style: TextStyle(fontSize: 12, color: Colors.white)),
+                  const Text('or',
+                      style: TextStyle(fontSize: 12, color: Colors.white)),
                   const SizedBox(height: 10),
                   Text(
                     '${usdBalance.toStringAsFixed(2)} USD',
@@ -114,22 +126,27 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildActionButtons() {
-    return SizedBox(
-      height: MediaQuery.of(context).padding.top + kToolbarHeight + 30,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildCircularButton(Icons.add, 'Add Money', () {}),
-          _buildCircularButton(Icons.swap_horizontal_circle, 'Exchange', () {}),
-          _buildCircularButton(Icons.payment, 'Pay', () {}),
-          _buildCircularButton(Icons.arrow_downward_sharp, 'Receive', () {}),
-          _buildCircularButton(Icons.checklist, 'Transactions', () {}),
-        ],
-      ),
+    return Consumer<SettingsProvider>(
+      builder: (context, settingsProvider, child) {
+        return SizedBox(
+          height: MediaQuery.of(context).padding.top + kToolbarHeight + 30,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildCircularButton(Icons.add, 'Add Money', () {}, Colors.grey),
+              _buildCircularButton(Icons.swap_horizontal_circle, 'Exchange', () {}, Colors.white),
+              _buildCircularButton(Icons.payment, 'Pay', () {}, Colors.white),
+              _buildCircularButton(Icons.arrow_downward_sharp, 'Receive', () {}, Colors.white),
+              _buildCircularButton(Icons.checklist, 'Transactions', () {}, Colors.white),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildCircularButton(IconData icon, String subtitle, VoidCallback onPressed) {
+
+  Widget _buildCircularButton(IconData icon, String subtitle, VoidCallback onPressed, Color color) {
     return Column(
       children: [
         InkWell(
@@ -138,10 +155,10 @@ class _HomeState extends State<Home> {
             margin: const EdgeInsets.only(top: 20),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Colors.white, Colors.white],
+                colors: [color, color],
               ),
               border: Border.all(color: Colors.black.withOpacity(0.7)),
             ),
@@ -157,92 +174,128 @@ class _HomeState extends State<Home> {
           ),
         ),
         const SizedBox(height: 8),
-        Text(subtitle, style: const TextStyle(fontSize: 10, color: Colors.white)),
+        Text(subtitle,
+            style: const TextStyle(fontSize: 10, color: Colors.white)),
       ],
     );
   }
 
   Widget _buildAppBar() {
-    return Column(
-      children: [
-        AppBar(
-          backgroundColor: Colors.transparent,
-          title: _buildSearchTextField(),
-          leading: IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, '/settings');
-            },
-          ),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.credit_card, color: Colors.white),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: const Icon(Icons.account_balance, color: Colors.white),
-              onPressed: () {},
+    return Consumer<SettingsProvider>(
+      builder: (context, settingsProvider, child) {
+        return Column(
+          children: [
+            AppBar(
+              backgroundColor: Colors.transparent,
+              title: _buildSearchTextField(context),
+              leading: IconButton(
+                icon: const Icon(Icons.settings, color: Colors.white),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/settings');
+                },
+              ),
+              actions: <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.credit_card),
+                  color: settingsProvider.proMode ? Colors.white : Colors.grey,
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onPressed: settingsProvider.proMode ? null : () {},
+                ),
+                IconButton(
+                  icon: const Icon(Icons.account_balance),
+                  color: settingsProvider.proMode ? Colors.white : Colors.grey,
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onPressed: settingsProvider.proMode ? null : () {},
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
-  Widget _buildSearchTextField() {
+  Widget _buildSearchTextField(BuildContext context) {
     return SizedBox(
       height: 50,
-      child: TextField(
-        textAlign: TextAlign.center,
-        decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(vertical: 10),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30.0),
+      child: GestureDetector(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return SearchModal();
+            },
+          );
+        },
+        child: AbsorbPointer(
+          child: TextField(
+            readOnly: true, // Prevents the keyboard from appearing
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              filled: true,
+              hintStyle: TextStyle(color: Colors.grey[800]),
+              hintText: "Search",
+              fillColor: Colors.white,
             ),
-            filled: true,
-            hintStyle: TextStyle(color: Colors.grey[800]),
-            hintText: "Search",
-            fillColor: Colors.white
+          ),
         ),
       ),
     );
   }
 
   Widget _buildBottomNavigationBar() {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-      ),
-      child: BottomNavigationBar(
-        backgroundColor: Colors.transparent,
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        iconSize: 24,
-        unselectedItemColor: Colors.white,
-        selectedItemColor: Colors.orangeAccent,
-        elevation: 0.0,
-        items: const [
-          BottomNavigationBarItem(
+    return Consumer<SettingsProvider>(
+      builder: (context, settingsProvider, child) {
+        List<BottomNavigationBarItem> bottomNavBarItems = [
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.apps),
-            label: 'Apps',
-          ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
             label: 'Analytics',
           ),
-        ],
-      ),
+        ];
+
+        if (settingsProvider.proMode) {
+          bottomNavBarItems.insert(
+            1,
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.apps, color: Colors.white),
+              label: 'Apps',
+            ),
+          );
+        }
+
+        return Theme(
+          data: Theme.of(context).copyWith(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+          ),
+          child: BottomNavigationBar(
+            backgroundColor: Colors.transparent,
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            selectedFontSize: 12,
+            unselectedFontSize: 12,
+            iconSize: 24,
+            unselectedItemColor: Colors.white,
+            selectedItemColor: Colors.orangeAccent,
+            elevation: 0.0,
+            items: bottomNavBarItems,
+          ),
+        );
+      },
     );
   }
 }
