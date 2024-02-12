@@ -145,8 +145,6 @@ class _HomeState extends State<Home> {
               _buildCircularButton(Icons.payments, 'Pay', () {}, Colors.white),
               _buildCircularButton(
                   Icons.arrow_downward_sharp, 'Receive', () {}, Colors.white),
-              _buildCircularButton(
-                  Icons.checklist, 'Transactions', () {}, Colors.white),
             ],
           ),
         );
@@ -240,7 +238,7 @@ class _HomeState extends State<Home> {
         },
         child: AbsorbPointer(
           child: TextField(
-            readOnly: true, // Prevents the keyboard from appearing
+            readOnly: true,
             textAlign: TextAlign.center,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -269,6 +267,7 @@ class _HomeState extends State<Home> {
           const BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
             label: 'Analytics',
+          //   Divir em gastos com transacoes e com fees de conversao. Mostrar todas as txid (dar a opcao de copiar) e mosrar um grafico ao mes dos gastos. (alternativamente podem ser so as tx para lancar mais rapido)
           ),
         ];
 
@@ -277,6 +276,10 @@ class _HomeState extends State<Home> {
           const BottomNavigationBarItem(
             icon: Icon(Icons.apps),
             label: 'Apps',
+          //   Super sats
+          //   Pay to email
+            //   Alby
+          //   Invest
           ),
         );
 

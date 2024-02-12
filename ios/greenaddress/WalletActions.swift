@@ -216,8 +216,7 @@ public class GDKWallet {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get UTXOs"])
         }
     }
-    //needs struct of asset ids supported (usdt, leur and liquid)
-    //  create blinding transaction for liquid
+
     func sendToAddress(address: String, amount: Int64, assetId: String) throws -> String {
         do {
             let unspentOutputs = try getUnspentOutputs(numberOfConfs: 0)
