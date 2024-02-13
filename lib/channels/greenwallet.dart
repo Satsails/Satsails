@@ -38,7 +38,7 @@ class Channel {
     return Map<String, dynamic>.from(walletInfo);
   }
 
-  Future<Map<String, dynamic>> getReceiveAddress({int pointer = 0, String mnemonic= "", String connectionType = 'electrum-mainnet' }) async {
+  Future<Map<String, dynamic>> getReceiveAddress({int pointer = 1, String mnemonic= "", String connectionType = 'electrum-mainnet' }) async {
     final address = await platform.invokeMethod('getReceiveAddress', <String, dynamic>{
       'pointer': pointer,
       'mnemonic': mnemonic,
@@ -47,7 +47,7 @@ class Channel {
     return Map<String, dynamic>.from(address);
   }
 
-  Future<Map<String, dynamic>> getBalance({int pointer = 0, String mnemonic= "", String connectionType = 'electrum-mainnet' }) async {
+  Future<Map<String, dynamic>> getBalance({int pointer = 1, String mnemonic= "", String connectionType = 'electrum-mainnet' }) async {
     final balance = await platform.invokeMethod('getBalance', <String, dynamic>{
       'pointer': pointer,
       'mnemonic': mnemonic,
@@ -75,7 +75,7 @@ class Channel {
     return transactions;
   }
 
-  Future<String> sendToAddress({String address = '', int pointer = 0, String mnemonic= "", String connectionType = 'electrum-mainnet', int amount = 0,  String assetId = ""}) async {
+  Future<String> sendToAddress({String address = '', int pointer = 1, String mnemonic= "", String connectionType = 'electrum-mainnet', int amount = 0,  String assetId = ""}) async {
     final transaction = await platform.invokeMethod('sendToAddress', <String, dynamic>{
       'address': address,
       'pointer': pointer,

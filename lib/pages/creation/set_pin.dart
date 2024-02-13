@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../channels/greenwallet.dart' as greenwallet;
+import '../../helpers/account_type.dart';
+import '../../helpers/networks.dart';
 
 class SetPin extends StatefulWidget {
   const SetPin({super.key});
@@ -19,6 +21,8 @@ class _SetPinState extends State<SetPin> {
     if (_formKey.currentState!.validate()) {
       await _storage.write(key: 'pin', value: _pin);
       String mnemonic = await greenwallet.Channel('ios_wallet').getMnemonic();
+      await greenwallet.Channel('ios_wallet').createSubAccount(mnemonic: mnemonic, walletType: AccountType.segWit.toString());
+      await greenwallet.Channel('ios_wallet').createSubAccount(mnemonic: mnemonic, walletType: AccountType.segWit.toString(), connectionType: NetworkSecurityCase.liquidSS.network);
       await _storage.write(key: 'mnemonic', value: mnemonic);
       Navigator.pushNamed(context, '/home');
     }
@@ -30,13 +34,13 @@ class _SetPinState extends State<SetPin> {
       appBar: AppBar(
         title: Text('Set PIN'),
       ),
-      body: Center( // Wrap the Column with a Center widget
+      body: Center(
         child: Form(
           key: _formKey,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center, // Center the Column's children vertically
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 PinCodeTextField(
                   appContext: context,

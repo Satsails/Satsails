@@ -92,7 +92,7 @@ class Start extends StatelessWidget {
                           ),
                           minimumSize: MaterialStateProperty.all<Size>(
                               const Size(300.0, 60.0)),
-                        ), // This disables the button
+                        ),
                         child: const Text(
                           'Recover account',
                           style: TextStyle(fontSize: 20.0, color: Colors.white),

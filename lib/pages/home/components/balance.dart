@@ -51,10 +51,11 @@ class BalanceWrapper {
 
   Future<Map<String, double>> calculateUSDValue(double bitcoinPrice, Map<String, dynamic> balance) async {
     int bitcoinValue = 0;
+    double usdBalance = balance['liquid']['usd'] ?? 0;
     bitcoinValue += balance["bitcoin"] as int;
     bitcoinValue += balance['liquid']['liquid'] as int;
     double bitcoinValueDouble = bitcoinValue.toDouble() / 100000000;
-    double usdOnly = balance['liquid']['usd'] / 100000000;
+    double usdOnly = usdBalance / 100000000;
     double usdValue = bitcoinValueDouble * bitcoinPrice + (usdOnly);
     Map<String, double> result = {
       'usd': usdValue,
@@ -66,7 +67,8 @@ class BalanceWrapper {
   Future<Map<String, double>> calculateBitcoinValue(double bitcoinPrice, Map<String, dynamic> balance) async {
     int bitcoinValue = (balance["bitcoin"] as int) + (balance['liquid']['liquid'] as int);
 
-    double usdToValue = balance['liquid']['usd'] / 100000000;
+    double usdBalance = balance['liquid']['usd'] ?? 0;
+    double usdToValue = usdBalance / 100000000;
     double usdToBitcoin = usdToValue / bitcoinPrice;
     double bitcoinValueDouble = bitcoinValue.toDouble() / 100000000;
     bitcoinValueDouble += usdToBitcoin;
