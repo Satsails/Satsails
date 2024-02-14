@@ -1,6 +1,7 @@
 import 'package:provider/provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/accounts_provider.dart';
+import 'providers/balance_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import './channels/greenwallet.dart' as greenwallet;
@@ -23,7 +24,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => SettingsProvider()),
         ChangeNotifierProvider(create: (context) => AccountsProvider()),
-        // Add more providers as needed
+        ChangeNotifierProvider(create: (context) => BalanceProvider(),),
       ],
       child: MainApp(initialRoute: mnemonic == null ? '/' : '/home'),
     ),

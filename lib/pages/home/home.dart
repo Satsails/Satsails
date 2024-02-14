@@ -57,8 +57,8 @@ class _HomeState extends State<Home> {
 
   Widget _buildTopSection() {
     return Expanded(
-      child: FutureBuilder<Map<String, double>>(
-        future: BalanceWrapper().calculateTotalValue(),
+      child: FutureBuilder<Map<String, dynamic>>(
+        future: BalanceWrapper().calculateTotalValue(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(

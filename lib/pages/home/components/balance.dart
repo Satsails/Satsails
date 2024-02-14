@@ -1,9 +1,13 @@
+import 'package:flutter/cupertino.dart';
+
 import '../../../services/bitcoin_price.dart';
 import '../../../channels/greenwallet.dart' as greenwallet;
 import '../../../helpers/networks.dart';
+import '../../../providers/balance_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
 
-
+// make this all return  return ints and then just convert to doubles on show.
 class AssetMapper {
   String mapAsset(String assetId) {
     switch (assetId) {
@@ -18,9 +22,8 @@ class AssetMapper {
     }
   }
 
-  Map<String, dynamic> translateLiquidAssets(Map<String, dynamic> balance) {
-    Map<String, dynamic> liquidBalance = balance['liquid'];
-    Map<String, dynamic> translatedBalance = {};
+  Map<String, int> translateLiquidAssets(Map<String, int> liquidBalance) {
+    Map<String, int> translatedBalance = {};
 
     liquidBalance.forEach((key, value) {
       String translatedKey = mapAsset(key);
@@ -39,56 +42,59 @@ class BalanceWrapper {
     const storage = FlutterSecureStorage();
     // String mnemonic = await storage.read(key: 'mnemonic') ?? '';
     String mnemonic = 'visa hole fiscal already fuel keen girl vault hand antique lesson tattoo';
-    Map<String, dynamic> bitcoinBalance = await greenwallet.Channel('ios_wallet').getBalance(mnemonic: mnemonic, connectionType: NetworkSecurityCase.bitcoinSS.network);
-    Map<String, dynamic> liquidBalance = await greenwallet.Channel('ios_wallet').getBalance(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
-    Map<String, dynamic> balance ={
-      'bitcoin': bitcoinBalance["btc"],
-      'liquid': assetMapper.translateLiquidAssets({'liquid': liquidBalance}),
+    Map<String, int> bitcoinBalance = await greenwallet.Channel('ios_wallet').getBalance(mnemonic: mnemonic, connectionType: NetworkSecurityCase.bitcoinSS.network);
+    Map<String, int> liquidBalance = await greenwallet.Channel('ios_wallet').getBalance(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+    Map<String, dynamic> balance = {
+      'bitcoin': bitcoinBalance["btc"] ?? 0,
+      'liquid': assetMapper.translateLiquidAssets(liquidBalance),
     };
     return balance;
   }
 
 
-  Future<Map<String, double>> calculateUSDValue(double bitcoinPrice, Map<String, dynamic> balance) async {
-    int bitcoinValue = 0;
-    double usdBalance = balance['liquid']['usd'] ?? 0;
-    bitcoinValue += balance["bitcoin"] as int;
-    bitcoinValue += balance['liquid']['liquid'] as int;
-    double bitcoinValueDouble = bitcoinValue.toDouble() / 100000000;
-    double usdOnly = usdBalance / 100000000;
-    double usdValue = bitcoinValueDouble * bitcoinPrice + (usdOnly);
-    Map<String, double> result = {
+  Future<Map<String, dynamic>> calculateUSDValue(double bitcoinPrice, Map<String, dynamic> balance) async {
+    double bitcoinValue = 0;
+    int usdBalance = balance['liquid']['usd'] ?? 0;
+    bitcoinValue += balance["bitcoin"] ?? 0;
+    bitcoinValue += balance['liquid']['liquid'] ?? 0;
+    double bitcoinValueDouble = bitcoinValue / 100000000;
+    double usdValue = bitcoinValueDouble * bitcoinPrice + (usdBalance / 100000000);
+    Map<String, dynamic> result = {
       'usd': usdValue,
-      'usdOnly': usdOnly
+      'usdOnly': usdBalance / 100000000,
+      'usdOnlyInt': usdBalance
     };
     return result;
   }
 
-  Future<Map<String, double>> calculateBitcoinValue(double bitcoinPrice, Map<String, dynamic> balance) async {
+  Future<Map<String, dynamic>> calculateBitcoinValue(double bitcoinPrice, Map<String, dynamic> balance) async {
     int bitcoinValue = (balance["bitcoin"] as int) + (balance['liquid']['liquid'] as int);
 
-    double usdBalance = balance['liquid']['usd'] ?? 0;
+    int usdBalance = balance['liquid']['usd'] ?? 0;
     double usdToValue = usdBalance / 100000000;
     double usdToBitcoin = usdToValue / bitcoinPrice;
     double bitcoinValueDouble = bitcoinValue.toDouble() / 100000000;
     bitcoinValueDouble += usdToBitcoin;
 
-    double btc = balance["bitcoin"].toDouble() / 100000000;
+    int btc = balance["bitcoin"] ?? 0;
     double btcInUsd = balance["bitcoin"].toDouble() * bitcoinPrice / 100000000;
 
-    double lBtc = balance['liquid']['liquid'].toDouble() / 100000000;
+    int lBtc = balance['liquid']['liquid'] ?? 0;
     double lBtcInUsd = balance['liquid']['liquid'].toDouble() * bitcoinPrice / 100000000;
 
-    double totalBtcOnly = btc + lBtc;
-    double totalBtcOnlyInUsd = totalBtcOnly * bitcoinPrice;
+    int totalBtcOnly = btc + lBtc;
+    double totalBtcOnlyInUsd = totalBtcOnly / 10000000 * bitcoinPrice;
     double totalValueInBTC = bitcoinValueDouble;
 
     return {
-      'btc': btc,
+      'btcInt': btc,
+      'btc': btc / 100000000,
       'btcInUsd': btcInUsd,
-      'l-btc': lBtc,
+      'l-btc': lBtc / 100000000,
+      'l-btcInt': lBtc,
       'l-btcInUsd': lBtcInUsd,
-      'totalBtcOnly': totalBtcOnly,
+      'totalBtcOnly': totalBtcOnly / 100000000,
+      'totalBtcOnlyInt': totalBtcOnly,
       'totalBtcOnlyInUsd': totalBtcOnlyInUsd,
       'totalValueInBTC': totalValueInBTC,
     };
@@ -104,16 +110,20 @@ class BalanceWrapper {
     }
   }
 
-  Future<Map<String, double>> calculateTotalValue() async {
+  Future<Map<String, dynamic>> calculateTotalValue(BuildContext context) async {
     // double currentBitcoinPrice = await getBitcoinPrice();
     Map<String, dynamic> balance = await getBalance();
     double currentBitcoinPrice = 1000000;
-    Future<Map<String, double>> bitcoinValue = calculateBitcoinValue(currentBitcoinPrice, balance);
-    Future<Map<String, double>> usd = calculateUSDValue(currentBitcoinPrice, balance);
-    Map<String, double> result = {};
+    Future<Map<String, dynamic>> bitcoinValue = calculateBitcoinValue(currentBitcoinPrice, balance);
+    Future<Map<String, dynamic>> usd = calculateUSDValue(currentBitcoinPrice, balance);
+    Map<String, dynamic> result = {};
     result.addAll(await bitcoinValue);
     result.addAll(await usd);
 
+    BalanceProvider balanceProvider = Provider.of<BalanceProvider>(context, listen: false);
+    balanceProvider.setBalance(result);
+
     return result;
   }
+
 }

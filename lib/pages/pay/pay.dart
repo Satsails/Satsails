@@ -8,4 +8,7 @@ class Pay extends StatelessWidget {
       child: Text('This is the Account Component'),
     );
   }
+//   after reading the qr code if it is liquid as if you want to send dollars or bitcoin
+//   for transactions if no sufficient balance, redirect user to exhange so he can manually exhange
+//   (id he has usd and wants to send btc he must go to exhange, convert from usd to l-btc and then to btc and then send)
 }

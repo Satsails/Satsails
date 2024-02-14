@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/accounts_provider.dart';
 
 class Accounts extends StatelessWidget {
-  final Map<String, double> balances;
+  final Map<String, dynamic> balances;
 
   const Accounts({Key? key, required this.balances}) : super(key: key);
 

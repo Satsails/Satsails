@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/io.dart';
 
 class SideswapPeg {
   late IOWebSocketChannel _channel;
+  final _messageController = StreamController<dynamic>.broadcast();
+
+  Stream<dynamic> get messageStream => _messageController.stream;
 
   void connect({
     required String recv_addr,
@@ -32,25 +36,28 @@ class SideswapPeg {
   void handleIncomingMessage(dynamic message) {
     if (message is String) {
       var decodedMessage = json.decode(message);
-      print(decodedMessage);
+      _messageController.add(decodedMessage);
     }
   }
 
-
   void close() {
     _channel.sink.close();
+    _messageController.close();
   }
 }
 
 class SideswapPegStatus {
   late IOWebSocketChannel _channel;
+  final _messageController = StreamController<dynamic>.broadcast();
+
+  Stream<dynamic> get messageStream => _messageController.stream;
 
   void connect({
     required String order_id,
-    required bool peg_in,
+    required bool pegIn,
   }) {
     _channel = IOWebSocketChannel.connect('wss://api.sideswap.io/json-rpc-ws');
-    peg(method: 'peg_status', peg_in: peg_in, order_id: order_id);
+    peg(method: 'peg_status', pegIn: pegIn, order_id: order_id);
 
     _channel.stream.listen(handleIncomingMessage);
   }
@@ -58,13 +65,13 @@ class SideswapPegStatus {
   void peg({
     required String method,
     required String order_id,
-    required bool? peg_in,
+    required bool? pegIn,
   }) {
     _channel.sink.add(json.encode({
       'id': 1,
       'method': method,
       'params': {
-        'peg_in': peg_in,
+        'peg_in': pegIn,
         'order_id': order_id,
       },
     }));
@@ -73,11 +80,12 @@ class SideswapPegStatus {
   void handleIncomingMessage(dynamic message) {
     if (message is String) {
       var decodedMessage = json.decode(message);
-      print(decodedMessage);
+      _messageController.add(decodedMessage);
     }
   }
 
   void close() {
     _channel.sink.close();
+    _messageController.close();
   }
 }

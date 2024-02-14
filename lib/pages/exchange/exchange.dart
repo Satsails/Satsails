@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../helpers/wallet_strategy.dart';
+import '../../../providers/balance_provider.dart';
+import 'package:provider/provider.dart';
 
 class Exchange extends StatefulWidget {
   @override
@@ -8,12 +10,15 @@ class Exchange extends StatefulWidget {
 }
 
 class _ExchangeState extends State<Exchange> {
-
+  TextEditingController amountController = TextEditingController();
   String receivingAsset = 'BTC';
   String sendingAsset = 'L-BTC';
   bool sendBitcoins = true;
   bool pegIn = true;
-  int sendAmount = 0;
+  double sendAmount = 0;
+  double maxAmount = 0;
+  double receivingAmount = 0;
+  late Map<String, dynamic> balance = {};
 
   List<String> sendingAssetList = ['BTC', 'L-BTC', 'USDT'];
   List<String> receivingAssetList = ['BTC', 'L-BTC', 'USDT'];
@@ -23,13 +28,41 @@ class _ExchangeState extends State<Exchange> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  void checkMaxAmount(String asset, BuildContext context) {
+    balance = Provider.of<BalanceProvider>(context).balance;
+    double calculatedAmount = 0;
+
+    if (asset == 'BTC') {
+      calculatedAmount = balance['btc'] ?? 0;
+    } else if (asset == 'L-BTC') {
+      calculatedAmount = balance['l-btc'] ?? 0;
+    } else if (asset == 'USDT') {
+      calculatedAmount = balance['usdOnly'] ?? 0;
+    }
+
+    setState(() {
+      maxAmount = calculatedAmount;
+    });
+  }
+
+  void checkAmountToReceive(String sendingAsset, String receivingAsset) {
+    double calculatedAmount = 0;
+
+    if (sendingAsset == 'BTC' && receivingAsset == 'L-BTC' || sendingAsset == 'L-BTC' && receivingAsset == 'BTC') {
+      calculatedAmount = sendAmount * 0.99;
+    } else if (sendingAsset == 'USDT') {
+      calculatedAmount = balance['usdOnly'] ?? 0;
+    }
+
+    setState(() {
+      receivingAmount = calculatedAmount;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    checkMaxAmount(sendingAsset, context);
+    checkAmountToReceive(sendingAsset, receivingAsset);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Exchange'),
@@ -60,6 +93,7 @@ class _ExchangeState extends State<Exchange> {
                     const SizedBox(width: 8.0),
                     Expanded(
                       child: TextField(
+                        controller: amountController,
                         decoration: const InputDecoration(
                           hintText: "0",
                           border: InputBorder.none,
@@ -68,11 +102,25 @@ class _ExchangeState extends State<Exchange> {
                         textAlign: TextAlign.right,
                         keyboardType: TextInputType.number,
                         onChanged: (value) {
-                          setState(() {
-                            sendAmount = int.tryParse(value) ?? 0;
-                          });
+                          double enteredAmount = double.tryParse(value) ?? 0;
+
+                          if (enteredAmount > maxAmount) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Entered amount cannot be greater than $maxAmount."),
+                              ),
+                            );
+
+                            // Reset the TextFieldext to the maxAmount
+                            amountController.text = maxAmount.toString();
+                          } else {
+                            setState(() {
+                              sendAmount = enteredAmount;
+                            });
+                          }
                         },
                       ),
+
                     ),
                   ],
                 ),
@@ -103,6 +151,14 @@ class _ExchangeState extends State<Exchange> {
                           child: Text(asset),
                         );
                       }).toList(),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Expanded(
+                      child: Text(
+                        'Amount to receive: $receivingAmount',
+                        textAlign: TextAlign.right,
+                        style: TextStyle(fontSize: 16.0),
+                      ),
                     ),
                   ],
                 ),
