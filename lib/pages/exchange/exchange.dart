@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../helpers/wallet_strategy.dart';
@@ -26,6 +27,12 @@ class _ExchangeState extends State<Exchange> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    super.dispose();
   }
 
   void checkMaxAmount(String asset, BuildContext context) {
@@ -92,35 +99,47 @@ class _ExchangeState extends State<Exchange> {
                     ),
                     const SizedBox(width: 8.0),
                     Expanded(
-                      child: TextField(
-                        controller: amountController,
-                        decoration: const InputDecoration(
-                          hintText: "0",
-                          border: InputBorder.none,
-                          alignLabelWithHint: true,
-                        ),
-                        textAlign: TextAlign.right,
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          double enteredAmount = double.tryParse(value) ?? 0;
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextField(
+                            controller: amountController,
+                            decoration: const InputDecoration(
+                              hintText: "0",
+                              border: InputBorder.none,
+                              alignLabelWithHint: true,
+                            ),
+                            textAlign: TextAlign.right,
+                            keyboardType: TextInputType.number,
+                            onChanged: (value) {
+                              double enteredAmount = double.tryParse(value) ?? 0;
 
-                          if (enteredAmount > maxAmount) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Entered amount cannot be greater than $maxAmount."),
-                              ),
-                            );
-
-                            // Reset the TextFieldext to the maxAmount
-                            amountController.text = maxAmount.toString();
-                          } else {
-                            setState(() {
-                              sendAmount = enteredAmount;
-                            });
-                          }
-                        },
+                              if (enteredAmount > maxAmount) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Entered amount cannot be greater than $maxAmount."),
+                                  ),
+                                );
+                                amountController.text = maxAmount.toString();
+                                setState(() {
+                                  sendAmount = maxAmount;
+                                });
+                              } else {
+                                setState(() {
+                                  sendAmount = enteredAmount;
+                                });
+                              }
+                            },
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              'Max: $maxAmount', // Display maxAmount
+                              style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                            ),
+                          ),
+                        ],
                       ),
-
                     ),
                   ],
                 ),
