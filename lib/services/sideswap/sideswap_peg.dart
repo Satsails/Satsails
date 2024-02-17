@@ -53,18 +53,18 @@ class SideswapPegStatus {
   Stream<dynamic> get messageStream => _messageController.stream;
 
   void connect({
-    required String order_id,
+    required String orderId,
     required bool pegIn,
   }) {
     _channel = IOWebSocketChannel.connect('wss://api.sideswap.io/json-rpc-ws');
-    peg(method: 'peg_status', pegIn: pegIn, order_id: order_id);
+    peg(method: 'peg_status', pegIn: pegIn, orderId: orderId);
 
     _channel.stream.listen(handleIncomingMessage);
   }
 
   void peg({
     required String method,
-    required String order_id,
+    required String orderId,
     required bool? pegIn,
   }) {
     _channel.sink.add(json.encode({
@@ -72,7 +72,7 @@ class SideswapPegStatus {
       'method': method,
       'params': {
         'peg_in': pegIn,
-        'order_id': order_id,
+        'order_id': orderId,
       },
     }));
   }

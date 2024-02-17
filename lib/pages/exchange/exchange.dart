@@ -1,9 +1,17 @@
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../helpers/wallet_strategy.dart';
 import '../../../providers/balance_provider.dart';
 import 'package:provider/provider.dart';
+import './components/peg_status.dart';
+
+// toggle visibility of sheet
+// add min values for each asset
+// implement transactions saving
+// implement reopening draggable sheet
+// implement swapping assets
 
 class Exchange extends StatefulWidget {
   @override
@@ -18,8 +26,11 @@ class _ExchangeState extends State<Exchange> {
   bool pegIn = true;
   double sendAmount = 0;
   double maxAmount = 0;
+  double minAmount = 0;
   double receivingAmount = 0;
+  bool isSheetVisible = false;
   late Map<String, dynamic> balance = {};
+  late WalletStrategy walletStrategy;
 
   List<String> sendingAssetList = ['BTC', 'L-BTC', 'USDT'];
   List<String> receivingAssetList = ['BTC', 'L-BTC', 'USDT'];
@@ -27,12 +38,20 @@ class _ExchangeState extends State<Exchange> {
   @override
   void initState() {
     super.initState();
+    walletStrategy = WalletStrategy();
   }
 
   @override
   void dispose() {
     amountController.dispose();
     super.dispose();
+  }
+
+  Future<Stream<dynamic>> streamAndPayPegStatus() async {
+    int sendAmountInSatoshi = (sendAmount * 100000000).toInt();
+    Map<String, dynamic> data = await walletStrategy.checkSideswapType(sendingAsset, receivingAsset, pegIn, sendAmountInSatoshi);
+    Stream<dynamic> pegStatus = walletStrategy.checkPegStatus(data["order_id"], pegIn);
+    return pegStatus;
   }
 
   void checkMaxAmount(String asset, BuildContext context) {
@@ -49,6 +68,20 @@ class _ExchangeState extends State<Exchange> {
 
     setState(() {
       maxAmount = calculatedAmount;
+    });
+  }
+
+  void checkMinAmount(String asset, BuildContext context) {
+    double calculatedAmount = 0;
+
+    if (asset == 'BTC') {
+      calculatedAmount = 0.0001;
+    } else if (asset == 'L-BTC') {
+      calculatedAmount = 0.001;
+    }
+
+    setState(() {
+      minAmount = calculatedAmount;
     });
   }
 
@@ -69,6 +102,7 @@ class _ExchangeState extends State<Exchange> {
   @override
   Widget build(BuildContext context) {
     checkMaxAmount(sendingAsset, context);
+    checkMinAmount(sendingAsset, context);
     checkAmountToReceive(sendingAsset, receivingAsset);
     return Scaffold(
       appBar: AppBar(
@@ -135,7 +169,7 @@ class _ExchangeState extends State<Exchange> {
                             alignment: Alignment.centerRight,
                             child: Text(
                               'Max: $maxAmount', // Display maxAmount
-                              style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                              style: const TextStyle(fontSize: 12.0, color: Colors.grey),
                             ),
                           ),
                         ],
@@ -174,9 +208,9 @@ class _ExchangeState extends State<Exchange> {
                     const SizedBox(width: 8.0),
                     Expanded(
                       child: Text(
-                        'Amount to receive: $receivingAmount',
+                        'Amount to receive without fees: $receivingAmount',
                         textAlign: TextAlign.right,
-                        style: TextStyle(fontSize: 16.0),
+                        style: const TextStyle(fontSize: 12.0),
                       ),
                     ),
                   ],
@@ -186,27 +220,56 @@ class _ExchangeState extends State<Exchange> {
                 },
               ),
             ),
+            const SizedBox(height: 20.0),
             ElevatedButton(
-              onPressed: () {
+              // onPressed: sendAmount == 0 || sendAmount < minAmount
+                onPressed: sendAmount == 0
+                  ? null
+                  : () {
                 if (sendingAsset == receivingAsset) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("You can't convert the same asset."),
                     ),
                   );
-                } else if (sendingAsset == "BTC" && receivingAsset == "USDT" || sendingAsset == "USDT" && receivingAsset == "BTC") {
+                } else if (sendingAsset == "BTC" && receivingAsset == "USDT" ||
+                    sendingAsset == "USDT" && receivingAsset == "BTC") {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text("You can't convert BTC to USDT directly. Please convert first to L-BTC. Feature is still in beta"),
+                      content: Text(
+                          "You can't convert BTC to USDT directly. Please convert first to L-BTC. Feature is still in beta"),
                     ),
                   );
                 } else {
-                  // Add the else block for other conditions if needed
-                  WalletStrategy().checkSideswapType(sendingAsset, receivingAsset, pegIn);
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return FutureBuilder<Stream<dynamic>>(
+                        future: streamAndPayPegStatus(),
+                        builder: (BuildContext context, AsyncSnapshot<Stream<dynamic>> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator(
+                              color: Colors.blue,
+                            ));
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            return PegStatusSheet(
+                              pegStatus: snapshot.data!,
+                            );
+                          }
+                        },
+                      );
+                    },
+                  );
                 }
               },
               child: const Text('Convert'),
-            )
+            ),
+            Text(
+              'Min to send: $minAmount', // Display minAmount
+              style: const TextStyle(fontSize: 12.0, color: Colors.grey),
+            ),
           ],
         ),
       ),

@@ -40,8 +40,7 @@ class BalanceWrapper {
 
   Future<Map<String, dynamic>> getBalance() async {
     const storage = FlutterSecureStorage();
-    // String mnemonic = await storage.read(key: 'mnemonic') ?? '';
-    String mnemonic = 'visa hole fiscal already fuel keen girl vault hand antique lesson tattoo';
+    String mnemonic = await storage.read(key: 'mnemonic') ?? '';
     Map<String, int> bitcoinBalance = await greenwallet.Channel('ios_wallet').getBalance(mnemonic: mnemonic, connectionType: NetworkSecurityCase.bitcoinSS.network);
     Map<String, int> liquidBalance = await greenwallet.Channel('ios_wallet').getBalance(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
     Map<String, dynamic> balance = {
@@ -61,6 +60,7 @@ class BalanceWrapper {
     double usdValue = bitcoinValueDouble * bitcoinPrice + (usdBalance / 100000000);
     Map<String, dynamic> result = {
       'usd': usdValue,
+      'usdInt': usdValue * 100000000,
       'usdOnly': usdBalance / 100000000,
       'usdOnlyInt': usdBalance
     };
@@ -83,7 +83,7 @@ class BalanceWrapper {
     double lBtcInUsd = balance['liquid']['liquid'].toDouble() * bitcoinPrice / 100000000;
 
     int totalBtcOnly = btc + lBtc;
-    double totalBtcOnlyInUsd = totalBtcOnly / 10000000 * bitcoinPrice;
+    double totalBtcOnlyInUsd = totalBtcOnly / 100000000 * bitcoinPrice;
     double totalValueInBTC = bitcoinValueDouble;
 
     return {

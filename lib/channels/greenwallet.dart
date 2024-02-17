@@ -27,7 +27,7 @@ class Channel {
     return Map<String, dynamic>.from(walletInfo);
   }
 
-  Future<Map<String, dynamic>> createSubAccount({String name = 'wallet', String walletType = 'p2pkh', String? mnemonic, String connectionType = 'electrum-mainnet' }) async {
+  Future<Map<String, dynamic>> createSubAccount({String name = 'wallet', String walletType = 'p2sh-p2wpkh', String? mnemonic, String connectionType = 'electrum-mainnet' }) async {
     mnemonic ??= "";
     final walletInfo =  await platform.invokeMethod('createSubAccount', <String, dynamic>{
       'name': name,
@@ -47,7 +47,7 @@ class Channel {
     return Map<String, dynamic>.from(address);
   }
 
-  Future<Map<String, int>> getBalance({int pointer = 0, String mnemonic= "", String connectionType = 'electrum-mainnet' }) async {
+  Future<Map<String, int>> getBalance({int pointer = 1, String mnemonic= "", String connectionType = 'electrum-mainnet' }) async {
     final balance = await platform.invokeMethod('getBalance', <String, dynamic>{
       'pointer': pointer,
       'mnemonic': mnemonic,
