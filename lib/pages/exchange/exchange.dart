@@ -223,7 +223,7 @@ class _ExchangeState extends State<Exchange> {
             const SizedBox(height: 20.0),
             ElevatedButton(
               // onPressed: sendAmount == 0 || sendAmount < minAmount
-                onPressed: sendAmount == 0
+                onPressed: sendAmount == 123
                   ? null
                   : () {
                 if (sendingAsset == receivingAsset) {

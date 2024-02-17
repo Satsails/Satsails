@@ -10,6 +10,7 @@ import 'pages/settings/components/seed_words.dart';
 import 'pages/settings/settings.dart';
 import 'pages/accounts/accounts.dart';
 import 'pages/creation/set_pin.dart';
+import 'pages/analytics/analytics.dart';
 import 'pages/login/open_pin.dart';
 import 'pages/home/home.dart';
 import 'pages/exchange/exchange.dart';
@@ -47,6 +48,7 @@ class MainApp extends StatelessWidget {
         '/open_pin': (context) => OpenPin(),
         '/accounts': (context) => Accounts(balances: {},),
         '/settings': (context) => Settings(),
+        '/analytics': (context) => Analytics(),
         '/set_pin': (context) => const SetPin(),
         '/exchange': (context) => Exchange(),
         '/info': (context) => Info(),

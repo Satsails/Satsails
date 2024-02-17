@@ -8,39 +8,65 @@ class PegStatusSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.3,
-      minChildSize: 0.2,
-      maxChildSize: 0.9,
-      builder: (BuildContext context, ScrollController scrollController) {
-        return StreamBuilder<dynamic>(
-          stream: pegStatus,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(
-                  color: Colors.blue,
+    return StreamBuilder<dynamic>(
+      stream: pegStatus,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.blue,
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Text("Error: ${snapshot.error}");
+        } else {
+          Map<String, dynamic> transactionData = snapshot.data!["result"];
+          saveTransactionData(transactionData); // Save the transaction data
+          return SingleChildScrollView(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Your transaction is being processed and it will be credited to your account. Check analytics below for more information."),
+                      const SizedBox(height: 10),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/analytics');
+                          },
+                          child: const Text("Analytics"),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      ListTile(
+                        title: const Text("Transaction Status"),
+                        subtitle: Text(
+                          "${transactionData["list"] != null && transactionData["list"].isNotEmpty ? transactionData["list"]['status'] : 'No data'}",
+                        ),
+                      ),
+                      ListTile(
+                        title: const Text("Amount to receive after fees"),
+                        subtitle: Text(
+                          "${transactionData["list"] != null && transactionData["list"].isNotEmpty ? transactionData["list"]['payout'] / 100000000 : 'No data'}",
+                        ),
+                      ),
+                      ListTile(
+                        title: const Text("txid"),
+                        subtitle: Text(
+                          "${transactionData["list"] != null && transactionData["list"].isNotEmpty ? transactionData["list"]['payout_txid'] : 'No data'}",
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            } else if (snapshot.hasError) {
-              return Text("Error: ${snapshot.error}");
-            } else {
-              Map<String, dynamic> transactionData = snapshot.data!["result"];
-              saveTransactionData(transactionData); // Save the transaction data
-              return SingleChildScrollView(
-                controller: scrollController,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Transaction Status: ${transactionData["list"]['status']}"),
-                    Text("Amount to receive after fees: ${transactionData["list"]['payout']}"),
-                    Text("txid: ${transactionData["list"]['payout_txid']}"),
-                  ],
-                ),
-              );
-            }
-          },
-        );
+              ),
+            ),
+          );
+        }
       },
     );
   }
