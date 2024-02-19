@@ -2,15 +2,17 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../helpers/wallet_strategy.dart';
+import '../../../helpers/exchange.dart';
 import '../../../providers/balance_provider.dart';
 import 'package:provider/provider.dart';
 import './components/peg_status.dart';
 
-// toggle visibility of sheet
-// add min values for each asset
-// implement transactions saving
-// implement reopening draggable sheet
+// redo this with provider and with notify listers and only showing convertible assets from the dropdown once you pick something.
+// Must call 1 method and convert from usd to btc and vice versa.
+
+// FLOW:
+// You click on convert, and a pop up shows with the status. it will be stored in the analytics. The analytics have ongoing transactoins and completed transactions and a fl chart showing all the data, and the aggregates(simple aty first)
+
 // implement swapping assets
 
 class Exchange extends StatefulWidget {
@@ -22,6 +24,7 @@ class _ExchangeState extends State<Exchange> {
   TextEditingController amountController = TextEditingController();
   String receivingAsset = 'BTC';
   String sendingAsset = 'L-BTC';
+  String errorMessage = '';
   bool sendBitcoins = true;
   bool pegIn = true;
   double sendAmount = 0;
@@ -54,6 +57,30 @@ class _ExchangeState extends State<Exchange> {
     return pegStatus;
   }
 
+  Future<void> streamExchangeAmount() async {
+    try {
+      int sendAmountInSatoshi = (sendAmount * 100000000).toInt();
+
+      Stream<dynamic> dataStream = walletStrategy.streamSwapPrices(sendingAsset, sendBitcoins, sendAmountInSatoshi);
+
+      await for (dynamic data in dataStream) {
+        if (data["error_msg"] != null) {
+          setState(() {
+            errorMessage = data["error_msg"];
+          });
+        } else {
+          setState(() {
+            receivingAmount = data["recv_amount"];
+          });
+        }
+      }
+    } catch (error) {
+      setState(() {
+        errorMessage = 'You need to set a value to exchange';
+      });
+    }
+  }
+
   void checkMaxAmount(String asset, BuildContext context) {
     balance = Provider.of<BalanceProvider>(context).balance;
     double calculatedAmount = 0;
@@ -62,8 +89,6 @@ class _ExchangeState extends State<Exchange> {
       calculatedAmount = balance['btc'] ?? 0;
     } else if (asset == 'L-BTC') {
       calculatedAmount = balance['l-btc'] ?? 0;
-    } else if (asset == 'USDT') {
-      calculatedAmount = balance['usdOnly'] ?? 0;
     }
 
     setState(() {
@@ -85,6 +110,17 @@ class _ExchangeState extends State<Exchange> {
     });
   }
 
+  void runExchangeLogic(String asset, BuildContext context) {
+    if (asset == 'BTC' && receivingAsset == 'L-BTC' || asset == 'L-BTC' && receivingAsset == 'BTC') {
+      checkMaxAmount(asset, context);
+      checkMinAmount(asset, context);
+      checkAmountToReceive(sendingAsset, receivingAsset);
+    }
+    else if (asset == 'USDT' || receivingAsset == 'L-BTC' || asset == 'L-BTC' || receivingAsset == 'USDT') {
+      streamExchangeAmount();
+    }
+  }
+
   void checkAmountToReceive(String sendingAsset, String receivingAsset) {
     double calculatedAmount = 0;
 
@@ -101,9 +137,7 @@ class _ExchangeState extends State<Exchange> {
 
   @override
   Widget build(BuildContext context) {
-    checkMaxAmount(sendingAsset, context);
-    checkMinAmount(sendingAsset, context);
-    checkAmountToReceive(sendingAsset, receivingAsset);
+    runExchangeLogic(sendingAsset, context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Exchange'),
@@ -122,6 +156,14 @@ class _ExchangeState extends State<Exchange> {
                       onChanged: (value) {
                         setState(() {
                           sendingAsset = value!;
+                        });
+                        if (sendingAsset == 'L-BTC' && receivingAsset == "USDT") {
+                          setState(() {
+                            sendBitcoins = true;
+                          });
+                        }
+                        setState(() {
+                          sendBitcoins = false;
                         });
                       },
                       items: sendingAssetList.map<DropdownMenuItem<String>>((String asset) {
@@ -268,6 +310,10 @@ class _ExchangeState extends State<Exchange> {
             ),
             Text(
               'Min to send: $minAmount', // Display minAmount
+              style: const TextStyle(fontSize: 12.0, color: Colors.grey),
+            ),
+            Text(
+              '$errorMessage', // Display minAmount
               style: const TextStyle(fontSize: 12.0, color: Colors.grey),
             ),
           ],

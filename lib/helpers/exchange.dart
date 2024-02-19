@@ -2,10 +2,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../channels/greenwallet.dart' as greenwallet;
 import '../../../helpers/networks.dart';
 import '../../services/sideswap/sideswap_peg.dart';
+import '../../services/sideswap/sideswap_exchange.dart';
+
 
 class WalletStrategy {
   late SideswapPeg _webSocketService = SideswapPeg();
   late SideswapPegStatus _webSocketServiceStatus = SideswapPegStatus();
+  late SideswapStreamPrices _webSocketPriceStream = SideswapStreamPrices();
   late int fee;
   late String orderId;
   late String pegAddress;
@@ -54,7 +57,6 @@ class WalletStrategy {
     };
   }
 
-  //
   Stream <dynamic> checkPegStatus(String orderId, bool pegIn) {
     _webSocketServiceStatus.connect(
       orderId: orderId,
@@ -63,14 +65,16 @@ class WalletStrategy {
      return _webSocketServiceStatus.messageStream;
   }
 
+  Stream <dynamic> streamSwapPrices(String asset, bool sendBitcoins, int sendAmount) {
+    _webSocketPriceStream.connect(
+      asset: asset,
+      sendBitcoins: sendBitcoins,
+      sendAmount: sendAmount,
+    );
+    return _webSocketPriceStream.messageStream;
+  }
+
 //   Subscribe to price stream and return the price to the user on button click of convert
 //   on click start conversion and check for swap done
 //   Before swap is done need to upload utxos to the server of asset to be sent
-
-// For transactions you need to have a checkbox of "i want to convert dollars if needed" where a sideswap transfer from usd to l-btc is done
-// if the user has l-btc and wants to send btc or vice versa you will use sideswap to convert the asset.
-// After asset is converted in sufficient amount you will use the wallet to send the asset
-// for lightening addr you will use boltz api to convert btc and lbtc to lightening
-
-// ----
 }

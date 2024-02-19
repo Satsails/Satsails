@@ -8,4 +8,6 @@ class Apps extends StatelessWidget {
       child: Text('This is the Account Component'),
     );
   }
+ //   simple list of (disabled) apps that will be introduced.
+// Auto rebalancing and whatnot
 }

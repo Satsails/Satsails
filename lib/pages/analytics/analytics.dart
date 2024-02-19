@@ -11,5 +11,6 @@ class Analytics extends StatelessWidget {
 //   all the transactions done by the user
 //   all the conversions done
 //   a fl chart with money spend on fees and money sent
+//   a table with ongoing transactions
 
 }

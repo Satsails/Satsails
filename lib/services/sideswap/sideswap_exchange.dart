@@ -3,33 +3,35 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 
-class SideswapPeg extends ChangeNotifier {
+class SideswapStreamPrices  extends ChangeNotifier {
   late IOWebSocketChannel _channel;
   final _messageController = StreamController<dynamic>.broadcast();
-
   Stream<dynamic> get messageStream => _messageController.stream;
 
   void connect({
-    required String recv_addr,
-    required bool peg_in,
+    required String? asset,
+    required bool? sendBitcoins,
+    int? sendAmount,
   }) {
     _channel = IOWebSocketChannel.connect('wss://api.sideswap.io/json-rpc-ws');
-    peg(method: 'peg', peg_in: peg_in, recv_addr: recv_addr);
+    streamPrices(method: 'subscribe_price_stream', asset: asset, sendBitcoins: sendBitcoins, sendAmount: sendAmount);
 
     _channel.stream.listen(handleIncomingMessage);
   }
 
-  void peg({
+  void streamPrices({
+    required String? asset,
     required String method,
-    required bool? peg_in,
-    required String? recv_addr,
+    required bool? sendBitcoins,
+    int? sendAmount,
   }) {
     _channel.sink.add(json.encode({
       'id': 1,
       'method': method,
       'params': {
-        'peg_in': peg_in,
-        'recv_addr': recv_addr,
+        'asset': asset,
+        'send_bitcoins': sendBitcoins,
+        'send_amount': sendAmount,
       },
     }));
   }
@@ -44,51 +46,66 @@ class SideswapPeg extends ChangeNotifier {
 
   void close() {
     _channel.sink.close();
-    _messageController.close();
   }
 }
 
-class SideswapPegStatus extends ChangeNotifier {
+class SideswapStartExchange extends ChangeNotifier {
   late IOWebSocketChannel _channel;
   final _messageController = StreamController<dynamic>.broadcast();
 
-  Stream<dynamic> get messageStream => _messageController.stream;
-
   void connect({
-    required String orderId,
-    required bool pegIn,
+    required String asset,
+    required bool sendBitcoins,
+    required int price,
+    required int recvAmount,
+    int? sendAmount,
   }) {
     _channel = IOWebSocketChannel.connect('wss://api.sideswap.io/json-rpc-ws');
-    peg(method: 'peg_status', pegIn: pegIn, orderId: orderId);
+    startExchange(
+      asset: asset,
+      method: 'start_swap_web',
+      sendBitcoins: sendBitcoins,
+      sendAmount: sendAmount,
+      recvAmount: recvAmount,
+      price: price,
+    );
 
     _channel.stream.listen(handleIncomingMessage);
   }
 
-  void peg({
+  void startExchange({
+    required String asset,
     required String method,
-    required String orderId,
-    required bool? pegIn,
+    required bool sendBitcoins,
+    int? price,
+    int? sendAmount,
+    int? recvAmount,
   }) {
     _channel.sink.add(json.encode({
       'id': 1,
       'method': method,
       'params': {
-        'peg_in': pegIn,
-        'order_id': orderId,
+        'asset': asset,
+        'send_bitcoins': sendBitcoins,
+        'price': price,
+        'send_amount': sendAmount,
+        'recv_amount': recvAmount,
       },
     }));
   }
 
   void handleIncomingMessage(dynamic message) {
-    if (message is String) {
-      var decodedMessage = json.decode(message);
-      _messageController.add(decodedMessage);
-      notifyListeners();
-    }
+    var decodedMessage = json.decode(message);
+    _messageController.add(decodedMessage);
+    notifyListeners();
   }
 
   void close() {
     _channel.sink.close();
-    _messageController.close();
   }
 }
+
+class SideswapUploadData{
+
+}
+
