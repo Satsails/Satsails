@@ -93,6 +93,37 @@ public class Wallet {
             }
             fetchAllSubAccounts(result: result, mnemonic: mnemonic, connectionType: connectionType)
             return
+        case "getUTXOS":
+            guard let args = call.arguments as? [String: Any],
+                  let mnemonic = args["mnemonic"] as? String,
+                  let numberOfConfs = args["numberOfConfs"] as? Int,
+                  let pointer = args["pointer"] as? Int64,
+                  let connectionType = args["connectionType"] as? String else {
+                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
+                return
+            }
+            getUTXOS(result: result, mnemonic: mnemonic, connectionType: connectionType, numberOfConfs: numberOfConfs, pointer: pointer)
+            return
+        case "getFeeEstimates":
+            guard let args = call.arguments as? [String: Any],
+                  let mnemonic = args["mnemonic"] as? String,
+                  let connectionType = args["connectionType"] as? String else {
+                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
+                return
+            }
+            getFeeEstimates(result: result, mnemonic: mnemonic, connectionType: connectionType)
+            return
+         case "signTransaction":
+            guard let args = call.arguments as? [String: Any],
+                  let mnemonic = args["mnemonic"] as? String,
+                  let pointer = args["pointer"] as? Int64,
+                  let connectionType = args["connectionType"] as? String,
+                  let transaction = args["transaction"] as? [String: Any] else {
+                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Incorrect arguments", details: nil))
+                return
+            }
+            signTransaction(result: result, mnemonic: mnemonic, pointer: pointer, connectionType: connectionType, transaction: transaction)
+            return
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -252,6 +283,34 @@ public class Wallet {
         }
     }
     
+    private func getUTXOS(result: @escaping FlutterResult, mnemonic: String,connectionType: String, numberOfConfs: Int, pointer: Int64){
+        do {
+            guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
+                result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
+                return
+            }
+            wallet.subaccountPointer = pointer
+            let utxos = try wallet.getUnspentOutputs(numberOfConfs: numberOfConfs)
+            result(utxos)
+        } catch let error as NSError {
+            result(FlutterError(code: "UTXO error", message: "Error sending regarding utxo: \(error.localizedDescription)", details: nil))
+        }
+    }
+    
+    private func getFeeEstimates(result: @escaping FlutterResult, mnemonic: String, connectionType: String) {
+        do {
+            guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
+                result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
+                return
+            }
+            let fees = try wallet.getFeesEstimates()
+            result(fees)
+        } catch let error as NSError {
+            result(FlutterError(code: "SEND_ERROR", message: "Error sending transaction: \(error.localizedDescription)", details: nil))
+        }
+    }
+    
+    
     private func sendToAddress(result: @escaping FlutterResult, mnemonic: String, pointer: Int64, connectionType: String, address: String, amount: Int64, assetId: String) {
         do {
             guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
@@ -265,7 +324,7 @@ public class Wallet {
             result(FlutterError(code: "SEND_ERROR", message: "Error sending transaction: \(error.localizedDescription)", details: nil))
         }
     }
-
+    
     private func fetchAllSubAccounts(result: @escaping FlutterResult, mnemonic: String, connectionType: String) {
         do {
             guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
@@ -276,6 +335,20 @@ public class Wallet {
             result(subAccounts)
         } catch let error as NSError {
             result(FlutterError(code: "SUBACCOUNT_ERROR", message: "Error fetching subaccounts: \(error.localizedDescription)", details: nil))
+        }
+    }
+
+    private func signTransaction(result: @escaping FlutterResult, mnemonic: String, pointer: Int64, connectionType: String, transaction: [String: Any]) {
+        do {
+            guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
+                result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
+                return
+            }
+            wallet.subaccountPointer = pointer
+            let signedTransaction = try wallet.signTransaction(transaction: transaction)
+            result(signedTransaction)
+        } catch let error as NSError {
+            result(FlutterError(code: "SIGN_TRANSACTION_ERROR", message: "Error signing transaction: \(error.localizedDescription)", details: nil))
         }
     }
 }

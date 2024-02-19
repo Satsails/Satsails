@@ -134,20 +134,20 @@ public class GDKWallet {
             }
         }
     }
-
+    
     func fetchSubAccounts() throws -> [String: Any] {
         let credentials = ["mnemonic": self.mnemonic]
         guard let subaccountsCall = try? self.session?.getSubaccounts(details: credentials as [String : Any]) else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to fetch subaccounts"])
         }
-
+        
         let subaccountsStatus = try DummyResolve(call: subaccountsCall)
-
+        
         guard let result = subaccountsStatus["result"] as? [String: Any],
               let subaccounts = result["subaccounts"] as? [[String: Any]] else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to extract subaccounts data"])
         }
-
+        
         return ["subaccounts": subaccounts]
     }
     
@@ -217,68 +217,92 @@ public class GDKWallet {
         }
     }
 
+    func getFeesEstimates() throws -> [UInt64] {
+        guard let feeEstimates = try self.session?.getFeeEstimates() else {
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get fee estimates"])
+        }
+
+        return feeEstimates["fees"] as? [UInt64] ?? []
+    }
+    
     func sendToAddress(address: String, amount: Int64, assetId: String) throws -> String {
         do {
             let unspentOutputs = try getUnspentOutputs(numberOfConfs: 0)
-            
             var paramsForCreateTransaction: [String: Any]
             
-            if unspentOutputs["coinType"] as? String == "btc" {
-                paramsForCreateTransaction = [
-                    "addressees": [["address": address, "satoshi": amount]],
-                    "utxos": unspentOutputs["utxos"]
-                ]
+            if let coinType = unspentOutputs["coinType"] as? String {
+                if coinType == "btc" {
+                    paramsForCreateTransaction = [
+                        "addressees": [["address": address, "satoshi": amount]],
+                        "utxos": unspentOutputs["utxos"]
+                    ]
+                } else {
+                    paramsForCreateTransaction = [
+                        "addressees": [["address": address, "satoshi": amount, "asset_id": assetId]],
+                        "utxos": unspentOutputs["utxos"]
+                    ]
+                }
+                
+                guard let createTransactionCall = try self.session?.createTransaction(details: paramsForCreateTransaction) else {
+                    throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to create transaction"])
+                }
+                
+                guard let createTransactionResolve = try DummyResolve(call: createTransactionCall) as? [String: Any] else {
+                    throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign or resolve transaction"])
+                }
+                
+                var transactionResult = createTransactionResolve["result"] as? [String: Any] ?? [:]
+                
+                if coinType != "btc" {
+                    guard let blindTransactionCall = try self.session?.blindTransaction(details: transactionResult) else {
+                        throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to blind transaction"])
+                    }
+                    
+                    guard let blindTransactionResolve = try DummyResolve(call: blindTransactionCall) as? [String: Any] else {
+                        throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign or resolve transaction"])
+                    }
+                    
+                    transactionResult = blindTransactionResolve["result"] as? [String: Any] ?? [:]
+                }
+                
+                guard let signTransactionCall = try self.session?.signTransaction(details: transactionResult) else {
+                    throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign transaction"])
+                }
+                
+                let signTransactionResolve = try DummyResolve(call: signTransactionCall)
+                
+                let signTransactionResult = signTransactionResolve["result"] as? [String: Any] ?? [:]
+                
+                guard let sendToAddressCall = try self.session?.sendTransaction(details: signTransactionResult) else {
+                    throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to send to address"])
+                }
+                
+                let sendToAddressStatus = try DummyResolve(call: sendToAddressCall)
+                let result = sendToAddressStatus["result"] as? [String: Any]
+                let txid = result?["txhash"] as? String ?? ""
+                
+                return txid
             } else {
-                paramsForCreateTransaction = [
-                    "addressees": [["address": address, "satoshi": amount, "asset_id": assetId]],
-                    "utxos": unspentOutputs["utxos"]
-                ]
+                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get coin type"])
             }
-            
-            guard let createTransactionCall = try self.session?.createTransaction(details: paramsForCreateTransaction) else {
-                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to create transaction"])
-            }
-            
-            // Resolve the createTransactionCall
-            guard let createTransactionResolve = try DummyResolve(call: createTransactionCall) as? [String: Any] else {
-                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign transaction"])
-            }
-            
-            let createTransactionResult =  createTransactionResolve["result"] as? [String: Any] ?? [:]
-            
-            // blind the transaction
-            guard let bindTransactionCall = try self.session?.blindTransaction(details: createTransactionResult) else {
-                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign transaction"])
-            }
-            
-            guard let blindTransactionResolve = try DummyResolve(call: bindTransactionCall) as? [String: Any] else {
-                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign transaction"])
-            }
-            
-            let blindTransactionResult =  blindTransactionResolve["result"] as? [String: Any] ?? [:]
-            
-            // sign the transaction
-            guard let signTransactionCall = try self.session?.signTransaction(details: blindTransactionResult) else {
-                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign transaction"])
-            }
-            
-            let signTransactionResolve = try DummyResolve(call: signTransactionCall)
-            
-            let signTransactionResult =  signTransactionResolve["result"] as? [String: Any] ?? [:]
-            
-            // Send the transaction
-            guard let sendToAddressCall = try self.session?.sendTransaction(details: signTransactionResult) else {
-                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to send to address"])
-            }
-            
-            // Resolve the sendToAddressCall
-            let sendToAddressStatus = try DummyResolve(call: sendToAddressCall)
-            let result = sendToAddressStatus["result"] as? [String: Any]
-            let txid = result?["txhash"] as? String ?? ""
-            
-            return txid
         } catch {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to send to address"])
+        }
+    }
+
+    func signTransaction(transaction: [String: Any]) throws -> [String: Any] {
+        do {
+            guard let signTransactionCall = try self.session?.signPsbt(details: transaction) else {
+                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign transaction"])
+            }
+
+            let signTransactionResolve = try DummyResolve(call: signTransactionCall)
+
+            let signTransactionResult = signTransactionResolve["result"] as? [String: Any] ?? [:]
+
+            return signTransactionResult
+        } catch {
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign transaction"])
         }
     }
 }
