@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 
-class SideswapStreamPrices  extends ChangeNotifier {
+class SideswapStreamPrices {
   late IOWebSocketChannel _channel;
   final _messageController = StreamController<dynamic>.broadcast();
   Stream<dynamic> get messageStream => _messageController.stream;
@@ -40,7 +39,6 @@ class SideswapStreamPrices  extends ChangeNotifier {
     if (message is String) {
       var decodedMessage = json.decode(message);
       _messageController.add(decodedMessage);
-      notifyListeners();
     }
   }
 
@@ -49,7 +47,7 @@ class SideswapStreamPrices  extends ChangeNotifier {
   }
 }
 
-class SideswapStartExchange extends ChangeNotifier {
+class SideswapStartExchange {
   late IOWebSocketChannel _channel;
   final _messageController = StreamController<dynamic>.broadcast();
 
@@ -97,7 +95,6 @@ class SideswapStartExchange extends ChangeNotifier {
   void handleIncomingMessage(dynamic message) {
     var decodedMessage = json.decode(message);
     _messageController.add(decodedMessage);
-    notifyListeners();
   }
 
   void close() {

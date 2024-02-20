@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 
-class SideswapPeg extends ChangeNotifier {
+class SideswapPeg {
   late IOWebSocketChannel _channel;
   final _messageController = StreamController<dynamic>.broadcast();
 
@@ -38,7 +37,6 @@ class SideswapPeg extends ChangeNotifier {
     if (message is String) {
       var decodedMessage = json.decode(message);
       _messageController.add(decodedMessage);
-      notifyListeners();
     }
   }
 
@@ -48,7 +46,7 @@ class SideswapPeg extends ChangeNotifier {
   }
 }
 
-class SideswapPegStatus extends ChangeNotifier {
+class SideswapPegStatus {
   late IOWebSocketChannel _channel;
   final _messageController = StreamController<dynamic>.broadcast();
 
@@ -83,7 +81,6 @@ class SideswapPegStatus extends ChangeNotifier {
     if (message is String) {
       var decodedMessage = json.decode(message);
       _messageController.add(decodedMessage);
-      notifyListeners();
     }
   }
 

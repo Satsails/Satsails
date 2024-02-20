@@ -1,19 +1,14 @@
 import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
 import '../../../helpers/exchange.dart';
 import '../../../providers/balance_provider.dart';
-import 'package:provider/provider.dart';
+import '../../../services/sideswap/sideswap_status.dart';
 import './components/peg_status.dart';
-
-// redo this with provider and with notify listers and only showing convertible assets from the dropdown once you pick something.
-// Must call 1 method and convert from usd to btc and vice versa.
-
-// FLOW:
-// You click on convert, and a pop up shows with the status. it will be stored in the analytics. The analytics have ongoing transactoins and completed transactions and a fl chart showing all the data, and the aggregates(simple aty first)
-
-// implement swapping assets
 
 class Exchange extends StatefulWidget {
   @override
@@ -21,6 +16,7 @@ class Exchange extends StatefulWidget {
 }
 
 class _ExchangeState extends State<Exchange> {
+  late SideswapServerStatus serverStatus;
   TextEditingController amountController = TextEditingController();
   String receivingAsset = 'BTC';
   String sendingAsset = 'L-BTC';
@@ -32,7 +28,7 @@ class _ExchangeState extends State<Exchange> {
   double minAmount = 0;
   double receivingAmount = 0;
   bool isSheetVisible = false;
-  late Map<String, dynamic> balance = {};
+  late Map<String, dynamic> balance = Provider.of<BalanceProvider>(context).balance;
   late WalletStrategy walletStrategy;
 
   List<String> sendingAssetList = ['BTC', 'L-BTC', 'USDT'];
@@ -42,6 +38,14 @@ class _ExchangeState extends State<Exchange> {
   void initState() {
     super.initState();
     walletStrategy = WalletStrategy();
+    serverStatus = SideswapServerStatus();
+    serverStatus.connect();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // runExchangeLogic(sendingAsset, context);
   }
 
   @override
@@ -49,276 +53,304 @@ class _ExchangeState extends State<Exchange> {
     amountController.dispose();
     super.dispose();
   }
-
-  Future<Stream<dynamic>> streamAndPayPegStatus() async {
-    int sendAmountInSatoshi = (sendAmount * 100000000).toInt();
-    Map<String, dynamic> data = await walletStrategy.checkSideswapType(sendingAsset, receivingAsset, pegIn, sendAmountInSatoshi);
-    Stream<dynamic> pegStatus = walletStrategy.checkPegStatus(data["order_id"], pegIn);
-    return pegStatus;
-  }
-
-  Future<void> streamExchangeAmount() async {
-    try {
-      int sendAmountInSatoshi = (sendAmount * 100000000).toInt();
-
-      Stream<dynamic> dataStream = walletStrategy.streamSwapPrices(sendingAsset, sendBitcoins, sendAmountInSatoshi);
-
-      await for (dynamic data in dataStream) {
-        if (data["error_msg"] != null) {
-          setState(() {
-            errorMessage = data["error_msg"];
-          });
-        } else {
-          setState(() {
-            receivingAmount = data["recv_amount"];
-          });
-        }
-      }
-    } catch (error) {
-      setState(() {
-        errorMessage = 'You need to set a value to exchange';
-      });
-    }
-  }
-
-  void checkMaxAmount(String asset, BuildContext context) {
-    balance = Provider.of<BalanceProvider>(context).balance;
-    double calculatedAmount = 0;
-
-    if (asset == 'BTC') {
-      calculatedAmount = balance['btc'] ?? 0;
-    } else if (asset == 'L-BTC') {
-      calculatedAmount = balance['l-btc'] ?? 0;
-    }
-
-    setState(() {
-      maxAmount = calculatedAmount;
-    });
-  }
-
-  void checkMinAmount(String asset, BuildContext context) {
-    double calculatedAmount = 0;
-
-    if (asset == 'BTC') {
-      calculatedAmount = 0.0001;
-    } else if (asset == 'L-BTC') {
-      calculatedAmount = 0.001;
-    }
-
-    setState(() {
-      minAmount = calculatedAmount;
-    });
-  }
-
-  void runExchangeLogic(String asset, BuildContext context) {
-    if (asset == 'BTC' && receivingAsset == 'L-BTC' || asset == 'L-BTC' && receivingAsset == 'BTC') {
-      checkMaxAmount(asset, context);
-      checkMinAmount(asset, context);
-      checkAmountToReceive(sendingAsset, receivingAsset);
-    }
-    else if (asset == 'USDT' || receivingAsset == 'L-BTC' || asset == 'L-BTC' || receivingAsset == 'USDT') {
-      streamExchangeAmount();
-    }
-  }
-
-  void checkAmountToReceive(String sendingAsset, String receivingAsset) {
-    double calculatedAmount = 0;
-
-    if (sendingAsset == 'BTC' && receivingAsset == 'L-BTC' || sendingAsset == 'L-BTC' && receivingAsset == 'BTC') {
-      calculatedAmount = sendAmount * 0.99;
-    } else if (sendingAsset == 'USDT') {
-      calculatedAmount = balance['usdOnly'] ?? 0;
-    }
-
-    setState(() {
-      receivingAmount = calculatedAmount;
-    });
-  }
-
+  //
+  // Future<Stream<dynamic>> streamAndPayPegStatus() async {
+  //   int sendAmountInSatoshi = (sendAmount * 100000000).toInt();
+  //   Map<String, dynamic> data =
+  //   await walletStrategy.checkSideswapType(sendingAsset, receivingAsset, pegIn, sendAmountInSatoshi);
+  //   Stream<dynamic> pegStatus = walletStrategy.checkPegStatus(data["order_id"], pegIn);
+  //   return pegStatus;
+  // }
+  //
+  // Future<void> streamExchangeAmount() async {
+  //   try {
+  //     int sendAmountInSatoshi = (sendAmount * 100000000).toInt();
+  //     Stream<dynamic> dataStream = walletStrategy.streamSwapPrices(sendingAsset, sendBitcoins, sendAmountInSatoshi);
+  //
+  //     await for (dynamic data in dataStream) {
+  //       if (data["error_msg"] != null) {
+  //         setState(() {
+  //           errorMessage = data["error_msg"];
+  //         });
+  //       } else {
+  //         setState(() {
+  //           receivingAmount = data["recv_amount"];
+  //         });
+  //       }
+  //     }
+  //   } catch (error) {
+  //     setState(() {
+  //       errorMessage = 'You need to set a value to exchange';
+  //     });
+  //   }
+  // }
+  //
+  // void checkMaxAmount(String asset, BuildContext context) {
+  //   double calculatedAmount = 0;
+  //
+  //   if (asset == 'BTC') {
+  //     calculatedAmount = balance['btc'] ?? 0;
+  //   } else if (asset == 'L-BTC') {
+  //     calculatedAmount = balance['l-btc'] ?? 0;
+  //   }
+  //
+  //   maxAmount = calculatedAmount;
+  // }
+  //
+  // void checkMinAmount(String asset, BuildContext context) {
+  //   double calculatedAmount = 0;
+  //
+  //   if (asset == 'BTC') {
+  //     calculatedAmount = 0.0001;
+  //   } else if (asset == 'L-BTC') {
+  //     calculatedAmount = 0.001;
+  //   }
+  //
+  //   setState(() {
+  //     minAmount = calculatedAmount;
+  //   });
+  // }
+  //
+  // void runExchangeLogic(String asset, BuildContext context) {
+  //   if (asset == 'BTC' && receivingAsset == 'L-BTC' || asset == 'L-BTC' && receivingAsset == 'BTC') {
+  //     checkMaxAmount(asset, context);
+  //     checkMinAmount(asset, context);
+  //     checkAmountToReceive(sendingAsset, receivingAsset);
+  //   } else if (asset == 'USDT' || receivingAsset == 'L-BTC' || asset == 'L-BTC' || receivingAsset == 'USDT') {
+  //     streamExchangeAmount();
+  //   }
+  // }
+  //
+  // void checkAmountToReceive(String sendingAsset, String receivingAsset) {
+  //   double calculatedAmount = 0;
+  //
+  //   if (sendingAsset == 'BTC' && receivingAsset == 'L-BTC' || sendingAsset == 'L-BTC' && receivingAsset == 'BTC') {
+  //     calculatedAmount = sendAmount * 0.99;
+  //   } else if (sendingAsset == 'USDT') {
+  //     calculatedAmount = balance['usdOnly'] ?? 0;
+  //   }
+  //
+  //   setState(() {
+  //     receivingAmount = calculatedAmount;
+  //   });
+  // }
+  //
   @override
   Widget build(BuildContext context) {
-    runExchangeLogic(sendingAsset, context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Exchange'),
       ),
-      body: Container(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             const SizedBox(height: 20.0),
-            Card(
-              child: ListTile(
-                title: Row(
-                  children: [
-                    DropdownButton<String>(
-                      value: sendingAsset,
-                      onChanged: (value) {
-                        setState(() {
-                          sendingAsset = value!;
-                        });
-                        if (sendingAsset == 'L-BTC' && receivingAsset == "USDT") {
-                          setState(() {
-                            sendBitcoins = true;
-                          });
-                        }
-                        setState(() {
-                          sendBitcoins = false;
-                        });
-                      },
-                      items: sendingAssetList.map<DropdownMenuItem<String>>((String asset) {
-                        return DropdownMenuItem<String>(
-                          value: asset,
-                          child: Text(asset),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(width: 8.0),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextField(
-                            controller: amountController,
-                            decoration: const InputDecoration(
-                              hintText: "0",
-                              border: InputBorder.none,
-                              alignLabelWithHint: true,
-                            ),
-                            textAlign: TextAlign.right,
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) {
-                              double enteredAmount = double.tryParse(value) ?? 0;
-
-                              if (enteredAmount > maxAmount) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("Entered amount cannot be greater than $maxAmount."),
-                                  ),
-                                );
-                                amountController.text = maxAmount.toString();
-                                setState(() {
-                                  sendAmount = maxAmount;
-                                });
-                              } else {
-                                setState(() {
-                                  sendAmount = enteredAmount;
-                                });
-                              }
-                            },
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              'Max: $maxAmount', // Display maxAmount
-                              style: const TextStyle(fontSize: 12.0, color: Colors.grey),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                onTap: () {
-                  // Add logic when the first ListTile is tapped
-                },
-              ),
-            ),
+            buildSendingAssetCard(context),
             const Icon(
               Icons.arrow_downward,
               size: 40.0,
             ),
-            Card(
-              child: ListTile(
-                subtitle: Row(
-                  children: [
-                    const SizedBox(width: 8.0),
-                    DropdownButton<String>(
-                      value: receivingAsset,
-                      onChanged: (value) {
-                        setState(() {
-                          receivingAsset = value!;
-                        });
-                      },
-                      items: receivingAssetList.map<DropdownMenuItem<String>>((String asset) {
-                        return DropdownMenuItem<String>(
-                          value: asset,
-                          child: Text(asset),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(width: 8.0),
-                    Expanded(
-                      child: Text(
-                        'Amount to receive without fees: $receivingAmount',
-                        textAlign: TextAlign.right,
-                        style: const TextStyle(fontSize: 12.0),
-                      ),
-                    ),
-                  ],
-                ),
-                onTap: () {
-                  // Add logic when the second ListTile is tapped
-                },
-              ),
-            ),
+            buildReceivingAssetCard(),
             const SizedBox(height: 20.0),
-            ElevatedButton(
-              // onPressed: sendAmount == 0 || sendAmount < minAmount
-                onPressed: sendAmount == 123
-                  ? null
-                  : () {
-                if (sendingAsset == receivingAsset) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("You can't convert the same asset."),
-                    ),
-                  );
-                } else if (sendingAsset == "BTC" && receivingAsset == "USDT" ||
-                    sendingAsset == "USDT" && receivingAsset == "BTC") {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                          "You can't convert BTC to USDT directly. Please convert first to L-BTC. Feature is still in beta"),
-                    ),
-                  );
-                } else {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return FutureBuilder<Stream<dynamic>>(
-                        future: streamAndPayPegStatus(),
-                        builder: (BuildContext context, AsyncSnapshot<Stream<dynamic>> snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator(
-                              color: Colors.blue,
-                            ));
-                          } else if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          } else {
-                            return PegStatusSheet(
-                              pegStatus: snapshot.data!,
-                            );
-                          }
-                        },
-                      );
-                    },
-                  );
-                }
-              },
-              child: const Text('Convert'),
-            ),
-            Text(
-              'Min to send: $minAmount', // Display minAmount
-              style: const TextStyle(fontSize: 12.0, color: Colors.grey),
-            ),
-            Text(
-              '$errorMessage', // Display minAmount
-              style: const TextStyle(fontSize: 12.0, color: Colors.grey),
+            buildConvertButton(),
+            buildInfoText('Min to send: $minAmount'),
+            buildInfoText(errorMessage),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Card buildSendingAssetCard(BuildContext context) {
+    return Card(
+      child: ListTile(
+        title: Row(
+          children: [
+            buildSendingAssetDropdown(),
+            const SizedBox(width: 8.0),
+            Expanded(
+              child: buildSendingAssetTextField(),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  DropdownButton<String> buildSendingAssetDropdown() {
+    return DropdownButton<String>(
+      value: sendingAsset,
+      onChanged: (value) {
+        setState(() {
+          sendingAsset = value!;
+          updateReceivingAssetList();
+        });
+      },
+      items: sendingAssetList.map<DropdownMenuItem<String>>((String asset) {
+        return DropdownMenuItem<String>(
+          value: asset,
+          child: Text(asset),
+        );
+      }).toList(),
+    );
+  }
+
+  void updateReceivingAssetList() {
+    if (sendingAsset == 'BTC') {
+      setState(() {
+        receivingAssetList = ['L-BTC'];
+        receivingAsset = 'L-BTC';
+      });
+    } else if (sendingAsset == 'USDT') {
+      setState(() {
+        receivingAssetList = ['L-BTC'];
+        receivingAsset = 'L-BTC';
+      });
+    } else {
+      setState(() {
+        receivingAssetList = ['BTC', 'L-BTC', 'USDT'];
+      });
+    }
+  }
+
+
+
+  Column buildSendingAssetTextField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        buildAmountTextField(),
+        buildMaxAmountText(),
+      ],
+    );
+  }
+
+  TextField buildAmountTextField() {
+    return TextField(
+      controller: amountController,
+      decoration: const InputDecoration(
+        hintText: "0",
+        border: InputBorder.none,
+        alignLabelWithHint: true,
+      ),
+      textAlign: TextAlign.right,
+      keyboardType: TextInputType.number,
+      onChanged: (value) {
+        double enteredAmount = double.tryParse(value) ?? 0;
+
+        if (enteredAmount > maxAmount) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Entered amount cannot be greater than $maxAmount."),
+            ),
+          );
+          amountController.text = maxAmount.toString();
+          setState(() {
+            sendAmount = maxAmount;
+          });
+        } else {
+          setState(() {
+            sendAmount = enteredAmount;
+          });
+        }
+      },
+    );
+  }
+
+  Align buildMaxAmountText() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Text(
+        'Max: $maxAmount', // Display maxAmount
+        style: const TextStyle(fontSize: 12.0, color: Colors.grey),
+      ),
+    );
+  }
+
+  Card buildReceivingAssetCard() {
+    return Card(
+      child: ListTile(
+        subtitle: Row(
+          children: [
+            const SizedBox(width: 8.0),
+            buildReceivingAssetDropdown(),
+            const SizedBox(width: 8.0),
+            Expanded(
+              child: Text(
+                'Amount to receive without fees: $receivingAmount',
+                textAlign: TextAlign.right,
+                style: const TextStyle(fontSize: 12.0),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  DropdownButton<String> buildReceivingAssetDropdown() {
+    return DropdownButton<String>(
+      value: receivingAsset,
+      onChanged: (value) {
+        setState(() {
+          receivingAsset = value!;
+        });
+      },
+      items: receivingAssetList.map<DropdownMenuItem<String>>((String asset) {
+        return DropdownMenuItem<String>(
+          value: asset,
+          child: Text(asset),
+        );
+      }).toList(),
+    );
+  }
+
+  ElevatedButton buildConvertButton() {
+    return ElevatedButton(
+      onPressed: sendAmount == 123
+          ? null
+          : () {
+        if (sendingAsset == receivingAsset) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("You can't convert the same asset."),
+            ),
+          );
+        } else {
+          // showModalBottomSheet(
+          //   context: context,
+          //   builder: (BuildContext context) {
+          //     return FutureBuilder<Stream<dynamic>>(
+          //       future: streamAndPayPegStatus(),
+          //       builder: (BuildContext context, AsyncSnapshot<Stream<dynamic>> snapshot) {
+          //         if (snapshot.connectionState == ConnectionState.waiting) {
+          //           return const Center(
+          //             child: CircularProgressIndicator(
+          //               color: Colors.blue,
+          //             ),
+          //           );
+          //         } else if (snapshot.hasError) {
+          //           return Text('Error: ${snapshot.error}');
+          //         } else {
+          //           return PegStatusSheet(
+          //             pegStatus: snapshot.data!,
+          //           );
+          //         }
+          //       },
+          //     );
+          //   },
+          // );
+        }
+      },
+      child: const Text('Convert'),
+    );
+  }
+
+  Text buildInfoText(String text) {
+    return Text(
+      text,
+      style: const TextStyle(fontSize: 12.0, color: Colors.grey),
     );
   }
 }

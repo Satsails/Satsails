@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-
 void saveTransactionData(Map<String, dynamic> transactionData) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String transactionKey = "transaction_${transactionData['order_id']}";

@@ -1,9 +1,6 @@
 import 'package:provider/provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/accounts_provider.dart';
-import 'services/sideswap/sideswap_status.dart';
-import 'services/sideswap/sideswap_peg.dart';
-import 'services/sideswap/sideswap_exchange.dart';
 import 'providers/balance_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -29,11 +26,6 @@ void main() async {
         ChangeNotifierProvider(create: (context) => SettingsProvider()),
         ChangeNotifierProvider(create: (context) => AccountsProvider()),
         ChangeNotifierProvider(create: (context) => BalanceProvider()),
-        ChangeNotifierProvider(create: (context) => SideswapServerStatus()),
-        ChangeNotifierProvider(create: (context) => SideswapPegStatus()),
-        ChangeNotifierProvider(create: (context) => SideswapStreamPrices()),
-        ChangeNotifierProvider(create: (context) => SideswapPeg()),
-        ChangeNotifierProvider(create: (context) => SideswapStartExchange()),
       ],
       child: MainApp(initialRoute: mnemonic == null ? '/' : '/home'),
     ),

@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 
-class SideswapServerStatus extends ChangeNotifier{
+class SideswapServerStatus {
   late IOWebSocketChannel _channel;
   final _messageController = StreamController<dynamic>.broadcast();
 
@@ -11,6 +10,7 @@ class SideswapServerStatus extends ChangeNotifier{
 
   void connect() {
     _channel = IOWebSocketChannel.connect('wss://api.sideswap.io/json-rpc-ws');
+    _channel.sink.add(json.encode({'method': 'server_status', 'id': 1, 'params': null}));
     _channel.stream.listen(handleIncomingMessage);
   }
 
@@ -18,7 +18,6 @@ class SideswapServerStatus extends ChangeNotifier{
     if (message is String) {
       var decodedMessage = json.decode(message);
       _messageController.add(decodedMessage);
-      notifyListeners();
     }
   }
 
