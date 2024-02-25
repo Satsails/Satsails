@@ -167,6 +167,23 @@ public class GDKWallet {
         
         return address
     }
+
+    func getPreviousAddresses() throws -> [String: Any] {
+        let subAccount = ["subaccount": subaccountPointer]
+
+        guard let previousAddressesCall = try? session?.getPreviousAddresses(details: subAccount as [String : Any]) else {
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get previous addresses"])
+        }
+
+        let previousAddressesStatus = try DummyResolve(call: previousAddressesCall)
+
+        guard let result = previousAddressesStatus["result"] as? [String: Any],
+              let addresses = result["list"] as? [[String: Any]] else {
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to extract previous addresses"])
+        }
+
+        return ["addresses": addresses]
+    }
     
     func getWalletBalance() throws -> Any {
         let params = ["subaccount": self.subaccountPointer, "num_confs": 0]

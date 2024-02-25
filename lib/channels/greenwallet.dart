@@ -46,6 +46,15 @@ class Channel {
     return Map<String, dynamic>.from(address);
   }
 
+  Future<Map<String, dynamic>> getPreviousAddresses({int pointer = 1, String mnemonic = "", String connectionType = 'electrum-mainnet' }) async {
+    final addresses = await platform.invokeMethod('getPreviousAddresses', <String, dynamic>{
+      'pointer': pointer,
+      'mnemonic': mnemonic,
+      'connectionType': connectionType,
+    });
+    return Map<String, dynamic>.from(addresses);
+  }
+
   Future<Map<String, int>> getBalance({int pointer = 1, String mnemonic = "", String connectionType = 'electrum-mainnet' }) async {
     final balance = await platform.invokeMethod('getBalance', <String, dynamic>{
       'pointer': pointer,

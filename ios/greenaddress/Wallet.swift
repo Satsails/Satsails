@@ -33,6 +33,15 @@ public class Wallet {
                 return
             }
             getReceiveAddress(result: result, pointer: pointer, mnemonic: mnemonic, connectionType: connectionType)
+        case "getPreviousAddresses":
+            guard let args = call.arguments as? [String: Any],
+                  let mnemonic = args["mnemonic"] as? String,
+                  let connectionType = args["connectionType"] as? String,
+                  let pointer = args["pointer"] as? Int64 else {
+                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
+                return
+            }
+            getPreviousAddresses(result: result, pointer: pointer, mnemonic: mnemonic, connectionType: connectionType)
         case "getBalance":
             guard let args = call.arguments as? [String: Any],
                   let mnemonic = args["mnemonic"] as? String,
@@ -185,16 +194,29 @@ public class Wallet {
     
     private func getReceiveAddress(result: @escaping FlutterResult, pointer: Int64, mnemonic: String, connectionType: String) {
         do {
-            let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType)
-            wallet?.subaccountPointer = pointer
-            let receiveAddress = try wallet?.getReceiveAddress()
-            
-            guard let address = receiveAddress else {
-                result(FlutterError(code: "ADDRESS_ERROR", message: "Failed to get receive address", details: nil))
+            guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
+                result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
                 return
             }
+            wallet.subaccountPointer = pointer
+            let receiveAddress = try wallet.getReceiveAddress()
             
-            result(address)
+            result(receiveAddress)
+        } catch let error as NSError {
+            result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic: \(error.localizedDescription)", details: nil))
+        }
+    }
+
+    private func getPreviousAddresses(result: @escaping FlutterResult, pointer: Int64, mnemonic: String, connectionType: String) {
+        do {
+            guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
+                result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
+                return
+            }
+            wallet.subaccountPointer = pointer
+            let previousAddresses = try wallet.getPreviousAddresses()
+
+            result(previousAddresses)
         } catch let error as NSError {
             result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic: \(error.localizedDescription)", details: nil))
         }

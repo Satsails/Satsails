@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/io.dart';
 import 'package:http/http.dart' as http;
+import '../../../helpers/exchange.dart';
 
 class SideswapStreamPrices {
   late IOWebSocketChannel _channel;
@@ -105,9 +106,10 @@ class SideswapStartExchange {
 }
 
 class SideswapUploadData {
-  Future<void> uploadAndSignInputs(
+  Future<void> uploadInputs(
       Map<String, dynamic> params,
-      Map<String, dynamic> returnAddress,
+      // Map<String, dynamic> returnAddress,
+      String returnAddress,
       Map<String, dynamic> inputs,
       Map<String, dynamic> receiveAddress,
       ) async {
@@ -118,7 +120,7 @@ class SideswapUploadData {
         "id": 1,
         "method": "swap_start",
         "params": {
-          "change_addr": returnAddress["address"],
+          "change_addr": returnAddress,
           "inputs": inputs["utxos"],
           "order_id": result["order_id"],
           "recv_addr": receiveAddress["address"],
@@ -134,24 +136,41 @@ class SideswapUploadData {
         uri,
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
         },
         body: json.encode(requestData),
       );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
+        WalletStrategy walletStrategy = WalletStrategy();
+        walletStrategy.signInputs(responseData, result["order_id"], uri);
 
-        // Process the responseData as needed
-        print('Response data: $responseData');
       } else {
-        // Handle error scenarios
         print('HTTP request failed with status: ${response.statusCode}');
         print('Response body: ${response.body}');
       }
     } catch (error) {
-      // Handle other errors
       print('Error: $error');
     }
+  }
+
+  Future<void> signInputs(Map<String, dynamic> data, String orderId, String submitId, Uri uri) async {
+    final Map<String, dynamic> requestData = {
+      "id": 1,
+      "method": "swap_sign",
+      "params": {
+        "order_id": orderId,
+        "submit_id": submitId,
+        "pset": data,
+      },
+    };
+
+    http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(requestData),
+    );
   }
 }

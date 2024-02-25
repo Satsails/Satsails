@@ -99,7 +99,7 @@ class WalletStrategy {
           "txid": inputs["utxos"][asset][j]["txhash"],
           "value": inputs["utxos"][asset][j]["satoshi"],
           "value_bf": inputs["utxos"][asset][j]["amountblinder"],
-          "vout": j,
+          "vout": inputs["utxos"][asset][j]["pt_idx"],
         });
         totalValue += inputs["utxos"][asset][j]["satoshi"] as int;
 
@@ -111,14 +111,21 @@ class WalletStrategy {
     return utxos;
   }
 
-
   Future<void> uploadAndSignInputs(Map<String, dynamic> params) async {
     const storage = FlutterSecureStorage();
     String mnemonic = await storage.read(key: 'mnemonic') ?? '';
-
-    Map<String, dynamic> returnAddress = await greenwallet.Channel('ios_wallet').getReceiveAddress(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+    // need to find way to generate 2 different addresses in a short time (implement when migration to rust)
+    // Map<String, dynamic> returnAddress = await greenwallet.Channel('ios_wallet').getReceiveAddress(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
     Map<String, dynamic> receiveAddress = await greenwallet.Channel('ios_wallet').getReceiveAddress(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+    Map<String, dynamic> previousAddresses = await greenwallet.Channel('ios_wallet').getPreviousAddresses(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
     Map<String, dynamic> inputs = await inputBuilder(mnemonic, params["result"]["send_asset"], params["result"]["send_amount"]);
-    await uploadData.uploadAndSignInputs(params, returnAddress, inputs, receiveAddress);
+    await uploadData.uploadInputs(params,  previousAddresses["addresses"][0]["address"], inputs, receiveAddress);
+  }
+
+  Future<void> signInputs(Map<String, dynamic> params, String orderId, Uri uri) async {
+    const storage = FlutterSecureStorage();
+    String mnemonic = await storage.read(key: 'mnemonic') ?? '';
+    Map<String, dynamic> signedTransaction = await greenwallet.Channel('ios_wallet').signTransaction(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network, transaction: params["result"]["pset"]);
+    await uploadData.signInputs(signedTransaction, orderId, params["result"]["submit_id"], uri);
   }
 }
