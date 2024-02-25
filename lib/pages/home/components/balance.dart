@@ -1,5 +1,4 @@
-import 'package:flutter/cupertino.dart';
-
+import 'package:flutter/material.dart';
 import '../../../services/bitcoin_price.dart';
 import '../../../channels/greenwallet.dart' as greenwallet;
 import '../../../helpers/networks.dart';
@@ -7,7 +6,7 @@ import '../../../providers/balance_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
-// make this all return  return ints and then just convert to doubles on show.
+//  use helper instead
 class AssetMapper {
   String mapAsset(String assetId) {
     switch (assetId) {

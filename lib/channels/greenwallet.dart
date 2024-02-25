@@ -94,10 +94,11 @@ class Channel {
     return Map<String, dynamic>.from(subaccounts);
   }
 
-  Future<Map<String, dynamic>> getUTXOS({int pointer = 1, String mnemonic = "", String connectionType = 'electrum-mainnet'}) async {
+  Future<Map<String, dynamic>> getUTXOS({int pointer = 1, String mnemonic = "", String connectionType = 'electrum-mainnet', int numberOfConfs = 0}) async {
     final utxos = await platform.invokeMethod('getUTXOS', <String, dynamic>{
       'pointer': pointer,
       'mnemonic': mnemonic,
+      'numberOfConfs': numberOfConfs,
       'connectionType': connectionType,
     });
     return Map<String, dynamic>.from(utxos);

@@ -9,6 +9,8 @@ class WalletStrategy {
   late SideswapPeg _webSocketService = SideswapPeg();
   late SideswapPegStatus _webSocketServiceStatus = SideswapPegStatus();
   late SideswapStreamPrices _webSocketPriceStream = SideswapStreamPrices();
+  late SideswapStartExchange _webSocketStartExchange = SideswapStartExchange();
+  late SideswapUploadData uploadData = SideswapUploadData();
   late int fee;
   late String orderId;
   late String pegAddress;
@@ -19,6 +21,10 @@ class WalletStrategy {
 
   void dispose() {
     _webSocketService.close();
+    _webSocketServiceStatus.close();
+    _webSocketPriceStream.close();
+    _webSocketStartExchange.close();
+
   }
 
   Future<Map<String, dynamic>> checkSideswapType(String sendingAsset, String receivingAsset, bool pegIn, int amount) async {
@@ -65,16 +71,54 @@ class WalletStrategy {
      return _webSocketServiceStatus.messageStream;
   }
 
-  Stream <dynamic> streamSwapPrices(String asset, bool sendBitcoins, int sendAmount) {
-    _webSocketPriceStream.connect(
+  Stream<dynamic> startSwap(bool sendBitcoins, int sendAmount,int recvAmount, String asset, double price) {
+    _webSocketStartExchange.connect(
       asset: asset,
       sendBitcoins: sendBitcoins,
+      price: price,
+      recvAmount: recvAmount,
       sendAmount: sendAmount,
     );
-    return _webSocketPriceStream.messageStream;
+    return _webSocketStartExchange.messageStream;
   }
 
-//   Subscribe to price stream and return the price to the user on button click of convert
-//   on click start conversion and check for swap done
-//   Before swap is done need to upload utxos to the server of asset to be sent
+  Future<Map<String, dynamic>> inputBuilder(String mnemonic, String asset, int valueToSend) async {
+    Map<String, dynamic> inputs = await greenwallet.Channel('ios_wallet').getUTXOS(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+    int totalValue = 0;
+
+    Map<String, dynamic> utxos = {
+      "utxos": [],
+    };
+
+    if (inputs["utxos"][asset].length > 0) {
+      for (var j = 0; j < inputs["utxos"][asset].length; j++) {
+        utxos["utxos"].add({
+          "asset": inputs["utxos"][asset][j]["asset_id"],
+          "asset_bf": inputs["utxos"][asset][j]["assetblinder"],
+          "redeem_script": inputs["utxos"][asset][j]["prevout_script"],
+          "txid": inputs["utxos"][asset][j]["txhash"],
+          "value": inputs["utxos"][asset][j]["satoshi"],
+          "value_bf": inputs["utxos"][asset][j]["amountblinder"],
+          "vout": j,
+        });
+        totalValue += inputs["utxos"][asset][j]["satoshi"] as int;
+
+        if (totalValue > valueToSend) {
+          break;
+        }
+      }
+    }
+    return utxos;
+  }
+
+
+  Future<void> uploadAndSignInputs(Map<String, dynamic> params) async {
+    const storage = FlutterSecureStorage();
+    String mnemonic = await storage.read(key: 'mnemonic') ?? '';
+
+    Map<String, dynamic> returnAddress = await greenwallet.Channel('ios_wallet').getReceiveAddress(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+    Map<String, dynamic> receiveAddress = await greenwallet.Channel('ios_wallet').getReceiveAddress(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+    Map<String, dynamic> inputs = await inputBuilder(mnemonic, params["result"]["send_asset"], params["result"]["send_amount"]);
+    await uploadData.uploadAndSignInputs(params, returnAddress, inputs, receiveAddress);
+  }
 }

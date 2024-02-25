@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/io.dart';
+import 'package:http/http.dart' as http;
 
 class SideswapStreamPrices {
   late IOWebSocketChannel _channel;
@@ -50,13 +51,14 @@ class SideswapStreamPrices {
 class SideswapStartExchange {
   late IOWebSocketChannel _channel;
   final _messageController = StreamController<dynamic>.broadcast();
+  Stream<dynamic> get messageStream => _messageController.stream;
 
   void connect({
     required String asset,
     required bool sendBitcoins,
-    required int price,
+    required double price,
     required int recvAmount,
-    int? sendAmount,
+    required int sendAmount,
   }) {
     _channel = IOWebSocketChannel.connect('wss://api.sideswap.io/json-rpc-ws');
     startExchange(
@@ -75,9 +77,9 @@ class SideswapStartExchange {
     required String asset,
     required String method,
     required bool sendBitcoins,
-    int? price,
-    int? sendAmount,
-    int? recvAmount,
+    required double price,
+    required int sendAmount,
+    required int recvAmount,
   }) {
     _channel.sink.add(json.encode({
       'id': 1,
@@ -102,7 +104,54 @@ class SideswapStartExchange {
   }
 }
 
-class SideswapUploadData{
+class SideswapUploadData {
+  Future<void> uploadAndSignInputs(
+      Map<String, dynamic> params,
+      Map<String, dynamic> returnAddress,
+      Map<String, dynamic> inputs,
+      Map<String, dynamic> receiveAddress,
+      ) async {
+    try {
+      final result = params["result"];
+      final endpoint = result["upload_url"];
+      final Map<String, dynamic> requestData = {
+        "id": 1,
+        "method": "swap_start",
+        "params": {
+          "change_addr": returnAddress["address"],
+          "inputs": inputs["utxos"],
+          "order_id": result["order_id"],
+          "recv_addr": receiveAddress["address"],
+          "recv_amount": result["recv_amount"],
+          "recv_asset": result["recv_asset"],
+          "send_amount": result["send_amount"],
+          "send_asset": result["send_asset"],
+        },
+      };
 
+      final uri = Uri.parse(endpoint);
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode(requestData),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        // Process the responseData as needed
+        print('Response data: $responseData');
+      } else {
+        // Handle error scenarios
+        print('HTTP request failed with status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (error) {
+      // Handle other errors
+      print('Error: $error');
+    }
+  }
 }
-
