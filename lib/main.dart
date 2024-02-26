@@ -8,6 +8,7 @@ import './channels/greenwallet.dart' as greenwallet;
 import 'pages/creation/start.dart';
 import 'pages/settings/components/seed_words.dart';
 import 'pages/settings/settings.dart';
+import 'pages/receive/receive.dart';
 import 'pages/accounts/accounts.dart';
 import 'pages/creation/set_pin.dart';
 import 'pages/analytics/analytics.dart';
@@ -47,6 +48,7 @@ class MainApp extends StatelessWidget {
         '/seed_words': (context) => const SeedWords(),
         '/open_pin': (context) => OpenPin(),
         '/accounts': (context) => Accounts(balances: {},),
+        '/receive': (context) => Receive(),
         '/settings': (context) => Settings(),
         '/analytics': (context) => Analytics(),
         '/set_pin': (context) => const SetPin(),

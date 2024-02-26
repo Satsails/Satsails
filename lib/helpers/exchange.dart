@@ -1,6 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../channels/greenwallet.dart' as greenwallet;
 import '../../../helpers/networks.dart';
+import '../../../helpers/asset_mapper.dart';
 import '../../services/sideswap/sideswap_peg.dart';
 import '../../services/sideswap/sideswap_exchange.dart';
 
@@ -41,8 +42,7 @@ class WalletStrategy {
       Map<String, dynamic> message = await _webSocketService.messageStream.first;
       orderId = message["result"]["order_id"];
       pegAddress = message["result"]["peg_addr"];
-      // sendToAddr = await greenwallet.Channel('ios_wallet').sendToAddress(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network, address: pegAddress, amount: amount, assetId: '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d');
-      sendToAddr = "he";
+      sendToAddr = await greenwallet.Channel('ios_wallet').sendToAddress(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network, address: pegAddress, amount: amount, assetId: AssetMapper().reverseMapTicker('L-BTC'));
     } else if (sendingAsset == 'BTC' && receivingAsset == 'L-BTC') {
       pegIn = true;
       Map<String, dynamic> getReceiveAddress = await greenwallet.Channel('ios_wallet').getReceiveAddress(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
@@ -53,8 +53,7 @@ class WalletStrategy {
       Map<String, dynamic> message = await _webSocketService.messageStream.first;
       orderId = message["result"]["order_id"];
       pegAddress = message["result"]["peg_addr"];
-      sendToAddr = "he";
-      // sendToAddr = await greenwallet.Channel('ios_wallet').sendToAddress(mnemonic: mnemonic, connectionType: NetworkSecurityCase.bitcoinSS.network, address: pegAddress, amount: amount);
+      sendToAddr = await greenwallet.Channel('ios_wallet').sendToAddress(mnemonic: mnemonic, connectionType: NetworkSecurityCase.bitcoinSS.network, address: pegAddress, amount: amount);
     }
     return {
       "order_id": orderId,

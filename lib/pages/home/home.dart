@@ -144,7 +144,9 @@ class _HomeState extends State<Home> {
               }, Colors.white),
               _buildCircularButton(Icons.payments, 'Pay', () {}, Colors.white),
               _buildCircularButton(
-                  Icons.arrow_downward_sharp, 'Receive', () {}, Colors.white),
+                  Icons.arrow_downward_sharp, 'Receive', () {
+                Navigator.pushNamed(context, '/receive');
+              }, Colors.white),
             ],
           ),
         );
