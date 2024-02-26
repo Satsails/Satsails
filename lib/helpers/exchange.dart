@@ -122,10 +122,11 @@ class WalletStrategy {
     await uploadData.uploadInputs(params,  previousAddresses["addresses"][0]["address"], inputs, receiveAddress);
   }
 
-  Future<void> signInputs(Map<String, dynamic> params, String orderId, Uri uri) async {
+  Future<void> signInputs(Map<String, dynamic> params, String orderId, Uri uri, String asset) async {
     const storage = FlutterSecureStorage();
     String mnemonic = await storage.read(key: 'mnemonic') ?? '';
-    Map<String, dynamic> signedTransaction = await greenwallet.Channel('ios_wallet').signTransaction(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network, transaction: params["result"]["pset"]);
-    await uploadData.signInputs(signedTransaction, orderId, params["result"]["submit_id"], uri);
+    Map<String, dynamic> signedTransaction = await greenwallet.Channel('ios_wallet').signTransaction(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network, transaction: params["result"]["pset"], asset: asset);
+    // check ammounts in previous call as problem might be there, otherwise contact the guy
+    await uploadData.signInputs(signedTransaction["psbt"], orderId, params["result"]["submit_id"], uri);
   }
 }

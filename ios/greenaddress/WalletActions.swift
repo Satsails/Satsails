@@ -307,9 +307,27 @@ public class GDKWallet {
         }
     }
 
-    func signTransaction(transaction: [String: Any]) throws -> [String: Any] {
+    func signTransaction(transaction: String, asset: String) throws -> [String: Any] {
         do {
-            guard let signTransactionCall = try self.session?.signPsbt(details: transaction) else {
+            let unspentOutputs = try getUnspentOutputs(numberOfConfs: 0)
+
+            guard let specificUtxo = (unspentOutputs["utxos"] as? [String: Any])?[asset] else {
+            throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "UTXO not found"])
+        }
+            
+            let psbtDetails = [
+                "psbt": transaction,
+                "utxos": specificUtxo,
+                "blinding_nonces": [],
+            ] as [String : Any]
+
+            guard let getPsbtDetailsCall = try self.session?.PsbtGetDetails(details: psbtDetails) else {
+                throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get PSBT details"])
+            }
+
+            let getPsbtDetailsResolve = try DummyResolve(call: getPsbtDetailsCall)
+            
+            guard let signTransactionCall = try self.session?.signPsbt(details: psbtDetails) else {
                 throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to sign transaction"])
             }
 

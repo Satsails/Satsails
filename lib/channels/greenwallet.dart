@@ -121,12 +121,13 @@ class Channel {
     return Map<String, dynamic>.from(feeEstimates);
   }
 
-  Future<Map<String, dynamic>> signTransaction({int pointer = 1, String mnemonic = "", String connectionType = 'electrum-mainnet', String transaction = ""}) async {
+  Future<Map<String, dynamic>> signTransaction({int pointer = 1, String mnemonic = "", String connectionType = 'electrum-mainnet', String transaction = "", String asset = ""} ) async {
     final signedTx = await platform.invokeMethod('signTransaction', <String, dynamic>{
       'transaction': transaction,
       'pointer': pointer,
       'mnemonic': mnemonic,
       'connectionType': connectionType,
+      'asset': asset,
     });
     return Map<String, dynamic>.from(signedTx);
   }

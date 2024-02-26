@@ -127,11 +127,12 @@ public class Wallet {
                   let mnemonic = args["mnemonic"] as? String,
                   let pointer = args["pointer"] as? Int64,
                   let connectionType = args["connectionType"] as? String,
-                  let transaction = args["transaction"] as? [String: Any] else {
+                  let asset = args["asset"] as? String,
+                  let transaction = args["transaction"] as? String else {
                 result(FlutterError(code: "INVALID_ARGUMENTS", message: "Incorrect arguments", details: nil))
                 return
             }
-            signTransaction(result: result, mnemonic: mnemonic, pointer: pointer, connectionType: connectionType, transaction: transaction)
+            signTransaction(result: result, mnemonic: mnemonic, pointer: pointer, connectionType: connectionType, transaction: transaction, asset: asset)
             return
         default:
             result(FlutterMethodNotImplemented)
@@ -360,14 +361,14 @@ public class Wallet {
         }
     }
 
-    private func signTransaction(result: @escaping FlutterResult, mnemonic: String, pointer: Int64, connectionType: String, transaction: [String: Any]) {
+    private func signTransaction(result: @escaping FlutterResult, mnemonic: String, pointer: Int64, connectionType: String, transaction: String, asset: String) {
         do {
             guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
                 result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
                 return
             }
             wallet.subaccountPointer = pointer
-            let signedTransaction = try wallet.signTransaction(transaction: transaction)
+            let signedTransaction = try wallet.signTransaction(transaction: transaction, asset: asset)
             result(signedTransaction)
         } catch let error as NSError {
             result(FlutterError(code: "SIGN_TRANSACTION_ERROR", message: "Error signing transaction: \(error.localizedDescription)", details: nil))

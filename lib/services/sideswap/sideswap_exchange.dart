@@ -143,7 +143,7 @@ class SideswapUploadData {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
         WalletStrategy walletStrategy = WalletStrategy();
-        walletStrategy.signInputs(responseData, result["order_id"], uri);
+        walletStrategy.signInputs(responseData, result["order_id"], uri, result["send_asset"]);
 
       } else {
         print('HTTP request failed with status: ${response.statusCode}');
@@ -154,7 +154,7 @@ class SideswapUploadData {
     }
   }
 
-  Future<void> signInputs(Map<String, dynamic> data, String orderId, String submitId, Uri uri) async {
+  Future<void> signInputs(String data, String orderId, String submitId, Uri uri) async {
     final Map<String, dynamic> requestData = {
       "id": 1,
       "method": "swap_sign",
@@ -171,6 +171,13 @@ class SideswapUploadData {
         'Content-Type': 'application/json',
       },
       body: json.encode(requestData),
-    );
+    ).then((response) {
+      if (response.statusCode == 200) {
+        print('Sign inputs response: ${response.body}');
+      } else {
+        print('HTTP request failed with status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    });
   }
 }
