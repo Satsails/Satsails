@@ -4,6 +4,7 @@ import '../../../channels/greenwallet.dart' as greenwallet;
 import '../../../helpers/networks.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/services.dart';
+import '../transactions/components/transactions_builder.dart';
 
 class Receive extends StatefulWidget {
   @override
@@ -13,6 +14,7 @@ class Receive extends StatefulWidget {
 class _ReceiveState extends State<Receive> {
   int _selectedButtonIndex = -1;
   Map<String, dynamic> _address = {};
+  List<Object?> _transactions = [];
   final _storage = FlutterSecureStorage();
   late String mnemonic;
 
@@ -29,7 +31,6 @@ class _ReceiveState extends State<Receive> {
   void _handleButtonPress(int index) async {
     setState(() {
       _selectedButtonIndex = _selectedButtonIndex == index ? -1 : index;
-
     });
 
     if (_selectedButtonIndex == 0) {
@@ -39,8 +40,16 @@ class _ReceiveState extends State<Receive> {
         mnemonic: mnemonic,
         connectionType: NetworkSecurityCase.bitcoinSS.network,
       );
+      _transactions = await greenwallet.Channel('ios_wallet').getTransactions(
+        mnemonic: mnemonic,
+        connectionType: NetworkSecurityCase.bitcoinSS.network,
+      );
     } else if (_selectedButtonIndex == 2) {
       _address = await greenwallet.Channel('ios_wallet').getReceiveAddress(
+        mnemonic: mnemonic,
+        connectionType: NetworkSecurityCase.bitcoinSS.network,
+      );
+      _transactions = await greenwallet.Channel('ios_wallet').getTransactions(
         mnemonic: mnemonic,
         connectionType: NetworkSecurityCase.liquidSS.network,
       );
@@ -107,28 +116,35 @@ class _ReceiveState extends State<Receive> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // allow user to navigate back
-      body: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // push these to the bottom of the qr code
-                  buildElevatedButton(0, 'Lightning'),
-                  buildElevatedButton(1, 'Bitcoin'),
-                  buildElevatedButton(2, 'Liquid'),
-                    ],
-                  ),
-              // align these to the in center
-              // fix this is not working properly (showing incorrect codes)(has to do with indexes)
-              buildQrCode(_address['address']),
-              buildAddressText(_address['address']),
-
-            ],
-          ),
+      appBar: AppBar(
+        title: Text('Receive'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // push these to the bottom of the qr code
+                buildElevatedButton(0, 'Lightning'),
+                buildElevatedButton(1, 'Bitcoin'),
+                buildElevatedButton(2, 'Liquid'),
+              ],
+            ),
+            // align these to the in center
+            // fix this is not working properly (showing incorrect codes)(has to do with indexes)
+            buildQrCode(_address['address']),
+            buildAddressText(_address['address']),
+            SizedBox(height: 16.0),
+            buildMiddleSection(_transactions),
+          ],
         ),
       ),
     );

@@ -42,3 +42,37 @@ Future<Map<String, dynamic>> getTransactionData(String orderId) async {
     return {};
   }
 }
+
+Future<Map<String, dynamic>> getAllTransactions() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  Map<String, dynamic> allTransactions = {};
+
+  for (String key in prefs.getKeys()) {
+    if (key.contains("transaction_")) {
+      String? transactionJson = prefs.getString(key);
+      if (transactionJson != null) {
+        Map<String, dynamic> transactionData = jsonDecode(transactionJson);
+        allTransactions[key] = transactionData;
+      }
+    }
+  }
+
+  return allTransactions;
+}
+
+Future<Map<String, dynamic>> getAllExchanges() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  Map<String, dynamic> allExchanges = {};
+
+  for (String key in prefs.getKeys()) {
+    if (key.contains("exchange_")) {
+      String? exchangeJson = prefs.getString(key);
+      if (exchangeJson != null) {
+        Map<String, dynamic> exchangeData = jsonDecode(exchangeJson);
+        allExchanges[key] = exchangeData;
+      }
+    }
+  }
+
+  return allExchanges;
+}
