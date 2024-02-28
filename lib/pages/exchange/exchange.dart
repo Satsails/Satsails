@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
+import '../../../channels/greenwallet.dart' as greenwallet;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../../helpers/networks.dart';
 
 import '../../../helpers/exchange.dart';
 import '../../../helpers/asset_mapper.dart';
@@ -87,16 +89,22 @@ class _ExchangeState extends State<Exchange> {
       double calculatedAmount = 0;
 
       if (asset == 'BTC') {
+        // fix fee lifecycle
+        // Map<String, dynamic> fee = await greenwallet.Channel('ios_wallet').getFeeEstimates(mnemonic: mnemonic, connectionType: NetworkSecurityCase.bitcoinSS.network);
+        // double highestFee = fee["fees"][1] / 100000000;
         calculatedAmount = data["result"]["min_peg_in_amount"] / 100000000;
         setState(() {
           pegIn = true;
         });
       } else if (asset == 'L-BTC') {
+        // Map<String, dynamic> fee = await greenwallet.Channel('ios_wallet').getFeeEstimates(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+        // double highestFee = fee["fees"][1] / 100000000;
         calculatedAmount = data["result"]["min_peg_out_amount"] / 100000000;
         setState(() {
           pegIn = false;
         });
       }
+
 
       minAmount = calculatedAmount;
 

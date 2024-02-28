@@ -21,7 +21,7 @@ class PegStatusSheet extends StatelessWidget {
           return Text("Error: ${snapshot.error}");
         } else {
           Map<String, dynamic> transactionData = snapshot.data!["result"];
-          saveTransactionData(transactionData); // Save the transaction data
+          TransactionNotifier().saveTransactionData(transactionData);
           return SingleChildScrollView(
             child: Center(
               child: Padding(

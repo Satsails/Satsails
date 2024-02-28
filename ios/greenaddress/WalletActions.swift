@@ -234,12 +234,12 @@ public class GDKWallet {
         }
     }
 
-    func getFeesEstimates() throws -> [UInt64] {
+    func getFeesEstimates() throws -> [String: Any]{
         guard let feeEstimates = try self.session?.getFeeEstimates() else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get fee estimates"])
         }
 
-        return feeEstimates["fees"] as? [UInt64] ?? []
+        return feeEstimates
     }
     
     func sendToAddress(address: String, amount: Int64, assetId: String) throws -> String {

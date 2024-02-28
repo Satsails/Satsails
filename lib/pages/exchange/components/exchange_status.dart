@@ -17,7 +17,7 @@ class ExchangeStatus extends StatelessWidget {
           return buildErrorWidget(snapshot.error!);
         } else {
           Map<String, dynamic> transactionData = snapshot.data;
-          saveExchangeData(transactionData);
+          TransactionNotifier().saveExchangeData(transactionData);
           if (isTransactionCompleted(transactionData)) {
             return buildCompletedTransactionWidget(transactionData, context);
           } else {

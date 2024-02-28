@@ -12,7 +12,7 @@ class Receive extends StatefulWidget {
 }
 
 class _ReceiveState extends State<Receive> {
-  int _selectedButtonIndex = -1;
+  int _selectedButtonIndex = 1;
   Map<String, dynamic> _address = {};
   List<Object?> _transactions = [];
   final _storage = FlutterSecureStorage();
@@ -21,39 +21,48 @@ class _ReceiveState extends State<Receive> {
   @override
   void initState() {
     super.initState();
-    loadMnemonic();
+    loadMnemonic().then((_) {
+      _fetchData();
+    });
   }
 
   Future<void> loadMnemonic() async {
     mnemonic = await _storage.read(key: 'mnemonic') ?? '';
   }
 
-  void _handleButtonPress(int index) async {
+  void _handleButtonPress(int index) {
     setState(() {
       _selectedButtonIndex = _selectedButtonIndex == index ? -1 : index;
     });
 
     if (_selectedButtonIndex == 0) {
       print('Lightning');
-    } else if (_selectedButtonIndex == 1) {
-      _address = await greenwallet.Channel('ios_wallet').getReceiveAddress(
-        mnemonic: mnemonic,
-        connectionType: NetworkSecurityCase.bitcoinSS.network,
-      );
-      _transactions = await greenwallet.Channel('ios_wallet').getTransactions(
-        mnemonic: mnemonic,
-        connectionType: NetworkSecurityCase.bitcoinSS.network,
-      );
-    } else if (_selectedButtonIndex == 2) {
-      _address = await greenwallet.Channel('ios_wallet').getReceiveAddress(
-        mnemonic: mnemonic,
-        connectionType: NetworkSecurityCase.bitcoinSS.network,
-      );
-      _transactions = await greenwallet.Channel('ios_wallet').getTransactions(
-        mnemonic: mnemonic,
-        connectionType: NetworkSecurityCase.liquidSS.network,
-      );
+    } else if (_selectedButtonIndex == 1 || _selectedButtonIndex == 2) {
+      _fetchData();
     }
+  }
+
+  Future<void> _fetchData() async {
+    final channel = greenwallet.Channel('ios_wallet');
+
+    final connectionType = _selectedButtonIndex == 1
+        ? NetworkSecurityCase.bitcoinSS.network
+        : NetworkSecurityCase.liquidSS.network;
+
+    final address = await channel.getReceiveAddress(
+      mnemonic: mnemonic,
+      connectionType: connectionType,
+    );
+
+    final transactions = await channel.getTransactions(
+      mnemonic: mnemonic,
+      connectionType: connectionType,
+    );
+
+    setState(() {
+      _address = address;
+      _transactions = transactions;
+    });
   }
 
   Widget buildElevatedButton(int index, String buttonText) {
@@ -102,7 +111,7 @@ class _ReceiveState extends State<Receive> {
         }
       },
       child: Text(
-        address ?? 'No address generated yet',
+        address ?? '',
         style: TextStyle(
           fontSize: 16.0,
           fontWeight: FontWeight.bold,
@@ -132,18 +141,16 @@ class _ReceiveState extends State<Receive> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // push these to the bottom of the qr code
                 buildElevatedButton(0, 'Lightning'),
                 buildElevatedButton(1, 'Bitcoin'),
                 buildElevatedButton(2, 'Liquid'),
               ],
             ),
-            // align these to the in center
-            // fix this is not working properly (showing incorrect codes)(has to do with indexes)
             buildQrCode(_address['address']),
             buildAddressText(_address['address']),
             SizedBox(height: 16.0),
-            buildMiddleSection(_transactions),
+            Divider(height: 1),
+            buildMiddleSection(_transactions, context),
           ],
         ),
       ),
