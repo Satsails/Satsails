@@ -36,7 +36,14 @@ class _ReceiveState extends State<Receive> {
     });
 
     if (_selectedButtonIndex == 0) {
-      print('Lightning');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lightning is not supported yet'),
+        ),
+      );
+      setState(() {
+        _selectedButtonIndex = 1;
+      });
     } else if (_selectedButtonIndex == 1 || _selectedButtonIndex == 2) {
       _fetchData();
     }
