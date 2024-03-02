@@ -14,6 +14,8 @@ import 'pages/creation/set_pin.dart';
 import 'pages/analytics/analytics.dart';
 import 'pages/login/open_pin.dart';
 import 'pages/home/home.dart';
+import 'pages/pay/pay.dart';
+import 'pages/pay/components/confirm_payment.dart';
 import 'pages/exchange/exchange.dart';
 import 'pages/support/info.dart';
 
@@ -43,17 +45,29 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       initialRoute: initialRoute,
+      onGenerateRoute: (settings) {
+        if (settings.name == '/confirm_payment') {
+          final String address = settings.arguments as String;
+          return MaterialPageRoute(
+            builder: (context) => ConfirmPayment(address: address),
+          );
+        }
+
+        // Handle other routes if needed
+        return null;
+      },
       routes: {
         '/': (context) => const Start(),
         '/seed_words': (context) => const SeedWords(),
         '/open_pin': (context) => OpenPin(),
-        '/accounts': (context) => Accounts(balances: {},),
+        '/accounts': (context) => Accounts(balances: {}),
         '/receive': (context) => Receive(),
         '/settings': (context) => Settings(),
         '/analytics': (context) => Analytics(),
         '/set_pin': (context) => const SetPin(),
         '/exchange': (context) => Exchange(),
         '/info': (context) => Info(),
+        '/pay': (context) => Pay(),
         '/home': (context) => Home(),
       },
     );

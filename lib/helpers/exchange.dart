@@ -113,12 +113,12 @@ class WalletStrategy {
   Future<void> uploadAndSignInputs(Map<String, dynamic> params) async {
     const storage = FlutterSecureStorage();
     String mnemonic = await storage.read(key: 'mnemonic') ?? '';
-    // need to find way to generate 2 different addresses in a short time (implement when migration to rust)
-    // Map<String, dynamic> returnAddress = await greenwallet.Channel('ios_wallet').getReceiveAddress(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+    Map<String, dynamic> returnAddress = await greenwallet.Channel('ios_wallet').getReceiveAddress(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network, isInternal: true);
     Map<String, dynamic> receiveAddress = await greenwallet.Channel('ios_wallet').getReceiveAddress(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
-    Map<String, dynamic> previousAddresses = await greenwallet.Channel('ios_wallet').getPreviousAddresses(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+    // change here to make it work if it fails
+    // Map<String, dynamic> previousAddresses = await greenwallet.Channel('ios_wallet').getPreviousAddresses(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
     Map<String, dynamic> inputs = await inputBuilder(mnemonic, params["result"]["send_asset"], params["result"]["send_amount"]);
-    await uploadData.uploadInputs(params,  previousAddresses["addresses"][0]["address"], inputs, receiveAddress);
+    await uploadData.uploadInputs(params,  returnAddress["address"], inputs, receiveAddress);
   }
 
   Future<void> signInputs(Map<String, dynamic> params, String orderId, Uri uri, String asset) async {

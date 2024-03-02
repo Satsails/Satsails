@@ -9,12 +9,14 @@ class Accounts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Account Management'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: EdgeInsets.all(screenWidth * 0.05), // Use a relative padding
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -28,20 +30,22 @@ class Accounts extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 12.0),
+            SizedBox(height: screenWidth * 0.02),
             _buildAccountCard(
               title: 'All BTC',
               value: balances['totalBtcOnly']?.toString() ?? '0.0',
               subtitle: balances['totalBtcOnlyInUsd']?.toString() ?? '0.0',
+              context: context,
             ),
-            const SizedBox(height: 12.0),
+            SizedBox(height: screenWidth * 0.02),
             _buildAccountCard(
               title: 'USD',
               value: balances['usdOnly']?.toString() ?? '0.0',
+              context: context,
             ),
-            const SizedBox(height: 12.0),
+            SizedBox(height: screenWidth * 0.02),
             _buildDivider(),
-            const SizedBox(height: 12.0),
+            SizedBox(height: screenWidth * 0.02),
             const Align(
               alignment: Alignment.center,
               child: Text(
@@ -52,23 +56,26 @@ class Accounts extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 12.0),
+            SizedBox(height: screenWidth * 0.02),
             _buildAccountCard(
               title: 'BTC',
               value: balances['btc']?.toString() ?? '0.0',
               subtitle: balances['btcInUsd']?.toString() ?? '0.0',
+              context: context,
             ),
-            const SizedBox(height: 12.0),
+            SizedBox(height: screenWidth * 0.02),
             _buildAccountCard(
               title: 'L-BTC',
               value: balances['l-btc']?.toString() ?? '0.0',
               subtitle: balances['l-btcInUsd']?.toString() ?? '0.0',
+              context: context,
             ),
-            const SizedBox(height: 12.0),
+            SizedBox(height: screenWidth * 0.02),
             _buildAccountCard(
               title: 'Lightening Network',
               subtitle: 'Coming Soon',
               disabled: true,
+              context: context,
             ),
             _buildAutoManagementToggle(),
           ],
@@ -82,12 +89,13 @@ class Accounts extends StatelessWidget {
     String? value,
     String? subtitle,
     bool disabled = false,
+    required BuildContext context,
   }) {
     return Card(
       elevation: 4.0,
       color: disabled ? Colors.grey[300] : Colors.white,
       child: ListTile(
-        contentPadding: const EdgeInsets.all(12.0),
+        contentPadding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.02),
         title: Text(
           title,
           style: const TextStyle(
@@ -111,7 +119,6 @@ class Accounts extends StatelessWidget {
     return Divider(
       height: 1,
       color: Colors.grey[300],
-
     );
   }
 

@@ -703,6 +703,14 @@
 					"-lc++",
 					"$(SRCROOT)/libgdk/libs/ios_simulator_arm64/libgreenaddress_full.a",
 				);
+				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
+					"-lc++",
+					"$(SRCROOT)/libgdk/libs/ios_arm64/libgreenaddress_full.a",
+				);
+				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = (
+					"-lc++",
+					"$(SRCROOT)/libgdk/libs/ios_simulator_arm64/libgreenaddress_full.a",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = satsails.greenaddress;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;

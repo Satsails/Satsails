@@ -83,7 +83,7 @@ class _ReceiveState extends State<Receive> {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
         child: Text(
           buttonText,
           style: TextStyle(
@@ -97,13 +97,16 @@ class _ReceiveState extends State<Receive> {
   Widget buildQrCode(String? address) {
     return Container(
       padding: EdgeInsets.all(16.0),
-      child: QrImageView(
-        data: address ?? '',
+      child: address != null
+          ? QrImageView(
+        data: address,
         version: QrVersions.auto,
         size: 300.0,
-      ),
+      )
+          : CircularProgressIndicator(),
     );
   }
+
 
   Widget buildAddressText(String? address) {
     return GestureDetector(

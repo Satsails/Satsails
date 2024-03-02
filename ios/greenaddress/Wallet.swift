@@ -28,11 +28,12 @@ public class Wallet {
             guard let args = call.arguments as? [String: Any],
                   let mnemonic = args["mnemonic"] as? String,
                   let connectionType = args["connectionType"] as? String,
+                  let is_internal = args["isInternal"] as? Bool,
                   let pointer = args["pointer"] as? Int64 else {
                 result(FlutterError(code: "INVALID_ARGUMENTS", message: "Mnemonic or connectionType not provided", details: nil))
                 return
             }
-            getReceiveAddress(result: result, pointer: pointer, mnemonic: mnemonic, connectionType: connectionType)
+            getReceiveAddress(result: result, pointer: pointer, mnemonic: mnemonic, connectionType: connectionType, is_internal: is_internal)
         case "getPreviousAddresses":
             guard let args = call.arguments as? [String: Any],
                   let mnemonic = args["mnemonic"] as? String,
@@ -193,14 +194,14 @@ public class Wallet {
         }
     }
     
-    private func getReceiveAddress(result: @escaping FlutterResult, pointer: Int64, mnemonic: String, connectionType: String) {
+    private func getReceiveAddress(result: @escaping FlutterResult, pointer: Int64, mnemonic: String, connectionType: String, is_internal: Bool) {
         do {
             guard let wallet = try loginWithMnemonic(mnemonic: mnemonic, connectionType: connectionType) else {
                 result(FlutterError(code: "LOGIN_ERROR", message: "Failed to login with mnemonic", details: nil))
                 return
             }
             wallet.subaccountPointer = pointer
-            let receiveAddress = try wallet.getReceiveAddress()
+            let receiveAddress = try wallet.getReceiveAddress(is_internal: is_internal)
             
             result(receiveAddress)
         } catch let error as NSError {

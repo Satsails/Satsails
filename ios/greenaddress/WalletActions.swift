@@ -151,8 +151,8 @@ public class GDKWallet {
         return ["subaccounts": subaccounts]
     }
     
-    func getReceiveAddress() throws -> [String: Any] {
-        let subAccount = ["subaccount": subaccountPointer]
+    func getReceiveAddress(is_internal: Bool) throws -> [String: Any] {
+        let subAccount = ["subaccount": subaccountPointer, "is_internal": is_internal]
         
         guard let receiveAddressCall = try? session?.getReceiveAddress(details: subAccount as [String : Any]) else {
             throw NSError(domain: "com.example.wallet", code: 1, userInfo: ["error": "Failed to get receive address"])
