@@ -203,7 +203,9 @@ class _ExchangeState extends State<Exchange> {
   Widget build(BuildContext context) {
     balance = Provider.of<BalanceProvider>(context).balance;
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Exchange'),
       ),
       body: Padding(

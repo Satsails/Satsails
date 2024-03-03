@@ -118,7 +118,9 @@ class _PayState extends State<Pay> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text('Pay'),
       ),
       body: Center(

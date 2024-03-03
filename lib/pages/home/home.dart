@@ -22,6 +22,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: _buildBody(),
     );
   }
@@ -29,27 +30,13 @@ class _HomeState extends State<Home> {
   Widget _buildBody() {
     return Stack(
       children: [
-        AnimateGradient(
-          primaryColors: const [
-            Color(0xFF001F3F),
-            Color(0xFF001F3F),
-            Color(0xFF001F3F),
-          ],
-          secondaryColors: const [
-            Color(0xFFFF6F61),
-            Color(0xFF001F3F),
-            Color(0xFF001F3F),
-          ],
-          duration: const Duration(seconds: 15),
-          reverse: true,
-          child: Column(
+            Column(
             children: [
               _buildTopSection(),
               _buildActionButtons(),
               _buildBottomNavigationBar(),
             ],
           ),
-        ),
         _buildAppBar(),
       ],
     );
@@ -80,15 +67,15 @@ class _HomeState extends State<Home> {
                   const SizedBox(height: 100),
                   Text(
                     '${btcBalance.toStringAsFixed(8)} BTC',
-                    style: const TextStyle(fontSize: 30, color: Colors.white),
+                    style: const TextStyle(fontSize: 30, color: Colors.black),
                   ),
                   const SizedBox(height: 10),
                   const Text('or',
-                      style: TextStyle(fontSize: 12, color: Colors.white)),
+                      style: TextStyle(fontSize: 12, color: Colors.black)),
                   const SizedBox(height: 10),
                   Text(
                     '${usdBalance.toStringAsFixed(2)} USD',
-                    style: const TextStyle(fontSize: 13, color: Colors.white),
+                    style: const TextStyle(fontSize: 13, color: Colors.black),
                   ),
                   const SizedBox(height: 40),
                   ElevatedButton(
@@ -160,33 +147,35 @@ class _HomeState extends State<Home> {
       IconData icon, String subtitle, VoidCallback onPressed, Color color) {
     return Column(
       children: [
-        InkWell(
+        GestureDetector(
           onTap: onPressed,
-          child: Container(
-            margin: const EdgeInsets.only(top: 20),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [color, color],
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              margin: const EdgeInsets.only(top: 20),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [color, color],
+                ),
+                border: Border.all(color: Colors.black.withOpacity(0.7)),
               ),
-              border: Border.all(color: Colors.black.withOpacity(0.7)),
-            ),
-            child: CircleAvatar(
-              backgroundColor: Colors.transparent,
-              radius: 25,
-              child: Icon(
-                icon,
-                color: Colors.black.withOpacity(0.7),
-                size: 25,
+              child: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                radius: 25,
+                child: Icon(
+                  icon,
+                  color: Colors.black.withOpacity(0.7),
+                  size: 25,
+                ),
               ),
             ),
           ),
         ),
         const SizedBox(height: 8),
-        Text(subtitle,
-            style: const TextStyle(fontSize: 10, color: Colors.white)),
+        Text(subtitle, style: const TextStyle(fontSize: 10, color: Colors.black)),
       ],
     );
   }
@@ -200,7 +189,7 @@ class _HomeState extends State<Home> {
               backgroundColor: Colors.transparent,
               title: _buildSearchTextField(context),
               leading: IconButton(
-                icon: const Icon(Icons.settings, color: Colors.white),
+                icon: const Icon(Icons.settings, color: Colors.black),
                 onPressed: () {
                   Navigator.pushNamed(context, '/settings');
                 },
@@ -208,14 +197,14 @@ class _HomeState extends State<Home> {
               actions: <Widget>[
                 IconButton(
                   icon: const Icon(Icons.credit_card),
-                  color: settingsProvider.proMode ? Colors.white : Colors.grey,
+                  color: settingsProvider.proMode ? Colors.black : Colors.grey,
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   onPressed: settingsProvider.proMode ? null : () {},
                 ),
                 IconButton(
                   icon: const Icon(Icons.account_balance),
-                  color: settingsProvider.proMode ? Colors.white : Colors.grey,
+                  color: settingsProvider.proMode ? Colors.black : Colors.grey,
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   onPressed: settingsProvider.proMode ? null : () {},
@@ -303,7 +292,7 @@ class _HomeState extends State<Home> {
             selectedFontSize: 12,
             unselectedFontSize: 12,
             iconSize: 24,
-            unselectedItemColor: Colors.white,
+            unselectedItemColor: Colors.black,
             selectedItemColor: Colors.orangeAccent,
             elevation: 0.0,
             items: bottomNavBarItems,

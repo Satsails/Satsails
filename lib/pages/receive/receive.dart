@@ -100,6 +100,7 @@ class _ReceiveState extends State<Receive> {
       padding: EdgeInsets.all(16.0),
       child: address != null
           ? QrImageView(
+        backgroundColor: Colors.white,
         data: address,
         version: QrVersions.auto,
         size: 300.0,
@@ -136,7 +137,9 @@ class _ReceiveState extends State<Receive> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text('Receive'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
