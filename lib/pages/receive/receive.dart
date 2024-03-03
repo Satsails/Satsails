@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../channels/greenwallet.dart' as greenwallet;
@@ -144,8 +145,7 @@ class _ReceiveState extends State<Receive> {
           },
         ),
       ),
-      body: Align(
-        alignment: Alignment.topCenter,
+      body: SingleChildScrollView(
         child: Column(
           children: [
             Row(
