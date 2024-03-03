@@ -96,6 +96,16 @@ class Channel {
     return transaction;
   }
 
+  Future<bool> checkAddressValidity({String address = '', int pointer = 1, String mnemonic = "", String connectionType = 'electrum-mainnet'}) async {
+    final valid = await platform.invokeMethod('checkAddressValidity', <String, dynamic>{
+      'address': address,
+      'pointer': pointer,
+      'mnemonic': mnemonic,
+      'connectionType': connectionType,
+    });
+    return valid;
+  }
+
   Future<Map<String, dynamic>> fetchAllSubAccounts({String mnemonic = "", String connectionType = 'electrum-mainnet'}) async {
     final subaccounts = await platform.invokeMethod('fetchAllSubAccounts', <String, dynamic>{
       'mnemonic': mnemonic,

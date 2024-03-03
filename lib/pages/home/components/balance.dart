@@ -37,9 +37,7 @@ class BalanceWrapper {
   PriceProvider priceProvider = PriceProvider();
   AssetMapper assetMapper = AssetMapper();
 
-  Future<Map<String, dynamic>> getBalance() async {
-    const storage = FlutterSecureStorage();
-    String mnemonic = await storage.read(key: 'mnemonic') ?? '';
+  Future<Map<String, dynamic>> getBalance(mnemonic) async {
     Map<String, int> bitcoinBalance = await greenwallet.Channel('ios_wallet').getBalance(mnemonic: mnemonic, connectionType: NetworkSecurityCase.bitcoinSS.network);
     Map<String, int> liquidBalance = await greenwallet.Channel('ios_wallet').getBalance(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
     Map<String, dynamic> balance = {
@@ -99,7 +97,6 @@ class BalanceWrapper {
     };
   }
 
-
   Future<double> getBitcoinPrice() async {
     try {
       await priceProvider.fetchBitcoinPrice();
@@ -109,15 +106,38 @@ class BalanceWrapper {
     }
   }
 
+  Future<Map<String, dynamic>> calculateHighestFees(mnemonic, double bitcoinPrice) async {
+    Map<String, dynamic> bitcoinFee = await greenwallet.Channel('ios_wallet').getFeeEstimates(mnemonic: mnemonic, connectionType: NetworkSecurityCase.bitcoinSS.network);
+    Map<String, dynamic> liquidFee = await greenwallet.Channel('ios_wallet').getFeeEstimates(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+    int highestBitcoinFeeInt = bitcoinFee["fees"][1] ?? 0;
+    double highestBitcoinFee = highestBitcoinFeeInt / 100000000;
+    double highestBitcoinFeeUsd = highestBitcoinFee * bitcoinPrice;
+    int highestLiquidFeeInt = liquidFee["fees"][1] ?? 0;
+    double highestLiquidFee = highestLiquidFeeInt / 100000000;
+    double highestLiquidFeeUsd = highestLiquidFee * bitcoinPrice;
+
+    return {
+      'highestBitcoinFee': highestBitcoinFee,
+      'highestLiquidFee': highestLiquidFee,
+      'highestLiquidFeeUsd': highestLiquidFeeUsd,
+      'highestBitcoinFeeUsd': highestBitcoinFeeUsd,
+    };
+  }
+
   Future<Map<String, dynamic>> calculateTotalValue(BuildContext context) async {
+    const storage = FlutterSecureStorage();
+    String mnemonic = await storage.read(key: 'mnemonic') ?? '';
     // double currentBitcoinPrice = await getBitcoinPrice();
-    Map<String, dynamic> balance = await getBalance();
+    Map<String, dynamic> balance = await getBalance(mnemonic);
     double currentBitcoinPrice = 1000000;
     Future<Map<String, dynamic>> bitcoinValue = calculateBitcoinValue(currentBitcoinPrice, balance);
     Future<Map<String, dynamic>> usd = calculateUSDValue(currentBitcoinPrice, balance);
+    Future<Map<String, dynamic>> fees = calculateHighestFees(mnemonic, currentBitcoinPrice);
+
     Map<String, dynamic> result = {};
     result.addAll(await bitcoinValue);
     result.addAll(await usd);
+    result.addAll(await fees);
 
     BalanceProvider balanceProvider = Provider.of<BalanceProvider>(context, listen: false);
     balanceProvider.setBalance(result);

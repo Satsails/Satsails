@@ -47,15 +47,17 @@ class MainApp extends StatelessWidget {
       initialRoute: initialRoute,
       onGenerateRoute: (settings) {
         if (settings.name == '/confirm_payment') {
-          final String address = settings.arguments as String;
+          final Map<String, dynamic> arguments = settings.arguments as Map<String, dynamic>;
+          final String address = arguments['address'] as String;
+          final bool isLiquid = arguments['isLiquid'] as bool;
+
           return MaterialPageRoute(
-            builder: (context) => ConfirmPayment(address: address),
+            builder: (context) => ConfirmPayment(address: address, isLiquid: isLiquid),
           );
         }
-
-        // Handle other routes if needed
         return null;
       },
+
       routes: {
         '/': (context) => const Start(),
         '/seed_words': (context) => const SeedWords(),
