@@ -51,9 +51,9 @@ class AppGrid extends StatelessWidget {
   String getTitle(int appNumber) {
     switch (appNumber) {
       case 1:
-        return 'Stackify';
+        return 'Stackfy';
       case 2:
-        return 'Local Bitcoins';
+        return 'Alby';
       case 3:
         return 'POS';
       case 4:

@@ -14,6 +14,7 @@ import 'pages/creation/set_pin.dart';
 import 'pages/analytics/analytics.dart';
 import 'pages/login/open_pin.dart';
 import 'pages/apps/apps.dart';
+import 'pages/charge/charge.dart';
 import 'pages/home/home.dart';
 import 'pages/pay/pay.dart';
 import 'pages/pay/components/confirm_payment.dart';
@@ -63,6 +64,7 @@ class MainApp extends StatelessWidget {
         '/': (context) => const Start(),
         '/seed_words': (context) => const SeedWords(),
         '/open_pin': (context) => OpenPin(),
+        '/charge': (context) => Charge(),
         '/accounts': (context) => Accounts(balances: {}),
         '/receive': (context) => Receive(),
         '/settings': (context) => Settings(),

@@ -139,7 +139,9 @@ class _HomeState extends State<Home> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildCircularButton(Icons.add, 'Add Money', () {}, Colors.grey),
+              _buildCircularButton(Icons.add, 'Add Money', () {
+                Navigator.pushNamed(context, '/charge');
+              }, Colors.white),
               _buildCircularButton(Icons.swap_horizontal_circle, 'Exchange',
                       () {
                     Navigator.pushNamed(context, '/exchange');
