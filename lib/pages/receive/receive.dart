@@ -163,7 +163,7 @@ class _ReceiveState extends State<Receive> {
             buildAddressText(_address['address']),
             SizedBox(height: 16.0),
             Divider(height: 1),
-            buildMiddleSection(_transactions, context),
+            buildTransactions(_transactions, context),
           ],
         ),
       ),

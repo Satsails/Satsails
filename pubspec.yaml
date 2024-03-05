@@ -22,6 +22,7 @@ dependencies:
   qr_flutter: ^4.1.0
   qr_code_scanner: ^1.0.1
   btc_address_validate_swan: ^1.2.1
+  fl_chart: ^0.66.2
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

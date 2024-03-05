@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:satsails_wallet/helpers/asset_mapper.dart';
 
-Widget buildMiddleSection(List transactions, BuildContext context) {
+Widget buildTransactions(List transactions, BuildContext context) {
   return SingleChildScrollView(
     child: Container(
       decoration: BoxDecoration(
