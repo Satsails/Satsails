@@ -7,17 +7,17 @@ class Apps extends StatefulWidget {
 }
 
 class _AppsState extends State<Apps> {
-  int _currentIndex = 1; // Add this line to store the current index
+  int _currentIndex = 1;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('App Grid'),
+        title: const Text('Apps'),
       ),
       body: AppGrid(),
       bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: _currentIndex, // Pass the current index to the bottom navigation bar
+        currentIndex: _currentIndex,
         context: context,
         onTap: (int index) {
           setState(() {
@@ -33,31 +33,61 @@ class AppGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 8.0,
         mainAxisSpacing: 8.0,
       ),
-      itemCount: 12, // Adjust this based on the number of apps you have
+      itemCount: 4,
       itemBuilder: (context, index) {
-        return AppCard(index + 1); // You can pass the app number or any relevant data here
+        return AppCard(
+          title: getTitle(index + 1),
+          subtitle: 'Coming Soon',
+        );
       },
     );
+  }
+
+  String getTitle(int appNumber) {
+    switch (appNumber) {
+      case 1:
+        return 'Stackify';
+      case 2:
+        return 'Local Bitcoins';
+      case 3:
+        return 'POS';
+      case 4:
+        return 'Bitrefill';
+      default:
+        return '';
+    }
   }
 }
 
 class AppCard extends StatelessWidget {
-  final int appNumber;
+  final String title;
+  final String subtitle;
 
-  AppCard(this.appNumber);
+  AppCard({required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Text('App $appNumber'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.headline6,
+            ),
+            const SizedBox(height: 8.0),
+            Text(
+              subtitle,
+              style: Theme.of(context).textTheme.subtitle1,
+            ),
+          ],
         ),
       ),
     );
