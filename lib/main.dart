@@ -13,6 +13,7 @@ import 'pages/accounts/accounts.dart';
 import 'pages/creation/set_pin.dart';
 import 'pages/analytics/analytics.dart';
 import 'pages/login/open_pin.dart';
+import 'pages/apps/apps.dart';
 import 'pages/home/home.dart';
 import 'pages/pay/pay.dart';
 import 'pages/pay/components/confirm_payment.dart';
@@ -69,6 +70,7 @@ class MainApp extends StatelessWidget {
         '/set_pin': (context) => const SetPin(),
         '/exchange': (context) => Exchange(),
         '/info': (context) => Info(),
+        '/apps': (context) => Apps(),
         '/pay': (context) => Pay(),
         '/home': (context) => Home(),
       },

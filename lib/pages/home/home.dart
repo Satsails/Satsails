@@ -3,6 +3,7 @@ import 'package:animate_gradient/animate_gradient.dart';
 import './components/balance.dart';
 import '../accounts/accounts.dart';
 import './components/search_modal.dart';
+import './components/bottom_navigation_bar.dart';
 import 'package:provider/provider.dart';
 import '../../providers/settings_provider.dart';
 
@@ -30,13 +31,21 @@ class _HomeState extends State<Home> {
   Widget _buildBody() {
     return Stack(
       children: [
-            Column(
-            children: [
-              _buildTopSection(),
-              _buildActionButtons(),
-              _buildBottomNavigationBar(),
-            ],
-          ),
+        Column(
+          children: [
+            _buildTopSection(),
+            _buildActionButtons(),
+             CustomBottomNavigationBar(
+              currentIndex: _currentIndex,
+              context: context,
+              onTap: (int index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+            ),
+          ],
+        ),
         _buildAppBar(),
       ],
     );
@@ -60,7 +69,10 @@ class _HomeState extends State<Home> {
             double btcBalance = snapshot.data!["totalValueInBTC"]!;
 
             return SizedBox(
-              height: MediaQuery.of(context).padding.top + kToolbarHeight,
+              height: MediaQuery
+                  .of(context)
+                  .padding
+                  .top + kToolbarHeight,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -120,15 +132,18 @@ class _HomeState extends State<Home> {
     return Consumer<SettingsProvider>(
       builder: (context, settingsProvider, child) {
         return SizedBox(
-          height: MediaQuery.of(context).padding.top + kToolbarHeight + 30,
+          height: MediaQuery
+              .of(context)
+              .padding
+              .top + kToolbarHeight + 30,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildCircularButton(Icons.add, 'Add Money', () {}, Colors.grey),
               _buildCircularButton(Icons.swap_horizontal_circle, 'Exchange',
-                  () {
-                Navigator.pushNamed(context, '/exchange');
-              }, Colors.white),
+                      () {
+                    Navigator.pushNamed(context, '/exchange');
+                  }, Colors.white),
               _buildCircularButton(Icons.payments, 'Pay', () {
                 Navigator.pushNamed(context, '/pay');
               }, Colors.white),
@@ -143,8 +158,8 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildCircularButton(
-      IconData icon, String subtitle, VoidCallback onPressed, Color color) {
+  Widget _buildCircularButton(IconData icon, String subtitle,
+      VoidCallback onPressed, Color color) {
     return Column(
       children: [
         GestureDetector(
@@ -175,7 +190,8 @@ class _HomeState extends State<Home> {
           ),
         ),
         const SizedBox(height: 8),
-        Text(subtitle, style: const TextStyle(fontSize: 10, color: Colors.black)),
+        Text(subtitle,
+            style: const TextStyle(fontSize: 10, color: Colors.black)),
       ],
     );
   }
@@ -246,59 +262,6 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return Consumer<SettingsProvider>(
-      builder: (context, settingsProvider, child) {
-        List<BottomNavigationBarItem> bottomNavBarItems = [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: 'Analytics',
-          //   Divir em gastos com transacoes e com fees de conversao. Mostrar todas as txid (dar a opcao de copiar) e mosrar um grafico ao mes dos gastos. (alternativamente podem ser so as tx para lancar mais rapido)
-          ),
-        ];
-
-        bottomNavBarItems.insert(
-          1,
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.apps),
-            label: 'Apps',
-          //   Super sats
-          //   Pay to email
-            //   Alby
-          //   Invest
-          ),
-        );
-
-        return Theme(
-          data: Theme.of(context).copyWith(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-          ),
-          child: BottomNavigationBar(
-            backgroundColor: Colors.transparent,
-            currentIndex: _currentIndex,
-            onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            selectedFontSize: 12,
-            unselectedFontSize: 12,
-            iconSize: 24,
-            unselectedItemColor: Colors.black,
-            selectedItemColor: Colors.orangeAccent,
-            elevation: 0.0,
-            items: bottomNavBarItems,
-          ),
-        );
-      },
     );
   }
 }
