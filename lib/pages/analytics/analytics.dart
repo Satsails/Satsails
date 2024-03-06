@@ -19,15 +19,21 @@ class _AnalyticsState extends State<Analytics> {
   List<Object?> bitcoinTransactions = [];
   List<Object?> allTransactions = [];
   List<Object?> liquidTransactions = [];
-  double totalSpent = 0.0;
-  double totalFees = 0.0;
+  List<Object?> allMonthlyTransactions = [];
+  int totalSpent = 0;
+  int totalIncome = 0;
+  int totalFees = 0;
+  int totalSpentUsd = 0;
+  int totalIncomeUsd = 0;
   DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
     loadMnemonic().then((_) {
-      _fetchData();
+      _fetchData().then((_) {
+        _parseData(selectedDate);
+      });
     });
   }
 
@@ -53,24 +59,28 @@ class _AnalyticsState extends State<Analytics> {
     });
   }
 
-  void _parseData(DateTime month) {
-    totalSpent = 0.0;
-    totalFees = 0.0;
-
+  void _parseData(DateTime date) {
+    List<Object?> transactionsByMonth = [];
     for (var transaction in allTransactions) {
       if (transaction is Map<Object?, Object?>) {
-        if (transaction['type'] == 'outgoing') {
-          final amount = transaction['amount'] as double;
-          final fee = transaction['fee'] as double;
-          final date = DateTime.parse(transaction['date'] as String);
-
-          if (date.month == month.month && date.year == month.year) {
-            totalSpent += amount;
-            totalFees += fee;
+        try {
+          DateTime dateTime = DateTime.fromMicrosecondsSinceEpoch((transaction['created_at_ts'] as int));
+          if (dateTime.month == date.month && dateTime.year == date.year) {
+            transactionsByMonth.add(transaction);
           }
+        //   implement proper handling of the code  for icome and spent by token and by type
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error parsing transaction data'),
+            ),
+          );
         }
       }
     }
+    setState(() {
+      allMonthlyTransactions = transactionsByMonth;
+    });
   }
 
 
@@ -96,83 +106,84 @@ class _AnalyticsState extends State<Analytics> {
     );
   }
 
-  // change to monthly, line chart with 2 lines, one for fees and one for transactions sent
-  // every month from a dropdown is a new chart
-  // choose select all also
+  // implement a chart converted by coin (user can choose coin)
   Widget _buildChart() {
-    return BarChart(
-      BarChartData(
-        maxY: 5,
-        barGroups: [
-          BarChartGroupData(
-            x: 5,
-            barsSpace: 8,
-            barRods: [
-              BarChartRodData(
-                toY: 3,
-                width: 16,
-                color: Colors.red,
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: LineChart(
+        LineChartData(
+          maxX: 31,
+          lineBarsData: [
+            // add a line bar for fees
+            LineChartBarData(
+              spots: [FlSpot(1, 4), FlSpot(1, 5)],
+              isCurved: true,
+              belowBarData: BarAreaData(show: true, color: Colors.amber),
+              color: Colors.amber, // Amber color
+              dotData: FlDotData(show: false),
+              isStrokeCapRound: true,
+            ),
+          ],
+          borderData: FlBorderData(
+            show: true,
+            border: const Border(
+              bottom: BorderSide(
+                color: Colors.transparent,
               ),
-            ],
-          ),
-          BarChartGroupData(
-            x: 5,
-            barsSpace: 8,
-            barRods: [
-              BarChartRodData(
-                toY: 2,
-                width: 16,
-                color: Colors.blue,
+              left: BorderSide(
+                color: Colors.transparent,
               ),
-            ],
-          ),
-        ],
-        borderData: FlBorderData(
-          show: false,
-          border: const Border(
-            bottom: BorderSide(
-              color: Colors.transparent,
-            ),
-            left: BorderSide(
-              color: Colors.grey,
-            ),
-            right: BorderSide(
-              color: Colors.transparent,
-            ),
-            top: BorderSide(
-              color: Colors.transparent,
+              right: BorderSide(
+                color: Colors.transparent,
+              ),
+              top: BorderSide(
+                color: Colors.transparent,
+              ),
             ),
           ),
-        ),
-        gridData: FlGridData(
-          show: false,
-          drawVerticalLine: false,
-          drawHorizontalLine: true,
-          getDrawingHorizontalLine: (value) {
-            return const FlLine(
-              color: Colors.grey,
-              strokeWidth: 1,
-            );
-          },
-        ),
-        titlesData: const FlTitlesData(
-          show: true,
-          topTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
+          gridData: FlGridData(
+            show: false,
+            drawVerticalLine: false,
+            drawHorizontalLine: true,
+            getDrawingHorizontalLine: (value) {
+              return const FlLine(
+                color: Colors.grey,
+              );
+            },
           ),
-          rightTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 60,
+          titlesData: FlTitlesData(
+            show: false,
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            bottomTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: false,
+              ),
             ),
           ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 60,
+          lineTouchData: LineTouchData(
+            touchTooltipData: LineTouchTooltipData(
+              tooltipBgColor: Colors.blue,
+              getTooltipItems: (touchedSpots) {
+                return touchedSpots.map((LineBarSpot touchedSpot) {
+                  final TextStyle textStyle = TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  );
+                  return LineTooltipItem(
+                    touchedSpot.y.toStringAsFixed(2),
+                    textStyle,
+                  );
+                }).toList();
+              },
             ),
           ),
         ),
@@ -180,18 +191,60 @@ class _AnalyticsState extends State<Analytics> {
     );
   }
 
+
+
   Widget _buildBody(context) {
     return Column(
       children: [
         SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-        Text("Spent"),
-        Text("${totalSpent.toStringAsFixed(2)}", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold)),
+        // implement data on different screens
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        //   children: [
+        //     Column(
+        //       children: [
+        //         Text("Spent"),
+        //         Text("${totalSpent.toStringAsFixed(0)}", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        //       ],
+        //     ),
+        //     Column(
+        //       children: [
+        //         Text("Income"),
+        //         Text("${totalIncome.toStringAsFixed(0)}", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        //       ],
+        //     ),
+        //     Column(
+        //       children: [
+        //         Text("Fees"),
+        //         Text("${totalIncome.toStringAsFixed(0)}", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        //       ],
+        //     ),
+        //   ],
+        // ),
+        // SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        //   children: [
+        //     Column(
+        //       children: [
+        //         Text("Spent in USD"),
+        //         Text("${totalSpentUsd.toStringAsFixed(0)}", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        //       ],
+        //     ),
+        //     Column(
+        //       children: [
+        //         Text("Income in USD"),
+        //         Text("${totalIncomeUsd.toStringAsFixed(0)}", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        //       ],
+        //     ),
+        //   ],
+        // ),
         SizedBox(height: MediaQuery.of(context).size.height * 0.02),
         ElevatedButton(
           onPressed: () {
             showMonthPicker(
                     context: context,
-                    initialDate: DateTime.now(),
+                    initialDate: selectedDate,
                     headerColor: Colors.white,
                     headerTextColor: Colors.black,
                     selectedMonthBackgroundColor: Colors.amber[900],
@@ -203,19 +256,28 @@ class _AnalyticsState extends State<Analytics> {
                   selectedDate = date;
                 });
               }
+              _parseData(selectedDate);
             });
           },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
           child: Text(
             '${selectedDate.month}/${selectedDate.year}',
-            style: TextStyle(fontSize: 20),
+            style: TextStyle(fontSize: 15, color: Colors.black),
           ),
         ),
         SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+        // Expanded(
+        //   child: _buildChart(),
+        // ),
+
+
         Expanded(
-          child: _buildChart(),
-        ),
-        Expanded(
-          child: buildTransactions(allTransactions, context)
+          child: buildTransactions(allMonthlyTransactions, context)
         ),
       ],
     );

@@ -61,7 +61,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
   }
 
   void _navigateToScreen(int index) {
-    Widget page = Home(); // Default value
+    Widget page = Home();
 
     switch (index) {
       case 0:

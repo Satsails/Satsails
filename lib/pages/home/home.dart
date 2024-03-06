@@ -39,7 +39,7 @@ class _HomeState extends State<Home> {
               context: context,
               onTap: (int index) {
                 setState(() {
-                  _currentIndex = index;
+                  _currentIndex = 0;
                 });
               },
             ),

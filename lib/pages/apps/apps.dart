@@ -56,7 +56,7 @@ class AppGrid extends StatelessWidget {
       case 2:
         return 'Alby';
       case 3:
-        return 'POS';
+        return 'Point of Sale';
       case 4:
         return 'Bitrefill';
       default:
