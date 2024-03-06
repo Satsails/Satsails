@@ -23,6 +23,7 @@ dependencies:
   qr_code_scanner: ^1.0.1
   btc_address_validate_swan: ^1.2.1
   fl_chart: ^0.66.2
+  month_picker_dialog: ^2.11.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

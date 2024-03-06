@@ -1,12 +1,11 @@
-// Import necessary packages and files
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../channels/greenwallet.dart' as greenwallet;
 import 'package:fl_chart/fl_chart.dart';
-
 import '../../helpers/networks.dart';
 import '../home/components/bottom_navigation_bar.dart';
 import '../transactions/components/transactions_builder.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 
 class Analytics extends StatefulWidget {
   @override
@@ -20,7 +19,9 @@ class _AnalyticsState extends State<Analytics> {
   List<Object?> bitcoinTransactions = [];
   List<Object?> allTransactions = [];
   List<Object?> liquidTransactions = [];
-  String _selectedOption = 'Categories';
+  double totalSpent = 0.0;
+  double totalFees = 0.0;
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -47,22 +48,32 @@ class _AnalyticsState extends State<Analytics> {
       connectionType: NetworkSecurityCase.liquidSS.network,
     );
 
-    _parseData();
-  }
-
-  void _parseData() {
-    bitcoinTransactions.forEach((element) {
-      print(element);
-    });
-
-    liquidTransactions.forEach((element) {
-      print(element);
-    });
-
     setState(() {
       allTransactions = bitcoinTransactions + liquidTransactions;
     });
   }
+
+  void _parseData(DateTime month) {
+    totalSpent = 0.0;
+    totalFees = 0.0;
+
+    for (var transaction in allTransactions) {
+      if (transaction is Map<Object?, Object?>) {
+        if (transaction['type'] == 'outgoing') {
+          final amount = transaction['amount'] as double;
+          final fee = transaction['fee'] as double;
+          final date = DateTime.parse(transaction['date'] as String);
+
+          if (date.month == month.month && date.year == month.year) {
+            totalSpent += amount;
+            totalFees += fee;
+          }
+        }
+      }
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +96,9 @@ class _AnalyticsState extends State<Analytics> {
     );
   }
 
+  // change to monthly, line chart with 2 lines, one for fees and one for transactions sent
+  // every month from a dropdown is a new chart
+  // choose select all also
   Widget _buildChart() {
     return BarChart(
       BarChartData(
@@ -169,56 +183,40 @@ class _AnalyticsState extends State<Analytics> {
   Widget _buildBody(context) {
     return Column(
       children: [
+        SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+        Text("Spent"),
+        Text("${totalSpent.toStringAsFixed(2)}", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold)),
+        SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+        ElevatedButton(
+          onPressed: () {
+            showMonthPicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    headerColor: Colors.white,
+                    headerTextColor: Colors.black,
+                    selectedMonthBackgroundColor: Colors.amber[900],
+                    roundedCornersRadius: 20,
+                  )
+                .then((date) {
+              if (date != null) {
+                setState(() {
+                  selectedDate = date;
+                });
+              }
+            });
+          },
+          child: Text(
+            '${selectedDate.month}/${selectedDate.year}',
+            style: TextStyle(fontSize: 20),
+          ),
+        ),
+        SizedBox(height: MediaQuery.of(context).size.height * 0.02),
         Expanded(
-          flex: 4,
           child: _buildChart(),
         ),
-        SizedBox(height: 16), // Add spacing
-        _buildDropdown(), // Add the dropdown button
-        SizedBox(height: 16), // Add spacing
         Expanded(
-          flex: 2,
-          child: _buildSelectedContent(allTransactions, context),
+          child: buildTransactions(allTransactions, context)
         ),
-      ],
-    );
-  }
-
-  Widget _buildDropdown() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: DropdownButton<String>(
-        value: _selectedOption,
-        items: ['Categories', 'Transactions'].map((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
-        onChanged: (String? newValue) {
-          if (newValue != null) {
-            setState(() {
-              _selectedOption = newValue;
-            });
-          }
-        },
-      ),
-    );
-  }
-
-  Widget _buildSelectedContent(transactions, context) {
-    if (_selectedOption == 'Categories') {
-      return _buildCategories();
-    } else {
-      return buildTransactions(transactions, context);
-    }
-  }
-
-  Widget _buildCategories() {
-    return Column(
-      children: [
-        Text('Bitcoin Categories'),
-        Text('Liquid Categories'),
       ],
     );
   }

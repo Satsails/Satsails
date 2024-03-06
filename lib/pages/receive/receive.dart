@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../channels/greenwallet.dart' as greenwallet;
 import '../../../helpers/networks.dart';
@@ -148,24 +149,22 @@ class _ReceiveState extends State<Receive> {
           },
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                buildElevatedButton(0, 'Lightning'),
-                buildElevatedButton(1, 'Bitcoin'),
-                buildElevatedButton(2, 'Liquid'),
-              ],
-            ),
-            buildQrCode(_address['address']),
-            buildAddressText(_address['address']),
-            SizedBox(height: 16.0),
-            Divider(height: 1),
-            buildTransactions(_transactions, context),
-          ],
-        ),
+      body: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              buildElevatedButton(0, 'Lightning'),
+              buildElevatedButton(1, 'Bitcoin'),
+              buildElevatedButton(2, 'Liquid'),
+            ],
+          ),
+          buildQrCode(_address['address']),
+          buildAddressText(_address['address']),
+          SizedBox(height: 16.0),
+          Divider(height: 1),
+          Expanded(child: buildTransactions(_transactions, context)),
+        ],
       ),
     );
   }

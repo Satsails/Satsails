@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:animate_gradient/animate_gradient.dart';
 import './components/balance.dart';
 import '../accounts/accounts.dart';
 import './components/search_modal.dart';

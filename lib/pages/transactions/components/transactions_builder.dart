@@ -3,21 +3,19 @@ import 'package:flutter/services.dart';
 import 'package:satsails_wallet/helpers/asset_mapper.dart';
 
 Widget buildTransactions(List transactions, BuildContext context) {
-  return SingleChildScrollView(
-    child: Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        color: Colors.white,
-      ),
-      child: SizedBox(
-        width: double.infinity,
-        height: MediaQuery.of(context).size.height - kToolbarHeight,
-        child: ListView.builder(
-          itemCount: transactions.length,
-          itemBuilder: (BuildContext context, int index) {
-            return _buildTransactionItem(transactions[index], context);
-          },
-        ),
+  return Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.all(Radius.circular(20)),
+      color: Colors.white,
+    ),
+    child: SizedBox(
+      width: double.infinity,
+      height: MediaQuery.of(context).size.height - kToolbarHeight,
+      child: ListView.builder(
+        itemCount: transactions.length,
+        itemBuilder: (BuildContext context, int index) {
+          return _buildTransactionItem(transactions[index], context);
+        },
       ),
     ),
   );

@@ -83,7 +83,7 @@ class Start extends StatelessWidget {
                         onPressed: null,
                         style: ButtonStyle(
                           backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.grey!),
+                              MaterialStateProperty.all<Color>(Colors.grey),
                           shape:
                               MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(

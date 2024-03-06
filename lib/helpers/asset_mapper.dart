@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class AssetMapper {
   String mapAsset(String assetId) {
     switch (assetId) {

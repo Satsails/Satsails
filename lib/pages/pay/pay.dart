@@ -87,7 +87,7 @@ class _PayState extends State<Pay> {
   }
 
   void _toggleFlash() {
-    controller?.toggleFlash();
+    controller.toggleFlash();
   }
 
   void _pasteFromClipboard() async {
@@ -111,7 +111,7 @@ class _PayState extends State<Pay> {
 
   @override
   void dispose() {
-    controller?.dispose();
+    controller.dispose();
     super.dispose();
   }
 
