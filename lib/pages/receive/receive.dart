@@ -160,7 +160,10 @@ class _ReceiveState extends State<Receive> {
             ],
           ),
           buildQrCode(_address['address']),
-          buildAddressText(_address['address']),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: buildAddressText(_address['address']),
+          ),
           SizedBox(height: 16.0),
           Divider(height: 1),
           Expanded(child: buildTransactions(_transactions, context)),

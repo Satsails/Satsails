@@ -32,8 +32,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => AccountsProvider()),
         ChangeNotifierProvider(create: (context) => BalanceProvider()),
       ],
-      // child: MainApp(initialRoute: mnemonic == null ? '/' : '/open_pin'),
-      child: MainApp(initialRoute: mnemonic == null ? '/' : '/home'),
+      child: MainApp(initialRoute: mnemonic == null ? '/' : '/open_pin'),
     ),
   );
   await greenwallet.Channel('ios_wallet').walletInit();

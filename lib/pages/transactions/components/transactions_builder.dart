@@ -3,8 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:satsails_wallet/helpers/asset_mapper.dart';
 
 Widget buildTransactions(List transactions, BuildContext context) {
+  if (transactions.isEmpty) {
+    return const Center(
+      child: Text(
+        'No transactions',
+        style: TextStyle(fontSize: 18, color: Colors.black54),
+      ),
+    );
+  }
+
   return Container(
-    decoration: BoxDecoration(
+    decoration: const BoxDecoration(
       borderRadius: BorderRadius.all(Radius.circular(20)),
       color: Colors.white,
     ),
@@ -21,13 +30,14 @@ Widget buildTransactions(List transactions, BuildContext context) {
   );
 }
 
+
 Widget _buildTransactionItem(Map<Object?, Object?> transaction, BuildContext context) {
   Object? satoshiObject = transaction['satoshi'];
   // fix text leaving the screen
   return Column(
     children: [
       ListTile(
-        title: Text('Type: ${transaction['type']}', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('Type: ${transaction['type']}', style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: GestureDetector(
           onTap: () {
             _copyToClipboard(transaction['txhash']);
@@ -44,7 +54,7 @@ Widget _buildTransactionItem(Map<Object?, Object?> transaction, BuildContext con
 
           Icon leadingIcon;
           if (transaction['type'] == 'redeposit') {
-            leadingIcon = Icon(Icons.arrow_forward); // Replace with the actual icon for redeposit
+            leadingIcon = const Icon(Icons.arrow_forward); // Replace with the actual icon for redeposit
           } else {
             leadingIcon = Icon(
               value > 0 ? Icons.arrow_downward : Icons.arrow_upward,
@@ -59,7 +69,7 @@ Widget _buildTransactionItem(Map<Object?, Object?> transaction, BuildContext con
             ),
             trailing: Text(
               AssetMapper().mapAsset(key),
-              style: TextStyle(color: Colors.grey, fontSize: 20),
+              style: const TextStyle(color: Colors.grey, fontSize: 20),
             ),
           );
         }),
@@ -71,7 +81,7 @@ void _showSnackBar(String message, BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(message),
-      duration: Duration(seconds: 2),
+      duration: const Duration(seconds: 2),
     ),
   );
 }

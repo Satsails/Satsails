@@ -48,12 +48,17 @@ class _OpenPinState extends State<OpenPin> {
     if (canCheckBiometrics) {
       bool authenticated = await _localAuth.authenticate(
         localizedReason: 'Please authenticate to open the app',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+            biometricOnly: true
+        )
       );
       if (authenticated) {
         Navigator.pushReplacementNamed(context, '/home');
       }
     }
   }
+
 
   @override
   void initState() {

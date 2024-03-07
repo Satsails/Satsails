@@ -68,7 +68,8 @@ class _AnalyticsState extends State<Analytics> {
           if (dateTime.month == date.month && dateTime.year == date.year) {
             transactionsByMonth.add(transaction);
           }
-        //   implement proper handling of the code  for icome and spent by token and by type
+        //   implement proper handling of the code  for income and spent by token and by type
+        //   implement check by year
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

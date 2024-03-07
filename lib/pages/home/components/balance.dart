@@ -127,9 +127,8 @@ class BalanceWrapper {
   Future<Map<String, dynamic>> calculateTotalValue(BuildContext context) async {
     const storage = FlutterSecureStorage();
     String mnemonic = await storage.read(key: 'mnemonic') ?? '';
-    // double currentBitcoinPrice = await getBitcoinPrice();
+    double currentBitcoinPrice = await getBitcoinPrice();
     Map<String, dynamic> balance = await getBalance(mnemonic);
-    double currentBitcoinPrice = 1000000;
     Future<Map<String, dynamic>> bitcoinValue = calculateBitcoinValue(currentBitcoinPrice, balance);
     Future<Map<String, dynamic>> usd = calculateUSDValue(currentBitcoinPrice, balance);
     Future<Map<String, dynamic>> fees = calculateHighestFees(mnemonic, currentBitcoinPrice);
