@@ -136,7 +136,7 @@ class Accounts extends StatelessWidget {
           trailing: Switch(
             value: accountsProvider.autoBalancing,
             onChanged: (bool newValue) {
-              accountsProvider.setAutoBalancingCapabilities(true);
+              accountsProvider.setAutoBalancingCapabilities(false);
             },
           ),
         );
