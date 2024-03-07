@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/accounts_provider.dart';
@@ -23,6 +24,7 @@ import 'pages/support/info.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   const storage = FlutterSecureStorage();
   String? mnemonic = await storage.read(key: 'mnemonic');
   runApp(
