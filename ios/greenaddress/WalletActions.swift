@@ -340,7 +340,7 @@ public class GDKWallet {
                 
                 var transactionResult = createTransactionResolve["result"] as? [String: Any] ?? [:]
 
-                if (transactionResult["error"] as? String) == "id_invalid_address" {
+                if (transactionResult["error"] as? String) == "id_invalid_address" || (transactionResult["error"] as? String) == "id_nonconfidential_addresses_not"  {
                     return false
                 } else {
                     return true
