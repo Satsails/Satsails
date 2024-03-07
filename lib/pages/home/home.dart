@@ -77,7 +77,7 @@ class _HomeState extends State<Home> {
                 children: [
                   const SizedBox(height: 100),
                   Text(
-                    '${btcBalance.toStringAsFixed(8)} BTC',
+                    '${btcBalance == btcBalance.truncate() ? btcBalance.toString() : btcBalance.toStringAsFixed(8)} BTC',
                     style: const TextStyle(fontSize: 30, color: Colors.black),
                   ),
                   const SizedBox(height: 10),
