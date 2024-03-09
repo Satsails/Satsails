@@ -27,7 +27,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.apps),
-            label: 'Apps',
+            label: 'Services',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
