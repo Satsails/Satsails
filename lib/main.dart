@@ -49,6 +49,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       initialRoute: initialRoute,
+      debugShowCheckedModeBanner: false,
       onGenerateRoute: (settings) {
         if (settings.name == '/confirm_payment') {
           final Map<String, dynamic> arguments = settings.arguments as Map<String, dynamic>;

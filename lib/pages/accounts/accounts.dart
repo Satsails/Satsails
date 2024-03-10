@@ -74,7 +74,7 @@ class Accounts extends StatelessWidget {
             ),
             SizedBox(height: screenWidth * 0.02),
             _buildAccountCard(
-              title: 'Lightening Network',
+              title: 'Lightning Network',
               subtitle: 'Coming Soon',
               disabled: true,
               context: context,
