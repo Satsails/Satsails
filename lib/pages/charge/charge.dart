@@ -5,7 +5,7 @@ class Charge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chargen Wallet'),
+        title: const Text('Charge Wallet'),
       ),
       backgroundColor: Colors.white,
       body: const Center(
@@ -16,6 +16,21 @@ class Charge extends StatelessWidget {
             children: [
               PaymentMethodCard(
                 title: 'Add Money with Pix',
+                description: 'Coming Soon',
+              ),
+              SizedBox(height: 16.0),
+              PaymentMethodCard(
+                title: 'Receive your Salary',
+                description: 'Coming Soon',
+              ),
+              SizedBox(height: 16.0),
+              PaymentMethodCard(
+                title: 'Add Money with Bank Transfer',
+                description: 'Coming Soon',
+              ),
+              SizedBox(height: 16.0),
+              PaymentMethodCard(
+                title: 'Add money with Credit Card',
                 description: 'Coming Soon',
               ),
             ],
