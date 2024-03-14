@@ -23,6 +23,10 @@ class Charge extends StatelessWidget {
                 title: 'Receive your Salary',
                 description: 'Coming Soon',
               ),
+              PaymentMethodCard(
+                title: 'Set up a Recurring Deposit',
+                description: 'Coming Soon',
+              ),
               SizedBox(height: 16.0),
               PaymentMethodCard(
                 title: 'Add Money with Bank Transfer',

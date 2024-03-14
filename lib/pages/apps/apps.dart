@@ -14,7 +14,7 @@ class _AppsState extends State<Apps> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Apps'),
+        title: const Text('Services'),
       ),
       body: AppGrid(),
       bottomNavigationBar: CustomBottomNavigationBar(
@@ -52,13 +52,15 @@ class AppGrid extends StatelessWidget {
   String getTitle(int appNumber) {
     switch (appNumber) {
       case 1:
-        return 'Stackfy';
+        return 'Remittance';
       case 2:
-        return 'Alby';
+        return 'Pay to Bank';
       case 3:
-        return 'Point of Sale';
+        return 'Alby';
       case 4:
-        return 'Bitrefill';
+        return 'Point of Sale';
+      case 5:
+        return 'BitRefill';
       default:
         return '';
     }

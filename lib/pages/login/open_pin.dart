@@ -71,6 +71,7 @@ class _OpenPinState extends State<OpenPin> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Enter PIN'),
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Padding(
