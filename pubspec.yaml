@@ -24,6 +24,20 @@ dependencies:
   btc_address_validate_swan: ^1.2.1
   fl_chart: ^0.66.2
   month_picker_dialog: ^2.11.0
+#  new
+  responsive_framework: ^1.4.0
+  riverpod: ^2.5.1
+  bdk_flutter: ^0.30.0
+  boltz_dart:
+    git:
+      url: https://github.com/SatoshiPortal/boltz-dart.git
+      ref: trunk
+  lwk_dart:
+    git:
+      url: https://github.com/SatoshiPortal/lwk-dart
+      ref: trunk
+
+
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
