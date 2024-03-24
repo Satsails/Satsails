@@ -24,6 +24,16 @@ dependencies:
   btc_address_validate_swan: ^1.2.1
   fl_chart: ^0.66.2
   month_picker_dialog: ^2.11.0
+  ffi: ^2.0.2
+  ffigen: ^8.0.2
+  freezed_annotation: ^2.4.1
+  freezed: ^2.4.1
+  nanoid: ^1.0.0
+  logger: ^1.4.0
+  build_runner: ^2.4.6
+  json_serializable: ^6.7.1
+  flutter_riverpod: ^2.5.1
+  rxdart: ^0.27.7
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
@@ -40,3 +50,29 @@ flutter_icons:
   android: true
   ios: true
   image_path: "lib/assets/SatSails.png"
+
+ffigen:
+  output: "lib/ffi/generated_bindings.dart"
+  headers:
+    entry-points:
+      - "crypto/gdk-iphone/include/gdk/gdk.h"
+      - "rust-elements-wrapper/bindings.h"
+  typedefs:
+    include:
+      - ".*"
+  functions:
+    expose-typedefs:
+      include:
+        - ".*"
+  symbol-address:
+    include:
+      - ".*"
+  structs:
+    exclude:
+      - "(.*)sigaction(.*)"
+  unions:
+    exclude:
+      - "(.*)sigaction(.*)"
+  llvm-path:
+    - "/opt/local/libexec/llvm-10"
+    - "/Library/Developer/CommandLineTools/usr"

@@ -21,6 +21,9 @@ import 'pages/pay/pay.dart';
 import 'pages/pay/components/confirm_payment.dart';
 import 'pages/exchange/exchange.dart';
 import 'pages/support/info.dart';
+import 'gdk.dart';
+import 'package:satsails_wallet/data/models/gdk_models.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +40,19 @@ void main() async {
       child: MainApp(initialRoute: mnemonic == null ? '/' : '/open_pin'),
     ),
   );
-  await greenwallet.Channel('ios_wallet').walletInit();
+  final libGdk = LibGdk();
+  final result = await libGdk.generateMnemonic12();
+  final dir = getApplicationSupportDirectory().then((dir) async {
+    final config = GdkConfig(
+        dataDir: dir.absolute.path,
+        logLevel: GdkConfigLogLevelEnum.info);
+    return await libGdk.initGdk(config);
+
+  });
+  await dir;
+  final mnemonica = result.asValue?.value;
+  print(mnemonica);
+  // await greenwallet.Channel('ios_wallet').walletInit();
 }
 
 class MainApp extends StatelessWidget {

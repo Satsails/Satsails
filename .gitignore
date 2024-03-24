@@ -44,3 +44,5 @@ app.*.map.json
 /gdk/build-iphone/
 /ios/libgdk/
 /lib/externalLibraries/
+/crypto/
+/rust-elements-wrapper/

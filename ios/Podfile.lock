@@ -11,6 +11,7 @@ PODS:
   - qr_code_scanner (0.2.0):
     - Flutter
     - MTBBarcodeScanner
+  - RxSwift (6.2.0)
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -23,12 +24,14 @@ DEPENDENCIES:
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
+  - RxSwift (= 6.2.0)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
 
 SPEC REPOS:
   trunk:
     - MTBBarcodeScanner
+    - RxSwift
 
 EXTERNAL SOURCES:
   Flutter:
@@ -53,9 +56,10 @@ SPEC CHECKSUMS:
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
+  RxSwift: d356ab7bee873611322f134c5f9ef379fa183d8f
   shared_preferences_foundation: b4c3b4cddf1c21f02770737f147a3f5da9d39695
   webview_flutter_wkwebview: be0f0d33777f1bfd0c9fdcb594786704dbf65f36
 
-PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
+PODFILE CHECKSUM: aa5a9988ac2f1b41f1207775cf986bf1925a73b7
 
 COCOAPODS: 1.14.3
