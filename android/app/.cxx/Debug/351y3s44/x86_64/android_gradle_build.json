@@ -1,0 +1,40 @@
+{
+  "buildFiles": [
+    "/Users/joaolobo/code/project/satsails_wallet/android/app/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/joaolobo/.android/avd/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/joaolobo/code/project/satsails_wallet/android/app/.cxx/Debug/351y3s44/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/joaolobo/.android/avd/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/joaolobo/code/project/satsails_wallet/android/app/.cxx/Debug/351y3s44/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "dart_helper::@6890427a1f51a3e7e1df": {
+      "toolchain": "toolchain",
+      "abi": "x86_64",
+      "artifactName": "dart_helper",
+      "output": "/Users/joaolobo/code/project/satsails_wallet/build/app/intermediates/cxx/Debug/351y3s44/obj/x86_64/libdart_helper.so",
+      "runtimeFiles": [
+        "/Users/joaolobo/code/project/satsails_wallet/crypto/gdk-android-jni/lib/x86_64/libgreenaddress.so"
+      ]
+    }
+  },
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/Users/joaolobo/.android/avd/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/Users/joaolobo/.android/avd/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [
+    "c"
+  ],
+  "cppFileExtensions": []
+}

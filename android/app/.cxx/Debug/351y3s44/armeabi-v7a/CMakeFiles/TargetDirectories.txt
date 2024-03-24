@@ -1,0 +1,3 @@
+/Users/joaolobo/code/project/satsails_wallet/android/app/.cxx/Debug/351y3s44/armeabi-v7a/CMakeFiles/dart_helper.dir
+/Users/joaolobo/code/project/satsails_wallet/android/app/.cxx/Debug/351y3s44/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/joaolobo/code/project/satsails_wallet/android/app/.cxx/Debug/351y3s44/armeabi-v7a/CMakeFiles/rebuild_cache.dir

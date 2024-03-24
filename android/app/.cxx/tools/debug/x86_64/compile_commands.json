@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/Users/joaolobo/code/project/satsails_wallet/android/app/.cxx/Debug/351y3s44/x86_64",
+  "command": "/Users/joaolobo/.android/avd/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang --target=x86_64-none-linux-android27 --sysroot=/Users/joaolobo/.android/avd/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -Ddart_helper_EXPORTS -I/Users/joaolobo/code/project/satsails_wallet/android/app/../../crypto/gdk-android-jni/include -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -fexceptions -g  -fno-limit-debug-info -fPIC -o CMakeFiles/dart_helper.dir/Users/joaolobo/code/project/satsails_wallet/ffi/dart_helper/callbacks.c.o -c /Users/joaolobo/code/project/satsails_wallet/ffi/dart_helper/callbacks.c",
+  "file": "/Users/joaolobo/code/project/satsails_wallet/ffi/dart_helper/callbacks.c"
+}
+]

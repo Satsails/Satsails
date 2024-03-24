@@ -1,0 +1,1 @@
+/Users/joaolobo/code/project/satsails_wallet/android/app/CMakeLists.txt
