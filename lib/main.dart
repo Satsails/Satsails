@@ -1,11 +1,14 @@
+import 'package:async/src/result/result.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:path_provider/path_provider.dart';
+
 import 'providers/settings_provider.dart';
 import 'providers/accounts_provider.dart';
 import 'providers/balance_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import './channels/greenwallet.dart' as greenwallet;
+
 import 'pages/creation/start.dart';
 import 'pages/settings/components/seed_words.dart';
 import 'pages/settings/settings.dart';
@@ -23,36 +26,39 @@ import 'pages/exchange/exchange.dart';
 import 'pages/support/info.dart';
 import 'gdk.dart';
 import 'package:satsails_wallet/data/models/gdk_models.dart';
-import 'package:path_provider/path_provider.dart';
+import 'wallet.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   const storage = FlutterSecureStorage();
   String? mnemonic = await storage.read(key: 'mnemonic');
+
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => SettingsProvider()),
-        ChangeNotifierProvider(create: (context) => AccountsProvider()),
-        ChangeNotifierProvider(create: (context) => BalanceProvider()),
-      ],
+    ProviderScope(
       child: MainApp(initialRoute: mnemonic == null ? '/' : '/open_pin'),
     ),
   );
+
   final libGdk = LibGdk();
   final result = await libGdk.generateMnemonic12();
-  final dir = getApplicationSupportDirectory().then((dir) async {
-    final config = GdkConfig(
-        dataDir: dir.absolute.path,
-        logLevel: GdkConfigLogLevelEnum.info);
-    return await libGdk.initGdk(config);
-
+  final dir = await getApplicationSupportDirectory();
+  final config = GdkConfig(
+      dataDir: dir.path,
+      logLevel: GdkConfigLogLevelEnum.info);
+  final wallet_service = WalletService();
+  final connectionParams = GdkConnectionParams(name: 'electrum-testnet');
+  wallet_service.init(callback: (value) {
+    print(value);
   });
-  await dir;
+  final connect = await wallet_service.connect(connectionParams: connectionParams);
+  final log_in_creds = GdkLoginCredentials(mnemonic: result.asValue!.value);
+  final log_in = await wallet_service.loginUser(credentials: log_in_creds);
+  final get_transactions = await wallet_service.getTransactions();
+  print(get_transactions.asValue?.value);
+
   final mnemonica = result.asValue?.value;
   print(mnemonica);
-  // await greenwallet.Channel('ios_wallet').walletInit();
 }
 
 class MainApp extends StatelessWidget {
