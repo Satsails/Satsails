@@ -10,19 +10,19 @@
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
-		539765062B5867DD00B50BAB /* Wally.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539765042B5867DD00B50BAB /* Wally.swift */; };
-		539765072B5867DD00B50BAB /* Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539765052B5867DD00B50BAB /* Codable.swift */; };
-		53A096912B5DA26900E590CB /* AccountType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A096902B5DA26900E590CB /* AccountType.swift */; };
-		53A096932B5EBEF700E590CB /* NetworkSecurityCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A096922B5EBEF700E590CB /* NetworkSecurityCase.swift */; };
-		53A096972B5EF86300E590CB /* WalletActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A096962B5EF86300E590CB /* WalletActions.swift */; };
-		53A096992B5EF8BE00E590CB /* GdkInit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A096982B5EF8BE00E590CB /* GdkInit.swift */; };
 		53A685AD2B56D71700150C98 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FEF6746A539D384EECAA6FA /* Pods_Runner.framework */; };
-		53A685AF2B56D72B00150C98 /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53EC7E262B53299B000DA5CC /* Wallet.swift */; };
-		53E2A5452B653BD5001A26F2 /* EventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53E2A5442B653BD5001A26F2 /* EventType.swift */; };
-		53E2A5472B66582F001A26F2 /* Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53E2A5462B66582F001A26F2 /* Events.swift */; };
+		53C760C12BB0882B0027D84E /* NetworkSecurityCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A096922B5EBEF700E590CB /* NetworkSecurityCase.swift */; };
+		53C760C22BB0882B0027D84E /* Wally.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539765042B5867DD00B50BAB /* Wally.swift */; };
+		53C760C32BB0882B0027D84E /* AccountType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A096902B5DA26900E590CB /* AccountType.swift */; };
+		53C760C42BB0882B0027D84E /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53EC7E262B53299B000DA5CC /* Wallet.swift */; };
+		53C760C52BB0882B0027D84E /* EventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53E2A5442B653BD5001A26F2 /* EventType.swift */; };
+		53C760C62BB0882B0027D84E /* GdkInit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A096982B5EF8BE00E590CB /* GdkInit.swift */; };
+		53C760C72BB0882B0027D84E /* Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53E2A5462B66582F001A26F2 /* Events.swift */; };
+		53C760C82BB0882B0027D84E /* WalletActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A096962B5EF86300E590CB /* WalletActions.swift */; };
+		53C760C92BB0882B0027D84E /* Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539765052B5867DD00B50BAB /* Codable.swift */; };
+		53C760CA2BB0882B0027D84E /* GreenAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C760BF2BB086810027D84E /* GreenAddress.swift */; };
 		53EC7E022B5303B8000DA5CC /* greenaddress.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EC7DFC2B5303B7000DA5CC /* greenaddress.framework */; };
 		53EC7E032B5303B8000DA5CC /* greenaddress.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 53EC7DFC2B5303B7000DA5CC /* greenaddress.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		53EC7E232B5304BF000DA5CC /* GreenAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53EC7E222B5304BF000DA5CC /* GreenAddress.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7CEBBE9D0F8C5AD3C5006B37 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A1CCA5C730A70E6BA28DF7 /* Pods_RunnerTests.framework */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
@@ -75,11 +75,11 @@
 		53A096922B5EBEF700E590CB /* NetworkSecurityCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkSecurityCase.swift; sourceTree = "<group>"; };
 		53A096962B5EF86300E590CB /* WalletActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletActions.swift; sourceTree = "<group>"; };
 		53A096982B5EF8BE00E590CB /* GdkInit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GdkInit.swift; sourceTree = "<group>"; };
+		53C760BF2BB086810027D84E /* GreenAddress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GreenAddress.swift; sourceTree = "<group>"; };
 		53E2A5442B653BD5001A26F2 /* EventType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventType.swift; sourceTree = "<group>"; };
 		53E2A5462B66582F001A26F2 /* Events.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Events.swift; sourceTree = "<group>"; };
 		53EC7DFC2B5303B7000DA5CC /* greenaddress.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = greenaddress.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		53EC7E222B5304BF000DA5CC /* GreenAddress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GreenAddress.swift; path = libgdk/share/gdk/GreenAddress.swift; sourceTree = SOURCE_ROOT; };
-		53EC7E262B53299B000DA5CC /* Wallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wallet.swift; path = greenaddress/Wallet.swift; sourceTree = SOURCE_ROOT; };
+		53EC7E262B53299B000DA5CC /* Wallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wallet.swift; path = Runner/Wallet.swift; sourceTree = SOURCE_ROOT; };
 		58AD4C7FCE7C633975D739ED /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -137,16 +137,6 @@
 		53EC7DFD2B5303B7000DA5CC /* greenaddress */ = {
 			isa = PBXGroup;
 			children = (
-				53E2A5462B66582F001A26F2 /* Events.swift */,
-				53E2A5442B653BD5001A26F2 /* EventType.swift */,
-				53A096902B5DA26900E590CB /* AccountType.swift */,
-				539765052B5867DD00B50BAB /* Codable.swift */,
-				539765042B5867DD00B50BAB /* Wally.swift */,
-				53A096962B5EF86300E590CB /* WalletActions.swift */,
-				53A096922B5EBEF700E590CB /* NetworkSecurityCase.swift */,
-				53EC7E262B53299B000DA5CC /* Wallet.swift */,
-				53A096982B5EF8BE00E590CB /* GdkInit.swift */,
-				53EC7E222B5304BF000DA5CC /* GreenAddress.swift */,
 			);
 			path = greenaddress;
 			sourceTree = "<group>";
@@ -188,6 +178,16 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				53C760BF2BB086810027D84E /* GreenAddress.swift */,
+				53E2A5462B66582F001A26F2 /* Events.swift */,
+				53E2A5442B653BD5001A26F2 /* EventType.swift */,
+				53A096902B5DA26900E590CB /* AccountType.swift */,
+				539765052B5867DD00B50BAB /* Codable.swift */,
+				539765042B5867DD00B50BAB /* Wally.swift */,
+				53A096962B5EF86300E590CB /* WalletActions.swift */,
+				53A096922B5EBEF700E590CB /* NetworkSecurityCase.swift */,
+				53EC7E262B53299B000DA5CC /* Wallet.swift */,
+				53A096982B5EF8BE00E590CB /* GdkInit.swift */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
@@ -419,7 +419,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\n";
 		};
 		BEE1484B6F90A71BF8C48ED2 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -475,16 +475,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				539765062B5867DD00B50BAB /* Wally.swift in Sources */,
-				53A685AF2B56D72B00150C98 /* Wallet.swift in Sources */,
-				53A096992B5EF8BE00E590CB /* GdkInit.swift in Sources */,
-				539765072B5867DD00B50BAB /* Codable.swift in Sources */,
-				53E2A5472B66582F001A26F2 /* Events.swift in Sources */,
-				53E2A5452B653BD5001A26F2 /* EventType.swift in Sources */,
-				53EC7E232B5304BF000DA5CC /* GreenAddress.swift in Sources */,
-				53A096932B5EBEF700E590CB /* NetworkSecurityCase.swift in Sources */,
-				53A096912B5DA26900E590CB /* AccountType.swift in Sources */,
-				53A096972B5EF86300E590CB /* WalletActions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -492,8 +482,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				53C760CA2BB0882B0027D84E /* GreenAddress.swift in Sources */,
+				53C760C52BB0882B0027D84E /* EventType.swift in Sources */,
+				53C760C42BB0882B0027D84E /* Wallet.swift in Sources */,
+				53C760C82BB0882B0027D84E /* WalletActions.swift in Sources */,
+				53C760C62BB0882B0027D84E /* GdkInit.swift in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
+				53C760C12BB0882B0027D84E /* NetworkSecurityCase.swift in Sources */,
+				53C760C92BB0882B0027D84E /* Codable.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
+				53C760C72BB0882B0027D84E /* Events.swift in Sources */,
+				53C760C22BB0882B0027D84E /* Wally.swift in Sources */,
+				53C760C32BB0882B0027D84E /* AccountType.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -587,7 +587,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
@@ -606,8 +605,55 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					"\"AVFoundation\"",
+					"-framework",
+					"\"MTBBarcodeScanner\"",
+					"-framework",
+					"\"QuartzCore\"",
+					"-framework",
+					"\"flutter_secure_storage\"",
+					"-framework",
+					"\"local_auth_darwin\"",
+					"-framework",
+					"\"path_provider_foundation\"",
+					"-framework",
+					"\"qr_code_scanner\"",
+					"-framework",
+					"\"shared_preferences_foundation\"",
+					"-framework",
+					"\"webview_flutter_wkwebview\"",
+					"-lc++",
+					"$(SRCROOT)/libgdk/libs/ios_arm64/libgreenaddress_full.a",
+				);
+				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"-framework",
+					"\"AVFoundation\"",
+					"-framework",
+					"\"MTBBarcodeScanner\"",
+					"-framework",
+					"\"QuartzCore\"",
+					"-framework",
+					"\"flutter_secure_storage\"",
+					"-framework",
+					"\"local_auth_darwin\"",
+					"-framework",
+					"\"path_provider_foundation\"",
+					"-framework",
+					"\"qr_code_scanner\"",
+					"-framework",
+					"\"shared_preferences_foundation\"",
+					"-framework",
+					"\"webview_flutter_wkwebview\"",
+					"-lc++",
+					"$(SRCROOT)/libgdk/libs/ios_arm64/libgreenaddress_full.a",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.SatSails;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/libgdk/include";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -666,6 +712,7 @@
 		};
 		53EC7E052B5303B8000DA5CC /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9740EEB31CF90195004384FC /* Generated.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -942,7 +989,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
@@ -961,8 +1007,78 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					"\"AVFoundation\"",
+					"-framework",
+					"\"MTBBarcodeScanner\"",
+					"-framework",
+					"\"QuartzCore\"",
+					"-framework",
+					"\"flutter_secure_storage\"",
+					"-framework",
+					"\"local_auth_darwin\"",
+					"-framework",
+					"\"path_provider_foundation\"",
+					"-framework",
+					"\"qr_code_scanner\"",
+					"-framework",
+					"\"shared_preferences_foundation\"",
+					"-framework",
+					"\"webview_flutter_wkwebview\"",
+					"-lc++",
+					"$(SRCROOT)/libgdk/libs/ios_arm64/libgreenaddress_full.a",
+				);
+				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"-framework",
+					"\"AVFoundation\"",
+					"-framework",
+					"\"MTBBarcodeScanner\"",
+					"-framework",
+					"\"QuartzCore\"",
+					"-framework",
+					"\"flutter_secure_storage\"",
+					"-framework",
+					"\"local_auth_darwin\"",
+					"-framework",
+					"\"path_provider_foundation\"",
+					"-framework",
+					"\"qr_code_scanner\"",
+					"-framework",
+					"\"shared_preferences_foundation\"",
+					"-framework",
+					"\"webview_flutter_wkwebview\"",
+					"-lc++",
+					"$(SRCROOT)/libgdk/libs/ios_arm64/libgreenaddress_full.a",
+				);
+				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"-framework",
+					"\"AVFoundation\"",
+					"-framework",
+					"\"MTBBarcodeScanner\"",
+					"-framework",
+					"\"QuartzCore\"",
+					"-framework",
+					"\"flutter_secure_storage\"",
+					"-framework",
+					"\"local_auth_darwin\"",
+					"-framework",
+					"\"path_provider_foundation\"",
+					"-framework",
+					"\"qr_code_scanner\"",
+					"-framework",
+					"\"shared_preferences_foundation\"",
+					"-framework",
+					"\"webview_flutter_wkwebview\"",
+					"-lc++",
+					"$(SRCROOT)/libgdk/libs/ios_arm64/libgreenaddress_full.a",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.SatSails;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/libgdk/include";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -974,7 +1090,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
@@ -993,8 +1108,55 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					"\"AVFoundation\"",
+					"-framework",
+					"\"MTBBarcodeScanner\"",
+					"-framework",
+					"\"QuartzCore\"",
+					"-framework",
+					"\"flutter_secure_storage\"",
+					"-framework",
+					"\"local_auth_darwin\"",
+					"-framework",
+					"\"path_provider_foundation\"",
+					"-framework",
+					"\"qr_code_scanner\"",
+					"-framework",
+					"\"shared_preferences_foundation\"",
+					"-framework",
+					"\"webview_flutter_wkwebview\"",
+					"-lc++",
+					"$(SRCROOT)/libgdk/libs/ios_arm64/libgreenaddress_full.a",
+				);
+				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"-framework",
+					"\"AVFoundation\"",
+					"-framework",
+					"\"MTBBarcodeScanner\"",
+					"-framework",
+					"\"QuartzCore\"",
+					"-framework",
+					"\"flutter_secure_storage\"",
+					"-framework",
+					"\"local_auth_darwin\"",
+					"-framework",
+					"\"path_provider_foundation\"",
+					"-framework",
+					"\"qr_code_scanner\"",
+					"-framework",
+					"\"shared_preferences_foundation\"",
+					"-framework",
+					"\"webview_flutter_wkwebview\"",
+					"-lc++",
+					"$(SRCROOT)/libgdk/libs/ios_arm64/libgreenaddress_full.a",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.SatSails;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/libgdk/include";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
