@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../services/bitcoin_price.dart';
-import '../../../channels/greenwallet.dart' as greenwallet;
 import '../../../helpers/networks.dart';
 import '../../../providers/balance_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -38,8 +37,10 @@ class BalanceWrapper {
   AssetMapper assetMapper = AssetMapper();
 
   Future<Map<String, dynamic>> getBalance(mnemonic) async {
-    Map<String, int> bitcoinBalance = await greenwallet.Channel('ios_wallet').getBalance(mnemonic: mnemonic, connectionType: NetworkSecurityCase.bitcoinSS.network);
-    Map<String, int> liquidBalance = await greenwallet.Channel('ios_wallet').getBalance(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+    // Map<String, int> bitcoinBalance = await greenwallet.Channel('ios_wallet').getBalance(mnemonic: mnemonic, connectionType: NetworkSecurityCase.bitcoinSS.network);
+    // Map<String, int> liquidBalance = await greenwallet.Channel('ios_wallet').getBalance(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+    Map<String, int> bitcoinBalance = {};
+    Map<String, int> liquidBalance = {};
     Map<String, dynamic> balance = {
       'bitcoin': bitcoinBalance["btc"] ?? 0,
       'liquid': assetMapper.translateLiquidAssets(liquidBalance),
@@ -107,8 +108,10 @@ class BalanceWrapper {
   }
 
   Future<Map<String, dynamic>> calculateHighestFees(mnemonic, double bitcoinPrice) async {
-    Map<String, dynamic> bitcoinFee = await greenwallet.Channel('ios_wallet').getFeeEstimates(mnemonic: mnemonic, connectionType: NetworkSecurityCase.bitcoinSS.network);
-    Map<String, dynamic> liquidFee = await greenwallet.Channel('ios_wallet').getFeeEstimates(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+    // Map<String, dynamic> bitcoinFee = await greenwallet.Channel('ios_wallet').getFeeEstimates(mnemonic: mnemonic, connectionType: NetworkSecurityCase.bitcoinSS.network);
+    // Map<String, dynamic> liquidFee = await greenwallet.Channel('ios_wallet').getFeeEstimates(mnemonic: mnemonic, connectionType: NetworkSecurityCase.liquidSS.network);
+    Map<String, dynamic> bitcoinFee = {};
+    Map<String, dynamic> liquidFee = {};
     int highestBitcoinFeeInt = bitcoinFee["fees"][1] ?? 0;
     double highestBitcoinFee = highestBitcoinFeeInt / 100000000;
     double highestBitcoinFeeUsd = highestBitcoinFee * bitcoinPrice;

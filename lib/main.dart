@@ -5,7 +5,6 @@ import 'providers/accounts_provider.dart';
 import 'providers/balance_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import './channels/greenwallet.dart' as greenwallet;
 import 'pages/creation/start.dart';
 import 'pages/settings/components/seed_words.dart';
 import 'pages/settings/settings.dart';
@@ -37,7 +36,6 @@ void main() async {
       child: MainApp(initialRoute: mnemonic == null ? '/' : '/open_pin'),
     ),
   );
-  await greenwallet.Channel('ios_wallet').walletInit();
 }
 
 class MainApp extends StatelessWidget {

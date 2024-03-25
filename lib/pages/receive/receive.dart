@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import '../../../channels/greenwallet.dart' as greenwallet;
 import '../../../helpers/networks.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/services.dart';
@@ -52,25 +51,26 @@ class _ReceiveState extends State<Receive> {
   }
 
   Future<void> _fetchData() async {
-    final channel = greenwallet.Channel('ios_wallet');
+    // final channel = greenwallet.Channel('ios_wallet');
 
     final connectionType = _selectedButtonIndex == 1
         ? NetworkSecurityCase.bitcoinSS.network
         : NetworkSecurityCase.liquidSS.network;
 
-    final address = await channel.getReceiveAddress(
-      mnemonic: mnemonic,
-      connectionType: connectionType,
-    );
+    // final address = await channel.getReceiveAddress(
+    //   mnemonic: mnemonic,
+    //   connectionType: connectionType,
+    // );
+    //
+    // final transactions = await channel.getTransactions(
+    //   mnemonic: mnemonic,
+    //   connectionType: connectionType,
+    // );
 
-    final transactions = await channel.getTransactions(
-      mnemonic: mnemonic,
-      connectionType: connectionType,
-    );
 
     setState(() {
-      _address = address;
-      _transactions = transactions;
+      // _address = address;
+      // _transactions = transactions;
     });
   }
 

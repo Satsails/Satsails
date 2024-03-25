@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
-import '../../../channels/greenwallet.dart' as greenwallet;
 import '../../../providers/balance_provider.dart';
 import '../../../helpers/networks.dart';
 import '../../../helpers/asset_mapper.dart';
@@ -36,13 +35,14 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
       assetId = AssetMapper().reverseMapTicker(asset);
     }
 
-    return await greenwallet.Channel('ios_wallet').sendToAddress(
-      mnemonic: mnemonic,
-      connectionType: transactionType == 'liquid' ? NetworkSecurityCase.liquidSS.network  : NetworkSecurityCase.bitcoinSS.network,
-      address: widget.address,
-      amount: amountInt,
-      assetId: assetId,
-    );
+    // return await greenwallet.Channel('ios_wallet').sendToAddress(
+    //   mnemonic: mnemonic,
+    //   connectionType: transactionType == 'liquid' ? NetworkSecurityCase.liquidSS.network  : NetworkSecurityCase.bitcoinSS.network,
+    //   address: widget.address,
+    //   amount: amountInt,
+    //   assetId: assetId,
+    // );
+    return '';
   }
 
   void checkMaxAmount(String asset) async {

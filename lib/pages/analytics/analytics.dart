@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../../channels/greenwallet.dart' as greenwallet;
 import 'package:fl_chart/fl_chart.dart';
 import '../../helpers/networks.dart';
 import '../home/components/bottom_navigation_bar.dart';
@@ -42,17 +41,17 @@ class _AnalyticsState extends State<Analytics> {
   }
 
   Future<void> _fetchData() async {
-    final channel = greenwallet.Channel('ios_wallet');
+    // final channel = greenwallet.Channel('ios_wallet');
 
-    bitcoinTransactions = await channel.getTransactions(
-      mnemonic: mnemonic,
-      connectionType: NetworkSecurityCase.bitcoinSS.network,
-    );
-
-    liquidTransactions = await channel.getTransactions(
-      mnemonic: mnemonic,
-      connectionType: NetworkSecurityCase.liquidSS.network,
-    );
+    // bitcoinTransactions = await channel.getTransactions(
+    //   mnemonic: mnemonic,
+    //   connectionType: NetworkSecurityCase.bitcoinSS.network,
+    // );
+    //
+    // liquidTransactions = await channel.getTransactions(
+    //   mnemonic: mnemonic,
+    //   connectionType: NetworkSecurityCase.liquidSS.network,
+    // );
 
     setState(() {
       allTransactions = bitcoinTransactions + liquidTransactions;

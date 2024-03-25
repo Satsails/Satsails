@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../helpers/networks.dart';
-import '../../../channels/greenwallet.dart' as greenwallet;
 import 'package:btc_address_validate_swan/btc_address_validate_swan.dart';
 
 class Pay extends StatefulWidget {
@@ -24,12 +23,13 @@ class _PayState extends State<Pay> {
   Future<bool> checkIfAddressIsValid(String address) async {
     const storage = FlutterSecureStorage();
     String mnemonic = await storage.read(key: 'mnemonic') ?? "";
-    bool liquidValid =
-        await greenwallet.Channel('ios_wallet').checkAddressValidity(
-      mnemonic: mnemonic,
-      address: address,
-      connectionType: NetworkSecurityCase.liquidSS.network,
-    );
+    // bool liquidValid =
+    //     await greenwallet.Channel('ios_wallet').checkAddressValidity(
+    //   mnemonic: mnemonic,
+    //   address: address,
+    //   connectionType: NetworkSecurityCase.liquidSS.network,
+    // );
+    bool liquidValid = false;
     if (liquidValid) {
       isLiquid = true;
       return true;
