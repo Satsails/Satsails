@@ -28,6 +28,7 @@ dependencies:
   responsive_framework: ^1.4.0
   riverpod: ^2.5.1
   bdk_flutter: ^0.30.0
+  breez_sdk: ^0.3.8
   boltz_dart:
     git:
       url: https://github.com/SatoshiPortal/boltz-dart.git

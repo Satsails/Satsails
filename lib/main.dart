@@ -41,7 +41,7 @@ void main() async {
 }
 
 class MainApp extends StatelessWidget {
-  final String initialRoute;
+final String initialRoute;
 
   const MainApp({Key? key, required this.initialRoute}) : super(key: key);
 
