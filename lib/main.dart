@@ -21,6 +21,7 @@ import 'pages/pay/components/confirm_payment.dart';
 import 'pages/exchange/exchange.dart';
 import 'pages/support/info.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);

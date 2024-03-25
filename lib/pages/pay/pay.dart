@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../../helpers/networks.dart';
 import 'package:btc_address_validate_swan/btc_address_validate_swan.dart';
 
 class Pay extends StatefulWidget {

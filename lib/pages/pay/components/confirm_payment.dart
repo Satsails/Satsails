@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/balance_provider.dart';
-import '../../../helpers/networks.dart';
 import '../../../helpers/asset_mapper.dart';
 
 class ConfirmPayment extends StatefulWidget {

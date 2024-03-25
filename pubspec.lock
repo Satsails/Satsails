@@ -398,6 +398,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  forex_currency_conversion:
+    dependency: "direct main"
+    description:
+      name: forex_currency_conversion
+      sha256: "1fcca5fffc94a74f0f2aafec4a7e48401ac5ac88c2ad16878bc8ec09b802837f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.1"
   freezed:
     dependency: transitive
     description:
@@ -423,7 +431,7 @@ packages:
     source: hosted
     version: "2.1.2"
   http:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: http
       sha256: "761a297c042deedc1ffbb156d6e2af13886bb305c2a343a4d972504cd67dd938"

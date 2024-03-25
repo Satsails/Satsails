@@ -1,5 +1,4 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../../helpers/networks.dart';
 import '../../../helpers/asset_mapper.dart';
 import '../../services/sideswap/sideswap_peg.dart';
 import '../../services/sideswap/sideswap_exchange.dart';

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../services/bitcoin_price.dart';
-import '../../../helpers/networks.dart';
 import '../../../providers/balance_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
@@ -33,7 +31,7 @@ class AssetMapper {
 }
 
 class BalanceWrapper {
-  PriceProvider priceProvider = PriceProvider();
+  // PriceProvider priceProvider = PriceProvider();
   AssetMapper assetMapper = AssetMapper();
 
   Future<Map<String, dynamic>> getBalance(mnemonic) async {
@@ -100,8 +98,9 @@ class BalanceWrapper {
 
   Future<double> getBitcoinPrice() async {
     try {
-      await priceProvider.fetchBitcoinPrice();
-      return priceProvider.price;
+      // await priceProvider.fetchBitcoinPrice();
+      // return priceProvider.price;
+      return 0;
     } catch (error) {
       throw Exception('Error getting Bitcoin price: $error');
     }
