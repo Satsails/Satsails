@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../providers/transactions_provider.dart';
+import 'package:satsails_wallet/providers/transactions_provider.dart';
 
 class PegStatusSheet extends StatelessWidget {
   final Stream<dynamic> pegStatus;

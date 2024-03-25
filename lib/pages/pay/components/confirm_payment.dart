@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/balance_provider.dart';
-import '../../../helpers/asset_mapper.dart';
+import 'package:satsails_wallet/providers/balance_provider.dart';
+import 'package:satsails_wallet/helpers/asset_mapper.dart';
 
 class ConfirmPayment extends StatefulWidget {
   final String address;

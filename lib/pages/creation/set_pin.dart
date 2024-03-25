@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:forex_currency_conversion/forex_currency_conversion.dart';
 
 class SetPin extends StatefulWidget {
   const SetPin({super.key});

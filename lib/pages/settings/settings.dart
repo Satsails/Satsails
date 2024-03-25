@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/settings_provider.dart';
+import 'package:satsails_wallet/providers/settings_provider.dart';
 
 class Settings extends StatefulWidget {
   @override

@@ -1,7 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../../helpers/asset_mapper.dart';
-import '../../services/sideswap/sideswap_peg.dart';
-import '../../services/sideswap/sideswap_exchange.dart';
+import 'package:satsails_wallet/services/sideswap/sideswap_peg.dart';
+import 'package:satsails_wallet/services/sideswap/sideswap_exchange.dart';
 
 
 class WalletStrategy {

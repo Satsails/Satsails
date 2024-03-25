@@ -1,25 +1,25 @@
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'providers/settings_provider.dart';
-import 'providers/accounts_provider.dart';
-import 'providers/balance_provider.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'pages/creation/start.dart';
-import 'pages/settings/components/seed_words.dart';
-import 'pages/settings/settings.dart';
-import 'pages/receive/receive.dart';
-import 'pages/accounts/accounts.dart';
-import 'pages/creation/set_pin.dart';
-import 'pages/analytics/analytics.dart';
-import 'pages/login/open_pin.dart';
-import 'pages/apps/apps.dart';
-import 'pages/charge/charge.dart';
-import 'pages/home/home.dart';
-import 'pages/pay/pay.dart';
-import 'pages/pay/components/confirm_payment.dart';
-import 'pages/exchange/exchange.dart';
-import 'pages/support/info.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:satsails_wallet/providers/settings_provider.dart';
+import 'package:satsails_wallet/providers/accounts_provider.dart';
+import 'package:satsails_wallet/providers/balance_provider.dart';
+import 'package:satsails_wallet/pages/creation/start.dart';
+import 'package:satsails_wallet/pages/settings/components/seed_words.dart';
+import 'package:satsails_wallet/pages/settings/settings.dart';
+import 'package:satsails_wallet/pages/receive/receive.dart';
+import 'package:satsails_wallet/pages/accounts/accounts.dart';
+import 'package:satsails_wallet/pages/creation/set_pin.dart';
+import 'package:satsails_wallet/pages/analytics/analytics.dart';
+import 'package:satsails_wallet/pages/login/open_pin.dart';
+import 'package:satsails_wallet/pages/apps/apps.dart';
+import 'package:satsails_wallet/pages/charge/charge.dart';
+import 'package:satsails_wallet/pages/home/home.dart';
+import 'package:satsails_wallet/pages/pay/pay.dart';
+import 'package:satsails_wallet/pages/pay/components/confirm_payment.dart';
+import 'package:satsails_wallet/pages/exchange/exchange.dart';
+import 'package:satsails_wallet/pages/support/info.dart';
 
 
 void main() async {

@@ -12,8 +12,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_secure_storage: ^9.0.0
   pin_code_fields: ^8.0.1
+  http: ^1.2.1
   local_auth: ^2.1.8
-  animate_gradient: ^0.0.2+1
   web_socket_channel: ^2.4.0
   provider: ^6.1.1
   shared_preferences: ^2.2.2
@@ -43,6 +43,7 @@ dependencies:
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
+  dependency_validator: ^3.0.0
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.1

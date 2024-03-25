@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../providers/transactions_provider.dart';
-import '../../../helpers/exchange.dart';
+import 'package:satsails_wallet/providers/transactions_provider.dart';
+import 'package:satsails_wallet/helpers/exchange.dart';
 
 class ExchangeStatus extends StatelessWidget {
   final Stream<dynamic> exchangeStatus;

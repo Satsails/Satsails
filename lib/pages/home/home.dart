@@ -4,7 +4,7 @@ import '../accounts/accounts.dart';
 import './components/search_modal.dart';
 import './components/bottom_navigation_bar.dart';
 import 'package:provider/provider.dart';
-import '../../providers/settings_provider.dart';
+import 'package:satsails_wallet/providers/settings_provider.dart';
 
 class Home extends StatefulWidget {
   @override

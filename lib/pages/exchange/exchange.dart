@@ -1,14 +1,12 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
-import '../../../helpers/exchange.dart';
-import '../../../helpers/asset_mapper.dart';
-import '../../../providers/balance_provider.dart';
-import '../../../services/sideswap/sideswap_status.dart';
-import '../../../services/sideswap/sideswap_exchange.dart';
+import 'package:satsails_wallet/helpers/exchange.dart';
+import 'package:satsails_wallet/helpers/asset_mapper.dart';
+import 'package:satsails_wallet/providers/balance_provider.dart';
+import 'package:satsails_wallet/services/sideswap/sideswap_status.dart';
+import 'package:satsails_wallet/services/sideswap/sideswap_exchange.dart';
 import './components/peg_status.dart';
 import './components/exchange_status.dart';
 

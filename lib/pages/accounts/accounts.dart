@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/accounts_provider.dart';
+import 'package:satsails_wallet/providers/accounts_provider.dart';
 
 class Accounts extends StatelessWidget {
   final Map<String, dynamic> balances;
