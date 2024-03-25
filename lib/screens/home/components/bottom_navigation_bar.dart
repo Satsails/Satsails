@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:satsails_wallet/pages/analytics/analytics.dart';
+import 'package:satsails_wallet/screens/analytics/analytics.dart';
 import '../../../providers/settings_provider.dart';
 import '../../apps/apps.dart';
 import '../home.dart';

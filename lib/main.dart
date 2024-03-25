@@ -5,21 +5,21 @@ import 'package:provider/provider.dart';
 import 'package:satsails_wallet/providers/settings_provider.dart';
 import 'package:satsails_wallet/providers/accounts_provider.dart';
 import 'package:satsails_wallet/providers/balance_provider.dart';
-import 'package:satsails_wallet/pages/creation/start.dart';
-import 'package:satsails_wallet/pages/settings/components/seed_words.dart';
-import 'package:satsails_wallet/pages/settings/settings.dart';
-import 'package:satsails_wallet/pages/receive/receive.dart';
-import 'package:satsails_wallet/pages/accounts/accounts.dart';
-import 'package:satsails_wallet/pages/creation/set_pin.dart';
-import 'package:satsails_wallet/pages/analytics/analytics.dart';
-import 'package:satsails_wallet/pages/login/open_pin.dart';
-import 'package:satsails_wallet/pages/apps/apps.dart';
-import 'package:satsails_wallet/pages/charge/charge.dart';
-import 'package:satsails_wallet/pages/home/home.dart';
-import 'package:satsails_wallet/pages/pay/pay.dart';
-import 'package:satsails_wallet/pages/pay/components/confirm_payment.dart';
-import 'package:satsails_wallet/pages/exchange/exchange.dart';
-import 'package:satsails_wallet/pages/support/info.dart';
+import 'package:satsails_wallet/screens/creation/start.dart';
+import 'package:satsails_wallet/screens/settings/components/seed_words.dart';
+import 'package:satsails_wallet/screens/settings/settings.dart';
+import 'package:satsails_wallet/screens/receive/receive.dart';
+import 'package:satsails_wallet/screens/accounts/accounts.dart';
+import 'package:satsails_wallet/screens/creation/set_pin.dart';
+import 'package:satsails_wallet/screens/analytics/analytics.dart';
+import 'package:satsails_wallet/screens/login/open_pin.dart';
+import 'package:satsails_wallet/screens/apps/apps.dart';
+import 'package:satsails_wallet/screens/charge/charge.dart';
+import 'package:satsails_wallet/screens/home/home.dart';
+import 'package:satsails_wallet/screens/pay/pay.dart';
+import 'package:satsails_wallet/screens/pay/components/confirm_payment.dart';
+import 'package:satsails_wallet/screens/exchange/exchange.dart';
+import 'package:satsails_wallet/screens/support/info.dart';
 
 
 void main() async {

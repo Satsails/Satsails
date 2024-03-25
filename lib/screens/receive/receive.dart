@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/services.dart';
-import '../transactions/components/transactions_builder.dart';
+import '../shared/transactions_builder.dart';
 
 class Receive extends StatefulWidget {
   @override
