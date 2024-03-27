@@ -1,76 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:satsails_wallet/providers/pin_provider.dart';
 import 'package:local_auth/local_auth.dart';
 
-class OpenPin extends StatefulWidget {
-  @override
-  _OpenPinState createState() => _OpenPinState();
-}
-
-class _OpenPinState extends State<OpenPin> {
-  final _pinController = TextEditingController();
-  final _storage = FlutterSecureStorage();
-  final _localAuth = LocalAuthentication();
+class OpenPin extends ConsumerWidget {
+  final TextEditingController _pinController = TextEditingController();
+  final LocalAuthentication _localAuth = LocalAuthentication();
 
   @override
-  void dispose() {
-    _pinController.dispose();
-    super.dispose();
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    WidgetsBinding.instance?.addPostFrameCallback((_) =>
+        _checkBiometrics(context));
 
-  Future<void> _checkPin() async {
-    String? storedPin = await _storage.read(key: 'pin');
-    if (storedPin != null && storedPin == _pinController.text) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) =>
-            AlertDialog(
-              title: Text('Invalid PIN'),
-              content: Text('The PIN you entered is incorrect.'),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('OK'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
-      );
-    }
-  }
-
-  Future<void> _checkBiometrics() async {
-    bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
-    if (canCheckBiometrics) {
-      bool authenticated = await _localAuth.authenticate(
-        localizedReason: 'Please authenticate to open the app',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-            biometricOnly: true
-        )
-      );
-      if (authenticated) {
-        Navigator.pushReplacementNamed(context, '/home');
-      }
-    }
-  }
-
-
-  @override
-  void initState() {
-    super.initState();
-    _checkBiometrics();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Enter PIN'),
+        title: const Center(child: Text('Enter PIN')),
         automaticallyImplyLeading: false,
       ),
       body: Center(
@@ -78,7 +23,6 @@ class _OpenPinState extends State<OpenPin> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            // Center items vertically
             children: <Widget>[
               PinCodeTextField(
                 appContext: context,
@@ -97,17 +41,19 @@ class _OpenPinState extends State<OpenPin> {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _checkPin,
+                onPressed: () => _checkPin(context, ref),
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan[400]!),
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      Colors.cyan[400]!),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5.0),
                     ),
                   ),
-                  minimumSize: MaterialStateProperty.all<Size>(const Size(300.0, 60.0)),
+                  minimumSize: MaterialStateProperty.all<Size>(
+                      const Size(300.0, 60.0)),
                 ),
                 child: const Text(
                   'Enter PIN',
@@ -119,5 +65,34 @@ class _OpenPinState extends State<OpenPin> {
         ),
       ),
     );
+  }
+
+  Future<void> _checkPin(BuildContext context, WidgetRef ref) async {
+    final pin = ref.watch(pinProvider.future);
+    if (pin.then((pin) => pin.pin) == _pinController.text) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid PIN'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _checkBiometrics(BuildContext context) async {
+    bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
+    if (canCheckBiometrics) {
+      bool authenticated = await _localAuth.authenticate(
+          localizedReason: 'Please authenticate to open the app',
+          options: const AuthenticationOptions(
+              stickyAuth: true,
+              biometricOnly: true
+          )
+      );
+      if (authenticated) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    }
   }
 }
