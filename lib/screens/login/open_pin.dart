@@ -69,7 +69,8 @@ class OpenPin extends ConsumerWidget {
 
   Future<void> _checkPin(BuildContext context, WidgetRef ref) async {
     final pin = ref.watch(pinProvider.future);
-    if (pin.then((pin) => pin.pin) == _pinController.text) {
+    final pinText = await pin.then((value) => value.pin);
+    if (pinText == _pinController.text) {
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
