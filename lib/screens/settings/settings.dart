@@ -1,21 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:satsails_wallet/models/settings_model.dart';
 import 'package:satsails_wallet/providers/settings_provider.dart';
 
-class Settings extends StatefulWidget {
+class Settings extends ConsumerWidget {
   @override
-  _SettingsState createState() => _SettingsState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
 
-class _SettingsState extends State<Settings> {
-  @override
-  void initState() {
-    super.initState();
-    Provider.of<SettingsProvider>(context, listen: false).loadPreferences();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -26,21 +17,18 @@ class _SettingsState extends State<Settings> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildCurrencySection(),
+            _buildCurrencySection(ref),
             _buildDivider(),
             _buildSupportSection(),
             _buildDivider(),
-            _buildInfoSection(),
+            _buildInfoSection(context),
             _buildDivider(),
-            _buildFiatToggle(),
             _buildDivider(),
-            _buildSeedSection(),
+            _buildSeedSection(context),
             _buildDivider(),
-            _buildCountrySection(),
             _buildDivider(),
-            _buildLanguageSection(),
+            _buildLanguageSection(ref),
             _buildDivider(),
-            _buildProModeToggle(),
             _buildDivider(),
           ],
         ),
@@ -48,69 +36,52 @@ class _SettingsState extends State<Settings> {
     );
   }
 
-  Widget _buildCurrencySection() {
-    return Consumer<SettingsProvider>(
-      builder: (context, settingsProvider, child) {
+  Widget _buildCurrencySection(WidgetRef ref) {
+    final asyncSettings = ref.watch(settingsProvider);
+
+    return asyncSettings.when(
+      data: (settings) {
         return ListTile(
           leading: const Icon(Icons.account_balance_wallet),
           title: const Text('Currency'),
-          subtitle: Text(settingsProvider.currency),
+          subtitle: Text(settings.currency),
           onTap: () {
-            settingsProvider.setCurrency(
-              settingsProvider.currency == 'USD' ? 'USD' : 'USD',
-            );
+            settings.setCurrency('USD');
           },
         );
       },
+      loading: () => CircularProgressIndicator(),
+      error: (error, stackTrace) => Text('Error: $error'),
     );
   }
 
-  Widget _buildLanguageSection() {
-    return Consumer<SettingsProvider>(
-      builder: (context, settingsProvider, child) {
+  Widget _buildLanguageSection(WidgetRef ref) {
+    final asyncSettings = ref.watch(settingsProvider);
+
+    return asyncSettings.when(
+      data: (settings) {
         return ListTile(
           leading: const Icon(Icons.language),
           title: const Text('Language'),
-          subtitle: Text(settingsProvider.language),
+          subtitle: Text(settings.language),
           onTap: () {
-            settingsProvider.setLanguage(
-              settingsProvider.language == 'EN' ? 'EN' : 'EN',
-            );
+            settings.setLanguage('EN');
           },
         );
       },
+      loading: () => CircularProgressIndicator(),
+      error: (error, stackTrace) => Text('Error: $error'),
     );
   }
 
-  Widget _buildCountrySection() {
-    return Consumer<SettingsProvider>(
-      builder: (context, settingsProvider, child) {
-        return ListTile(
-          leading: const Icon(Icons.flag_circle),
-          title: const Text('Country'),
-          subtitle: Text(settingsProvider.country),
-          onTap: () {
-            settingsProvider.setCountry(
-              settingsProvider.country == 'USA' ? 'USA' : 'USA',
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildSeedSection() {
-    return Consumer<SettingsProvider>(
-      builder: (context, settingsProvider, child) {
-        return ListTile(
-          leading: const Icon(Icons.currency_bitcoin),
-          title: const Text('View Seed Words'),
-          subtitle: Text('Write them down and keep them safe!'),
-          trailing: const Icon(Icons.arrow_forward_ios),
-          onTap: () {
-            Navigator.pushNamed(context, '/seed_words');
-          },
-        );
+  Widget _buildSeedSection(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.currency_bitcoin),
+      title: const Text('View Seed Words'),
+      subtitle: Text('Write them down and keep them safe!'),
+      trailing: const Icon(Icons.arrow_forward_ios),
+      onTap: () {
+        Navigator.pushNamed(context, '/seed_words');
       },
     );
   }
@@ -125,52 +96,12 @@ class _SettingsState extends State<Settings> {
     );
   }
 
-  Widget _buildInfoSection() {
+  Widget _buildInfoSection(BuildContext context) {
     return ListTile(
       leading: const Icon(Icons.info),
       title: const Text('Information'),
       onTap: () {
         Navigator.pushNamed(context, '/info');
-      },
-    );
-  }
-
-  Widget _buildFiatToggle() {
-    return Consumer<SettingsProvider>(
-      builder: (context, settingsProvider, child) {
-        return ListTile(
-          leading: const Icon(Icons.attach_money_outlined),
-          title: const Text('Fiat Currency Functionality'),
-          onTap: () {
-            settingsProvider.setFiatCapabilities(!settingsProvider.fiatCapabilities);
-          },
-          trailing: Switch(
-            value: settingsProvider.fiatCapabilities,
-            onChanged: (bool newValue) {
-              settingsProvider.setFiatCapabilities(false);
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildProModeToggle() {
-    return Consumer<SettingsProvider>(
-      builder: (context, settingsProvider, child) {
-        return ListTile(
-          leading: const Icon(Icons.paragliding_rounded),
-          title: const Text('Enable Pro mode'),
-          onTap: () {
-            settingsProvider.setFiatCapabilities(!settingsProvider.proMode);
-          },
-          trailing: Switch(
-            value: settingsProvider.proMode,
-            onChanged: (bool newValue) {
-              settingsProvider.setProMode(false);
-            },
-          ),
-        );
       },
     );
   }

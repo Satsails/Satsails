@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:satsails_wallet/providers/transactions_provider.dart';
 
 class PegStatusSheet extends StatelessWidget {
   final Stream<dynamic> pegStatus;
@@ -21,7 +20,7 @@ class PegStatusSheet extends StatelessWidget {
           return Text("Error: ${snapshot.error}");
         } else {
           Map<String, dynamic> transactionData = snapshot.data!["result"];
-          TransactionNotifier().saveTransactionData(transactionData);
+          // store transaction data
           return SingleChildScrollView(
             child: Center(
               child: Padding(

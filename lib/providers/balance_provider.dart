@@ -1,12 +1,15 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:satsails_wallet/models/balance_model.dart';
 
-class BalanceProvider extends ChangeNotifier {
-  Map<String, dynamic> _balance = {};
 
-  Map<String, dynamic> get balance => _balance;
-
-  void setBalance(Map<String, dynamic> newBalance) {
-    _balance = newBalance;
-    notifyListeners();
-  }
-}
+// call btc and liquid balance to udpate balance every 5 seconds
+final balanceProvider = ChangeNotifierProvider<BalanceModel>((ref) {
+  return BalanceModel(
+    btcBalance: 0,
+    liquidBalance: 0,
+    brlBalance: 0,
+    usdBalance: 0,
+    cadBalance: 0,
+    eurBalance: 0,
+  );
+});

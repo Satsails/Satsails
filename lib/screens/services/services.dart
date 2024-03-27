@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../home/components/bottom_navigation_bar.dart';
 
-class Apps extends StatefulWidget {
+class Services extends StatefulWidget {
   @override
-  _AppsState createState() => _AppsState();
+  _ServicesState createState() => _ServicesState();
 }
 
-class _AppsState extends State<Apps> {
+class _ServicesState extends State<Services> {
   int _currentIndex = 1;
 
   @override

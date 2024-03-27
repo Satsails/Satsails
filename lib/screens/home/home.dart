@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import './components/balance.dart';
 import '../accounts/accounts.dart';
 import './components/search_modal.dart';
 import './components/bottom_navigation_bar.dart';
-import 'package:provider/provider.dart';
-import 'package:satsails_wallet/providers/settings_provider.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -16,7 +13,6 @@ class _HomeState extends State<Home> {
 
   void initState() {
     super.initState();
-    Provider.of<SettingsProvider>(context, listen: false).loadPreferences();
   }
 
   @override
@@ -52,22 +48,7 @@ class _HomeState extends State<Home> {
 
   Widget _buildTopSection() {
     return Expanded(
-      child: FutureBuilder<Map<String, dynamic>>(
-        future: BalanceWrapper().calculateTotalValue(context),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } else {
-            double usdBalance = snapshot.data!["usd"]!;
-            double btcBalance = snapshot.data!["totalValueInBTC"]!;
-
-            return SizedBox(
+            child: SizedBox(
               height: MediaQuery
                   .of(context)
                   .padding
@@ -77,7 +58,7 @@ class _HomeState extends State<Home> {
                 children: [
                   const SizedBox(height: 100),
                   Text(
-                    '${btcBalance == btcBalance.truncate() ? btcBalance.toString() : btcBalance.toStringAsFixed(8)} BTC',
+                    '0.00000000 BTC', // Replace with the actual balance
                     style: const TextStyle(fontSize: 30, color: Colors.black),
                   ),
                   const SizedBox(height: 10),
@@ -85,7 +66,7 @@ class _HomeState extends State<Home> {
                       style: TextStyle(fontSize: 12, color: Colors.black)),
                   const SizedBox(height: 10),
                   Text(
-                    '${usdBalance.toStringAsFixed(2)} USD',
+                    '0.00000000 USD', // Replace with the actual riverpod
                     style: const TextStyle(fontSize: 13, color: Colors.black),
                   ),
                   const SizedBox(height: 40),
@@ -95,7 +76,7 @@ class _HomeState extends State<Home> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              Accounts(balances: snapshot.data!),
+                              Accounts(),
                         ),
                       );
                     },
@@ -104,12 +85,10 @@ class _HomeState extends State<Home> {
                   ),
                 ],
               ),
-            );
-          }
-        },
-      ),
-    );
+            ),
+          );
   }
+
 
   ButtonStyle _buildElevatedButtonStyle() {
     return ButtonStyle(
@@ -128,8 +107,6 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildActionButtons() {
-    return Consumer<SettingsProvider>(
-      builder: (context, settingsProvider, child) {
         return SizedBox(
           height: MediaQuery
               .of(context)
@@ -155,8 +132,6 @@ class _HomeState extends State<Home> {
             ],
           ),
         );
-      },
-    );
   }
 
   Widget _buildCircularButton(IconData icon, String subtitle,
@@ -198,8 +173,6 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildAppBar() {
-    return Consumer<SettingsProvider>(
-      builder: (context, settingsProvider, child) {
         return Column(
           children: [
             AppBar(
@@ -214,24 +187,22 @@ class _HomeState extends State<Home> {
               actions: <Widget>[
                 IconButton(
                   icon: const Icon(Icons.credit_card),
-                  color: settingsProvider.proMode ? Colors.black : Colors.grey,
+                  color: Colors.black,
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
-                  onPressed: settingsProvider.proMode ? null : () {},
+                  onPressed: null,
                 ),
                 IconButton(
                   icon: const Icon(Icons.account_balance),
-                  color: settingsProvider.proMode ? Colors.black : Colors.grey,
+                  color: Colors.black,
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
-                  onPressed: settingsProvider.proMode ? null : () {},
+                  onPressed: null,
                 ),
               ],
             ),
           ],
         );
-      },
-    );
   }
 
   Widget _buildSearchTextField(BuildContext context) {

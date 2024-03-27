@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails_wallet/screens/analytics/analytics.dart';
-import '../../../providers/settings_provider.dart';
-import '../../apps/apps.dart';
+import 'package:satsails_wallet/screens/services/services.dart';
 import '../home.dart';
 
-class CustomBottomNavigationBar extends StatelessWidget {
+class CustomBottomNavigationBar extends ConsumerWidget {
   final int currentIndex;
   final void Function(int) onTap;
   final BuildContext context; // Add this line to store the context
@@ -17,50 +16,46 @@ class CustomBottomNavigationBar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<SettingsProvider>(
-      builder: (context, settingsProvider, child) {
-        List<BottomNavigationBarItem> bottomNavBarItems = [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.apps),
-            label: 'Services',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: 'Analytics',
-          ),
-        ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    List<BottomNavigationBarItem> bottomNavBarItems = [
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.home),
+        label: 'Home',
+      ),
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.apps),
+        label: 'Services',
+      ),
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.bar_chart),
+        label: 'Analytics',
+      ),
+    ];
 
-        return Theme(
-          data: Theme.of(context).copyWith(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-          ),
-          child: BottomNavigationBar(
-            backgroundColor: Colors.transparent,
-            currentIndex: currentIndex,
-            onTap: (index) {
-              _navigateToScreen(index); // Call the navigation method
-              onTap(index); // Call the provided onTap callback
-            },
-            selectedFontSize: 12,
-            unselectedFontSize: 12,
-            iconSize: 24,
-            unselectedItemColor: Colors.black,
-            selectedItemColor: Colors.orangeAccent,
-            elevation: 0.0,
-            items: bottomNavBarItems,
-          ),
-        );
-      },
+    return Theme(
+      data: Theme.of(context).copyWith(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+      ),
+      child: BottomNavigationBar(
+        backgroundColor: Colors.transparent,
+        currentIndex: currentIndex,
+        onTap: (index) {
+          _navigateToScreen(index, context); // Call the navigation method
+          onTap(index); // Call the provided onTap callback
+        },
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
+        iconSize: 24,
+        unselectedItemColor: Colors.black,
+        selectedItemColor: Colors.orangeAccent,
+        elevation: 0.0,
+        items: bottomNavBarItems,
+      ),
     );
   }
 
-  void _navigateToScreen(int index) {
+  void _navigateToScreen(int index, BuildContext context) {
     Widget page = Home();
 
     switch (index) {
@@ -68,17 +63,17 @@ class CustomBottomNavigationBar extends StatelessWidget {
         page = Home();
         break;
       case 1:
-        page = Apps();
+        page = Services();
         break;
       case 2:
         page = Analytics();
         break;
     }
 
-    _navigateToPage(page);
+    _navigateToPage(page, context);
   }
 
-  void _navigateToPage(Widget page) {
+  void _navigateToPage(Widget page, BuildContext context) {
     Navigator.push(
       context,
       PageRouteBuilder(

@@ -1,10 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:satsails_wallet/providers/settings_provider.dart';
-import 'package:satsails_wallet/providers/accounts_provider.dart';
-import 'package:satsails_wallet/providers/balance_provider.dart';
 import 'package:satsails_wallet/screens/creation/start.dart';
 import 'package:satsails_wallet/screens/settings/components/seed_words.dart';
 import 'package:satsails_wallet/screens/settings/settings.dart';
@@ -13,13 +9,14 @@ import 'package:satsails_wallet/screens/accounts/accounts.dart';
 import 'package:satsails_wallet/screens/creation/set_pin.dart';
 import 'package:satsails_wallet/screens/analytics/analytics.dart';
 import 'package:satsails_wallet/screens/login/open_pin.dart';
-import 'package:satsails_wallet/screens/apps/apps.dart';
+import 'package:satsails_wallet/screens/services/services.dart';
 import 'package:satsails_wallet/screens/charge/charge.dart';
 import 'package:satsails_wallet/screens/home/home.dart';
 import 'package:satsails_wallet/screens/pay/pay.dart';
 import 'package:satsails_wallet/screens/pay/components/confirm_payment.dart';
 import 'package:satsails_wallet/screens/exchange/exchange.dart';
 import 'package:satsails_wallet/screens/support/info.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
 void main() async {
@@ -28,12 +25,7 @@ void main() async {
   const storage = FlutterSecureStorage();
   String? mnemonic = await storage.read(key: 'mnemonic');
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => SettingsProvider()),
-        ChangeNotifierProvider(create: (context) => AccountsProvider()),
-        ChangeNotifierProvider(create: (context) => BalanceProvider()),
-      ],
+     ProviderScope(
       child: MainApp(initialRoute: mnemonic == null ? '/' : '/open_pin'),
     ),
   );
@@ -67,14 +59,14 @@ final String initialRoute;
         '/seed_words': (context) => const SeedWords(),
         '/open_pin': (context) => OpenPin(),
         '/charge': (context) => Charge(),
-        '/accounts': (context) => Accounts(balances: {}),
+        '/accounts': (context) => Accounts(),
         '/receive': (context) => Receive(),
         '/settings': (context) => Settings(),
         '/analytics': (context) => Analytics(),
         '/set_pin': (context) => const SetPin(),
         '/exchange': (context) => Exchange(),
         '/info': (context) => Info(),
-        '/apps': (context) => Apps(),
+        '/apps': (context) => Services(),
         '/pay': (context) => Pay(),
         '/home': (context) => Home(),
       },

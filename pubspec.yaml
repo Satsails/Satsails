@@ -15,7 +15,6 @@ dependencies:
   http: ^1.2.1
   local_auth: ^2.1.8
   web_socket_channel: ^2.4.0
-  provider: ^6.1.1
   shared_preferences: ^2.2.2
   webview_flutter: ^4.5.0
   qr_flutter: ^4.1.0
@@ -25,7 +24,7 @@ dependencies:
   month_picker_dialog: ^2.11.0
 #  new
   responsive_framework: ^1.4.0
-  riverpod: ^2.5.1
+  flutter_riverpod: ^2.5.1
   bdk_flutter: ^0.30.0
   breez_sdk: ^0.3.8
   flutter_i18n: ^0.35.1

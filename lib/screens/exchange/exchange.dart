@@ -1,10 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:satsails_wallet/helpers/exchange.dart';
 import 'package:satsails_wallet/helpers/asset_mapper.dart';
-import 'package:satsails_wallet/providers/balance_provider.dart';
 import 'package:satsails_wallet/services/sideswap/sideswap_status.dart';
 import 'package:satsails_wallet/services/sideswap/sideswap_exchange.dart';
 import './components/peg_status.dart';
@@ -199,7 +197,8 @@ class _ExchangeState extends State<Exchange> {
 
   @override
   Widget build(BuildContext context) {
-    balance = Provider.of<BalanceProvider>(context).balance;
+    // implement balance provider
+    balance = 0.0 as Map<String, dynamic>;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

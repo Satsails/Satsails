@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:satsails_wallet/providers/transactions_provider.dart';
 import 'package:satsails_wallet/helpers/exchange.dart';
 
 class ExchangeStatus extends StatelessWidget {
@@ -17,7 +16,7 @@ class ExchangeStatus extends StatelessWidget {
           return buildErrorWidget(snapshot.error!);
         } else {
           Map<String, dynamic> transactionData = snapshot.data;
-          TransactionNotifier().saveExchangeData(transactionData);
+          // store transaction data
           if (isTransactionCompleted(transactionData)) {
             return buildCompletedTransactionWidget(transactionData, context);
           } else {
