@@ -1,39 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:satsails_wallet/providers/pin_provider.dart';
 
-class SetPin extends StatefulWidget {
-  const SetPin({super.key});
-
-  @override
-  _SetPinState createState() => _SetPinState();
-}
-
-class _SetPinState extends State<SetPin> {
-  final _formKey = GlobalKey<FormState>();
-  final _storage = FlutterSecureStorage();
-  String _pin = '';
-
-  Future<void> _setPin() async {
-    if (_formKey.currentState!.validate()) {
-
-      // String mnemonic = await greenwallet.Channel('ios_wallet').getMnemonic();
-      // await greenwallet.Channel('ios_wallet').createSubAccount(mnemonic: mnemonic, walletType: AccountType.segWit.toString());
-      // await greenwallet.Channel('ios_wallet').createSubAccount(mnemonic: mnemonic, walletType: AccountType.segWit.toString(), connectionType: NetworkSecurityCase.liquidSS.network);
-      // await _storage.write(key: 'mnemonic', value: mnemonic);
-      Navigator.pushNamed(context, '/home');
-    }
-  }
+class SetPin extends ConsumerWidget {
+  const SetPin({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formKey = GlobalKey<FormState>();
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Set PIN'),
+        title: const Text('Set PIN'),
       ),
       body: Center(
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -44,29 +27,42 @@ class _SetPinState extends State<SetPin> {
                   length: 6,
                   obscureText: true,
                   keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    _pin = value;
-                  },
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a PIN';
-                    } else if (value.length != 6) {
-                      return 'PIN must be exactly 6 digits';
+                    if (value == null || value.isEmpty || value.length != 6) {
+                      return '';
                     }
                     return null;
+                  },
+                  onChanged: (value) {
+                    ref.watch(pinProvider.future).then((pin) => pin.pin = value);
                   },
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: _setPin,
+                  onPressed: () async {
+                    if (formKey.currentState!.validate()) {
+                      final pin = await ref.read(pinProvider.future);
+                      await pin.setPin();
+                      Navigator.pushReplacementNamed(context, '/home');
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter a valid 6 digit pin'),
+                        ),
+                      );
+                    }
+                  },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan[400]!),
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                      Colors.cyan[400]!,
+                    ),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5.0),
                       ),
                     ),
-                    minimumSize: MaterialStateProperty.all<Size>(const Size(300.0, 60.0)),
+                    minimumSize:
+                    MaterialStateProperty.all<Size>(const Size(300.0, 60.0)),
                   ),
                   child: const Text(
                     'Set PIN',
