@@ -1,92 +1,85 @@
 import 'package:flutter/material.dart';
-import '../accounts/accounts.dart';
-import './components/search_modal.dart';
-import './components/bottom_navigation_bar.dart';
+import 'package:forex_currency_conversion/forex_currency_conversion.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:satsails_wallet/providers/navigation_provider.dart';
+import 'package:satsails_wallet/screens/accounts/accounts.dart';
+import 'package:satsails_wallet/screens/shared/bottom_navigation_bar.dart';
 
-class Home extends StatefulWidget {
-  @override
-  State<Home> createState() => _HomeState();
-}
+class Home extends ConsumerWidget {
+  const Home({super.key});
 
-class _HomeState extends State<Home> {
-  int _currentIndex = 0;
-
-  void initState() {
-    super.initState();
+  Future<dynamic> getBtcPrice() async {
+    final fx = Forex();
+    return await fx.getCurrencyConverted(sourceCurrency: 'BTC', destinationCurrency: 'USD', sourceAmount: 1);
   }
 
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: _buildBody(),
+      appBar: _buildAppBar(context),
+      body: SafeArea(child: _buildBody(context, ref)),
     );
   }
 
-  Widget _buildBody() {
-    return Stack(
+  Widget _buildBody(BuildContext context, ref) {
+    return Column(
       children: [
-        Column(
-          children: [
-            _buildTopSection(),
-            _buildActionButtons(),
-             CustomBottomNavigationBar(
-              currentIndex: _currentIndex,
-              context: context,
-              onTap: (int index) {
-                setState(() {
-                  _currentIndex = 0;
-                });
-              },
-            ),
-          ],
+        _buildTopSection(context),
+        _buildActionButtons(context),
+        CustomBottomNavigationBar(
+          currentIndex: ref.watch(navigationProvider),
+          context: context,
+          onTap: (int index) {
+            ref.read(navigationProvider).state = index;
+          },
         ),
-        _buildAppBar(),
       ],
     );
   }
 
-  Widget _buildTopSection() {
+  Widget _buildTopSection(BuildContext context) {
     return Expanded(
-            child: SizedBox(
-              height: MediaQuery
-                  .of(context)
-                  .padding
-                  .top + kToolbarHeight,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 100),
-                  Text(
-                    '0.00000000 BTC', // Replace with the actual balance
-                    style: const TextStyle(fontSize: 30, color: Colors.black),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text('or',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  const SizedBox(height: 10),
-                  Text(
-                    '0.00000000 USD', // Replace with the actual riverpod
-                    style: const TextStyle(fontSize: 13, color: Colors.black),
-                  ),
-                  const SizedBox(height: 40),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              Accounts(),
-                        ),
-                      );
-                    },
-                    style: _buildElevatedButtonStyle(),
-                    child: const Text('View Accounts'),
-                  ),
-                ],
-              ),
+      child: SizedBox(
+        height: MediaQuery
+            .of(context)
+            .padding
+            .top + kToolbarHeight,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 100),
+            const Text(
+              '0.00000000 BTC', // Replace with the actual balance
+              style: TextStyle(fontSize: 30, color: Colors.black),
             ),
-          );
+            const SizedBox(height: 10),
+            const Text('or',
+                style: TextStyle(fontSize: 12, color: Colors.black)),
+            const SizedBox(height: 10),
+            const Text(
+              '0.00000000 USD', // Replace with the actual riverpod
+              style: TextStyle(fontSize: 13, color: Colors.black),
+            ),
+            const SizedBox(height: 40),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                    const Accounts(),
+                  ),
+                );
+              },
+              style: _buildElevatedButtonStyle(),
+              child: const Text('View Accounts'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
 
@@ -106,32 +99,32 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildActionButtons() {
-        return SizedBox(
-          height: MediaQuery
-              .of(context)
-              .padding
-              .top + kToolbarHeight + 30,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildCircularButton(Icons.add, 'Add Money', () {
-                Navigator.pushNamed(context, '/charge');
+  Widget _buildActionButtons(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery
+          .of(context)
+          .padding
+          .top + kToolbarHeight + 30,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildCircularButton(Icons.add, 'Add Money', () {
+            Navigator.pushNamed(context, '/charge');
+          }, Colors.white),
+          _buildCircularButton(Icons.swap_horizontal_circle, 'Exchange',
+                  () {
+                Navigator.pushNamed(context, '/exchange');
               }, Colors.white),
-              _buildCircularButton(Icons.swap_horizontal_circle, 'Exchange',
-                      () {
-                    Navigator.pushNamed(context, '/exchange');
-                  }, Colors.white),
-              _buildCircularButton(Icons.payments, 'Pay', () {
-                Navigator.pushNamed(context, '/pay');
-              }, Colors.white),
-              _buildCircularButton(
-                  Icons.arrow_downward_sharp, 'Receive', () {
-                Navigator.pushNamed(context, '/receive');
-              }, Colors.white),
-            ],
-          ),
-        );
+          _buildCircularButton(Icons.payments, 'Pay', () {
+            Navigator.pushNamed(context, '/pay');
+          }, Colors.white),
+          _buildCircularButton(
+              Icons.arrow_downward_sharp, 'Receive', () {
+            Navigator.pushNamed(context, '/receive');
+          }, Colors.white),
+        ],
+      ),
+    );
   }
 
   Widget _buildCircularButton(IconData icon, String subtitle,
@@ -172,67 +165,34 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildAppBar() {
-        return Column(
-          children: [
-            AppBar(
-              backgroundColor: Colors.transparent,
-              title: _buildSearchTextField(context),
-              leading: IconButton(
-                icon: const Icon(Icons.settings, color: Colors.black),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/settings');
-                },
-              ),
-              actions: <Widget>[
-                IconButton(
-                  icon: const Icon(Icons.credit_card),
-                  color: Colors.black,
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  onPressed: null,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.account_balance),
-                  color: Colors.black,
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  onPressed: null,
-                ),
-              ],
-            ),
-          ],
-        );
-  }
-
-  Widget _buildSearchTextField(BuildContext context) {
-    return SizedBox(
-      height: 50,
-      child: GestureDetector(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return SearchModal();
-            },
-          );
-        },
-        child: AbsorbPointer(
-          child: TextField(
-            readOnly: true,
-            textAlign: TextAlign.center,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-              filled: true,
-              hintStyle: TextStyle(color: Colors.grey[800]),
-              hintText: "Search",
-              fillColor: Colors.white,
-            ),
-          ),
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(kToolbarHeight),
+      child: AppBar(
+        backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        leading: Image.asset('lib/assets/SatSailsWhite.png'),
+        title: FutureBuilder<dynamic>(
+          future: getBtcPrice(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return const Text('Error');
+            } else {
+              return Text(snapshot.data.toString(), style: const TextStyle(color: Colors.black));
+            }
+          },
         ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.black),
+            onPressed: () {
+              Navigator.pushNamed(context, '/settings');
+            },
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../home/components/bottom_navigation_bar.dart';
+import '../shared/bottom_navigation_bar.dart';
 
 class Services extends StatefulWidget {
   @override

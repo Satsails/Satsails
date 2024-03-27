@@ -59,7 +59,7 @@ final String initialRoute;
         '/seed_words': (context) => const SeedWords(),
         '/open_pin': (context) => OpenPin(),
         '/charge': (context) => Charge(),
-        '/accounts': (context) => Accounts(),
+        '/accounts': (context) => const Accounts(),
         '/receive': (context) => Receive(),
         '/settings': (context) => Settings(),
         '/analytics': (context) => Analytics(),

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails_wallet/screens/analytics/analytics.dart';
 import 'package:satsails_wallet/screens/services/services.dart';
-import '../home.dart';
+import 'package:satsails_wallet/screens/home/home.dart';
 
 class CustomBottomNavigationBar extends ConsumerWidget {
   final int currentIndex;
   final void Function(int) onTap;
-  final BuildContext context; // Add this line to store the context
+  final BuildContext context;
 
   CustomBottomNavigationBar({
     required this.currentIndex,
