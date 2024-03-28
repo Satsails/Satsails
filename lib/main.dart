@@ -27,7 +27,7 @@ void main() async {
   String? mnemonic = await storage.read(key: 'mnemonic');
   runApp(
      ProviderScope(
-      child: MainApp(initialRoute: mnemonic == null ? '/' : '/'),
+      child: MainApp(initialRoute: mnemonic == null ? '/' : '/open_pin'),
     ),
   );
 }

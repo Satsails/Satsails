@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails_wallet/models/settings_model.dart';
 import 'package:satsails_wallet/providers/settings_provider.dart';
+import 'package:satsails_wallet/models/mnemonic_model.dart';
 
 class Settings extends ConsumerWidget {
   @override
@@ -27,6 +27,7 @@ class Settings extends ConsumerWidget {
             _buildDivider(),
             _buildLanguageSection(ref),
             _buildDivider(),
+            _builDeleteWalletSection(context)
           ],
         ),
       ),
@@ -107,6 +108,39 @@ class Settings extends ConsumerWidget {
     return Divider(
       height: 1,
       color: Colors.grey[300],
+    );
+  }
+
+  Widget _builDeleteWalletSection(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.delete),
+      title: const Text('Delete Wallet'),
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirm'),
+              content: const Text('Are you sure you want to delete the wallet?'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: const Text('Yes'),
+                  onPressed: () {
+                    MnemonicModel().deleteMnemonic();
+                    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

@@ -3,9 +3,9 @@ import 'package:bip39/bip39.dart' as bip39;
 
 
 class MnemonicModel {
-  String mnemonic;
+  String? mnemonic;
 
-  MnemonicModel({required this.mnemonic});
+  MnemonicModel({this.mnemonic});
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
@@ -18,6 +18,6 @@ class MnemonicModel {
   }
 
   bool validateMnemonic() {
-    return bip39.validateMnemonic(mnemonic);
+    return bip39.validateMnemonic(mnemonic ?? '');
   }
 }

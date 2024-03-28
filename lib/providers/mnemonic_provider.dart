@@ -6,5 +6,5 @@ final mnemonicProvider = FutureProvider<MnemonicModel>((ref) async {
   const storage = FlutterSecureStorage();
   final mnemonic = await storage.read(key: 'mnemonic');
 
-  return MnemonicModel(mnemonic: mnemonic ?? '');
+  return MnemonicModel(mnemonic: mnemonic);
 });
