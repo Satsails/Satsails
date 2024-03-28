@@ -1,65 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:satsails_wallet/providers/navigation_provider.dart';
 import '../shared/bottom_navigation_bar.dart';
 import '../shared/transactions_builder.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 
-class Analytics extends StatefulWidget {
-  @override
-  State<Analytics> createState() => _AnalyticsState();
-}
-
-class _AnalyticsState extends State<Analytics> {
-  int _currentIndex = 2;
-  final _storage = const FlutterSecureStorage();
-  late String mnemonic;
-  List<Object?> bitcoinTransactions = [];
-  List<Object?> allTransactions = [];
-  List<Object?> liquidTransactions = [];
-  List<Object?> allMonthlyTransactions = [];
-  int totalSpent = 0;
-  int totalIncome = 0;
-  int totalFees = 0;
-  int totalSpentUsd = 0;
-  int totalIncomeUsd = 0;
+class Analytics extends ConsumerWidget {
   DateTime selectedDate = DateTime.now();
 
-  @override
-  void initState() {
-    super.initState();
-    loadMnemonic().then((_) {
-      _fetchData().then((_) {
-        _parseData(selectedDate);
-      });
-    });
-  }
+  Analytics({super.key});
 
-  Future<void> loadMnemonic() async {
-    mnemonic = await _storage.read(key: 'mnemonic') ?? '';
-  }
-
-  Future<void> _fetchData() async {
-    // final channel = greenwallet.Channel('ios_wallet');
-
-    // bitcoinTransactions = await channel.getTransactions(
-    //   mnemonic: mnemonic,
-    //   connectionType: NetworkSecurityCase.bitcoinSS.network,
-    // );
-    //
-    // liquidTransactions = await channel.getTransactions(
-    //   mnemonic: mnemonic,
-    //   connectionType: NetworkSecurityCase.liquidSS.network,
-    // );
-
-    setState(() {
-      allTransactions = bitcoinTransactions + liquidTransactions;
-    });
-  }
-
-  void _parseData(DateTime date) {
+  void _parseData(BuildContext context, DateTime date) {
     List<Object?> transactionsByMonth = [];
-    for (var transaction in allTransactions) {
+    for (var transaction in []) {
       if (transaction is Map<Object?, Object?>) {
         try {
           DateTime dateTime = DateTime.fromMicrosecondsSinceEpoch((transaction['created_at_ts'] as int));
@@ -77,15 +31,10 @@ class _AnalyticsState extends State<Analytics> {
         }
       }
     }
-    setState(() {
-      allMonthlyTransactions = transactionsByMonth;
-    });
   }
 
-
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -94,12 +43,10 @@ class _AnalyticsState extends State<Analytics> {
       ),
       body: _buildBody(context),
       bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: _currentIndex,
+        currentIndex: ref.watch(navigationProvider),
         context: context,
         onTap: (int index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          ref.read(navigationProvider.notifier).state = index;
         },
       ),
     );
@@ -250,12 +197,7 @@ class _AnalyticsState extends State<Analytics> {
                     roundedCornersRadius: 20,
                   )
                 .then((date) {
-              if (date != null) {
-                setState(() {
-                  selectedDate = date;
-                });
-              }
-              _parseData(selectedDate);
+              _parseData(context, selectedDate);
             });
           },
           style: ElevatedButton.styleFrom(
@@ -276,7 +218,7 @@ class _AnalyticsState extends State<Analytics> {
 
 
         Expanded(
-          child: buildTransactions(allMonthlyTransactions, context)
+          child: buildTransactions([], context)
         ),
       ],
     );

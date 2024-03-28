@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../shared/bottom_navigation_bar.dart';
+import 'package:satsails_wallet/providers/navigation_provider.dart';
 
-class Services extends StatefulWidget {
-  @override
-  _ServicesState createState() => _ServicesState();
-}
+class Services extends ConsumerWidget {
+  const Services({super.key});
 
-class _ServicesState extends State<Services> {
-  int _currentIndex = 1;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -18,12 +16,10 @@ class _ServicesState extends State<Services> {
       ),
       body: AppGrid(),
       bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: _currentIndex,
+        currentIndex: ref.watch(navigationProvider),
         context: context,
         onTap: (int index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          ref.read(navigationProvider.notifier).state = index;
         },
       ),
     );
@@ -31,6 +27,8 @@ class _ServicesState extends State<Services> {
 }
 
 class AppGrid extends StatelessWidget {
+  const AppGrid({super.key});
+
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -71,7 +69,7 @@ class AppCard extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  AppCard({required this.title, required this.subtitle});
+  AppCard({super.key, required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {

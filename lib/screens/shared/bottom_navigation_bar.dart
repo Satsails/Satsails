@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails_wallet/screens/analytics/analytics.dart';
 import 'package:satsails_wallet/screens/services/services.dart';
 import 'package:satsails_wallet/screens/home/home.dart';
 
-class CustomBottomNavigationBar extends ConsumerWidget {
+class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final void Function(int) onTap;
   final BuildContext context;
@@ -16,16 +15,16 @@ class CustomBottomNavigationBar extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     List<BottomNavigationBarItem> bottomNavBarItems = [
       const BottomNavigationBarItem(
         icon: Icon(Icons.home),
         label: 'Home',
       ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.apps),
-        label: 'Services',
-      ),
+      // const BottomNavigationBarItem(
+      //   icon: Icon(Icons.apps),
+      //   label: 'Services',
+      // ),
       const BottomNavigationBarItem(
         icon: Icon(Icons.bar_chart),
         label: 'Analytics',
@@ -62,10 +61,10 @@ class CustomBottomNavigationBar extends ConsumerWidget {
       case 0:
         page = Home();
         break;
+      // case 1:
+      //   page = Services();
+      //   break;
       case 1:
-        page = Services();
-        break;
-      case 2:
         page = Analytics();
         break;
     }
