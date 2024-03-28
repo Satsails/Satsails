@@ -80,10 +80,11 @@ class Start extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       ElevatedButton(
-                        onPressed: null,
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/recover_wallet');
+                        },
                         style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.grey),
+                          backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan[400]!),
                           shape:
                               MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(

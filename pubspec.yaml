@@ -24,6 +24,7 @@ dependencies:
   month_picker_dialog: ^2.11.0
 #  new
   responsive_framework: ^1.4.0
+  bip39: ^1.0.6
   flutter_riverpod: ^2.5.1
   bdk_flutter: ^0.30.0
   breez_sdk: ^0.3.8

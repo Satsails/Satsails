@@ -28,13 +28,14 @@ class Home extends ConsumerWidget {
       children: [
         _buildTopSection(context),
         _buildActionButtons(context),
-        CustomBottomNavigationBar(
-          currentIndex: ref.watch(navigationProvider),
-          context: context,
-          onTap: (int index) {
-            ref.read(navigationProvider).state = index;
-          },
-        ),
+        // re add this on mvpv2 when a service is available
+        // CustomBottomNavigationBar(
+        //   currentIndex: ref.watch(navigationProvider),
+        //   context: context,
+        //   onTap: (int index) {
+        //     ref.read(navigationProvider).state = index;
+        //   },
+        // ),
       ],
     );
   }

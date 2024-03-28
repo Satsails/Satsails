@@ -13,6 +13,7 @@ import 'package:satsails_wallet/screens/services/services.dart';
 import 'package:satsails_wallet/screens/charge/charge.dart';
 import 'package:satsails_wallet/screens/home/home.dart';
 import 'package:satsails_wallet/screens/pay/pay.dart';
+import 'package:satsails_wallet/screens/creation/recover_wallet.dart';
 import 'package:satsails_wallet/screens/pay/components/confirm_payment.dart';
 import 'package:satsails_wallet/screens/exchange/exchange.dart';
 import 'package:satsails_wallet/screens/support/info.dart';
@@ -26,7 +27,7 @@ void main() async {
   String? mnemonic = await storage.read(key: 'mnemonic');
   runApp(
      ProviderScope(
-      child: MainApp(initialRoute: mnemonic == null ? '/' : '/open_pin'),
+      child: MainApp(initialRoute: mnemonic == null ? '/' : '/'),
     ),
   );
 }
@@ -51,7 +52,6 @@ final String initialRoute;
             builder: (context) => ConfirmPayment(address: address, isLiquid: isLiquid),
           );
         }
-        return null;
       },
 
       routes: {
@@ -69,6 +69,7 @@ final String initialRoute;
         '/apps': (context) => Services(),
         '/pay': (context) => Pay(),
         '/home': (context) => Home(),
+        '/recover_wallet': (context) => const RecoverWallet(),
       },
     );
   }

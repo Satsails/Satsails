@@ -29,7 +29,6 @@ class _SeedWordsState extends State<SeedWords> {
 
   @override
   Widget build(BuildContext context) {
-    // Split the mnemonic into a list of words
     List<String> words = mnemonic.split(' ');
 
     return Scaffold(
