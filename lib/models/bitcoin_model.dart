@@ -3,7 +3,7 @@ import 'dart:isolate';
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/material.dart';
 
-class BitcoinModel extends ChangeNotifier {
+class BitcoinModel {
   Network? network;
   Mnemonic? mnemonic;
 
@@ -26,7 +26,7 @@ class BitcoinModel extends ChangeNotifier {
       final blockchain = await Blockchain.create(
           config: const BlockchainConfig.esplora(
               config: EsploraConfig(
-                  baseUrl: 'https://blockstream.info/testnet/api',
+                  baseUrl: 'https://blockstream.info/mainnet/api',
                   stopGap: 10)));
       return blockchain;
     } else {

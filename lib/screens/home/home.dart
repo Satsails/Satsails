@@ -4,21 +4,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails_wallet/providers/navigation_provider.dart';
 import 'package:satsails_wallet/screens/accounts/accounts.dart';
 import 'package:satsails_wallet/screens/shared/bottom_navigation_bar.dart';
+import 'package:card_loading/card_loading.dart';
+import 'package:icons_plus/icons_plus.dart';
+import 'package:satsails_wallet/providers/settings_provider.dart';
 
 class Home extends ConsumerWidget {
   const Home({super.key});
 
-  Future<dynamic> getBtcPrice() async {
+  Future<dynamic> getBtcPrice(WidgetRef ref) async {
+    final currency = ref.watch(settingsProvider).currency;
     final fx = Forex();
-    return await fx.getCurrencyConverted(sourceCurrency: 'BTC', destinationCurrency: 'USD', sourceAmount: 1);
+    return await fx.getCurrencyConverted(sourceCurrency: 'BTC', destinationCurrency: currency, sourceAmount: 1);
   }
-
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(context, ref),
       body: SafeArea(child: _buildBody(context, ref)),
     );
   }
@@ -166,7 +169,7 @@ class Home extends ConsumerWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
+  PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {
     return PreferredSize(
       preferredSize: Size.fromHeight(kToolbarHeight),
       child: AppBar(
@@ -174,10 +177,13 @@ class Home extends ConsumerWidget {
         automaticallyImplyLeading: false,
         leading: Image.asset('lib/assets/SatSailsWhite.png'),
         title: FutureBuilder<dynamic>(
-          future: getBtcPrice(),
+          future: getBtcPrice(ref),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
+              return const CardLoading(
+                width: 100,
+                height: 20,
+              );
             } else if (snapshot.hasError) {
               return const Text('Error');
             } else {
@@ -188,7 +194,7 @@ class Home extends ConsumerWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings, color: Colors.black),
+            icon: const Icon(Clarity.settings_line, color: Colors.black),
             onPressed: () {
               Navigator.pushNamed(context, '/settings');
             },

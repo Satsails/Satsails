@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forex_currency_conversion/forex_currency_conversion.dart';
 
-class BalanceModel extends ChangeNotifier {
+class BalanceModel {
   int btcBalance;
   int liquidBalance;
   int brlBalance;

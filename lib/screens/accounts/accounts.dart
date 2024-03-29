@@ -31,11 +31,11 @@ class Accounts extends ConsumerWidget {
               ),
             ),
             SizedBox(height: screenWidth * 0.02),
-            _buildAccountCard(
-              title: 'Savings',
-              value: ref.watch(balanceProvider).btcBalance.toString(),
-              context: context,
-            ),
+            // _buildAccountCard(
+            //   title: 'Savings',
+            //   value: ref.watch(balanceProvider).btcBalance.toString(),
+            //   context: context,
+            // ),
             SizedBox(height: screenWidth * 0.02),
             SizedBox(height: screenWidth * 0.02),
             _buildDivider(),
@@ -56,11 +56,11 @@ class Accounts extends ConsumerWidget {
               context: context,
             ),
             SizedBox(height: screenWidth * 0.02),
-            _buildAccountCard(
-              title: 'L-BTC',
-              value: ref.watch(balanceProvider).liquidBalance.toString(),
-              context: context,
-            ),
+            // _buildAccountCard(
+            //   title: 'L-BTC',
+            //   value: ref.watch(balanceProvider).liquidBalance.toString(),
+            //   context: context,
+            // ),
             SizedBox(height: screenWidth * 0.02),
             _buildAccountCard(
               title: 'Lightning Network',

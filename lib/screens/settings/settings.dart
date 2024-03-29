@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:satsails_wallet/providers/settings_provider.dart';
 import 'package:satsails_wallet/models/mnemonic_model.dart';
 
 class Settings extends ConsumerWidget {
+  const Settings({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
 
@@ -17,58 +20,108 @@ class Settings extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildCurrencySection(ref),
+            _buildCurrencySection(ref, context),
             _buildDivider(),
             _buildSupportSection(),
             _buildDivider(),
-            _buildInfoSection(context),
+            // only show this section before release
+            // _buildInfoSection(context),
+            // only show this section before release
             _buildDivider(),
             _buildSeedSection(context),
             _buildDivider(),
-            _buildLanguageSection(ref),
+            _buildLanguageSection(ref, context),
             _buildDivider(),
-            _builDeleteWalletSection(context)
+            _builDeleteWalletSection(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCurrencySection(WidgetRef ref) {
-    final asyncSettings = ref.watch(settingsProvider);
+  Widget _buildCurrencySection(WidgetRef ref, BuildContext context) {
+    final settings = ref.watch(settingsProvider);
+    final settingsNotifier = ref.read(settingsProvider.notifier);
 
-    return asyncSettings.when(
-      data: (settings) {
-        return ListTile(
-          leading: const Icon(Icons.account_balance_wallet),
-          title: const Text('Currency'),
-          subtitle: Text(settings.currency),
-          onTap: () {
-            settings.setCurrency('USD');
+    return ListTile(
+      leading: const Icon(Iconsax.dollar_circle_outline),
+      title: const Text('Currency'),
+      subtitle: Text(settings.currency),
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          builder: (BuildContext context) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  leading: Flag(Flags.brazil),
+                  title: const Text('BRL'),
+                  onTap: () {
+                    settingsNotifier.setCurrency('BRL');
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: Flag(Flags.united_states_of_america),
+                  title: const Text('USD'),
+                  onTap: () {
+                    settingsNotifier.setCurrency('USD');
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: Flag(Flags.european_union),
+                  title: const Text('EUR'),
+                  onTap: () {
+                    settingsNotifier.setCurrency('EUR');
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
           },
         );
       },
-      loading: () => CircularProgressIndicator(),
-      error: (error, stackTrace) => Text('Error: $error'),
     );
   }
 
-  Widget _buildLanguageSection(WidgetRef ref) {
-    final asyncSettings = ref.watch(settingsProvider);
+  Widget _buildLanguageSection(WidgetRef ref, BuildContext context) {
+    final settings = ref.watch(settingsProvider);
+    final settingsNotifier = ref.read(settingsProvider.notifier);
 
-    return asyncSettings.when(
-      data: (settings) {
-        return ListTile(
-          leading: const Icon(Icons.language),
-          title: const Text('Language'),
-          subtitle: Text(settings.language),
-          onTap: () {
-            settings.setLanguage('EN');
-          },
-        );
-      },
-      loading: () => CircularProgressIndicator(),
-      error: (error, stackTrace) => Text('Error: $error'),
+    return ListTile(
+      leading: const Icon(Icons.language),
+      title: const Text('Language'),
+      subtitle: Text(settings.language),
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    leading: Flag(Flags.portugal),
+                    title: const Text('Portuguese'),
+                    onTap: () {
+                      settingsNotifier.setLanguage('PT');
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    leading: Flag(Flags.united_states_of_america),
+                    title: const Text('English'),
+                    onTap: () {
+                      settingsNotifier.setCurrency('EN');
+                      Navigator.pop(context);
+                    },
+                  ),
+                ]
+              );
+            },
+          );
+        },
     );
   }
 
@@ -76,7 +129,7 @@ class Settings extends ConsumerWidget {
     return ListTile(
       leading: const Icon(Icons.currency_bitcoin),
       title: const Text('View Seed Words'),
-      subtitle: Text('Write them down and keep them safe!'),
+      subtitle: const Text('Write them down and keep them safe!'),
       trailing: const Icon(Icons.arrow_forward_ios),
       onTap: () {
         Navigator.pushNamed(context, '/seed_words');
@@ -86,17 +139,18 @@ class Settings extends ConsumerWidget {
 
   Widget _buildSupportSection() {
     return ListTile(
-      leading: const Icon(Icons.headset_mic),
-      title: const Text('Support'),
+      leading: const Icon(LineAwesome.whatsapp),
+      title: const Text('WhatsApp'),
+      subtitle: const Text('Coming soon!'),
       onTap: () {
-        // Handle support section tap
+        null;
       },
     );
   }
 
   Widget _buildInfoSection(BuildContext context) {
     return ListTile(
-      leading: const Icon(Icons.info),
+      leading: const Icon(Clarity.info_circle_line),
       title: const Text('Information'),
       onTap: () {
         Navigator.pushNamed(context, '/info');
