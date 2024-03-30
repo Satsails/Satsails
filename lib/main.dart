@@ -17,6 +17,7 @@ import 'package:satsails/screens/creation/recover_wallet.dart';
 import 'package:satsails/screens/pay/components/confirm_payment.dart';
 import 'package:satsails/screens/exchange/exchange.dart';
 import 'package:satsails/screens/support/info.dart';
+import 'package:satsails/screens/home/components/search_modal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
@@ -61,15 +62,16 @@ final String initialRoute;
         '/charge': (context) => Charge(),
         '/accounts': (context) => const Accounts(),
         '/receive': (context) => Receive(),
-        '/settings': (context) => Settings(),
+        '/settings': (context) => const Settings(),
         '/analytics': (context) => Analytics(),
         '/set_pin': (context) => const SetPin(),
         '/exchange': (context) => Exchange(),
         '/info': (context) => Info(),
-        '/apps': (context) => Services(),
+        '/apps': (context) => const Services(),
         '/pay': (context) => Pay(),
-        '/home': (context) => Home(),
+        '/home': (context) => const Home(),
         '/recover_wallet': (context) => const RecoverWallet(),
+        '/search_modal': (context) => SearchModal(),
       },
     );
   }

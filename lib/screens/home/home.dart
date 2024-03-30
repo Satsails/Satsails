@@ -175,9 +175,11 @@ class Home extends ConsumerWidget {
       child: AppBar(
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 5),
-          child: Image.asset('lib/assets/SatSailsWhite.png'),
+        leading: IconButton(
+          icon: const Icon(Clarity.settings_line, color: Colors.black),
+          onPressed: () {
+            Navigator.pushNamed(context, '/settings');
+          },
         ),
         title: FutureBuilder<dynamic>(
           future: getBtcPrice(ref),
@@ -190,16 +192,16 @@ class Home extends ConsumerWidget {
             } else if (snapshot.hasError) {
               return const Text('Error');
             } else {
-              return Text(snapshot.data.toString(), style: const TextStyle(color: Colors.black));
+              return Text("${snapshot.data} ${ref.watch(settingsProvider).currency}", style: const TextStyle(color: Colors.black));
             }
           },
         ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Clarity.settings_line, color: Colors.black),
+            icon: const Icon(Clarity.block_solid, color: Colors.black),
             onPressed: () {
-              Navigator.pushNamed(context, '/settings');
+              Navigator.pushNamed(context, '/search_modal');
             },
           ),
         ],
