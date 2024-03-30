@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:satsails_wallet/models/mnemonic_model.dart';
+import 'package:satsails/models/mnemonic_model.dart';
 
 class RecoverWallet extends StatefulWidget {
   const RecoverWallet({Key? key}) : super(key: key);

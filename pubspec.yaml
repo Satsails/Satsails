@@ -1,4 +1,4 @@
-name: satsails_wallet
+name: satsails
 description: "Sail your wealth to the cloud!"
 publish_to: 'none'
 version: 1.0.0+1
@@ -58,9 +58,8 @@ flutter:
   uses-material-design: true
   assets:
     - lib/assets/SatSails.png
-    - lib/assets/SatSailsWhite.png
 
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: true
   image_path: "lib/assets/SatSails.png"

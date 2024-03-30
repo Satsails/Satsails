@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../shared/bottom_navigation_bar.dart';
-import 'package:satsails_wallet/providers/navigation_provider.dart';
+import 'package:satsails/providers/navigation_provider.dart';
 
 class Services extends ConsumerWidget {
   const Services({super.key});

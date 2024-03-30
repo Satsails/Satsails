@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/io.dart';
 import 'package:http/http.dart' as http;
-import 'package:satsails_wallet/helpers/exchange.dart';
+import 'package:satsails/helpers/exchange.dart';
 
 class SideswapStreamPrices {
   late IOWebSocketChannel _channel;

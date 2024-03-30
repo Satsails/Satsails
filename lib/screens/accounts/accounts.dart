@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails_wallet/providers/balance_provider.dart';
+import 'package:satsails/providers/balance_provider.dart';
 
 class Accounts extends ConsumerWidget {
   const Accounts({Key? key}) : super(key: key);

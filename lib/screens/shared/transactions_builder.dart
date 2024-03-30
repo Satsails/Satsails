@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:satsails_wallet/helpers/asset_mapper.dart';
+import 'package:satsails/helpers/asset_mapper.dart';
 
 Widget buildTransactions(List transactions, BuildContext context) {
   if (transactions.isEmpty) {

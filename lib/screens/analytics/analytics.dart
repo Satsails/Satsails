@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:satsails_wallet/providers/navigation_provider.dart';
+import 'package:satsails/providers/navigation_provider.dart';
 import '../shared/bottom_navigation_bar.dart';
 import '../shared/transactions_builder.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';

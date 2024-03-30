@@ -262,10 +262,10 @@ packages:
     dependency: transitive
     description:
       name: dio
-      sha256: "50fec96118958b97c727d0d8f67255d3683f16cc1f90d9bc917b5d4fe3abeca9"
+      sha256: "0978e9a3e45305a80a7210dbeaf79d6ee8bee33f70c8e542dc654c952070217f"
       url: "https://pub.dev"
     source: hosted
-    version: "5.4.2"
+    version: "5.4.2+1"
   equatable:
     dependency: transitive
     description:
@@ -643,7 +643,7 @@ packages:
     description:
       path: "."
       ref: trunk
-      resolved-ref: a9354ebab8834492fb49b706150cafdbd03d980d
+      resolved-ref: b8ce946fb8ac76ded567925bb79111342826d327
       url: "https://github.com/SatoshiPortal/lwk-dart"
     source: git
     version: "0.1.0"

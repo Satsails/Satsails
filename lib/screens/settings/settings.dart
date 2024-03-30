@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:satsails_wallet/providers/settings_provider.dart';
-import 'package:satsails_wallet/models/mnemonic_model.dart';
+import 'package:satsails/providers/settings_provider.dart';
+import 'package:satsails/models/mnemonic_model.dart';
 
 class Settings extends ConsumerWidget {
   const Settings({super.key});

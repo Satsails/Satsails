@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:satsails_wallet/screens/analytics/analytics.dart';
-import 'package:satsails_wallet/screens/services/services.dart';
-import 'package:satsails_wallet/screens/home/home.dart';
+import 'package:satsails/screens/analytics/analytics.dart';
+import 'package:satsails/screens/services/services.dart';
+import 'package:satsails/screens/home/home.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;

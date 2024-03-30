@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:forex_currency_conversion/forex_currency_conversion.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails_wallet/providers/navigation_provider.dart';
-import 'package:satsails_wallet/screens/accounts/accounts.dart';
-import 'package:satsails_wallet/screens/shared/bottom_navigation_bar.dart';
+import 'package:satsails/providers/navigation_provider.dart';
+import 'package:satsails/screens/accounts/accounts.dart';
+import 'package:satsails/screens/shared/bottom_navigation_bar.dart';
 import 'package:card_loading/card_loading.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:satsails_wallet/providers/settings_provider.dart';
+import 'package:satsails/providers/settings_provider.dart';
 
 class Home extends ConsumerWidget {
   const Home({super.key});
@@ -175,7 +175,10 @@ class Home extends ConsumerWidget {
       child: AppBar(
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
-        leading: Image.asset('lib/assets/SatSailsWhite.png'),
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 5),
+          child: Image.asset('lib/assets/SatSailsWhite.png'),
+        ),
         title: FutureBuilder<dynamic>(
           future: getBtcPrice(ref),
           builder: (context, snapshot) {

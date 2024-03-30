@@ -6,9 +6,9 @@ class Logo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Image.asset(
-      'lib/assets/SatSailsWhite.png',
-      width: 200,
-      height: 200,
+      'lib/assets/SatSails.png',
+      width: 300,
+      height: 300,
     );
   }
 }

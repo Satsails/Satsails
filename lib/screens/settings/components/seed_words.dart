@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails_wallet/providers/mnemonic_provider.dart';
+import 'package:satsails/providers/mnemonic_provider.dart';
 
 class SeedWords extends ConsumerWidget {
   const SeedWords({Key? key}) : super(key: key);

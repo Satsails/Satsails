@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:satsails_wallet/providers/pin_provider.dart';
+import 'package:satsails/providers/pin_provider.dart';
 
 class SetPin extends ConsumerWidget {
   const SetPin({Key? key}) : super(key: key);
