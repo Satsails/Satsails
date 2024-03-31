@@ -6,7 +6,13 @@ class BalanceModel extends StateNotifier<Balance>{
 
   Future<double> _getConvertedBalance(String sourceCurrency, String destinationCurrency, double sourceAmount) async {
     final fx = Forex();
-    return await fx.getCurrencyConverted(sourceCurrency: sourceCurrency, destinationCurrency: destinationCurrency, sourceAmount: sourceAmount);
+    final result = await fx.getCurrencyConverted(sourceCurrency: sourceCurrency, destinationCurrency: destinationCurrency, sourceAmount: sourceAmount);
+    final error = fx.getErrorNotifier.value;
+
+    if (error != null){
+      throw 'No internet connection';
+    }
+    return result;
   }
 
   Future<double> totalBalanceInCurrency() async {

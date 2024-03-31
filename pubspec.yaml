@@ -23,8 +23,6 @@ dependencies:
   fl_chart: ^0.66.2
   month_picker_dialog: ^2.11.0
 #  new
-#  for responsive design (implement)
-  responsive_framework: ^1.4.0
   bip39: ^1.0.6
   flutter_riverpod: ^2.5.1
   bdk_flutter: ^0.30.0
@@ -41,8 +39,7 @@ dependencies:
   forex_currency_conversion: ^0.9.1
 #  implement (implement)
   icons_plus: ^5.0.0
-#  for balances (implement)
-  flutter_card_swiper: ^7.0.0
+#  for accounts managenent send and receive
   flip_card: ^0.7.0
   card_loading: ^0.3.2
 #  add for toast later

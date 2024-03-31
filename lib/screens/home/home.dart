@@ -16,9 +16,13 @@ class Home extends ConsumerWidget {
   Future<dynamic> getBtcPrice(WidgetRef ref) async {
     final currency = ref.watch(settingsProvider).currency;
     final fx = Forex();
+    final result = await fx.getCurrencyConverted(sourceCurrency: 'BTC', destinationCurrency: currency, sourceAmount: 1);
+    final error = fx.getErrorNotifier.value;
 
-    final demin =  await fx.getCurrencyConverted(sourceCurrency: 'BTC', destinationCurrency: currency, sourceAmount: 1);
-    return demin;
+    if (error != null){
+      return "Error fetching prices";
+    }
+    return '$result $currency';
   }
 
   @override
@@ -147,7 +151,9 @@ class Home extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         const SizedBox(height: 10),
-                        Text('Error: ${snapshot.error}', style: const TextStyle(fontSize: 16, color: Colors.red)),
+                        Text('Error: ${snapshot.error}', style: const TextStyle(fontSize: 16, color: Colors.white)),
+                        const SizedBox(height: 10),
+                        Text("BTC: ${balanceModel.brlBalance + balanceModel.liquidBalance}", style: const TextStyle(fontSize: 16, color: Colors.white)),
                         const SizedBox(height: 10),
                       ],
                     ),
@@ -310,7 +316,7 @@ PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {
           } else if (snapshot.hasError) {
             return const Text('Error');
           } else {
-            return Text("${snapshot.data} ${ref.watch(settingsProvider).currency}", style: const TextStyle(color: Colors.black));
+            return Text("${snapshot.data}", style: const TextStyle(color: Colors.black));
           }
         },
       ),
