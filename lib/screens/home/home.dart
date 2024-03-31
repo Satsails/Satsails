@@ -45,37 +45,43 @@ class Home extends ConsumerWidget {
   }
 
   Widget _buildTopSection(BuildContext context, WidgetRef ref) {
+    // Access the BalanceModel notifier to call totalBalanceInBtcOnly method
+    final balanceModelNotifier = ref.watch(balanceNotifierProvider.notifier);
+
     return Expanded(
       child: SizedBox(
-        height: MediaQuery
-            .of(context)
-            .padding
-            .top + kToolbarHeight,
+        height: MediaQuery.of(context).padding.top + kToolbarHeight,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SizedBox(height: 100),
-            Text(
-              '${ref.watch(balanceNotifierProvider)} EUR',
-              style: const TextStyle(fontSize: 30, color: Colors.black),
+            // Use FutureBuilder to handle the asynchronous totalBalanceInBtcOnly method
+            FutureBuilder<double>(
+              future: balanceModelNotifier.totalBalanceInBtcOnly(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}', style: const TextStyle(fontSize: 16, color: Colors.red));
+                } else {
+                  // Display the total BTC balance
+                  return Text(
+                    '${snapshot.data} BTC',
+                    style: const TextStyle(fontSize: 30, color: Colors.black),
+                  );
+                }
+              },
             ),
             const SizedBox(height: 10),
-            const Text('or',
-                style: TextStyle(fontSize: 12, color: Colors.black)),
+            const Text('or', style: TextStyle(fontSize: 12, color: Colors.black)),
             const SizedBox(height: 10),
-            // Text(
-            //   '${ref.watch(balanceNotifierProvider.notifier).state.usdBalance} USD',
-            //   style: const TextStyle(fontSize: 13, color: Colors.black),
-            // ),
+            // Removed commented code for clarity
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                    const Accounts(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const Accounts()),
                 );
               },
               style: _buildElevatedButtonStyle(),
