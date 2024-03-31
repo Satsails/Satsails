@@ -15,7 +15,9 @@ class Home extends ConsumerWidget {
 
   Future<dynamic> getBtcPrice(WidgetRef ref) async {
     final currency = ref.watch(settingsProvider).currency;
+    // create notifiers for forex
     final fx = Forex();
+
     return await fx.getCurrencyConverted(sourceCurrency: 'BTC', destinationCurrency: currency, sourceAmount: 1);
   }
 
@@ -77,7 +79,8 @@ class Home extends ConsumerWidget {
           PieChartData(
             sections: [
               PieChartSectionData(
-                value: btcBalance.toDouble() + liquidBalance.toDouble(),
+                // value: btcBalance.toDouble() + liquidBalance.toDouble(),
+                value: 1,
                 title: '',
                 radius: 20,
                 badgeWidget: const Icon(Icons.currency_bitcoin, color: Colors.white),
