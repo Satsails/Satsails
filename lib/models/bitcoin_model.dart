@@ -48,6 +48,8 @@ class BitcoinModel extends StateNotifier<Bitcoin> {
   }
 
   Future<Balance> getBalance() async {
+    if (state.wallet == null) return const Balance(total: 0, confirmed: 0, spendable: 0, immature: 0, trustedPending: 0, untrustedPending: 0);
+
     final res = await state.wallet!.getBalance();
     return res;
   }

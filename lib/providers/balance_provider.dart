@@ -6,9 +6,10 @@ import 'bitcoin_provider.dart';
 final initiliazeBalanceProvider = FutureProvider<Balance>((ref) async {
   final currency = ref.watch(settingsProvider).currency;
   final bitcoin = ref.watch(bitcoinNotifierProvider.notifier);
+  final balance = await bitcoin.getBalance();
 
   return Balance(
-    btcBalance: 0,
+    btcBalance: balance.total,
     liquidBalance: 0,
     usdBalance: 0,
     cadBalance: 0,

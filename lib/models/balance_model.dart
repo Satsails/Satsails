@@ -58,12 +58,12 @@ class BalanceModel extends StateNotifier<Balance>{
 }
 
 class Balance {
-  final double btcBalance;
-  final double liquidBalance;
-  final double usdBalance;
-  final double cadBalance;
-  final double eurBalance;
-  final double brlBalance;
+  final int btcBalance;
+  final int liquidBalance;
+  final int usdBalance;
+  final int cadBalance;
+  final int eurBalance;
+  final int brlBalance;
   final String currency;
 
   Balance({
@@ -77,12 +77,12 @@ class Balance {
   });
 
   Balance copyWith({
-    double? btcBalance,
-    double? liquidBalance,
-    double? usdBalance,
-    double? cadBalance,
-    double? eurBalance,
-    double? brlBalance,
+    int? btcBalance,
+    int? liquidBalance,
+    int? usdBalance,
+    int? cadBalance,
+    int? eurBalance,
+    int? brlBalance,
     String? currency,
   }) {
     return Balance(

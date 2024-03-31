@@ -8,7 +8,7 @@ final initializeConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
 
   final config = BitcoinConfig(
       mnemonic: mnemonic.mnemonic!,
-      network: Network.Bitcoin,
+      network: Network.Testnet,
       keychain: KeychainKind.External,
       isElectrumBlockchain: false
   );
