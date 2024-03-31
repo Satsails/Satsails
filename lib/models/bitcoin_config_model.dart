@@ -66,7 +66,7 @@ class BitcoinConfig {
     bool? isElectrumBlockchain,
   }) {
     return BitcoinConfig(
-      mnemonic: mnemonic ?? this.mnemonic,
+      mnemonic: mnemonic,
       network: network ?? this.network,
       keychain: keychain ?? this.keychain,
       isElectrumBlockchain: isElectrumBlockchain ?? this.isElectrumBlockchain,

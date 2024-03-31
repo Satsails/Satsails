@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'mnemonic_provider.dart';
 
 final initializeConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
-  final mnemonic = await ref.watch(mnemonicProvider.future);
-  final formattedMnemonic = await Mnemonic.fromString(mnemonic.mnemonic!);
+  final mnemonic = ref.watch(mnemonicProvider);
+  final mnemonicValue = await Mnemonic.fromString(mnemonic.toString());
 
   final config = BitcoinConfig(
-      mnemonic: formattedMnemonic,
+      mnemonic: mnemonicValue,
       network: Network.Bitcoin,
       keychain: KeychainKind.External,
       isElectrumBlockchain: false

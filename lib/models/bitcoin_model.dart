@@ -118,8 +118,8 @@ class Bitcoin {
     Blockchain? blockchain,
   }) {
     return Bitcoin(
-      wallet ?? this.wallet,
-      blockchain ?? this.blockchain,
+      wallet,
+      blockchain
     );
   }
 }

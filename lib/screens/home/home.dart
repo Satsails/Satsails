@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forex_currency_conversion/forex_currency_conversion.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/navigation_provider.dart';
 import 'package:satsails/screens/accounts/accounts.dart';
 import 'package:satsails/screens/shared/bottom_navigation_bar.dart';
@@ -29,7 +30,7 @@ class Home extends ConsumerWidget {
   Widget _buildBody(BuildContext context, ref) {
     return Column(
       children: [
-        _buildTopSection(context),
+        _buildTopSection(context, ref),
         _buildActionButtons(context),
         // re add this on mvpv2 when a service is available
         CustomBottomNavigationBar(
@@ -43,7 +44,7 @@ class Home extends ConsumerWidget {
     );
   }
 
-  Widget _buildTopSection(BuildContext context) {
+  Widget _buildTopSection(BuildContext context, WidgetRef ref) {
     return Expanded(
       child: SizedBox(
         height: MediaQuery
@@ -54,18 +55,18 @@ class Home extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SizedBox(height: 100),
-            const Text(
-              '0.00000000 BTC', // Replace with the actual balance
-              style: TextStyle(fontSize: 30, color: Colors.black),
+            Text(
+              '${ref.watch(balanceNotifierProvider)} EUR',
+              style: const TextStyle(fontSize: 30, color: Colors.black),
             ),
             const SizedBox(height: 10),
             const Text('or',
                 style: TextStyle(fontSize: 12, color: Colors.black)),
             const SizedBox(height: 10),
-            const Text(
-              '0.00000000 USD', // Replace with the actual riverpod
-              style: TextStyle(fontSize: 13, color: Colors.black),
-            ),
+            // Text(
+            //   '${ref.watch(balanceNotifierProvider.notifier).state.usdBalance} USD',
+            //   style: const TextStyle(fontSize: 13, color: Colors.black),
+            // ),
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
@@ -171,14 +172,14 @@ class Home extends ConsumerWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {
     return PreferredSize(
-      preferredSize: Size.fromHeight(kToolbarHeight),
+      preferredSize: const Size.fromHeight(kToolbarHeight),
       child: AppBar(
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
         leading: IconButton(
-          icon: const Icon(Clarity.settings_line, color: Colors.black),
+          icon: const Icon(Clarity.block_solid, color: Colors.black),
           onPressed: () {
-            Navigator.pushNamed(context, '/settings');
+            Navigator.pushNamed(context, '/search_modal');
           },
         ),
         title: FutureBuilder<dynamic>(
@@ -198,10 +199,11 @@ class Home extends ConsumerWidget {
         ),
         centerTitle: true,
         actions: [
+
           IconButton(
-            icon: const Icon(Clarity.block_solid, color: Colors.black),
+            icon: const Icon(Clarity.settings_line, color: Colors.black),
             onPressed: () {
-              Navigator.pushNamed(context, '/search_modal');
+              Navigator.pushNamed(context, '/settings');
             },
           ),
         ],
