@@ -45,7 +45,8 @@ dependencies:
   flutter_card_swiper: ^7.0.0
   flip_card: ^0.7.0
   card_loading: ^0.3.2
-  adaptive_theme: ^3.6.0
+#  add for toast later
+#toastification: ^1.2.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

@@ -2,89 +2,44 @@ import 'dart:convert';
 import 'dart:isolate';
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class BitcoinModel {
-  Network? network;
-  Mnemonic? mnemonic;
+class BitcoinModel extends StateNotifier<Bitcoin> {
+  BitcoinModel(Bitcoin state) : super(state);
 
-  BitcoinModel({this.network, this.mnemonic});
-
-  Future<Descriptor> createDescriptor(Mnemonic mnemonic) async {
-    final descriptorSecretKey = await DescriptorSecretKey.create(
-      network: Network.Testnet,
-      mnemonic: mnemonic,
-    );
-    final descriptor = await Descriptor.newBip84(
-        secretKey: descriptorSecretKey,
-        network: Network.Testnet,
-        keychain: KeychainKind.External);
-    return descriptor;
-  }
-
-  Future<Blockchain> initializeBlockchain(bool isElectrumBlockchain) async {
-    if (isElectrumBlockchain) {
-      final blockchain = await Blockchain.create(
-          config: const BlockchainConfig.esplora(
-              config: EsploraConfig(
-                  baseUrl: 'https://blockstream.info/mainnet/api',
-                  stopGap: 10)));
-      return blockchain;
-    } else {
-      final blockchain = await Blockchain.create(
-          config: const BlockchainConfig.electrum(
-              config: ElectrumConfig(
-                  stopGap: 10,
-                  timeout: 5,
-                  retry: 5,
-                  url: "ssl://electrum.blockstream.info:60002",
-                  validateDomain: true)));
-      return blockchain;
-    }
-  }
-
-  Future<Wallet> restoreWallet(Descriptor descriptor) async {
-    final wallet = await Wallet.create(
-        descriptor: descriptor,
-        network: Network.Testnet,
-        databaseConfig: const DatabaseConfig.memory());
-    return wallet;
-  }
-
-  Future<void> sync(Blockchain blockchain, Wallet wallet) async {
+  Future<void> sync() async {
     try {
-      Isolate.run(() async => {await wallet.sync(blockchain)});
+      Isolate.run(() async => {await state.wallet!.sync(state.blockchain!)});
     } on FormatException catch (e) {
       debugPrint(e.message);
     }
   }
 
-  Future<AddressInfo> getAddress(Wallet wallet) async {
+  Future<AddressInfo> getAddress() async {
     final address =
-    await wallet.getAddress(addressIndex: const AddressIndex());
+    await state.wallet!.getAddress(addressIndex: const AddressIndex());
     return address;
   }
 
   Future<Input> getPsbtInput(
-      Wallet wallet, LocalUtxo utxo, bool onlyWitnessUtxo) async {
-    final input = await wallet.getPsbtInput(
+      LocalUtxo utxo, bool onlyWitnessUtxo) async {
+    final input = await state.wallet!.getPsbtInput(
         utxo: utxo, onlyWitnessUtxo: onlyWitnessUtxo);
     return input;
   }
 
-  Future<List<TransactionDetails>> getUnConfirmedTransactions(
-      Wallet wallet) async {
+  Future<List<TransactionDetails>> getUnConfirmedTransactions() async {
     List<TransactionDetails> unConfirmed = [];
-    final res = await wallet.listTransactions(true);
+    final res = await state.wallet!.listTransactions(true);
     for (var e in res) {
       if (e.confirmationTime == null) unConfirmed.add(e);
     }
     return unConfirmed;
   }
 
-  Future<List<TransactionDetails>> getConfirmedTransactions(
-      Wallet wallet) async {
+  Future<List<TransactionDetails>> getConfirmedTransactions() async {
     List<TransactionDetails> confirmed = [];
-    final res = await wallet.listTransactions(true);
+    final res = await state.wallet!.listTransactions(true);
 
     for (var e in res) {
       if (e.confirmationTime != null) confirmed.add(e);
@@ -92,13 +47,13 @@ class BitcoinModel {
     return confirmed;
   }
 
-  Future<Balance> getBalance(Wallet wallet) async {
-    final res = await wallet.getBalance();
+  Future<Balance> getBalance() async {
+    final res = await state.wallet!.getBalance();
     return res;
   }
 
-  Future<List<LocalUtxo>> listUnspend(Wallet wallet) async {
-    final res = await wallet.listUnspent();
+  Future<List<LocalUtxo>> listUnspend() async {
+    final res = await state.wallet!.listUnspent();
     return res;
   }
 
@@ -149,5 +104,22 @@ class BitcoinModel {
     } on Exception catch (_) {
       rethrow;
     }
+  }
+}
+
+class Bitcoin {
+  final Wallet? wallet;
+  final Blockchain? blockchain;
+
+  Bitcoin(this.wallet, this.blockchain);
+
+  Bitcoin copyWith({
+    Wallet? wallet,
+    Blockchain? blockchain,
+  }) {
+    return Bitcoin(
+      wallet ?? this.wallet,
+      blockchain ?? this.blockchain,
+    );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsModel extends StateNotifier<Settings> {
-  SettingsModel(Settings state) : super(state);
+  SettingsModel(super.state);
 
   Future<void> setCurrency(String newCurrency) async {
     final prefs = await SharedPreferences.getInstance();
