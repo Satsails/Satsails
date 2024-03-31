@@ -15,10 +15,10 @@ class Home extends ConsumerWidget {
 
   Future<dynamic> getBtcPrice(WidgetRef ref) async {
     final currency = ref.watch(settingsProvider).currency;
-    // create notifiers for forex
     final fx = Forex();
 
-    return await fx.getCurrencyConverted(sourceCurrency: 'BTC', destinationCurrency: currency, sourceAmount: 1);
+    final demin =  await fx.getCurrencyConverted(sourceCurrency: 'BTC', destinationCurrency: currency, sourceAmount: 1);
+    return demin;
   }
 
   @override
@@ -56,13 +56,7 @@ class Home extends ConsumerWidget {
             sections: [
               PieChartSectionData(
                 value: 1,
-                title: 'No Balance',
-                titleStyle: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-                titlePositionPercentageOffset: -4.5,
+                title: '',
                 radius: 20,
                 color: Colors.grey,
               ),
@@ -79,8 +73,7 @@ class Home extends ConsumerWidget {
           PieChartData(
             sections: [
               PieChartSectionData(
-                // value: btcBalance.toDouble() + liquidBalance.toDouble(),
-                value: 1,
+                value: btcBalance.toDouble() + liquidBalance.toDouble(),
                 title: '',
                 radius: 20,
                 badgeWidget: const Icon(Icons.currency_bitcoin, color: Colors.white),
@@ -124,91 +117,92 @@ class Home extends ConsumerWidget {
     }
   }
 
-Widget _buildTopSection(BuildContext context, WidgetRef ref) {
-  final balanceModelNotifier = ref.watch(balanceNotifierProvider.notifier);
-  final balanceModel = ref.watch(balanceNotifierProvider);
+  Widget _buildTopSection(BuildContext context, WidgetRef ref) {
+    final balanceModelNotifier = ref.watch(balanceNotifierProvider.notifier);
+    final balanceModel = ref.watch(balanceNotifierProvider);
 
-  return Expanded(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-
-        SizedBox(
-          width: double.infinity,
-          child: Card(
-            color: Colors.orange,
-            margin: const EdgeInsets.all(20),
-            elevation: 10,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const SizedBox(height: 10),
-                FutureBuilder<double>(
-                  future: balanceModelNotifier.totalBalanceInBtcOnly(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Text(
-                        'Loading...',
-                        style: TextStyle(fontSize: 30, color: Colors.white),
-                        textAlign: TextAlign.center,
-                      );
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}', style: const TextStyle(fontSize: 16, color: Colors.red));
-                    } else {
-                      return Text(
-                        '${snapshot.data} BTC',
-                        style: const TextStyle(fontSize: 30, color: Colors.white),
-                        textAlign: TextAlign.center,
-                      );
-                    }
-                  },
-                ),
-                const SizedBox(height: 10),
-                const Text('or', style: TextStyle(fontSize: 12, color: Colors.white), textAlign: TextAlign.center),
-                const SizedBox(height: 10),
-                FutureBuilder<double>(
-                  future: balanceModelNotifier.totalBalanceInCurrency(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Text(
-                        'Loading...',
-                        style: TextStyle(fontSize: 15, color:  Colors.white),
-                        textAlign: TextAlign.center,
-                      );
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}', style: const TextStyle(fontSize: 16, color: Colors.red));
-                    } else {
-                      return Text(
-                        '${snapshot.data} ${ref.watch(settingsProvider).currency}',
-                        style: const TextStyle(fontSize: 15, color:  Colors.white),
-                        textAlign: TextAlign.center, // Center align the text
-                      );
-                    }
-                  },
-                ),
-                const SizedBox(height: 10),
-              ],
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: FutureBuilder<List<double>>(
+              future: Future.wait([
+                balanceModelNotifier.totalBalanceInBtcOnly(),
+                balanceModelNotifier.totalBalanceInCurrency()
+              ]),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CardLoading(
+                    width: 100,
+                    height: 161,
+                  );
+                } else if (snapshot.hasError) {
+                  return Card(
+                    color: Colors.orange,
+                    margin: const EdgeInsets.all(20),
+                    elevation: 10,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const SizedBox(height: 10),
+                        Text('Error: ${snapshot.error}', style: const TextStyle(fontSize: 16, color: Colors.red)),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  );
+                } else if (snapshot.data != null) {
+                  return Card(
+                    color: Colors.orange,
+                    margin: const EdgeInsets.all(20),
+                    elevation: 10,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const SizedBox(height: 10),
+                        Text(
+                          '${snapshot.data![0]} BTC',
+                          style: const TextStyle(fontSize: 30, color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                        const Text('or', style: TextStyle(fontSize: 12, color: Colors.white), textAlign: TextAlign.center),
+                        const SizedBox(height: 10),
+                        Text(
+                          '${snapshot.data![1]} ${ref.watch(settingsProvider).currency}',
+                          style: const TextStyle(fontSize: 15, color:  Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
             ),
           ),
-        ),
-        const SizedBox(height: 70),
-        _buildDiagram(balanceModel.btcBalance, balanceModel.liquidBalance, balanceModel.usdBalance, balanceModel.cadBalance, balanceModel.eurBalance, balanceModel.brlBalance),
-        const SizedBox(height: 70),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Accounts()),
-            );
-          },
-          style: _buildElevatedButtonStyle(),
-          child: const Text('View Accounts'),
-        ),
-        const SizedBox(height: 50),
-      ],
-    ),
-  );
-}
+          const SizedBox(height: 70),
+          _buildDiagram(balanceModel.btcBalance, balanceModel.liquidBalance, balanceModel.usdBalance, balanceModel.cadBalance, balanceModel.eurBalance, balanceModel.brlBalance),
+          const SizedBox(height: 70),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Accounts()),
+              );
+            },
+            style: _buildElevatedButtonStyle(),
+            child: const Text('View Accounts'),
+          ),
+          const SizedBox(height: 50),
+        ],
+      ),
+    );
+  }
+
 
 
 ButtonStyle _buildElevatedButtonStyle() {
