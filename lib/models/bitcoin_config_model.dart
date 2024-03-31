@@ -6,9 +6,15 @@ class BitcoinConfigModel extends StateNotifier<BitcoinConfig> {
   BitcoinConfigModel(super.state);
 
   Future<Descriptor> createDescriptor() async {
+    if (state.mnemonic == "") {
+      throw Exception('Mnemonic is required');
+    }
+
+    Mnemonic mnemonic = await Mnemonic.fromString(state.mnemonic!).then((value) => value);
+
     final descriptorSecretKey = await DescriptorSecretKey.create(
       network: state.network,
-      mnemonic: state.mnemonic!,
+      mnemonic: mnemonic,
     );
     final descriptor = await Descriptor.newBip84(
         secretKey: descriptorSecretKey,
@@ -41,13 +47,13 @@ class BitcoinConfigModel extends StateNotifier<BitcoinConfig> {
   Future<Wallet> restoreWallet(Descriptor descriptor) async {
     final wallet = await Wallet.create(
         descriptor: descriptor,
-        network: Network.Testnet,
+        network: state.network,
         databaseConfig: const DatabaseConfig.memory());
     return wallet;
   }
 }
 class BitcoinConfig {
-  final Mnemonic? mnemonic;
+  final String mnemonic;
   final Network network;
   final KeychainKind keychain;
   final bool isElectrumBlockchain;
@@ -60,13 +66,13 @@ class BitcoinConfig {
   });
 
   BitcoinConfig copyWith({
-    Mnemonic? mnemonic,
+    String? mnemonic,
     Network? network,
     KeychainKind? keychain,
     bool? isElectrumBlockchain,
   }) {
     return BitcoinConfig(
-      mnemonic: mnemonic,
+      mnemonic: mnemonic ?? this.mnemonic,
       network: network ?? this.network,
       keychain: keychain ?? this.keychain,
       isElectrumBlockchain: isElectrumBlockchain ?? this.isElectrumBlockchain,

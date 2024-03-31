@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:forex_currency_conversion/forex_currency_conversion.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/providers/balance_provider.dart';
+import 'package:satsails/providers/mnemonic_provider.dart';
 import 'package:satsails/providers/navigation_provider.dart';
 import 'package:satsails/screens/accounts/accounts.dart';
 import 'package:satsails/screens/shared/bottom_navigation_bar.dart';
@@ -45,7 +46,7 @@ class Home extends ConsumerWidget {
   }
 
   Widget _buildTopSection(BuildContext context, WidgetRef ref) {
-    // Access the BalanceModel notifier to call totalBalanceInBtcOnly method
+    final mnemonic = ref.watch(mnemonicProvider);
     final balanceModelNotifier = ref.watch(balanceNotifierProvider.notifier);
 
     return Expanded(
@@ -55,16 +56,17 @@ class Home extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SizedBox(height: 100),
-            // Use FutureBuilder to handle the asynchronous totalBalanceInBtcOnly method
             FutureBuilder<double>(
               future: balanceModelNotifier.totalBalanceInBtcOnly(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
+                  return const CardLoading(
+                    width: 100,
+                    height: 20,
+                  );
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}', style: const TextStyle(fontSize: 16, color: Colors.red));
                 } else {
-                  // Display the total BTC balance
                   return Text(
                     '${snapshot.data} BTC',
                     style: const TextStyle(fontSize: 30, color: Colors.black),
@@ -75,7 +77,24 @@ class Home extends ConsumerWidget {
             const SizedBox(height: 10),
             const Text('or', style: TextStyle(fontSize: 12, color: Colors.black)),
             const SizedBox(height: 10),
-            // Removed commented code for clarity
+            FutureBuilder<double>(
+              future: balanceModelNotifier.totalBalanceInCurrency(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CardLoading(
+                    width: 100,
+                    height: 20,
+                  );
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}', style: const TextStyle(fontSize: 16, color: Colors.red));
+                } else {
+                  return Text(
+                    '${snapshot.data} ${ref.watch(settingsProvider).currency}',
+                    style: const TextStyle(fontSize: 15, color: Colors.black),
+                  );
+                }
+              },
+            ),
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {

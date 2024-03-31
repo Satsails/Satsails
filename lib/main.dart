@@ -33,13 +33,14 @@ void main() async {
   );
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends ConsumerWidget {
 final String initialRoute;
 
   const MainApp({Key? key, required this.initialRoute}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+
     return MaterialApp(
       initialRoute: initialRoute,
       debugShowCheckedModeBanner: false,

@@ -11,9 +11,10 @@ class BalanceModel extends StateNotifier<Balance>{
 
   Future<double> totalBalanceInCurrency() async {
     double total = 0;
+    double totalInBtc = state.btcBalance.toDouble() + state.liquidBalance.toDouble();
     switch (state.currency) {
       case 'BTC':
-        total += state.btcBalance.toDouble() + state.liquidBalance.toDouble();
+        total += totalInBtc;
         total += await _getConvertedBalance('BRL', 'BTC', state.brlBalance.toDouble());
         total += await _getConvertedBalance('CAD', 'BTC', state.cadBalance.toDouble());
         total += await _getConvertedBalance('EUR', 'BTC', state.eurBalance.toDouble());
@@ -24,24 +25,28 @@ class BalanceModel extends StateNotifier<Balance>{
         total += await _getConvertedBalance('BRL', 'USD', state.brlBalance.toDouble());
         total += await _getConvertedBalance('CAD', 'USD', state.cadBalance.toDouble());
         total += await _getConvertedBalance('EUR', 'USD', state.eurBalance.toDouble());
+        total += await _getConvertedBalance('BTC', 'USD', totalInBtc);
         break;
       case 'CAD':
         total += state.cadBalance.toDouble();
         total += await _getConvertedBalance('BRL', 'CAD', state.brlBalance.toDouble());
         total += await _getConvertedBalance('EUR', 'CAD', state.eurBalance.toDouble());
         total += await _getConvertedBalance('USD', 'CAD', state.usdBalance.toDouble());
+        total += await _getConvertedBalance('BTC', 'CAD', totalInBtc);
         break;
       case 'EUR':
         total += state.eurBalance.toDouble();
         total += await _getConvertedBalance('BRL', 'EUR', state.brlBalance.toDouble());
         total += await _getConvertedBalance('CAD', 'EUR', state.cadBalance.toDouble());
         total += await _getConvertedBalance('USD', 'EUR', state.usdBalance.toDouble());
+        total += await _getConvertedBalance('BTC', 'EUR', totalInBtc);
         break;
       case 'BRL':
         total += state.brlBalance.toDouble();
         total += await _getConvertedBalance('CAD', 'BRL', state.cadBalance.toDouble());
         total += await _getConvertedBalance('EUR', 'BRL', state.eurBalance.toDouble());
         total += await _getConvertedBalance('USD', 'BRL', state.usdBalance.toDouble());
+        total += await _getConvertedBalance('BTC', 'BRL', totalInBtc);
         break;
     }
     return total;
