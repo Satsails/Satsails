@@ -1,8 +1,6 @@
 PODS:
   - bdk_flutter (0.30.0):
     - Flutter
-  - breez_sdk (0.3.8):
-    - Flutter
   - Flutter (1.0.0)
   - flutter_secure_storage (6.0.0):
     - Flutter
@@ -23,7 +21,6 @@ PODS:
 
 DEPENDENCIES:
   - bdk_flutter (from `.symlinks/plugins/bdk_flutter/ios`)
-  - breez_sdk (from `.symlinks/plugins/breez_sdk/ios`)
   - Flutter (from `Flutter`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
@@ -39,8 +36,6 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   bdk_flutter:
     :path: ".symlinks/plugins/bdk_flutter/ios"
-  breez_sdk:
-    :path: ".symlinks/plugins/breez_sdk/ios"
   Flutter:
     :path: Flutter
   flutter_secure_storage:
@@ -58,7 +53,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   bdk_flutter: 5d2579914d90aaaf964b24b1344946c7668915ea
-  breez_sdk: 7fc79698b31a46306c4a994234d63333eda38b44
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
   local_auth_darwin: c7e464000a6a89e952235699e32b329457608d98
