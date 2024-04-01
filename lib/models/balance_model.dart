@@ -61,6 +61,8 @@ class BalanceModel extends StateNotifier<Balance>{
   Future<double> totalBalanceInBtcOnly() async {
     return state.btcBalance.toDouble() + state.liquidBalance.toDouble();
   }
+
+//   implement returning list of balance currency set
 }
 
 class Balance {

@@ -146,7 +146,6 @@ class Home extends ConsumerWidget {
                   return Card(
                     color: Colors.orange,
                     margin: const EdgeInsets.all(20),
-                    elevation: 10,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -162,7 +161,7 @@ class Home extends ConsumerWidget {
                   return Card(
                     color: Colors.orange,
                     margin: const EdgeInsets.all(20),
-                    elevation: 10,
+                    elevation: 0,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [

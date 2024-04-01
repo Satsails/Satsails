@@ -39,8 +39,6 @@ dependencies:
   forex_currency_conversion: ^0.9.1
 #  implement (implement)
   icons_plus: ^5.0.0
-#  for accounts managenent send and receive
-  flip_card: ^0.7.0
   card_loading: ^0.3.2
 #  add for toast later
 #toastification: ^1.2.1
