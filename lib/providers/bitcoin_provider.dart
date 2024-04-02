@@ -1,12 +1,14 @@
+import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/bitcoin_model.dart';
 import 'bitcoin_config_provider.dart';
 
 final initializeBitcoinProvider = FutureProvider<Bitcoin>((ref) async {
   final configModel = ref.watch(configNotifierProvider.notifier);
-  final descriptor = await configModel.createDescriptor();
+  final internalDescriptor = await configModel.createInternalDescriptor();
+  final externalDescriptor = await configModel.createExternalDescriptor();
   final blockchain = await configModel.initializeBlockchain();
-  final wallet = await configModel.restoreWallet(descriptor);
+  final wallet = await configModel.restoreWallet(externalDescriptor, internalDescriptor);
 
   Bitcoin bitcoin = Bitcoin(wallet, blockchain);
 
@@ -18,16 +20,9 @@ final bitcoinNotifierProvider = StateNotifierProvider<BitcoinModel, Bitcoin>((re
 
   return BitcoinModel(initialBitcoin.when(
     data: (bitcoin) => bitcoin,
-    loading: () => Bitcoin(null, null),
+    loading: () => throw 'Loading bitcoin',
     error: (Object error, StackTrace stackTrace) {
       throw error;
     },
   ));
-});
-
-final syncTriggerProvider = StreamProvider.autoDispose<void>((ref) async* {
-  await for (var _ in Stream.periodic(Duration(seconds: 10))) {
-    final bitcoin = await ref.read(bitcoinNotifierProvider.notifier);
-    bitcoin.sync();
-  }
 });

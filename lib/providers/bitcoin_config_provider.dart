@@ -8,9 +8,10 @@ final initializeConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
 
   final config = BitcoinConfig(
       mnemonic: mnemonic.mnemonic!,
-      network: Network.Testnet,
-      keychain: KeychainKind.External,
-      isElectrumBlockchain: false
+      network: Network.Bitcoin,
+      externalKeychain: KeychainKind.External,
+      internalKeychain: KeychainKind.Internal,
+      isElectrumBlockchain: true,
   );
   return config;
 });
@@ -21,12 +22,7 @@ final configNotifierProvider = StateNotifierProvider<BitcoinConfigModel, Bitcoin
 
   return BitcoinConfigModel(initialConfig.when(
     data: (config) => config,
-    loading: () => BitcoinConfig(
-        mnemonic: '',
-        network: Network.Bitcoin,
-        keychain: KeychainKind.External,
-        isElectrumBlockchain: false
-    ),
+    loading: () => throw 'Loading config',
     error: (Object error, StackTrace stackTrace) {
       throw error;
     },

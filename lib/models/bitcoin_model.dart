@@ -7,9 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class BitcoinModel extends StateNotifier<Bitcoin> {
   BitcoinModel(Bitcoin state) : super(state);
 
-  Future<void> sync() async {
+  Future<void> sync(Wallet wallet, Blockchain blockchain) async {
     try {
-      Isolate.run(() async => {await state.wallet!.sync(state.blockchain!)});
+      Isolate.run(() async => {await wallet.sync(blockchain)});
     } on FormatException catch (e) {
       debugPrint(e.message);
     }
@@ -61,9 +61,8 @@ class BitcoinModel extends StateNotifier<Bitcoin> {
 
   Future<FeeRate> estimateFeeRate(
       int blocks,
-      Blockchain blockchain,
       ) async {
-    final feeRate = await blockchain.estimateFee(blocks);
+    final feeRate = await state.blockchain!.estimateFee(blocks);
     return feeRate;
   }
 
@@ -94,7 +93,7 @@ class BitcoinModel extends StateNotifier<Bitcoin> {
       final address = await Address.create(address: addressStr);
 
       final script = await address.scriptPubKey();
-      final feeRate = await estimateFeeRate(25, blockchain);
+      final feeRate = await estimateFeeRate(25);
       final txBuilderResult = await txBuilder
           .addRecipient(script, 750)
           .feeRate(feeRate.asSatPerVb())
@@ -110,8 +109,8 @@ class BitcoinModel extends StateNotifier<Bitcoin> {
 }
 
 class Bitcoin {
-  final Wallet? wallet;
-  final Blockchain? blockchain;
+  Wallet wallet;
+  Blockchain blockchain;
 
   Bitcoin(this.wallet, this.blockchain);
 
@@ -120,8 +119,8 @@ class Bitcoin {
     Blockchain? blockchain,
   }) {
     return Bitcoin(
-      wallet,
-      blockchain
+      wallet ?? this.wallet,
+      blockchain ?? this.blockchain,
     );
   }
 }
