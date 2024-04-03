@@ -39,6 +39,7 @@ class Analytics extends ConsumerWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Analytics'),
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
       ),
       body: _buildBody(context),

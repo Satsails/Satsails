@@ -40,6 +40,7 @@ dependencies:
   card_loading: ^0.3.2
 #  add for toast later
 #toastification: ^1.2.1
+#esplora: ^1.1.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

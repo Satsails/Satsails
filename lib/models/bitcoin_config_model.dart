@@ -1,50 +1,40 @@
 import 'package:bdk_flutter/bdk_flutter.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+class BitcoinConfigModel {
+  final BitcoinConfig config;
 
-class BitcoinConfigModel extends StateNotifier<BitcoinConfig> {
-  BitcoinConfigModel(super.state);
+  BitcoinConfigModel(this.config);
 
-  Future<Descriptor> createInternalDescriptor() async {
-    if (state.mnemonic == "") {
+  Future<Descriptor> _createDescriptor(KeychainKind keychain) async {
+    if (config.mnemonic == "") {
       throw Exception('Mnemonic is required');
     }
 
-    Mnemonic mnemonic = await Mnemonic.fromString(state.mnemonic!).then((value) => value);
+    Mnemonic mnemonic = await Mnemonic.fromString(config.mnemonic!).then((value) => value);
 
     final descriptorSecretKey = await DescriptorSecretKey.create(
-      network: state.network,
+      network: config.network,
       mnemonic: mnemonic,
     );
+
     final descriptor = await Descriptor.newBip84(
         secretKey: descriptorSecretKey,
-        network: state.network,
-        keychain: state.internalKeychain );
+        network: config.network,
+        keychain: keychain);
+
     return descriptor;
+  }
+
+  Future<Descriptor> createInternalDescriptor() async {
+    return _createDescriptor(config.internalKeychain);
   }
 
   Future<Descriptor> createExternalDescriptor() async {
-    if (state.mnemonic == "") {
-      throw Exception('Mnemonic is required');
-    }
-
-    Mnemonic mnemonic = await Mnemonic.fromString(state.mnemonic!).then((value) => value);
-
-    final descriptorSecretKey = await DescriptorSecretKey.create(
-      network: state.network,
-      mnemonic: mnemonic,
-    );
-
-    final descriptor = await Descriptor.newBip84(
-        secretKey: descriptorSecretKey,
-        network: state.network,
-        keychain: state.externalKeychain );
-    final test = await descriptor.asString();
-
-    return descriptor;
+    return _createDescriptor(config.externalKeychain);
   }
+
   Future<Blockchain> initializeBlockchain() async {
-    if (state.isElectrumBlockchain) {
+    if (config.isElectrumBlockchain) {
       try {
         final blockchain = await Blockchain.create(
             config: const BlockchainConfig.electrum(
@@ -54,9 +44,9 @@ class BitcoinConfigModel extends StateNotifier<BitcoinConfig> {
                     retry: 5,
                     url: "ssl://electrum.blockstream.info:50002",
                     validateDomain: false)));
-        return blockchain; // Added return statement here
+        return blockchain;
       } catch (_) {
-        rethrow;
+        throw Exception('Failed to initialize blockchain');
       }
     } else {
 
@@ -74,11 +64,12 @@ class BitcoinConfigModel extends StateNotifier<BitcoinConfig> {
     final wallet = await Wallet.create(
         descriptor: descriptor,
         changeDescriptor: change,
-        network: state.network,
+        network: config.network,
         databaseConfig: const DatabaseConfig.memory());
     return wallet;
   }
 }
+
 class BitcoinConfig {
   final String mnemonic;
   final Network network;
@@ -93,19 +84,4 @@ class BitcoinConfig {
     required this.internalKeychain,
     required this.isElectrumBlockchain,
   });
-
-  BitcoinConfig copyWith({
-    String? mnemonic,
-    Network? network,
-    KeychainKind? keychain,
-    bool? isElectrumBlockchain,
-  }) {
-    return BitcoinConfig(
-      mnemonic: mnemonic ?? this.mnemonic,
-      network: network ?? this.network,
-      externalKeychain: keychain ?? this.externalKeychain,
-      internalKeychain: keychain ?? this.internalKeychain,
-      isElectrumBlockchain: isElectrumBlockchain ?? this.isElectrumBlockchain,
-    );
-  }
 }

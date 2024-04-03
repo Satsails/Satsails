@@ -58,7 +58,7 @@ class BalanceModel extends StateNotifier<Balance>{
     return total;
   }
 
-  Future<double> totalBalanceInBtcOnly() async {
+  double totalBalanceInBtcOnly() {
     return state.btcBalance.toDouble() + state.liquidBalance.toDouble();
   }
 
@@ -66,7 +66,7 @@ class BalanceModel extends StateNotifier<Balance>{
 }
 
 class Balance {
-  final int btcBalance;
+  late final int btcBalance;
   final int liquidBalance;
   final int usdBalance;
   final int cadBalance;

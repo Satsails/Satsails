@@ -3,7 +3,7 @@ import 'package:satsails/models/bitcoin_config_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'mnemonic_provider.dart';
 
-final initializeConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
+final bitcoinConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
   final mnemonic = await ref.watch(mnemonicProvider.future);
 
   final config = BitcoinConfig(
@@ -16,15 +16,28 @@ final initializeConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
   return config;
 });
 
+final createInternalDescriptorProvider = FutureProvider<Descriptor>((ref) async {
+  final config = await ref.watch(bitcoinConfigProvider.future);
+  BitcoinConfigModel bitcoinConfigModel = BitcoinConfigModel(config);
+  return await bitcoinConfigModel.createInternalDescriptor();
+});
 
-final configNotifierProvider = StateNotifierProvider<BitcoinConfigModel, BitcoinConfig>((ref) {
-  final initialConfig = ref.watch(initializeConfigProvider);
+final createExternalDescriptorProvider = FutureProvider<Descriptor>((ref) async {
+  final config = await ref.watch(bitcoinConfigProvider.future);
+  BitcoinConfigModel bitcoinConfigModel = BitcoinConfigModel(config);
+  return await bitcoinConfigModel.createExternalDescriptor();
+});
 
-  return BitcoinConfigModel(initialConfig.when(
-    data: (config) => config,
-    loading: () => throw 'Loading config',
-    error: (Object error, StackTrace stackTrace) {
-      throw error;
-    },
-  ));
+final initializeBlockchainProvider = FutureProvider<Blockchain>((ref) async {
+  final config = await ref.watch(bitcoinConfigProvider.future);
+  BitcoinConfigModel bitcoinConfigModel = BitcoinConfigModel(config);
+  return await bitcoinConfigModel.initializeBlockchain();
+});
+
+final restoreWalletProvider = FutureProvider<Wallet>((ref) async {
+  final config = await ref.watch(bitcoinConfigProvider.future);
+  final externalDescriptor = await ref.watch(createExternalDescriptorProvider.future);
+  final internalDescriptor = await ref.watch(createInternalDescriptorProvider.future);
+  BitcoinConfigModel bitcoinConfigModel = BitcoinConfigModel(config);
+  return await bitcoinConfigModel.restoreWallet(externalDescriptor, internalDescriptor);
 });

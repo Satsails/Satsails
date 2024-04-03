@@ -14,7 +14,7 @@ class Accounts extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     double screenWidth = MediaQuery.of(context).size.width;
     final balance = ref.watch(balanceNotifierProvider);
-    final bitcoin = ref.watch(bitcoinNotifierProvider.notifier);
+    final bitcoinAddress = ref.watch(addressProvider.future);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -38,7 +38,7 @@ class Accounts extends ConsumerWidget {
               elevation: 0,
               child: Column(
                 children: [
-                  _buildListTile('Bitcoin', balance.btcBalance.toString(),const Icon(LineAwesome.bitcoin, color: Colors.white,), context, bitcoin),
+                  _buildListTile('Bitcoin', balance.btcBalance.toString(),const Icon(LineAwesome.bitcoin, color: Colors.white,), context, bitcoinAddress),
                 ],
               ),
             ),
@@ -52,15 +52,15 @@ class Accounts extends ConsumerWidget {
               color: Colors.blueAccent,
               child: Column(
                 children: [
-                  _buildListTile('Liquid', balance.liquidBalance.toString(), const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoin),
+                  _buildListTile('Liquid', balance.liquidBalance.toString(), const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
                   _buildDivider(),
-                  _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, bitcoin),
+                  _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, bitcoinAddress),
                   _buildDivider(),
-                  _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, bitcoin.getAddress()),
+                  _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, bitcoinAddress),
                   _buildDivider(),
-                  _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, bitcoin),
+                  _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, bitcoinAddress),
                   _buildDivider(),
-                  _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, bitcoin),
+                  _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, bitcoinAddress),
                 ],
               ),
             ),
@@ -89,7 +89,6 @@ class Accounts extends ConsumerWidget {
               ),
               TextButton(
                 onPressed: () {
-                  // Add your receive button handler here
                 },
                 child: const Icon(Icons.arrow_upward, color: Colors.white),
               ),
@@ -186,7 +185,7 @@ class Accounts extends ConsumerWidget {
         child: Text(
           address ?? '',
           style: const TextStyle(
-            fontSize: 16.0,
+            fontSize: 13.0,
             fontWeight: FontWeight.bold,
             color: Colors.blue,
           ),

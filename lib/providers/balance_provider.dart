@@ -3,10 +3,10 @@ import 'package:satsails/models/balance_model.dart';
 import 'settings_provider.dart';
 import 'bitcoin_provider.dart';
 
-final initiliazeBalanceProvider = FutureProvider<Balance>((ref) async {
+final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) async {
   final currency = ref.watch(settingsProvider).currency;
-  final bitcoin = ref.watch(bitcoinNotifierProvider.notifier);
-  final balance = await bitcoin.getBalance();
+  ref.watch(syncBitcoinProvider);
+  final balance = await ref.watch(getBalanceProvider.future);
 
   return Balance(
     btcBalance: balance.total,
@@ -19,8 +19,8 @@ final initiliazeBalanceProvider = FutureProvider<Balance>((ref) async {
   );
 });
 
-final balanceNotifierProvider = StateNotifierProvider<BalanceModel, Balance>((ref) {
-  final initialBalance = ref.watch(initiliazeBalanceProvider);
+final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, Balance>((ref) {
+  final initialBalance = ref.watch(initializeBalanceProvider);
 
   return BalanceModel(initialBalance.when(
     data: (balance) => balance,
@@ -37,4 +37,9 @@ final balanceNotifierProvider = StateNotifierProvider<BalanceModel, Balance>((re
       throw error;
     },
   ));
+});
+
+final totalBalanceInCurrencyProvider = FutureProvider.autoDispose<double>((ref) async {
+  final balanceModel = ref.watch(balanceNotifierProvider.notifier);
+  return await balanceModel.totalBalanceInCurrency();
 });

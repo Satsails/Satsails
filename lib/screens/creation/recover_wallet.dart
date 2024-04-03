@@ -81,7 +81,7 @@ class _RecoverWalletState extends State<RecoverWallet> {
                   final mnemonic = _words.join(' ');
                   final model = MnemonicModel(mnemonic: mnemonic);
                   if (model.validateMnemonic()) {
-                    model.setMnemonic();
+                    model.setMnemonic(mnemonic);
                     Navigator.pushNamed(context, '/set_pin');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(

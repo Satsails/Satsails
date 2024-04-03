@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:satsails/models/mnemonic_model.dart';
+import 'package:satsails/providers/mnemonic_provider.dart';
 import 'package:satsails/screens/creation/start.dart';
 import 'package:satsails/screens/settings/components/seed_words.dart';
 import 'package:satsails/screens/settings/settings.dart';
@@ -21,58 +22,66 @@ import 'package:satsails/screens/home/components/search_modal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
-void main() async {
+
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  const storage = FlutterSecureStorage();
-  String? mnemonic = await storage.read(key: 'mnemonic');
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(
-     ProviderScope(
-      child: MainApp(initialRoute: mnemonic == null ? '/' : '/open_pin'),
+     const ProviderScope(
+      child: MainApp(),
     ),
   );
 }
 
 class MainApp extends ConsumerWidget {
-final String initialRoute;
-
-  const MainApp({Key? key, required this.initialRoute}) : super(key: key);
+  const MainApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return FutureBuilder<MnemonicModel>(
+      future: ref.watch(mnemonicProvider.future),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          final initialRoute = snapshot.data!.mnemonic == null ? '/' : '/open_pin';
 
-    return MaterialApp(
-      initialRoute: initialRoute,
-      debugShowCheckedModeBanner: false,
-      onGenerateRoute: (settings) {
-        if (settings.name == '/confirm_payment') {
-          final Map<String, dynamic> arguments = settings.arguments as Map<String, dynamic>;
-          final String address = arguments['address'] as String;
-          final bool isLiquid = arguments['isLiquid'] as bool;
+          return MaterialApp(
+            initialRoute: initialRoute,
+            debugShowCheckedModeBanner: false,
+            onGenerateRoute: (settings) {
+              if (settings.name == '/confirm_payment') {
+                final Map<String, dynamic> arguments = settings.arguments as Map<String, dynamic>;
+                final String address = arguments['address'] as String;
+                final bool isLiquid = arguments['isLiquid'] as bool;
 
-          return MaterialPageRoute(
-            builder: (context) => ConfirmPayment(address: address, isLiquid: isLiquid),
+                return MaterialPageRoute(
+                  builder: (context) => ConfirmPayment(address: address, isLiquid: isLiquid),
+                );
+              }
+            },
+            routes: {
+              '/': (context) => const Start(),
+              '/seed_words': (context) => const SeedWords(),
+              '/open_pin': (context) => OpenPin(),
+              '/charge': (context) => Charge(),
+              '/accounts': (context) => const Accounts(),
+              '/receive': (context) => Receive(),
+              '/settings': (context) => const Settings(),
+              '/analytics': (context) => Analytics(),
+              '/set_pin': (context) => const SetPin(),
+              '/exchange': (context) => Exchange(),
+              '/info': (context) => Info(),
+              '/apps': (context) => const Services(),
+              '/pay': (context) => Pay(),
+              '/home': (context) => const Home(),
+              '/recover_wallet': (context) => const RecoverWallet(),
+              '/search_modal': (context) => SearchModal(),
+            },
           );
         }
-      },
-
-      routes: {
-        '/': (context) => const Start(),
-        '/seed_words': (context) => const SeedWords(),
-        '/open_pin': (context) => OpenPin(),
-        '/charge': (context) => Charge(),
-        '/accounts': (context) => const Accounts(),
-        '/receive': (context) => Receive(),
-        '/settings': (context) => const Settings(),
-        '/analytics': (context) => Analytics(),
-        '/set_pin': (context) => const SetPin(),
-        '/exchange': (context) => Exchange(),
-        '/info': (context) => Info(),
-        '/apps': (context) => const Services(),
-        '/pay': (context) => Pay(),
-        '/home': (context) => const Home(),
-        '/recover_wallet': (context) => const RecoverWallet(),
-        '/search_modal': (context) => SearchModal(),
       },
     );
   }
