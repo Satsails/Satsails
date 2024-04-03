@@ -1,25 +1,42 @@
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/bitcoin_model.dart';
+import 'package:satsails/providers/settings_provider.dart';
 import 'bitcoin_config_provider.dart';
 
 final bitcoinProvider = FutureProvider<Bitcoin>((ref) async {
-  final blockchain = await ref.watch(initializeBlockchainProvider.future);
   final wallet = await ref.watch(restoreWalletProvider.future);
-
-  return Bitcoin(wallet, blockchain);
+  final settings = ref.read(onlineProvider.notifier);
+  try {
+    final blockchain = await ref.watch(initializeBlockchainProvider.future);
+    settings.state = true;
+    return Bitcoin(wallet, blockchain);
+  } catch (e) {
+    settings.state = false;
+    return Bitcoin(wallet, null);
+  }
 });
 
 final syncBitcoinProvider = FutureProvider.autoDispose<void>((ref) async {
+  final settings = ref.read(onlineProvider.notifier);
   final bitcoin = await ref.watch(bitcoinProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  await bitcoinModel.sync();
+  if (settings.state) {
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    await bitcoinModel.sync();
+  } else {
+    throw Exception('No internet connection');
+  }
 });
 
 final asyncSyncBitcoinProvider = FutureProvider.autoDispose<void>((ref) async {
+  final settings = ref.watch(onlineProvider);
   final bitcoin = await ref.watch(bitcoinProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  await bitcoinModel.asyncSync();
+  if (settings) {
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    await bitcoinModel.asyncSync();
+  } else {
+    throw Exception('No internet connection');
+  }
 });
 
 final addressProvider = FutureProvider<AddressInfo>((ref) async {
@@ -58,33 +75,58 @@ final getPsbtInputProvider = FutureProvider<Input>((ref) async {
   return await bitcoinModel.getPsbtInput(unspentUtxos.first, true);
 });
 
-final getFastFeeRateProvider = FutureProvider<FeeRate>((ref) async {
+final getFastFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) async {
+  final settings = ref.watch(onlineProvider);
   final bitcoin = await ref.watch(bitcoinProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  return await bitcoinModel.estimateFeeRate(1);
+  if (settings) {
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    return await bitcoinModel.estimateFeeRate(1);
+  } else {
+    throw Exception('No internet connection');
+  }
 });
 
-final getMediumFeeRateProvider = FutureProvider<FeeRate>((ref) async {
+final getMediumFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) async {
+  final settings = ref.watch(onlineProvider);
   final bitcoin = await ref.watch(bitcoinProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  return await bitcoinModel.estimateFeeRate(3);
+  if (settings) {
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    return await bitcoinModel.estimateFeeRate(3);
+  } else {
+    throw Exception('No internet connection');
+  }
 });
 
-final getSlowFeeRateProvider = FutureProvider<FeeRate>((ref) async {
+final getSlowFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) async {
+  final settings = ref.watch(onlineProvider);
   final bitcoin = await ref.watch(bitcoinProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  return await bitcoinModel.estimateFeeRate(6);
+  if (settings) {
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    return await bitcoinModel.estimateFeeRate(6);
+  } else {
+    throw Exception('No internet connection');
+  }
 });
 
 final getCustomFeeRateProvider = FutureProvider.family.autoDispose<FeeRate, int>((ref, blocks) async {
+  final settings = ref.watch(onlineProvider);
   final bitcoin = await ref.watch(bitcoinProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  return await bitcoinModel.estimateFeeRate(blocks);
+  if (settings) {
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    return await bitcoinModel.estimateFeeRate(blocks);
+  } else {
+    throw Exception('No internet connection');
+  }
 });
 
 final sendProvider = FutureProvider.family.autoDispose<void, SendParams>((ref, params) async {
+  final settings = ref.watch(onlineProvider);
   final bitcoin = await ref.watch(bitcoinProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  FeeRate feeRate = await ref.watch(getCustomFeeRateProvider(params.blocks).future);
-  await bitcoinModel.sendBitcoin(params.address, feeRate);
+  if (settings) {
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    FeeRate feeRate = await ref.watch(getCustomFeeRateProvider(params.blocks).future);
+    await bitcoinModel.sendBitcoin(params.address, feeRate);
+  } else {
+    throw Exception('No internet connection');
+  }
 });

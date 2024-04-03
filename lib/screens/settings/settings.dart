@@ -32,6 +32,8 @@ class Settings extends ConsumerWidget {
             _buildDivider(),
             _buildLanguageSection(ref, context),
             _buildDivider(),
+            _buildBtcUnitSection(ref, context),
+            _buildDivider(),
             _builDeleteWalletSection(context),
           ],
         ),
@@ -188,6 +190,61 @@ class Settings extends ConsumerWidget {
                   onPressed: () {
                     MnemonicModel().deleteMnemonic();
                     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildBtcUnitSection(WidgetRef ref, BuildContext context) {
+    final settings = ref.watch(settingsProvider);
+    final settingsNotifier = ref.read(settingsProvider.notifier);
+
+    return ListTile(
+      leading: Icon(Icons.add_chart),
+      title: const Text('Bitcoin Unit'),
+      subtitle: Text(settings.btcFormat),
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          builder: (BuildContext context) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  leading: const Text('₿'),
+                  title: const Text('BTC'),
+                  onTap: () {
+                    settingsNotifier.setBtcFormat('BTC');
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Text('sats ₿'),
+                  title: const Text('Satoshi'),
+                  onTap: () {
+                    settingsNotifier.setBtcFormat('sats');
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Text('mBTC'),
+                  title: const Text('mBTC'),
+                  onTap: () {
+                    settingsNotifier.setBtcFormat('mBTC');
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Text('bits'),
+                  title: const Text('bits'),
+                  onTap: () {
+                    settingsNotifier.setBtcFormat('bits');
+                    Navigator.pop(context);
                   },
                 ),
               ],

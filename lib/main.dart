@@ -46,7 +46,7 @@ class MainApp extends ConsumerWidget {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          final initialRoute = snapshot.data!.mnemonic == null ? '/' : '/open_pin';
+          final initialRoute = snapshot.data!.mnemonic == "" ? '/' : '/open_pin';
 
           return MaterialApp(
             initialRoute: initialRoute,

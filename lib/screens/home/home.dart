@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forex_currency_conversion/forex_currency_conversion.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/models/balance_model.dart';
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/navigation_provider.dart';
 import 'package:satsails/screens/accounts/accounts.dart';
@@ -15,12 +14,15 @@ class Home extends ConsumerWidget {
   const Home({super.key});
 
   Future<dynamic> getBtcPrice(WidgetRef ref) async {
-    final currency = ref.watch(settingsProvider).currency;
+    final currency = ref
+        .watch(settingsProvider)
+        .currency;
     final fx = Forex();
-    final result = await fx.getCurrencyConverted(sourceCurrency: 'BTC', destinationCurrency: currency, sourceAmount: 1);
+    final result = await fx.getCurrencyConverted(
+        sourceCurrency: 'BTC', destinationCurrency: currency, sourceAmount: 1);
     final error = fx.getErrorNotifier.value;
 
-    if (error != null){
+    if (error != null) {
       return "Error fetching prices";
     }
     return '$result $currency';
@@ -36,160 +38,206 @@ class Home extends ConsumerWidget {
   }
 
   Widget _buildBody(BuildContext context, WidgetRef ref) {
-    final initializedBalance = ref.watch(initializeBalanceProvider);
-    return initializedBalance.when(
-      data: (balance) {
-        final balanceProvider = ref.watch(balanceNotifierProvider.notifier);
-        return Column(
-          children: [
-            _buildMiddleSection(context, ref, balanceProvider),
-            _buildActionButtons(context),
-            CustomBottomNavigationBar(
-              currentIndex: ref.watch(navigationProvider),
-              context: context,
-              onTap: (int index) {
-                ref.read(navigationProvider.notifier).state = index;
-              },
+    return Column(
+      children: [
+        Expanded(child: _buildMiddleSection(context, ref)),
+        _buildActionButtons(context),
+        CustomBottomNavigationBar(
+          currentIndex: ref.watch(navigationProvider),
+          context: context,
+          onTap: (int index) {
+            ref
+                .read(navigationProvider.notifier)
+                .state = index;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDiagram(WidgetRef ref, BuildContext context) {
+    final balance = ref.watch(balanceNotifierProvider.notifier);
+
+    return SizedBox(
+      height: MediaQuery
+          .of(context)
+          .size
+          .height * 0.3,
+      child: balance.state.btcBalance == 0
+          ? PieChart(
+        PieChartData(
+          sections: [
+            PieChartSectionData(
+              value: 1,
+              title: '',
+              radius: 60,
+              color: Colors.grey,
             ),
           ],
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => const Center(child: Text('Error')),
+          borderData: FlBorderData(
+            show: false,
+          ),
+        ),
+      )
+          : PieChart(
+        PieChartData(
+          sections: [
+            PieChartSectionData(
+              value: balance.state.btcBalance.toDouble() +
+                  balance.state.liquidBalance.toDouble(),
+              title: '',
+              radius: 20,
+              badgeWidget: const Icon(
+                  Icons.currency_bitcoin, color: Colors.white),
+              color: Colors.orange,
+            ),
+            PieChartSectionData(
+                value: balance.state.brlBalance.toDouble(),
+                title: '',
+                radius: 20,
+                badgeWidget: Flag(Flags.brazil),
+                color: Colors.greenAccent
+            ),
+            PieChartSectionData(
+              value: balance.state.cadBalance.toDouble(),
+              title: '',
+              radius: 20,
+              badgeWidget: Flag(Flags.canada),
+              color: Colors.red,
+            ),
+            PieChartSectionData(
+              value: balance.state.eurBalance.toDouble(),
+              title: '',
+              radius: 20,
+              badgeWidget: Flag(Flags.european_union),
+              color: Colors.blue,
+            ),
+            PieChartSectionData(
+              value: balance.state.usdBalance.toDouble(),
+              title: '',
+              radius: 20,
+              badgeWidget: Flag(Flags.united_states_of_america),
+              color: Colors.green,
+            ),
+          ],
+          borderData: FlBorderData(
+            show: false,
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _buildDiagram(WidgetRef ref, BuildContext context, BalanceModel balance) {
-    if (balance.state.btcBalance == 0) {
-      return Expanded(
-        child: PieChart(
-          PieChartData(
-            sections: [
-              PieChartSectionData(
-                value: 1,
-                title: '',
-                radius: 20,
-                color: Colors.grey,
-              ),
-            ],
-            borderData: FlBorderData(
-              show: false,
-            ),
-          ),
-        ),
-      );
-    } else{
-      return Expanded(
-        child: PieChart(
-          PieChartData(
-            sections: [
-              PieChartSectionData(
-                value: balance.state.btcBalance + balance.state.liquidBalance.toDouble(),
-                title: '',
-                radius: 20,
-                badgeWidget: const Icon(Icons.currency_bitcoin, color: Colors.white),
-                color: Colors.orange,
-              ),
-              PieChartSectionData(
-                  value: balance.state.brlBalance.toDouble(),
-                  title: '',
-                  radius: 20,
-                  badgeWidget: Flag(Flags.brazil),
-                  color: Colors.greenAccent
-              ),
-              PieChartSectionData(
-                value: balance.state.cadBalance.toDouble(),
-                title: '',
-                radius: 20,
-                badgeWidget: Flag(Flags.canada),
-                color: Colors.red,
-              ),
-              PieChartSectionData(
-                value: balance.state.eurBalance.toDouble(),
-                title: '',
-                radius: 20,
-                badgeWidget: Flag(Flags.european_union),
-                color: Colors.blue,
-              ),
-              PieChartSectionData(
-                value: balance.state.usdBalance.toDouble(),
-                title: '',
-                radius: 20,
-                badgeWidget: Flag(Flags.united_states_of_america),
-                color: Colors.green,
-              ),
-            ],
-            borderData: FlBorderData(
-              show: false,
-            ),
-          ),
-        ),
-      );
-    }
-  }
 
-
-
-  Widget _buildMiddleSection(BuildContext context, WidgetRef ref, BalanceModel balance) {
+  Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
     final totalBalanceInCurrency = ref.watch(totalBalanceInCurrencyProvider);
-    return totalBalanceInCurrency.when(
-      data: (total) {
-        return Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: Card(
-                  color: Colors.orange,
-                  margin: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
-                  elevation: 0,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                      Text(
-                        '${balance.state.btcBalance} BTC',
-                        style: const TextStyle(fontSize: 30, color: Colors.white),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                      const Text('or', style: TextStyle(fontSize: 12, color: Colors.white), textAlign: TextAlign.center),
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                      Text(
-                        '${total} ${ref.watch(settingsProvider).currency}',
-                        style: const TextStyle(fontSize: 15, color:  Colors.white),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                    ],
-                  ),
+    final initializeBalance = ref.watch(initializeBalanceProvider);
+    final balance = ref.watch(balanceNotifierProvider.notifier);
+    final settings = ref.watch(settingsProvider);
+
+    // Dynamic sizing for text and margins based on screen size
+    final screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+    final cardMargin = screenWidth * 0.05;
+    final cardPadding = screenWidth * 0.04;
+    final titleFontSize = screenHeight *
+        0.025; // Larger font size for the balance
+    final subtitleFontSize = screenHeight *
+        0.02; // Smaller font size for the currency and 'or' text
+
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: Card(
+              color: Colors.orange,
+              margin: EdgeInsets.all(cardMargin),
+              elevation: 0,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                    vertical: cardPadding, horizontal: cardPadding / 2),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    initializeBalance.when(
+                      data: (_) =>
+                          Text(
+                            '${balance.state.btcBalance.toStringAsFixed(
+                                2)} ${settings.btcFormat}',
+                            style: TextStyle(fontSize: titleFontSize,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                      loading: () => const CardLoading(height: 10, width: 200),
+                      error: (error, stack) =>
+                      const Text('Error', style: TextStyle(color: Colors.white)),
+                    ),
+                    SizedBox(height: screenHeight * 0.02),
+                    const Text(
+                        'or', style: TextStyle(fontSize: 14, color: Colors.white),
+                        textAlign: TextAlign.center),
+                    SizedBox(height: screenHeight * 0.02),
+                    initializeBalance.when(
+                      data: (_) =>
+                          totalBalanceInCurrency.when(
+                            data: (total) =>
+                                Text(
+                                  '${total.toStringAsFixed(2)} ${settings
+                                      .currency}',
+                                  style: TextStyle(fontSize: subtitleFontSize,
+                                      color: Colors.white),
+                                  textAlign: TextAlign.center,
+                                ),
+                            loading: () =>
+                            const CardLoading(height: 20, width: 200),
+                            error: (error, stack) =>
+                                TextButton(onPressed: () =>
+                                    ref.refresh(settingsProvider.notifier),
+                                    child: const Text('Retry',
+                                        style: TextStyle(color: Colors.white))),
+                          ),
+                      loading: () => const CardLoading(height: 20, width: 200),
+                      error: (error, stack) =>
+                          const Text('Failed to load',
+                              style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.07),
-              _buildDiagram(ref, context, balance),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.07),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Accounts()),
-                  );
-                },
-                style: _buildElevatedButtonStyle(),
-                child: const Text('View Accounts'),
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-            ],
+            ),
           ),
-        );
-      },
-      loading: () => const CardLoading(width: 100, height: 20),
-      error: (error, stack) => const Text('Error'),
+          SizedBox(height: screenHeight * 0.05),
+          initializeBalance.when(
+            data: (_) => _buildDiagram(ref, context),
+            loading: () => const CardLoading(height: 200, width: 200),
+            error: (error, stack) =>
+            const Text('Failed to load', style: TextStyle(color: Colors.white)),
+          ),
+          SizedBox(height: screenHeight * 0.05),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Accounts()),
+              );
+            },
+            style: _buildElevatedButtonStyle(),
+            child: const Text('View Accounts'),
+          ),
+          SizedBox(height: screenHeight * 0.05),
+        ],
+      ),
     );
-
   }
-
 
   ButtonStyle _buildElevatedButtonStyle() {
     return ButtonStyle(

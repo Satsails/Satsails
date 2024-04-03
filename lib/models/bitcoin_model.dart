@@ -10,7 +10,7 @@ class BitcoinModel {
 
   Future<void> sync() async {
     try {
-      await config.wallet.sync(config.blockchain);
+      await config.wallet.sync(config.blockchain!);
     } on FormatException catch (e) {
       debugPrint(e.message);
     }
@@ -18,7 +18,7 @@ class BitcoinModel {
 
   Future<void> asyncSync() async {
     try {
-      Isolate.run(() async => {await config.wallet.sync(config.blockchain)});
+      Isolate.run(() async => {await config.wallet.sync(config.blockchain!)});
     } on FormatException catch (e) {
       debugPrint(e.message);
     }
@@ -64,7 +64,7 @@ class BitcoinModel {
   }
 
   Future<FeeRate> estimateFeeRate(int blocks) async {
-    final feeRate = await config.blockchain.estimateFee(blocks);
+    final feeRate = await config.blockchain!.estimateFee(blocks);
     return feeRate;
   }
 
@@ -98,7 +98,7 @@ class BitcoinModel {
       getInputOutPuts(txBuilderResult);
       final aliceSbt = await config.wallet.sign(psbt: txBuilderResult.psbt);
       final tx = await aliceSbt.extractTx();
-      Isolate.run(() async => {await config.blockchain.broadcast(tx)});
+      Isolate.run(() async => {await config.blockchain!.broadcast(tx)});
     } on Exception catch (_) {
       rethrow;
     }
@@ -107,7 +107,7 @@ class BitcoinModel {
 
 class Bitcoin {
   final Wallet wallet;
-  final Blockchain blockchain;
+  final Blockchain? blockchain;
 
   Bitcoin(this.wallet, this.blockchain);
 }

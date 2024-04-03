@@ -15,24 +15,35 @@ class SettingsModel extends StateNotifier<Settings> {
     prefs.setString('language', newLanguage);
     state = state.copyWith(language: newLanguage);
   }
+
+  Future<void> setBtcFormat(String newBtcFormat) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('btcFormat', newBtcFormat);
+    state = state.copyWith(btcFormat: newBtcFormat);
+  }
 }
 
 class Settings {
   final String currency;
   final String language;
+  late final String btcFormat;
 
   Settings({
     required this.currency,
     required this.language,
-  });
+    required String btcFormat,
+  }) : btcFormat = (['BTC', 'mBTC', 'bits', 'sats'].contains(btcFormat)) ? btcFormat : throw ArgumentError('Invalid btcFormat'),
+        super();
 
   Settings copyWith({
     String? currency,
     String? language,
+    String? btcFormat,
   }) {
     return Settings(
       currency: currency ?? this.currency,
       language: language ?? this.language,
+      btcFormat: btcFormat ?? this.btcFormat,
     );
   }
 }
