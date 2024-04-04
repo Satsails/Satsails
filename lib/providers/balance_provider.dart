@@ -6,7 +6,7 @@ final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) asyn
   final balance = await ref.watch(updateBitcoinBalanceProvider.future);
 
   return Balance(
-    btcBalance: 1000000,
+    btcBalance: balance,
     liquidBalance: 0,
     usdBalance: 0,
     cadBalance: 0,
@@ -39,6 +39,11 @@ final totalBalanceInCurrencyProvider = FutureProvider.family.autoDispose<double,
   return await balanceModel.totalBalanceInCurrency(currency);
 });
 
+final totalBalanceInDenominationProvider = FutureProvider.family.autoDispose<double, String>((ref, denomination) async {
+  final balanceModel = ref.watch(balanceNotifierProvider.notifier);
+  return balanceModel.totalBalanceInDenomination(denomination);
+});
+
 final updateBtcBalanceProvider = FutureProvider.autoDispose<BalanceModel>((ref) async {
   final balanceModel = ref.read(balanceNotifierProvider.notifier);
   final updatedBalance = await ref.watch(updateBitcoinBalanceProvider.future);
@@ -49,4 +54,9 @@ final updateBtcBalanceProvider = FutureProvider.autoDispose<BalanceModel>((ref) 
 final currentBitcoinPriceInCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
   final balanceModel = ref.watch(balanceNotifierProvider.notifier);
   return await balanceModel.currentBitcoinPriceInCurrency(currency);
+});
+
+final percentageChangeProvider = FutureProvider.autoDispose<Percentage>((ref) async {
+  final balanceModel = ref.watch(balanceNotifierProvider.notifier);
+  return await balanceModel.percentageOfEachCurrency();
 });

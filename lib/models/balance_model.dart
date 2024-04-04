@@ -85,10 +85,38 @@ class BalanceModel extends StateNotifier<Balance>{
         return 0;
     }
   }
+
+  Future<double> totalBalanceInDenomination(String? denomination) async {
+    switch (denomination) {
+      case 'BTC':
+        return await totalBalanceInCurrency('BTC');
+      case 'sats':
+        return await totalBalanceInCurrency('BTC') / 100000000;
+      case 'mBTC':
+        return await totalBalanceInCurrency('BTC') / 100000;
+      case 'bits':
+        return await totalBalanceInCurrency('BTC') / 1000000;
+      default:
+        return 0;
+    }
+  }
+
+  Future<Percentage> percentageOfEachCurrency() async {
+    final total = await totalBalanceInCurrency('BTC');
+    return Percentage(
+      eurPercentage: await _getConvertedBalance('EUR', 'BTC', state.eurBalance.toDouble()) / total,
+      brlPercentage: await _getConvertedBalance('BRL', 'BTC', state.brlBalance.toDouble()) / total,
+      usdPercentage: await _getConvertedBalance('USD', 'BTC', state.usdBalance.toDouble()) / total,
+      cadPercentage: await _getConvertedBalance('CAD', 'BTC', state.cadBalance.toDouble()) / total,
+      liquidPercentage: (state.liquidBalance / 100000000).toDouble() / total,
+      btcPercentage: (state.btcBalance / 100000000).toDouble() / total,
+      total: total,
+    );
+  }
 }
 
 class Balance {
-late final int btcBalance;
+  late final int btcBalance;
   final int liquidBalance;
   final int usdBalance;
   final int cadBalance;
@@ -121,4 +149,24 @@ late final int btcBalance;
       brlBalance: brlBalance ?? this.brlBalance,
     );
   }
+}
+
+class Percentage {
+  final double btcPercentage;
+  final double liquidPercentage;
+  final double usdPercentage;
+  final double cadPercentage;
+  final double eurPercentage;
+  final double brlPercentage;
+  final double total;
+
+  Percentage({
+    required this.btcPercentage,
+    required this.liquidPercentage,
+    required this.usdPercentage,
+    required this.cadPercentage,
+    required this.eurPercentage,
+    required this.brlPercentage,
+    required this.total,
+  });
 }

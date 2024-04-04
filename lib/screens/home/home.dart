@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:satsails/models/balance_model.dart';
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/navigation_provider.dart';
 import 'package:satsails/screens/accounts/accounts.dart';
@@ -39,19 +40,18 @@ class Home extends ConsumerWidget {
     );
   }
 
-  Widget _buildDiagram(WidgetRef ref, BuildContext context) {
-    final balance = ref.watch(balanceNotifierProvider.notifier);
+  Widget _buildDiagram(BuildContext context, Percentage percentage) {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.25,
-      child: balance.state.btcBalance == 0
+      child: percentage.total == 0
           ? PieChart(PieChartData(sections: [PieChartSectionData(value: 1, title: '', radius: 20, color: Colors.grey)], borderData: FlBorderData(show: false)))
           : PieChart(PieChartData(
         sections: [
-          PieChartSectionData(value: balance.state.btcBalance.toDouble() + balance.state.liquidBalance.toDouble(), title: '', radius: 20, badgeWidget: const Icon(Icons.currency_bitcoin, color: Colors.white), color: Colors.orange),
-          PieChartSectionData(value: balance.state.brlBalance.toDouble(), title: '', radius: 20, badgeWidget: Flag(Flags.brazil), color: Colors.greenAccent),
-          PieChartSectionData(value: balance.state.cadBalance.toDouble(), title: '', radius: 20, badgeWidget: Flag(Flags.canada), color: Colors.red),
-          PieChartSectionData(value: balance.state.eurBalance.toDouble(), title: '', radius: 20, badgeWidget: Flag(Flags.european_union), color: Colors.blue),
-          PieChartSectionData(value: balance.state.usdBalance.toDouble(), title: '', radius: 20, badgeWidget: Flag(Flags.united_states_of_america), color: Colors.green),
+          PieChartSectionData(value: percentage.btcPercentage + percentage.liquidPercentage, title: '', radius: 20, badgeWidget: const Icon(Icons.currency_bitcoin, color: Colors.white), color: Colors.orange),
+          PieChartSectionData(value: percentage.brlPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.brazil), color: Colors.greenAccent),
+          PieChartSectionData(value: percentage.cadPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.canada), color: Colors.red),
+          PieChartSectionData(value: percentage.eurPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.european_union), color: Colors.blue),
+          PieChartSectionData(value: percentage.usdPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.united_states_of_america), color: Colors.green),
         ],
         borderData: FlBorderData(show: false),
       )),
@@ -63,8 +63,8 @@ class Home extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
     final totalBalanceInCurrency = ref.watch(totalBalanceInCurrencyProvider(settings.currency));
     final initializeBalance = ref.watch(initializeBalanceProvider);
-    final balance = ref.watch(balanceNotifierProvider.notifier);
-    final totalInDenominatedCurrency = balance.totalBtcBalanceInDenomination(settings.btcFormat);
+    final totalInDenominatedCurrency = ref.watch(totalBalanceInDenominationProvider(settings.btcFormat));
+    final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final cardMargin = screenWidth * 0.05;
@@ -80,7 +80,7 @@ class Home extends ConsumerWidget {
           child: Card(
             color: Colors.orange,
             margin: EdgeInsets.all(cardMargin),
-            elevation: 0,
+            elevation: 3,
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: cardPadding, horizontal: cardPadding / 2),
               child: Column(
@@ -88,7 +88,11 @@ class Home extends ConsumerWidget {
                 children: [
                   const Text('Total balance', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                   initializeBalance.when(
-                    data: (_) => Text('$totalInDenominatedCurrency ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                    data: (_) => totalInDenominatedCurrency.when(
+                      data: (total) => Text('${total.toStringAsFixed(2)} ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                      loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
+                      error: (error, stack) => const Text('Failed to load', style: TextStyle(color: Colors.white)),
+                    ),
                     loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
                     error: (error, stack) => const Text('Failed to load', style: TextStyle(color: Colors.white)),
                   ),
@@ -111,7 +115,11 @@ class Home extends ConsumerWidget {
         ),
         SizedBox(height: screenHeight * 0.05),
         initializeBalance.when(
-          data: (_) => _buildDiagram(ref, context),
+          data: (_) => percentageOfEachCurrency.when(
+            data: (percentage) => _buildDiagram(context, percentage),
+            loading: () => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(10))),
+            error: (error, stack) => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(30))),
+          ),
           loading: () => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(10))),
           error: (error, stack) => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(30))),
         ),
