@@ -2,6 +2,7 @@ import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/bitcoin_model.dart';
 import 'package:satsails/providers/settings_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'bitcoin_config_provider.dart';
 
 final bitcoinProvider = FutureProvider<Bitcoin>((ref) async {
@@ -57,10 +58,31 @@ final getConfirmedTransactionsProvider = FutureProvider<List<TransactionDetails>
   return await bitcoinModel.getConfirmedTransactions();
 });
 
+final updateTransactionsProvider = FutureProvider.autoDispose<void>((ref) async {
+  final bitcoin = await ref.watch(bitcoinProvider.future);
+  await ref.watch(syncBitcoinProvider.future);
+  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+  await bitcoinModel.getConfirmedTransactions();
+  await bitcoinModel.getUnConfirmedTransactions();
+});
+
 final getBalanceProvider = FutureProvider<Balance>((ref) async {
   final bitcoin = await ref.watch(bitcoinProvider.future);
   BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
   return await bitcoinModel.getBalance();
+});
+
+final updateBitcoinBalanceProvider = FutureProvider.autoDispose<int>((ref) async {
+  final bitcoin = await ref.watch(bitcoinProvider.future);
+  await ref.watch(syncBitcoinProvider.future);
+  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+  final balance = await bitcoinModel.getBalance();
+  final prefs = await SharedPreferences.getInstance();
+  if (balance.total == 0 || !ref.watch(onlineProvider)) {
+    return prefs.getInt('latestBitcoinBalance') ?? 0;
+  } else {
+    return balance.total;
+  }
 });
 
 final unspentUtxosProvider = FutureProvider<List<LocalUtxo>>((ref) async {

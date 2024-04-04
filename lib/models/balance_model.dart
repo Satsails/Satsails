@@ -15,10 +15,12 @@ class BalanceModel extends StateNotifier<Balance>{
     return result;
   }
 
-  Future<double> totalBalanceInCurrency() async {
+  Future<double> totalBalanceInCurrency([String? currency]) async {
     double total = 0;
     double totalInBtc = state.btcBalance.toDouble() + state.liquidBalance.toDouble();
-    switch (state.currency) {
+    String conversionCurrency = currency ?? state.currency;
+
+    switch (conversionCurrency) {
       case 'BTC':
         total += totalInBtc;
         total += await _getConvertedBalance('BRL', 'BTC', state.brlBalance.toDouble());
@@ -58,15 +60,21 @@ class BalanceModel extends StateNotifier<Balance>{
     return total;
   }
 
-  double totalBalanceInBtcOnly() {
+  double totalBtcBalance() {
     return state.btcBalance.toDouble() + state.liquidBalance.toDouble();
   }
 
-//   implement returning list of balance currency set
+  Future<double> currentBitcoinPriceInCurrency() {
+    return _getConvertedBalance('BTC', state.currency, 1);
+  }
+
+  void updateBtcBalance(int newBtcBalance) {
+    state = state.copyWith(btcBalance: newBtcBalance);
+  }
 }
 
 class Balance {
-  late final int btcBalance;
+late final int btcBalance;
   final int liquidBalance;
   final int usdBalance;
   final int cadBalance;

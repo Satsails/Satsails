@@ -13,21 +13,6 @@ import 'package:fl_chart/fl_chart.dart';
 class Home extends ConsumerWidget {
   const Home({super.key});
 
-  Future<dynamic> getBtcPrice(WidgetRef ref) async {
-    final currency = ref
-        .watch(settingsProvider)
-        .currency;
-    final fx = Forex();
-    final result = await fx.getCurrencyConverted(
-        sourceCurrency: 'BTC', destinationCurrency: currency, sourceAmount: 1);
-    final error = fx.getErrorNotifier.value;
-
-    if (error != null) {
-      return "Error fetching prices";
-    }
-    return '$result $currency';
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
@@ -62,7 +47,7 @@ class Home extends ConsumerWidget {
       height: MediaQuery
           .of(context)
           .size
-          .height * 0.3,
+          .height * 0.25,
       child: balance.state.btcBalance == 0
           ? PieChart(
         PieChartData(
@@ -70,7 +55,7 @@ class Home extends ConsumerWidget {
             PieChartSectionData(
               value: 1,
               title: '',
-              radius: 60,
+              radius: 20,
               color: Colors.grey,
             ),
           ],
@@ -131,11 +116,10 @@ class Home extends ConsumerWidget {
 
   Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
     final totalBalanceInCurrency = ref.watch(totalBalanceInCurrencyProvider);
+    final totalBalanceInBtc = ref.watch(totalBalanceInProvidedCurrencyProvider('BTC'));
     final initializeBalance = ref.watch(initializeBalanceProvider);
-    final balance = ref.watch(balanceNotifierProvider.notifier);
     final settings = ref.watch(settingsProvider);
 
-    // Dynamic sizing for text and margins based on screen size
     final screenWidth = MediaQuery
         .of(context)
         .size
@@ -147,95 +131,114 @@ class Home extends ConsumerWidget {
     final cardMargin = screenWidth * 0.05;
     final cardPadding = screenWidth * 0.04;
     final titleFontSize = screenHeight *
-        0.025; // Larger font size for the balance
+        0.025;
     final subtitleFontSize = screenHeight *
-        0.02; // Smaller font size for the currency and 'or' text
+        0.02;
 
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: double.infinity,
-            child: Card(
-              color: Colors.orange,
-              margin: EdgeInsets.all(cardMargin),
-              elevation: 0,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: cardPadding, horizontal: cardPadding / 2),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    initializeBalance.when(
-                      data: (_) =>
-                          Text(
-                            '${balance.state.btcBalance.toStringAsFixed(
-                                2)} ${settings.btcFormat}',
-                            style: TextStyle(fontSize: titleFontSize,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                          ),
-                      loading: () => const CardLoading(height: 10, width: 200),
-                      error: (error, stack) =>
-                      const Text('Error', style: TextStyle(color: Colors.white)),
-                    ),
-                    SizedBox(height: screenHeight * 0.02),
-                    const Text(
-                        'or', style: TextStyle(fontSize: 14, color: Colors.white),
-                        textAlign: TextAlign.center),
-                    SizedBox(height: screenHeight * 0.02),
-                    initializeBalance.when(
-                      data: (_) =>
-                          totalBalanceInCurrency.when(
-                            data: (total) =>
-                                Text(
-                                  '${total.toStringAsFixed(2)} ${settings
-                                      .currency}',
-                                  style: TextStyle(fontSize: subtitleFontSize,
-                                      color: Colors.white),
-                                  textAlign: TextAlign.center,
-                                ),
-                            loading: () =>
-                            const CardLoading(height: 20, width: 200),
-                            error: (error, stack) =>
-                                TextButton(onPressed: () =>
-                                    ref.refresh(settingsProvider.notifier),
-                                    child: const Text('Retry',
-                                        style: TextStyle(color: Colors.white))),
-                          ),
-                      loading: () => const CardLoading(height: 20, width: 200),
-                      error: (error, stack) =>
-                          const Text('Failed to load',
-                              style: TextStyle(color: Colors.white)),
-                    ),
-                  ],
-                ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: Card(
+            color: Colors.orange,
+            margin: EdgeInsets.all(cardMargin),
+            elevation: 0,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                  vertical: cardPadding, horizontal: cardPadding / 2),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  initializeBalance.when(
+                    data: (_) =>
+                        totalBalanceInBtc.when(
+                          data: (total) =>
+                              Text(
+                                '${total} ${settings
+                                    .currency}',
+                                style: TextStyle(fontSize: subtitleFontSize,
+                                    color: Colors.white),
+                                textAlign: TextAlign.center,
+                              ),
+                          loading: () =>
+                          const CardLoading(height: 20, width: 200),
+                          error: (error, stack) => TextButton(onPressed: () {
+                            ref.refresh(balanceNotifierProvider.notifier);
+                          }, child: const Text('Error', style: TextStyle(
+                              color: Colors.white))),
+                        ),
+                    loading: () => const CardLoading(height: 20, width: 200),
+                    error: (error, stack) =>
+                    const Text('Failed to load',
+                        style: TextStyle(color: Colors.white)),
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+                  const Text(
+                      'or', style: TextStyle(fontSize: 14, color: Colors.white),
+                      textAlign: TextAlign.center),
+                  SizedBox(height: screenHeight * 0.02),
+                  initializeBalance.when(
+                    data: (_) =>
+                        totalBalanceInCurrency.when(
+                          data: (total) =>
+                              Text(
+                                '${total.toStringAsFixed(2)} ${settings
+                                    .currency}',
+                                style: TextStyle(fontSize: subtitleFontSize,
+                                    color: Colors.white),
+                                textAlign: TextAlign.center,
+                              ),
+                          loading: () =>
+                          const CardLoading(height: 20, width: 200),
+                          error: (error, stack) => TextButton(onPressed: () {
+                            ref.refresh(balanceNotifierProvider.notifier);
+                          }, child: const Text('Error', style: TextStyle(
+                              color: Colors.white))),
+                        ),
+                    loading: () => const CardLoading(height: 20, width: 200),
+                    error: (error, stack) =>
+                        const Text('Failed to load',
+                            style: TextStyle(color: Colors.white)),
+                  ),
+                ],
               ),
             ),
           ),
-          SizedBox(height: screenHeight * 0.05),
-          initializeBalance.when(
-            data: (_) => _buildDiagram(ref, context),
-            loading: () => const CardLoading(height: 200, width: 200),
-            error: (error, stack) =>
-            const Text('Failed to load', style: TextStyle(color: Colors.white)),
+        ),
+        SizedBox(height: screenHeight * 0.05),
+        initializeBalance.when(
+            data: (total) =>
+                totalBalanceInBtc.when(
+                  data: (totalInBtc) =>
+                      _buildDiagram(ref, context),
+                  loading: () =>
+                  const CardLoading(height: 20, width: 200),
+                  error: (error, stack) => TextButton(onPressed: () {
+                    ref.refresh(balanceNotifierProvider.notifier);
+                  }, child: const Text('Error', style: TextStyle(
+                      color: Colors.white))),
+                ),
+            loading: () =>
+            const CardLoading(height: 20, width: 200),
+            error: (error, stack) => TextButton(onPressed: () {
+              ref.refresh(balanceNotifierProvider.notifier);
+            }, child: const Text('Error', style: TextStyle(
+                color: Colors.white))),
           ),
-          SizedBox(height: screenHeight * 0.05),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Accounts()),
-              );
-            },
-            style: _buildElevatedButtonStyle(),
-            child: const Text('View Accounts'),
-          ),
-          SizedBox(height: screenHeight * 0.05),
-        ],
-      ),
+        SizedBox(height: screenHeight * 0.05),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Accounts()),
+            );
+          },
+          style: _buildElevatedButtonStyle(),
+          child: const Text('View Accounts'),
+        ),
+        SizedBox(height: screenHeight * 0.05),
+      ],
     );
   }
 
@@ -331,24 +334,19 @@ class Home extends ConsumerWidget {
             Navigator.pushNamed(context, '/search_modal');
           },
         ),
-        title: FutureBuilder<dynamic>(
-          future: getBtcPrice(ref),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CardLoading(
-                width: 100,
-                height: 20,
-              );
-            } else if (snapshot.hasError) {
-              return const Text('Error');
-            } else {
-              return Text("${snapshot.data}", style: const TextStyle(color: Colors.black));
-            }
+        title: Consumer(
+          builder: (context, watch, child) {
+            final asyncValue = ref.watch(currentBitcoinPriceInCurrencyProvider);
+
+            return asyncValue.when(
+              data: (value) => Text('$value ${ref.watch(settingsProvider).currency}', style: const TextStyle(color: Colors.black)),
+              loading: () => const CardLoading(width: 100, height: 20),
+              error: (error, stack) => const Text('Error Loading'),
+            );
           },
         ),
         centerTitle: true,
         actions: [
-
           IconButton(
             icon: const Icon(Clarity.settings_line, color: Colors.black),
             onPressed: () {

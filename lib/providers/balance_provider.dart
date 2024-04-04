@@ -5,11 +5,10 @@ import 'bitcoin_provider.dart';
 
 final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) async {
   final currency = ref.watch(settingsProvider).currency;
-  ref.watch(syncBitcoinProvider);
-  final balance = await ref.watch(getBalanceProvider.future);
+  final balance = await ref.watch(updateBitcoinBalanceProvider.future);
 
   return Balance(
-    btcBalance: balance.total,
+    btcBalance: balance,
     liquidBalance: 0,
     usdBalance: 0,
     cadBalance: 0,
@@ -42,4 +41,21 @@ final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, 
 final totalBalanceInCurrencyProvider = FutureProvider.autoDispose<double>((ref) async {
   final balanceModel = ref.watch(balanceNotifierProvider.notifier);
   return await balanceModel.totalBalanceInCurrency();
+});
+
+final totalBalanceInProvidedCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
+  final balanceModel = ref.watch(balanceNotifierProvider.notifier);
+  return await balanceModel.totalBalanceInCurrency(currency);
+});
+
+final updateBtcBalanceProvider = FutureProvider.autoDispose<BalanceModel>((ref) async {
+  final balanceModel = ref.read(balanceNotifierProvider.notifier);
+  final updatedBalance = await ref.watch(updateBitcoinBalanceProvider.future);
+  balanceModel.updateBtcBalance(updatedBalance);
+  return balanceModel;
+});
+
+final currentBitcoinPriceInCurrencyProvider = FutureProvider.autoDispose<double>((ref) async {
+  final balanceModel = ref.watch(balanceNotifierProvider.notifier);
+  return await balanceModel.currentBitcoinPriceInCurrency();
 });
