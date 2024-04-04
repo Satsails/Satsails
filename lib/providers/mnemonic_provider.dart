@@ -8,3 +8,8 @@ final mnemonicProvider = FutureProvider<MnemonicModel>((ref) async {
 
   return MnemonicModel(mnemonic: mnemonic);
 });
+
+final deleteMnemonicProvider = FutureProvider.autoDispose<void>((ref) async {
+  const storage = FlutterSecureStorage();
+  await storage.delete(key: 'mnemonic');
+});

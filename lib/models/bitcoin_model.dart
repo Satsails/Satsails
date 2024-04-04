@@ -13,10 +13,11 @@ class BitcoinModel {
     try {
       await config.wallet.sync(config.blockchain!);
     } on FormatException catch (e) {
-      debugPrint(e.message);
+      throw Exception(e.message);
     }
   }
 
+  // implement for isolates later
   Future<void> asyncSync() async {
     try {
       Isolate.run(() async => {await config.wallet.sync(config.blockchain!)});

@@ -1,3 +1,4 @@
+import 'package:card_loading/card_loading.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +7,7 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
+import 'package:satsails/providers/settings_provider.dart';
 
 class Accounts extends ConsumerWidget {
   const Accounts({Key? key}) : super(key: key);
@@ -13,7 +15,9 @@ class Accounts extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     double screenWidth = MediaQuery.of(context).size.width;
-    final balance = ref.watch(balanceNotifierProvider);
+    final format = ref.watch(settingsProvider).btcFormat;
+    final balance = ref.watch(balanceNotifierProvider.notifier);
+    final totalBtcBalanceInFormat = balance.totalBtcBalanceInDenomination(format);
     final bitcoinAddress = ref.watch(addressProvider.future);
 
     return Scaffold(
@@ -38,7 +42,7 @@ class Accounts extends ConsumerWidget {
               elevation: 0,
               child: Column(
                 children: [
-                  _buildListTile('Bitcoin', balance.btcBalance.toString(),const Icon(LineAwesome.bitcoin, color: Colors.white,), context, bitcoinAddress),
+                  _buildListTile('Bitcoin', totalBtcBalanceInFormat.toString(), const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
                 ],
               ),
             ),
@@ -52,15 +56,15 @@ class Accounts extends ConsumerWidget {
               color: Colors.blueAccent,
               child: Column(
                 children: [
-                  _buildListTile('Liquid', balance.liquidBalance.toString(), const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
+                  _buildListTile('Liquid', balance.state.liquidBalance.toString(), const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
                   _buildDivider(),
                   _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, bitcoinAddress),
                   _buildDivider(),
-                  _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, bitcoinAddress),
+                  _buildListTile('Real', balance.state.brlBalance.toString(), Flag(Flags.brazil), context, bitcoinAddress),
                   _buildDivider(),
-                  _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, bitcoinAddress),
+                  _buildListTile('Dollar', balance.state.usdBalance.toString(), Flag(Flags.united_states_of_america), context, bitcoinAddress),
                   _buildDivider(),
-                  _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, bitcoinAddress),
+                  _buildListTile('Euro', balance.state.eurBalance.toString(), Flag(Flags.european_union), context, bitcoinAddress),
                 ],
               ),
             ),

@@ -188,7 +188,7 @@ class Settings extends ConsumerWidget {
                 TextButton(
                   child: const Text('Yes'),
                   onPressed: () {
-                    MnemonicModel().deleteMnemonic();
+                    DeleteMnemonicModel().deleteMnemonic();
                     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                   },
                 ),

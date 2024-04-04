@@ -7,7 +7,7 @@ final bitcoinConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
   final mnemonic = await ref.watch(mnemonicProvider.future);
 
   final config = BitcoinConfig(
-      mnemonic: mnemonic.mnemonic!,
+      mnemonic: mnemonic.mnemonic,
       network: Network.Bitcoin,
       externalKeychain: KeychainKind.External,
       internalKeychain: KeychainKind.Internal,

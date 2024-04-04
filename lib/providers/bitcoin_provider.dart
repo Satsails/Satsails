@@ -27,15 +27,6 @@ final syncBitcoinProvider = FutureProvider.autoDispose<void>((ref) async {
   }
 });
 
-final asyncSyncBitcoinProvider = FutureProvider.autoDispose<void>((ref) async {
-  final settings = ref.watch(onlineProvider);
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  if (settings) {
-    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    await bitcoinModel.asyncSync();
-  }
-});
-
 final addressProvider = FutureProvider<AddressInfo>((ref) async {
   final bitcoin = await ref.watch(bitcoinProvider.future);
   BitcoinModel bitcoinModel = BitcoinModel(bitcoin);

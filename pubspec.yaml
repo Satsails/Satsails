@@ -38,6 +38,7 @@ dependencies:
   forex_currency_conversion: ^0.9.1
   icons_plus: ^5.0.0
   card_loading: ^0.3.2
+  retry: ^3.0.0
 #  add for toast later
 #toastification: ^1.2.1
 #esplora: ^1.1.1

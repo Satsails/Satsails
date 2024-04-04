@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:forex_currency_conversion/forex_currency_conversion.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/navigation_provider.dart';

@@ -1,10 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/balance_model.dart';
-import 'settings_provider.dart';
 import 'bitcoin_provider.dart';
 
 final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) async {
-  final currency = ref.watch(settingsProvider).currency;
   final balance = await ref.watch(updateBitcoinBalanceProvider.future);
 
   return Balance(
@@ -37,11 +35,6 @@ final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, 
 });
 
 final totalBalanceInCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
-  final balanceModel = ref.watch(balanceNotifierProvider.notifier);
-  return await balanceModel.totalBalanceInCurrency(currency);
-});
-
-final totalBalanceInProvidedCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
   final balanceModel = ref.watch(balanceNotifierProvider.notifier);
   return await balanceModel.totalBalanceInCurrency(currency);
 });

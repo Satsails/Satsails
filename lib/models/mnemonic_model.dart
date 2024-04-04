@@ -3,9 +3,9 @@ import 'package:bip39/bip39.dart' as bip39;
 
 
 class MnemonicModel {
-  String? mnemonic;
+  String mnemonic;
 
-  MnemonicModel({this.mnemonic});
+  MnemonicModel({required this.mnemonic});
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
@@ -14,11 +14,15 @@ class MnemonicModel {
     await _storage.write(key: 'mnemonic', value: mnemonic);
   }
 
-  Future<void> deleteMnemonic() async {
-    await _storage.delete(key: 'mnemonic');
-  }
-
   bool validateMnemonic() {
     return bip39.validateMnemonic(mnemonic ?? '');
+  }
+}
+
+class DeleteMnemonicModel {
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
+  Future<void> deleteMnemonic() async {
+    await _storage.delete(key: 'mnemonic');
   }
 }
