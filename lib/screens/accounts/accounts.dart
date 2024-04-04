@@ -1,4 +1,3 @@
-import 'package:card_loading/card_loading.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -108,14 +107,14 @@ class Accounts extends ConsumerWidget {
       context: context,
       builder: (BuildContext context) {
         return FutureBuilder<dynamic>(
-          future: bitcoin.getAddress().then((value) => value.address.toString()),
+          future: bitcoin,
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (snapshot.hasData) {
-              final String address = snapshot.data.toString();
+              final String address = snapshot.data.address;
               return Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,

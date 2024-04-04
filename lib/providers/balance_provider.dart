@@ -6,7 +6,7 @@ final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) asyn
   final balance = await ref.watch(updateBitcoinBalanceProvider.future);
 
   return Balance(
-    btcBalance: balance,
+    btcBalance: 1000000,
     liquidBalance: 0,
     usdBalance: 0,
     cadBalance: 0,

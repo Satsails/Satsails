@@ -27,11 +27,23 @@ final syncBitcoinProvider = FutureProvider.autoDispose<void>((ref) async {
   }
 });
 
-final addressProvider = FutureProvider<AddressInfo>((ref) async {
+final addressProvider = FutureProvider.autoDispose<AddressInfo>((ref) async {
   final bitcoin = await ref.watch(bitcoinProvider.future);
   BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
   return await bitcoinModel.getAddress();
 });
+
+// refactor all to look like this home and accounts
+// final addressProvider = FutureProvider<AddressInfo>((ref) async {
+//   return ref.watch(bitcoinProvider.future).when(
+//     data: (bitcoin) {
+//       BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+//       return bitcoinModel.getAddress();
+//     },
+//     loading: () => throw UnimplementedError(),
+//     error: (error, stack) => throw error,
+//   );
+// });
 
 final getUnConfirmedTransactionsProvider = FutureProvider<List<TransactionDetails>>((ref) async {
   final bitcoin = await ref.watch(bitcoinProvider.future);
