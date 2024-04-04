@@ -5,147 +5,149 @@ import 'package:satsails/providers/settings_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'bitcoin_config_provider.dart';
 
-final bitcoinProvider = FutureProvider<Bitcoin>((ref) async {
-  final wallet = await ref.watch(restoreWalletProvider.future);
-  final settings = ref.read(onlineProvider.notifier);
-  try {
-    final blockchain = await ref.watch(initializeBlockchainProvider.future);
-    settings.state = true;
-    return Bitcoin(wallet, blockchain);
-  } catch (e) {
-    settings.state = false;
-    return Bitcoin(wallet, null);
-  }
+final bitcoinProvider = FutureProvider<Bitcoin>((ref) {
+  return ref.watch(restoreWalletProvider.future).then((wallet) {
+    final settings = ref.read(onlineProvider.notifier);
+    return ref.watch(initializeBlockchainProvider.future).then((blockchain) {
+      settings.state = true;
+      return Bitcoin(wallet, blockchain);
+    }).catchError((e) {
+      settings.state = false;
+      return Bitcoin(wallet, null);
+    });
+  });
 });
 
-final syncBitcoinProvider = FutureProvider.autoDispose<void>((ref) async {
-  final settings = ref.read(onlineProvider.notifier);
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  if (settings.state) {
+final syncBitcoinProvider = FutureProvider.autoDispose<void>((ref) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
+    final settings = ref.read(onlineProvider.notifier);
+    if (settings.state) {
+      BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+      return bitcoinModel.sync();
+    }
+  });
+});
+
+final addressProvider = FutureProvider.autoDispose<AddressInfo>((ref) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    await bitcoinModel.sync();
-  }
+    return bitcoinModel.getAddress();
+  });
 });
 
-final addressProvider = FutureProvider.autoDispose<AddressInfo>((ref) async {
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  return await bitcoinModel.getAddress();
-});
-
-// refactor all to look like this home and accounts
-// final addressProvider = FutureProvider<AddressInfo>((ref) async {
-//   return ref.watch(bitcoinProvider.future).when(
-//     data: (bitcoin) {
-//       BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-//       return bitcoinModel.getAddress();
-//     },
-//     loading: () => throw UnimplementedError(),
-//     error: (error, stack) => throw error,
-//   );
-// });
-
-final getUnConfirmedTransactionsProvider = FutureProvider<List<TransactionDetails>>((ref) async {
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  return await bitcoinModel.getUnConfirmedTransactions();
-});
-
-final getConfirmedTransactionsProvider = FutureProvider<List<TransactionDetails>>((ref) async {
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  return await bitcoinModel.getConfirmedTransactions();
-});
-
-final updateTransactionsProvider = FutureProvider.autoDispose<void>((ref) async {
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  await ref.watch(syncBitcoinProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  await bitcoinModel.getConfirmedTransactions();
-  await bitcoinModel.getUnConfirmedTransactions();
-});
-
-final getBalanceProvider = FutureProvider<Balance>((ref) async {
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  return await bitcoinModel.getBalance();
-});
-
-final updateBitcoinBalanceProvider = FutureProvider.autoDispose<int>((ref) async {
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  await ref.watch(syncBitcoinProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  final balance = await bitcoinModel.getBalance();
-  final prefs = await SharedPreferences.getInstance();
-  if (balance.total == 0 || !ref.watch(onlineProvider)) {
-    return prefs.getInt('latestBitcoinBalance') ?? 0;
-  } else {
-    return balance.total;
-  }
-});
-
-final unspentUtxosProvider = FutureProvider<List<LocalUtxo>>((ref) async {
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  return await bitcoin.wallet.listUnspent();
-});
-
-final getPsbtInputProvider = FutureProvider<Input>((ref) async {
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  final unspentUtxos = await ref.watch(unspentUtxosProvider.future);
-  BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  return await bitcoinModel.getPsbtInput(unspentUtxos.first, true);
-});
-
-final getFastFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) async {
-  final settings = ref.watch(onlineProvider);
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  if (settings) {
+final getUnConfirmedTransactionsProvider = FutureProvider<List<TransactionDetails>>((ref) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    return await bitcoinModel.estimateFeeRate(1);
-  } else {
-    return throw Exception('Offline');
-  }
+    return bitcoinModel.getUnConfirmedTransactions();
+  });
 });
 
-final getMediumFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) async {
-  final settings = ref.watch(onlineProvider);
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  if (settings) {
+final getConfirmedTransactionsProvider = FutureProvider<List<TransactionDetails>>((ref) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    return await bitcoinModel.estimateFeeRate(3);
-  } else {
-    return throw Exception('Offline');
-  }
+    return bitcoinModel.getConfirmedTransactions();
+  });
 });
 
-final getSlowFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) async {
-  final settings = ref.watch(onlineProvider);
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  if (settings) {
+final updateTransactionsProvider = FutureProvider.autoDispose<void>((ref) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) async {
+    await ref.watch(syncBitcoinProvider.future);
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    return await bitcoinModel.estimateFeeRate(6);
-  } else {
-    throw Exception('No internet connection');
-  }
+    await bitcoinModel.getConfirmedTransactions();
+    await bitcoinModel.getUnConfirmedTransactions();
+  });
 });
 
-final getCustomFeeRateProvider = FutureProvider.family.autoDispose<FeeRate, int>((ref, blocks) async {
-  final settings = ref.watch(onlineProvider);
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  if (settings) {
+final getBalanceProvider = FutureProvider<Balance>((ref) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    return await bitcoinModel.estimateFeeRate(blocks);
-  } else {
-    throw Exception('No internet connection');
-  }
+    return bitcoinModel.getBalance();
+  });
 });
 
-final sendProvider = FutureProvider.family.autoDispose<void, SendParams>((ref, params) async {
-  final settings = ref.watch(onlineProvider);
-  final bitcoin = await ref.watch(bitcoinProvider.future);
-  if (settings) {
+final updateBitcoinBalanceProvider = FutureProvider.autoDispose<int>((ref) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) async {
+    await ref.watch(syncBitcoinProvider.future);
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    FeeRate feeRate = await ref.watch(getCustomFeeRateProvider(params.blocks).future);
-    await bitcoinModel.sendBitcoin(params.address, feeRate);
-  }
+    final balance = await bitcoinModel.getBalance();
+    final prefs = await SharedPreferences.getInstance();
+    if (balance.total == 0 || !ref.watch(onlineProvider)) {
+      return prefs.getInt('latestBitcoinBalance') ?? 0;
+    } else {
+      return balance.total;
+    }
+  });
+});
+
+final unspentUtxosProvider = FutureProvider<List<LocalUtxo>>((ref) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
+    return bitcoin.wallet.listUnspent();
+  });
+});
+
+final getPsbtInputProvider = FutureProvider<Input>((ref) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) async {
+    final unspentUtxos = await ref.watch(unspentUtxosProvider.future);
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    return bitcoinModel.getPsbtInput(unspentUtxos.first, true);
+  });
+});
+
+final getFastFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
+    final settings = ref.watch(onlineProvider);
+    if (settings) {
+      BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+      return bitcoinModel.estimateFeeRate(1);
+    } else {
+      throw Exception('Offline');
+    }
+  });
+});
+
+final getMediumFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
+    final settings = ref.watch(onlineProvider);
+    if (settings) {
+      BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+      return bitcoinModel.estimateFeeRate(3);
+    } else {
+      throw Exception('Offline');
+    }
+  });
+});
+
+final getSlowFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
+    final settings = ref.watch(onlineProvider);
+    if (settings) {
+      BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+      return bitcoinModel.estimateFeeRate(6);
+    } else {
+      throw Exception('No internet connection');
+    }
+  });
+});
+
+final getCustomFeeRateProvider = FutureProvider.family.autoDispose<FeeRate, int>((ref, blocks) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
+    final settings = ref.watch(onlineProvider);
+    if (settings) {
+      BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+      return bitcoinModel.estimateFeeRate(blocks);
+    } else {
+      throw Exception('No internet connection');
+    }
+  });
+});
+
+final sendProvider = FutureProvider.family.autoDispose<void, SendParams>((ref, params) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) async {
+    final settings = ref.watch(onlineProvider);
+    if (settings) {
+      BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+      FeeRate feeRate = await ref.watch(getCustomFeeRateProvider(params.blocks).future);
+      return bitcoinModel.sendBitcoin(params.address, feeRate);
+    }
+  });
 });

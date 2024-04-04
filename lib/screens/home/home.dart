@@ -41,74 +41,20 @@ class Home extends ConsumerWidget {
 
   Widget _buildDiagram(WidgetRef ref, BuildContext context) {
     final balance = ref.watch(balanceNotifierProvider.notifier);
-
     return SizedBox(
-      height: MediaQuery
-          .of(context)
-          .size
-          .height * 0.25,
+      height: MediaQuery.of(context).size.height * 0.25,
       child: balance.state.btcBalance == 0
-          ? PieChart(
-        PieChartData(
-          sections: [
-            PieChartSectionData(
-              value: 1,
-              title: '',
-              radius: 20,
-              color: Colors.grey,
-            ),
-          ],
-          borderData: FlBorderData(
-            show: false,
-          ),
-        ),
-      )
-          : PieChart(
-        PieChartData(
-          sections: [
-            PieChartSectionData(
-              value: balance.state.btcBalance.toDouble() +
-                  balance.state.liquidBalance.toDouble(),
-              title: '',
-              radius: 20,
-              badgeWidget: const Icon(
-                  Icons.currency_bitcoin, color: Colors.white),
-              color: Colors.orange,
-            ),
-            PieChartSectionData(
-                value: balance.state.brlBalance.toDouble(),
-                title: '',
-                radius: 20,
-                badgeWidget: Flag(Flags.brazil),
-                color: Colors.greenAccent
-            ),
-            PieChartSectionData(
-              value: balance.state.cadBalance.toDouble(),
-              title: '',
-              radius: 20,
-              badgeWidget: Flag(Flags.canada),
-              color: Colors.red,
-            ),
-            PieChartSectionData(
-              value: balance.state.eurBalance.toDouble(),
-              title: '',
-              radius: 20,
-              badgeWidget: Flag(Flags.european_union),
-              color: Colors.blue,
-            ),
-            PieChartSectionData(
-              value: balance.state.usdBalance.toDouble(),
-              title: '',
-              radius: 20,
-              badgeWidget: Flag(Flags.united_states_of_america),
-              color: Colors.green,
-            ),
-          ],
-          borderData: FlBorderData(
-            show: false,
-          ),
-        ),
-      ),
+          ? PieChart(PieChartData(sections: [PieChartSectionData(value: 1, title: '', radius: 20, color: Colors.grey)], borderData: FlBorderData(show: false)))
+          : PieChart(PieChartData(
+        sections: [
+          PieChartSectionData(value: balance.state.btcBalance.toDouble() + balance.state.liquidBalance.toDouble(), title: '', radius: 20, badgeWidget: const Icon(Icons.currency_bitcoin, color: Colors.white), color: Colors.orange),
+          PieChartSectionData(value: balance.state.brlBalance.toDouble(), title: '', radius: 20, badgeWidget: Flag(Flags.brazil), color: Colors.greenAccent),
+          PieChartSectionData(value: balance.state.cadBalance.toDouble(), title: '', radius: 20, badgeWidget: Flag(Flags.canada), color: Colors.red),
+          PieChartSectionData(value: balance.state.eurBalance.toDouble(), title: '', radius: 20, badgeWidget: Flag(Flags.european_union), color: Colors.blue),
+          PieChartSectionData(value: balance.state.usdBalance.toDouble(), title: '', radius: 20, badgeWidget: Flag(Flags.united_states_of_america), color: Colors.green),
+        ],
+        borderData: FlBorderData(show: false),
+      )),
     );
   }
 
@@ -119,21 +65,12 @@ class Home extends ConsumerWidget {
     final initializeBalance = ref.watch(initializeBalanceProvider);
     final balance = ref.watch(balanceNotifierProvider.notifier);
     final totalInDenominatedCurrency = balance.totalBtcBalanceInDenomination(settings.btcFormat);
-
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
-    final screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final cardMargin = screenWidth * 0.05;
     final cardPadding = screenWidth * 0.04;
-    final titleFontSize = screenHeight *
-        0.025;
-    final subtitleFontSize = screenHeight *
-        0.02;
+    final titleFontSize = screenHeight * 0.03;
+    final subtitleFontSize = screenHeight * 0.02;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -145,69 +82,27 @@ class Home extends ConsumerWidget {
             margin: EdgeInsets.all(cardMargin),
             elevation: 0,
             child: Padding(
-              padding: EdgeInsets.symmetric(
-                  vertical: cardPadding, horizontal: cardPadding / 2),
+              padding: EdgeInsets.symmetric(vertical: cardPadding, horizontal: cardPadding / 2),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const Text('Total balance', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                   initializeBalance.when(
-                    data: (_) =>
-                              Text(
-                                '${totalInDenominatedCurrency} ${settings
-                                    .btcFormat}',
-                                style: TextStyle(fontSize: titleFontSize,
-                                    color: Colors.white),
-                                textAlign: TextAlign.center,
-                              ),
-                    loading: () => const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    ),
-                    error: (error, stack) =>
-                    const Text('Failed to load',
-                        style: TextStyle(color: Colors.white)),
+                    data: (_) => Text('$totalInDenominatedCurrency ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                    loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
+                    error: (error, stack) => const Text('Failed to load', style: TextStyle(color: Colors.white)),
                   ),
-                  SizedBox(height: screenHeight * 0.02),
-                  const Text(
-                      'or', style: TextStyle(fontSize: 14, color: Colors.white),
-                      textAlign: TextAlign.center),
-                  SizedBox(height: screenHeight * 0.02),
+                  SizedBox(height: screenHeight * 0.01),
+                  const Text('or', style: TextStyle(fontSize: 14, color: Colors.white), textAlign: TextAlign.center),
+                  SizedBox(height: screenHeight * 0.01),
                   initializeBalance.when(
-                    data: (_) =>
-                        totalBalanceInCurrency.when(
-                          data: (total) =>
-                              Text(
-                                '${total.toStringAsFixed(2)} ${settings
-                                    .currency}',
-                                style: TextStyle(fontSize: subtitleFontSize,
-                                    color: Colors.white),
-                                textAlign: TextAlign.center,
-                              ),
-                          loading: () => const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          ),
-                          error: (error, stack) => TextButton(onPressed: () {
-                            ref.refresh(balanceNotifierProvider.notifier);
-                          }, child: const Text('Retry', style: TextStyle(
-                              color: Colors.white))),
-                        ),
-                    loading: () => const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
+                    data: (_) => totalBalanceInCurrency.when(
+                      data: (total) => Text('${total.toStringAsFixed(2)} ${settings.currency}', style: TextStyle(fontSize: subtitleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                      loading: () => const CardLoading(height: 20, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
+                      error: (error, stack) => TextButton(onPressed: () { ref.refresh(balanceNotifierProvider.notifier); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
                     ),
-                    error: (error, stack) =>
-                        const Text('Failed to load',
-                            style: TextStyle(color: Colors.white)),
+                    loading: () => const CardLoading(height: 20, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
+                    error: (error, stack) => const Text('Failed to load', style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
@@ -216,33 +111,21 @@ class Home extends ConsumerWidget {
         ),
         SizedBox(height: screenHeight * 0.05),
         initializeBalance.when(
-            data: (total) =>
-                totalBalanceInCurrency.when(
-                  data: (totalInBtc) =>
-                      _buildDiagram(ref, context),
-                  loading: () =>
-                  const CardLoading(height: 200, width: 200),
-                  error: (error, stack) => const CardLoading(height: 200, width: 200),
-                ),
-            loading: () =>
-            const CardLoading(height: 200, width: 200),
-            error: (error, stack) => const CardLoading(height: 200, width: 200),
-          ),
+          data: (_) => _buildDiagram(ref, context),
+          loading: () => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(10))),
+          error: (error, stack) => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(30))),
+        ),
         SizedBox(height: screenHeight * 0.05),
         ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Accounts()),
-            );
-          },
+          onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => const Accounts())); },
           style: _buildElevatedButtonStyle(),
           child: const Text('View Accounts'),
         ),
-        SizedBox(height: screenHeight * 0.05),
       ],
     );
   }
+
+
 
   ButtonStyle _buildElevatedButtonStyle() {
     return ButtonStyle(
@@ -345,13 +228,13 @@ class Home extends ConsumerWidget {
                 '$value ${ref.watch(settingsProvider).currency}',
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 20, // Increased font size for better readability
-                  fontWeight: FontWeight.bold, // Making the text bold for emphasis
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                   shadows: <Shadow>[
                     Shadow(
                       offset: const Offset(1.0, 1.0),
                       blurRadius: 3.0,
-                      color: Colors.grey.withOpacity(0.5), // Adding a subtle shadow for depth
+                      color: Colors.grey.withOpacity(0.5),
                     ),
                   ],
                 ),
