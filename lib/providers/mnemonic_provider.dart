@@ -21,5 +21,6 @@ final setMnemonicProvider = FutureProvider.autoDispose<void>((ref) async {
     return;
   }
   final words = bip39.generateMnemonic();
+  await mnemonic.setMnemonic(words);
   mnemonic.mnemonic = words.toString();
 });

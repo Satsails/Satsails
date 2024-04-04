@@ -18,6 +18,7 @@ import 'package:satsails/screens/pay/pay.dart';
 import 'package:satsails/screens/creation/recover_wallet.dart';
 import 'package:satsails/screens/pay/components/confirm_payment.dart';
 import 'package:satsails/screens/exchange/exchange.dart';
+import 'package:satsails/screens/splash/splash.dart';
 import 'package:satsails/screens/support/info.dart';
 import 'package:satsails/screens/home/components/search_modal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,7 +45,7 @@ class MainApp extends ConsumerWidget {
       future: ref.watch(mnemonicProvider.future),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return const Splash();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
