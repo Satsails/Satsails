@@ -115,10 +115,9 @@ class Home extends ConsumerWidget {
 
 
   Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
-    final totalBalanceInCurrency = ref.watch(totalBalanceInCurrencyProvider);
-    final totalBalanceInBtc = ref.watch(totalBalanceInProvidedCurrencyProvider('BTC'));
-    final initializeBalance = ref.watch(initializeBalanceProvider);
     final settings = ref.watch(settingsProvider);
+    final totalBalanceInCurrency = ref.watch(totalBalanceInCurrencyProvider(settings.currency));
+    final initializeBalance = ref.watch(initializeBalanceProvider);
     final balance = ref.watch(balanceNotifierProvider.notifier);
     final totalInDenominatedCurrency = balance.totalBtcBalanceInDenomination(settings.btcFormat);
 
@@ -138,7 +137,7 @@ class Home extends ConsumerWidget {
         0.02;
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         SizedBox(
           width: double.infinity,
@@ -157,11 +156,17 @@ class Home extends ConsumerWidget {
                               Text(
                                 '${totalInDenominatedCurrency} ${settings
                                     .btcFormat}',
-                                style: TextStyle(fontSize: subtitleFontSize,
+                                style: TextStyle(fontSize: titleFontSize,
                                     color: Colors.white),
                                 textAlign: TextAlign.center,
                               ),
-                    loading: () => const CardLoading(height: 20, width: 200),
+                    loading: () => const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
                     error: (error, stack) =>
                     const Text('Failed to load',
                         style: TextStyle(color: Colors.white)),
@@ -182,14 +187,25 @@ class Home extends ConsumerWidget {
                                     color: Colors.white),
                                 textAlign: TextAlign.center,
                               ),
-                          loading: () =>
-                          const CardLoading(height: 20, width: 200),
+                          loading: () => const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          ),
                           error: (error, stack) => TextButton(onPressed: () {
                             ref.refresh(balanceNotifierProvider.notifier);
-                          }, child: const Text('Error', style: TextStyle(
+                          }, child: const Text('Retry', style: TextStyle(
                               color: Colors.white))),
                         ),
-                    loading: () => const CardLoading(height: 20, width: 200),
+                    loading: () => const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
                     error: (error, stack) =>
                         const Text('Failed to load',
                             style: TextStyle(color: Colors.white)),
@@ -206,18 +222,12 @@ class Home extends ConsumerWidget {
                   data: (totalInBtc) =>
                       _buildDiagram(ref, context),
                   loading: () =>
-                  const CardLoading(height: 20, width: 200),
-                  error: (error, stack) => TextButton(onPressed: () {
-                    ref.refresh(balanceNotifierProvider.notifier);
-                  }, child: const Text('Error', style: TextStyle(
-                      color: Colors.white))),
+                  const CardLoading(height: 200, width: 200),
+                  error: (error, stack) => const CardLoading(height: 200, width: 200),
                 ),
             loading: () =>
-            const CardLoading(height: 20, width: 200),
-            error: (error, stack) => TextButton(onPressed: () {
-              ref.refresh(balanceNotifierProvider.notifier);
-            }, child: const Text('Error', style: TextStyle(
-                color: Colors.white))),
+            const CardLoading(height: 200, width: 200),
+            error: (error, stack) => const CardLoading(height: 200, width: 200),
           ),
         SizedBox(height: screenHeight * 0.05),
         ElevatedButton(
@@ -329,12 +339,26 @@ class Home extends ConsumerWidget {
         ),
         title: Consumer(
           builder: (context, watch, child) {
-            final asyncValue = ref.watch(currentBitcoinPriceInCurrencyProvider);
+            final asyncValue = ref.watch(currentBitcoinPriceInCurrencyProvider(ref.watch(settingsProvider).currency));
 
             return asyncValue.when(
-              data: (value) => Text('$value ${ref.watch(settingsProvider).currency}', style: const TextStyle(color: Colors.black)),
+              data: (value) => Text(
+                '$value ${ref.watch(settingsProvider).currency}',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20, // Increased font size for better readability
+                  fontWeight: FontWeight.bold, // Making the text bold for emphasis
+                  shadows: <Shadow>[
+                    Shadow(
+                      offset: const Offset(1.0, 1.0),
+                      blurRadius: 3.0,
+                      color: Colors.grey.withOpacity(0.5), // Adding a subtle shadow for depth
+                    ),
+                  ],
+                ),
+              ),
               loading: () => const CardLoading(width: 100, height: 20),
-              error: (error, stack) => const Text('Error Loading'),
+              error: (error, stack) => const Text('Error fetching'),
             );
           },
         ),

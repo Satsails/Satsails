@@ -15,12 +15,11 @@ class BalanceModel extends StateNotifier<Balance>{
     return result;
   }
 
-  Future<double> totalBalanceInCurrency([String? currency]) async {
+  Future<double> totalBalanceInCurrency(String currency) async {
     double total = 0;
     double totalInBtc = totalBtcBalanceInDenomination('BTC');
-    String conversionCurrency = currency ?? state.currency;
 
-    switch (conversionCurrency) {
+    switch (currency) {
       case 'BTC':
         total += totalInBtc;
         total += await _getConvertedBalance('BRL', 'BTC', state.brlBalance.toDouble());
@@ -64,8 +63,8 @@ class BalanceModel extends StateNotifier<Balance>{
     return state.btcBalance.toDouble() + state.liquidBalance.toDouble();
   }
 
-  Future<double> currentBitcoinPriceInCurrency() {
-    return _getConvertedBalance('BTC', state.currency, 1);
+  Future<double> currentBitcoinPriceInCurrency(String currency) {
+    return _getConvertedBalance('BTC', currency, 1);
   }
 
   void updateBtcBalance(int newBtcBalance) {
@@ -95,7 +94,6 @@ late final int btcBalance;
   final int cadBalance;
   final int eurBalance;
   final int brlBalance;
-  final String currency;
 
   Balance({
     required this.btcBalance,
@@ -104,7 +102,6 @@ late final int btcBalance;
     required this.cadBalance,
     required this.eurBalance,
     required this.brlBalance,
-    required this.currency,
   });
 
   Balance copyWith({
@@ -114,7 +111,6 @@ late final int btcBalance;
     int? cadBalance,
     int? eurBalance,
     int? brlBalance,
-    String? currency,
   }) {
     return Balance(
       btcBalance: btcBalance ?? this.btcBalance,
@@ -123,7 +119,6 @@ late final int btcBalance;
       cadBalance: cadBalance ?? this.cadBalance,
       eurBalance: eurBalance ?? this.eurBalance,
       brlBalance: brlBalance ?? this.brlBalance,
-      currency: currency ?? this.currency,
     );
   }
 }

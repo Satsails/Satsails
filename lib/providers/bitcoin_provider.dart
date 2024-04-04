@@ -24,8 +24,6 @@ final syncBitcoinProvider = FutureProvider.autoDispose<void>((ref) async {
   if (settings.state) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     await bitcoinModel.sync();
-  } else {
-    throw Exception('No internet connection');
   }
 });
 
@@ -35,8 +33,6 @@ final asyncSyncBitcoinProvider = FutureProvider.autoDispose<void>((ref) async {
   if (settings) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     await bitcoinModel.asyncSync();
-  } else {
-    throw Exception('No internet connection');
   }
 });
 
@@ -104,7 +100,7 @@ final getFastFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) async {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     return await bitcoinModel.estimateFeeRate(1);
   } else {
-    throw Exception('No internet connection');
+    return throw Exception('Offline');
   }
 });
 
@@ -115,7 +111,7 @@ final getMediumFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) async
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     return await bitcoinModel.estimateFeeRate(3);
   } else {
-    throw Exception('No internet connection');
+    return throw Exception('Offline');
   }
 });
 
@@ -148,7 +144,5 @@ final sendProvider = FutureProvider.family.autoDispose<void, SendParams>((ref, p
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     FeeRate feeRate = await ref.watch(getCustomFeeRateProvider(params.blocks).future);
     await bitcoinModel.sendBitcoin(params.address, feeRate);
-  } else {
-    throw Exception('No internet connection');
   }
 });

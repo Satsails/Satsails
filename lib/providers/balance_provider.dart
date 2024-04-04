@@ -14,7 +14,6 @@ final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) asyn
     cadBalance: 0,
     eurBalance: 0,
     brlBalance: 0,
-    currency: currency,
   );
 });
 
@@ -30,7 +29,6 @@ final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, 
       cadBalance: 0,
       eurBalance: 0,
       brlBalance: 0,
-      currency: 'USD',
     ),
     error: (Object error, StackTrace stackTrace) {
       throw error;
@@ -38,9 +36,9 @@ final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, 
   ));
 });
 
-final totalBalanceInCurrencyProvider = FutureProvider.autoDispose<double>((ref) async {
+final totalBalanceInCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
   final balanceModel = ref.watch(balanceNotifierProvider.notifier);
-  return await balanceModel.totalBalanceInCurrency();
+  return await balanceModel.totalBalanceInCurrency(currency);
 });
 
 final totalBalanceInProvidedCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
@@ -55,7 +53,7 @@ final updateBtcBalanceProvider = FutureProvider.autoDispose<BalanceModel>((ref) 
   return balanceModel;
 });
 
-final currentBitcoinPriceInCurrencyProvider = FutureProvider.autoDispose<double>((ref) async {
+final currentBitcoinPriceInCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
   final balanceModel = ref.watch(balanceNotifierProvider.notifier);
-  return await balanceModel.currentBitcoinPriceInCurrency();
+  return await balanceModel.currentBitcoinPriceInCurrency(currency);
 });
