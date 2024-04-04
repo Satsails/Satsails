@@ -17,7 +17,7 @@ class BalanceModel extends StateNotifier<Balance>{
 
   Future<double> totalBalanceInCurrency([String? currency]) async {
     double total = 0;
-    double totalInBtc = state.btcBalance.toDouble() + state.liquidBalance.toDouble();
+    double totalInBtc = totalBtcBalanceInDenomination('BTC');
     String conversionCurrency = currency ?? state.currency;
 
     switch (conversionCurrency) {
@@ -70,6 +70,21 @@ class BalanceModel extends StateNotifier<Balance>{
 
   void updateBtcBalance(int newBtcBalance) {
     state = state.copyWith(btcBalance: newBtcBalance);
+  }
+
+  double totalBtcBalanceInDenomination([String? denomination]) {
+    switch (denomination) {
+      case 'sats':
+        return totalBtcBalance();
+      case 'BTC':
+        return totalBtcBalance() / 100000000;
+      case 'mBTC':
+        return totalBtcBalance() / 100000;
+      case 'bits':
+        return totalBtcBalance() / 1000000;
+      default:
+        return 0;
+    }
   }
 }
 

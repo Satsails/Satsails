@@ -119,6 +119,8 @@ class Home extends ConsumerWidget {
     final totalBalanceInBtc = ref.watch(totalBalanceInProvidedCurrencyProvider('BTC'));
     final initializeBalance = ref.watch(initializeBalanceProvider);
     final settings = ref.watch(settingsProvider);
+    final balance = ref.watch(balanceNotifierProvider.notifier);
+    final totalInDenominatedCurrency = balance.totalBtcBalanceInDenomination(settings.btcFormat);
 
     final screenWidth = MediaQuery
         .of(context)
@@ -152,22 +154,13 @@ class Home extends ConsumerWidget {
                 children: [
                   initializeBalance.when(
                     data: (_) =>
-                        totalBalanceInBtc.when(
-                          data: (total) =>
                               Text(
-                                '${total} ${settings
-                                    .currency}',
+                                '${totalInDenominatedCurrency} ${settings
+                                    .btcFormat}',
                                 style: TextStyle(fontSize: subtitleFontSize,
                                     color: Colors.white),
                                 textAlign: TextAlign.center,
                               ),
-                          loading: () =>
-                          const CardLoading(height: 20, width: 200),
-                          error: (error, stack) => TextButton(onPressed: () {
-                            ref.refresh(balanceNotifierProvider.notifier);
-                          }, child: const Text('Error', style: TextStyle(
-                              color: Colors.white))),
-                        ),
                     loading: () => const CardLoading(height: 20, width: 200),
                     error: (error, stack) =>
                     const Text('Failed to load',
@@ -209,7 +202,7 @@ class Home extends ConsumerWidget {
         SizedBox(height: screenHeight * 0.05),
         initializeBalance.when(
             data: (total) =>
-                totalBalanceInBtc.when(
+                totalBalanceInCurrency.when(
                   data: (totalInBtc) =>
                       _buildDiagram(ref, context),
                   loading: () =>
