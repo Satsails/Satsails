@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:satsails/models/mnemonic_model.dart';
+import 'package:satsails/providers/background_sync_provider.dart';
 import 'package:satsails/providers/mnemonic_provider.dart';
 import 'package:satsails/screens/creation/start.dart';
 import 'package:satsails/screens/settings/components/seed_words.dart';
@@ -38,6 +39,7 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.read(backgroundSyncNotifierProvider);
     return FutureBuilder<MnemonicModel>(
       future: ref.watch(mnemonicProvider.future),
       builder: (context, snapshot) {

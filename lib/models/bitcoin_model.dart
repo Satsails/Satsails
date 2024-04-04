@@ -17,7 +17,6 @@ class BitcoinModel {
     }
   }
 
-  // implement for isolates later
   Future<void> asyncSync() async {
     try {
       Isolate.run(() async => {await config.wallet.sync(config.blockchain!)});

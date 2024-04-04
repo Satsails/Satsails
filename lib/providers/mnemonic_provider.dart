@@ -4,7 +4,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 final mnemonicProvider = FutureProvider<MnemonicModel>((ref) async {
   const storage = FlutterSecureStorage();
-  final mnemonic = await storage.read(key: 'mnemonic') ?? "";
+  final mnemonic = storage.read(key: 'mnemonic');
+  mnemonic.then((value) => null)
 
   return MnemonicModel(mnemonic: mnemonic);
 });
