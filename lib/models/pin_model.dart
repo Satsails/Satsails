@@ -10,10 +10,6 @@ class PinModel {
 
   Future<void> setPin() async {
     await _storage.write(key: 'pin', value: pin);
-    if (await _storage.read(key: 'mnemonic') == null) {
-      final mnemonic = bip39.generateMnemonic();
-      await _storage.write(key: 'mnemonic', value: mnemonic.toString());
-    }
   }
 
   Future<void> deletePin() async {

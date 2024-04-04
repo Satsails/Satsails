@@ -6,12 +6,16 @@ import 'mnemonic_provider.dart';
 final bitcoinConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
   final mnemonic = await ref.watch(mnemonicProvider.future);
 
+  if (mnemonic.mnemonic == null || mnemonic.mnemonic == '') {
+    throw Exception('Mnemonic is null or empty');
+  }
+
   final config = BitcoinConfig(
-      mnemonic: mnemonic.mnemonic,
-      network: Network.Bitcoin,
-      externalKeychain: KeychainKind.External,
-      internalKeychain: KeychainKind.Internal,
-      isElectrumBlockchain: true,
+    mnemonic: mnemonic.mnemonic,
+    network: Network.Bitcoin,
+    externalKeychain: KeychainKind.External,
+    internalKeychain: KeychainKind.Internal,
+    isElectrumBlockchain: true,
   );
   return config;
 });

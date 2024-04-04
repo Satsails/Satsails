@@ -8,3 +8,9 @@ final pinProvider = FutureProvider.autoDispose<PinModel>((ref) async {
 
   return PinModel(pin: pin ?? '');
 });
+
+final setPinProvider = FutureProvider.autoDispose<void>((ref) async {
+  final pin = await ref.read(pinProvider.future);
+
+  await pin.setPin();
+});

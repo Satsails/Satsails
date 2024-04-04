@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:satsails/providers/mnemonic_provider.dart';
 import 'package:satsails/providers/pin_provider.dart';
 
 class SetPin extends ConsumerWidget {
@@ -43,6 +44,7 @@ class SetPin extends ConsumerWidget {
                     if (formKey.currentState!.validate()) {
                       final pin = await ref.read(pinProvider.future);
                       await pin.setPin();
+                      await ref.read(setMnemonicProvider.future);
                       Navigator.pushReplacementNamed(context, '/home');
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(

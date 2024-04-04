@@ -6,11 +6,7 @@ class BitcoinConfigModel {
   BitcoinConfigModel(this.config);
 
   Future<Descriptor> _createDescriptor(KeychainKind keychain) async {
-    if (config.mnemonic == "") {
-      throw Exception('Mnemonic is required');
-    }
-
-    Mnemonic mnemonic = await Mnemonic.fromString(config.mnemonic!).then((value) => value);
+    Mnemonic mnemonic = await Mnemonic.fromString(config.mnemonic).then((value) => value);
 
     final descriptorSecretKey = await DescriptorSecretKey.create(
       network: config.network,
