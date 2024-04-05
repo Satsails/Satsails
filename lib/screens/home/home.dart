@@ -106,7 +106,7 @@ class Home extends ConsumerWidget {
                       error: (error, stack) => TextButton(onPressed: () { ref.refresh(balanceNotifierProvider.notifier); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
                     ),
                     loading: () => const CardLoading(height: 20, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
-                    error: (error, stack) => const Text('Failed to load', style: TextStyle(color: Colors.white)),
+                    error: (error, stack) => TextButton(onPressed: () { ref.refresh(balanceNotifierProvider.notifier); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
                   ),
                 ],
               ),
