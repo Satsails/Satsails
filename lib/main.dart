@@ -2,7 +2,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:satsails/providers/auth_provider.dart';
-import 'package:satsails/providers/background_sync_provider.dart';
 import 'package:satsails/screens/creation/start.dart';
 import 'package:satsails/screens/settings/components/seed_words.dart';
 import 'package:satsails/screens/settings/settings.dart';
@@ -44,7 +43,6 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.read(backgroundSyncNotifierProvider);
     Future<String?> mnemonicFuture = ref.read(authModelProvider).getMnemonic();
     return FutureBuilder<String?>(
       future: mnemonicFuture,

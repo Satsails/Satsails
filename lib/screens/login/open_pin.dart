@@ -56,8 +56,16 @@ class OpenPin extends ConsumerWidget {
                       const Size(300.0, 60.0)),
                 ),
                 child: const Text(
-                  'Enter PIN',
+                  'Unlock',
                   style: TextStyle(fontSize: 20.0, color: Colors.white),
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () => _showConfirmationDialog(context, ref),
+                child: const Text(
+                  'Forgot PIN',
+                  style: TextStyle(fontSize: 20.0, color: Colors.blue),
                 ),
               ),
             ],
@@ -95,5 +103,46 @@ class OpenPin extends ConsumerWidget {
         Navigator.pushReplacementNamed(context, '/home');
       }
     }
+  }
+
+  Future<void> _showConfirmationDialog(BuildContext context, WidgetRef ref) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Reset PIN'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('This will delete all your data and reset your PIN.'),
+                Text('Do you want to proceed?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _forgotPin(context, ref);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _forgotPin(BuildContext context, WidgetRef ref) async {
+    final authModel = ref.read(authModelProvider);
+    await authModel.deleteAuthentication();
+    Navigator.pushReplacementNamed(context, '/');
   }
 }

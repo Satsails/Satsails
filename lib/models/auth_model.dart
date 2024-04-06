@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:hive/hive.dart';
 
 class AuthModel {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -39,5 +40,6 @@ class AuthModel {
   Future<void> deleteAuthentication() async {
     await _storage.delete(key: 'mnemonic');
     await _storage.delete(key: 'pin');
+    await Hive.deleteBoxFromDisk('bitcoin');
   }
 }

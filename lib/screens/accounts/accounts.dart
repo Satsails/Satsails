@@ -15,9 +15,9 @@ class Accounts extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     double screenWidth = MediaQuery.of(context).size.width;
     final format = ref.watch(settingsProvider).btcFormat;
-    final balance = ref.watch(balanceNotifierProvider.notifier);
-    final btcBalanceInFormat = balance.btcBalanceInDenomination(format);
-    final liquidBalanceInFormat = balance.liquidBalanceInDenomination(format);
+    final balance = ref.watch(balanceNotifierProvider);
+    final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(format));
+    final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
     final bitcoinAddress = ref.watch(addressProvider.future);
 
     return Scaffold(
@@ -60,11 +60,11 @@ class Accounts extends ConsumerWidget {
                   _buildDivider(),
                   _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, bitcoinAddress),
                   _buildDivider(),
-                  _buildListTile('Real', balance.state.brlBalance.toString(), Flag(Flags.brazil), context, bitcoinAddress),
+                  _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, bitcoinAddress),
                   _buildDivider(),
-                  _buildListTile('Dollar', balance.state.usdBalance.toString(), Flag(Flags.united_states_of_america), context, bitcoinAddress),
+                  _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, bitcoinAddress),
                   _buildDivider(),
-                  _buildListTile('Euro', balance.state.eurBalance.toString(), Flag(Flags.european_union), context, bitcoinAddress),
+                  _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, bitcoinAddress),
                 ],
               ),
             ),
