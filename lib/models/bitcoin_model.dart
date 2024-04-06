@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:isolate';
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class BitcoinModel {
   final Bitcoin config;
@@ -55,10 +54,7 @@ class BitcoinModel {
   }
 
   Future<Balance> getBalance() async {
-    final prefs = await SharedPreferences.getInstance();
     final res = await config.wallet.getBalance();
-    if(config.blockchain == null) {return res;}
-    prefs.setInt('latestBitcoinBalance', res.total);
     return res;
   }
 

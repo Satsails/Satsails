@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:satsails/models/mnemonic_model.dart';
 import 'package:satsails/providers/background_sync_provider.dart';
 import 'package:satsails/providers/mnemonic_provider.dart';
@@ -22,11 +23,13 @@ import 'package:satsails/screens/splash/splash.dart';
 import 'package:satsails/screens/support/info.dart';
 import 'package:satsails/screens/home/components/search_modal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 
 
-
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final directory = await getApplicationDocumentsDirectory();
+  Hive.init(directory.path);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(
      const ProviderScope(

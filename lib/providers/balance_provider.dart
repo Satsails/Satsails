@@ -7,7 +7,7 @@ final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) asyn
 
   return Balance(
     btcBalance: balance,
-    liquidBalance: 0,
+    liquidBalance: 100000000,
     usdBalance: 0,
     cadBalance: 0,
     eurBalance: 0,

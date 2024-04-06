@@ -2,7 +2,7 @@ import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/bitcoin_model.dart';
 import 'package:satsails/providers/settings_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive/hive.dart';
 import 'bitcoin_config_provider.dart';
 
 final bitcoinProvider = FutureProvider<Bitcoin>((ref) {
@@ -70,10 +70,11 @@ final updateBitcoinBalanceProvider = FutureProvider.autoDispose<int>((ref) {
     await ref.watch(syncBitcoinProvider.future);
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     final balance = await bitcoinModel.getBalance();
-    final prefs = await SharedPreferences.getInstance();
+    final box = await Hive.openBox('myBox');
     if (balance.total == 0 || !ref.watch(onlineProvider)) {
-      return prefs.getInt('latestBitcoinBalance') ?? 0;
+      return box.get('latestBitcoinBalance', defaultValue: 0);
     } else {
+      await box.put('latestBitcoinBalance', balance.total);
       return balance.total;
     }
   });

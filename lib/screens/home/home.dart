@@ -89,7 +89,7 @@ class Home extends ConsumerWidget {
                   const Text('Total balance', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                   initializeBalance.when(
                     data: (_) => totalInDenominatedCurrency.when(
-                      data: (total) => Text('${total.toStringAsFixed(2)} ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                      data: (total) => Text('$total ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
                       loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
                       error: (error, stack) => const Text('Failed to load', style: TextStyle(color: Colors.white)),
                     ),
