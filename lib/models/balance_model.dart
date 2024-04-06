@@ -45,33 +45,45 @@ class Balance {
   }
 
 
-  double liquidBalanceInDenomination(String denomination) {
+  String liquidBalanceInDenominationFormatted(String denomination) {
+    double balance;
+
     switch (denomination) {
       case 'sats':
-        return liquidBalance.toDouble();
+        balance = liquidBalance * 100000000;
+        return balance.toInt().toString();
       case 'BTC':
-        return liquidBalance.toDouble() / 100000000;
+        balance = liquidBalance / 100000000;
+        return balance.toStringAsFixed(8);
       case 'mBTC':
-        return liquidBalance.toDouble() / 100000;
+        balance = (liquidBalance / 100000000) * 1000;
+        return balance.toStringAsFixed(5);
       case 'bits':
-        return liquidBalance.toDouble() / 1000000;
+        balance = (liquidBalance / 100000000) * 1000000;
+        return balance.toStringAsFixed(2);
       default:
-        return 0;
+        return "0";
     }
   }
 
-  double btcBalanceInDenomination(String denomination) {
+  String btcBalanceInDenominationFormatted(String denomination) {
+    double balance;
+
     switch (denomination) {
       case 'sats':
-        return btcBalance.toDouble();
+        balance = btcBalance.toDouble();
+        return "${balance.toInt()}";
       case 'BTC':
-        return btcBalance.toDouble() / 100000000;
+        balance = btcBalance / 100000000;
+        return "${balance.toStringAsFixed(8)}";
       case 'mBTC':
-        return btcBalance.toDouble() / 100000;
+        balance = (btcBalance / 100000000) * 1000;
+        return "${balance.toStringAsFixed(5)}";
       case 'bits':
-        return btcBalance.toDouble() / 1000000;
+        balance = (btcBalance / 100000000) * 1000000;
+        return "${balance.toStringAsFixed(2)}";
       default:
-        return 0;
+        return "0";
     }
   }
 
@@ -107,20 +119,26 @@ class Balance {
     );
   }
 
-  Future<double> totalBalanceInDenomination(String? denomination) async {
+  Future<String> totalBalanceInDenominationFormatted(String? denomination) async {
+    double balanceInBTC = await totalBalanceInCurrency('BTC'); // Assuming this returns the balance in BTC
+
     switch (denomination) {
       case 'BTC':
-        return await totalBalanceInCurrency('BTC');
+        return balanceInBTC.toStringAsFixed(8);
       case 'sats':
-        return await totalBalanceInCurrency('BTC') * 100000000;
+        double balanceInSats = balanceInBTC * 100000000;
+        return balanceInSats.toInt().toString();
       case 'mBTC':
-        return await totalBalanceInCurrency('BTC') * 100000;
+        double balanceInMBTC = balanceInBTC * 1000;
+        return balanceInMBTC.toStringAsFixed(5);
       case 'bits':
-        return await totalBalanceInCurrency('BTC') * 1000000;
+        double balanceInBits = balanceInBTC * 1000000;
+        return balanceInBits.toStringAsFixed(2);
       default:
-        return 0;
+        return "0";
     }
   }
+
 
   Future<double> currentBitcoinPriceInCurrency(String currency) {
     return getConvertedBalance('BTC', currency, 1);

@@ -8,18 +8,12 @@ import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
 
-class Accounts extends ConsumerWidget {
+class Accounts extends StatelessWidget {
   const Accounts({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    final format = ref.watch(settingsProvider).btcFormat;
-    final balance = ref.watch(balanceNotifierProvider);
-    final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(format));
-    final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
-    final bitcoinAddress = ref.watch(addressProvider);
-
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -37,14 +31,21 @@ class Accounts extends ConsumerWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: screenWidth * 0.02),
-            Card(
-              color: Colors.orangeAccent,
-              elevation: 0,
-              child: Column(
-                children: [
-                  _buildListTile('Bitcoin', btcBalanceInFormat.toStringAsFixed(6), const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
-                ],
-              ),
+            Consumer(
+              builder: (context, ref, _) {
+                final format = ref.watch(settingsProvider).btcFormat;
+                final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(format));
+                final bitcoinAddress = ref.watch(addressProvider.future);
+                return Card(
+                  color: Colors.orangeAccent,
+                  elevation: 0,
+                  child: Column(
+                    children: [
+                      _buildListTile('Bitcoin', btcBalanceInFormat, const  Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
+                    ],
+                  ),
+                );
+              },
             ),
             SizedBox(height: screenWidth * 0.02),
             const Text(
@@ -52,21 +53,29 @@ class Accounts extends ConsumerWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: screenWidth * 0.02),
-            Card(
-              color: Colors.blueAccent,
-              child: Column(
-                children: [
-                  _buildListTile('Liquid', liquidBalanceInFormat.toStringAsFixed(6), const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
-                  _buildDivider(),
-                  _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, bitcoinAddress),
-                  _buildDivider(),
-                  _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, bitcoinAddress),
-                  _buildDivider(),
-                  _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, bitcoinAddress),
-                  _buildDivider(),
-                  _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, bitcoinAddress),
-                ],
-              ),
+            Consumer(
+              builder: (context, ref, _) {
+                final format = ref.watch(settingsProvider).btcFormat;
+                final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
+                final balance = ref.watch(balanceNotifierProvider);
+                final bitcoinAddress = ref.watch(addressProvider.future);
+                return Card(
+                  color: Colors.blueAccent,
+                  child: Column(
+                    children: [
+                      _buildListTile('Liquid', liquidBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
+                      _buildDivider(),
+                      _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, bitcoinAddress),
+                      _buildDivider(),
+                      _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, bitcoinAddress),
+                      _buildDivider(),
+                      _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, bitcoinAddress),
+                      _buildDivider(),
+                      _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, bitcoinAddress),
+                    ],
+                  ),
+                );
+              },
             ),
           ],
         ),

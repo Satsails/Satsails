@@ -42,9 +42,9 @@ final totalBalanceInCurrencyProvider = FutureProvider.family.autoDispose<double,
   return await balanceModel.totalBalanceInCurrency(currency);
 });
 
-final totalBalanceInDenominationProvider = FutureProvider.family.autoDispose<double, String>((ref, denomination) async {
+final totalBalanceInDenominationProvider = FutureProvider.family.autoDispose<String, String>((ref, denomination) async {
   final balanceModel = ref.watch(balanceNotifierProvider);
-  return balanceModel.totalBalanceInDenomination(denomination);
+  return balanceModel.totalBalanceInDenominationFormatted(denomination);
 });
 
 final currentBitcoinPriceInCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
@@ -57,12 +57,12 @@ final percentageChangeProvider = FutureProvider.autoDispose<Percentage>((ref) as
   return await balanceModel.percentageOfEachCurrency();
 });
 
-final btcBalanceInFormatProvider = StateProvider.family.autoDispose<double, String>((ref, denomination) {
+final btcBalanceInFormatProvider = StateProvider.family.autoDispose<String, String>((ref, denomination) {
   final balance = ref.watch(balanceNotifierProvider);
-  return balance.btcBalanceInDenomination(denomination);
+  return balance.btcBalanceInDenominationFormatted(denomination);
 });
 
-final liquidBalanceInFormatProvider = StateProvider.family.autoDispose<double, String>((ref, denomination) {
+final liquidBalanceInFormatProvider = StateProvider.family.autoDispose<String, String>((ref, denomination) {
   final balance = ref.watch(balanceNotifierProvider);
-  return balance.liquidBalanceInDenomination(denomination);
+  return balance.liquidBalanceInDenominationFormatted(denomination);
 });

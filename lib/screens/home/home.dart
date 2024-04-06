@@ -104,7 +104,7 @@ class Home extends ConsumerWidget {
                     final totalBalanceInCurrency = ref.watch(totalBalanceInCurrencyProvider(settings.currency));
                     return initializeBalance.when(
                       data: (_) => totalBalanceInCurrency.when(
-                        data: (total) => Text('$total ${settings.currency}', style: TextStyle(fontSize: subtitleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                        data: (total) => Text('${total.toStringAsFixed(2)} ${settings.currency}', style: TextStyle(fontSize: subtitleFontSize, color: Colors.white), textAlign: TextAlign.center),
                         loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
                         error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
                       ),
