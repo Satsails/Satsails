@@ -4,154 +4,8 @@ import 'package:forex_currency_conversion/forex_currency_conversion.dart';
 class BalanceModel extends StateNotifier<Balance>{
   BalanceModel(super.state);
 
-  Future<double> _getConvertedBalance(String sourceCurrency, String destinationCurrency, double sourceAmount) async {
-    if (sourceCurrency == destinationCurrency) {
-      return sourceAmount;
-    }
-
-    if (sourceAmount == 0) {
-      return 0;
-    }
-
-
-    final fx = Forex();
-    final result = await fx.getCurrencyConverted(sourceCurrency: sourceCurrency, destinationCurrency: destinationCurrency, sourceAmount: sourceAmount);
-    final error = fx.getErrorNotifier.value;
-
-    if (error != null){
-      throw 'No internet connection';
-    }
-    return result;
-  }
-
-  Future<double> totalBalanceInCurrency(String currency) async {
-    double total = 0;
-    double totalInBtc = totalBtcBalanceInDenomination('BTC');
-
-    switch (currency) {
-      case 'BTC':
-        total += totalInBtc;
-        total += await _getConvertedBalance('BRL', 'BTC', state.brlBalance.toDouble());
-        total += await _getConvertedBalance('CAD', 'BTC', state.cadBalance.toDouble());
-        total += await _getConvertedBalance('EUR', 'BTC', state.eurBalance.toDouble());
-        total += await _getConvertedBalance('USD', 'BTC', state.usdBalance.toDouble());
-        break;
-      case 'USD':
-        total += state.usdBalance.toDouble();
-        total += await _getConvertedBalance('BRL', 'USD', state.brlBalance.toDouble());
-        total += await _getConvertedBalance('CAD', 'USD', state.cadBalance.toDouble());
-        total += await _getConvertedBalance('EUR', 'USD', state.eurBalance.toDouble());
-        total += await _getConvertedBalance('BTC', 'USD', totalInBtc);
-        break;
-      case 'CAD':
-        total += state.cadBalance.toDouble();
-        total += await _getConvertedBalance('BRL', 'CAD', state.brlBalance.toDouble());
-        total += await _getConvertedBalance('EUR', 'CAD', state.eurBalance.toDouble());
-        total += await _getConvertedBalance('USD', 'CAD', state.usdBalance.toDouble());
-        total += await _getConvertedBalance('BTC', 'CAD', totalInBtc);
-        break;
-      case 'EUR':
-        total += state.eurBalance.toDouble();
-        total += await _getConvertedBalance('BRL', 'EUR', state.brlBalance.toDouble());
-        total += await _getConvertedBalance('CAD', 'EUR', state.cadBalance.toDouble());
-        total += await _getConvertedBalance('USD', 'EUR', state.usdBalance.toDouble());
-        total += await _getConvertedBalance('BTC', 'EUR', totalInBtc);
-        break;
-      case 'BRL':
-        total += state.brlBalance.toDouble();
-        total += await _getConvertedBalance('CAD', 'BRL', state.cadBalance.toDouble());
-        total += await _getConvertedBalance('EUR', 'BRL', state.eurBalance.toDouble());
-        total += await _getConvertedBalance('USD', 'BRL', state.usdBalance.toDouble());
-        total += await _getConvertedBalance('BTC', 'BRL', totalInBtc);
-        break;
-    }
-    return total;
-  }
-
-  double totalBtcBalance() {
-    return state.btcBalance.toDouble() + state.liquidBalance.toDouble();
-  }
-
-  Future<double> currentBitcoinPriceInCurrency(String currency) {
-    return _getConvertedBalance('BTC', currency, 1);
-  }
-
   void updateBtcBalance(int newBtcBalance) {
     state = state.copyWith(btcBalance: newBtcBalance);
-  }
-
-  double totalBtcBalanceInDenomination([String? denomination]) {
-    switch (denomination) {
-      case 'sats':
-        return totalBtcBalance();
-      case 'BTC':
-        return totalBtcBalance() / 100000000;
-      case 'mBTC':
-        return totalBtcBalance() / 100000;
-      case 'bits':
-        return totalBtcBalance() / 1000000;
-      default:
-        return 0;
-    }
-  }
-
-  double liquidBalanceInDenomination([String? denomination]) {
-    switch (denomination) {
-      case 'sats':
-        return state.liquidBalance.toDouble();
-      case 'BTC':
-        return state.liquidBalance.toDouble() / 100000000;
-      case 'mBTC':
-        return state.liquidBalance.toDouble() / 100000;
-      case 'bits':
-        return state.liquidBalance.toDouble() / 1000000;
-      default:
-        return 0;
-    }
-  }
-
-  double btcBalanceInDenomination([String? denomination]) {
-    switch (denomination) {
-      case 'sats':
-        return state.btcBalance.toDouble();
-      case 'BTC':
-        return state.btcBalance.toDouble() / 100000000;
-      case 'mBTC':
-        return state.btcBalance.toDouble() / 100000;
-      case 'bits':
-        return state.btcBalance.toDouble() / 1000000;
-      default:
-        return 0;
-    }
-  }
-
-
-  Future<double> totalBalanceInDenomination(String? denomination) async {
-    switch (denomination) {
-      case 'BTC':
-        return await totalBalanceInCurrency('BTC');
-      case 'sats':
-        return await totalBalanceInCurrency('BTC') * 100000000;
-      case 'mBTC':
-        return await totalBalanceInCurrency('BTC') * 100000;
-      case 'bits':
-        return await totalBalanceInCurrency('BTC') * 1000000;
-      default:
-        return 0;
-    }
-  }
-
-  Future<Percentage> percentageOfEachCurrency() async {
-    final total = await totalBalanceInCurrency('BTC');
-    return Percentage(
-      eurPercentage: await _getConvertedBalance('EUR', 'BTC', state.eurBalance.toDouble()) / total,
-      brlPercentage: await _getConvertedBalance('BRL', 'BTC', state.brlBalance.toDouble()) / total,
-      usdPercentage: await _getConvertedBalance('USD', 'BTC', state.usdBalance.toDouble()) / total,
-      cadPercentage: await _getConvertedBalance('CAD', 'BTC', state.cadBalance.toDouble()) / total,
-      liquidPercentage: (state.liquidBalance / 100000000).toDouble() / total,
-      btcPercentage: (state.btcBalance / 100000000).toDouble() / total,
-      total: total,
-    );
   }
 }
 
@@ -189,6 +43,154 @@ class Balance {
       brlBalance: brlBalance ?? this.brlBalance,
     );
   }
+
+
+  double liquidBalanceInDenomination(String denomination) {
+    switch (denomination) {
+      case 'sats':
+        return liquidBalance.toDouble();
+      case 'BTC':
+        return liquidBalance.toDouble() / 100000000;
+      case 'mBTC':
+        return liquidBalance.toDouble() / 100000;
+      case 'bits':
+        return liquidBalance.toDouble() / 1000000;
+      default:
+        return 0;
+    }
+  }
+
+  double btcBalanceInDenomination(String denomination) {
+    switch (denomination) {
+      case 'sats':
+        return btcBalance.toDouble();
+      case 'BTC':
+        return btcBalance.toDouble() / 100000000;
+      case 'mBTC':
+        return btcBalance.toDouble() / 100000;
+      case 'bits':
+        return btcBalance.toDouble() / 1000000;
+      default:
+        return 0;
+    }
+  }
+
+  double totalBtcBalance() {
+    return btcBalance.toDouble() + liquidBalance.toDouble();
+  }
+
+  double totalBtcBalanceInDenomination(String denomination) {
+    switch (denomination) {
+      case 'sats':
+        return totalBtcBalance();
+      case 'BTC':
+        return totalBtcBalance() / 100000000;
+      case 'mBTC':
+        return totalBtcBalance() / 100000;
+      case 'bits':
+        return totalBtcBalance() / 1000000;
+      default:
+        return 0;
+    }
+  }
+
+  Future<Percentage> percentageOfEachCurrency() async {
+    final total = await totalBalanceInCurrency('BTC');
+    return Percentage(
+      eurPercentage: await getConvertedBalance('EUR', 'BTC', eurBalance.toDouble()) / total,
+      brlPercentage: await getConvertedBalance('BRL', 'BTC', brlBalance.toDouble()) / total,
+      usdPercentage: await getConvertedBalance('USD', 'BTC', usdBalance.toDouble()) / total,
+      cadPercentage: await getConvertedBalance('CAD', 'BTC', cadBalance.toDouble()) / total,
+      liquidPercentage: (liquidBalance / 100000000).toDouble() / total,
+      btcPercentage: (btcBalance / 100000000).toDouble() / total,
+      total: total,
+    );
+  }
+
+  Future<double> totalBalanceInDenomination(String? denomination) async {
+    switch (denomination) {
+      case 'BTC':
+        return await totalBalanceInCurrency('BTC');
+      case 'sats':
+        return await totalBalanceInCurrency('BTC') * 100000000;
+      case 'mBTC':
+        return await totalBalanceInCurrency('BTC') * 100000;
+      case 'bits':
+        return await totalBalanceInCurrency('BTC') * 1000000;
+      default:
+        return 0;
+    }
+  }
+
+  Future<double> currentBitcoinPriceInCurrency(String currency) {
+    return getConvertedBalance('BTC', currency, 1);
+  }
+
+  Future<double> totalBalanceInCurrency(String currency) async {
+    double total = 0;
+    double totalInBtc = totalBtcBalanceInDenomination('BTC');
+
+    switch (currency) {
+      case 'BTC':
+        total += totalInBtc;
+        total += await getConvertedBalance('BRL', 'BTC', brlBalance.toDouble());
+        total += await getConvertedBalance('CAD', 'BTC', cadBalance.toDouble());
+        total += await getConvertedBalance('EUR', 'BTC', eurBalance.toDouble());
+        total += await getConvertedBalance('USD', 'BTC', usdBalance.toDouble());
+        break;
+      case 'USD':
+        total += usdBalance.toDouble();
+        total += await getConvertedBalance('BRL', 'USD', brlBalance.toDouble());
+        total += await getConvertedBalance('CAD', 'USD', cadBalance.toDouble());
+        total += await getConvertedBalance('EUR', 'USD', eurBalance.toDouble());
+        total += await getConvertedBalance('BTC', 'USD', totalInBtc);
+        break;
+      case 'CAD':
+        total += cadBalance.toDouble();
+        total += await getConvertedBalance('BRL', 'CAD', brlBalance.toDouble());
+        total += await getConvertedBalance('EUR', 'CAD', eurBalance.toDouble());
+        total += await getConvertedBalance('USD', 'CAD', usdBalance.toDouble());
+        total += await getConvertedBalance('BTC', 'CAD', totalInBtc);
+        break;
+      case 'EUR':
+        total += eurBalance.toDouble();
+        total += await getConvertedBalance('BRL', 'EUR', brlBalance.toDouble());
+        total += await getConvertedBalance('CAD', 'EUR', cadBalance.toDouble());
+        total += await getConvertedBalance('USD', 'EUR', usdBalance.toDouble());
+        total += await getConvertedBalance('BTC', 'EUR', totalInBtc);
+        break;
+      case 'BRL':
+        total += brlBalance.toDouble();
+        total += await getConvertedBalance('CAD', 'BRL', cadBalance.toDouble());
+        total += await getConvertedBalance('EUR', 'BRL', eurBalance.toDouble());
+        total += await getConvertedBalance('USD', 'BRL', usdBalance.toDouble());
+        total += await getConvertedBalance('BTC', 'BRL', totalInBtc);
+        break;
+    }
+    return total;
+  }
+  Future<double> getConvertedBalance(String sourceCurrency, String destinationCurrency, double sourceAmount) async {
+    if (sourceCurrency == destinationCurrency) {
+      return sourceAmount;
+    }
+
+    if (sourceAmount == 0) {
+      return 0;
+    }
+
+
+    final fx = Forex();
+    final result = await fx.getCurrencyConverted(sourceCurrency: sourceCurrency, destinationCurrency: destinationCurrency, sourceAmount: sourceAmount);
+    final error = fx.getErrorNotifier.value;
+
+    if (error != null){
+      throw 'No internet connection';
+    }
+    return result;
+  }
+
+
+
 }
 
 class Percentage {

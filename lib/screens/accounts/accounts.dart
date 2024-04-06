@@ -18,7 +18,7 @@ class Accounts extends ConsumerWidget {
     final balance = ref.watch(balanceNotifierProvider);
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(format));
     final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
-    final bitcoinAddress = ref.watch(addressProvider.future);
+    final bitcoinAddress = ref.watch(addressProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,

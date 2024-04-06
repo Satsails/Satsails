@@ -58,13 +58,7 @@ class Home extends ConsumerWidget {
     );
   }
 
-
   Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
-    final totalBalanceInCurrency = ref.watch(totalBalanceInCurrencyProvider(settings.currency));
-    final initializeBalance = ref.watch(initializeBalanceProvider);
-    final totalInDenominatedCurrency = ref.watch(totalBalanceInDenominationProvider(settings.btcFormat));
-    final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final cardMargin = screenWidth * 0.05;
@@ -87,42 +81,55 @@ class Home extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text('Total balance', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
-                  initializeBalance.when(
-                    data: (_) => totalInDenominatedCurrency.when(
-                      data: (total) => Text('$total ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                  Consumer(builder: (context, watch, child) {
+                    final settings = ref.watch(settingsProvider);
+                    final initializeBalance = ref.watch(initializeBalanceProvider);
+                    final totalInDenominatedCurrency = ref.watch(totalBalanceInDenominationProvider(settings.btcFormat));
+                    return initializeBalance.when(
+                      data: (_) => totalInDenominatedCurrency.when(
+                        data: (total) => Text('$total ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                        loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
+                        error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
+                      ),
                       loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
-                      error: (error, stack) => const Text('Failed to load', style: TextStyle(color: Colors.white)),
-                    ),
-                    loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
-                    error: (error, stack) => const Text('Failed to load', style: TextStyle(color: Colors.white)),
-                  ),
+                      error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
+                    );
+                  }),
                   SizedBox(height: screenHeight * 0.01),
                   const Text('or', style: TextStyle(fontSize: 14, color: Colors.white), textAlign: TextAlign.center),
                   SizedBox(height: screenHeight * 0.01),
-                  initializeBalance.when(
-                    data: (_) => totalBalanceInCurrency.when(
-                      data: (total) => Text('${total.toStringAsFixed(2)} ${settings.currency}', style: TextStyle(fontSize: subtitleFontSize, color: Colors.white), textAlign: TextAlign.center),
-                      loading: () => const CardLoading(height: 20, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
-                      error: (error, stack) => TextButton(onPressed: () { ref.refresh(balanceNotifierProvider.notifier); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
-                    ),
-                    loading: () => const CardLoading(height: 20, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
-                    error: (error, stack) => TextButton(onPressed: () { ref.refresh(balanceNotifierProvider.notifier); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
-                  ),
+                  Consumer(builder: (context, watch, child) {
+                    final settings = ref.watch(settingsProvider);
+                    final initializeBalance = ref.watch(initializeBalanceProvider);
+                    final totalBalanceInCurrency = ref.watch(totalBalanceInCurrencyProvider(settings.currency));
+                    return initializeBalance.when(
+                      data: (_) => totalBalanceInCurrency.when(
+                        data: (total) => Text('$total ${settings.currency}', style: TextStyle(fontSize: subtitleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                        loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
+                        error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
+                      ),
+                      loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
+                      error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
+                    );
+                  }),
                 ],
               ),
             ),
           ),
         ),
-        SizedBox(height: screenHeight * 0.05),
-        initializeBalance.when(
-          data: (_) => percentageOfEachCurrency.when(
-            data: (percentage) => _buildDiagram(context, percentage),
+        Consumer(builder: (context, watch, child) {
+          final initializeBalance = ref.watch(initializeBalanceProvider);
+          final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
+          return initializeBalance.when(
+            data: (_) => percentageOfEachCurrency.when(
+              data: (percentage) => _buildDiagram(context, percentage),
+              loading: () => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(10))),
+              error: (error, stack) => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(30))),
+            ),
             loading: () => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(10))),
             error: (error, stack) => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(30))),
-          ),
-          loading: () => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(10))),
-          error: (error, stack) => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(30))),
-        ),
+          );
+        }),
         SizedBox(height: screenHeight * 0.05),
         ElevatedButton(
           onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => const Accounts())); },
@@ -132,8 +139,6 @@ class Home extends ConsumerWidget {
       ],
     );
   }
-
-
 
   ButtonStyle _buildElevatedButtonStyle() {
     return ButtonStyle(

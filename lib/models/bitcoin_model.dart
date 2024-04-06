@@ -17,14 +17,6 @@ class BitcoinModel {
     }
   }
 
-  Future<void> asyncSync() async {
-    try {
-      Isolate.run(() async => {await config.wallet.sync(config.blockchain!)});
-    } on FormatException catch (e) {
-      debugPrint(e.message);
-    }
-  }
-
   Future<AddressInfo> getAddress() async {
     final address = await config.wallet.getAddress(addressIndex: const AddressIndex());
     return address;

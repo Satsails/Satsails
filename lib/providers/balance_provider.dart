@@ -3,11 +3,12 @@ import 'package:hive/hive.dart';
 import 'package:satsails/models/balance_model.dart';
 import 'package:satsails/providers/background_sync_provider.dart';
 
-final initializeBalanceProvider = StreamProvider.autoDispose<Balance>((ref) async* {
+final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) async {
   final box = await Hive.openBox('bitcoin');
   final balance = box.get('balance', defaultValue: 0) as int;
+  ref.read(backgroundSyncNotifierProvider);
 
-  yield Balance(
+  return Balance(
     btcBalance: balance,
     liquidBalance: 0,
     usdBalance: 0,
@@ -19,7 +20,6 @@ final initializeBalanceProvider = StreamProvider.autoDispose<Balance>((ref) asyn
 
 final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, Balance>((ref) {
   final initialBalance = ref.watch(initializeBalanceProvider);
-  ref.read(backgroundSyncNotifierProvider);
 
   return BalanceModel(initialBalance.when(
     data: (balance) => balance,
@@ -38,46 +38,31 @@ final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, 
 });
 
 final totalBalanceInCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
-  final balanceModel = ref.watch(balanceNotifierProvider.notifier);
+  final balanceModel = ref.watch(balanceNotifierProvider);
   return await balanceModel.totalBalanceInCurrency(currency);
 });
 
 final totalBalanceInDenominationProvider = FutureProvider.family.autoDispose<double, String>((ref, denomination) async {
-  final balanceModel = ref.watch(balanceNotifierProvider.notifier);
+  final balanceModel = ref.watch(balanceNotifierProvider);
   return balanceModel.totalBalanceInDenomination(denomination);
 });
 
 final currentBitcoinPriceInCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
-  final balanceModel = ref.watch(balanceNotifierProvider.notifier);
+  final balanceModel = ref.watch(balanceNotifierProvider);
   return await balanceModel.currentBitcoinPriceInCurrency(currency);
 });
 
 final percentageChangeProvider = FutureProvider.autoDispose<Percentage>((ref) async {
-  final balanceModel = ref.watch(balanceNotifierProvider.notifier);
+  final balanceModel = ref.watch(balanceNotifierProvider);
   return await balanceModel.percentageOfEachCurrency();
 });
 
-final btcBalanceInFormatProvider = Provider.family.autoDispose<double, String>((ref, denomination) {
-  final balance = ref.watch(balanceNotifierProvider.notifier);
+final btcBalanceInFormatProvider = StateProvider.family.autoDispose<double, String>((ref, denomination) {
+  final balance = ref.watch(balanceNotifierProvider);
   return balance.btcBalanceInDenomination(denomination);
 });
 
-
-final liquidBalanceInFormatProvider = Provider.family.autoDispose<double, String>((ref, denomination) {
-  final balanceModel = ref.watch(balanceNotifierProvider.notifier);
-  return balanceModel.liquidBalanceInDenomination(denomination);
+final liquidBalanceInFormatProvider = StateProvider.family.autoDispose<double, String>((ref, denomination) {
+  final balance = ref.watch(balanceNotifierProvider);
+  return balance.liquidBalanceInDenomination(denomination);
 });
-
-// final initBitcoinBalanceProvider = FutureProvider.autoDispose<int>((ref) {
-//   return ref.watch(bitcoinProvider.future).then((bitcoin) async {
-//     await ref.watch(syncBitcoinProvider.future);
-//     final balance = await ref.watch(getBalanceProvider.future);
-//     final box = await Hive.openBox('bitcoin');
-//     if (balance.total == 0 || !ref.watch(onlineProvider)) {
-//       return box.get('balance', defaultValue: 0) as int;
-//     } else {
-//       await box.put('balance', balance.total.toInt());
-//       return balance.total.toInt();
-//     }
-//   });
-// });
