@@ -86,16 +86,47 @@ class BalanceModel extends StateNotifier<Balance>{
     }
   }
 
+  double liquidBalanceInDenomination([String? denomination]) {
+    switch (denomination) {
+      case 'sats':
+        return state.liquidBalance.toDouble();
+      case 'BTC':
+        return state.liquidBalance.toDouble() / 100000000;
+      case 'mBTC':
+        return state.liquidBalance.toDouble() / 100000;
+      case 'bits':
+        return state.liquidBalance.toDouble() / 1000000;
+      default:
+        return 0;
+    }
+  }
+
+  double btcBalanceInDenomination([String? denomination]) {
+    switch (denomination) {
+      case 'sats':
+        return state.btcBalance.toDouble();
+      case 'BTC':
+        return state.btcBalance.toDouble() / 100000000;
+      case 'mBTC':
+        return state.btcBalance.toDouble() / 100000;
+      case 'bits':
+        return state.btcBalance.toDouble() / 1000000;
+      default:
+        return 0;
+    }
+  }
+
+
   Future<double> totalBalanceInDenomination(String? denomination) async {
     switch (denomination) {
       case 'BTC':
         return await totalBalanceInCurrency('BTC');
       case 'sats':
-        return await totalBalanceInCurrency('BTC') / 100000000;
+        return await totalBalanceInCurrency('BTC') * 100000000;
       case 'mBTC':
-        return await totalBalanceInCurrency('BTC') / 100000;
+        return await totalBalanceInCurrency('BTC') * 100000;
       case 'bits':
-        return await totalBalanceInCurrency('BTC') / 1000000;
+        return await totalBalanceInCurrency('BTC') * 1000000;
       default:
         return 0;
     }

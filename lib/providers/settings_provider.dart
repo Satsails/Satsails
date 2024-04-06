@@ -3,7 +3,7 @@ import 'package:satsails/models/settings_model.dart';
 import 'package:hive/hive.dart';
 
 final initialSettingsProvider = FutureProvider.autoDispose<Settings>((ref) async {
-      final box = await Hive.openBox('settingsBox');
+      final box = await Hive.openBox('settings');
       final currency = box.get('currency', defaultValue: 'USD');
       final language = box.get('language', defaultValue: 'EN');
       final btcFormat = box.get('btcFormat', defaultValue: 'BTC');

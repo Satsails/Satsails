@@ -16,7 +16,8 @@ class Accounts extends ConsumerWidget {
     double screenWidth = MediaQuery.of(context).size.width;
     final format = ref.watch(settingsProvider).btcFormat;
     final balance = ref.watch(balanceNotifierProvider.notifier);
-    final totalBtcBalanceInFormat = balance.totalBtcBalanceInDenomination(format);
+    final btcBalanceInFormat = balance.btcBalanceInDenomination(format);
+    final liquidBalanceInFormat = balance.liquidBalanceInDenomination(format);
     final bitcoinAddress = ref.watch(addressProvider.future);
 
     return Scaffold(
@@ -41,7 +42,7 @@ class Accounts extends ConsumerWidget {
               elevation: 0,
               child: Column(
                 children: [
-                  _buildListTile('Bitcoin', totalBtcBalanceInFormat.toString(), const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
+                  _buildListTile('Bitcoin', btcBalanceInFormat.toStringAsFixed(6), const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
                 ],
               ),
             ),
@@ -55,7 +56,7 @@ class Accounts extends ConsumerWidget {
               color: Colors.blueAccent,
               child: Column(
                 children: [
-                  _buildListTile('Liquid', balance.state.liquidBalance.toString(), const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
+                  _buildListTile('Liquid', liquidBalanceInFormat.toStringAsFixed(6), const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
                   _buildDivider(),
                   _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, bitcoinAddress),
                   _buildDivider(),

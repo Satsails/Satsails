@@ -70,12 +70,12 @@ final updateBitcoinBalanceProvider = FutureProvider.autoDispose<int>((ref) {
     await ref.watch(syncBitcoinProvider.future);
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     final balance = await bitcoinModel.getBalance();
-    final box = await Hive.openBox('myBox');
+    final box = await Hive.openBox('bitcoin');
     if (balance.total == 0 || !ref.watch(onlineProvider)) {
-      return box.get('latestBitcoinBalance', defaultValue: 0);
+      return box.get('balance', defaultValue: 0) as int;
     } else {
-      await box.put('latestBitcoinBalance', balance.total);
-      return balance.total;
+      await box.put('balance', balance.total.toInt());
+      return balance.total.toInt();
     }
   });
 });

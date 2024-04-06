@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:isolate';
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 class BitcoinModel {
   final Bitcoin config;
@@ -55,7 +56,13 @@ class BitcoinModel {
 
   Future<Balance> getBalance() async {
     final res = await config.wallet.getBalance();
-    return res;
+    final box = await Hive.openBox('bitcoin');
+    if (config.blockchain == null){
+      return res;
+    } else {
+      box.put('balance', res.total);
+      return res;
+    }
   }
 
   Future<List<LocalUtxo>> listUnspend() async {
