@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:satsails/providers/pin_provider.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:satsails/providers/auth_provider.dart';
 
 class OpenPin extends ConsumerWidget {
   final TextEditingController _pinController = TextEditingController();
@@ -68,8 +68,8 @@ class OpenPin extends ConsumerWidget {
   }
 
   Future<void> _checkPin(BuildContext context, WidgetRef ref) async {
-    final pin = ref.watch(pinProvider.future);
-    final pinText = await pin.then((value) => value.pin);
+    final authModel = ref.read(authModelProvider);
+    final pinText = await authModel.getPin();
     if (pinText == _pinController.text) {
       Navigator.pushReplacementNamed(context, '/home');
     } else {

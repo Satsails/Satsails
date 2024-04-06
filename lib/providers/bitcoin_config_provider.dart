@@ -1,23 +1,21 @@
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:satsails/models/bitcoin_config_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'mnemonic_provider.dart';
+import 'package:satsails/providers/auth_provider.dart';
 
-final bitcoinConfigProvider = FutureProvider<BitcoinConfig>((ref) {
-  return ref.watch(mnemonicProvider.future).then((mnemonic) {
-    if (mnemonic.mnemonic == null || mnemonic.mnemonic == '') {
-      throw Exception('Mnemonic is null or empty');
-    }
-
-    final config = BitcoinConfig(
-      mnemonic: mnemonic.mnemonic,
-      network: Network.Bitcoin,
-      externalKeychain: KeychainKind.External,
-      internalKeychain: KeychainKind.Internal,
-      isElectrumBlockchain: true,
-    );
-    return config;
-  });
+final bitcoinConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
+  final authModel = ref.read(authModelProvider);
+  final mnemonic = await authModel.getMnemonic();
+  if (mnemonic == null || mnemonic.isEmpty) {
+    throw Exception('Mnemonic is null or empty');
+  }
+  return BitcoinConfig(
+    mnemonic: mnemonic,
+    network: Network.Bitcoin,
+    externalKeychain: KeychainKind.External,
+    internalKeychain: KeychainKind.Internal,
+    isElectrumBlockchain: true,
+  );
 });
 
 final createInternalDescriptorProvider = FutureProvider<Descriptor>((ref) {

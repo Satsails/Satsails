@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:satsails/providers/auth_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
-import 'package:satsails/models/mnemonic_model.dart';
 
 class Settings extends ConsumerWidget {
   const Settings({super.key});
@@ -34,7 +34,7 @@ class Settings extends ConsumerWidget {
             _buildDivider(),
             _buildBtcUnitSection(ref, context),
             _buildDivider(),
-            _builDeleteWalletSection(context),
+            _builDeleteWalletSection(context, ref),
           ],
         ),
       ),
@@ -167,7 +167,8 @@ class Settings extends ConsumerWidget {
     );
   }
 
-  Widget _builDeleteWalletSection(BuildContext context) {
+  Widget _builDeleteWalletSection(BuildContext context, WidgetRef ref) {
+    final authModel = ref.read(authModelProvider);
     return ListTile(
       leading: const Icon(Icons.delete),
       title: const Text('Delete Wallet'),
@@ -187,8 +188,8 @@ class Settings extends ConsumerWidget {
                 ),
                 TextButton(
                   child: const Text('Yes'),
-                  onPressed: () {
-                    DeleteMnemonicModel().deleteMnemonic();
+                  onPressed: () async {
+                    await authModel.deleteAuthentication();
                     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                   },
                 ),

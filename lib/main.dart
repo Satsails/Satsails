@@ -1,9 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:satsails/models/mnemonic_model.dart';
+import 'package:satsails/providers/auth_provider.dart';
 import 'package:satsails/providers/background_sync_provider.dart';
-import 'package:satsails/providers/mnemonic_provider.dart';
 import 'package:satsails/screens/creation/start.dart';
 import 'package:satsails/screens/settings/components/seed_words.dart';
 import 'package:satsails/screens/settings/settings.dart';
@@ -46,15 +45,18 @@ class MainApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.read(backgroundSyncNotifierProvider);
-    return FutureBuilder<MnemonicModel>(
-      future: ref.watch(mnemonicProvider.future),
+    Future<String?> mnemonicFuture = ref.read(authModelProvider).getMnemonic();
+    return FutureBuilder<String?>(
+      future: mnemonicFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Splash();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          final initialRoute = snapshot.data!.mnemonic == "" ? '/' : '/open_pin';
+          final mnemonic = snapshot.data;
+          final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/open_pin';
+
 
           return MaterialApp(
             initialRoute: initialRoute,

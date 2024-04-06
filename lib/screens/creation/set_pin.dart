@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:satsails/providers/mnemonic_provider.dart';
-import 'package:satsails/providers/pin_provider.dart';
+import 'package:satsails/providers/auth_provider.dart';
 
 class SetPin extends ConsumerWidget {
   const SetPin({Key? key}) : super(key: key);
@@ -35,17 +34,17 @@ class SetPin extends ConsumerWidget {
                     return null;
                   },
                   onChanged: (value) {
-                    ref.watch(pinProvider.future).then((pin) => pin.pin = value);
+                    ref.read(authModelProvider).setPin(value);
                   },
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
-                      await ref.read(setPinProvider.future);
-                      final mnemonic = await ref.read(mnemonicProvider.future);
-                      if (mnemonic.mnemonic == "") {
-                        mnemonic.setMnemonic();
+                      final authModel = ref.read(authModelProvider);
+                      final mnemonic = await authModel.getMnemonic();
+                      if (mnemonic == null || mnemonic.isEmpty) {
+                        await authModel.setMnemonic(await authModel.generateMnemonic());
                       }
                       Navigator.pushReplacementNamed(context, '/home');
                     } else {
