@@ -1,5 +1,4 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:bip39/bip39.dart' as bip39;
 
 class PinModel {
   String pin;

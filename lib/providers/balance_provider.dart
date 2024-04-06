@@ -1,9 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:satsails/models/balance_model.dart';
+import 'package:satsails/providers/settings_provider.dart';
 import 'bitcoin_provider.dart';
 
+final openHiveBoxProvider = FutureProvider.autoDispose<int>((ref) async {
+  final box = await Hive.openBox('bitcoin');
+  return box.get('balance', defaultValue: 0);
+});
+
 final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) async {
-  final balance = await ref.watch(updateBitcoinBalanceProvider.future);
+  final balance = await ref.watch(openHiveBoxProvider.future);
+  // final balance = await ref.watch(initBitcoinBalanceProvider.future);
 
   return Balance(
     btcBalance: balance,
@@ -52,4 +60,18 @@ final currentBitcoinPriceInCurrencyProvider = FutureProvider.family.autoDispose<
 final percentageChangeProvider = FutureProvider.autoDispose<Percentage>((ref) async {
   final balanceModel = ref.watch(balanceNotifierProvider.notifier);
   return await balanceModel.percentageOfEachCurrency();
+});
+
+final initBitcoinBalanceProvider = FutureProvider.autoDispose<int>((ref) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) async {
+    await ref.watch(syncBitcoinProvider.future);
+    final balance = await ref.watch(getBalanceProvider.future);
+    final box = await Hive.openBox('bitcoin');
+    if (balance.total == 0 || !ref.watch(onlineProvider)) {
+      return box.get('balance', defaultValue: 0) as int;
+    } else {
+      await box.put('balance', balance.total.toInt());
+      return balance.total.toInt();
+    }
+  });
 });

@@ -9,9 +9,9 @@ class MnemonicModel {
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  Future<void> setMnemonic(String mnemonic) async {
-    this.mnemonic = mnemonic;
+  Future<void> setMnemonic() async {
     await _storage.write(key: 'mnemonic', value: mnemonic);
+    this.mnemonic = mnemonic;
   }
 
   bool validateMnemonic() {

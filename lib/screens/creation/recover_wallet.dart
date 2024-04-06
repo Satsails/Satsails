@@ -78,10 +78,11 @@ class _RecoverWalletState extends State<RecoverWallet> {
               SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: () {
-                  final mnemonic = _words.join(' ');
+                  // final mnemonic = _words.join(' ');
+                  final mnemonic = "near angle old frequent only pair banana giggle armed penalty torch boat";
                   final model = MnemonicModel(mnemonic: mnemonic);
                   if (model.validateMnemonic()) {
-                    model.setMnemonic(mnemonic);
+                    model.setMnemonic();
                     Navigator.pushNamed(context, '/set_pin');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(

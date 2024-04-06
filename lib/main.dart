@@ -32,8 +32,10 @@ void main() async {
   Hive.init(directory.path);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(
-     const ProviderScope(
-      child: MainApp(),
+    const MaterialApp(
+      home: ProviderScope(
+        child: MainApp(),
+      ),
     ),
   );
 }

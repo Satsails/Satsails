@@ -5,6 +5,15 @@ class BalanceModel extends StateNotifier<Balance>{
   BalanceModel(super.state);
 
   Future<double> _getConvertedBalance(String sourceCurrency, String destinationCurrency, double sourceAmount) async {
+    if (sourceCurrency == destinationCurrency) {
+      return sourceAmount;
+    }
+
+    if (sourceAmount == 0) {
+      return 0;
+    }
+
+
     final fx = Forex();
     final result = await fx.getCurrencyConverted(sourceCurrency: sourceCurrency, destinationCurrency: destinationCurrency, sourceAmount: sourceAmount);
     final error = fx.getErrorNotifier.value;

@@ -42,9 +42,11 @@ class SetPin extends ConsumerWidget {
                 ElevatedButton(
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
-                      final pin = await ref.read(pinProvider.future);
-                      await pin.setPin();
-                      await ref.read(setMnemonicProvider.future);
+                      await ref.read(setPinProvider.future);
+                      final mnemonic = await ref.read(mnemonicProvider.future);
+                      if (mnemonic.mnemonic == "") {
+                        mnemonic.setMnemonic();
+                      }
                       Navigator.pushReplacementNamed(context, '/home');
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(

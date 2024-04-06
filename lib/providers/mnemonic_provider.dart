@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/mnemonic_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:bip39/bip39.dart' as bip39;
 
 final mnemonicProvider = FutureProvider<MnemonicModel>((ref) async {
   const storage = FlutterSecureStorage();
@@ -17,10 +16,6 @@ final deleteMnemonicProvider = FutureProvider.autoDispose<void>((ref) async {
 
 final setMnemonicProvider = FutureProvider.autoDispose<void>((ref) async {
   final mnemonic = await ref.read(mnemonicProvider.future);
-  if (mnemonic.mnemonic != '') {
-    return;
-  }
-  final words = bip39.generateMnemonic();
-  await mnemonic.setMnemonic(words);
-  mnemonic.mnemonic = words.toString();
+
+  await mnemonic.setMnemonic();
 });

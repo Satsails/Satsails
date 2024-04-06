@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:satsails/models/bitcoin_model.dart';
@@ -34,6 +33,6 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
   }
 }
 
-final backgroundSyncNotifierProvider = Provider((ref) {
+final backgroundSyncNotifierProvider = Provider.autoDispose((ref) {
   return BackgroundSyncNotifier(ref);
 });
