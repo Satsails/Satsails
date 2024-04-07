@@ -6,6 +6,7 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
+import 'package:satsails/providers/liquid_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
 
 class Accounts extends StatelessWidget {
@@ -59,19 +60,20 @@ class Accounts extends StatelessWidget {
                 final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
                 final balance = ref.watch(balanceNotifierProvider);
                 final bitcoinAddress = ref.watch(addressProvider.future);
+                final liquid = ref.watch(liquidAddressProvider.future);
                 return Card(
                   color: Colors.blueAccent,
                   child: Column(
                     children: [
-                      _buildListTile('Liquid', liquidBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
+                      _buildListTile('Liquid', liquidBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, liquid),
                       _buildDivider(),
-                      _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, bitcoinAddress),
+                      _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, liquid),
                       _buildDivider(),
-                      _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, bitcoinAddress),
+                      _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, liquid),
                       _buildDivider(),
-                      _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, bitcoinAddress),
+                      _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, liquid),
                       _buildDivider(),
-                      _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, bitcoinAddress),
+                      _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, liquid),
                     ],
                   ),
                 );
@@ -124,7 +126,7 @@ class Accounts extends StatelessWidget {
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (snapshot.hasData) {
-              final String address = snapshot.data.address;
+              final String address = snapshot.data is String ? snapshot.data : snapshot.data.address;
               return Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
@@ -149,7 +151,7 @@ class Accounts extends StatelessWidget {
                         buildQrCode(address),
                         const SizedBox(height: 20),
                         buildAddressText(address, context),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 80),
                       ],
                     );
                   },
