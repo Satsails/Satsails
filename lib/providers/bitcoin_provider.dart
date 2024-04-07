@@ -6,24 +6,16 @@ import 'bitcoin_config_provider.dart';
 
 final bitcoinProvider = FutureProvider<Bitcoin>((ref) {
   return ref.watch(restoreWalletProvider.future).then((wallet) {
-    final settings = ref.read(onlineProvider.notifier);
     return ref.watch(initializeBlockchainProvider.future).then((blockchain) {
-      settings.state = true;
       return Bitcoin(wallet, blockchain);
-    }).catchError((e) {
-      settings.state = false;
-      return Bitcoin(wallet, null);
     });
   });
 });
 
 final syncBitcoinProvider = FutureProvider.autoDispose<void>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
-    final settings = ref.read(onlineProvider.notifier);
-    if (settings.state) {
-      BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-      return bitcoinModel.sync();
-    }
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    return bitcoinModel.sync();
   });
 });
 
@@ -80,59 +72,36 @@ final getPsbtInputProvider = FutureProvider<Input>((ref) {
 
 final getFastFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
-    final settings = ref.watch(onlineProvider);
-    if (settings) {
-      BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-      return bitcoinModel.estimateFeeRate(1);
-    } else {
-      throw Exception('Offline');
-    }
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    return bitcoinModel.estimateFeeRate(1);
   });
 });
 
 final getMediumFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
-    final settings = ref.watch(onlineProvider);
-    if (settings) {
-      BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-      return bitcoinModel.estimateFeeRate(3);
-    } else {
-      throw Exception('Offline');
-    }
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    return bitcoinModel.estimateFeeRate(3);
   });
 });
 
 final getSlowFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
-    final settings = ref.watch(onlineProvider);
-    if (settings) {
-      BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-      return bitcoinModel.estimateFeeRate(6);
-    } else {
-      throw Exception('No internet connection');
-    }
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    return bitcoinModel.estimateFeeRate(6);
   });
 });
 
 final getCustomFeeRateProvider = FutureProvider.family.autoDispose<FeeRate, int>((ref, blocks) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
-    final settings = ref.watch(onlineProvider);
-    if (settings) {
-      BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-      return bitcoinModel.estimateFeeRate(blocks);
-    } else {
-      throw Exception('No internet connection');
-    }
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    return bitcoinModel.estimateFeeRate(blocks);
   });
 });
 
 final sendProvider = FutureProvider.family.autoDispose<void, SendParams>((ref, params) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) async {
-    final settings = ref.watch(onlineProvider);
-    if (settings) {
-      BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-      FeeRate feeRate = await ref.watch(getCustomFeeRateProvider(params.blocks).future);
-      return bitcoinModel.sendBitcoin(params.address, feeRate);
-    }
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    FeeRate feeRate = await ref.watch(getCustomFeeRateProvider(params.blocks).future);
+    return bitcoinModel.sendBitcoin(params.address, feeRate);
   });
 });

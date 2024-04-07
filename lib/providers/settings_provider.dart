@@ -22,5 +22,3 @@ final settingsProvider = StateNotifierProvider.autoDispose<SettingsModel, Settin
             },
       ));
 });
-
-final onlineProvider = StateProvider<bool>((ref) => false);

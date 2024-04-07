@@ -48,13 +48,13 @@ class BitcoinModel {
 
   Future<Balance> getBalance() async {
     final res = await config.wallet.getBalance();
-    final box = await Hive.openBox('bitcoin');
-    if (config.blockchain == null){
+    // final box = await Hive.openBox('bitcoin');
+    // if (config.blockchain == null){
+    //   return res;
+    // } else {
+    //   box.put('balance', res.total);
       return res;
-    } else {
-      box.put('balance', res.total);
-      return res;
-    }
+    // }
   }
 
   Future<List<LocalUtxo>> listUnspend() async {
