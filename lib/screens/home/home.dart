@@ -5,7 +5,7 @@ import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/navigation_provider.dart';
 import 'package:satsails/screens/accounts/accounts.dart';
 import 'package:satsails/screens/shared/bottom_navigation_bar.dart';
-import 'package:card_loading/card_loading.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -88,10 +88,10 @@ class Home extends ConsumerWidget {
                     return initializeBalance.when(
                       data: (_) => totalInDenominatedCurrency.when(
                         data: (total) => Text('$total ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
-                        loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
+                        loading: () => LoadingAnimationWidget.prograssiveDots(size: 20, color: Colors.white),
                         error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
                       ),
-                      loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
+                      loading: () =>LoadingAnimationWidget.prograssiveDots(size: 20, color: Colors.white),
                       error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
                     );
                   }),
@@ -105,10 +105,10 @@ class Home extends ConsumerWidget {
                     return initializeBalance.when(
                       data: (_) => totalBalanceInCurrency.when(
                         data: (total) => Text('${total.toStringAsFixed(2)} ${settings.currency}', style: TextStyle(fontSize: subtitleFontSize, color: Colors.white), textAlign: TextAlign.center),
-                        loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
+                        loading: () => LoadingAnimationWidget.prograssiveDots(size: 20, color: Colors.white),
                         error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
                       ),
-                      loading: () => const CardLoading(height: 30, width: double.infinity, borderRadius: BorderRadius.all(Radius.circular(30))),
+                      loading: () =>LoadingAnimationWidget.prograssiveDots(size: 20, color: Colors.white),
                       error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
                     );
                   }),
@@ -123,11 +123,11 @@ class Home extends ConsumerWidget {
           return initializeBalance.when(
             data: (_) => percentageOfEachCurrency.when(
               data: (percentage) => _buildDiagram(context, percentage),
-              loading: () => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(10))),
-              error: (error, stack) => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(30))),
+              loading: () => LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
+              error: (error, stack) =>LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
             ),
-            loading: () => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(10))),
-            error: (error, stack) => const CardLoading(height: 200, width: 200, borderRadius: BorderRadius.all(Radius.circular(30))),
+            loading: () => LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
+            error: (error, stack) => LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
           );
         }),
         SizedBox(height: screenHeight * 0.05),
@@ -252,7 +252,7 @@ class Home extends ConsumerWidget {
                   ],
                 ),
               ),
-              loading: () => const CardLoading(width: 100, height: 20),
+              loading: () => LoadingAnimationWidget.prograssiveDots(size: 20, color: Colors.orange),
               error: (error, stack) => const Text('Error fetching'),
             );
           },

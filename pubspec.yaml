@@ -37,7 +37,7 @@ dependencies:
       ref: trunk
   forex_currency_conversion: ^0.9.1
   icons_plus: ^5.0.0
-  card_loading: ^0.3.2
+  loading_animation_widget: ^1.2.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
