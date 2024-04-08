@@ -122,10 +122,10 @@ class Home extends ConsumerWidget {
             return initializeBalance.when(
               data: (_) => percentageOfEachCurrency.when(
                 data: (percentage) => _buildDiagram(context, percentage),
-                loading: () => LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
+                loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
                 error: (error, stack) =>LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
               ),
-              loading: () => LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
+              loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
               error: (error, stack) => LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
             );
           }),
