@@ -38,6 +38,9 @@ class RecoverWallet extends ConsumerWidget {
     final data = ref.watch(recoverWalletProvider);
     final authModel = ref.read(authModelProvider);
 
+    // Get the screen size using MediaQuery
+    final screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Recover Wallet'),
@@ -67,12 +70,6 @@ class RecoverWallet extends ConsumerWidget {
                 itemBuilder: (context, index) {
                   return Container(
                     alignment: Alignment.center,
-                    margin: const EdgeInsets.all(5.0),
-                    padding: const EdgeInsets.all(5.0),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
                     child: TextField(
                       onChanged: (newValue) {
                         ref.read(recoverWalletProvider.notifier).setWord(index, newValue);
@@ -95,7 +92,7 @@ class RecoverWallet extends ConsumerWidget {
                   );
                 },
               ),
-              SizedBox(height: 20.0),
+              SizedBox(height: screenSize.height * 0.01),
               ElevatedButton(
                 onPressed: () async {
                   // final mnemonic = data.words.join(' ');
@@ -120,8 +117,9 @@ class RecoverWallet extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(5.0),
                     ),
                   ),
-                  minimumSize:
-                  MaterialStateProperty.all<Size>(const Size(300.0, 60.0)),
+                  minimumSize: MaterialStateProperty.all<Size>(
+                    Size(screenSize.width * 0.75, screenSize.height * 0.075), // Use 75% of the screen width and 7.5% of the screen height
+                  ),
                 ),
                 child: const Text(
                   'Continue',

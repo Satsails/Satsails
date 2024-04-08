@@ -35,6 +35,7 @@ class SeedWords extends ConsumerWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
+                    elevation: 0, // Remove shadow to make it look flatter
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
