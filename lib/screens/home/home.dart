@@ -95,10 +95,10 @@ class Home extends ConsumerWidget {
                       return initializeBalance.when(
                         data: (_) => totalInDenominatedCurrency.when(
                           data: (total) => SizedBox(height: titleFontSize * 1.5, child: Text('$total ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
-                          loading: () => SizedBox(height: titleFontSize * 1.5,child: const CircularProgressIndicator(color: Colors.white)),
+                          loading: () => SizedBox(height: titleFontSize * 1.5,child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                           error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))),
                         ),
-                        loading: () =>SizedBox(height: titleFontSize * 1.5,child: const CircularProgressIndicator(color: Colors.white)),
+                        loading: () =>SizedBox(height: titleFontSize * 1.5,child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                         error: (error, stack) => SizedBox(height: titleFontSize * 1.5,child: TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize)))),
                       );
                     }),
@@ -112,10 +112,10 @@ class Home extends ConsumerWidget {
                       return initializeBalance.when(
                           data: (_) => totalBalanceInCurrency.when(
                             data: (total) => SizedBox(height: subtitleFontSize * 1.5, child: Text('${total.toStringAsFixed(2)} ${settings.currency}', style: TextStyle(fontSize: subtitleFontSize, color: Colors.white))),
-                            loading: () => SizedBox(height: subtitleFontSize * 1.5, child: const CircularProgressIndicator(color: Colors.white)),
+                            loading: () => SizedBox(height: subtitleFontSize * 1.5, child:LoadingAnimationWidget.prograssiveDots(size: subtitleFontSize, color: Colors.white)),
                             error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: subtitleFontSize))),
                           ),
-                          loading: () => SizedBox(height: subtitleFontSize * 1.5, child: const CircularProgressIndicator(color: Colors.white)),
+                          loading: () => SizedBox(height: subtitleFontSize * 1.5, child:LoadingAnimationWidget.prograssiveDots(size: subtitleFontSize, color: Colors.white)),
                           error: (error, stack) => SizedBox(height: subtitleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); },child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: subtitleFontSize))),
                           ));
                     }),
