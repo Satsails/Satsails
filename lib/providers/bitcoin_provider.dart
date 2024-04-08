@@ -41,15 +41,6 @@ final getConfirmedTransactionsProvider = FutureProvider<List<TransactionDetails>
   });
 });
 
-final updateTransactionsProvider = FutureProvider.autoDispose<void>((ref) {
-  return ref.watch(bitcoinProvider.future).then((bitcoin) async {
-    await ref.watch(syncBitcoinProvider.future);
-    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    await bitcoinModel.getConfirmedTransactions();
-    await bitcoinModel.getUnConfirmedTransactions();
-  });
-});
-
 final getBitcoinBalanceProvider = FutureProvider<Balance>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);

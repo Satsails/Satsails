@@ -7,6 +7,22 @@ class BalanceModel extends StateNotifier<Balance>{
   void updateBtcBalance(int newBtcBalance) {
     state = state.copyWith(btcBalance: newBtcBalance);
   }
+
+  void updateLiquidBalance(int newLiquidBalance) {
+    state = state.copyWith(liquidBalance: newLiquidBalance);
+  }
+
+  void updateUsdBalance(int newUsdBalance) {
+    state = state.copyWith(usdBalance: newUsdBalance);
+  }
+
+  void updateEurBalance(int newEurBalance) {
+    state = state.copyWith(eurBalance: newEurBalance);
+  }
+
+  void updateBrlBalance(int newBrlBalance) {
+    state = state.copyWith(brlBalance: newBrlBalance);
+  }
 }
 
 class Balance {
@@ -190,9 +206,6 @@ class Balance {
     }
     return result;
   }
-
-
-
 }
 
 class Percentage {

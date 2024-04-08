@@ -58,7 +58,7 @@ class Accounts extends StatelessWidget {
               builder: (context, ref, _) {
                 final format = ref.watch(settingsProvider).btcFormat;
                 final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
-                final balance = ref.watch(balanceNotifierProvider);
+                final balance = ref.watch(bitcoinBalanceNotifierProvider);
                 final liquid = ref.watch(liquidAddressProvider.future);
                 return Card(
                   color: Colors.blueAccent,

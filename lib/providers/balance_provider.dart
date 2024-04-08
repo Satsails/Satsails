@@ -19,7 +19,7 @@ final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) asyn
   );
 });
 
-final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, Balance>((ref) {
+final bitcoinBalanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, Balance>((ref) {
   final initialBalance = ref.watch(initializeBalanceProvider);
 
   return BalanceModel(initialBalance.when(
@@ -38,31 +38,31 @@ final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, 
 });
 
 final totalBalanceInCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
-  final balanceModel = ref.watch(balanceNotifierProvider);
+  final balanceModel = ref.watch(bitcoinBalanceNotifierProvider);
   return await balanceModel.totalBalanceInCurrency(currency);
 });
 
 final totalBalanceInDenominationProvider = FutureProvider.family.autoDispose<String, String>((ref, denomination) async {
-  final balanceModel = ref.watch(balanceNotifierProvider);
+  final balanceModel = ref.watch(bitcoinBalanceNotifierProvider);
   return balanceModel.totalBalanceInDenominationFormatted(denomination);
 });
 
 final currentBitcoinPriceInCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
-  final balanceModel = ref.watch(balanceNotifierProvider);
+  final balanceModel = ref.watch(bitcoinBalanceNotifierProvider);
   return await balanceModel.currentBitcoinPriceInCurrency(currency);
 });
 
 final percentageChangeProvider = FutureProvider.autoDispose<Percentage>((ref) async {
-  final balanceModel = ref.watch(balanceNotifierProvider);
+  final balanceModel = ref.watch(bitcoinBalanceNotifierProvider);
   return await balanceModel.percentageOfEachCurrency();
 });
 
 final btcBalanceInFormatProvider = StateProvider.family.autoDispose<String, String>((ref, denomination) {
-  final balance = ref.watch(balanceNotifierProvider);
+  final balance = ref.watch(bitcoinBalanceNotifierProvider);
   return balance.btcBalanceInDenominationFormatted(denomination);
 });
 
 final liquidBalanceInFormatProvider = StateProvider.family.autoDispose<String, String>((ref, denomination) {
-  final balance = ref.watch(balanceNotifierProvider);
+  final balance = ref.watch(bitcoinBalanceNotifierProvider);
   return balance.liquidBalanceInDenominationFormatted(denomination);
 });
