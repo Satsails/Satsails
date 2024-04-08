@@ -38,7 +38,6 @@ dependencies:
   icons_plus: ^5.0.0
   loading_animation_widget: ^1.2.1
   group_button: ^5.3.4
-  animated_text_kit: ^4.2.2
   pull_to_refresh: ^2.0.0
 
 dev_dependencies:
