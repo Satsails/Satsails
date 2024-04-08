@@ -13,7 +13,6 @@ class Balance {
   late final int btcBalance;
   final int liquidBalance;
   final int usdBalance;
-  final int cadBalance;
   final int eurBalance;
   final int brlBalance;
 
@@ -21,7 +20,6 @@ class Balance {
     required this.btcBalance,
     required this.liquidBalance,
     required this.usdBalance,
-    required this.cadBalance,
     required this.eurBalance,
     required this.brlBalance,
   });
@@ -30,7 +28,6 @@ class Balance {
     int? btcBalance,
     int? liquidBalance,
     int? usdBalance,
-    int? cadBalance,
     int? eurBalance,
     int? brlBalance,
   }) {
@@ -38,7 +35,6 @@ class Balance {
       btcBalance: btcBalance ?? this.btcBalance,
       liquidBalance: liquidBalance ?? this.liquidBalance,
       usdBalance: usdBalance ?? this.usdBalance,
-      cadBalance: cadBalance ?? this.cadBalance,
       eurBalance: eurBalance ?? this.eurBalance,
       brlBalance: brlBalance ?? this.brlBalance,
     );
@@ -112,7 +108,6 @@ class Balance {
       eurPercentage: await getConvertedBalance('EUR', 'BTC', eurBalance.toDouble()) / total,
       brlPercentage: await getConvertedBalance('BRL', 'BTC', brlBalance.toDouble()) / total,
       usdPercentage: await getConvertedBalance('USD', 'BTC', usdBalance.toDouble()) / total,
-      cadPercentage: await getConvertedBalance('CAD', 'BTC', cadBalance.toDouble()) / total,
       liquidPercentage: (liquidBalance / 100000000).toDouble() / total,
       btcPercentage: (btcBalance / 100000000).toDouble() / total,
       total: total,
@@ -152,34 +147,23 @@ class Balance {
       case 'BTC':
         total += totalInBtc;
         total += await getConvertedBalance('BRL', 'BTC', brlBalance.toDouble());
-        total += await getConvertedBalance('CAD', 'BTC', cadBalance.toDouble());
         total += await getConvertedBalance('EUR', 'BTC', eurBalance.toDouble());
         total += await getConvertedBalance('USD', 'BTC', usdBalance.toDouble());
         break;
       case 'USD':
         total += usdBalance.toDouble();
         total += await getConvertedBalance('BRL', 'USD', brlBalance.toDouble());
-        total += await getConvertedBalance('CAD', 'USD', cadBalance.toDouble());
         total += await getConvertedBalance('EUR', 'USD', eurBalance.toDouble());
         total += await getConvertedBalance('BTC', 'USD', totalInBtc);
-        break;
-      case 'CAD':
-        total += cadBalance.toDouble();
-        total += await getConvertedBalance('BRL', 'CAD', brlBalance.toDouble());
-        total += await getConvertedBalance('EUR', 'CAD', eurBalance.toDouble());
-        total += await getConvertedBalance('USD', 'CAD', usdBalance.toDouble());
-        total += await getConvertedBalance('BTC', 'CAD', totalInBtc);
         break;
       case 'EUR':
         total += eurBalance.toDouble();
         total += await getConvertedBalance('BRL', 'EUR', brlBalance.toDouble());
-        total += await getConvertedBalance('CAD', 'EUR', cadBalance.toDouble());
         total += await getConvertedBalance('USD', 'EUR', usdBalance.toDouble());
         total += await getConvertedBalance('BTC', 'EUR', totalInBtc);
         break;
       case 'BRL':
         total += brlBalance.toDouble();
-        total += await getConvertedBalance('CAD', 'BRL', cadBalance.toDouble());
         total += await getConvertedBalance('EUR', 'BRL', eurBalance.toDouble());
         total += await getConvertedBalance('USD', 'BRL', usdBalance.toDouble());
         total += await getConvertedBalance('BTC', 'BRL', totalInBtc);
@@ -215,7 +199,6 @@ class Percentage {
   final double btcPercentage;
   final double liquidPercentage;
   final double usdPercentage;
-  final double cadPercentage;
   final double eurPercentage;
   final double brlPercentage;
   final double total;
@@ -224,7 +207,6 @@ class Percentage {
     required this.btcPercentage,
     required this.liquidPercentage,
     required this.usdPercentage,
-    required this.cadPercentage,
     required this.eurPercentage,
     required this.brlPercentage,
     required this.total,
