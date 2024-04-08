@@ -120,7 +120,7 @@ class Balance {
   }
 
   Future<String> totalBalanceInDenominationFormatted(String? denomination) async {
-    double balanceInBTC = await totalBalanceInCurrency('BTC'); // Assuming this returns the balance in BTC
+    double balanceInBTC = await totalBalanceInCurrency('BTC');
 
     switch (denomination) {
       case 'BTC':

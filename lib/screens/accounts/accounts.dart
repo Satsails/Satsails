@@ -118,6 +118,8 @@ class Accounts extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
+        final screenSize = MediaQuery.of(context).size;
+
         return FutureBuilder<dynamic>(
           future: bitcoin,
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -147,11 +149,10 @@ class Accounts extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        buildQrCode(address),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 10),
+                        buildQrCode(address, context),
                         buildAddressText(address, context),
-                        const SizedBox(height: 80),
+                        SizedBox(height: screenSize.height * 0.02),
                       ],
                     );
                   },
@@ -166,14 +167,14 @@ class Accounts extends StatelessWidget {
     );
   }
 
-  Widget buildQrCode(String address) {
+  Widget buildQrCode(String address, BuildContext context) {
     return Card(
       elevation: 5,
       child: QrImageView(
         backgroundColor: Colors.white,
         data: address,
         version: QrVersions.auto,
-        size: 300.0,
+        size: MediaQuery.of(context).size.width * 0.8,
       ),
     );
   }
@@ -192,17 +193,12 @@ class Accounts extends StatelessWidget {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-        decoration: BoxDecoration(
-          color: Colors.blue.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(color: Colors.blue, width: 1.0),
-        ),
         child: Text(
           address ?? '',
           style: const TextStyle(
             fontSize: 13.0,
             fontWeight: FontWeight.bold,
-            color: Colors.blue,
+            color: Colors.black,
           ),
         ),
       ),

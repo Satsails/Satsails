@@ -41,21 +41,18 @@ class Home extends ConsumerWidget {
   }
 
   Widget _buildDiagram(BuildContext context, Percentage percentage) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.25,
-      child: percentage.total == 0
-          ? PieChart(PieChartData(sections: [PieChartSectionData(value: 1, title: '', radius: 20, color: Colors.grey)], borderData: FlBorderData(show: false)))
-          : PieChart(PieChartData(
-        sections: [
-          PieChartSectionData(value: percentage.btcPercentage + percentage.liquidPercentage, title: '', radius: 20, badgeWidget: const Icon(Icons.currency_bitcoin, color: Colors.white), color: Colors.orange),
-          PieChartSectionData(value: percentage.brlPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.brazil), color: Colors.greenAccent),
-          PieChartSectionData(value: percentage.cadPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.canada), color: Colors.red),
-          PieChartSectionData(value: percentage.eurPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.european_union), color: Colors.blue),
-          PieChartSectionData(value: percentage.usdPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.united_states_of_america), color: Colors.green),
-        ],
-        borderData: FlBorderData(show: false),
-      )),
-    );
+    return percentage.total == 0
+        ? PieChart(PieChartData(sections: [PieChartSectionData(value: 1, title: '', radius: 20, color: Colors.grey)], borderData: FlBorderData(show: false)))
+        : PieChart(PieChartData(
+      sections: [
+        PieChartSectionData(value: percentage.btcPercentage + percentage.liquidPercentage, title: '', radius: 20, badgeWidget: const Icon(Icons.currency_bitcoin, color: Colors.white), color: Colors.orange),
+        PieChartSectionData(value: percentage.brlPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.brazil), color: Colors.greenAccent),
+        PieChartSectionData(value: percentage.cadPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.canada), color: Colors.red),
+        PieChartSectionData(value: percentage.eurPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.european_union), color: Colors.blue),
+        PieChartSectionData(value: percentage.usdPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.united_states_of_america), color: Colors.green),
+      ],
+      borderData: FlBorderData(show: false),
+    ));
   }
 
   Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
@@ -87,12 +84,12 @@ class Home extends ConsumerWidget {
                     final totalInDenominatedCurrency = ref.watch(totalBalanceInDenominationProvider(settings.btcFormat));
                     return initializeBalance.when(
                       data: (_) => totalInDenominatedCurrency.when(
-                        data: (total) => Text('$total ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
-                        loading: () => LoadingAnimationWidget.prograssiveDots(size: 20, color: Colors.white),
+                        data: (total) => SizedBox(height: titleFontSize * 1.5, child: Text('$total ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
+                        loading: () => SizedBox(height: titleFontSize * 1.5,child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                         error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
                       ),
-                      loading: () =>LoadingAnimationWidget.prograssiveDots(size: 20, color: Colors.white),
-                      error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
+                      loading: () =>SizedBox(height: titleFontSize * 1.5,child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
+                      error: (error, stack) => SizedBox(height: titleFontSize * 1.5,child: TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: const Text('Retry', style: TextStyle(color: Colors.white)))),
                     );
                   }),
                   SizedBox(height: screenHeight * 0.01),
@@ -104,32 +101,35 @@ class Home extends ConsumerWidget {
                     final totalBalanceInCurrency = ref.watch(totalBalanceInCurrencyProvider(settings.currency));
                     return initializeBalance.when(
                       data: (_) => totalBalanceInCurrency.when(
-                        data: (total) => Text('${total.toStringAsFixed(2)} ${settings.currency}', style: TextStyle(fontSize: subtitleFontSize, color: Colors.white), textAlign: TextAlign.center),
-                        loading: () => LoadingAnimationWidget.prograssiveDots(size: 20, color: Colors.white),
+                        data: (total) => SizedBox(height: subtitleFontSize * 1.5, child: Text('${total.toStringAsFixed(2)} ${settings.currency}', style: TextStyle(fontSize: subtitleFontSize, color: Colors.white))),
+                        loading: () => SizedBox(height: subtitleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: subtitleFontSize, color: Colors.white)),
                         error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
                       ),
-                      loading: () =>LoadingAnimationWidget.prograssiveDots(size: 20, color: Colors.white),
-                      error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); }, child: const Text('Retry', style: TextStyle(color: Colors.white))),
-                    );
+                      loading: () =>SizedBox(height: subtitleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: subtitleFontSize, color: Colors.white)),
+                      error: (error, stack) => SizedBox(height: subtitleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); }, child: const Text('Retry',style: TextStyle(color: Colors.white))),
+                    ));
                   }),
                 ],
               ),
             ),
           ),
         ),
-        Consumer(builder: (context, watch, child) {
-          final initializeBalance = ref.watch(initializeBalanceProvider);
-          final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
-          return initializeBalance.when(
-            data: (_) => percentageOfEachCurrency.when(
-              data: (percentage) => _buildDiagram(context, percentage),
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.25,
+          child: Consumer(builder: (context, watch, child) {
+            final initializeBalance = ref.watch(initializeBalanceProvider);
+            final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
+            return initializeBalance.when(
+              data: (_) => percentageOfEachCurrency.when(
+                data: (percentage) => _buildDiagram(context, percentage),
+                loading: () => LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
+                error: (error, stack) =>LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
+              ),
               loading: () => LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
-              error: (error, stack) =>LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
-            ),
-            loading: () => LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
-            error: (error, stack) => LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
-          );
-        }),
+              error: (error, stack) => LoadingAnimationWidget.inkDrop(size: 200, color: Colors.orange),
+            );
+          }),
+        ),
         SizedBox(height: screenHeight * 0.05),
         ElevatedButton(
           onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => const Accounts())); },

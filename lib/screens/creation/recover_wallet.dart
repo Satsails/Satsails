@@ -76,7 +76,7 @@ class RecoverWallet extends ConsumerWidget {
                       },
                       decoration: InputDecoration(
                         hintText: 'Word ${index + 1}',
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           color: Colors.grey,
                         ),
                         border: InputBorder.none,
