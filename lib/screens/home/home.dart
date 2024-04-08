@@ -68,47 +68,59 @@ class Home extends ConsumerWidget {
         SizedBox(
           width: double.infinity,
           child: Card(
-            color: Colors.orange,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            elevation: 10,
             margin: EdgeInsets.all(cardMargin),
-            elevation: 3,
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: cardPadding, horizontal: cardPadding / 2),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Total balance', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
-                  Consumer(builder: (context, watch, child) {
-                    final settings = ref.watch(settingsProvider);
-                    final initializeBalance = ref.watch(initializeBalanceProvider);
-                    final totalInDenominatedCurrency = ref.watch(totalBalanceInDenominationProvider(settings.btcFormat));
-                    return initializeBalance.when(
-                      data: (_) => totalInDenominatedCurrency.when(
-                        data: (total) => SizedBox(height: titleFontSize * 1.5, child: Text('$total ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
-                        loading: () => SizedBox(height: titleFontSize * 1.5,child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
-                        error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))),
-                      ),
-                      loading: () =>SizedBox(height: titleFontSize * 1.5,child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
-                      error: (error, stack) => SizedBox(height: titleFontSize * 1.5,child: TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize)))),
-                    );
-                  }),
-                  SizedBox(height: screenHeight * 0.01),
-                  const Text('or', style: TextStyle(fontSize: 14, color: Colors.white), textAlign: TextAlign.center),
-                  SizedBox(height: screenHeight * 0.01),
-                  Consumer(builder: (context, watch, child) {
-                    final settings = ref.watch(settingsProvider);
-                    final initializeBalance = ref.watch(initializeBalanceProvider);
-                    final totalBalanceInCurrency = ref.watch(totalBalanceInCurrencyProvider(settings.currency));
-                    return initializeBalance.when(
-                        data: (_) => totalBalanceInCurrency.when(
-                          data: (total) => SizedBox(height: subtitleFontSize * 1.5, child: Text('${total.toStringAsFixed(2)} ${settings.currency}', style: TextStyle(fontSize: subtitleFontSize, color: Colors.white))),
-                          loading: () => SizedBox(height: subtitleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: subtitleFontSize, color: Colors.white)),
-                          error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: subtitleFontSize))),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Colors.orange, Colors.deepOrange],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: cardPadding, horizontal: cardPadding / 2),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Total balance', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
+                    Consumer(builder: (context, watch, child) {
+                      final settings = ref.watch(settingsProvider);
+                      final initializeBalance = ref.watch(initializeBalanceProvider);
+                      final totalInDenominatedCurrency = ref.watch(totalBalanceInDenominationProvider(settings.btcFormat));
+                      return initializeBalance.when(
+                        data: (_) => totalInDenominatedCurrency.when(
+                          data: (total) => SizedBox(height: titleFontSize * 1.5, child: Text('$total ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
+                          loading: () => SizedBox(height: titleFontSize * 1.5,child: const CircularProgressIndicator(color: Colors.white)),
+                          error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))),
                         ),
-                        loading: () => SizedBox(height: subtitleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: subtitleFontSize, color: Colors.white)),
-                        error: (error, stack) => SizedBox(height: subtitleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); },child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: subtitleFontSize))),
-                        ));
-                  }),
-                ],
+                        loading: () =>SizedBox(height: titleFontSize * 1.5,child: const CircularProgressIndicator(color: Colors.white)),
+                        error: (error, stack) => SizedBox(height: titleFontSize * 1.5,child: TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize)))),
+                      );
+                    }),
+                    SizedBox(height: screenHeight * 0.01),
+                    const Text('or', style: TextStyle(fontSize: 14, color: Colors.white), textAlign: TextAlign.center),
+                    SizedBox(height: screenHeight * 0.01),
+                    Consumer(builder: (context, watch, child) {
+                      final settings = ref.watch(settingsProvider);
+                      final initializeBalance = ref.watch(initializeBalanceProvider);
+                      final totalBalanceInCurrency = ref.watch(totalBalanceInCurrencyProvider(settings.currency));
+                      return initializeBalance.when(
+                          data: (_) => totalBalanceInCurrency.when(
+                            data: (total) => SizedBox(height: subtitleFontSize * 1.5, child: Text('${total.toStringAsFixed(2)} ${settings.currency}', style: TextStyle(fontSize: subtitleFontSize, color: Colors.white))),
+                            loading: () => SizedBox(height: subtitleFontSize * 1.5, child: const CircularProgressIndicator(color: Colors.white)),
+                            error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: subtitleFontSize))),
+                          ),
+                          loading: () => SizedBox(height: subtitleFontSize * 1.5, child: const CircularProgressIndicator(color: Colors.white)),
+                          error: (error, stack) => SizedBox(height: subtitleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); },child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: subtitleFontSize))),
+                          ));
+                    }),
+                  ],
+                ),
               ),
             ),
           ),
@@ -132,8 +144,8 @@ class Home extends ConsumerWidget {
         SizedBox(height: screenHeight * 0.05),
         ElevatedButton(
           onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => const Accounts())); },
-          style: _buildElevatedButtonStyle(),
           child: const Text('View Accounts'),
+          style: _buildElevatedButtonStyle(),
         ),
       ],
     );
@@ -141,17 +153,30 @@ class Home extends ConsumerWidget {
 
   ButtonStyle _buildElevatedButtonStyle() {
     return ButtonStyle(
-      backgroundColor: MaterialStateProperty.all<Color>(
-        Colors.white,
+      backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+            (Set<MaterialState> states) {
+          if (states.contains(MaterialState.pressed)) {
+            return Colors.orange;
+          }
+          return Colors.orange; // Use the component's default.
+        },
       ),
-      foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
         RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
-          side: BorderSide(color: Colors.grey[800]!),
+          side: BorderSide(color: Colors.orangeAccent),
         ),
       ),
-      elevation: MaterialStateProperty.all<double>(0.0),
+      elevation: MaterialStateProperty.all<double>(5.0),
+      overlayColor: MaterialStateProperty.resolveWith<Color?>(
+            (Set<MaterialState> states) {
+          if (states.contains(MaterialState.hovered)) {
+            return Colors.orange.withAlpha(60);
+          }
+          return null; // Use the component's default.
+        },
+      ),
     );
   }
 

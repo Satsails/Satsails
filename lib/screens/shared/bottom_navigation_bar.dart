@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:satsails/screens/analytics/analytics.dart';
-import 'package:satsails/screens/services/services.dart';
 import 'package:satsails/screens/home/home.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {

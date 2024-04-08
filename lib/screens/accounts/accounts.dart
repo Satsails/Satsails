@@ -17,10 +17,7 @@ class Accounts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -40,21 +37,28 @@ class Accounts extends StatelessWidget {
             SizedBox(height: screenWidth * 0.02),
             Consumer(
               builder: (context, ref, _) {
-                final format = ref
-                    .watch(settingsProvider)
-                    .btcFormat;
-                final btcBalanceInFormat = ref.watch(
-                    btcBalanceInFormatProvider(format));
+                final format = ref.watch(settingsProvider).btcFormat;
+                final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(format));
                 final bitcoinAddress = ref.watch(bitcoinAddressProvider.future);
                 return Card(
-                  color: Colors.orangeAccent,
-                  elevation: 0,
-                  child: Column(
-                    children: [
-                      _buildListTile('Bitcoin', btcBalanceInFormat,
-                          const Icon(LineAwesome.bitcoin, color: Colors.white),
-                          context, bitcoinAddress),
-                    ],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  elevation: 10,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.orange, Colors.deepOrange],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildListTile('Bitcoin', btcBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -67,35 +71,37 @@ class Accounts extends StatelessWidget {
             SizedBox(height: screenWidth * 0.02),
             Consumer(
               builder: (context, ref, _) {
-                final format = ref
-                    .watch(settingsProvider)
-                    .btcFormat;
-                final liquidBalanceInFormat = ref.watch(
-                    liquidBalanceInFormatProvider(format));
+                final format = ref.watch(settingsProvider).btcFormat;
+                final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
                 final balance = ref.watch(bitcoinBalanceNotifierProvider);
                 final liquid = ref.watch(liquidAddressProvider.future);
                 return Card(
-                  color: Colors.blueAccent,
-                  child: Column(
-                    children: [
-                      _buildListTile('Liquid', liquidBalanceInFormat,
-                          const Icon(LineAwesome.bitcoin, color: Colors.white),
-                          context, liquid),
-                      _buildDivider(),
-                      _buildListTile('Lightning', '', const Icon(
-                          LineAwesome.bolt_solid, color: Colors.white), context,
-                          liquid),
-                      _buildDivider(),
-                      _buildListTile('Real', balance.brlBalance.toString(),
-                          Flag(Flags.brazil), context, liquid),
-                      _buildDivider(),
-                      _buildListTile('Dollar', balance.usdBalance.toString(),
-                          Flag(Flags.united_states_of_america), context,
-                          liquid),
-                      _buildDivider(),
-                      _buildListTile('Euro', balance.eurBalance.toString(),
-                          Flag(Flags.european_union), context, liquid),
-                    ],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  elevation: 10,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.blue, Colors.deepPurple],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildListTile('Liquid', liquidBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, liquid),
+                        _buildDivider(),
+                        _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, liquid),
+                        _buildDivider(),
+                        _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, liquid),
+                        _buildDivider(),
+                        _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, liquid),
+                        _buildDivider(),
+                        _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, liquid),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -106,16 +112,13 @@ class Accounts extends StatelessWidget {
     );
   }
 
-  Widget _buildListTile(String title, String trailing, icon,
-      BuildContext context, bitcoin) {
+  Widget _buildListTile(String title, String trailing, icon, BuildContext context, bitcoin) {
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.white),
       child: ExpansionTile(
         leading: icon,
-        title: Text(
-            title, style: const TextStyle(fontSize: 16, color: Colors.white)),
-        trailing: Text(trailing,
-            style: const TextStyle(fontSize: 16, color: Colors.white)),
+        title: Text(title, style: const TextStyle(fontSize: 16, color: Colors.white)),
+        trailing: Text(trailing, style: const TextStyle(fontSize: 16, color: Colors.white)),
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -141,26 +144,20 @@ class Accounts extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        final screenSize = MediaQuery
-            .of(context)
-            .size;
-
+        final screenSize = MediaQuery.of(context).size;
         return FutureBuilder<dynamic>(
           future: bitcoin,
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange));
+              return Center(child: CircularProgressIndicator(color: Colors.orange));
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (snapshot.hasData) {
-              final String address = snapshot.data is String
-                  ? snapshot.data
-                  : snapshot.data.address;
+              final String address = snapshot.data is String ? snapshot.data : snapshot.data.address;
               return Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(50.0)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(50.0)),
                 ),
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -173,8 +170,7 @@ class Accounts extends StatelessWidget {
                             padding: EdgeInsets.only(top: 10.0),
                             child: Text(
                               'Receive',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
