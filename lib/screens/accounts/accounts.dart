@@ -36,7 +36,7 @@ class Accounts extends StatelessWidget {
               builder: (context, ref, _) {
                 final format = ref.watch(settingsProvider).btcFormat;
                 final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(format));
-                final bitcoinAddress = ref.watch(addressProvider.future);
+                final bitcoinAddress = ref.watch(bitcoinAddressProvider.future);
                 return Card(
                   color: Colors.orangeAccent,
                   elevation: 0,
@@ -59,7 +59,6 @@ class Accounts extends StatelessWidget {
                 final format = ref.watch(settingsProvider).btcFormat;
                 final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
                 final balance = ref.watch(balanceNotifierProvider);
-                final bitcoinAddress = ref.watch(addressProvider.future);
                 final liquid = ref.watch(liquidAddressProvider.future);
                 return Card(
                   color: Colors.blueAccent,

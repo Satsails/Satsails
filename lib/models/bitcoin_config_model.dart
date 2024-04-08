@@ -45,7 +45,6 @@ class BitcoinConfigModel {
         throw Exception('Failed to initialize blockchain');
       }
     } else {
-
       final blockchain = await Blockchain.create(
           config: const BlockchainConfig.esplora(
               config: EsploraConfig(

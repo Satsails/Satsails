@@ -1,148 +1,80 @@
+import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/services.dart';
+import 'package:satsails/providers/bitcoin_provider.dart';
+import 'package:satsails/providers/liquid_provider.dart';
 import '../shared/transactions_builder.dart';
+import 'package:group_button/group_button.dart';
 
-class Receive extends StatefulWidget {
-  @override
-  _ReceiveState createState() => _ReceiveState();
-}
+class Receive extends ConsumerWidget {
+  Receive({Key? key}) : super(key: key);
 
-class _ReceiveState extends State<Receive> {
-  int _selectedButtonIndex = 1;
-  Map<String, dynamic> _address = {};
-  List<Object?> _transactions = [];
-  final _storage = FlutterSecureStorage();
-  late String mnemonic;
-
-  @override
-  void initState() {
-    super.initState();
-    loadMnemonic().then((_) {
-      _fetchData();
-    });
-  }
-
-  Future<void> loadMnemonic() async {
-    mnemonic = await _storage.read(key: 'mnemonic') ?? '';
-  }
-
-  void _handleButtonPress(int index) {
-    setState(() {
-      _selectedButtonIndex = _selectedButtonIndex == index ? -1 : index;
-    });
-
-    if (_selectedButtonIndex == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Lightning is not supported yet'),
-        ),
-      );
-      setState(() {
-        _selectedButtonIndex = 1;
-      });
-    } else if (_selectedButtonIndex == 1 || _selectedButtonIndex == 2) {
-      _fetchData();
-    }
-  }
-
-  Future<void> _fetchData() async {
-    // final channel = greenwallet.Channel('ios_wallet');
-
-    // final connectionType = _selectedButtonIndex == 1
-    //     ? NetworkSecurityCase.bitcoinSS.network
-    //     : NetworkSecurityCase.liquidSS.network;
-
-    // final address = await channel.getReceiveAddress(
-    //   mnemonic: mnemonic,
-    //   connectionType: connectionType,
-    // );
-    //
-    // final transactions = await channel.getTransactions(
-    //   mnemonic: mnemonic,
-    //   connectionType: connectionType,
-    // );
-
-
-    setState(() {
-      // _address = address;
-      // _transactions = transactions;
-    });
-  }
-
-  Widget buildElevatedButton(int index, String buttonText) {
-    return ElevatedButton(
-      onPressed: () => _handleButtonPress(index),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: _selectedButtonIndex == index ? Colors.blue : null,
-        elevation: 4.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0),
-        child: Text(
-          buttonText,
-          style: TextStyle(
-            color: _selectedButtonIndex == index ? Colors.white : Colors.black,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildQrCode(String? address) {
+  Widget buildQrCode(String address, BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16.0),
-      child: address != null
-          ? QrImageView(
-        backgroundColor: Colors.white,
-        data: address,
-        version: QrVersions.auto,
-        size: 300.0,
-      )
-          : CircularProgressIndicator(),
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          color: Colors.white,
+        ),
+        child: QrImageView(
+          backgroundColor: Colors.white,
+          data: address!,
+          version: QrVersions.auto,
+          size: MediaQuery
+              .of(context)
+              .size
+              .width * 0.6,
+        )
     );
   }
 
-
-  Widget buildAddressText(String? address) {
+  Widget buildAddressText(String address, BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (address != null) {
-          Clipboard.setData(ClipboardData(text: address));
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Address copied to clipboard: $address'),
-            ),
-          );
-        }
+        Clipboard.setData(ClipboardData(text: address));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Address copied to clipboard: $address'),
+          ),
+        );
       },
-      child: Text(
-        address ?? '',
-        style: TextStyle(
-          fontSize: 16.0,
-          fontWeight: FontWeight.bold,
-          decoration: TextDecoration.underline,
-          color: Colors.blue,
-        ),
+      child: Row(
+        children: [
+          Flexible(
+            child: Text(
+              address,
+              style: const TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
+
+  final selectedButtonProvider = StateProvider<String>((ref) => "Bitcoin");
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedIndex = ref.watch(selectedButtonProvider);
+    final bitcoinAddressAsyncValue = ref.watch(bitcoinAddressProvider);
+    final liquidAddressAsyncValue = ref.watch(liquidAddressProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Receive'),
+        title: const Text('Receive'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -150,22 +82,84 @@ class _ReceiveState extends State<Receive> {
       ),
       body: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              buildElevatedButton(0, 'Lightning'),
-              buildElevatedButton(1, 'Bitcoin'),
-              buildElevatedButton(2, 'Liquid'),
-            ],
+          GroupButton(
+            isRadio: true,
+            onSelected: (index, isSelected, isLongPress) {
+              switch (index) {
+                case 'Bitcoin':
+                  ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
+                  break;
+                case 'Liquid':
+                  ref.read(selectedButtonProvider.notifier).state = "Liquid";
+                  break;
+                case 'Lightning':
+                  ref.read(selectedButtonProvider.notifier).state = "Lightning";
+                  break;
+                default:
+                  'Bitcoin';
+              }
+            },
+            buttons: ["Lightening", 'Bitcoin', "Liquid"],
+            options: GroupButtonOptions(
+              unselectedTextStyle: const TextStyle(fontSize: 16, color: Colors.black),
+              selectedTextStyle: const TextStyle(fontSize: 16, color: Colors.white),
+              selectedColor: Colors.blue,
+              mainGroupAlignment: MainGroupAlignment.center,
+              crossGroupAlignment: CrossGroupAlignment.center,
+              groupRunAlignment: GroupRunAlignment.center,
+              unselectedColor: Colors.white,
+              groupingType: GroupingType.row,
+              alignment: Alignment.center,
+              elevation: 0,
+              textPadding: EdgeInsets.zero,
+              selectedShadow: <BoxShadow>[const BoxShadow(color: Colors.transparent)],
+              unselectedShadow: <BoxShadow>[
+                const BoxShadow(color: Colors.transparent)
+              ],
+              borderRadius: BorderRadius.circular(30.0),
+            ),
           ),
-          buildQrCode(_address['address']),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: buildAddressText(_address['address']),
-          ),
-          SizedBox(height: 16.0),
-          Divider(height: 1),
-          Expanded(child: buildTransactions(_transactions, context)),
+          const SizedBox(height: 16.0),
+          if (selectedIndex == 'Bitcoin')
+            Expanded(
+              child: bitcoinAddressAsyncValue.when(
+              data: (bitcoinAddress) {
+                return Column(
+                  children: [
+                    buildQrCode(bitcoinAddress.address, context),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: buildAddressText(bitcoinAddress.address, context),
+                    ),
+                    const SizedBox(height: 16.0),
+                    const Divider(height: 1),
+                    Expanded(child: buildTransactions([], context)),
+                  ],
+                );
+              },
+              loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange)),
+                error: (error, stack) =>  Center(child: LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange)),),
+            ),
+          if (selectedIndex == "Liquid")
+            Expanded(
+              child: liquidAddressAsyncValue.when(
+              data: (liquidAddress) {
+                return Column(
+                  children: [
+                    buildQrCode(liquidAddress, context),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: buildAddressText(liquidAddress, context),
+                    ),
+                    const SizedBox(height: 16.0),
+                    const Divider(height: 1),
+                    Expanded(child: buildTransactions([], context)),
+                  ],
+                );
+              },
+              loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange)),
+              error: (error, stack) =>  Center(child: LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange)),),
+            ),
         ],
       ),
     );

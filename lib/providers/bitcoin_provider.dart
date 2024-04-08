@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/bitcoin_model.dart';
 import 'bitcoin_config_provider.dart';
 
-final bitcoinProvider = FutureProvider<Bitcoin>((ref) {
-  return ref.watch(restoreWalletProvider.future).then((wallet) {
-    return ref.watch(initializeBlockchainProvider.future).then((blockchain) {
-      return Bitcoin(wallet, blockchain);
-    });
-  });
+final bitcoinProvider = FutureProvider<Bitcoin>((ref) async {
+  Wallet wallet = await ref.watch(restoreWalletProvider.future);
+  try {
+    Blockchain blockchain = await ref.watch(initializeBlockchainProvider.future);
+    return Bitcoin(wallet, blockchain);
+  } catch (e) {
+    return Bitcoin(wallet, null);
+  }
 });
 
 final syncBitcoinProvider = FutureProvider.autoDispose<void>((ref) {
@@ -18,7 +20,7 @@ final syncBitcoinProvider = FutureProvider.autoDispose<void>((ref) {
   });
 });
 
-final addressProvider = FutureProvider.autoDispose<AddressInfo>((ref) {
+final bitcoinAddressProvider = FutureProvider.autoDispose<AddressInfo>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     return bitcoinModel.getAddress();
@@ -48,7 +50,7 @@ final updateTransactionsProvider = FutureProvider.autoDispose<void>((ref) {
   });
 });
 
-final getBalanceProvider = FutureProvider<Balance>((ref) {
+final getBitcoinBalanceProvider = FutureProvider<Balance>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     return bitcoinModel.getBalance();

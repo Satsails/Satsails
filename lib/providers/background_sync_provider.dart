@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
+import 'package:satsails/providers/liquid_provider.dart';
 
 class BackgroundSyncNotifier extends StateNotifier<void> {
   final Ref ref;
@@ -20,14 +21,18 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
 
     while (attempt < maxAttempts) {
       try {
-        final box = await Hive.openBox('bitcoin');
+        final bitcoinBox = await Hive.openBox('bitcoin');
+        final liquidBox = await Hive.openBox('liquid');
         ref.read(syncBitcoinProvider);
-        final balance = await ref.read(getBalanceProvider.future);
-        if (balance.total != 0) {
-          box.put('balance', balance.total);
+        final bitcoinBalance = await ref.read(getBitcoinBalanceProvider.future);
+        if (bitcoinBalance.total != 0) {
+          bitcoinBox.put('balance', bitcoinBalance.total);
           final balanceModel = ref.read(balanceNotifierProvider.notifier);
-          balanceModel.updateBtcBalance(balance.total);
+          balanceModel.updateBtcBalance(bitcoinBalance.total);
         }
+        ref.read(syncLiquidProvider);
+        final liquidBalance = await ref.read(liquidBalanceProvider.future);
+
         break;
       } catch (e) {
         if (attempt == maxAttempts - 1) {
@@ -39,6 +44,6 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
   }
 }
 
-final backgroundSyncNotifierProvider = StateProvider.autoDispose((ref) {
+final backgroundSyncNotifierProvider = StateProvider((ref) {
   return BackgroundSyncNotifier(ref);
 });
