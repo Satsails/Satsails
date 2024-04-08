@@ -1,72 +1,31 @@
-import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'package:flutter/services.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
+import 'package:satsails/screens/shared/copy_text.dart';
+import 'package:satsails/screens/shared/qr_code.dart';
 import '../shared/transactions_builder.dart';
 import 'package:group_button/group_button.dart';
 
 class Receive extends ConsumerWidget {
   Receive({Key? key}) : super(key: key);
 
-  Widget buildQrCode(String address, BuildContext context) {
-    return Container(
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          color: Colors.white,
-        ),
-        child: QrImageView(
-          backgroundColor: Colors.white,
-          data: address!,
-          version: QrVersions.auto,
-          size: MediaQuery
-              .of(context)
-              .size
-              .width * 0.6,
-        )
-    );
-  }
-
-  Widget buildAddressText(String address, BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Clipboard.setData(ClipboardData(text: address));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Address copied to clipboard: $address'),
-          ),
-        );
-      },
-      child: Row(
-        children: [
-          Flexible(
-            child: Text(
-              address,
-              style: const TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
 
   final selectedButtonProvider = StateProvider<String>((ref) => "Bitcoin");
+  final groupButtonControllerProvider = Provider<GroupButtonController>((ref) {
+    return GroupButtonController(selectedIndex: 1);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = ref.watch(selectedButtonProvider);
     final bitcoinAddressAsyncValue = ref.watch(bitcoinAddressProvider);
     final liquidAddressAsyncValue = ref.watch(liquidAddressProvider);
+    final controller = ref.watch(groupButtonControllerProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -84,6 +43,7 @@ class Receive extends ConsumerWidget {
         children: [
           GroupButton(
             isRadio: true,
+            controller: controller,
             onSelected: (index, isSelected, isLongPress) {
               switch (index) {
                 case 'Bitcoin':
