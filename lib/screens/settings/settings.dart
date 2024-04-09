@@ -115,7 +115,7 @@ class Settings extends ConsumerWidget {
                     leading: Flag(Flags.united_states_of_america),
                     title: const Text('English'),
                     onTap: () {
-                      settingsNotifier.setCurrency('EN');
+                      settingsNotifier.setLanguage('EN');
                       Navigator.pop(context);
                     },
                   ),

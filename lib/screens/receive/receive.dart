@@ -63,7 +63,7 @@ class Receive extends ConsumerWidget {
             options: GroupButtonOptions(
               unselectedTextStyle: const TextStyle(fontSize: 16, color: Colors.black),
               selectedTextStyle: const TextStyle(fontSize: 16, color: Colors.white),
-              selectedColor: Colors.blue,
+              selectedColor: Colors.deepOrange,
               mainGroupAlignment: MainGroupAlignment.center,
               crossGroupAlignment: CrossGroupAlignment.center,
               groupRunAlignment: GroupRunAlignment.center,

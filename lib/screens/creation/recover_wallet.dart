@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/providers/auth_provider.dart';
+import 'package:satsails/screens/shared/custom_button.dart';
 
 class RecoverWalletState extends StateNotifier<RecoverWalletData> {
   RecoverWalletState() : super(RecoverWalletData());
@@ -43,6 +44,7 @@ class RecoverWallet extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Recover Wallet'),
       ),
       body: SafeArea(
@@ -93,37 +95,25 @@ class RecoverWallet extends ConsumerWidget {
                 },
               ),
               SizedBox(height: screenSize.height * 0.01),
-              ElevatedButton(
-                onPressed: () async {
-                  // final mnemonic = data.words.join(' ');
-                  final mnemonic = "near angle old frequent only pair banana giggle armed penalty torch boat";
-                  if (await authModel.validateMnemonic(mnemonic)) {
-                    await authModel.setMnemonic(mnemonic);
-                    Navigator.pushNamed(context, '/set_pin');
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Invalid mnemonic'),
-                      ),
-                    );
-                  }
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                    Colors.cyan[400]!,
-                  ),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  minimumSize: MaterialStateProperty.all<Size>(
-                    Size(screenSize.width * 0.75, screenSize.height * 0.075), // Use 75% of the screen width and 7.5% of the screen height
-                  ),
-                ),
-                child: const Text(
-                  'Continue',
-                  style: TextStyle(fontSize: 20.0, color: Colors.white),
+              SizedBox(
+                width: screenSize.width * 0.8,
+                height: screenSize.height * 0.09,
+                child: CustomButton(
+                    text: 'Recover Wallet',
+                    onPressed: () async {
+                      // final mnemonic = data.words.join(' ');
+                      final mnemonic = "near angle old frequent only pair banana giggle armed penalty torch boat";
+                      if (await authModel.validateMnemonic(mnemonic)) {
+                        await authModel.setMnemonic(mnemonic);
+                        Navigator.pushNamed(context, '/set_pin');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Invalid mnemonic'),
+                          ),
+                        );
+                      }
+                    }
                 ),
               ),
             ],

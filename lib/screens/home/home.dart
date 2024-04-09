@@ -9,6 +9,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:satsails/screens/shared/custom_button.dart';
 
 class Home extends ConsumerWidget {
   const Home({super.key});
@@ -142,43 +143,15 @@ class Home extends ConsumerWidget {
           }),
         ),
         SizedBox(height: screenHeight * 0.05),
-        ElevatedButton(
-          onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => const Accounts())); },
-          child: const Text('View Accounts'),
-          style: _buildElevatedButtonStyle(),
-        ),
+        SizedBox(
+            height:screenWidth * 0.15,
+            width: screenWidth * 0.6,
+            child: CustomButton(text: 'View Accounts', onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => const Accounts())); },)
+        )
       ],
     );
   }
 
-  ButtonStyle _buildElevatedButtonStyle() {
-    return ButtonStyle(
-      backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-            (Set<MaterialState> states) {
-          if (states.contains(MaterialState.pressed)) {
-            return Colors.orange;
-          }
-          return Colors.orange; // Use the component's default.
-        },
-      ),
-      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-        RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          side: BorderSide(color: Colors.orangeAccent),
-        ),
-      ),
-      elevation: MaterialStateProperty.all<double>(5.0),
-      overlayColor: MaterialStateProperty.resolveWith<Color?>(
-            (Set<MaterialState> states) {
-          if (states.contains(MaterialState.hovered)) {
-            return Colors.orange.withAlpha(60);
-          }
-          return null; // Use the component's default.
-        },
-      ),
-    );
-  }
 
   Widget _buildActionButtons(BuildContext context) {
     return SizedBox(

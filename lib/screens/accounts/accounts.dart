@@ -92,13 +92,9 @@ class Accounts extends StatelessWidget {
                     child: Column(
                       children: [
                         _buildListTile('Liquid', liquidBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, liquid),
-                        _buildDivider(),
                         _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, liquid),
-                        _buildDivider(),
                         _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, liquid),
-                        _buildDivider(),
                         _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, liquid),
-                        _buildDivider(),
                         _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, liquid),
                       ],
                     ),
@@ -190,13 +186,6 @@ class Accounts extends StatelessWidget {
           },
         );
       },
-    );
-  }
-
-  Widget _buildDivider() {
-    return Divider(
-      height: 1,
-      color: Colors.grey[300],
     );
   }
 }

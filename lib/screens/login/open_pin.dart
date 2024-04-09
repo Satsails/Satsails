@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:satsails/providers/auth_provider.dart';
+import 'package:satsails/screens/shared/custom_button.dart';
 
 class OpenPin extends ConsumerWidget {
   final TextEditingController _pinController = TextEditingController();
@@ -42,24 +43,7 @@ class OpenPin extends ConsumerWidget {
                 },
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => _checkPin(context, ref),
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                      Colors.cyan[400]!),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  minimumSize: MaterialStateProperty.all<Size>(
-                      const Size(300.0, 60.0)),
-                ),
-                child: const Text(
-                  'Unlock',
-                  style: TextStyle(fontSize: 20.0, color: Colors.white),
-                ),
-              ),
+              CustomButton(text: 'Unlock', onPressed: () => _checkPin(context, ref)),
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () => _showConfirmationDialog(context, ref),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:satsails/providers/auth_provider.dart';
+import 'package:satsails/screens/shared/custom_button.dart';
 
 class SetPin extends ConsumerWidget {
   const SetPin({Key? key}) : super(key: key);
@@ -38,7 +39,8 @@ class SetPin extends ConsumerWidget {
                   },
                 ),
                 const SizedBox(height: 10),
-                ElevatedButton(
+                CustomButton(
+                  text: 'Set PIN',
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
                       final authModel = ref.read(authModelProvider);
@@ -55,22 +57,6 @@ class SetPin extends ConsumerWidget {
                       );
                     }
                   },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                      Colors.cyan[400]!,
-                    ),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
-                    ),
-                    minimumSize:
-                    MaterialStateProperty.all<Size>(const Size(300.0, 60.0)),
-                  ),
-                  child: const Text(
-                    'Set PIN',
-                    style: TextStyle(fontSize: 20.0, color: Colors.white),
-                  ),
                 ),
               ],
             ),

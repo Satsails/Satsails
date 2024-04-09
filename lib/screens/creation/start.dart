@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:satsails/screens/shared/custom_button.dart';
 import './components/logo.dart';
 
 class Start extends StatelessWidget {
@@ -56,48 +57,18 @@ class Start extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 10),
-                      ElevatedButton(
+                      CustomButton(
+                        text: 'Register Account',
                         onPressed: () {
                           Navigator.pushNamed(context, '/set_pin');
                         },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.cyan[400]!),
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                          ),
-                          minimumSize: MaterialStateProperty.all<Size>(const Size(
-                              300.0,
-                              60.0)),
-                        ),
-                        child: const Text(
-                          'Register Account',
-                          style: TextStyle(fontSize: 20.0, color: Colors.white),
-                        ),
                       ),
                       const SizedBox(height: 10),
-                      ElevatedButton(
+                      CustomButton(
+                        text: 'Recover account',
                         onPressed: () {
                           Navigator.pushNamed(context, '/recover_wallet');
                         },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan[400]!),
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                          ),
-                          minimumSize: MaterialStateProperty.all<Size>(
-                              const Size(300.0, 60.0)),
-                        ),
-                        child: const Text(
-                          'Recover account',
-                          style: TextStyle(fontSize: 20.0, color: Colors.white),
-                        ),
                       ),
                     ],
                   ),
