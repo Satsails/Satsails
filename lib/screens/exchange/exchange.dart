@@ -62,7 +62,7 @@ class _ExchangeState extends State<Exchange> {
   Future<Stream<dynamic>> streamAndExchange() async {
     int sendAmountInSatoshi = (sendAmount * 100000000).toInt();
     int receivingAmountInSatoshi = (receivingAmount * 100000000).toInt();
-    Stream<dynamic> exchange  = walletStrategy.startSwap(sendBitcoins, sendAmountInSatoshi, receivingAmountInSatoshi, AssetMapper().reverseMapTicker(sendingAsset), price);
+    Stream<dynamic> exchange  = walletStrategy.startSwap(sendBitcoins, sendAmountInSatoshi, receivingAmountInSatoshi, AssetMapper.reverseMapTicker(sendingAsset), price);
     return exchange;
   }
 
@@ -143,9 +143,9 @@ class _ExchangeState extends State<Exchange> {
         int sendAmountInSatoshi = (sendAmount * 100000000).toInt();
         String assetId = '';
         if (sendBitcoins) {
-          assetId = AssetMapper().reverseMapTicker(receivingAsset);
+          assetId = AssetMapper.reverseMapTicker(receivingAsset);
         } else {
-          assetId = AssetMapper().reverseMapTicker(sendingAsset);
+          assetId = AssetMapper.reverseMapTicker(sendingAsset);
         }
         checkExchangeMaxAmount(asset, context);
         if (sendAmountInSatoshi > 0) {

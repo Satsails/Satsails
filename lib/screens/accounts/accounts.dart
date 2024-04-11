@@ -3,14 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import 'package:satsails/screens/shared/copy_text.dart';
 import 'package:satsails/screens/shared/qr_code.dart';
-import '../receive/receive.dart';
 
 class Accounts extends StatelessWidget {
   const Accounts({Key? key}) : super(key: key);
@@ -47,7 +45,7 @@ class Accounts extends StatelessWidget {
                   elevation: 10,
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [Colors.orange, Colors.deepOrange],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -73,7 +71,7 @@ class Accounts extends StatelessWidget {
               builder: (context, ref, _) {
                 final format = ref.watch(settingsProvider).btcFormat;
                 final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
-                final balance = ref.watch(bitcoinBalanceNotifierProvider);
+                final balance = ref.watch(balanceNotifierProvider);
                 final liquid = ref.watch(liquidAddressProvider.future);
                 return Card(
                   shape: RoundedRectangleBorder(
@@ -82,7 +80,7 @@ class Accounts extends StatelessWidget {
                   elevation: 10,
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [Colors.blue, Colors.deepPurple],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -110,7 +108,7 @@ class Accounts extends StatelessWidget {
 
   Widget _buildListTile(String title, String trailing, icon, BuildContext context, bitcoin) {
     return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.white),
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
         leading: icon,
         title: Text(title, style: const TextStyle(fontSize: 16, color: Colors.white)),
@@ -145,7 +143,7 @@ class Accounts extends StatelessWidget {
           future: bitcoin,
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator(color: Colors.orange));
+              return const Center(child: CircularProgressIndicator(color: Colors.orange));
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (snapshot.hasData) {
@@ -170,7 +168,7 @@ class Accounts extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         buildQrCode(address, context),
                         SizedBox(height: screenSize.height * 0.02),
                         buildAddressText(address, context),

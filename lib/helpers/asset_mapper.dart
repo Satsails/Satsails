@@ -1,5 +1,5 @@
 class AssetMapper {
-  String mapAsset(String assetId) {
+  static String mapAsset(String assetId) {
     switch (assetId) {
       case 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2':
         return 'USD';
@@ -14,7 +14,7 @@ class AssetMapper {
     }
   }
 
-  String reverseMapTicker(String ticker) {
+  static String reverseMapTicker(String ticker) {
     switch (ticker) {
       case 'USD':
         return 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2';

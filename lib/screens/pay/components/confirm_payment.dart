@@ -27,10 +27,10 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
     String assetId;
     if (asset== 'Bitcoin') {
       asset = 'L-BTC';
-      assetId = AssetMapper().reverseMapTicker(asset);
+      assetId = AssetMapper.reverseMapTicker(asset);
     }else {
       asset = 'USD';
-      assetId = AssetMapper().reverseMapTicker(asset);
+      assetId = AssetMapper.reverseMapTicker(asset);
     }
 
     // return await greenwallet.Channel('ios_wallet').sendToAddress(

@@ -29,3 +29,10 @@ final liquidBalanceProvider = FutureProvider<Balances>((ref) {
     return liquidModel.balance();
   });
 });
+
+final liquidTransactionsProvider = FutureProvider<List<Tx>>((ref) {
+  return ref.watch(initializeLiquidProvider.future).then((liquid) {
+    LiquidModel liquidModel = LiquidModel(liquid);
+    return liquidModel.txs();
+  });
+});

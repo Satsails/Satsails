@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
+import 'package:satsails/providers/transactions_provider.dart';
 import 'package:satsails/screens/shared/copy_text.dart';
 import 'package:satsails/screens/shared/qr_code.dart';
 import '../shared/transactions_builder.dart';
@@ -24,6 +25,7 @@ class Receive extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = ref.watch(selectedButtonProvider);
     final bitcoinAddressAsyncValue = ref.watch(bitcoinAddressProvider);
+    final transactions = ref.watch(transactionNotifierProvider);
     final liquidAddressAsyncValue = ref.watch(liquidAddressProvider);
     final controller = ref.watch(groupButtonControllerProvider);
 
@@ -93,7 +95,7 @@ class Receive extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16.0),
                     const Divider(height: 1),
-                    Expanded(child: buildTransactions([], context)),
+                    Expanded(child: buildTransactions(transactions.allBitcoinTransactions, context, ref)),
                   ],
                 );
               },
@@ -113,7 +115,7 @@ class Receive extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16.0),
                     const Divider(height: 1),
-                    Expanded(child: buildTransactions([], context)),
+                    Expanded(child: buildTransactions(transactions.liquidTransactions, context, ref)),
                   ],
                 );
               },

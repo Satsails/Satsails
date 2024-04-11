@@ -218,9 +218,9 @@ class Analytics extends ConsumerWidget {
         // ),
 
 
-        Expanded(
-          child: buildTransactions([], context)
-        ),
+        // Expanded(
+        //   child: buildTransactions([], context)
+        // ),
       ],
     );
   }

@@ -33,14 +33,12 @@ Widget buildAddressText(String address, BuildContext context) {
             ),
           ],
         ),
-        child: Flexible(
-          child: Text(
-            address,
-            style: const TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+        child: Text(
+          address,
+          style: const TextStyle(
+            fontSize: 14.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
           ),
         ),
       ),
