@@ -7,45 +7,46 @@ class CurrencyExchangeRatesModel extends StateNotifier<CurrencyConversions> {
 
   Future<void> updateRates() async {
     final fx = Forex();
-    final usdToEur = await fx.getCurrencyConverted(sourceCurrency: 'USD', destinationCurrency: 'EUR', sourceAmount: 10000) / 10000;
-    final usdToBrl = await fx.getCurrencyConverted(sourceCurrency: 'USD', destinationCurrency: 'BRL', sourceAmount: 10000) / 10000;
-    final usdToBtc = await fx.getCurrencyConverted(sourceCurrency: 'USD', destinationCurrency: 'BTC', sourceAmount: 10000) / 10000;
-    final eurToBrl = await fx.getCurrencyConverted(sourceCurrency: 'EUR', destinationCurrency: 'BRL', sourceAmount: 10000) / 10000;
-    final eurToBtc = await fx.getCurrencyConverted(sourceCurrency: 'EUR', destinationCurrency: 'BTC', sourceAmount: 10000) / 10000;
-    final brlToBtc = await fx.getCurrencyConverted(sourceCurrency: 'BRL', destinationCurrency: 'BTC', sourceAmount: 10000) / 10000;
-    final error = fx.getErrorNotifier.value;
 
+    final usdToEur = await fx.getCurrencyConverted(sourceCurrency: 'USD', destinationCurrency: 'EUR', sourceAmount: 1);
+    final error = fx.getErrorNotifier.value;
     if (error != null){
       throw 'No internet connection';
     }
+    final usdToBrl = await fx.getCurrencyConverted(sourceCurrency: 'USD', destinationCurrency: 'BRL', sourceAmount: 1);
+    final btcToUsd = await fx.getCurrencyConverted(sourceCurrency: 'BTC', destinationCurrency: 'USD', sourceAmount: 1);
+    final eurToBrl = await fx.getCurrencyConverted(sourceCurrency: 'EUR', destinationCurrency: 'BRL', sourceAmount: 1);
+    final btcToEur = await fx.getCurrencyConverted(sourceCurrency: 'BTC', destinationCurrency: 'EUR', sourceAmount: 1);
+    final btcToBrl = await fx.getCurrencyConverted(sourceCurrency: 'BTC', destinationCurrency: 'BRL', sourceAmount: 1);
+
 
     final currencyBox = await Hive.openBox('currency');
     currencyBox.put('usdToEur', usdToEur);
     currencyBox.put('usdToBrl', usdToBrl);
-    currencyBox.put('usdToBtc', usdToBtc);
+    currencyBox.put('usdToBtc', 1/btcToUsd);
     currencyBox.put('eurToBrl', eurToBrl);
-    currencyBox.put('eurToBtc', eurToBtc);
-    currencyBox.put('brlToBtc', brlToBtc);
+    currencyBox.put('eurToBtc', 1/btcToEur);
+    currencyBox.put('brlToBtc', 1/btcToBrl);
     currencyBox.put('eurToUsd', 1/usdToEur);
     currencyBox.put('brlToUsd', 1/usdToBrl);
-    currencyBox.put('btcToUsd', 1/usdToBtc);
+    currencyBox.put('btcToUsd', btcToUsd);
     currencyBox.put('brlToEur', 1/eurToBrl);
-    currencyBox.put('btcToEur', 1/eurToBtc);
-    currencyBox.put('btcToBrl', 1/brlToBtc);
+    currencyBox.put('btcToEur', btcToEur);
+    currencyBox.put('btcToBrl', btcToBrl);
 
     state = CurrencyConversions(
       usdToEur: usdToEur,
       usdToBrl: usdToBrl,
-      usdToBtc: usdToBtc,
+      usdToBtc: 1/btcToUsd,
       eurToUsd: 1/usdToEur,
       eurToBrl: eurToBrl,
-      eurToBtc: eurToBtc,
+      eurToBtc: 1/btcToEur,
       brlToUsd: 1/usdToBrl,
       brlToEur: 1/eurToBrl,
-      brlToBtc: brlToBtc,
-      btcToUsd: 1/usdToBtc,
-      btcToEur: 1/eurToBtc,
-      btcToBrl: 1/brlToBtc,
+      brlToBtc: 1/btcToBrl,
+      btcToUsd: btcToUsd,
+      btcToEur: btcToEur,
+      btcToBrl: btcToBrl,
     );
   }
 }

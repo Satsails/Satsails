@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/currency_conversions.dart';
+import 'package:satsails/providers/settings_provider.dart';
 
 final initializeCurrencyProvider = FutureProvider.autoDispose<CurrencyConversions>((ref) async {
   final currencyBox = await Hive.openBox('currency');
@@ -58,5 +59,15 @@ final currencyNotifierProvider = StateNotifierProvider.autoDispose<CurrencyExcha
 
 final updateCurrencyProvider = FutureProvider.autoDispose<void>((ref) async {
   final currencyModel = ref.watch(currencyNotifierProvider.notifier);
-  return await currencyModel.updateRates();
+  final settingsModel = ref.read(settingsProvider.notifier);
+  bool success = false;
+
+    try {
+      await currencyModel.updateRates();
+      success = true;
+    } catch (e) {}
+
+  if (!success) {
+    settingsModel.setOnline(false);
+  }
 });

@@ -21,17 +21,23 @@ class SettingsModel extends StateNotifier<Settings> {
     box.put('btcFormat', newBtcFormat);
     state = state.copyWith(btcFormat: newBtcFormat);
   }
+
+  void setOnline(bool onlineStatus) {
+    state = state.copyWith(online: onlineStatus);
+  }
 }
 
 class Settings {
   final String currency;
   final String language;
   late final String btcFormat;
+  late bool online;
 
   Settings({
     required this.currency,
     required this.language,
     required String btcFormat,
+    required this.online
   }) : btcFormat = (['BTC', 'mBTC', 'bits', 'sats'].contains(btcFormat)) ? btcFormat : throw ArgumentError('Invalid btcFormat'),
         super();
 
@@ -39,11 +45,13 @@ class Settings {
     String? currency,
     String? language,
     String? btcFormat,
+    bool? online
   }) {
     return Settings(
       currency: currency ?? this.currency,
       language: language ?? this.language,
       btcFormat: btcFormat ?? this.btcFormat,
+      online: online ?? this.online
     );
   }
 }

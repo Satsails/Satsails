@@ -66,20 +66,33 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
       switch (AssetMapper.mapAsset(balance.$1)){
         case 'USD':
           balance = balance.$2 ~/ 100000000;
+          if (balance == 0){
+            break;
+          }
           liquidBox.put('usd', balance);
           balanceModel.updateUsdBalance(balance);
           break;
         case 'EUR':
           balance = balance.$2 ~/ 100000000;
+          if (balance == 0){
+            break;
+          }
           liquidBox.put('eur', balance);
           balanceModel.updateEurBalance(balance);
           break;
         case 'BRL':
           balance = balance.$2 ~/ 100000000;
+          if (balance == 0){
+            break;
+          }
           liquidBox.put('brl', balance);
           balanceModel.updateBrlBalance(balance);
           break;
         case 'L-BTC':
+          if (balance.$2 == 0){
+            break;
+          }
+          liquidBox.put('liquid', balance.$2);
           balanceModel.updateLiquidBalance(balance.$2);
           break;
 

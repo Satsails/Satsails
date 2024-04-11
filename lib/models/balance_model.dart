@@ -75,7 +75,7 @@ class Balance {
 
     switch (denomination) {
       case 'sats':
-        balance = liquidBalance * 100000000;
+        balance = liquidBalance.toDouble();
         return balance.toInt().toString();
       case 'BTC':
         balance = liquidBalance / 100000000;
@@ -124,8 +124,8 @@ class Balance {
       eurPercentage: conversions.eurToBtc * eurBalance.toDouble() / total,
       usdPercentage: conversions.usdToBtc * usdBalance.toDouble() / total,
       brlPercentage: conversions.brlToBtc * brlBalance.toDouble() / total,
-      liquidPercentage: (liquidBalance).toDouble() / total,
-      btcPercentage: (btcBalance).toDouble() / total,
+      liquidPercentage: (liquidBalance / 100000000) / total,
+      btcPercentage: (btcBalance / 100000000) / total,
       total: total,
     );
   }

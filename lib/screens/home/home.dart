@@ -206,6 +206,14 @@ class Home extends ConsumerWidget {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {
+    final value = ref.watch(currentBitcoinPriceInCurrencyProvider(ref.watch(settingsProvider).currency)).toStringAsFixed(2);
+    final settings = ref.read(settingsProvider);
+    final settingsNotifier = ref.read(settingsProvider.notifier);
+
+    void toggleOnlineStatus() {
+      settingsNotifier.setOnline(true);
+    }
+
     return PreferredSize(
       preferredSize: const Size.fromHeight(kToolbarHeight),
       child: AppBar(
@@ -217,25 +225,20 @@ class Home extends ConsumerWidget {
             Navigator.pushNamed(context, '/search_modal');
           },
         ),
-        title: Builder(
-          builder: (context) {
-            final value = ref.watch(currentBitcoinPriceInCurrencyProvider(ref.watch(settingsProvider).currency)).toStringAsFixed(2);
-            return Text(
-              '$value ${ref.watch(settingsProvider).currency}',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                shadows: <Shadow>[
-                  Shadow(
-                    offset: const Offset(1.0, 1.0),
-                    blurRadius: 3.0,
-                    color: Colors.grey.withOpacity(0.5),
-                  ),
-                ],
+        title: Text(
+          '$value ${settings.currency}',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            shadows: <Shadow>[
+              Shadow(
+                offset: const Offset(1.0, 1.0),
+                blurRadius: 3.0,
+                color: Colors.grey.withOpacity(0.5),
               ),
-            );
-          },
+            ],
+          ),
         ),
         centerTitle: true,
         actions: [
@@ -243,6 +246,15 @@ class Home extends ConsumerWidget {
             icon: const Icon(Clarity.settings_line, color: Colors.black),
             onPressed: () {
               Navigator.pushNamed(context, '/settings');
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.fiber_manual_record,
+              color: settings.online ? Colors.green : Colors.red,
+            ),
+            onPressed: () {
+              toggleOnlineStatus();
             },
           ),
         ],

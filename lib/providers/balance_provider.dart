@@ -3,8 +3,10 @@ import 'package:hive/hive.dart';
 import 'package:satsails/models/balance_model.dart';
 import 'package:satsails/providers/background_sync_provider.dart';
 import 'package:satsails/providers/currency_conversions_provider.dart';
+import 'package:satsails/providers/settings_provider.dart';
 
 final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) async {
+  final online = ref.watch(settingsProvider).online;
   final bitcoinBox = await Hive.openBox('bitcoin');
   final liquidBox = await Hive.openBox('liquid');
   final bitcoinBalance = bitcoinBox.get('bitcoin', defaultValue: 0) as int;
@@ -12,9 +14,10 @@ final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) asyn
   final usdBalance = liquidBox.get('usd', defaultValue: 0) as int;
   final eurBalance = liquidBox.get('eur', defaultValue: 0) as int;
   final brlBalance = liquidBox.get('brl', defaultValue: 0) as int;
-  await ref.read(updateCurrencyProvider.future);
-  ref.read(backgroundSyncNotifierProvider);
-
+  if (online) {
+    await ref.read(updateCurrencyProvider.future);
+    ref.read(backgroundSyncNotifierProvider);
+  }
   return Balance(
     btcBalance: bitcoinBalance,
     liquidBalance: liquidBalance,

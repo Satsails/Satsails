@@ -8,7 +8,7 @@ final initialSettingsProvider = FutureProvider.autoDispose<Settings>((ref) async
       final language = box.get('language', defaultValue: 'EN');
       final btcFormat = box.get('btcFormat', defaultValue: 'BTC');
 
-      return Settings(currency: currency, language: language, btcFormat: btcFormat);
+      return Settings(currency: currency, language: language, btcFormat: btcFormat, online: true);
 });
 
 final settingsProvider = StateNotifierProvider.autoDispose<SettingsModel, Settings>((ref) {
@@ -16,7 +16,7 @@ final settingsProvider = StateNotifierProvider.autoDispose<SettingsModel, Settin
 
       return SettingsModel(initialSettings.when(
             data: (settings) => settings,
-            loading: () => Settings(currency: 'USD', language: 'EN', btcFormat: 'BTC'),
+            loading: () => Settings(currency: 'USD', language: 'EN', btcFormat: 'BTC', online: true),
             error: (Object error, StackTrace stackTrace) {
                   throw error;
             },
