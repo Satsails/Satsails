@@ -22,6 +22,7 @@ import 'package:satsails/screens/support/info.dart';
 import 'package:satsails/screens/home/components/search_modal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:satsails/models/adapters/transaction_adapters.dart';
 
 
 void main() async {
@@ -29,6 +30,13 @@ void main() async {
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  Hive.registerAdapter(TransactionDetailsAdapter());
+  Hive.registerAdapter(BlockTimeAdapter());
+  Hive.registerAdapter(OutPointAdapter());
+  Hive.registerAdapter(TxOutSecretsAdapter());
+  Hive.registerAdapter(TxOutAdapter());
+  Hive.registerAdapter(TxAdapter());
+  Hive.registerAdapter(BalanceAdapter());
 
   runApp(
     const MaterialApp(

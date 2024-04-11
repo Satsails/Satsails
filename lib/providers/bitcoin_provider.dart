@@ -27,17 +27,10 @@ final bitcoinAddressProvider = FutureProvider.autoDispose<AddressInfo>((ref) {
   });
 });
 
-final getUnConfirmedTransactionsProvider = FutureProvider<List<TransactionDetails>>((ref) {
+final getBitcoinTransactionsProvider = FutureProvider<List<TransactionDetails>>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    return bitcoinModel.getUnConfirmedTransactions();
-  });
-});
-
-final getConfirmedTransactionsProvider = FutureProvider<List<TransactionDetails>>((ref) {
-  return ref.watch(bitcoinProvider.future).then((bitcoin) {
-    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    return bitcoinModel.getConfirmedTransactions();
+    return bitcoinModel.getTransactions();
   });
 });
 

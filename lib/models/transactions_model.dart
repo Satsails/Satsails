@@ -3,12 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class TransactionModel extends StateNotifier<Transaction>{
   TransactionModel(super.state);
 
-  void updateConfirmedBitcoinTransactions(List<dynamic> confirmedBitcoinTransactions){
-    state = state.copyWith(confirmedBitcoinTransactions: confirmedBitcoinTransactions);
-  }
-
-  void updateUnConfirmedBitcoinTransactions(List<dynamic> unConfirmedBitcoinTransactions){
-    state = state.copyWith(unConfirmedBitcoinTransactions: unConfirmedBitcoinTransactions);
+  void updateBitcoinTransactions(List<dynamic> bitcoinTransactions){
+    state = state.copyWith(bitcoinTransactions: bitcoinTransactions);
   }
 
   void updateLiquidTransactions(List<dynamic> liquidTransactions){
@@ -17,40 +13,28 @@ class TransactionModel extends StateNotifier<Transaction>{
 }
 
 class Transaction {
-  List<dynamic> confirmedBitcoinTransactions;
-  List<dynamic> unConfirmedBitcoinTransactions;
+  List<dynamic> bitcoinTransactions;
   List<dynamic> liquidTransactions;
 
   Transaction({
-    required this.confirmedBitcoinTransactions,
-    required this.unConfirmedBitcoinTransactions,
+    required this.bitcoinTransactions,
     required this.liquidTransactions,
   });
 
   Transaction copyWith({
-    List<dynamic>? confirmedBitcoinTransactions,
-    List<dynamic>? unConfirmedBitcoinTransactions,
+    List<dynamic>? bitcoinTransactions,
     List<dynamic>? liquidTransactions,
   }) {
     return Transaction(
-      confirmedBitcoinTransactions: confirmedBitcoinTransactions ?? this.confirmedBitcoinTransactions,
-      unConfirmedBitcoinTransactions: unConfirmedBitcoinTransactions ?? this.unConfirmedBitcoinTransactions,
+      bitcoinTransactions: bitcoinTransactions ?? this.bitcoinTransactions,
       liquidTransactions: liquidTransactions ?? this.liquidTransactions,
     );
   }
 
   List<dynamic> get allTransactions {
     return [
-      ...confirmedBitcoinTransactions,
-      ...unConfirmedBitcoinTransactions,
+      ...bitcoinTransactions,
       ...liquidTransactions,
-    ];
-  }
-
-  List<dynamic> get allBitcoinTransactions {
-    return [
-      ...confirmedBitcoinTransactions,
-      ...unConfirmedBitcoinTransactions,
     ];
   }
 }

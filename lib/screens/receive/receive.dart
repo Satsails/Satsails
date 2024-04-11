@@ -14,8 +14,6 @@ import 'package:group_button/group_button.dart';
 class Receive extends ConsumerWidget {
   Receive({Key? key}) : super(key: key);
 
-
-
   final selectedButtonProvider = StateProvider<String>((ref) => "Bitcoin");
   final groupButtonControllerProvider = Provider<GroupButtonController>((ref) {
     return GroupButtonController(selectedIndex: 1);
@@ -95,7 +93,7 @@ class Receive extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16.0),
                     const Divider(height: 1),
-                    Expanded(child: buildTransactions(transactions.allBitcoinTransactions, context, ref)),
+                    Expanded(child: buildTransactions(transactions.bitcoinTransactions, context, ref)),
                   ],
                 );
               },

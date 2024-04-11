@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:isolate';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:satsails/helpers/asset_mapper.dart';
@@ -7,6 +6,8 @@ import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
 import 'package:satsails/providers/transactions_provider.dart';
+
+import '../models/adapters/transaction_adapters.dart';
 
 class BackgroundSyncNotifier extends StateNotifier<void> {
   final Ref ref;
@@ -24,31 +25,30 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
 
     while (attempt < maxAttempts) {
       try {
+        final bitcoinBox = await Hive.openBox('bitcoin');
+        final liquidBox = await Hive.openBox('liquid');
         final balanceModel = ref.read(balanceNotifierProvider.notifier);
-        // ref.read(syncBitcoinProvider);
-        Isolate.run(() async => {await ref.read(syncBitcoinProvider)});
+        await ref.read(syncBitcoinProvider);
         final bitcoinBalance = await ref.read(getBitcoinBalanceProvider.future);
         if (bitcoinBalance.total != 0) {
-          final bitcoinBox = await Hive.openBox('bitcoin');
           bitcoinBox.put('bitcoin', bitcoinBalance.total);
           balanceModel.updateBtcBalance(bitcoinBalance.total);
         }
         final transactionProvider = ref.read(transactionNotifierProvider.notifier);
-        final confirmedBitcoinTransactions = await ref.read(getConfirmedTransactionsProvider.future);
-        final unConfirmedBitcoinTransactions = await ref.read(getUnConfirmedTransactionsProvider.future);
-        if (confirmedBitcoinTransactions.isNotEmpty) {
-          transactionProvider.updateConfirmedBitcoinTransactions(confirmedBitcoinTransactions);
+        final bitcoinTransactions = await ref.read(getBitcoinTransactionsProvider.future);
+        List<TransactionDetails> bitcoinTransactionsHive = bitcoinTransactions.map((transaction) => TransactionDetails.fromBdk(transaction)).toList();
+        if (bitcoinTransactions.isNotEmpty) {
+          bitcoinBox.put('bitcoinTransactions', bitcoinTransactionsHive);
+          transactionProvider.updateBitcoinTransactions(bitcoinTransactions);
         }
-        if (unConfirmedBitcoinTransactions.isNotEmpty) {
-          transactionProvider.updateUnConfirmedBitcoinTransactions(unConfirmedBitcoinTransactions);
-        }
-        Isolate.run(() async => {await ref.read(syncLiquidProvider)});
-        // ref.read(syncLiquidProvider);
+        await ref.read(syncLiquidProvider);
         final liquidBalance = await ref.read(liquidBalanceProvider.future);
         updateLiquidBalances(liquidBalance);
 
         final liquidTransactions = await ref.read(liquidTransactionsProvider.future);
+        List<Tx> liquidTransactionsHive = liquidTransactions.map((transaction) => Tx.fromLwk(transaction)).toList();
         if (liquidTransactions.isNotEmpty) {
+          liquidBox.put('liquidTransactions', liquidTransactionsHive);
           transactionProvider.updateLiquidTransactions(liquidTransactions);
         }
         break;

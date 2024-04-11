@@ -26,23 +26,10 @@ class BitcoinModel {
     return input;
   }
 
-  Future<List<TransactionDetails>> getUnConfirmedTransactions() async {
+  Future<List<TransactionDetails>> getTransactions() async {
     List<TransactionDetails> unConfirmed = [];
     final res = await config.wallet.listTransactions(true);
-    for (var e in res) {
-      if (e.confirmationTime == null) unConfirmed.add(e);
-    }
-    return unConfirmed;
-  }
-
-  Future<List<TransactionDetails>> getConfirmedTransactions() async {
-    List<TransactionDetails> confirmed = [];
-    final res = await config.wallet.listTransactions(true);
-
-    for (var e in res) {
-      if (e.confirmationTime != null) confirmed.add(e);
-    }
-    return confirmed;
+    return res;
   }
 
   Future<Balance> getBalance() async {

@@ -1,12 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:satsails/models/transactions_model.dart';
 
 final initializeTransactionsProvider = FutureProvider<Transaction>((ref) async {
+  final bitcoinBox = await Hive.openBox('bitcoin');
+  final liquidBox = await Hive.openBox('liquid');
+  final bitcoinTransactions = bitcoinBox.get('bitcoinTransactions', defaultValue: []);
+  final liquidTransactions = liquidBox.get('liquidTransactions', defaultValue: []);
 
   return Transaction(
-    confirmedBitcoinTransactions: [],
-    unConfirmedBitcoinTransactions: [],
-    liquidTransactions: [],
+    bitcoinTransactions: bitcoinTransactions,
+    liquidTransactions: liquidTransactions,
   );
 });
 
@@ -16,8 +20,7 @@ final transactionNotifierProvider = StateNotifierProvider<TransactionModel, Tran
   return TransactionModel(initialTransactions.when(
     data: (transactions) => transactions,
     loading: () => Transaction(
-      confirmedBitcoinTransactions: [],
-      unConfirmedBitcoinTransactions: [],
+      bitcoinTransactions: [],
       liquidTransactions: [],
     ),
     error: (Object error, StackTrace stackTrace) {
