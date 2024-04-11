@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:satsails/helpers/asset_mapper.dart';
@@ -24,7 +25,8 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
     while (attempt < maxAttempts) {
       try {
         final balanceModel = ref.read(balanceNotifierProvider.notifier);
-        ref.read(syncBitcoinProvider);
+        // ref.read(syncBitcoinProvider);
+        Isolate.run(() async => {await ref.read(syncBitcoinProvider)});
         final bitcoinBalance = await ref.read(getBitcoinBalanceProvider.future);
         if (bitcoinBalance.total != 0) {
           final bitcoinBox = await Hive.openBox('bitcoin');
@@ -40,7 +42,8 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
         if (unConfirmedBitcoinTransactions.isNotEmpty) {
           transactionProvider.updateUnConfirmedBitcoinTransactions(unConfirmedBitcoinTransactions);
         }
-        ref.read(syncLiquidProvider);
+        Isolate.run(() async => {await ref.read(syncLiquidProvider)});
+        // ref.read(syncLiquidProvider);
         final liquidBalance = await ref.read(liquidBalanceProvider.future);
         updateLiquidBalances(liquidBalance);
 

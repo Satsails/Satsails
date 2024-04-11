@@ -122,13 +122,13 @@ class Accounts extends StatelessWidget {
         title: RichText(
           text: TextSpan(
             children: [
-              TextSpan(text: '$title ', style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+              TextSpan(text: '$title  ', style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
               TextSpan(text: balance, style: const TextStyle(fontSize: 16, color: Colors.white)),
               TextSpan(text: ' $denomination', style: const TextStyle(fontSize: 16, color: Colors.white)),
             ],
           ),
         ),
-        trailing: Text(trailing +' '+ format, style: const TextStyle(fontSize: 16, color: Colors.white)),
+        trailing: Text(trailing + ' '+ format, style: const TextStyle(fontSize: 16, color: Colors.white)),
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
