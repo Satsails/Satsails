@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
+import 'package:satsails/helpers/asset_mapper.dart';
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
@@ -22,13 +23,12 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
 
     while (attempt < maxAttempts) {
       try {
-        final bitcoinBox = await Hive.openBox('bitcoin');
-        final liquidBox = await Hive.openBox('liquid');
         final balanceModel = ref.read(balanceNotifierProvider.notifier);
         ref.read(syncBitcoinProvider);
         final bitcoinBalance = await ref.read(getBitcoinBalanceProvider.future);
         if (bitcoinBalance.total != 0) {
-          bitcoinBox.put('balance', bitcoinBalance.total);
+          final bitcoinBox = await Hive.openBox('bitcoin');
+          bitcoinBox.put('bitcoin', bitcoinBalance.total);
           balanceModel.updateBtcBalance(bitcoinBalance.total);
         }
         final transactionProvider = ref.read(transactionNotifierProvider.notifier);
@@ -42,7 +42,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
         }
         ref.read(syncLiquidProvider);
         final liquidBalance = await ref.read(liquidBalanceProvider.future);
-        balanceModel.updateLiquidBalances(liquidBalance);
+        updateLiquidBalances(liquidBalance);
 
         final liquidTransactions = await ref.read(liquidTransactionsProvider.future);
         if (liquidTransactions.isNotEmpty) {
@@ -54,6 +54,35 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           rethrow;
         }
         attempt++;
+      }
+    }
+  }
+
+
+  void updateLiquidBalances(balances) async {
+    final balanceModel = ref.read(balanceNotifierProvider.notifier);
+    final liquidBox = await Hive.openBox('liquid');
+    for (var balance in balances){
+      switch (AssetMapper.mapAsset(balance.$1)){
+        case 'USD':
+          balance = balance.$2 ~/ 100000000;
+          liquidBox.put('usd', balance);
+          balanceModel.updateUsdBalance(balance);
+          break;
+        case 'EUR':
+          balance = balance.$2 ~/ 100000000;
+          liquidBox.put('eur', balance);
+          balanceModel.updateEurBalance(balance);
+          break;
+        case 'BRL':
+          balance = balance.$2 ~/ 100000000;
+          liquidBox.put('brl', balance);
+          balanceModel.updateBrlBalance(balance);
+          break;
+        case 'L-BTC':
+          balanceModel.updateLiquidBalance(balance.$2);
+          break;
+
       }
     }
   }

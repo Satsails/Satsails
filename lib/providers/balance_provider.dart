@@ -6,16 +6,19 @@ import 'package:satsails/providers/background_sync_provider.dart';
 final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) async {
   final bitcoinBox = await Hive.openBox('bitcoin');
   final liquidBox = await Hive.openBox('liquid');
-  final bitcoinBalance = bitcoinBox.get('balance', defaultValue: 0) as int;
-  final liquidBalance = liquidBox.get('balance', defaultValue: 0) as int;
+  final bitcoinBalance = bitcoinBox.get('bitcoin', defaultValue: 0) as int;
+  final liquidBalance = liquidBox.get('liquid', defaultValue: 0) as int;
+  final usdBalance = liquidBox.get('usd', defaultValue: 0) as int;
+  final eurBalance = liquidBox.get('eur', defaultValue: 0) as int;
+  final brlBalance = liquidBox.get('brl', defaultValue: 0) as int;
   ref.read(backgroundSyncNotifierProvider);
 
   return Balance(
     btcBalance: bitcoinBalance,
     liquidBalance: liquidBalance,
-    usdBalance: 0,
-    eurBalance: 0,
-    brlBalance: 0,
+    usdBalance: usdBalance,
+    eurBalance: eurBalance,
+    brlBalance: brlBalance,
   );
 });
 

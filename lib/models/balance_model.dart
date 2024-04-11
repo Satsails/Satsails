@@ -1,7 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forex_currency_conversion/forex_currency_conversion.dart';
-import 'package:satsails/helpers/asset_mapper.dart';
-import 'package:hive/hive.dart';
 
 class BalanceModel extends StateNotifier<Balance>{
   BalanceModel(super.state);
@@ -24,26 +22,6 @@ class BalanceModel extends StateNotifier<Balance>{
 
   void updateBrlBalance(int newBrlBalance) {
     state = state.copyWith(brlBalance: newBrlBalance);
-  }
-
-  void updateLiquidBalances(balances){
-    for (var balance in balances){
-      switch (AssetMapper.mapAsset(balance.$1)){
-        case 'USD':
-          updateUsdBalance(balance.$2 ~/ 100000000);
-          break;
-        case 'EUR':
-          updateEurBalance(balance.$2 ~/ 100000000);
-          break;
-        case 'BRL':
-          updateBrlBalance(balance.$2 ~/ 100000000);
-          break;
-        case 'L-BTC':
-          updateLiquidBalance(balance.$2);
-          break;
-
-      }
-    }
   }
 }
 
@@ -141,13 +119,13 @@ class Balance {
   }
 
   Future<Percentage> percentageOfEachCurrency() async {
-    final total = await totalBalanceInCurrency('BTC');
+    final total = await totalBalanceInCurrency('BTC') * 100000000;
     return Percentage(
-      eurPercentage: await getConvertedBalance('EUR', 'BTC', eurBalance.toDouble()) / total,
-      brlPercentage: await getConvertedBalance('BRL', 'BTC', brlBalance.toDouble()) / total,
-      usdPercentage: await getConvertedBalance('USD', 'BTC', usdBalance.toDouble()) / total,
-      liquidPercentage: (liquidBalance / 100000000).toDouble() / total,
-      btcPercentage: (btcBalance / 100000000).toDouble() / total,
+      eurPercentage: await getConvertedBalance('EUR', 'BTC', eurBalance.toDouble() * 100000000) / total,
+      brlPercentage: await getConvertedBalance('BRL', 'BTC', brlBalance.toDouble() * 100000000) / total,
+      usdPercentage: await getConvertedBalance('USD', 'BTC', usdBalance.toDouble() * 100000000) / total,
+      liquidPercentage: (liquidBalance).toDouble() / total,
+      btcPercentage: (btcBalance).toDouble() / total,
       total: total,
     );
   }
