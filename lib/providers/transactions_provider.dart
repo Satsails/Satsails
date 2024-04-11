@@ -6,11 +6,11 @@ final initializeTransactionsProvider = FutureProvider<Transaction>((ref) async {
   final bitcoinBox = await Hive.openBox('bitcoin');
   final liquidBox = await Hive.openBox('liquid');
   final bitcoinTransactions = bitcoinBox.get('bitcoinTransactions', defaultValue: []);
-  final liquidTransactions = liquidBox.get('liquidTransactions', defaultValue: []);
+  // final liquidTransactions = liquidBox.get('liquidTransactions', defaultValue: []);
 
   return Transaction(
     bitcoinTransactions: bitcoinTransactions,
-    liquidTransactions: liquidTransactions,
+    liquidTransactions: [],
   );
 });
 

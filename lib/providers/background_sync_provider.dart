@@ -46,9 +46,9 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
         updateLiquidBalances(liquidBalance);
 
         final liquidTransactions = await ref.read(liquidTransactionsProvider.future);
-        List<Tx> liquidTransactionsHive = liquidTransactions.map((transaction) => Tx.fromLwk(transaction)).toList();
+        // List<Tx> liquidTransactionsHive = liquidTransactions.map((transaction) => Tx.fromLwk(transaction)).toList();
         if (liquidTransactions.isNotEmpty) {
-          liquidBox.put('liquidTransactions', liquidTransactionsHive);
+          // liquidBox.put('liquidTransactions', liquidTransactionsHive);
           transactionProvider.updateLiquidTransactions(liquidTransactions);
         }
         break;
