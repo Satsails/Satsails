@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:satsails/models/balance_model.dart';
 import 'package:satsails/providers/background_sync_provider.dart';
+import 'package:satsails/providers/currency_conversions_provider.dart';
 
 final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) async {
   final bitcoinBox = await Hive.openBox('bitcoin');
@@ -11,6 +12,7 @@ final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) asyn
   final usdBalance = liquidBox.get('usd', defaultValue: 0) as int;
   final eurBalance = liquidBox.get('eur', defaultValue: 0) as int;
   final brlBalance = liquidBox.get('brl', defaultValue: 0) as int;
+  await ref.read(updateCurrencyProvider.future);
   ref.read(backgroundSyncNotifierProvider);
 
   return Balance(
@@ -40,24 +42,28 @@ final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, 
   ));
 });
 
-final totalBalanceInCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
+final totalBalanceInCurrencyProvider = StateProvider.family.autoDispose<double, String>((ref, currency)  {
   final balanceModel = ref.watch(balanceNotifierProvider);
-  return await balanceModel.totalBalanceInCurrency(currency);
+  final conversions = ref.watch(currencyNotifierProvider);
+
+  return balanceModel.totalBalanceInCurrency(currency, conversions);
 });
 
-final totalBalanceInDenominationProvider = FutureProvider.family.autoDispose<String, String>((ref, denomination) async {
+final totalBalanceInDenominationProvider = StateProvider.family.autoDispose<String, String>((ref, denomination){
   final balanceModel = ref.watch(balanceNotifierProvider);
-  return balanceModel.totalBalanceInDenominationFormatted(denomination);
+  final conversions = ref.watch(currencyNotifierProvider);
+  return balanceModel.totalBalanceInDenominationFormatted(denomination, conversions);
 });
 
-final currentBitcoinPriceInCurrencyProvider = FutureProvider.family.autoDispose<double, String>((ref, currency) async {
+final currentBitcoinPriceInCurrencyProvider = StateProvider.family.autoDispose<double, String>((ref, currency) {
   final balanceModel = ref.watch(balanceNotifierProvider);
-  return await balanceModel.currentBitcoinPriceInCurrency(currency);
+  return balanceModel.currentBitcoinPriceInCurrency(currency, ref.watch(currencyNotifierProvider));
 });
 
-final percentageChangeProvider = FutureProvider.autoDispose<Percentage>((ref) async {
+final percentageChangeProvider = StateProvider.autoDispose<Percentage>((ref)  {
   final balanceModel = ref.watch(balanceNotifierProvider);
-  return await balanceModel.percentageOfEachCurrency();
+  final conversions = ref.watch(currencyNotifierProvider);
+  return balanceModel.percentageOfEachCurrency(conversions);
 });
 
 final btcBalanceInFormatProvider = StateProvider.family.autoDispose<String, String>((ref, denomination) {

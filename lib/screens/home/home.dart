@@ -47,9 +47,9 @@ class Home extends ConsumerWidget {
         : PieChart(PieChartData(
       sections: [
         PieChartSectionData(value: percentage.btcPercentage + percentage.liquidPercentage, title: '', radius: 20, badgeWidget: const Icon(Icons.currency_bitcoin, color: Colors.white), color: Colors.orange),
-        PieChartSectionData(value: percentage.brlPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.brazil), color: Colors.deepPurpleAccent),
-        PieChartSectionData(value: percentage.eurPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.european_union), color: Colors.blue),
-        PieChartSectionData(value: percentage.usdPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.united_states_of_america), color: Colors.green),
+        PieChartSectionData(value: percentage.brlPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.brazil, size: 25), color: Colors.deepPurpleAccent),
+        PieChartSectionData(value: percentage.eurPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.european_union, size: 25), color: Colors.blue),
+        PieChartSectionData(value: percentage.usdPercentage, title: '', radius: 20, badgeWidget: Flag(Flags.united_states_of_america, size: 25), color: Colors.green),
       ],
       borderData: FlBorderData(show: false),
     ));
@@ -94,11 +94,7 @@ class Home extends ConsumerWidget {
                       final initializeBalance = ref.watch(initializeBalanceProvider);
                       final totalInDenominatedCurrency = ref.watch(totalBalanceInDenominationProvider(settings.btcFormat));
                       return initializeBalance.when(
-                        data: (_) => totalInDenominatedCurrency.when(
-                          data: (total) => SizedBox(height: titleFontSize * 1.5, child: Text('$total ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
-                          loading: () => SizedBox(height: titleFontSize * 1.5,child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
-                          error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))),
-                        ),
+                        data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('$totalInDenominatedCurrency ${settings.btcFormat}', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                         loading: () =>SizedBox(height: titleFontSize * 1.5,child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                         error: (error, stack) => SizedBox(height: titleFontSize * 1.5,child: TextButton(onPressed: () { ref.refresh(totalBalanceInDenominationProvider(settings.btcFormat)); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize)))),
                       );
@@ -109,13 +105,9 @@ class Home extends ConsumerWidget {
                     Consumer(builder: (context, watch, child) {
                       final settings = ref.watch(settingsProvider);
                       final initializeBalance = ref.watch(initializeBalanceProvider);
-                      final totalBalanceInCurrency = ref.watch(totalBalanceInCurrencyProvider(settings.currency));
+                      final totalBalanceInCurrency = ref.watch(totalBalanceInCurrencyProvider(settings.currency)).toStringAsFixed(2);
                       return initializeBalance.when(
-                          data: (_) => totalBalanceInCurrency.when(
-                            data: (total) => SizedBox(height: subtitleFontSize * 1.5, child: Text('${total.toStringAsFixed(2)} ${settings.currency}', style: TextStyle(fontSize: subtitleFontSize, color: Colors.white))),
-                            loading: () => SizedBox(height: subtitleFontSize * 1.5, child:LoadingAnimationWidget.prograssiveDots(size: subtitleFontSize, color: Colors.white)),
-                            error: (error, stack) => TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: subtitleFontSize))),
-                          ),
+                          data: (_) => SizedBox(height: subtitleFontSize * 1.5, child: Text('$totalBalanceInCurrency ${settings.currency}', style: TextStyle(fontSize: subtitleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                           loading: () => SizedBox(height: subtitleFontSize * 1.5, child:LoadingAnimationWidget.prograssiveDots(size: subtitleFontSize, color: Colors.white)),
                           error: (error, stack) => SizedBox(height: subtitleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(totalBalanceInCurrencyProvider(settings.currency)); },child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: subtitleFontSize))),
                           ));
@@ -132,11 +124,7 @@ class Home extends ConsumerWidget {
             final initializeBalance = ref.watch(initializeBalanceProvider);
             final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
             return initializeBalance.when(
-              data: (_) => percentageOfEachCurrency.when(
-                data: (percentage) => _buildDiagram(context, percentage),
-                loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
-                error: (error, stack) =>LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
-              ),
+              data: (_) => _buildDiagram(context, percentageOfEachCurrency),
               loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
               error: (error, stack) => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
             );
@@ -229,28 +217,23 @@ class Home extends ConsumerWidget {
             Navigator.pushNamed(context, '/search_modal');
           },
         ),
-        title: Consumer(
-          builder: (context, watch, child) {
-            final asyncValue = ref.watch(currentBitcoinPriceInCurrencyProvider(ref.watch(settingsProvider).currency));
-
-            return asyncValue.when(
-              data: (value) => Text(
-                '$value ${ref.watch(settingsProvider).currency}',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  shadows: <Shadow>[
-                    Shadow(
-                      offset: const Offset(1.0, 1.0),
-                      blurRadius: 3.0,
-                      color: Colors.grey.withOpacity(0.5),
-                    ),
-                  ],
-                ),
+        title: Builder(
+          builder: (context) {
+            final value = ref.watch(currentBitcoinPriceInCurrencyProvider(ref.watch(settingsProvider).currency)).toStringAsFixed(2);
+            return Text(
+              '$value ${ref.watch(settingsProvider).currency}',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                shadows: <Shadow>[
+                  Shadow(
+                    offset: const Offset(1.0, 1.0),
+                    blurRadius: 3.0,
+                    color: Colors.grey.withOpacity(0.5),
+                  ),
+                ],
               ),
-              loading: () => LoadingAnimationWidget.prograssiveDots(size: 20, color: Colors.orange),
-              error: (error, stack) => const Text('Error fetching'),
             );
           },
         ),
