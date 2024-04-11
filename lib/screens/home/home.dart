@@ -10,6 +10,7 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:satsails/screens/shared/custom_button.dart';
+import 'package:satsails/screens/shared/offline_transaction_warning.dart';
 
 class Home extends ConsumerWidget {
   const Home({super.key});
@@ -62,10 +63,12 @@ class Home extends ConsumerWidget {
     final cardPadding = screenWidth * 0.04;
     final titleFontSize = screenHeight * 0.03;
     final subtitleFontSize = screenHeight * 0.02;
+    final online = ref.watch(settingsProvider).online;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
+        OfflineTransactionWarning(online: online),
         SizedBox(
           width: double.infinity,
           child: Card(

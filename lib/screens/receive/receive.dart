@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
+import 'package:satsails/providers/settings_provider.dart';
 import 'package:satsails/providers/transactions_provider.dart';
 import 'package:satsails/screens/shared/copy_text.dart';
+import 'package:satsails/screens/shared/offline_transaction_warning.dart';
 import 'package:satsails/screens/shared/qr_code.dart';
 import '../shared/transactions_builder.dart';
 import 'package:group_button/group_button.dart';
@@ -26,6 +28,7 @@ class Receive extends ConsumerWidget {
     final transactions = ref.watch(transactionNotifierProvider);
     final liquidAddressAsyncValue = ref.watch(liquidAddressProvider);
     final controller = ref.watch(groupButtonControllerProvider);
+    final online = ref.watch(settingsProvider).online;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -41,6 +44,7 @@ class Receive extends ConsumerWidget {
       ),
       body: Column(
         children: [
+          OfflineTransactionWarning(online: online),
           GroupButton(
             isRadio: true,
             controller: controller,
@@ -80,6 +84,7 @@ class Receive extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16.0),
+
           if (selectedIndex == 'Bitcoin')
             Expanded(
               child: bitcoinAddressAsyncValue.when(
