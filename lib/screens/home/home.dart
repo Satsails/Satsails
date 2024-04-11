@@ -206,7 +206,7 @@ class Home extends ConsumerWidget {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {
-    final value = ref.watch(currentBitcoinPriceInCurrencyProvider(ref.watch(settingsProvider).currency)).toStringAsFixed(2);
+    final value = ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, 100000000))).toStringAsFixed(2);
     final settings = ref.read(settingsProvider);
     final settingsNotifier = ref.read(settingsProvider.notifier);
 

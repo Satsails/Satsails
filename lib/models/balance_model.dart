@@ -151,20 +151,25 @@ class Balance {
     }
   }
 
-
-  double currentBitcoinPriceInCurrency(String currency, CurrencyConversions conversions) {
-    switch (currency) {
+  double currentBitcoinPriceInCurrency(CurrencyParams params, CurrencyConversions conversions) {
+    double rate;
+    switch (params.currency) {
       case 'BTC':
-        return 1;
+        rate = 1;
+        break;
       case 'USD':
-        return conversions.btcToUsd;
+        rate = conversions.btcToUsd;
+        break;
       case 'EUR':
-        return conversions.btcToEur;
+        rate = conversions.btcToEur;
+        break;
       case 'BRL':
-        return conversions.btcToBrl;
+        rate = conversions.btcToBrl;
+        break;
       default:
-        return 0;
+        rate = 0;
     }
+    return rate * params.amount / 100000000;
   }
 
   double totalBalanceInCurrency(String currency, CurrencyConversions conversions) {
@@ -218,4 +223,11 @@ class Percentage {
     required this.brlPercentage,
     required this.total,
   });
+}
+
+class CurrencyParams {
+  final String currency;
+  final int amount;
+
+  CurrencyParams(this.currency, this.amount);
 }
