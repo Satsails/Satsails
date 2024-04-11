@@ -9,7 +9,7 @@ class OfflineTransactionWarning extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
-    final dynamicPadding = screenSize.width * 0.05;
+    final dynamicPadding = screenSize.width * 0.03;
     final dynamicFontSize = screenSize.width * 0.04;
 
     return !online ? Padding(
