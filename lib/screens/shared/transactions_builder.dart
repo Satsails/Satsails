@@ -2,6 +2,8 @@ import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk_dart/lwk_dart.dart' as lwk;
+import 'package:satsails/helpers/asset_mapper.dart';
+import 'package:satsails/helpers/string_extension.dart';
 import 'package:satsails/providers/conversion_provider.dart';
 import 'package:satsails/providers/transaction_search_provider.dart';
 
@@ -37,7 +39,7 @@ Widget _buildTransactionItem(transaction, BuildContext context, WidgetRef ref) {
   if (transaction is TransactionDetails) {
     return _buildBitcoinTransactionItem(transaction, context, ref);
   } else if (transaction is lwk.Tx) {
-    return _buiildLiquidTransactionItem(transaction, context, ref);
+    return _buildLiquidTransactionItem(transaction, context, ref);
   } else {
     return const SizedBox();
   }
@@ -53,11 +55,11 @@ Widget _buildBitcoinTransactionItem(TransactionDetails transaction, BuildContext
           Navigator.pushNamed(context, '/search_modal');
         },
         child: ListTile(
-          leading: _transactionType(transaction) == 'Sent' ? const Icon(Icons.arrow_upward, color: Colors.green) : const Icon(Icons.arrow_downward, color: Colors.red),
+          leading: _transactionTypeIcon(transaction),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(_transactionType(transaction), style: const TextStyle(fontSize: 16)),
+              Text(_transactionTypeString(transaction), style: const TextStyle(fontSize: 16)),
               Text(_transactionAmount(transaction, ref), style: const TextStyle(fontSize: 14)),
             ],
           ),
@@ -71,43 +73,100 @@ Widget _buildBitcoinTransactionItem(TransactionDetails transaction, BuildContext
   );
 }
 
-Widget _buiildLiquidTransactionItem(lwk.Tx transaction, BuildContext context, WidgetRef ref) {
-  final balance = transaction.balances[0];
-  final balance1 = balance.$1;
+Widget _buildLiquidTransactionItem(lwk.Tx transaction, BuildContext context, WidgetRef ref) {
   return Column(
     children: [
-      GestureDetector(
-        onTap: () {
-          ref.read(transactionSearchProvider).isLiquid = true;
-          ref.read(transactionSearchProvider).transactionHash = transaction.txid;
-          Navigator.pushNamed(context, '/search_modal');
-        },
-        child: ListTile(
-          // leading: _transactionType(transaction) == 'Sent' ? const Icon(Icons.arrow_upward, color: Colors.green) : const Icon(Icons.arrow_downward, color: Colors.red),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Text(_transactionType(transaction), style: const TextStyle(fontSize: 16)),
-              // Text(_transactionAmount(transaction, ref), style: const TextStyle(fontSize: 14)),
+      StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          bool isExpanded = false;
+          return Theme(
+            data: Theme.of(context).copyWith(dividerColor: isExpanded ? Colors.transparent : Colors.grey),
+            child: ExpansionTile(
+              onExpansionChanged: (bool expanded) {
+                setState(() {
+                  isExpanded = expanded;
+                });
+              },
+              leading: _transactionTypeLiquidIcon(transaction.kind),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(transaction.kind.capitalize(), style: const TextStyle(fontSize: 16)),
+                  transaction.balances.length == 1 ? Center(child: Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].$1), transaction.balances[0].$2, ref), style: const TextStyle(fontSize: 14))) : Text('Multiple', style: const TextStyle(fontSize: 14)),
             ],
-          ),
-          // subtitle: Text("Fee: ${_transactionFee(transaction, ref)}", style: const TextStyle(fontSize: 14)),
-          // trailing: _confirmationStatus(transaction) == 'Confirmed'
-          //     ? const Icon(Icons.check_circle, color: Colors.green)
-          //     : const Icon(Icons.access_alarm_outlined, color: Colors.red),
-        ),
-      )
+              ),
+              subtitle: Text("Fee: ${_transactionValueLiquid(transaction.fee, ref)}", style: const TextStyle(fontSize: 14)),
+              trailing: transaction.timestamp > 0
+                  ? const Icon(Icons.check_circle, color: Colors.green)
+                  : const Icon(Icons.access_alarm_outlined, color: Colors.red),
+              children: transaction.balances.map((balance) {
+                return GestureDetector(
+                  onTap: () {
+                    ref.read(transactionSearchProvider).isLiquid = true;
+                    ref.read(transactionSearchProvider).transactionHash = transaction.txid;
+                    Navigator.pushNamed(context, '/search_modal');
+                  },
+                  child: ListTile(
+                    trailing: _subTransactionIcon(balance.$2),
+                    title: Text(AssetMapper.mapAsset(balance.$1)),
+                    subtitle: Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(balance.$1), balance.$2, ref)),
+                  ),
+                );
+              }).toList(),
+            ),
+          );
+        },
+      ),
     ],
   );
 }
 
-String _transactionType(TransactionDetails transaction){
+Icon _subTransactionIcon(int value){
+  if (value > 0) {
+    return const Icon(Icons.arrow_downward, color: Colors.green);
+  } else if (value < 0) {
+    return const Icon(Icons.arrow_upward, color: Colors.red);
+  } else {
+    return const Icon(Icons.device_unknown_outlined, color: Colors.grey);
+  }
+}
+
+Icon _transactionTypeLiquidIcon(String kind){
+  switch (kind) {
+    case 'incoming':
+      return const Icon(Icons.arrow_downward, color: Colors.green);
+    case 'outgoing':
+      return const Icon(Icons.arrow_upward, color: Colors.red);
+    case 'burn':
+      return const Icon(Icons.local_fire_department, color: Colors.redAccent);
+    case 'redeposit':
+      return const Icon(Icons.subdirectory_arrow_left, color: Colors.green);
+      case 'issuance':
+      return const Icon(Icons.add_circle, color: Colors.greenAccent);
+    case 'reissuance':
+      return const Icon(Icons.add_circle, color: Colors.green);
+    default:
+      return const Icon(Icons.device_unknown_outlined, color: Colors.grey);
+  }
+}
+
+String _transactionTypeString(TransactionDetails transaction) {
   if (transaction.received == 0 && transaction.sent > 0) {
     return 'Sent';
   } else if (transaction.received > 0 && transaction.sent == 0) {
     return 'Received';
   } else {
     return 'Mixed';
+  }
+}
+
+Icon _transactionTypeIcon(TransactionDetails transaction){
+  if (transaction.received == 0 && transaction.sent > 0) {
+    return const Icon(Icons.arrow_upward, color: Colors.red);
+  } else if (transaction.received > 0 && transaction.sent == 0) {
+    return const Icon(Icons.arrow_downward, color: Colors.green);
+  } else {
+    return const Icon(Icons.arrow_forward_sharp, color: Colors.orangeAccent);
   }
 }
 
@@ -134,4 +193,23 @@ String _transactionAmount(TransactionDetails transaction, WidgetRef ref) {
 
 String _transactionFee(TransactionDetails transaction, WidgetRef ref) {
   return ref.watch(conversionProvider(transaction.fee ?? 0));
+}
+
+String _transactionValueLiquid(int transaction, WidgetRef ref) {
+  return ref.watch(conversionProvider(transaction));
+}
+
+String _valueOfLiquidSubTransaction(String asset, int value, WidgetRef ref) {
+  switch (asset) {
+    case 'USD':
+      return (value / 100000000).toStringAsFixed(2);
+    case 'L-BTC':
+      return ref.watch(conversionProvider(value));
+    case 'EUR':
+      return (value / 100000000).toStringAsFixed(2);
+    case 'BRL':
+      return (value / 100000000).toStringAsFixed(2);
+    default:
+      return (value / 100000000).toStringAsFixed(2);
+  }
 }
