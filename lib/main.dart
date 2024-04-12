@@ -41,6 +41,7 @@ void main() async {
 
   runApp(
     const MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: ProviderScope(
         child: MainApp(),
       ),

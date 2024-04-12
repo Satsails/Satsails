@@ -12,6 +12,7 @@ class SetPin extends ConsumerWidget {
     final formKey = GlobalKey<FormState>();
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Set PIN'),
       ),

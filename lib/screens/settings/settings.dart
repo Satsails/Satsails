@@ -13,6 +13,7 @@ class Settings extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Settings'),
       ),
       body: SingleChildScrollView(

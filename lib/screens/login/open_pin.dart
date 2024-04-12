@@ -15,6 +15,7 @@ class OpenPin extends ConsumerWidget {
         _checkBiometrics(context));
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Center(child: Text('Enter PIN')),
         automaticallyImplyLeading: false,
