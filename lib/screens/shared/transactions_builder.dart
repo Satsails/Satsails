@@ -37,9 +37,39 @@ Widget buildTransactions(List transactions, BuildContext context, WidgetRef ref)
 
 Widget _buildTransactionItem(transaction, BuildContext context, WidgetRef ref) {
   if (transaction is TransactionDetails) {
-    return _buildBitcoinTransactionItem(transaction, context, ref);
+    return Container(
+      margin: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: _buildBitcoinTransactionItem(transaction, context, ref),
+    );
   } else if (transaction is lwk.Tx) {
-    return _buildLiquidTransactionItem(transaction, context, ref);
+    return Container(
+      margin: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: _buildLiquidTransactionItem(transaction, context, ref),
+    );
   } else {
     return const SizedBox();
   }
@@ -78,15 +108,9 @@ Widget _buildLiquidTransactionItem(lwk.Tx transaction, BuildContext context, Wid
     children: [
       StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
-          bool isExpanded = false;
           return Theme(
-            data: Theme.of(context).copyWith(dividerColor: isExpanded ? Colors.transparent : Colors.grey),
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
             child: ExpansionTile(
-              onExpansionChanged: (bool expanded) {
-                setState(() {
-                  isExpanded = expanded;
-                });
-              },
               leading: _transactionTypeLiquidIcon(transaction.kind),
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

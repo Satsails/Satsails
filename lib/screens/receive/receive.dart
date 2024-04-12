@@ -98,7 +98,18 @@ class Receive extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16.0),
                     const Divider(height: 1),
-                    Expanded(child: buildTransactions(transactions.bitcoinTransactions, context, ref)),
+                    if (transactions.bitcoinTransactions.isEmpty)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            'No transactions yet',
+                            style: Theme.of(context).textTheme.headline6,
+                          ),
+                        ),
+                      ),
+                    if (transactions.bitcoinTransactions.isNotEmpty)
+                      Expanded(child: buildTransactions(transactions.bitcoinTransactions, context, ref)),
                   ],
                 );
               },
@@ -118,7 +129,18 @@ class Receive extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16.0),
                     const Divider(height: 1),
-                    Expanded(child: buildTransactions(transactions.liquidTransactions, context, ref)),
+                    if (transactions.liquidTransactions.isEmpty)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            'No transactions yet',
+                            style: Theme.of(context).textTheme.headline6,
+                          ),
+                        ),
+                      ),
+                    if (transactions.liquidTransactions.isNotEmpty)
+                      Expanded(child: buildTransactions(transactions.liquidTransactions, context, ref)),
                   ],
                 );
               },
