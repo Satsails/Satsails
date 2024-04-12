@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
+import 'package:satsails/models/adapters/transaction_adapters.dart';
 import 'package:satsails/models/transactions_model.dart';
+import 'package:satsails/providers/bitcoin_provider.dart';
+import 'package:satsails/providers/liquid_provider.dart';
 
 final initializeTransactionsProvider = FutureProvider<Transaction>((ref) async {
   final bitcoinBox = await Hive.openBox('bitcoin');
@@ -27,4 +30,22 @@ final transactionNotifierProvider = StateNotifierProvider<TransactionModel, Tran
       throw error;
     },
   ));
+});
+
+final updateTransactionsProvider = FutureProvider.autoDispose<void>((ref) async {
+  final bitcoinBox = await Hive.openBox('bitcoin');
+  final transactionProvider = ref.read(transactionNotifierProvider.notifier);
+  final bitcoinTransactions = await ref.read(getBitcoinTransactionsProvider.future);
+  List<TransactionDetails> bitcoinTransactionsHive = bitcoinTransactions.map((transaction) => TransactionDetails.fromBdk(transaction)).toList();
+  if (bitcoinTransactions.isNotEmpty) {
+    bitcoinBox.put('bitcoinTransactions', bitcoinTransactionsHive);
+    transactionProvider.updateBitcoinTransactions(bitcoinTransactions);
+  }
+  final liquidTransactions = await ref.read(liquidTransactionsProvider.future);
+  final liquidBox = await Hive.openBox('liquid');
+  // List<Tx> liquidTransactionsHive = liquidTransactions.map((transaction) => Tx.fromLwk(transaction)).toList();
+  if (liquidTransactions.isNotEmpty) {
+    // liquidBox.put('liquidTransactions', liquidTransactionsHive);
+    transactionProvider.updateLiquidTransactions(liquidTransactions);
+  }
 });

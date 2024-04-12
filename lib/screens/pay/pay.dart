@@ -1,27 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:btc_address_validate_swan/btc_address_validate_swan.dart';
 
-class Pay extends StatefulWidget {
-  @override
-  _PayState createState() => _PayState();
-}
-
-class _PayState extends State<Pay> {
+class Pay extends ConsumerWidget {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  bool isLiquid = false;
   late QRViewController controller;
 
-  @override
-  void initState() {
-    super.initState();
-  }
 
   Future<bool> checkIfAddressIsValid(String address) async {
-    const storage = FlutterSecureStorage();
-    String mnemonic = await storage.read(key: 'mnemonic') ?? "";
     // bool liquidValid =
     //     await greenwallet.Channel('ios_wallet').checkAddressValidity(
     //   mnemonic: mnemonic,
@@ -30,8 +18,6 @@ class _PayState extends State<Pay> {
     // );
     bool liquidValid = false;
     if (liquidValid) {
-      isLiquid = true;
-      return true;
     } else {
       try {
         validate(address);
@@ -42,7 +28,7 @@ class _PayState extends State<Pay> {
     }
   }
 
-  void showInvalidAddressDialog() {
+  void showInvalidAddressDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -64,11 +50,7 @@ class _PayState extends State<Pay> {
     );
   }
 
-  void _onQRViewCreated(QRViewController controller) {
-    setState(() {
-      this.controller = controller;
-    });
-
+  void _onQRViewCreated(QRViewController controller, BuildContext context) {
     controller.scannedDataStream.listen((scanData) async {
       if (await checkIfAddressIsValid(scanData as String)) {
         Navigator.pushNamed(
@@ -76,11 +58,11 @@ class _PayState extends State<Pay> {
           '/confirm_payment',
           arguments: {
             'address': scanData,
-            'isLiquid': isLiquid,
+            'isLiquid': true,
           },
         );
       } else {
-        showInvalidAddressDialog();
+        showInvalidAddressDialog(context);
       }
     });
   }
@@ -89,7 +71,7 @@ class _PayState extends State<Pay> {
     controller.toggleFlash();
   }
 
-  void _pasteFromClipboard() async {
+  void _pasteFromClipboard(BuildContext context) async {
     final data = await Clipboard.getData('text/plain');
     if (data != null) {
       if (await checkIfAddressIsValid(data.text as String)) {
@@ -98,24 +80,17 @@ class _PayState extends State<Pay> {
           '/confirm_payment',
           arguments: {
             'address': data.text,
-            'isLiquid': isLiquid,
+            'isLiquid': true,
             // Assuming isLiquid is a boolean variable in your class
           },
         );
       } else {
-        showInvalidAddressDialog();
+        showInvalidAddressDialog(context);
       }
     }
   }
-
   @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -131,7 +106,7 @@ class _PayState extends State<Pay> {
             Expanded(
               child: QRView(
                 key: qrKey,
-                onQRViewCreated: _onQRViewCreated,
+                onQRViewCreated: (controller) => _onQRViewCreated(controller, context),
               ),
             ),
             SizedBox(height: MediaQuery.of(context).size.height * 0.1),
@@ -142,7 +117,7 @@ class _PayState extends State<Pay> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                    onPressed: _pasteFromClipboard,
+                    onPressed: () => _pasteFromClipboard(context),
                     child: Text('Paste from clipboard'),
                   ),
                   SizedBox(width: 10),

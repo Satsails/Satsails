@@ -10,6 +10,7 @@ import 'package:satsails/providers/transactions_provider.dart';
 import 'package:satsails/screens/shared/copy_text.dart';
 import 'package:satsails/screens/shared/offline_transaction_warning.dart';
 import 'package:satsails/screens/shared/qr_code.dart';
+import '../../providers/transaction_type_show_provider.dart';
 import '../shared/transactions_builder.dart';
 import 'package:group_button/group_button.dart';
 
@@ -52,12 +53,15 @@ class Receive extends ConsumerWidget {
               switch (index) {
                 case 'Bitcoin':
                   ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
+                  ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
                   break;
                 case 'Liquid':
                   ref.read(selectedButtonProvider.notifier).state = "Liquid";
+                  ref.read(transactionTypeShowProvider.notifier).state = "Liquid";
                   break;
                 case 'Lightning':
                   ref.read(selectedButtonProvider.notifier).state = "Lightning";
+                  ref.read(transactionTypeShowProvider.notifier).state = "Lightning";
                   break;
                 default:
                   'Bitcoin';
@@ -97,19 +101,7 @@ class Receive extends ConsumerWidget {
                       child: buildAddressText(bitcoinAddress.address, context),
                     ),
                     const SizedBox(height: 16.0),
-                    const Divider(height: 1),
-                    if (transactions.bitcoinTransactions.isEmpty)
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            'No transactions yet',
-                            style: Theme.of(context).textTheme.headline6,
-                          ),
-                        ),
-                      ),
-                    if (transactions.bitcoinTransactions.isNotEmpty)
-                      Expanded(child: buildTransactions(transactions.bitcoinTransactions, context, ref)),
+                    const Expanded(child: BuildTransactions()),
                   ],
                 );
               },
@@ -128,19 +120,7 @@ class Receive extends ConsumerWidget {
                       child: buildAddressText(liquidAddress, context),
                     ),
                     const SizedBox(height: 16.0),
-                    const Divider(height: 1),
-                    if (transactions.liquidTransactions.isEmpty)
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            'No transactions yet',
-                            style: Theme.of(context).textTheme.headline6,
-                          ),
-                        ),
-                      ),
-                    if (transactions.liquidTransactions.isNotEmpty)
-                      Expanded(child: buildTransactions(transactions.liquidTransactions, context, ref)),
+                    const Expanded(child: BuildTransactions()),
                   ],
                 );
               },

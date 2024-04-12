@@ -7,8 +7,6 @@ import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
 import 'package:satsails/providers/transactions_provider.dart';
 
-import '../models/adapters/transaction_adapters.dart';
-
 class BackgroundSyncNotifier extends StateNotifier<void> {
   final Ref ref;
 
@@ -26,7 +24,6 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
     while (attempt < maxAttempts) {
       try {
         final bitcoinBox = await Hive.openBox('bitcoin');
-        final liquidBox = await Hive.openBox('liquid');
         final balanceModel = ref.read(balanceNotifierProvider.notifier);
         await ref.read(syncBitcoinProvider);
         final bitcoinBalance = await ref.read(getBitcoinBalanceProvider.future);
@@ -34,23 +31,11 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           bitcoinBox.put('bitcoin', bitcoinBalance.total);
           balanceModel.updateBtcBalance(bitcoinBalance.total);
         }
-        final transactionProvider = ref.read(transactionNotifierProvider.notifier);
-        final bitcoinTransactions = await ref.read(getBitcoinTransactionsProvider.future);
-        List<TransactionDetails> bitcoinTransactionsHive = bitcoinTransactions.map((transaction) => TransactionDetails.fromBdk(transaction)).toList();
-        if (bitcoinTransactions.isNotEmpty) {
-          bitcoinBox.put('bitcoinTransactions', bitcoinTransactionsHive);
-          transactionProvider.updateBitcoinTransactions(bitcoinTransactions);
-        }
         await ref.read(syncLiquidProvider);
         final liquidBalance = await ref.read(liquidBalanceProvider.future);
         updateLiquidBalances(liquidBalance);
+        ref.read(updateTransactionsProvider);
 
-        final liquidTransactions = await ref.read(liquidTransactionsProvider.future);
-        // List<Tx> liquidTransactionsHive = liquidTransactions.map((transaction) => Tx.fromLwk(transaction)).toList();
-        if (liquidTransactions.isNotEmpty) {
-          // liquidBox.put('liquidTransactions', liquidTransactionsHive);
-          transactionProvider.updateLiquidTransactions(liquidTransactions);
-        }
         break;
       } catch (e) {
         if (attempt == maxAttempts - 1) {
