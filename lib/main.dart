@@ -23,6 +23,7 @@ import 'package:satsails/screens/home/components/search_modal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:satsails/models/adapters/transaction_adapters.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 
 void main() async {
@@ -79,6 +80,14 @@ class MainApp extends ConsumerWidget {
                 );
               }
             },
+            builder: (context, child) => ResponsiveBreakpoints.builder(child: child!,
+              breakpoints: [
+                const Breakpoint(start: 0, end: 450, name: MOBILE),
+                const Breakpoint(start: 451, end: 800, name: TABLET),
+                const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+                const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+              ],
+            ),
             routes: {
               '/': (context) => const Start(),
               '/seed_words': (context) => const SeedWords(),

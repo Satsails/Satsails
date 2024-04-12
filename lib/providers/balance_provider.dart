@@ -45,11 +45,11 @@ final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, 
   ));
 });
 
-final totalBalanceInCurrencyProvider = StateProvider.family.autoDispose<double, String>((ref, currency)  {
+final totalBalanceInCurrencyProvider = StateProvider.family.autoDispose<String, String>((ref, currency)  {
   final balanceModel = ref.watch(balanceNotifierProvider);
   final conversions = ref.watch(currencyNotifierProvider);
 
-  return balanceModel.totalBalanceInCurrency(currency, conversions);
+  return balanceModel.totalBalanceInCurrency(currency, conversions).toStringAsFixed(2);
 });
 
 final totalBalanceInDenominationProvider = StateProvider.family.autoDispose<String, String>((ref, denomination){
