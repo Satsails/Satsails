@@ -15,6 +15,9 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     List<BottomNavigationBarItem> bottomNavBarItems = [
       const BottomNavigationBarItem(
         icon: Icon(Icons.home),
@@ -39,12 +42,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
         backgroundColor: Colors.transparent,
         currentIndex: currentIndex,
         onTap: (index) {
-          _navigateToScreen(index, context); // Call the navigation method
-          onTap(index); // Call the provided onTap callback
+          _navigateToScreen(index, context);
+          onTap(index);
         },
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        iconSize: 24,
+        selectedFontSize: screenWidth * 0.03,
+        unselectedFontSize: screenWidth * 0.03,
+        iconSize: screenWidth * 0.06,
         unselectedItemColor: Colors.black,
         selectedItemColor: Colors.orangeAccent,
         elevation: 0.0,
@@ -60,9 +63,9 @@ class CustomBottomNavigationBar extends StatelessWidget {
       case 0:
         page = Home();
         break;
-      // case 1:
-      //   page = Services();
-      //   break;
+    // case 1:
+    //   page = Services();
+    //   break;
       case 1:
         page = Analytics();
         break;

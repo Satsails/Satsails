@@ -27,7 +27,7 @@ class CustomButton extends StatelessWidget {
       ),
       child: Ink(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             colors: [Colors.redAccent, Colors.orangeAccent],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,

@@ -29,7 +29,6 @@ final recoverWalletProvider = StateNotifierProvider<RecoverWalletState, RecoverW
   return RecoverWalletState();
 });
 
-
 class RecoverWallet extends ConsumerWidget {
   const RecoverWallet({Key? key}) : super(key: key);
 
@@ -65,36 +64,40 @@ class RecoverWallet extends ConsumerWidget {
               ),
               GridView.builder(
                 shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 4,
                 ),
                 itemCount: data.wordCount,
                 itemBuilder: (context, index) {
-                  return Container(
-                    alignment: Alignment.center,
-                    child: TextField(
-                      onChanged: (newValue) {
-                        ref.read(recoverWalletProvider.notifier).setWord(index, newValue);
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Word ${index + 1}',
-                        hintStyle: const TextStyle(
-                          color: Colors.grey,
+                  return Card(
+                    child: Container(
+                      color: Colors.white,
+                      alignment: Alignment.center,
+                      child: TextField(
+                        onChanged: (newValue) {
+                          ref.read(recoverWalletProvider.notifier).setWord(index, newValue);
+                        },
+                        decoration: InputDecoration(
+                          hintText: '       Word ${index + 1}',
+                          hintStyle: const TextStyle(
+                            color: Colors.grey,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
                         ),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      style: TextStyle(
-                        color: ref.read(recoverWalletProvider).words[index].isEmpty
-                            ? Colors.grey
-                            : Colors.black,
-                        fontSize: 13.0,
+                        style: TextStyle(
+                          color: ref.read(recoverWalletProvider).words[index].isEmpty
+                              ? Colors.grey
+                              : Colors.black,
+                          fontSize: 13.0,
+                        ),
                       ),
                     ),
                   );
                 },
               ),
-              SizedBox(height: screenSize.height * 0.01),
+              SizedBox(height: screenSize.height * 0.02),
               SizedBox(
                 width: screenSize.width * 0.8,
                 height: screenSize.height * 0.09,
