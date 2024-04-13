@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 import 'package:lwk_dart/lwk_dart.dart';
 import 'package:satsails/models/liquid_config_model.dart';
+import 'dart:convert';
+import 'package:http/http.dart';
 
 class LiquidModel {
   final Liquid config;
@@ -46,20 +48,36 @@ class LiquidModel {
     return DecodedPset(amount: 1, fee: decodedPset.fee);
   }
 
-  Future<Uint8List> sign(String pset, String mnemonic) async {
+  Future<Uint8List> sign(SignParams params) async {
     final signedTxBytes =
-    await  config.liquid.wallet.sign(network: config.liquid.network, pset: pset, mnemonic: mnemonic);
+    await config.liquid.wallet.sign(network: config.liquid.network, pset: params.pset, mnemonic: params.mnemonic);
 
     return signedTxBytes;
   }
 
-  Future<String> broadcast(Wallet wallet,
-      Uint8List signedTxBytes) async {
-    final tx = await wallet.broadcast(
-        electrumUrl: config.electrumUrl, txBytes: signedTxBytes);
+  Future<String> broadcast(Uint8List signedTxBytes) async {
+    final tx = await config.liquid.wallet.broadcast(electrumUrl: config.electrumUrl, txBytes: signedTxBytes);
     return tx;
   }
+
+
+  Future<double> getLiquidFees(int blocks) async {
+    try {
+      Response response =
+      await get(Uri.parse('https://blockstream.info/liquid/api/fee-estimates'));
+      Map data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return data[blocks.toString()];
+      } else {
+        throw Exception("Getting estimated fees is not successful.");
+      }
+    } catch (_) {
+      rethrow;
+    }
+  }
 }
+
 
 class Liquid {
   final LiquidConfig liquid;
@@ -87,5 +105,27 @@ class TransactionBuilder {
     required this.sats,
     required this.outAddress,
     required this.fee,
+  });
+}
+
+class SignParams {
+  final String pset;
+  final String mnemonic;
+
+  SignParams({
+    required this.pset,
+    required this.mnemonic,
+  });
+}
+
+class SendTxParams {
+  final int blocks;
+  final String address;
+  final int sats;
+
+  SendTxParams({
+    required this.blocks,
+    required this.address,
+    required this.sats,
   });
 }

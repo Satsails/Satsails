@@ -21,6 +21,16 @@ class BitcoinModel {
     return address;
   }
 
+  Future<String> getAddressWithAmount(int? amount) async {
+    final address = await config.wallet.getAddress(addressIndex: const AddressIndex());
+    if (amount == null) {
+      return address.address;
+    } else {
+      final amountInBtc = amount / 1e8;
+      return 'bitcoin:${address.address}?amount=$amountInBtc';
+    }
+  }
+
   Future<Input> getPsbtInput(LocalUtxo utxo, bool onlyWitnessUtxo) async {
     final input = await config.wallet.getPsbtInput(utxo: utxo, onlyWitnessUtxo: onlyWitnessUtxo);
     return input;
