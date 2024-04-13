@@ -1,19 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:provider/provider.dart';
 import 'package:satsails/helpers/asset_mapper.dart';
 
-class ConfirmPayment extends StatefulWidget {
-  final String address;
-  final bool isLiquid;
-
-  ConfirmPayment({required this.address, required this.isLiquid});
-
-  @override
-  State<ConfirmPayment> createState() => _ConfirmPaymentState();
-}
-
-class _ConfirmPaymentState extends State<ConfirmPayment> {
+class ConfirmPayment extends ConsumerWidget {
   String selectedAsset = 'Bitcoin';
   late Map<String, dynamic> balance;
   double maxAmount = 0;
@@ -46,7 +36,7 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
   void checkMaxAmount(String asset) async {
     double calculatedAmount = 0;
 
-    if (widget.isLiquid) {
+    if (true) {
       if (asset == 'Bitcoin') {
         calculatedAmount = balance['l-btc'];
       } else if (asset == 'USD') {
@@ -56,13 +46,10 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
       calculatedAmount = balance['btc'];
     }
 
-    setState(() {
-      maxAmount = calculatedAmount;
-    });
   }
 
   double getHighestFee() {
-    if (widget.isLiquid) {
+    if (true) {
       return selectedAsset == 'Bitcoin' ? balance['highestLiquidFee'] : balance['highestLiquidFeeUsd'];
     } else {
       return balance['highestBitcoinFee'];
@@ -70,7 +57,7 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     balance = {}; // replace by balance provider
     checkMaxAmount(selectedAsset);
     return Scaffold(
@@ -88,7 +75,7 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
             ),
             const SizedBox(height: 20.0),
             Text(
-              '${widget.address}',
+              '${'address'},',
               style: const TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
@@ -130,25 +117,22 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
                           ),
                         );
                         amountController.text = maxAmount.toString();
-                        setState(() {
-                          sendAmount = maxAmount;
-                        });
+                        // setState(() {
+                        //   sendAmount = maxAmount;
+                        // });
                       } else {
-                        setState(() {
-                          sendAmount = enteredAmount;
-                        });
+                        // setState(() {
+                        //   sendAmount = enteredAmount;
+                        // });
                       }
                     },
                   ),
                 ),
                 const SizedBox(width: 20),
-                if (widget.isLiquid)
+                if (true)
                   DropdownButton<String>(
                     value: selectedAsset,
                     onChanged: (String? newValue) {
-                      setState(() {
-                        selectedAsset = newValue!;
-                      });
                     },
                     items: <String>['Bitcoin', 'USD']
                         .map<DropdownMenuItem<String>>((String value) {
@@ -184,7 +168,7 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
                 confirmAndSendPayment(
                   sendAmount,
                   selectedAsset,
-                  widget.isLiquid ? 'liquid' : 'bitcoin',
+                   'liquid'
                 ).then((value) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(

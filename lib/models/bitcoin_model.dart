@@ -27,14 +27,13 @@ class BitcoinModel {
   }
 
   Future<List<TransactionDetails>> getTransactions() async {
-    List<TransactionDetails> unConfirmed = [];
     final res = await config.wallet.listTransactions(true);
     return res;
   }
 
   Future<Balance> getBalance() async {
     final res = await config.wallet.getBalance();
-      return res;
+    return res;
   }
 
   Future<List<LocalUtxo>> listUnspend() async {

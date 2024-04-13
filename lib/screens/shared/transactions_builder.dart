@@ -5,9 +5,8 @@ import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:lwk_dart/lwk_dart.dart' as lwk;
 import 'package:satsails/helpers/asset_mapper.dart';
 import 'package:satsails/helpers/string_extension.dart';
-import 'package:satsails/providers/bitcoin_provider.dart';
+import 'package:satsails/providers/background_sync_provider.dart';
 import 'package:satsails/providers/conversion_provider.dart';
-import 'package:satsails/providers/liquid_provider.dart';
 import 'package:satsails/providers/transaction_search_provider.dart';
 import 'package:satsails/providers/transaction_type_show_provider.dart';
 import 'package:satsails/providers/transactions_provider.dart';
@@ -21,7 +20,9 @@ class BuildTransactions extends ConsumerWidget {
     final bitcoinTransactions = transactions.bitcoinTransactions;
     final liquidTransactions = transactions.liquidTransactions;
     final transationType = ref.watch(transactionTypeShowProvider);
-    final allTx = bitcoinTransactions + liquidTransactions;
+    final allTx = <dynamic>[];
+    allTx.addAll(bitcoinTransactions);
+    allTx.addAll(liquidTransactions);
 
     return Container(
       decoration: const BoxDecoration(
@@ -33,9 +34,7 @@ class BuildTransactions extends ConsumerWidget {
         height: MediaQuery.of(context).size.height - kToolbarHeight,
         child: LiquidPullToRefresh(
           onRefresh: () async {
-            await ref.refresh(syncBitcoinProvider);
-            await ref.refresh(syncLiquidProvider);
-            await ref.refresh(updateTransactionsProvider.future);
+            ref.refresh(backgroundSyncNotifierProvider);
           },
           color: Colors.orangeAccent,
           showChildOpacityTransition: false,
@@ -90,8 +89,7 @@ class BuildTransactions extends ConsumerWidget {
     }
   }
 
-  Widget _buildTransactionItem(transaction, BuildContext context,
-      WidgetRef ref) {
+  Widget _buildTransactionItem(transaction, BuildContext context, WidgetRef ref) {
     if (transaction is TransactionDetails) {
       return Container(
         margin: const EdgeInsets.all(8.0),

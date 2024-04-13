@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/balance_model.dart';
+import 'package:satsails/providers/background_sync_provider.dart';
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/navigation_provider.dart';
 import 'package:satsails/screens/accounts/accounts.dart';
@@ -82,6 +83,7 @@ class Home extends ConsumerWidget {
 
     void toggleOnlineStatus() {
       settingsNotifier.setOnline(true);
+      ref.refresh(backgroundSyncNotifierProvider);
     }
 
     return PreferredSize(

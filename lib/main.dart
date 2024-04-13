@@ -70,17 +70,6 @@ class MainApp extends ConsumerWidget {
           return MaterialApp(
             initialRoute: initialRoute,
             debugShowCheckedModeBanner: false,
-            onGenerateRoute: (settings) {
-              if (settings.name == '/confirm_payment') {
-                final Map<String, dynamic> arguments = settings.arguments as Map<String, dynamic>;
-                final String address = arguments['address'] as String;
-                final bool isLiquid = arguments['isLiquid'] as bool;
-
-                return MaterialPageRoute(
-                  builder: (context) => ConfirmPayment(address: address, isLiquid: isLiquid),
-                );
-              }
-            },
             builder: (context, child) => ResponsiveBreakpoints.builder(child: child!,
               breakpoints: [
                 const Breakpoint(start: 0, end: 450, name: MOBILE),
@@ -106,6 +95,7 @@ class MainApp extends ConsumerWidget {
               '/home': (context) => const Home(),
               '/recover_wallet': (context) => const RecoverWallet(),
               '/search_modal': (context) => SearchModal(),
+              '/confirm_payment': (context) => ConfirmPayment(),
             },
           );
         }

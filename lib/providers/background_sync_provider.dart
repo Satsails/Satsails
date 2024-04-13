@@ -25,14 +25,14 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
       try {
         final bitcoinBox = await Hive.openBox('bitcoin');
         final balanceModel = ref.read(balanceNotifierProvider.notifier);
-        await ref.read(syncBitcoinProvider);
+        ref.read(syncBitcoinProvider);
         final bitcoinBalance = await ref.read(getBitcoinBalanceProvider.future);
         if (bitcoinBalance.total != 0) {
           bitcoinBox.put('bitcoin', bitcoinBalance.total);
           balanceModel.updateBtcBalance(bitcoinBalance.total);
         }
-        await ref.read(syncLiquidProvider);
-        final liquidBalance = await ref.read(liquidBalanceProvider.future);
+        ref.read(syncLiquidProvider);
+        final liquidBalance = await ref.refresh(liquidBalanceProvider.future);
         updateLiquidBalances(liquidBalance);
         ref.read(updateTransactionsProvider);
 

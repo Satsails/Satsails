@@ -35,13 +35,13 @@ final transactionNotifierProvider = StateNotifierProvider<TransactionModel, Tran
 final updateTransactionsProvider = FutureProvider.autoDispose<void>((ref) async {
   final bitcoinBox = await Hive.openBox('bitcoin');
   final transactionProvider = ref.read(transactionNotifierProvider.notifier);
-  final bitcoinTransactions = await ref.read(getBitcoinTransactionsProvider.future);
+  final bitcoinTransactions = await ref.refresh(getBitcoinTransactionsProvider.future);
   List<TransactionDetails> bitcoinTransactionsHive = bitcoinTransactions.map((transaction) => TransactionDetails.fromBdk(transaction)).toList();
   if (bitcoinTransactions.isNotEmpty) {
     bitcoinBox.put('bitcoinTransactions', bitcoinTransactionsHive);
     transactionProvider.updateBitcoinTransactions(bitcoinTransactions);
   }
-  final liquidTransactions = await ref.read(liquidTransactionsProvider.future);
+  final liquidTransactions = await ref.refresh(liquidTransactionsProvider.future);
   final liquidBox = await Hive.openBox('liquid');
   // List<Tx> liquidTransactionsHive = liquidTransactions.map((transaction) => Tx.fromLwk(transaction)).toList();
   if (liquidTransactions.isNotEmpty) {
