@@ -24,7 +24,7 @@ final liquidAddressProvider = FutureProvider.autoDispose<String>((ref) {
 });
 
 final liquidBalanceProvider = FutureProvider<Balances>((ref) {
-  return ref.read(initializeLiquidProvider.future).then((liquid) {
+  return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     return liquidModel.balance();
   });

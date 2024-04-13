@@ -42,7 +42,7 @@ final updateTransactionsProvider = FutureProvider.autoDispose<void>((ref) async 
     transactionProvider.updateBitcoinTransactions(bitcoinTransactions);
   }
   final liquidTransactions = await ref.refresh(liquidTransactionsProvider.future);
-  final liquidBox = await Hive.openBox('liquid');
+  // final liquidBox = await Hive.openBox('liquid');
   // List<Tx> liquidTransactionsHive = liquidTransactions.map((transaction) => Tx.fromLwk(transaction)).toList();
   if (liquidTransactions.isNotEmpty) {
     // liquidBox.put('liquidTransactions', liquidTransactionsHive);
