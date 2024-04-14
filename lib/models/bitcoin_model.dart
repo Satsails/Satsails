@@ -56,40 +56,25 @@ class BitcoinModel {
     return feeRate;
   }
 
-  getInputOutPuts(TxBuilderResult txBuilderResult) async {
-    final serializedPsbtTx = await txBuilderResult.psbt.jsonSerialize();
-    final jsonObj = json.decode(serializedPsbtTx);
-    final outputs = jsonObj["unsigned_tx"]["output"] as List;
-    final inputs = jsonObj["inputs"][0]["non_witness_utxo"]["output"] as List;
-    debugPrint("=========Inputs=====");
-    for (var e in inputs) {
-      debugPrint("amount: ${e["value"]}");
-      debugPrint("script_pubkey: ${e["script_pubkey"]}");
-    }
-    debugPrint("=========Outputs=====");
-    for (var e in outputs) {
-      debugPrint("amount: ${e["value"]}");
-      debugPrint("script_pubkey: ${e["script_pubkey"]}");
-    }
+  Future<TxBuilderResult> buildBitcoinTransaction(TransactionBuilder transaction) async {
+    final txBuilder = TxBuilder();
+    final address = await Address.create(address: transaction.outAddress);
+    final script = await address.scriptPubKey();
+    final txBuilderResult = await txBuilder
+        .addRecipient(script, transaction.amount)
+        .feeRate(transaction.fee.asSatPerVb())
+        .finish(config.wallet);
+    return txBuilderResult;
   }
 
-  sendBitcoin(String addressStr, FeeRate feeRate) async {
-    try {
-      final txBuilder = TxBuilder();
-      final address = await Address.create(address: addressStr);
+  Future<PartiallySignedTransaction> signBitcoinTransaction(TxBuilderResult txBuilderResult) async {
+    final psbt = await config.wallet.sign(psbt: txBuilderResult.psbt);
+    return psbt;
+  }
 
-      final script = await address.scriptPubKey();
-      final txBuilderResult = await txBuilder
-          .addRecipient(script, 750)
-          .feeRate(feeRate.asSatPerVb())
-          .finish(config.wallet);
-      getInputOutPuts(txBuilderResult);
-      final aliceSbt = await config.wallet.sign(psbt: txBuilderResult.psbt);
-      final tx = await aliceSbt.extractTx();
-      Isolate.run(() async => {await config.blockchain!.broadcast(tx)});
-    } on Exception catch (_) {
-      rethrow;
-    }
+  Future<void> broadcastBitcoinTransaction(PartiallySignedTransaction signedPsbt) async {
+    final tx = await signedPsbt.extractTx();
+    Isolate.run(() async => {await config.blockchain!.broadcast(tx)});
   }
 }
 
@@ -100,9 +85,18 @@ class Bitcoin {
   Bitcoin(this.wallet, this.blockchain);
 }
 
-class SendParams {
+class TransactionBuilder {
+  final int amount;
+  final String outAddress;
+  final FeeRate fee;
+
+  TransactionBuilder(this.amount, this.outAddress, this.fee);
+}
+
+class SendTxParams {
+  final int amount;
   final String address;
   final int blocks;
 
-  SendParams(this.address, this.blocks);
+  SendTxParams(this.amount, this.address, this.blocks);
 }

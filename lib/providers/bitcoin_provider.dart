@@ -90,10 +90,34 @@ final getCustomFeeRateProvider = FutureProvider.family.autoDispose<FeeRate, int>
   });
 });
 
-final sendBitcoinProvider = FutureProvider.family.autoDispose<void, SendParams>((ref, params) {
-  return ref.watch(bitcoinProvider.future).then((bitcoin) async {
-    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    FeeRate feeRate = await ref.watch(getCustomFeeRateProvider(params.blocks).future);
-    return bitcoinModel.sendBitcoin(params.address, feeRate);
+final buildBitcoinTransactionProvider = FutureProvider.autoDispose.family<TxBuilderResult, TransactionBuilder>((ref, transaction) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
+    return BitcoinModel(bitcoin).buildBitcoinTransaction(transaction);
   });
 });
+
+final signBitcoinPsbtProvider = FutureProvider.family.autoDispose<PartiallySignedTransaction, TransactionBuilder>((ref, psbt) async {
+  final bitcoin = await ref.watch(bitcoinProvider.future);
+  final BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+  final transaction = await ref.watch(buildBitcoinTransactionProvider(psbt).future);
+  return bitcoinModel.signBitcoinTransaction(transaction);
+});
+
+final broadcastBitcoinTransactionProvider = FutureProvider.autoDispose.family<void, PartiallySignedTransaction>((ref, signedPsbt) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    return bitcoinModel.broadcastBitcoinTransaction(signedPsbt);
+  });
+});
+
+final sendBitcoinTransactionProvider = FutureProvider.autoDispose.family<void, SendTxParams>((ref, params) async {
+  final feeRate = await ref.watch(getCustomFeeRateProvider(params.blocks).future);
+  final TransactionBuilder transactionBuilder = TransactionBuilder(
+    params.amount,
+    params.address,
+    feeRate,
+  );
+  final signedPsbt = await ref.watch(signBitcoinPsbtProvider(transactionBuilder).future);
+  return ref.watch(broadcastBitcoinTransactionProvider(signedPsbt).future);
+});
+
