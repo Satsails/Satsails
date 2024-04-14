@@ -9,11 +9,11 @@ final initializeTransactionsProvider = FutureProvider<Transaction>((ref) async {
   final bitcoinBox = await Hive.openBox('bitcoin');
   final liquidBox = await Hive.openBox('liquid');
   final bitcoinTransactions = bitcoinBox.get('bitcoinTransactions', defaultValue: []);
-  // final liquidTransactions = liquidBox.get('liquidTransactions', defaultValue: []);
+  final liquidTransactions = liquidBox.get('liquidTransactions', defaultValue: []);
 
   return Transaction(
     bitcoinTransactions: bitcoinTransactions,
-    liquidTransactions: [],
+    liquidTransactions: liquidTransactions,
   );
 });
 
@@ -39,13 +39,13 @@ final updateTransactionsProvider = FutureProvider.autoDispose<void>((ref) async 
   List<TransactionDetails> bitcoinTransactionsHive = bitcoinTransactions.map((transaction) => TransactionDetails.fromBdk(transaction)).toList();
   if (bitcoinTransactions.isNotEmpty) {
     bitcoinBox.put('bitcoinTransactions', bitcoinTransactionsHive);
-    transactionProvider.updateBitcoinTransactions(bitcoinTransactions);
+    transactionProvider.updateBitcoinTransactions(bitcoinTransactionsHive);
   }
   final liquidTransactions = await ref.refresh(liquidTransactionsProvider.future);
-  // final liquidBox = await Hive.openBox('liquid');
-  // List<Tx> liquidTransactionsHive = liquidTransactions.map((transaction) => Tx.fromLwk(transaction)).toList();
+  final liquidBox = await Hive.openBox('liquid');
+  List<Tx> liquidTransactionsHive = liquidTransactions.map((transaction) => Tx.fromLwk(transaction)).toList();
   if (liquidTransactions.isNotEmpty) {
-    // liquidBox.put('liquidTransactions', liquidTransactionsHive);
-    transactionProvider.updateLiquidTransactions(liquidTransactions);
+    liquidBox.put('liquidTransactions', liquidTransactionsHive);
+    transactionProvider.updateLiquidTransactions(liquidTransactionsHive);
   }
 });

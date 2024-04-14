@@ -1,10 +1,9 @@
-import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-import 'package:lwk_dart/lwk_dart.dart' as lwk;
 import 'package:satsails/helpers/asset_mapper.dart';
 import 'package:satsails/helpers/string_extension.dart';
+import 'package:satsails/models/adapters/transaction_adapters.dart';
 import 'package:satsails/providers/background_sync_provider.dart';
 import 'package:satsails/providers/conversion_provider.dart';
 import 'package:satsails/providers/transaction_search_provider.dart';
@@ -107,7 +106,7 @@ class BuildTransactions extends ConsumerWidget {
         ),
         child: _buildBitcoinTransactionItem(transaction, context, ref),
       );
-    } else if (transaction is lwk.Tx) {
+    } else if (transaction is Tx) {
       return Container(
         margin: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
@@ -129,18 +128,13 @@ class BuildTransactions extends ConsumerWidget {
     }
   }
 
-  Widget _buildBitcoinTransactionItem(TransactionDetails transaction,
-      BuildContext context, WidgetRef ref) {
+  Widget _buildBitcoinTransactionItem(TransactionDetails transaction, BuildContext context, WidgetRef ref) {
     return Column(
       children: [
         GestureDetector(
           onTap: () {
-            ref
-                .read(transactionSearchProvider)
-                .isLiquid = false;
-            ref
-                .read(transactionSearchProvider)
-                .transactionHash = transaction.txid;
+            ref.read(transactionSearchProvider).isLiquid = false;
+            ref.read(transactionSearchProvider).transactionHash = transaction.txid;
             Navigator.pushNamed(context, '/search_modal');
           },
           child: ListTile(
@@ -148,10 +142,8 @@ class BuildTransactions extends ConsumerWidget {
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(_transactionTypeString(transaction),
-                    style: const TextStyle(fontSize: 16)),
-                Text(_transactionAmount(transaction, ref),
-                    style: const TextStyle(fontSize: 14)),
+                Text(_transactionTypeString(transaction), style: const TextStyle(fontSize: 16)),
+                Text(_transactionAmount(transaction, ref),style: const TextStyle(fontSize: 14)),
               ],
             ),
             subtitle: Text("Fee: ${_transactionFee(transaction, ref)}",
@@ -165,8 +157,7 @@ class BuildTransactions extends ConsumerWidget {
     );
   }
 
-  Widget _buildLiquidTransactionItem(lwk.Tx transaction, BuildContext context,
-      WidgetRef ref) {
+  Widget _buildLiquidTransactionItem(Tx transaction, BuildContext context, WidgetRef ref) {
     return Column(
       children: [
         StatefulBuilder(

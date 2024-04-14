@@ -33,11 +33,11 @@ void main() async {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   Hive.registerAdapter(TransactionDetailsAdapter());
   Hive.registerAdapter(BlockTimeAdapter());
-  // Hive.registerAdapter(OutPointAdapter());
-  // Hive.registerAdapter(TxOutSecretsAdapter());
-  // Hive.registerAdapter(TxOutAdapter());
-  // Hive.registerAdapter(TxAdapter());
-  // Hive.registerAdapter(BalanceAdapter());
+  Hive.registerAdapter(OutPointAdapter());
+  Hive.registerAdapter(TxOutSecretsAdapter());
+  Hive.registerAdapter(TxOutAdapter());
+  Hive.registerAdapter(TxAdapter());
+  Hive.registerAdapter(BalanceAdapter());
 
   runApp(
     const MaterialApp(

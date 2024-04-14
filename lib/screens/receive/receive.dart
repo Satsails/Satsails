@@ -6,7 +6,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
-import 'package:satsails/providers/transactions_provider.dart';
 import 'package:satsails/screens/shared/copy_text.dart';
 import 'package:satsails/screens/shared/offline_transaction_warning.dart';
 import 'package:satsails/screens/shared/qr_code.dart';
@@ -26,7 +25,6 @@ class Receive extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = ref.watch(selectedButtonProvider);
     final bitcoinAddressAsyncValue = ref.watch(bitcoinAddressProvider);
-    final transactions = ref.watch(transactionNotifierProvider);
     final liquidAddressAsyncValue = ref.watch(liquidAddressProvider);
     final controller = ref.watch(groupButtonControllerProvider);
     final online = ref.watch(settingsProvider).online;

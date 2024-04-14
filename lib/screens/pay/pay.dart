@@ -33,36 +33,36 @@ class Pay extends ConsumerWidget {
     );
   }
 
-  void _onQRViewCreated(QRViewController controller, BuildContext context) {
-    controller.scannedDataStream.listen((scanData) {
-      switch (addressType(scanData as String)) {
-        case PaymentTYpe.Bitcoin || PaymentTYpe.Liquid || PaymentTYpe.Lightning:
-          Navigator.pushNamed(context, '/confirm_payment');
-          break;
-        default:
-          showInvalidAddressDialog(context);
-          break;
-      }
-    });
-  }
+  // void _onQRViewCreated(QRViewController controller, BuildContext context) {
+  //   controller.scannedDataStream.listen((scanData) {
+  //     switch (addressType(scanData as String)) {
+  //       case PaymentTYpe.Bitcoin || PaymentTYpe.Liquid || PaymentTYpe.Lightning:
+  //         Navigator.pushNamed(context, '/confirm_payment');
+  //         break;
+  //       default:
+  //         showInvalidAddressDialog(context);
+  //         break;
+  //     }
+  //   });
+  // }
 
   void _toggleFlash() {
     controller.toggleFlash();
   }
 
-  Future<void> _pasteFromClipboard(BuildContext context) async {
-    final data = await Clipboard.getData('text/plain');
-    if (data != null) {
-      switch (addressType(data as String)) {
-        case PaymentTYpe.Bitcoin || PaymentTYpe.Liquid || PaymentTYpe.Lightning:
-          Navigator.pushNamed(context, '/confirm_payment');
-          break;
-        default:
-          showInvalidAddressDialog(context);
-          break;
-      }
-  }
-}
+//   Future<void> _pasteFromClipboard(BuildContext context) async {
+//     final data = await Clipboard.getData('text/plain');
+//     if (data != null) {
+//       switch (addressType(data as String)) {
+//         case PaymentTYpe.Bitcoin || PaymentTYpe.Liquid || PaymentTYpe.Lightning:
+//           Navigator.pushNamed(context, '/confirm_payment');
+//           break;
+//         default:
+//           showInvalidAddressDialog(context);
+//           break;
+//       }
+//   }
+// }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -78,12 +78,12 @@ class Pay extends ConsumerWidget {
           children: <Widget>[
             const Text('Scan any QR code to pay', style: TextStyle(fontSize: 20)),
             SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-            Expanded(
-              child: QRView(
-                key: qrKey,
-                onQRViewCreated: (controller) => _onQRViewCreated(controller, context),
-              ),
-            ),
+            // Expanded(
+            //   child: QRView(
+            //     key: qrKey,
+            //     onQRViewCreated: (controller) => _onQRViewCreated(controller, context),
+            //   ),
+            // ),
             SizedBox(height: MediaQuery.of(context).size.height * 0.1),
             Align(
               alignment: Alignment.center,
@@ -91,10 +91,10 @@ class Pay extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    onPressed: () => _pasteFromClipboard(context),
-                    child: const Text('Paste from clipboard'),
-                  ),
+                  // ElevatedButton(
+                  //   onPressed: () => _pasteFromClipboard(context),
+                  //   child: const Text('Paste from clipboard'),
+                  // ),
                   const SizedBox(width: 10),
                   ElevatedButton(
                     onPressed: _toggleFlash,
