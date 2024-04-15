@@ -31,7 +31,7 @@ class LiquidModel {
 
   Future<String> build(TransactionBuilder params) async {
     final pset = await config.liquid.wallet.build(
-      sats: params.sats,
+      sats: params.amount,
       outAddress: params.outAddress,
       absFee: params.fee,
     );
@@ -97,12 +97,12 @@ class DecodedPset{
 }
 
 class TransactionBuilder {
-  final int sats;
+  final int amount;
   final String outAddress;
   final double fee;
 
   TransactionBuilder({
-    required this.sats,
+    required this.amount,
     required this.outAddress,
     required this.fee,
   });
@@ -115,17 +115,5 @@ class SignParams {
   SignParams({
     required this.pset,
     required this.mnemonic,
-  });
-}
-
-class SendTxParams {
-  final int blocks;
-  final String address;
-  final int sats;
-
-  SendTxParams({
-    required this.blocks,
-    required this.address,
-    required this.sats,
   });
 }

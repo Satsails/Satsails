@@ -27,7 +27,9 @@ class Receive extends ConsumerWidget {
     final bitcoinAddressAsyncValue = ref.watch(bitcoinAddressProvider);
     final liquidAddressAsyncValue = ref.watch(liquidAddressProvider);
     final controller = ref.watch(groupButtonControllerProvider);
-    final online = ref.watch(settingsProvider).online;
+    final online = ref
+        .watch(settingsProvider)
+        .online;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -50,16 +52,28 @@ class Receive extends ConsumerWidget {
             onSelected: (index, isSelected, isLongPress) {
               switch (index) {
                 case 'Bitcoin':
-                  ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
-                  ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
+                  ref
+                      .read(selectedButtonProvider.notifier)
+                      .state = "Bitcoin";
+                  ref
+                      .read(transactionTypeShowProvider.notifier)
+                      .state = "Bitcoin";
                   break;
                 case 'Liquid':
-                  ref.read(selectedButtonProvider.notifier).state = "Liquid";
-                  ref.read(transactionTypeShowProvider.notifier).state = "Liquid";
+                  ref
+                      .read(selectedButtonProvider.notifier)
+                      .state = "Liquid";
+                  ref
+                      .read(transactionTypeShowProvider.notifier)
+                      .state = "Liquid";
                   break;
                 case 'Lightning':
-                  ref.read(selectedButtonProvider.notifier).state = "Lightning";
-                  ref.read(transactionTypeShowProvider.notifier).state = "Lightning";
+                  ref
+                      .read(selectedButtonProvider.notifier)
+                      .state = "Lightning";
+                  ref
+                      .read(transactionTypeShowProvider.notifier)
+                      .state = "Lightning";
                   break;
                 default:
                   'Bitcoin';
@@ -67,8 +81,10 @@ class Receive extends ConsumerWidget {
             },
             buttons: ["Lightening", 'Bitcoin', "Liquid"],
             options: GroupButtonOptions(
-              unselectedTextStyle: const TextStyle(fontSize: 16, color: Colors.black),
-              selectedTextStyle: const TextStyle(fontSize: 16, color: Colors.white),
+              unselectedTextStyle: const TextStyle(
+                  fontSize: 16, color: Colors.black),
+              selectedTextStyle: const TextStyle(
+                  fontSize: 16, color: Colors.white),
               selectedColor: Colors.deepOrange,
               mainGroupAlignment: MainGroupAlignment.center,
               crossGroupAlignment: CrossGroupAlignment.center,
@@ -78,7 +94,9 @@ class Receive extends ConsumerWidget {
               alignment: Alignment.center,
               elevation: 0,
               textPadding: EdgeInsets.zero,
-              selectedShadow: <BoxShadow>[const BoxShadow(color: Colors.transparent)],
+              selectedShadow: <BoxShadow>[
+                const BoxShadow(color: Colors.transparent)
+              ],
               unselectedShadow: <BoxShadow>[
                 const BoxShadow(color: Colors.transparent)
               ],
@@ -87,44 +105,54 @@ class Receive extends ConsumerWidget {
           ),
           const SizedBox(height: 16.0),
 
-          if (selectedIndex == 'Bitcoin')
-            Expanded(
-              child: bitcoinAddressAsyncValue.when(
-              data: (bitcoinAddress) {
-                return Column(
-                  children: [
-                    buildQrCode(bitcoinAddress.address, context),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: buildAddressText(bitcoinAddress.address, context),
-                    ),
-                    const SizedBox(height: 16.0),
-                    const Expanded(child: BuildTransactions()),
-                  ],
-                );
-              },
-              loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange)),
-                error: (error, stack) =>  Center(child: LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange)),),
+          Expanded(
+            child: Column(
+              children: [
+                if (selectedIndex == 'Bitcoin')
+                  bitcoinAddressAsyncValue.when(
+                    data: (bitcoinAddress) {
+                      return Column(
+                        children: [
+                          buildQrCode(bitcoinAddress.address, context),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: buildAddressText(
+                                bitcoinAddress.address, context),
+                          ),
+                        ],
+                      );
+                    },
+                    loading: () =>
+                        Center(child: LoadingAnimationWidget.threeArchedCircle(
+                            size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
+                    error: (error, stack) =>
+                        Center(child: LoadingAnimationWidget.threeArchedCircle(
+                            size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
+                  ),
+                if (selectedIndex == "Liquid")
+                  liquidAddressAsyncValue.when(
+                    data: (liquidAddress) {
+                      return Column(
+                        children: [
+                          buildQrCode(liquidAddress, context),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: buildAddressText(liquidAddress, context),
+                          ),
+                        ],
+                      );
+                    },
+                    loading: () =>
+                        Center(child: LoadingAnimationWidget.threeArchedCircle(
+                            size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
+                    error: (error, stack) =>
+                        Center(child: LoadingAnimationWidget.threeArchedCircle(
+                            size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
+                  ),
+                const Expanded(child: BuildTransactions()),
+              ],
             ),
-          if (selectedIndex == "Liquid")
-            Expanded(
-              child: liquidAddressAsyncValue.when(
-              data: (liquidAddress) {
-                return Column(
-                  children: [
-                    buildQrCode(liquidAddress, context),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: buildAddressText(liquidAddress, context),
-                    ),
-                    const SizedBox(height: 16.0),
-                    const Expanded(child: BuildTransactions()),
-                  ],
-                );
-              },
-              loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange)),
-              error: (error, stack) =>  Center(child: LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange)),),
-            ),
+          ),
         ],
       ),
     );

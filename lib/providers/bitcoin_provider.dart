@@ -1,6 +1,8 @@
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/bitcoin_model.dart';
+import 'package:satsails/models/send_tx_model.dart';
+import 'package:satsails/providers/send_tx_provider.dart';
 import 'bitcoin_config_provider.dart';
 
 final bitcoinProvider = FutureProvider<Bitcoin>((ref) async {
@@ -83,9 +85,10 @@ final getSlowFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) {
   });
 });
 
-final getCustomFeeRateProvider = FutureProvider.family.autoDispose<FeeRate, int>((ref, blocks) {
+final getCustomFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    final blocks = ref.watch(sendTxProvider).blocks;
     return bitcoinModel.estimateFeeRate(blocks);
   });
 });
@@ -110,8 +113,8 @@ final broadcastBitcoinTransactionProvider = FutureProvider.autoDispose.family<vo
   });
 });
 
-final sendBitcoinTransactionProvider = FutureProvider.autoDispose.family<void, SendTxParams>((ref, params) async {
-  final feeRate = await ref.watch(getCustomFeeRateProvider(params.blocks).future);
+final sendBitcoinTransactionProvider = FutureProvider.autoDispose.family<void, SendTx>((ref, params) async {
+  final feeRate = await ref.watch(getCustomFeeRateProvider.future);
   final TransactionBuilder transactionBuilder = TransactionBuilder(
     params.amount,
     params.address,

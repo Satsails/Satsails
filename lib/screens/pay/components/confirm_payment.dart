@@ -2,64 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:satsails/helpers/asset_mapper.dart';
+import 'package:satsails/providers/send_tx_provider.dart';
 
 class ConfirmPayment extends ConsumerWidget {
-  String selectedAsset = 'Bitcoin';
-  late Map<String, dynamic> balance;
-  double maxAmount = 0;
   TextEditingController amountController = TextEditingController();
-  double sendAmount = 0;
 
   Future<String> confirmAndSendPayment(double amount, String asset, String transactionType) async {
-    const storage = FlutterSecureStorage();
-    String mnemonic = await storage.read(key: 'mnemonic') ?? "";
-    int amountInt = (amount * 100000000).toInt();
-    String assetId;
-    if (asset== 'Bitcoin') {
-      asset = 'L-BTC';
-      assetId = AssetMapper.reverseMapTicker(asset);
-    }else {
-      asset = 'USD';
-      assetId = AssetMapper.reverseMapTicker(asset);
-    }
-
-    // return await greenwallet.Channel('ios_wallet').sendToAddress(
-    //   mnemonic: mnemonic,
-    //   connectionType: transactionType == 'liquid' ? NetworkSecurityCase.liquidSS.network  : NetworkSecurityCase.bitcoinSS.network,
-    //   address: widget.address,
-    //   amount: amountInt,
-    //   assetId: assetId,
-    // );
     return '';
   }
 
   void checkMaxAmount(String asset) async {
-    double calculatedAmount = 0;
-
-    if (true) {
-      if (asset == 'Bitcoin') {
-        calculatedAmount = balance['l-btc'];
-      } else if (asset == 'USD') {
-        calculatedAmount = balance['usdOnly'];
-      }
-    } else {
-      calculatedAmount = balance['btc'];
-    }
-
-  }
-
-  double getHighestFee() {
-    if (true) {
-      return selectedAsset == 'Bitcoin' ? balance['highestLiquidFee'] : balance['highestLiquidFeeUsd'];
-    } else {
-      return balance['highestBitcoinFee'];
-    }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    balance = {}; // replace by balance provider
-    checkMaxAmount(selectedAsset);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Confirm Payment'),
@@ -75,7 +31,7 @@ class ConfirmPayment extends ConsumerWidget {
             ),
             const SizedBox(height: 20.0),
             Text(
-              '${'address'},',
+              ref.watch(sendTxProvider).address,
               style: const TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
@@ -93,97 +49,8 @@ class ConfirmPayment extends ConsumerWidget {
                   ),
                 ),
                 SizedBox(width: 5),
-                Container(
-                  width: 120,
-                  child: TextField(
-                    controller: amountController,
-                    decoration: const InputDecoration(
-                      hintText: "0",
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.blue), // Set the border color
-                      ),
-                      alignLabelWithHint: true,
-                    ),
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      double enteredAmount = double.tryParse(value) ?? 0;
-
-                      if (enteredAmount > maxAmount) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                "Entered amount cannot be greater than $maxAmount."),
-                          ),
-                        );
-                        amountController.text = maxAmount.toString();
-                        // setState(() {
-                        //   sendAmount = maxAmount;
-                        // });
-                      } else {
-                        // setState(() {
-                        //   sendAmount = enteredAmount;
-                        // });
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: 20),
-                if (true)
-                  DropdownButton<String>(
-                    value: selectedAsset,
-                    onChanged: (String? newValue) {
-                    },
-                    items: <String>['Bitcoin', 'USD']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
               ],
             ),
-            Text(
-              'Max amount: $maxAmount',
-              style: const TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              'Highest fee: ${getHighestFee()}', // Call the function here
-              style: const TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20.0),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              ),
-              onPressed: (sendAmount > 0 && maxAmount >= getHighestFee() && sendAmount >= getHighestFee())
-                  ? () {
-                confirmAndSendPayment(
-                  sendAmount,
-                  selectedAsset,
-                   'liquid'
-                ).then((value) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Transaction completed with ID: $value'),
-                    ),
-                  );
-                });
-              }
-                  : null,
-              child: const Text(
-                'Confirm',
-                style: TextStyle(fontSize: 18.0),
-              ),
-            )
           ],
         ),
       ),

@@ -92,11 +92,3 @@ class TransactionBuilder {
 
   TransactionBuilder(this.amount, this.outAddress, this.fee);
 }
-
-class SendTxParams {
-  final int amount;
-  final String address;
-  final int blocks;
-
-  SendTxParams(this.amount, this.address, this.blocks);
-}

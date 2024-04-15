@@ -4,11 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:satsails/models/balance_model.dart';
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
+import 'package:satsails/providers/transaction_data_provider.dart';
 import 'package:satsails/screens/shared/copy_text.dart';
 import 'package:satsails/screens/shared/qr_code.dart';
 
@@ -140,7 +142,7 @@ class Accounts extends StatelessWidget {
                 child: const Icon(Icons.arrow_downward, color: Colors.white),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {Navigator.pushNamed(context, '/pay');},
                 child: const Icon(Icons.arrow_upward, color: Colors.white),
               ),
             ],
@@ -149,6 +151,8 @@ class Accounts extends StatelessWidget {
       ),
     );
   }
+
+
 
   void _receivePayment(BuildContext context, dynamic bitcoin) {
     showModalBottomSheet(

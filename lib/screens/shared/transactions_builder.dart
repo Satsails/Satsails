@@ -173,10 +173,10 @@ class BuildTransactions extends ConsumerWidget {
                     Text(transaction.kind.capitalize(),
                         style: const TextStyle(fontSize: 16)),
                     transaction.balances.length == 1
-                        ? Center(child: Text(
+                        ? Text(
                         _valueOfLiquidSubTransaction(AssetMapper.mapAsset(
                             transaction.balances[0].$1), transaction.balances[0]
-                            .$2, ref), style: const TextStyle(fontSize: 14)))
+                            .$2, ref), style: const TextStyle(fontSize: 14))
                         : Text(
                         'Multiple', style: const TextStyle(fontSize: 14)),
                   ],

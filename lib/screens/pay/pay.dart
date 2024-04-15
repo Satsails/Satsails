@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:satsails/helpers/validate_address.dart';
-import 'package:satsails/providers/send_payments_provider.dart';
+import 'package:satsails/providers/transaction_data_provider.dart';
 
 class Pay extends ConsumerWidget {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
@@ -33,79 +32,90 @@ class Pay extends ConsumerWidget {
     );
   }
 
-  // void _onQRViewCreated(QRViewController controller, BuildContext context) {
-  //   controller.scannedDataStream.listen((scanData) {
-  //     switch (addressType(scanData as String)) {
-  //       case PaymentTYpe.Bitcoin || PaymentTYpe.Liquid || PaymentTYpe.Lightning:
-  //         Navigator.pushNamed(context, '/confirm_payment');
-  //         break;
-  //       default:
-  //         showInvalidAddressDialog(context);
-  //         break;
-  //     }
-  //   });
-  // }
+  void _onQRViewCreated(QRViewController controller, BuildContext context, WidgetRef ref) {
+    controller.scannedDataStream.listen((scanData) {
+      try {
+        ref.refresh(setAddressAndAmountProvider(scanData.toString()));
+        Navigator.pushNamed(context, '/confirm_payment');
+      }
+      catch (e) {
+        showInvalidAddressDialog(context);
+      }
+    });
+  }
 
   void _toggleFlash() {
     controller.toggleFlash();
   }
 
-//   Future<void> _pasteFromClipboard(BuildContext context) async {
-//     final data = await Clipboard.getData('text/plain');
-//     if (data != null) {
-//       switch (addressType(data as String)) {
-//         case PaymentTYpe.Bitcoin || PaymentTYpe.Liquid || PaymentTYpe.Lightning:
-//           Navigator.pushNamed(context, '/confirm_payment');
-//           break;
-//         default:
-//           showInvalidAddressDialog(context);
-//           break;
-//       }
-//   }
-// }
+  Future<void> _pasteFromClipboard(BuildContext context, WidgetRef ref) async {
+    final data = await Clipboard.getData('text/plain');
+    if (data != null) {
+      try {
+        ref.refresh(setAddressAndAmountProvider(data.text ?? ''));
+        Navigator.pushNamed(context, '/confirm_payment');
+      }
+      catch (e) {
+        showInvalidAddressDialog(context);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text('Pay'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('Scan any QR code to pay', style: TextStyle(fontSize: 20)),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-            // Expanded(
-            //   child: QRView(
-            //     key: qrKey,
-            //     onQRViewCreated: (controller) => _onQRViewCreated(controller, context),
-            //   ),
-            // ),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-            Align(
-              alignment: Alignment.center,
-              heightFactor: 1.5,
+      body: Stack(
+        children: <Widget>[
+          QRView(
+            key: qrKey,
+            onQRViewCreated: (controller) =>_onQRViewCreated(controller, context, ref),
+          ),
+          Positioned(
+            top: 40.0,
+            left: 10.0,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30.0),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  // ElevatedButton(
-                  //   onPressed: () => _pasteFromClipboard(context),
-                  //   child: const Text('Paste from clipboard'),
-                  // ),
+                  Flexible(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _pasteFromClipboard(context, ref),
+                      icon: const Icon(Icons.content_paste, color: Colors.white),
+                      label: const Text(
+                          'Paste', style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.orangeAccent,
+                      ),
+                    ),
+                  ),
                   const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: _toggleFlash,
-                    child: const Text('Toggle Flash'),
+                  Flexible(
+                    child: ElevatedButton.icon(
+                      onPressed: _toggleFlash,
+                      icon: const Icon(Icons.flash_on, color: Colors.white),
+                      label: const Text(
+                          'Flash', style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.orangeAccent,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

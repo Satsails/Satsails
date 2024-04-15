@@ -2,8 +2,10 @@ import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk_dart/lwk_dart.dart';
 import 'package:satsails/models/liquid_model.dart';
+import 'package:satsails/models/send_tx_model.dart';
 import 'package:satsails/providers/auth_provider.dart';
 import 'package:satsails/providers/liquid_config_provider.dart';
+import 'package:satsails/providers/send_tx_provider.dart';
 
 final initializeLiquidProvider = FutureProvider<Liquid>((ref) {
   return ref.watch(liquidConfigProvider.future).then((config) {
@@ -39,9 +41,10 @@ final liquidTransactionsProvider = FutureProvider<List<Tx>>((ref) {
   });
 });
 
-final getCustomFeeRateProvider = FutureProvider.family.autoDispose<double, int>((ref, blocks) {
+final getCustomFeeRateProvider = FutureProvider.autoDispose<double>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
+    final blocks = ref.watch(sendTxProvider).blocks;
     return liquidModel.getLiquidFees(blocks);
   });
 });
@@ -71,10 +74,10 @@ final broadcastLiquidTransactionProvider = FutureProvider.family.autoDispose<Str
   });
 });
 
-final sendLiquidTransactionProvider = FutureProvider.family.autoDispose<String, SendTxParams>((ref, params) async {
-  final feeRate = await ref.watch(getCustomFeeRateProvider(params.blocks).future);
+final sendLiquidTransactionProvider = FutureProvider.family.autoDispose<String, SendTx>((ref, params) async {
+  final feeRate = await ref.watch(getCustomFeeRateProvider.future);
   final TransactionBuilder transactionBuilder = TransactionBuilder(
-    sats: params.sats,
+    amount: params.amount,
     outAddress: params.address,
     fee: feeRate,
   );

@@ -46,7 +46,6 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
     }
   }
 
-
   void updateLiquidBalances(balances) async {
     final balanceModel = ref.read(balanceNotifierProvider.notifier);
     final liquidBox = await Hive.openBox('liquid');
