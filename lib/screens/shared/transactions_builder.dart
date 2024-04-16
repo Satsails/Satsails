@@ -175,8 +175,8 @@ class BuildTransactions extends ConsumerWidget {
                     transaction.balances.length == 1
                         ? Text(
                         _valueOfLiquidSubTransaction(AssetMapper.mapAsset(
-                            transaction.balances[0].$1), transaction.balances[0]
-                            .$2, ref), style: const TextStyle(fontSize: 14))
+                            transaction.balances[0].assetId), transaction.balances[0]
+                            .value, ref), style: const TextStyle(fontSize: 14))
                         : Text(
                         'Multiple', style: const TextStyle(fontSize: 14)),
                   ],
@@ -200,10 +200,10 @@ class BuildTransactions extends ConsumerWidget {
                       Navigator.pushNamed(context, '/search_modal');
                     },
                     child: ListTile(
-                      trailing: _subTransactionIcon(balance.$2),
-                      title: Text(AssetMapper.mapAsset(balance.$1)),
+                      trailing: _subTransactionIcon(balance.value),
+                      title: Text(AssetMapper.mapAsset(balance.assetId)),
                       subtitle: Text(_valueOfLiquidSubTransaction(
-                          AssetMapper.mapAsset(balance.$1), balance.$2, ref)),
+                          AssetMapper.mapAsset(balance.assetId), balance.value, ref)),
                     ),
                   );
                 }).toList(),

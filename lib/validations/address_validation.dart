@@ -1,10 +1,15 @@
 import 'package:btc_address_validate_swan/btc_address_validate_swan.dart';
+import 'package:lwk_dart/lwk_dart.dart';
 import 'package:satsails/models/address_model.dart';
 import 'package:bolt11_decoder/bolt11_decoder.dart';
 
 bool isValidLiquidAddress(String address) {
-  // implment address from string from lwk dart
-  return false;
+  try {
+    validateAddress(address: address);
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
 
 bool isValidBitcoinAddress(String address) {
@@ -18,7 +23,8 @@ bool isValidBitcoinAddress(String address) {
 
 bool isValidLightningAddress(String address) {
   try {
-    final _ = Bolt11PaymentRequest(address);
+    // try with emails
+    Bolt11PaymentRequest(address);
     return true;
   } catch (_) {
     return false;

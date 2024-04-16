@@ -29,8 +29,8 @@ class LiquidModel {
     return txs;
   }
 
-  Future<String> build(TransactionBuilder params) async {
-    final pset = await config.liquid.wallet.build(
+  Future<String> build_lbtc_tx(TransactionBuilder params) async {
+    final pset = await config.liquid.wallet.build_lbtc_tx(
       sats: params.amount,
       outAddress: params.outAddress,
       absFee: params.fee,
@@ -38,14 +38,24 @@ class LiquidModel {
     return pset;
   }
 
-  Future<DecodedPset> decode(Wallet wallet, String pset) async {
+  Future<String> build_asset_tx(TransactionBuilder params) async {
+    final pset = await config.liquid.wallet.build_asset_tx(
+      sats: params.amount,
+      outAddress: params.outAddress,
+      absFee: params.fee,
+      assetId: params.assetId,
+    );
+    return pset;
+  }
+
+  Future<PsetAmounts> decode(Wallet wallet, String pset) async {
     final decodedPset = await wallet.decode(pset: pset);
     decodedPset.balances.forEach((balance) {
       // implement
       print('Balance: ${balance}');
     });
     // placeholder
-    return DecodedPset(amount: 1, fee: decodedPset.fee);
+    return decodedPset;
   }
 
   Future<Uint8List> sign(SignParams params) async {
@@ -89,22 +99,17 @@ class Liquid {
   });
 }
 
-class DecodedPset{
-  final int amount;
-  final int fee;
-
-  DecodedPset({required this.amount, required this.fee});
-}
-
 class TransactionBuilder {
   final int amount;
   final String outAddress;
   final double fee;
+  final String assetId;
 
   TransactionBuilder({
     required this.amount,
     required this.outAddress,
     required this.fee,
+    required this.assetId,
   });
 }
 

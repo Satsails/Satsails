@@ -151,7 +151,7 @@ class Tx {
   Tx.fromLwk(lwk.Tx lwkTx)
       : timestamp = lwkTx.timestamp,
         kind = lwkTx.kind,
-        balances = lwkTx.balances.map((balance) => Balance.fromTuple(balance.$1, balance.$2)).toList(),
+        balances = lwkTx.balances.map((balance) => Balance.fromTuple(balance.assetId, balance.value)).toList(),
         txid = lwkTx.txid,
         outputs = lwkTx.outputs.map((txOut) => TxOut.fromLwk(txOut)).toList(),
         inputs = lwkTx.inputs.map((txOut) => TxOut.fromLwk(txOut)).toList(),
@@ -343,18 +343,18 @@ class OutPointAdapter extends TypeAdapter<OutPoint> {
 @HiveType(typeId: 7)
 class Balance {
   @HiveField(0)
-  final String $1;
+  final String assetId;
   @HiveField(1)
-  final int $2;
+  final int value;
 
   const Balance({
-    required this.$1,
-    required this.$2,
+    required this.assetId,
+    required this.value,
   });
 
   Balance.fromTuple(String liquidId, int balance)
-      : $1 = liquidId,
-        $2 = balance;
+      : assetId = liquidId,
+        value = balance;
 }
 
 class BalanceAdapter extends TypeAdapter<Balance> {
@@ -367,15 +367,15 @@ class BalanceAdapter extends TypeAdapter<Balance> {
     final value = reader.read();
 
     return Balance(
-      $1: key,
-      $2: value,
+      assetId: key,
+      value: value,
     );
   }
 
   @override
   void write(BinaryWriter writer, Balance obj) {
-    writer.write(obj.$1);
-    writer.write(obj.$2);
+    writer.write(obj.assetId);
+    writer.write(obj.value);
   }
 }
 

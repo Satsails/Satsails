@@ -52,7 +52,7 @@ final getCustomFeeRateProvider = FutureProvider.autoDispose<double>((ref) {
 final buildLiquidTransactionProvider = FutureProvider.family.autoDispose<String, TransactionBuilder>((ref, params) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
-    return liquidModel.build(params);
+    return liquidModel.build_lbtc_tx(params);
   });
 });
 
@@ -80,6 +80,7 @@ final sendLiquidTransactionProvider = FutureProvider.family.autoDispose<String, 
     amount: params.amount,
     outAddress: params.address,
     fee: feeRate,
+    assetId: params.assetId ?? '',
   );
   final pset = await ref.watch(buildLiquidTransactionProvider(transactionBuilder).future);
   final signedTxBytes = await ref.watch(signLiquidPsetProvider(pset).future);
