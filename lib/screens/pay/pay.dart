@@ -33,7 +33,7 @@ class Pay extends ConsumerWidget {
   }
 
   void _onQRViewCreated(QRViewController controller, BuildContext context, WidgetRef ref) {
-    controller.scannedDataStream.listen((scanData) {
+    controller.scannedDataStream.listen((scanData) async {
       try {
         ref.refresh(setAddressAndAmountProvider(scanData.toString()));
         Navigator.pushNamed(context, '/confirm_payment');
@@ -41,6 +41,7 @@ class Pay extends ConsumerWidget {
       catch (e) {
         showInvalidAddressDialog(context);
       }
+      await controller.pauseCamera();
     });
   }
 
@@ -50,14 +51,15 @@ class Pay extends ConsumerWidget {
 
   Future<void> _pasteFromClipboard(BuildContext context, WidgetRef ref) async {
     final data = await Clipboard.getData('text/plain');
-    if (data != null) {
+    if (data != null){
       try {
-        ref.refresh(setAddressAndAmountProvider(data.text ?? ''));
+        await ref.refresh(setAddressAndAmountProvider(data.text ?? '').future);
         Navigator.pushNamed(context, '/confirm_payment');
       }
       catch (e) {
         showInvalidAddressDialog(context);
       }
+      await controller.pauseCamera();
     }
   }
 

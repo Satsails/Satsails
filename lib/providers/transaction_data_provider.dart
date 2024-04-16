@@ -3,9 +3,13 @@ import 'package:satsails/models/address_model.dart';
 import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/validations/address_validation.dart';
 
-final setAddressAndAmountProvider = StateProvider.family<AddressAndAmount, String>((ref, address) {
+final addressAndAmountProvider = FutureProvider.autoDispose.family<AddressAndAmount, String>((ref, address) async {
+  return parseAddressAndAmount(address);
+});
+
+final setAddressAndAmountProvider = FutureProvider.autoDispose.family<AddressAndAmount, String>((ref, address) async {
   try {
-    final addressAndAmount = parseAddressAndAmount(address);
+    final addressAndAmount = await ref.read(addressAndAmountProvider(address).future);
     Future.microtask(() {
       ref.read(sendTxProvider.notifier).updateAddress(addressAndAmount.address);
       ref.read(sendTxProvider.notifier).updateAmount(addressAndAmount.amount ?? 0);

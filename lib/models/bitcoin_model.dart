@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'dart:isolate';
 import 'package:bdk_flutter/bdk_flutter.dart';
-import 'package:flutter/material.dart';
 
 class BitcoinModel {
   final Bitcoin config;

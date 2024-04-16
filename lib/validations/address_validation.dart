@@ -1,38 +1,41 @@
-import 'package:btc_address_validate_swan/btc_address_validate_swan.dart';
 import 'package:lwk_dart/lwk_dart.dart';
+import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:satsails/models/address_model.dart';
-import 'package:bolt11_decoder/bolt11_decoder.dart';
 
-bool isValidLiquidAddress(String address) {
+Future<bool> isValidLiquidAddress(String address) async {
   try {
-    validateAddress(address: address);
+    await validateAddress(address: address).then((value) => value);
     return true;
   } catch (_) {
     return false;
   }
 }
 
-bool isValidBitcoinAddress(String address) {
+Future<bool> isValidBitcoinAddress(String address) async {
   try {
-    validate(address);
+    await bdk.Address.create(address: address).then((value) => value);
     return true;
   } catch (e) {
     return false;
   }
 }
 
-bool isValidLightningAddress(String address) {
+
+
+
+Future<bool> isValidLightningAddress(String address) async {
   try {
-    // try with emails
-    Bolt11PaymentRequest(address);
-    return true;
-  } catch (_) {
+    // implement a bad response from the boltz if other 2 are down
+    // await lnUrlType(address);
+    // await Bolt11Invoice.decode(invoice: address);
     return false;
+  } catch (e) {
+  return false;
   }
 }
 
 
-AddressAndAmount parseAddressAndAmount(String data) {
+Future<AddressAndAmount>  parseAddressAndAmount(String data) async {
   if (data == null || data.isEmpty) {
     throw FormatException('Data cannot be null or empty');
   }
@@ -52,7 +55,7 @@ AddressAndAmount parseAddressAndAmount(String data) {
     address = address.substring(14);
   }
 
-  if (!isValidBitcoinAddress(address) && !isValidLiquidAddress(address) && !isValidLightningAddress(address)) {
+  if ((await isValidBitcoinAddress(address).then((value) => !value)) && (await isValidLiquidAddress(address).then((value) => !value)) && (await isValidLightningAddress(address).then((value) => !value))) {
     throw FormatException('Invalid address');
   }
 
@@ -71,13 +74,13 @@ AddressAndAmount parseAddressAndAmount(String data) {
   }
 
   PaymentType type;
-  if (isValidBitcoinAddress(address)) {
+  if (await isValidBitcoinAddress(address).then((value) => value)) {
     type = PaymentType.Bitcoin;
     return AddressAndAmount(address, amount, assetId, type: type);
-  } else if (isValidLiquidAddress(address)) {
+  } else if ((await isValidLiquidAddress(address).then((value) => value))) {
     type = PaymentType.Liquid;
     return AddressAndAmount(address, amount, assetId, type: type);
-  } else if (isValidLightningAddress(address)) {
+  } else if ((await isValidLightningAddress(address).then((value) => value))) {
     type = PaymentType.Lightning;
     return AddressAndAmount(address, amount, assetId, type: type);
   } else {

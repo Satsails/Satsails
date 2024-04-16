@@ -52,7 +52,7 @@ class SendTx {
       blocks: blocks ?? this.blocks,
       address: address ?? this.address,
       amount: amount ?? this.amount,
-      type: this.type,
+      type: type ?? this.type,
       assetId: assetId,
     );
   }

@@ -19,7 +19,6 @@ dependencies:
   webview_flutter: ^4.5.0
   qr_flutter: ^4.1.0
   qr_code_scanner: ^1.0.1
-  btc_address_validate_swan: ^1.2.1
   fl_chart: ^0.66.2
   month_picker_dialog: ^2.11.0
   bip39: ^1.0.6
