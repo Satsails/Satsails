@@ -1,21 +1,29 @@
-import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:satsails/helpers/asset_mapper.dart';
-import 'package:satsails/models/address_model.dart';
+import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import '../../../providers/balance_provider.dart';
 import 'package:action_slider/action_slider.dart';
-import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
+
+class TextEditingControllerNotifier extends StateNotifier<TextEditingController> {
+  TextEditingControllerNotifier() : super(TextEditingController());
+}
+
+final textEditingControllerProvider = StateNotifierProvider<TextEditingControllerNotifier, TextEditingController>((ref) {
+  return TextEditingControllerNotifier();
+});
 
 class ConfirmBitcoinPayment extends ConsumerWidget {
-  const ConfirmBitcoinPayment({super.key});
+  ConfirmBitcoinPayment({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(textEditingControllerProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final cardMargin = screenWidth * 0.05;
@@ -25,9 +33,11 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
     final initializeBalance = ref.watch(initializeBalanceProvider);
     final settingsValue = ref.watch(settingsProvider).btcFormat;
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(settingsValue));
-    final TextEditingController _controller = TextEditingController(text: sendTxState.amount.toCurrencyString(leadingSymbol: CurrencySymbols.BITCOIN_SIGN, mantissaLength: 8));
+    controller.text = sendTxState.amount.toString();
+
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: const Text('Confirm Payment'),
@@ -92,57 +102,115 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                   ),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  DropdownButtonHideUnderline(
-                    child: DropdownButton2(
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'btc',
-                          child: Text('Bitcoin'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'usd',
-                          child: Text('USD'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'eur',
-                          child: Text('EUR'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'brl',
-                          child: Text('BRL'),
-                        ),
-                      ],
-                      value: ref.watch(sendCurrencyProvider),
-                      onChanged: (String? value) {
-                        ref.read(sendCurrencyProvider.notifier).state = value!;
-                      },
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FocusScope(
+                  child: TextFormField(
+                    controller: controller,
+                    keyboardType: TextInputType.number,
+                    style: const TextStyle(fontSize: 60),
+                    textAlign: TextAlign.center,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      hintText: '0',
                     ),
                   ),
-                  const SizedBox(width: 20),
-                  Expanded(
+                ),
+              ),
+              const SizedBox(width: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  gradient: LinearGradient(
+                    colors: [Colors.orange, Colors.deepOrange],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap: () {
+                      controller.text = ref.watch(balanceNotifierProvider).btcBalance.toString();
+                    },
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        controller: _controller,
-                        style: const TextStyle(fontSize: 30),
-                        textAlign: TextAlign.center,
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      child: Text(
+                        'Max',
+                        style: TextStyle(
+                          fontSize: 20, // font size
+                          fontWeight: FontWeight.bold, // font weight
+                          color: Colors.white,
                         ),
-                        inputFormatters: [
-                          CurrencyInputFormatter(
-                            leadingSymbol: CurrencySymbols.BITCOIN_SIGN,
-                            mantissaLength: 8,
-                          )
-                        ],
                       ),
                     ),
                   ),
-                ],
+                ),
+              ),
+              SizedBox(height: 60),
+              SfSlider(
+                min: 1,
+                max: 10,
+                interval: 1,
+                value: ref.watch(sendBlocksProvider),
+                stepSize: 1,
+                showTicks: true,
+                showLabels: true,
+                activeColor: Colors.deepOrange,
+                inactiveColor: Colors.orange[200],
+                labelPlacement: LabelPlacement.onTicks,
+                onChanged: (dynamic value){
+                  ref.read(sendBlocksProvider.notifier).state = value;
+                  ref.refresh(getCustomFeeRateProvider);
+                },
+              ),
+              SizedBox(height: 60),
+              ref.watch(getCustomFeeRateProvider).when(
+                data: (FeeRate feeRate) {
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          elevation: 10,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.orange, Colors.deepOrange],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                '${feeRate.asSatPerVb().toStringAsFixed(0)} sats/vbyte',
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+                loading: () => Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: LoadingAnimationWidget.prograssiveDots(size: 20, color: Colors.black),
+                ),
+                error: (error, stack) => Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextButton(
+                    onPressed: () { ref.refresh(getCustomFeeRateProvider); },
+                    child: const Text('Retry', style: TextStyle(color: Colors.red)),
+                  ),
+                ),
               ),
             ],
           ),
@@ -154,7 +222,7 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
               padding: const EdgeInsets.all(15.0),
               child: ActionSlider.standard(
                 sliderBehavior: SliderBehavior.stretch,
-                width: 300.0,
+                width: double.infinity,
                 backgroundColor: Colors.white,
                 toggleColor: Colors.deepOrangeAccent,
                 action: (controller) async {
@@ -171,28 +239,5 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
         ],
       ),
     );
-  }
-}
-
-int checkAssetBalance(PaymentType paymentType, WidgetRef ref, sendTxProvider) {
-  final balanceProvider = ref.watch(balanceNotifierProvider);
-  if (paymentType == PaymentType.Bitcoin) {
-    return balanceProvider.btcBalance;
-  } else if (paymentType == PaymentType.Liquid) {
-    switch (AssetMapper.mapAsset(sendTxProvider.assetId)) {
-      case AssetId.LBTC:
-        return balanceProvider.liquidBalance;
-      case AssetId.USD:
-        return balanceProvider.usdBalance;
-      case AssetId.EUR:
-        return balanceProvider.eurBalance;
-      case AssetId.BRL:
-        return balanceProvider.brlBalance;
-      default:
-        return balanceProvider.liquidBalance;
-    }
-  }
-  else {
-    return balanceProvider.liquidBalance;
   }
 }

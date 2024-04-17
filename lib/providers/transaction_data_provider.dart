@@ -51,11 +51,6 @@ final setAmountProvider = StateProvider.family<int, int>((ref, amount) {
   return amount;
 });
 
-final setBlocksProvider = StateProvider.family<int, int>((ref, blocks) {
-  ref.read(sendTxProvider.notifier).updateBlocks(blocks);
-  return blocks;
-});
-
 final setAssetIdProvider = StateProvider.family<String, String>((ref, assetId) {
   ref.read(sendTxProvider.notifier).updateAssetId(assetId);
   return assetId;

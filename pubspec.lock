@@ -49,14 +49,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
-  base58check:
-    dependency: transitive
-    description:
-      name: base58check
-      sha256: "6c300dfc33e598d2fe26319e13f6243fea81eaf8204cb4c6b69ef20a625319a5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
   bdk_flutter:
     dependency: "direct main"
     description:
@@ -340,14 +332,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_multi_formatter:
-    dependency: "direct main"
-    description:
-      name: flutter_multi_formatter
-      sha256: "4798b3ee8a3c00271565e77dc8886f02b52354c3ac0d845e07d1715d159959f6"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.12.4"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:

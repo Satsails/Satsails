@@ -86,9 +86,10 @@ final getSlowFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) {
 });
 
 final getCustomFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) {
+  ref.watch(sendBlocksProvider.select((value) => value));
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    final blocks = ref.watch(sendTxProvider).blocks;
+    final blocks = ref.watch(sendBlocksProvider.notifier).state.toInt();
     return bitcoinModel.estimateFeeRate(blocks);
   });
 });

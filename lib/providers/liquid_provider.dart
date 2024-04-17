@@ -44,7 +44,7 @@ final liquidTransactionsProvider = FutureProvider<List<Tx>>((ref) {
 final getCustomFeeRateProvider = FutureProvider.autoDispose<double>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
-    final blocks = ref.watch(sendTxProvider).blocks;
+    final blocks = ref.watch(sendBlocksProvider.notifier).state.toInt();
     return liquidModel.getLiquidFees(blocks);
   });
 });

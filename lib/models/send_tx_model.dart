@@ -4,10 +4,6 @@ import 'package:satsails/models/address_model.dart';
 class SendTxModel extends StateNotifier<SendTx> {
   SendTxModel(SendTx state) : super(state);
 
-  void updateBlocks(int blocks) {
-    state = state.copyWith(blocks: blocks);
-  }
-
   void updateAddress(String address) {
     state = state.copyWith(address: address);
   }
@@ -27,14 +23,12 @@ class SendTxModel extends StateNotifier<SendTx> {
 
 
 class SendTx {
-  final int blocks;
   final String address;
   final int amount;
   final PaymentType type;
   final String? assetId;
 
   SendTx({
-    required this.blocks,
     required this.address,
     required this.amount,
     required this.type,
@@ -42,14 +36,12 @@ class SendTx {
   });
   
   SendTx copyWith({
-    int? blocks,
     String? address,
     int? amount,
     PaymentType? type,
     String? assetId,
   }) {
     return SendTx(
-      blocks: blocks ?? this.blocks,
       address: address ?? this.address,
       amount: amount ?? this.amount,
       type: type ?? this.type,
