@@ -56,6 +56,13 @@ final buildLiquidTransactionProvider = FutureProvider.family.autoDispose<String,
   });
 });
 
+final buildLiquidAssetTransactionProvider = FutureProvider.family.autoDispose<String, TransactionBuilder>((ref, params) {
+  return ref.watch(initializeLiquidProvider.future).then((liquid) {
+    LiquidModel liquidModel = LiquidModel(liquid);
+    return liquidModel.build_asset_tx(params);
+  });
+});
+
 final signLiquidPsetProvider = FutureProvider.family.autoDispose<Uint8List, String>((ref, pset) async {
   final liquid = await ref.watch(initializeLiquidProvider.future);
   final LiquidModel liquidModel = LiquidModel(liquid);
@@ -82,7 +89,9 @@ final sendLiquidTransactionProvider = FutureProvider.family.autoDispose<String, 
     fee: feeRate,
     assetId: params.assetId ?? '',
   );
-  final pset = await ref.watch(buildLiquidTransactionProvider(transactionBuilder).future);
+  final pset = params.assetId == null
+      ? await ref.watch(buildLiquidTransactionProvider(transactionBuilder).future)
+      : await ref.watch(buildLiquidAssetTransactionProvider(transactionBuilder).future);
   final signedTxBytes = await ref.watch(signLiquidPsetProvider(pset).future);
   return ref.watch(broadcastLiquidTransactionProvider(signedTxBytes).future);
 });

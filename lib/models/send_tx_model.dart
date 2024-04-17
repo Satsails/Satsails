@@ -38,7 +38,7 @@ class SendTx {
     required this.address,
     required this.amount,
     required this.type,
-    this.assetId
+    required this.assetId
   });
   
   SendTx copyWith({
@@ -53,7 +53,7 @@ class SendTx {
       address: address ?? this.address,
       amount: amount ?? this.amount,
       type: type ?? this.type,
-      assetId: assetId,
+      assetId: assetId ?? this.assetId,
     );
   }
 }

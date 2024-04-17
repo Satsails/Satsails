@@ -3,64 +3,43 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:satsails/providers/transaction_data_provider.dart';
+import 'package:satsails/screens/shared/qr_view_widget.dart';
 
 class Pay extends ConsumerWidget {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   late QRViewController controller;
 
-  Pay({super.key});
-
-  void showInvalidAddressDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Invalid Address'),
-          content: const Text('The address you scanned is not valid.'),
-          actions: <Widget>[
-            Center(
-              child: TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ),
-          ],
-        );
-      },
+  void showInvalidAddressSnackBar(BuildContext context) {
+    final snackBar = SnackBar(
+      content: const Text('The address you scanned is not valid.'),
+      action: SnackBarAction(
+        label: 'OK',
+        onPressed: () {
+          // Do something, if needed
+        },
+      ),
     );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _onQRViewCreated(QRViewController controller, BuildContext context, WidgetRef ref) {
-    controller.scannedDataStream.listen((scanData) async {
-      try {
-        ref.refresh(setAddressAndAmountProvider(scanData.toString()));
-        Navigator.pushNamed(context, '/confirm_payment');
-      }
-      catch (e) {
-        showInvalidAddressDialog(context);
-      }
-      await controller.pauseCamera();
-    });
-  }
-
-  void _toggleFlash() {
-    controller.toggleFlash();
-  }
+  Pay({super.key});
 
   Future<void> _pasteFromClipboard(BuildContext context, WidgetRef ref) async {
     final data = await Clipboard.getData('text/plain');
     if (data != null){
       try {
         await ref.refresh(setAddressAndAmountProvider(data.text ?? '').future);
-        Navigator.pushNamed(context, '/confirm_payment');
+        Navigator.pushNamed(context, '/confirm_bitcoin_payment');
       }
       catch (e) {
-        showInvalidAddressDialog(context);
+        showInvalidAddressSnackBar(context);
       }
-      await controller.pauseCamera();
     }
+  }
+
+  void _toggleFlash() {
+    controller.toggleFlash();
   }
 
   @override
@@ -69,9 +48,9 @@ class Pay extends ConsumerWidget {
       backgroundColor: Colors.white,
       body: Stack(
         children: <Widget>[
-          QRView(
-            key: qrKey,
-            onQRViewCreated: (controller) =>_onQRViewCreated(controller, context, ref),
+          QRViewWidget(
+            qrKey: qrKey,
+            ref: ref,
           ),
           Positioned(
             top: 40.0,

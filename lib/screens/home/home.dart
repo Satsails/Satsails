@@ -52,7 +52,7 @@ class Home extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         OfflineTransactionWarning(online: online),
-        buildBalanceCard(context, ref),
+        buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.24,
           child: Consumer(builder: (context, watch, child) {

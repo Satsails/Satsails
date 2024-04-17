@@ -45,7 +45,7 @@ final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, 
   ));
 });
 
-final totalBalanceInCurrencyProvider = StateProvider.family.autoDispose<String, String>((ref, currency)  {
+final totalBalanceInFiatProvider = StateProvider.family.autoDispose<String, String>((ref, currency)  {
   final balanceModel = ref.watch(balanceNotifierProvider);
   final conversions = ref.watch(currencyNotifierProvider);
 

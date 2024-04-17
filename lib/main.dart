@@ -15,7 +15,7 @@ import 'package:satsails/screens/charge/charge.dart';
 import 'package:satsails/screens/home/home.dart';
 import 'package:satsails/screens/pay/pay.dart';
 import 'package:satsails/screens/creation/recover_wallet.dart';
-import 'package:satsails/screens/pay/components/confirm_payment.dart';
+import 'package:satsails/screens/pay/components/confirm_bitcoin_payment.dart';
 import 'package:satsails/screens/exchange/exchange.dart';
 import 'package:satsails/screens/splash/splash.dart';
 import 'package:satsails/screens/support/info.dart';
@@ -64,7 +64,7 @@ class MainApp extends ConsumerWidget {
           return Text('Error: ${snapshot.error}');
         } else {
           final mnemonic = snapshot.data;
-          final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/open_pin';
+          final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/confirm_bitcoin_payment' : '/confirm_bitcoin_payment';
 
 
           return MaterialApp(
@@ -95,7 +95,7 @@ class MainApp extends ConsumerWidget {
               '/home': (context) => const Home(),
               '/recover_wallet': (context) => const RecoverWallet(),
               '/search_modal': (context) => SearchModal(),
-              '/confirm_payment': (context) => ConfirmPayment(),
+              '/confirm_bitcoin_payment': (context) => ConfirmBitcoinPayment(),
             },
           );
         }

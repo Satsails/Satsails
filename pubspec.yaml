@@ -41,6 +41,9 @@ dependencies:
   responsive_framework: ^1.4.0
   liquid_pull_to_refresh: ^3.0.1
   bolt11_decoder: ^1.0.2
+  action_slider: ^0.7.0
+  flutter_multi_formatter: ^2.12.4
+  dropdown_button2: ^2.3.9
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

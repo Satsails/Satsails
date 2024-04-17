@@ -58,14 +58,14 @@ class _ExchangeState extends State<Exchange> {
     Stream<dynamic> pegStatus = walletStrategy.checkPegStatus(data["order_id"], pegIn);
     return pegStatus;
   }
-
-  Future<Stream<dynamic>> streamAndExchange() async {
-    int sendAmountInSatoshi = (sendAmount * 100000000).toInt();
-    int receivingAmountInSatoshi = (receivingAmount * 100000000).toInt();
-    Stream<dynamic> exchange  = walletStrategy.startSwap(sendBitcoins, sendAmountInSatoshi, receivingAmountInSatoshi, AssetMapper.reverseMapTicker(sendingAsset), price);
-    return exchange;
-  }
-
+  //
+  // Future<Stream<dynamic>> streamAndExchange() async {
+  //   int sendAmountInSatoshi = (sendAmount * 100000000).toInt();
+  //   int receivingAmountInSatoshi = (receivingAmount * 100000000).toInt();
+  //   Stream<dynamic> exchange  = walletStrategy.startSwap(sendBitcoins, sendAmountInSatoshi, receivingAmountInSatoshi, AssetMapper.reverseMapTicker(sendingAsset), price);
+  //   return exchange;
+  // }
+  //
   void checkPegMaxAmount(String asset, BuildContext context, dynamic data) {
     double calculatedAmount = 0;
 
@@ -142,11 +142,11 @@ class _ExchangeState extends State<Exchange> {
         exchange = true;
         int sendAmountInSatoshi = (sendAmount * 100000000).toInt();
         String assetId = '';
-        if (sendBitcoins) {
-          assetId = AssetMapper.reverseMapTicker(receivingAsset);
-        } else {
-          assetId = AssetMapper.reverseMapTicker(sendingAsset);
-        }
+        // if (sendBitcoins) {
+        //   assetId = AssetMapper.reverseMapTicker(receivingAsset);
+        // } else {
+        //   assetId = AssetMapper.reverseMapTicker(sendingAsset);
+        // }
         checkExchangeMaxAmount(asset, context);
         if (sendAmountInSatoshi > 0) {
           streamPrices.connect(asset: assetId, sendBitcoins: sendBitcoins, sendAmount: sendAmountInSatoshi);
@@ -412,13 +412,13 @@ class _ExchangeState extends State<Exchange> {
           }
         } else {
           try {
-            Stream<dynamic> exchangeStream = await streamAndExchange();
+            // Stream<dynamic> exchangeStream = await streamAndExchange();
 
             showModalBottomSheet(
               context: context,
               builder: (BuildContext context) {
                 return ExchangeStatus(
-                  exchangeStatus: exchangeStream,
+                  exchangeStatus: Stream.empty(),
                 );
               },
             );

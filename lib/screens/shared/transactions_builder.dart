@@ -201,7 +201,7 @@ class BuildTransactions extends ConsumerWidget {
                     },
                     child: ListTile(
                       trailing: _subTransactionIcon(balance.value),
-                      title: Text(AssetMapper.mapAsset(balance.assetId)),
+                      title: Text(AssetMapper.mapAsset(balance.assetId).toString()),
                       subtitle: Text(_valueOfLiquidSubTransaction(
                           AssetMapper.mapAsset(balance.assetId), balance.value, ref)),
                     ),
@@ -293,15 +293,15 @@ class BuildTransactions extends ConsumerWidget {
     return ref.watch(conversionProvider(transaction));
   }
 
-  String _valueOfLiquidSubTransaction(String asset, int value, WidgetRef ref) {
+  String _valueOfLiquidSubTransaction(AssetId asset, int value, WidgetRef ref) {
     switch (asset) {
-      case 'USD':
+      case AssetId.USD:
         return (value / 100000000).toStringAsFixed(2);
-      case 'L-BTC':
+      case AssetId.LBTC:
         return ref.watch(conversionProvider(value));
-      case 'EUR':
+      case AssetId.EUR:
         return (value / 100000000).toStringAsFixed(2);
-      case 'BRL':
+      case AssetId.BRL:
         return (value / 100000000).toStringAsFixed(2);
       default:
         return (value / 100000000).toStringAsFixed(2);

@@ -4,7 +4,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
 
-Widget buildBalanceCard(BuildContext context, WidgetRef ref) {
+Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProviderName, String balanceInFiatName) {
   final screenWidth = MediaQuery.of(context).size.width;
   final screenHeight = MediaQuery.of(context).size.height;
   final cardMargin = screenWidth * 0.05;
@@ -35,11 +35,11 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref) {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text('Total balance', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
-              _buildBalanceConsumer(ref, titleFontSize, 'totalBalanceInDenominationProvider', 'btcFormat'),
+              _buildBalanceConsumer(ref, titleFontSize, balanceProviderName, 'btcFormat'),
               SizedBox(height: screenHeight * 0.01),
               const Text('or', style: TextStyle(fontSize: 14, color: Colors.white), textAlign: TextAlign.center),
               SizedBox(height: screenHeight * 0.01),
-              _buildBalanceConsumer(ref, subtitleFontSize, 'totalBalanceInCurrencyProvider', 'currency'),
+              _buildBalanceConsumer(ref, subtitleFontSize, balanceInFiatName, 'currency'),
             ],
           ),
         ),
@@ -57,8 +57,8 @@ Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName
     case 'totalBalanceInDenominationProvider':
       balance = ref.watch(totalBalanceInDenominationProvider(settings.btcFormat));
       break;
-    case 'totalBalanceInCurrencyProvider':
-      balance = ref.watch(totalBalanceInCurrencyProvider(settings.currency));
+    case 'totalBalanceInFiatProvider':
+      balance = ref.watch(totalBalanceInFiatProvider(settings.currency));
       break;
     default:
       throw Exception('Invalid providerName: $providerName');

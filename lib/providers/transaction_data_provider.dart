@@ -7,6 +7,30 @@ final addressAndAmountProvider = FutureProvider.autoDispose.family<AddressAndAmo
   return parseAddressAndAmount(address);
 });
 
+final validateBitcoinAddressProvider = FutureProvider.autoDispose.family<bool, String>((ref, address) async {
+  try {
+    return isValidBitcoinAddress(address);
+  } catch (e) {
+    return false;
+  }
+});
+
+final validateLiquidAddressProvider = FutureProvider.autoDispose.family<bool, String>((ref, address) async {
+  try {
+    return isValidLiquidAddress(address);
+  } catch (e) {
+    return false;
+  }
+});
+
+final validateLightningInvoiceProvider = FutureProvider.autoDispose.family<bool, String>((ref, invoice) async {
+  try {
+    return isValidLightningAddress(invoice);
+  } catch (e) {
+    return false;
+  }
+});
+
 final setAddressAndAmountProvider = FutureProvider.autoDispose.family<AddressAndAmount, String>((ref, address) async {
   try {
     final addressAndAmount = await ref.read(addressAndAmountProvider(address).future);

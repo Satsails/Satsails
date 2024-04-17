@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:satsails/helpers/asset_mapper.dart';
 import 'package:satsails/models/balance_model.dart';
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
@@ -13,6 +13,7 @@ import 'package:satsails/providers/settings_provider.dart';
 import 'package:satsails/providers/transaction_data_provider.dart';
 import 'package:satsails/screens/shared/copy_text.dart';
 import 'package:satsails/screens/shared/qr_code.dart';
+import 'package:satsails/screens/shared/qr_view_widget.dart';
 
 class Accounts extends StatelessWidget {
   const Accounts({Key? key}) : super(key: key);
@@ -61,7 +62,7 @@ class Accounts extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        _buildListTile('Bitcoin', btcBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress, bitcoinInCurrency, currency, format),
+                        _buildListTile('Bitcoin', btcBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress, bitcoinInCurrency, currency, format, ref),
                       ],
                     ),
                   ),
@@ -99,11 +100,11 @@ class Accounts extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        _buildListTile('Liquid', liquidBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, liquid, liquidInCurrency, currency, format),
-                        _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, liquid, '', '', ''),
-                        _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, liquid, '', '', ''),
-                        _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, liquid, '', '', ''),
-                        _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, liquid, '', '', ''),
+                        _buildListTile('Liquid', liquidBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, liquid, liquidInCurrency, currency, format, ref),
+                        _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, liquid, '', '', '', ref),
+                        _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, liquid, '', '', '', ref),
+                        _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, liquid, '', '', '', ref),
+                        _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, liquid, '', '', '', ref),
                       ],
                     ),
                   ),
@@ -116,7 +117,7 @@ class Accounts extends StatelessWidget {
     );
   }
 
-  Widget _buildListTile(String title, String trailing, icon, BuildContext context, bitcoin, String balance, String denomination, String format) {
+  Widget _buildListTile(String title, String trailing, icon, BuildContext context, bitcoin, String balance, String denomination, String format, WidgetRef ref) {
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
@@ -142,7 +143,29 @@ class Accounts extends StatelessWidget {
                 child: const Icon(Icons.arrow_downward, color: Colors.white),
               ),
               TextButton(
-                onPressed: () {Navigator.pushNamed(context, '/pay');},
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20.0),
+                        topRight: Radius.circular(20.0),
+                      ),
+                    ),
+                    builder: (BuildContext context) {
+                      return ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(20.0),
+                          topRight: Radius.circular(20.0),
+                        ),
+                        child: QRViewWidget(
+                          qrKey: GlobalKey(debugLabel: 'QR'),
+                          ref: ref,
+                        ),
+                      );
+                    },
+                  );
+                },
                 child: const Icon(Icons.arrow_upward, color: Colors.white),
               ),
             ],

@@ -51,7 +51,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
     final liquidBox = await Hive.openBox('liquid');
     for (var balance in balances){
       switch (AssetMapper.mapAsset(balance.assetId)){
-        case 'USD':
+        case AssetId.USD:
           balance = balance.value ~/ 100000000;
           if (balance == 0){
             break;
@@ -59,7 +59,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           liquidBox.put('usd', balance);
           balanceModel.updateUsdBalance(balance);
           break;
-        case 'EUR':
+        case AssetId.EUR:
           balance = balance.value ~/ 100000000;
           if (balance == 0){
             break;
@@ -67,7 +67,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           liquidBox.put('eur', balance);
           balanceModel.updateEurBalance(balance);
           break;
-        case 'BRL':
+        case AssetId.BRL:
           balance = balance.value ~/ 100000000;
           if (balance == 0){
             break;
@@ -75,14 +75,15 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           liquidBox.put('brl', balance);
           balanceModel.updateBrlBalance(balance);
           break;
-        case 'L-BTC':
+        case AssetId.LBTC:
           if (balance.value == 0){
             break;
           }
           liquidBox.put('liquid', balance.value);
           balanceModel.updateLiquidBalance(balance.value);
           break;
-
+        default:
+          break;
       }
     }
   }
