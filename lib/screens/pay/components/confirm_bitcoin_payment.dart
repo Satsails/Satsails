@@ -19,7 +19,7 @@ final textEditingControllerProvider = StateNotifierProvider<TextEditingControlle
 });
 
 class ConfirmBitcoinPayment extends ConsumerWidget {
-  ConfirmBitcoinPayment({super.key});
+  const ConfirmBitcoinPayment({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,6 +35,9 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(settingsValue));
     controller.text = sendTxState.amount.toString();
 
+    final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
+    final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
+    final dynamicMargin = MediaQuery.of(context).size.width * 0.05;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -53,7 +56,7 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(15.0),
                   ),
                   elevation: 10,
-                  margin: EdgeInsets.all(cardMargin),
+                  margin: EdgeInsets.all(dynamicMargin),
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
@@ -64,7 +67,7 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: cardPadding, horizontal: cardPadding / 2),
+                      padding: EdgeInsets.symmetric(vertical: dynamicPadding, horizontal: dynamicPadding / 2),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -108,7 +111,7 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                   child: TextFormField(
                     controller: controller,
                     keyboardType: TextInputType.number,
-                    style: const TextStyle(fontSize: 60),
+                    style: TextStyle(fontSize: dynamicFontSize * 3),
                     textAlign: TextAlign.center,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
@@ -135,11 +138,11 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                       controller.text = ref.watch(balanceNotifierProvider).btcBalance.toString();
                     },
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding: EdgeInsets.symmetric(horizontal: dynamicPadding, vertical: dynamicPadding / 2),
                       child: Text(
                         'Max',
                         style: TextStyle(
-                          fontSize: 20, // font size
+                          fontSize: dynamicFontSize, // font size
                           fontWeight: FontWeight.bold, // font weight
                           color: Colors.white,
                         ),
@@ -148,7 +151,7 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 60),
+              SizedBox(height: dynamicFontSize * 3),
               SfSlider(
                 min: 1,
                 max: 10,
@@ -165,7 +168,7 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                   ref.refresh(getCustomFeeRateProvider);
                 },
               ),
-              SizedBox(height: 60),
+              SizedBox(height: dynamicFontSize * 3),
               ref.watch(getCustomFeeRateProvider).when(
                 data: (FeeRate feeRate) {
                   return Column(
@@ -190,7 +193,7 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
                                 '${feeRate.asSatPerVb().toStringAsFixed(0)} sats/vbyte',
-                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                                style: TextStyle(fontSize: dynamicFontSize, fontWeight: FontWeight.bold, color: Colors.white),
                                 textAlign: TextAlign.center,
                               ),
                             ),
@@ -202,7 +205,7 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                 },
                 loading: () => Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: LoadingAnimationWidget.prograssiveDots(size: 20, color: Colors.black),
+                  child: LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize, color: Colors.black),
                 ),
                 error: (error, stack) => Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -220,19 +223,21 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
             right: 0,
             child: Padding(
               padding: const EdgeInsets.all(15.0),
-              child: ActionSlider.standard(
-                sliderBehavior: SliderBehavior.stretch,
-                width: double.infinity,
-                backgroundColor: Colors.white,
-                toggleColor: Colors.deepOrangeAccent,
-                action: (controller) async {
-                  controller.loading();
-                  await Future.delayed(const Duration(seconds: 3));
-                  controller.success();
-                  await Future.delayed(const Duration(seconds: 1));
-                  controller.reset();
-                },
-                child: const Text('Slide to confirm'),
+              child: Center(
+                child: ActionSlider.standard(
+                  sliderBehavior: SliderBehavior.stretch,
+                  width: double.infinity,
+                  backgroundColor: Colors.white,
+                  toggleColor: Colors.deepOrangeAccent,
+                  action: (controller) async {
+                    controller.loading();
+                    await Future.delayed(const Duration(seconds: 3));
+                    controller.success();
+                    await Future.delayed(const Duration(seconds: 1));
+                    controller.reset();
+                  },
+                  child: const Text('Slide to confirm'),
+                ),
               ),
             ),
           ),
