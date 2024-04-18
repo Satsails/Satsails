@@ -55,14 +55,18 @@ class BitcoinModel {
   }
 
   Future<TxBuilderResult> buildBitcoinTransaction(TransactionBuilder transaction) async {
-    final txBuilder = TxBuilder();
-    final address = await Address.create(address: transaction.outAddress);
-    final script = await address.scriptPubKey();
-    final txBuilderResult = await txBuilder
-        .addRecipient(script, transaction.amount)
-        .feeRate(transaction.fee.asSatPerVb())
-        .finish(config.wallet);
-    return txBuilderResult;
+    try{
+      final txBuilder = TxBuilder();
+      final address = await Address.create(address: transaction.outAddress);
+      final script = await address.scriptPubKey();
+      final txBuilderResult = await txBuilder
+          .addRecipient(script, transaction.amount)
+          .feeRate(transaction.fee.asSatPerVb())
+          .finish(config.wallet);
+      return txBuilderResult;
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   Future<PartiallySignedTransaction> signBitcoinTransaction(TxBuilderResult txBuilderResult) async {

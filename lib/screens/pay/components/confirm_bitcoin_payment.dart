@@ -1,39 +1,46 @@
 import 'package:bdk_flutter/bdk_flutter.dart';
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:satsails/models/bitcoin_model.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import '../../../providers/balance_provider.dart';
 import 'package:action_slider/action_slider.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:interactive_slider/interactive_slider.dart';
 
-class TextEditingControllerNotifier extends StateNotifier<TextEditingController> {
-  TextEditingControllerNotifier() : super(TextEditingController());
-}
-
-final textEditingControllerProvider = StateNotifierProvider<TextEditingControllerNotifier, TextEditingController>((ref) {
-  return TextEditingControllerNotifier();
+final inputValueProvider = StateProvider<String>((ref) {
+  final sendTxState = ref.watch(sendTxProvider);
+  if (sendTxState.amount != 0) {
+    return (sendTxState.amount / 100000000).toStringAsFixed(8);
+  }else {
+    return '';
+  }
 });
 
-class ConfirmBitcoinPayment extends ConsumerWidget {
-  const ConfirmBitcoinPayment({super.key});
+class ConfirmBitcoinPayment extends HookConsumerWidget {
+  ConfirmBitcoinPayment({super.key});
+  final controller = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(textEditingControllerProvider);
-    final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final cardMargin = screenWidth * 0.05;
-    final cardPadding = screenWidth * 0.04;
     final titleFontSize = screenHeight * 0.03;
     final sendTxState = ref.watch(sendTxProvider);
     final initializeBalance = ref.watch(initializeBalanceProvider);
-    final settingsValue = ref.watch(settingsProvider).btcFormat;
-    final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(settingsValue));
-    controller.text = sendTxState.amount.toString();
+    final btcFormart = ref.watch(settingsProvider).btcFormat;
+    final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormart));
+    final selectedCurrency = ref.watch(sendCurrencyProvider);
+
+    useEffect(() {
+      Future.microtask(() => controller.text = ref.watch(inputValueProvider));
+    }, [selectedCurrency]);
 
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
@@ -73,7 +80,7 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                         children: [
                           const Text('Bitcoin Balance', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                           initializeBalance.when(
-                              data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('$btcBalanceInFormat $settingsValue', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
+                              data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('$btcBalanceInFormat $btcFormart', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                               loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                               error: (error, stack) => SizedBox(height: titleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))))
                           ),
@@ -111,20 +118,34 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                   child: TextFormField(
                     controller: controller,
                     keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      CurrencyTextInputFormatter.currency(
+                        decimalDigits: 8,
+                        symbol: '',
+                      ),
+                    ],
                     style: TextStyle(fontSize: dynamicFontSize * 3),
                     textAlign: TextAlign.center,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      hintText: '0',
+                      hintText: '0.00000000',
                     ),
+                    enabled: sendTxState.amount == 0,
+                    onChanged: (value) {
+                      ref.read(sendTxProvider.notifier).updateAmount(int.parse(value));
+                    },
                   ),
                 ),
               ),
               const SizedBox(width: 20),
+              // show error if amount is greater than balance or if amount is 0 or if amount to send is < than dust limit
+              // max only shows discounted with fee
+              // calculate the actual fee on the bottom
+              // must show usd value of the amount to send and fee
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [Colors.orange, Colors.deepOrange],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -135,7 +156,8 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10),
                     onTap: () {
-                      controller.text = ref.watch(balanceNotifierProvider).btcBalance.toString();
+                      controller.text = ref.watch(btcBalanceInFormatProvider('BTC'));
+                      ref.read(sendTxProvider.notifier).updateAmount(int.parse(controller.text));
                     },
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: dynamicPadding, vertical: dynamicPadding / 2),
@@ -152,23 +174,31 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                 ),
               ),
               SizedBox(height: dynamicFontSize * 3),
-              SfSlider(
-                min: 1,
-                max: 10,
-                interval: 1,
-                value: ref.watch(sendBlocksProvider),
-                stepSize: 1,
-                showTicks: true,
-                showLabels: true,
-                activeColor: Colors.deepOrange,
-                inactiveColor: Colors.orange[200],
-                labelPlacement: LabelPlacement.onTicks,
+              InteractiveSlider(
+                centerIcon: Icon(Clarity.block_solid, color: Colors.black),
+                foregroundColor: Colors.deepOrange,
+                unfocusedHeight: dynamicFontSize * 2,
+                focusedHeight: dynamicFontSize * 2,
+                initialProgress: 15,
+                min: 15.0,
+                max: 1.0,
                 onChanged: (dynamic value){
                   ref.read(sendBlocksProvider.notifier).state = value;
                   ref.refresh(getCustomFeeRateProvider);
                 },
               ),
-              SizedBox(height: dynamicFontSize * 3),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text(
+                  'Transaction in ~ ${ref.watch(sendBlocksProvider).toInt() * 10} minutes',
+                  style: TextStyle(
+                    fontSize: dynamicFontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(height: dynamicFontSize * 2),
               ref.watch(getCustomFeeRateProvider).when(
                 data: (FeeRate feeRate) {
                   return Column(
@@ -182,7 +212,7 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                           elevation: 10,
                           child: Container(
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
+                              gradient: const LinearGradient(
                                 colors: [Colors.orange, Colors.deepOrange],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
@@ -232,11 +262,22 @@ class ConfirmBitcoinPayment extends ConsumerWidget {
                   action: (controller) async {
                     controller.loading();
                     await Future.delayed(const Duration(seconds: 3));
-                    controller.success();
-                    await Future.delayed(const Duration(seconds: 1));
-                    controller.reset();
+                    final transaction = TransactionBuilder(
+                      sendTxState.amount,
+                      sendTxState.address,
+                      await ref.watch(getCustomFeeRateProvider.future).then((value) => value),
+                    );
+                    try {
+                      final result = await ref.watch(buildBitcoinTransactionProvider(transaction).future);
+                      final signedPsbt = await ref.watch(signBitcoinPsbtProvider(transaction).future);
+                      // await ref.watch(broadcastBitcoinTransactionProvider(signedPsbt).future);
+                    } catch (e) {
+                      controller.failure();
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                      controller.reset();
+                    }
                   },
-                  child: const Text('Slide to confirm'),
+                  child: const Text('Slide to send'),
                 ),
               ),
             ),

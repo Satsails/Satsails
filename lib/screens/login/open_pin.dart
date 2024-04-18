@@ -14,46 +14,49 @@ class OpenPin extends ConsumerWidget {
     WidgetsBinding.instance?.addPostFrameCallback((_) =>
         _checkBiometrics(context));
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Center(child: Text('Enter PIN')),
-        automaticallyImplyLeading: false,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              PinCodeTextField(
-                appContext: context,
-                length: 6,
-                obscureText: true,
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  _pinController.text = value;
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a PIN';
-                  } else if (value.length != 6) {
-                    return 'PIN must be exactly 6 digits';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              CustomButton(text: 'Unlock', onPressed: () => _checkPin(context, ref)),
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () => _showConfirmationDialog(context, ref),
-                child: const Text(
-                  'Forgot PIN',
-                  style: TextStyle(fontSize: 20.0, color: Colors.blue),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: const Center(child: Text('Enter PIN')),
+          automaticallyImplyLeading: false,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                PinCodeTextField(
+                  appContext: context,
+                  length: 6,
+                  obscureText: true,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    _pinController.text = value;
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a PIN';
+                    } else if (value.length != 6) {
+                      return 'PIN must be exactly 6 digits';
+                    }
+                    return null;
+                  },
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                CustomButton(text: 'Unlock', onPressed: () => _checkPin(context, ref)),
+                const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () => _showConfirmationDialog(context, ref),
+                  child: const Text(
+                    'Forgot PIN',
+                    style: TextStyle(fontSize: 20.0, color: Colors.blue),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

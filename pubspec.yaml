@@ -42,7 +42,9 @@ dependencies:
   liquid_pull_to_refresh: ^3.0.1
   bolt11_decoder: ^1.0.2
   action_slider: ^0.7.0
-  syncfusion_flutter_sliders: ^25.1.40
+  hooks_riverpod: ^2.5.1
+  interactive_slider: ^0.2.1
+  currency_text_input_formatter: ^2.2.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

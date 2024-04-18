@@ -7,7 +7,7 @@ final sendTxProvider = StateNotifierProvider<SendTxModel, SendTx>((ref) {
 });
 
 final sendCurrencyProvider = StateProvider<String>((ref) {
-  return 'btc';
+  return 'BTC';
 });
 
 final sendBlocksProvider = StateProvider<double>((ref) {

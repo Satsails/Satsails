@@ -20,10 +20,13 @@ class Home extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: _buildAppBar(context, ref),
-      body: SafeArea(child: _buildBody(context, ref)),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: _buildAppBar(context, ref),
+        body: SafeArea(child: _buildBody(context, ref)),
+      ),
     );
   }
 

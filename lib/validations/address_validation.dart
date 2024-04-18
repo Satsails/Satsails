@@ -64,6 +64,9 @@ Future<AddressAndAmount>  parseAddressAndAmount(String data) async {
     for (var param in params) {
       var keyValue = param.split('=');
       if (keyValue[0] == 'amount') {
+        if (keyValue[1].contains('&lightning')) {
+          keyValue[1] = keyValue[1].split('&lightning')[0];
+        }
         amount = (double.parse(keyValue[1]) * 1e8).toInt();
       } else if (keyValue[0] == 'lightning') {
         lightningInvoice = keyValue[1];

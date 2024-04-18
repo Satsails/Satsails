@@ -40,15 +40,17 @@ class TransactionDetails {
         confirmationTime = bdkTransactionDetails.confirmationTime != null
             ? BlockTime.fromBdk(bdkTransactionDetails.confirmationTime!)
             : null;
+
 }
 
 @HiveType(typeId: 2)
 class BlockTime {
   @HiveField(0)
-  final int height;
+  // try dynamic
+  final dynamic height;
 
   @HiveField(1)
-  final int timestamp;
+  final dynamic timestamp;
 
   const BlockTime({
     required this.height,
