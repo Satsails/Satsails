@@ -1,11 +1,9 @@
-import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:satsails/models/bitcoin_model.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
@@ -14,13 +12,15 @@ import 'package:action_slider/action_slider.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:interactive_slider/interactive_slider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-final inputValueProvider = StateProvider<String>((ref) {
+final inputValueProvider = StateProvider.autoDispose<double>((ref) {
   final sendTxState = ref.watch(sendTxProvider);
   if (sendTxState.amount != 0) {
-    return (sendTxState.amount / 100000000).toStringAsFixed(8);
+    ref.read(sendAmountProvider.notifier).state = sendTxState.amount;
+    return (sendTxState.amount / 100000000);
   }else {
-    return '';
+    return 0;
   }
 });
 
@@ -36,15 +36,18 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
     final initializeBalance = ref.watch(initializeBalanceProvider);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormart));
-    final selectedCurrency = ref.watch(sendCurrencyProvider);
+    final sendAmount = ref.watch(sendAmountProvider.notifier);
+
 
     useEffect(() {
-      Future.microtask(() => controller.text = ref.watch(inputValueProvider));
-    }, [selectedCurrency]);
+      Future.microtask(() => controller.text = ref.watch(inputValueProvider).toStringAsFixed(8));
+    }, []);
+
 
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final dynamicMargin = MediaQuery.of(context).size.width * 0.05;
+    final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -113,7 +116,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(top: 10.0),
                 child: FocusScope(
                   child: TextFormField(
                     controller: controller,
@@ -130,18 +133,22 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                       border: InputBorder.none,
                       hintText: '0.00000000',
                     ),
-                    enabled: sendTxState.amount == 0,
-                    onChanged: (value) {
-                      ref.read(sendTxProvider.notifier).updateAmount(int.parse(value));
-                    },
+                    onChanged: (value) async {
+                      ref.read(sendAmountProvider.notifier).state = ((double.parse(value) * 100000000).toInt());
+                      },
                   ),
                 ),
               ),
-              const SizedBox(width: 20),
-              // show error if amount is greater than balance or if amount is 0 or if amount to send is < than dust limit
-              // max only shows discounted with fee
-              // calculate the actual fee on the bottom
-              // must show usd value of the amount to send and fee
+              SizedBox(height: dynamicSizedBox),
+              Text(
+                '~ ${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
+                style: TextStyle(
+                  fontSize: dynamicFontSize,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: dynamicSizedBox),
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
@@ -155,17 +162,22 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10),
-                    onTap: () {
-                      controller.text = ref.watch(btcBalanceInFormatProvider('BTC'));
-                      ref.read(sendTxProvider.notifier).updateAmount(int.parse(controller.text));
+                    onTap: () async {
+                      final balance = await ref.watch(balanceNotifierProvider).btcBalance;
+                      final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(sendAmount.state).future).then((value) => value);
+                      final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future);
+                      final fee = transaction.txDetails.fee!;
+                      final amountToSet = (balance - fee).toDouble() / 100000000;
+                      controller.text = amountToSet.toStringAsFixed(8);
+                      ref.read(sendAmountProvider.notifier).state = (amountToSet * 100000000).toInt();
                     },
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: dynamicPadding, vertical: dynamicPadding / 2),
                       child: Text(
                         'Max',
                         style: TextStyle(
-                          fontSize: dynamicFontSize, // font size
-                          fontWeight: FontWeight.bold, // font weight
+                          fontSize: dynamicFontSize,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
@@ -173,7 +185,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                   ),
                 ),
               ),
-              SizedBox(height: dynamicFontSize * 3),
+              SizedBox(height: dynamicSizedBox),
               InteractiveSlider(
                 centerIcon: Icon(Clarity.block_solid, color: Colors.black),
                 foregroundColor: Colors.deepOrange,
@@ -184,7 +196,6 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                 max: 1.0,
                 onChanged: (dynamic value){
                   ref.read(sendBlocksProvider.notifier).state = value;
-                  ref.refresh(getCustomFeeRateProvider);
                 },
               ),
               Padding(
@@ -198,39 +209,35 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: dynamicFontSize * 2),
-              ref.watch(getCustomFeeRateProvider).when(
-                data: (FeeRate feeRate) {
-                  return Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
+              SizedBox(height: dynamicSizedBox),
+              ref.watch(feeProvider).when(
+                data: (int fee) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      elevation: 10,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Colors.orange, Colors.deepOrange],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                          elevation: 10,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Colors.orange, Colors.deepOrange],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                '${feeRate.asSatPerVb().toStringAsFixed(0)} sats/vbyte',
-                                style: TextStyle(fontSize: dynamicFontSize, fontWeight: FontWeight.bold, color: Colors.white),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'Fee: ' + fee.toString() + ' sats',
+                            style: TextStyle(fontSize: dynamicFontSize, fontWeight: FontWeight.bold, color: Colors.white),
+                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   );
                 },
                 loading: () => Padding(
@@ -239,11 +246,23 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                 ),
                 error: (error, stack) => Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: TextButton(
-                    onPressed: () { ref.refresh(getCustomFeeRateProvider); },
-                    child: const Text('Retry', style: TextStyle(color: Colors.red)),
-                  ),
+                  child:  TextButton(onPressed: () { ref.refresh(feeProvider); }, child: Text(ref.watch(sendAmountProvider.notifier).state == 0 ? '' : error.toString(), style: TextStyle(color: Colors.black, fontSize: dynamicFontSize))),
                 ),
+              ),
+              SizedBox(height: dynamicSizedBox),
+              ref.watch(feeValueInCurrencyProvider).when(
+                data: (double feeValue) {
+                  return Text(
+                    '~ ${feeValue.toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
+                    style: TextStyle(
+                      fontSize: dynamicFontSize,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  );
+                },
+                loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize, color: Colors.black),
+                error: (error, stack) => Text('')
               ),
             ],
           ),
@@ -262,18 +281,15 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                   action: (controller) async {
                     controller.loading();
                     await Future.delayed(const Duration(seconds: 3));
-                    final transaction = TransactionBuilder(
-                      sendTxState.amount,
-                      sendTxState.address,
-                      await ref.watch(getCustomFeeRateProvider.future).then((value) => value),
-                    );
                     try {
-                      final result = await ref.watch(buildBitcoinTransactionProvider(transaction).future);
-                      final signedPsbt = await ref.watch(signBitcoinPsbtProvider(transaction).future);
-                      // await ref.watch(broadcastBitcoinTransactionProvider(signedPsbt).future);
+                      ref.watch(sendTxProvider.notifier).updateAmount(sendAmount.state);
+                      await ref.watch(sendBitcoinTransactionProvider.future);
+                      controller.success();
+                      Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                      Navigator.pushNamed(context, '/home');
                     } catch (e) {
                       controller.failure();
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                      Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                       controller.reset();
                     }
                   },

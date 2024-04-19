@@ -1,27 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:satsails/providers/transaction_data_provider.dart';
+
 
 class QRViewWidget extends StatelessWidget {
   final GlobalKey qrKey;
   final WidgetRef ref;
 
   QRViewWidget({required this.qrKey, required this.ref});
-
-  void showInvalidAddressSnackBar(BuildContext context) {
-    final snackBar = SnackBar(
-      content: const Text('The address you scanned is not valid.'),
-      action: SnackBarAction(
-        label: 'OK',
-        onPressed: () {
-          // Do something, if needed
-        },
-      ),
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
 
   void onQRViewCreated(QRViewController controller, BuildContext context) {
     controller.scannedDataStream.listen((scanData) async {
@@ -30,7 +18,15 @@ class QRViewWidget extends StatelessWidget {
         Navigator.pushNamed(context, '/confirm_bitcoin_payment');
       }
       catch (e) {
-        showInvalidAddressSnackBar(context);
+        Fluttertoast.showToast(
+          msg: 'Error scanning QR code',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
       }
     });
   }

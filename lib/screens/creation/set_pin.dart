@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:satsails/providers/auth_provider.dart';
 import 'package:satsails/screens/shared/custom_button.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SetPin extends ConsumerWidget {
   const SetPin({Key? key}) : super(key: key);
@@ -51,10 +52,14 @@ class SetPin extends ConsumerWidget {
                       }
                       Navigator.pushReplacementNamed(context, '/home');
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please enter a valid 6 digit pin'),
-                        ),
+                      Fluttertoast.showToast(
+                        msg: 'Please enter a 6 digit PIN',
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.TOP,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                        fontSize: 16.0,
                       );
                     }
                   },

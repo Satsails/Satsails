@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/providers/auth_provider.dart';
 import 'package:satsails/screens/shared/custom_button.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class RecoverWalletState extends StateNotifier<RecoverWalletData> {
   RecoverWalletState() : super(RecoverWalletData());
@@ -110,10 +111,14 @@ class RecoverWallet extends ConsumerWidget {
                         await authModel.setMnemonic(mnemonic);
                         Navigator.pushNamed(context, '/set_pin');
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Invalid mnemonic'),
-                          ),
+                        Fluttertoast.showToast(
+                          msg: 'Invalid mnemonic',
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.TOP,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
                         );
                       }
                     }

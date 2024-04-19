@@ -4,6 +4,7 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:satsails/providers/auth_provider.dart';
 import 'package:satsails/screens/shared/custom_button.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class OpenPin extends ConsumerWidget {
   final TextEditingController _pinController = TextEditingController();
@@ -69,10 +70,14 @@ class OpenPin extends ConsumerWidget {
     if (pinText == _pinController.text) {
       Navigator.pushReplacementNamed(context, '/home');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid PIN'),
-        ),
+      Fluttertoast.showToast(
+          msg: 'Invalid PIN',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
       );
     }
   }

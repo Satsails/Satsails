@@ -60,12 +60,28 @@ class BitcoinModel {
       final address = await Address.create(address: transaction.outAddress);
       final script = await address.scriptPubKey();
       final txBuilderResult = await txBuilder
-          .addRecipient(script, transaction.amount)
+          .addRecipient(script, transaction.amount!)
           .feeRate(transaction.fee.asSatPerVb())
           .finish(config.wallet);
       return txBuilderResult;
-    } catch (e) {
-      throw Exception(e);
+    } on GenericException catch (e) {
+      throw e.message!;
+    } on InsufficientFundsException catch (e) {
+      throw "Insufficient funds";
+    } on OutputBelowDustLimitException catch (_) {
+      throw 'Amount is too small';
+    }
+  }
+
+  Future<TxBuilderResult> drainWalletBitcoinTransaction(TransactionBuilder transaction) async {
+    try{
+      final txBuilder = TxBuilder();
+      final address = await Address.create(address: transaction.outAddress);
+      final script = await address.scriptPubKey();
+      final txBuilderResult = await txBuilder.drainWallet().feeRate(transaction.fee.asSatPerVb()).drainTo(script).finish(config.wallet);
+      return txBuilderResult;
+    } on GenericException catch (e) {
+      throw e.message!;
     }
   }
 

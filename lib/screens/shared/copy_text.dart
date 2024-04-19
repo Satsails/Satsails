@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 Widget buildAddressText(String address, BuildContext context) {
   return Padding(
@@ -7,14 +8,14 @@ Widget buildAddressText(String address, BuildContext context) {
     child: InkWell(
       onTap: () {
         Clipboard.setData(ClipboardData(text: address));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Address copied to clipboard: $address'),
-            action: SnackBarAction(
-              label: 'OK',
-              onPressed: ScaffoldMessenger.of(context).hideCurrentSnackBar,
-            ),
-          ),
+        Fluttertoast.showToast(
+          msg: 'Address copied to clipboard',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black.withOpacity(0.7),
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       },
       child: AnimatedContainer(

@@ -86,7 +86,6 @@ final getSlowFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) {
 });
 
 final getCustomFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) {
-  ref.watch(sendBlocksProvider.select((value) => value));
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     final blocks = ref.watch(sendBlocksProvider.notifier).state.toInt();
@@ -97,6 +96,12 @@ final getCustomFeeRateProvider = FutureProvider.autoDispose<FeeRate>((ref) {
 final buildBitcoinTransactionProvider = FutureProvider.autoDispose.family<TxBuilderResult, TransactionBuilder>((ref, transaction) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     return BitcoinModel(bitcoin).buildBitcoinTransaction(transaction);
+  });
+});
+
+final buildDrainWalletBitcoinTransactionProvider = FutureProvider.autoDispose.family<TxBuilderResult, TransactionBuilder>((ref, transaction) {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
+    return BitcoinModel(bitcoin).drainWalletBitcoinTransaction(transaction);
   });
 });
 
@@ -114,13 +119,10 @@ final broadcastBitcoinTransactionProvider = FutureProvider.autoDispose.family<vo
   });
 });
 
-final sendBitcoinTransactionProvider = FutureProvider.autoDispose.family<void, SendTx>((ref, params) async {
+final sendBitcoinTransactionProvider = FutureProvider.autoDispose<void>((ref) async {
   final feeRate = await ref.watch(getCustomFeeRateProvider.future);
-  final TransactionBuilder transactionBuilder = TransactionBuilder(
-    params.amount,
-    params.address,
-    feeRate,
-  );
+  final sendTx = ref.watch(sendTxProvider.notifier);
+  final transactionBuilder = TransactionBuilder(sendTx.state.amount, sendTx.state.address, feeRate);
   final signedPsbt = await ref.watch(signBitcoinPsbtProvider(transactionBuilder).future);
   return ref.watch(broadcastBitcoinTransactionProvider(signedPsbt).future);
 });

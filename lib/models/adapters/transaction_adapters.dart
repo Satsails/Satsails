@@ -37,8 +37,9 @@ class TransactionDetails {
         received = bdkTransactionDetails.received,
         sent = bdkTransactionDetails.sent,
         fee = bdkTransactionDetails.fee,
+        // something wrong here fix it
         confirmationTime = bdkTransactionDetails.confirmationTime != null
-            ? BlockTime.fromBdk(bdkTransactionDetails.confirmationTime!)
+            ? BlockTime.fromBdk(bdkTransactionDetails.confirmationTime as bdk.BlockTime)
             : null;
 
 }
@@ -46,11 +47,10 @@ class TransactionDetails {
 @HiveType(typeId: 2)
 class BlockTime {
   @HiveField(0)
-  // try dynamic
-  final dynamic height;
+  final int height;
 
   @HiveField(1)
-  final dynamic timestamp;
+  final int timestamp;
 
   const BlockTime({
     required this.height,

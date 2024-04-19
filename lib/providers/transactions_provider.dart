@@ -17,7 +17,7 @@ final initializeTransactionsProvider = FutureProvider<Transaction>((ref) async {
   );
 });
 
-final transactionNotifierProvider = StateNotifierProvider.autoDispose<TransactionModel, Transaction>((ref) {
+final transactionNotifierProvider = StateNotifierProvider<TransactionModel, Transaction>((ref) {
   final initialTransactions = ref.watch(initializeTransactionsProvider);
 
   return TransactionModel(initialTransactions.when(
