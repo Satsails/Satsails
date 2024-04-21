@@ -50,8 +50,12 @@ class BitcoinModel {
   }
 
   Future<FeeRate> estimateFeeRate(int blocks) async {
-    final feeRate = await config.blockchain!.estimateFee(blocks);
-    return feeRate;
+    try {
+      final feeRate = await config.blockchain!.estimateFee(blocks);
+      return feeRate;
+    } on TypeError catch (_){
+      throw "You are offline";
+    }
   }
 
   Future<TxBuilderResult> buildBitcoinTransaction(TransactionBuilder transaction) async {

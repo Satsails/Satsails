@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:satsails/models/address_model.dart';
+import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/providers/transaction_data_provider.dart';
 import 'package:satsails/screens/shared/qr_view_widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -17,7 +19,27 @@ class Pay extends ConsumerWidget {
     if (data != null){
       try {
         await ref.refresh(setAddressAndAmountProvider(data.text ?? '').future);
-        Navigator.pushNamed(context, '/confirm_bitcoin_payment');
+        switch (ref.read(sendTxProvider.notifier).state.type) {
+          case PaymentType.Bitcoin:
+            Navigator.pushNamed(context, '/confirm_bitcoin_payment');
+            break;
+          case PaymentType.Lightning:
+            Navigator.pushNamed(context, '/confirm_lightning_payment');
+            break;
+          case PaymentType.Liquid:
+            Navigator.pushNamed(context, '/confirm_liquid_payment');
+            break;
+          default:
+            Fluttertoast.showToast(
+              msg: 'Invalid address',
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+        }
       }
       catch (e) {
         Fluttertoast.showToast(

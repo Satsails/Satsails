@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/balance_model.dart';
@@ -56,17 +57,19 @@ class Home extends ConsumerWidget {
       children: [
         OfflineTransactionWarning(online: online),
         buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.24,
-          child: Consumer(builder: (context, watch, child) {
-            final initializeBalance = ref.watch(initializeBalanceProvider);
-            final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
-            return initializeBalance.when(
-              data: (_) => buildDiagram(context, percentageOfEachCurrency),
-              loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
-              error: (error, stack) => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
-            );
-          }),
+        Flexible(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.24,
+            child: Consumer(builder: (context, watch, child) {
+              final initializeBalance = ref.watch(initializeBalanceProvider);
+              final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
+              return initializeBalance.when(
+                data: (_) => buildDiagram(context, percentageOfEachCurrency),
+                loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
+                error: (error, stack) => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
+              );
+            }),
+          ),
         ),
         SizedBox(height: screenHeight * 0.05),
         SizedBox(

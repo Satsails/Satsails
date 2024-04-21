@@ -3,7 +3,22 @@ enum AssetId {
   LBTC,
   EUR,
   BRL,
-  UNKNOWN
+  UNKNOWN;
+
+  String get name {
+    switch (this) {
+      case AssetId.USD:
+        return 'USD';
+      case AssetId.LBTC:
+        return 'BTC';
+      case AssetId.EUR:
+        return 'EUR';
+      case AssetId.BRL:
+        return 'BRL';
+      default:
+        return 'UNKNOWN';
+    }
+  }
 }
 
 enum Ticker {

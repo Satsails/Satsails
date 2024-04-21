@@ -184,7 +184,7 @@ class BuildTransactions extends ConsumerWidget {
                 subtitle: Text(
                     "Fee: ${_transactionValueLiquid(transaction.fee, ref)}",
                     style: const TextStyle(fontSize: 14)),
-                trailing: transaction.timestamp > 0
+                trailing: transaction.outputs[0].height != null
                     ? const Icon(Icons.check_circle, color: Colors.green)
                     : const Icon(
                     Icons.access_alarm_outlined, color: Colors.red),
@@ -201,7 +201,7 @@ class BuildTransactions extends ConsumerWidget {
                     },
                     child: ListTile(
                       trailing: _subTransactionIcon(balance.value),
-                      title: Text(AssetMapper.mapAsset(balance.assetId).toString()),
+                      title: Text(AssetMapper.mapAsset(balance.assetId).name),
                       subtitle: Text(_valueOfLiquidSubTransaction(
                           AssetMapper.mapAsset(balance.assetId), balance.value, ref)),
                     ),

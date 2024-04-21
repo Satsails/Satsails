@@ -21,7 +21,6 @@ class OfflineTransactionWarning extends StatelessWidget {
             Icons.warning,
             color: Colors.orange,
           ),
-          SizedBox(width: 10),
           Text(
             'You are offline.',
             style: TextStyle(

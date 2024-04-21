@@ -303,6 +303,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_card_swiper:
+    dependency: "direct main"
+    description:
+      name: flutter_card_swiper
+      sha256: "05bbbc11a0f57a6b9294cebe857d4d3dfdfbdad4e1628f4dc910c317d9684319"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   flutter_hooks:
     dependency: transitive
     description:
@@ -727,14 +735,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.2"
-  msh_checkbox:
-    dependency: "direct main"
-    description:
-      name: msh_checkbox
-      sha256: f546b8d7b6c129a079c5d5d37217656bee417883b11cf506b5ef536915c81cab
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.1"
   nested:
     dependency: transitive
     description:
