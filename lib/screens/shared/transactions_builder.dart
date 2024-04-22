@@ -250,7 +250,7 @@ class BuildTransactions extends ConsumerWidget {
     } else if (transaction.received > 0 && transaction.sent == 0) {
       return 'Received';
     } else {
-      return 'Mixed';
+      return 'Redeposit';
     }
   }
 

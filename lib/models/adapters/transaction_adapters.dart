@@ -105,8 +105,12 @@ class BlockTimeAdapter extends TypeAdapter<BlockTime> {
 
   @override
   BlockTime read(BinaryReader reader) {
-    // Ideally, check if there is enough data to read or handle the exception
     try {
+      if (reader.availableBytes < 8) { // 4 bytes for each int
+        // Not enough bytes to read, return a default BlockTime
+        return BlockTime(height: 0, timestamp: 0);
+      }
+
       final int? height = reader.read();
       final int? timestamp = reader.read();
 
