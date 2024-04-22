@@ -14,16 +14,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:interactive_slider/interactive_slider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-final inputValueProvider = StateProvider.autoDispose<double>((ref) {
-  final sendTxState = ref.watch(sendTxProvider);
-  if (sendTxState.amount != 0) {
-    ref.read(sendAmountProvider.notifier).state = sendTxState.amount;
-    return (sendTxState.amount / 100000000);
-  }else {
-    return 0;
-  }
-});
-
 class ConfirmBitcoinPayment extends HookConsumerWidget {
   ConfirmBitcoinPayment({super.key});
   final controller = TextEditingController();
@@ -124,6 +114,8 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                     inputFormatters: <TextInputFormatter>[
                       CurrencyTextInputFormatter.currency(
                         decimalDigits: 8,
+                        enableNegative: false,
+                        maxValue: 1000,
                         symbol: '',
                       ),
                     ],
@@ -163,7 +155,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10),
                     onTap: () async {
-                      final balance = await ref.watch(balanceNotifierProvider).btcBalance;
+                      final balance = ref.watch(balanceNotifierProvider).btcBalance;
                       final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(sendAmount.state).future).then((value) => value);
                       final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future);
                       final fee = transaction.txDetails.fee!;

@@ -32,7 +32,8 @@ class LiquidModel {
   Future<String> build_lbtc_tx(TransactionBuilder params) async {
     final pset = await config.liquid.wallet.build_lbtc_tx(
       sats: params.amount,
-      outAddress: params.outAddress,
+      // outAddress: params.outAddress,
+      outAddress: 'lq1qq04wgtfhdl90yr0r22h25ymu6q6ctqjuwwgz3l4fvldrwh2clalxp56kgpxan9fe4tkhlqh9w0xx3h6ve2e5zeguzyr7lh7mv',
       absFee: params.fee,
     );
     return pset;
@@ -41,20 +42,16 @@ class LiquidModel {
   Future<String> build_asset_tx(TransactionBuilder params) async {
     final pset = await config.liquid.wallet.build_asset_tx(
       sats: params.amount,
-      outAddress: params.outAddress,
+      // outAddress: params.outAddress,
+      outAddress: 'lq1qq04wgtfhdl90yr0r22h25ymu6q6ctqjuwwgz3l4fvldrwh2clalxp56kgpxan9fe4tkhlqh9w0xx3h6ve2e5zeguzyr7lh7mv',
       absFee: params.fee,
       assetId: params.assetId,
     );
     return pset;
   }
 
-  Future<PsetAmounts> decode(Wallet wallet, String pset) async {
-    final decodedPset = await wallet.decode(pset: pset);
-    decodedPset.balances.forEach((balance) {
-      // implement
-      print('Balance: ${balance}');
-    });
-    // placeholder
+  Future<PsetAmounts> decode(String pset) async {
+    final decodedPset = await config.liquid.wallet.decode(pset: pset);
     return decodedPset;
   }
 

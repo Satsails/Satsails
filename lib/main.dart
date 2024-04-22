@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:satsails/providers/auth_provider.dart';
 import 'package:satsails/screens/creation/start.dart';
-import 'package:satsails/screens/pay/components/conform_liquid_payment.dart';
+import 'package:satsails/screens/pay/components/confirm_liquid_payment.dart';
 import 'package:satsails/screens/settings/components/seed_words.dart';
 import 'package:satsails/screens/settings/settings.dart';
 import 'package:satsails/screens/receive/receive.dart';
@@ -65,7 +65,7 @@ class MainApp extends ConsumerWidget {
           return Text('Error: ${snapshot.error}');
         } else {
           final mnemonic = snapshot.data;
-          final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/confirm_liquid_payment';
+          final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/open_pin';
 
 
           return MaterialApp(

@@ -5,6 +5,7 @@ import 'package:satsails/helpers/asset_mapper.dart';
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
+import 'package:satsails/providers/settings_provider.dart';
 import 'package:satsails/providers/transactions_provider.dart';
 
 class BackgroundSyncNotifier extends StateNotifier<void> {
@@ -35,10 +36,12 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
         final liquidBalance = await ref.refresh(liquidBalanceProvider.future);
         updateLiquidBalances(liquidBalance);
         ref.read(updateTransactionsProvider);
+        ref.read(settingsProvider.notifier).setOnline(true);
 
         break;
       } catch (e) {
         if (attempt == maxAttempts - 1) {
+          ref.read(settingsProvider.notifier).setOnline(false);
           rethrow;
         }
         attempt++;

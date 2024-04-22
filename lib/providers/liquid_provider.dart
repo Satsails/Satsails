@@ -63,6 +63,12 @@ final buildLiquidAssetTransactionProvider = FutureProvider.family.autoDispose<St
   });
 });
 
+final decodeLiquidPsetProvider = FutureProvider.family.autoDispose<PsetAmounts, String>((ref, pset) async {
+  final liquid = await ref.watch(initializeLiquidProvider.future);
+  final LiquidModel liquidModel = LiquidModel(liquid);
+  return await liquidModel.decode(pset);
+});
+
 final signLiquidPsetProvider = FutureProvider.family.autoDispose<Uint8List, String>((ref, pset) async {
   final liquid = await ref.watch(initializeLiquidProvider.future);
   final LiquidModel liquidModel = LiquidModel(liquid);

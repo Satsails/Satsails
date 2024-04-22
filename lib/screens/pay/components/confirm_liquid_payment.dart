@@ -17,31 +17,6 @@ import 'package:interactive_slider/interactive_slider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 
-final inputValueProvider = StateProvider.autoDispose<double>((ref) {
-  final sendTxState = ref.watch(sendTxProvider);
-  if (sendTxState.amount != 0) {
-    ref.read(sendAmountProvider.notifier).state = sendTxState.amount;
-    return (sendTxState.amount / 100000000);
-  }else {
-    return 0;
-  }
-});
-
-final currentCardIndexProvider = StateProvider.autoDispose<int>((ref) {
-  final sendTxState = ref.watch(sendTxProvider);
-  switch (sendTxState.assetId) {
-    case '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d':
-      return 0;
-    case '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189':
-      return 1;
-    case 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2':
-      return 2;
-    case '18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec':
-      return 3;
-    default:
-      return 0;
-  }
-});
 
 class ConfirmLiquidPayment extends HookConsumerWidget {
   ConfirmLiquidPayment({super.key});
@@ -61,6 +36,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final dynamicMargin = MediaQuery.of(context).size.width * 0.05;
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
+    final showBitcoinRelatedWidgets = ref.watch(showBitcoinRelatedWidgetsProvider.notifier);
 
     List<SizedBox> cards = [
       SizedBox(
@@ -221,17 +197,20 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
           ticker = Ticker.EUR;
           break;
         default:
-          ticker = Ticker.UNKNOWN;
+          ticker = Ticker.LBTC;
       }
       String assetId = AssetMapper.reverseMapTicker(ticker);
       ref.read(sendTxProvider.notifier).updateAssetId(assetId);
-      controller.text = '0.00000000';
       return true;
     }
 
     useEffect(() {
       Future.microtask(() => controller.text = ref.watch(inputValueProvider).toStringAsFixed(8));
     }, []);
+
+    useEffect(() {
+      controller.text = showBitcoinRelatedWidgets.state ? (sendAmount.state / 100000000).toStringAsFixed(8) : '0.00';
+    }, [showBitcoinRelatedWidgets.state]);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -285,7 +264,9 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                     keyboardType: TextInputType.number,
                     inputFormatters: <TextInputFormatter>[
                       CurrencyTextInputFormatter.currency(
-                        decimalDigits: 8,
+                        decimalDigits: showBitcoinRelatedWidgets.state ? 8 : 2,
+                        enableNegative: false,
+                        maxValue: showBitcoinRelatedWidgets.state ? 1000 : 1000000,
                         symbol: '',
                       ),
                     ],
@@ -296,26 +277,30 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                       hintText: '0.00000000',
                     ),
                     onChanged: (value) async {
+                      if (showBitcoinRelatedWidgets.state) {
+                        ref.read(sendAmountProvider.notifier).state = (double.parse(value)).toInt();
+                      }
                       ref.read(sendAmountProvider.notifier).state = ((double.parse(value) * 100000000).toInt());
                     },
                   ),
                 ),
               ),
               SizedBox(height: dynamicSizedBox),
-              Text(
-                '~ ${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
-                style: TextStyle(
-                  fontSize: dynamicFontSize,
-                  fontWeight: FontWeight.bold,
+              if(showBitcoinRelatedWidgets.state)
+                Text(
+                  '~ ${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
+                  style: TextStyle(
+                    fontSize: dynamicFontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
               SizedBox(height: dynamicSizedBox),
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   gradient: const LinearGradient(
-                    colors: [Colors.orange, Colors.deepOrange],
+                    colors: [Colors.blueAccent, Colors.deepPurple],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -325,10 +310,9 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10),
                     onTap: () async {
-                      final balance = await ref.watch(balanceNotifierProvider).btcBalance;
-                      final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(sendAmount.state).future).then((value) => value);
-                      final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future);
-                      final fee = transaction.txDetails.fee!;
+                      final balance = ref.watch(assetBalanceProvider);
+                       ref.read(sendAmountProvider.notifier).state = balance;
+                      final fee = await ref.watch(liquidFeeProvider.future);
                       final amountToSet = (balance - fee).toDouble() / 100000000;
                       controller.text = amountToSet.toStringAsFixed(8);
                       ref.read(sendAmountProvider.notifier).state = (amountToSet * 100000000).toInt();
@@ -350,7 +334,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
               SizedBox(height: dynamicSizedBox),
               InteractiveSlider(
                 centerIcon: Icon(Clarity.block_solid, color: Colors.black),
-                foregroundColor: Colors.deepOrange,
+                foregroundColor: Colors.blueAccent,
                 unfocusedHeight: dynamicFontSize * 2,
                 focusedHeight: dynamicFontSize * 2,
                 initialProgress: 15,
@@ -373,7 +357,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Colors.orange, Colors.deepOrange],
+                            colors: [Colors.blueAccent, Colors.deepPurple],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -428,7 +412,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                   sliderBehavior: SliderBehavior.stretch,
                   width: double.infinity,
                   backgroundColor: Colors.white,
-                  toggleColor: Colors.deepOrangeAccent,
+                  toggleColor: Colors.blueAccent,
                   action: (controller) async {
                     controller.loading();
                     await Future.delayed(const Duration(seconds: 3));
