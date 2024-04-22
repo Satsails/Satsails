@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:isolate';
 import 'package:bdk_flutter/bdk_flutter.dart';
+import 'package:http/http.dart';
 
 class BitcoinModel {
   final Bitcoin config;
@@ -49,12 +51,19 @@ class BitcoinModel {
     return res;
   }
 
-  Future<FeeRate> estimateFeeRate(int blocks) async {
+  Future<double> estimateFeeRate(int blocks) async {
     try {
-      final feeRate = await config.blockchain!.estimateFee(blocks);
-      return feeRate;
-    } on TypeError catch (_){
-      throw "You are offline";
+      Response response =
+      await get(Uri.parse('https://blockstream.info/api/fee-estimates'));
+      Map data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return data[blocks.toString()];
+      } else {
+        throw Exception("Getting estimated fees is not successful.");
+      }
+    } catch (_) {
+      rethrow;
     }
   }
 
@@ -65,7 +74,7 @@ class BitcoinModel {
       final script = await address.scriptPubKey();
       final txBuilderResult = await txBuilder
           .addRecipient(script, transaction.amount!)
-          .feeRate(transaction.fee.asSatPerVb())
+          .feeRate(transaction.fee)
           .finish(config.wallet);
       return txBuilderResult;
     } on GenericException catch (e) {
@@ -82,10 +91,14 @@ class BitcoinModel {
       final txBuilder = TxBuilder();
       final address = await Address.create(address: transaction.outAddress);
       final script = await address.scriptPubKey();
-      final txBuilderResult = await txBuilder.drainWallet().feeRate(transaction.fee.asSatPerVb()).drainTo(script).finish(config.wallet);
+      final txBuilderResult = await txBuilder.drainWallet().feeRate(transaction.fee).drainTo(script).finish(config.wallet);
       return txBuilderResult;
     } on GenericException catch (e) {
       throw e.message!;
+    }on InsufficientFundsException catch (_) {
+      throw "Insufficient funds for a transaction this fast";
+    } on OutputBelowDustLimitException catch (_) {
+      throw 'Amount is too small';
     }
   }
 
@@ -110,7 +123,7 @@ class Bitcoin {
 class TransactionBuilder {
   final int amount;
   final String outAddress;
-  final FeeRate fee;
+  final double fee;
 
   TransactionBuilder(this.amount, this.outAddress, this.fee);
 }

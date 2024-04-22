@@ -58,7 +58,7 @@ final feeProvider = FutureProvider.autoDispose<int>((ref) async {
 });
 
 final bitcoinTransactionBuilderProvider =  FutureProvider.autoDispose.family<bitcoinModel.TransactionBuilder, int>((ref, amount) async {
-  final FeeRate fee = await ref.read(bitcoinProvider.getCustomFeeRateProvider.future).then((value) => value);
+  final double fee = await ref.read(bitcoinProvider.getCustomFeeRateProvider.future).then((value) => value);
   final address = ref.watch(sendTxProvider.notifier).state.address;
   return bitcoinModel.TransactionBuilder(amount, address, fee);
 });

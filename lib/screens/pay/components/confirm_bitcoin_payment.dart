@@ -127,7 +127,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                     ),
                     onChanged: (value) async {
                       ref.read(sendAmountProvider.notifier).state = ((double.parse(value) * 100000000).toInt());
-                      },
+                    },
                   ),
                 ),
               ),
@@ -155,13 +155,18 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10),
                     onTap: () async {
-                      final balance = ref.watch(balanceNotifierProvider).btcBalance;
-                      final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(sendAmount.state).future).then((value) => value);
-                      final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future);
-                      final fee = transaction.txDetails.fee!;
-                      final amountToSet = (balance - fee).toDouble() / 100000000;
-                      controller.text = amountToSet.toStringAsFixed(8);
-                      ref.read(sendAmountProvider.notifier).state = (amountToSet * 100000000).toInt();
+                      try {
+                        final balance = ref.watch(balanceNotifierProvider).btcBalance;
+                        final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(sendAmount.state).future).then((value) => value);
+                        final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future);
+                        final fee = transaction.txDetails.fee!;
+                        final amountToSet = (balance - fee).toDouble() / 100000000;
+                        controller.text = amountToSet.toStringAsFixed(8);
+                        ref.read(sendAmountProvider.notifier).state = (amountToSet * 100000000).toInt();
+                      }
+                      catch (e) {
+                        Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                      }
                     },
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: dynamicPadding, vertical: dynamicPadding / 2),
@@ -184,7 +189,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                 unfocusedHeight: dynamicFontSize * 2,
                 focusedHeight: dynamicFontSize * 2,
                 initialProgress: 15,
-                min: 15.0,
+                min: 25.0,
                 max: 1.0,
                 onChanged: (dynamic value){
                   ref.read(sendBlocksProvider.notifier).state = value;
@@ -243,18 +248,18 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
               ),
               SizedBox(height: dynamicSizedBox),
               ref.watch(feeValueInCurrencyProvider).when(
-                data: (double feeValue) {
-                  return Text(
-                    '~ ${feeValue.toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
-                    style: TextStyle(
-                      fontSize: dynamicFontSize,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  );
-                },
-                loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize, color: Colors.black),
-                error: (error, stack) => Text('')
+                  data: (double feeValue) {
+                    return Text(
+                      '~ ${feeValue.toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
+                      style: TextStyle(
+                        fontSize: dynamicFontSize,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    );
+                  },
+                  loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize, color: Colors.black),
+                  error: (error, stack) => Text('')
               ),
             ],
           ),
