@@ -1,4 +1,3 @@
-import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/address_model.dart';
 import 'package:satsails/models/balance_model.dart';
@@ -14,11 +13,11 @@ final sendTxProvider = StateNotifierProvider<SendTxModel, SendTx>((ref) {
   return SendTxModel(SendTx(address: '', amount: 0, type: PaymentType.Unknown, assetId: '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d'));
 });
 
-final sendBlocksProvider = StateProvider<double>((ref) {
+final sendBlocksProvider = StateProvider.autoDispose<double>((ref) {
   return 1;
 });
 
-final sendAmountProvider = StateProvider<int>((ref) {
+final sendAmountProvider = StateProvider.autoDispose<int>((ref) {
   return 0;
 });
 
