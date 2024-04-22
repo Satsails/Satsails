@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/helpers/asset_mapper.dart';
-import 'package:satsails/providers/bitcoin_provider.dart';
+import 'package:satsails/providers/liquid_provider.dart';
 import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import '../../../providers/balance_provider.dart';
@@ -34,8 +34,9 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
     final sendAmount = ref.watch(sendAmountProvider.notifier);
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
-    final dynamicMargin = MediaQuery.of(context).size.width * 0.05;
+    final dynamicMargin = MediaQuery.of(context).size.width * 0.04;
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
+    final dynamicCardHeight = MediaQuery.of(context).size.height * 0.21;
     final showBitcoinRelatedWidgets = ref.watch(showBitcoinRelatedWidgetsProvider.notifier);
 
     List<SizedBox> cards = [
@@ -213,37 +214,38 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
     }, [showBitcoinRelatedWidgets.state]);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: const Text('Confirm Payment'),
       ),
-      body: Stack(
+      body:Stack(
         children: [
           Column(
             children: [
-              Flexible(
-                child: SizedBox(
-                  child: CardSwiper(
-                    scale: 0.1,
-                    allowedSwipeDirection: AllowedSwipeDirection.symmetric(horizontal: true),
-                    cardsCount: cards.length,
-                    initialIndex: ref.watch(currentCardIndexProvider),
-                    onSwipe: _onSwipe,
-                    cardBuilder: (context, index, percentThresholdX, percentThresholdY) { return cards[index]; },
-                  ),
+              SizedBox(
+                height: dynamicCardHeight,
+                child: CardSwiper(
+                  scale: 0.1,
+                  padding: const EdgeInsets.all(0),
+                  allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
+                  cardsCount: cards.length,
+                  initialIndex: ref.watch(currentCardIndexProvider),
+                  onSwipe: _onSwipe,
+                  cardBuilder: (context, index, percentThresholdX, percentThresholdY) { return cards[index]; },
                 ),
               ),
               Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(10.0),
+                      padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                       child: Text(
                         sendTxState.address,
                         style: const TextStyle(
@@ -296,56 +298,66 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
               SizedBox(height: dynamicSizedBox),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  gradient: const LinearGradient(
-                    colors: [Colors.blueAccent, Colors.deepPurple],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(10),
-                    onTap: () async {
-                      final balance = ref.watch(assetBalanceProvider);
-                       ref.read(sendAmountProvider.notifier).state = balance;
-                      final fee = await ref.watch(liquidFeeProvider.future);
-                      final amountToSet = (balance - fee).toDouble() / 100000000;
-                      controller.text = amountToSet.toStringAsFixed(8);
-                      ref.read(sendAmountProvider.notifier).state = (amountToSet * 100000000).toInt();
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: dynamicPadding, vertical: dynamicPadding / 2),
-                      child: Text(
-                        'Max',
-                        style: TextStyle(
-                          fontSize: dynamicFontSize,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // commented until there is a drain wallet method
+              // Container(
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadius.circular(10),
+              //     gradient: const LinearGradient(
+              //       colors: [Colors.blueAccent, Colors.deepPurple],
+              //       begin: Alignment.topLeft,
+              //       end: Alignment.bottomRight,
+              //     ),
+              //   ),
+              //   child: Material(
+              //     color: Colors.transparent,
+              //     child: InkWell(
+              //       borderRadius: BorderRadius.circular(10),
+              //       onTap: () async {
+              //         final assetId = ref.watch(sendTxProvider).assetId;
+              //         try{
+              //         if (assetId == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
+              //           final pset = await ref.watch(liquidDrainWalletProvider.future);
+              //           final sendingBalance = pset.balances[0];
+              //           final controllerValue = (sendingBalance.value / 100000000).abs();
+              //           controller.text = controllerValue.toStringAsFixed(8);
+              //           ref.read(sendAmountProvider.notifier).state = (sendingBalance.value.abs());
+              //         } else {
+              //           await ref.watch(liquidDrainWalletProvider.future);
+              //           final sendingBalance = ref.watch(assetBalanceProvider);
+              //           controller.text = sendingBalance.toStringAsFixed(2);
+              //           ref.read(sendAmountProvider.notifier).state = (sendingBalance);
+              //         }}catch(e) {
+              //           Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+              //         }
+              //       },
+              //       child: Padding(
+              //         padding: EdgeInsets.symmetric(horizontal: dynamicPadding, vertical: dynamicPadding / 2),
+              //         child: Text(
+              //           'Max',
+              //           style: TextStyle(
+              //             fontSize: dynamicFontSize,
+              //             fontWeight: FontWeight.bold,
+              //             color: Colors.white,
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
               SizedBox(height: dynamicSizedBox),
               InteractiveSlider(
-                centerIcon: Icon(Clarity.block_solid, color: Colors.black),
+                centerIcon: const Icon(Clarity.block_solid, color: Colors.black),
                 foregroundColor: Colors.blueAccent,
                 unfocusedHeight: dynamicFontSize * 2,
                 focusedHeight: dynamicFontSize * 2,
                 initialProgress: 15,
-                min: 15.0,
+                min: 25.0,
                 max: 1.0,
                 onChanged: (dynamic value){
                   ref.read(sendBlocksProvider.notifier).state = value;
                 },
               ),
-              SizedBox(height: dynamicSizedBox),
-              ref.watch(feeProvider).when(
+              ref.watch(liquidFeeProvider).when(
                 data: (int fee) {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -385,7 +397,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                 ),
               ),
               SizedBox(height: dynamicSizedBox),
-              ref.watch(feeValueInCurrencyProvider).when(
+              ref.watch(liquidFeeValueInCurrencyProvider).when(
                   data: (double feeValue) {
                     return Text(
                       '~ ${feeValue.toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
@@ -397,7 +409,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                     );
                   },
                   loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize, color: Colors.black),
-                  error: (error, stack) => Text('')
+                  error: (error, stack) => const Text('')
               ),
             ],
           ),
@@ -418,7 +430,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                     await Future.delayed(const Duration(seconds: 3));
                     try {
                       ref.watch(sendTxProvider.notifier).updateAmount(sendAmount.state);
-                      await ref.watch(sendBitcoinTransactionProvider.future);
+                      await ref.watch(sendLiquidTransactionProvider.future);
                       controller.success();
                       Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                       await Future.delayed(const Duration(seconds: 3));

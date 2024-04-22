@@ -16,7 +16,7 @@ class QRViewWidget extends StatelessWidget {
   void onQRViewCreated(QRViewController controller, BuildContext context) {
     controller.scannedDataStream.listen((scanData) async {
       try {
-        await ref.refresh(setAddressAndAmountProvider(scanData.toString()).future);
+        await ref.refresh(setAddressAndAmountProvider(scanData.code ?? '').future);
         switch (ref.read(sendTxProvider.notifier).state.type) {
           case PaymentType.Bitcoin:
             Navigator.pushNamed(context, '/confirm_bitcoin_payment');

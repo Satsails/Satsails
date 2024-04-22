@@ -65,8 +65,7 @@ class MainApp extends ConsumerWidget {
           return Text('Error: ${snapshot.error}');
         } else {
           final mnemonic = snapshot.data;
-          final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/confirm_liquid_payment';
-
+          final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/open_pin';
 
           return MaterialApp(
             initialRoute: initialRoute,

@@ -13,7 +13,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
 
   BackgroundSyncNotifier(this.ref) : super(null) {
     _performSync();
-    Timer.periodic(const Duration(seconds: 60), (timer) {
+    Timer.periodic(const Duration(seconds: 120), (timer) {
       _performSync();
     });
   }

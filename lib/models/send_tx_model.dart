@@ -26,7 +26,7 @@ class SendTx {
   final String address;
   final int amount;
   final PaymentType type;
-  final String? assetId;
+  final String assetId;
 
   SendTx({
     required this.address,

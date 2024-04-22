@@ -30,24 +30,54 @@ class LiquidModel {
   }
 
   Future<String> build_lbtc_tx(TransactionBuilder params) async {
-    final pset = await config.liquid.wallet.build_lbtc_tx(
-      sats: params.amount,
-      // outAddress: params.outAddress,
-      outAddress: 'lq1qq04wgtfhdl90yr0r22h25ymu6q6ctqjuwwgz3l4fvldrwh2clalxp56kgpxan9fe4tkhlqh9w0xx3h6ve2e5zeguzyr7lh7mv',
-      absFee: params.fee,
-    );
-    return pset;
+    try {
+      final pset = await config.liquid.wallet.build_lbtc_tx(
+        sats: params.amount,
+        outAddress: params.outAddress,
+        // hardcorded until we have a way to send sats/vb
+        absFee: params.fee * (2048 + 1 * 85),
+      );
+      return pset;
+    } on LwkError catch (e) {
+      throw e.msg;
+    }
+  }
+
+  // hardcorded until we have a drain wallet
+  Future<String> build_drain_wallet_tx(TransactionBuilder params) async {
+    var amount = params.amount;
+    while (true) {
+      try {
+        final pset = await config.liquid.wallet.build_lbtc_tx(
+          sats: amount,
+          outAddress: params.outAddress,
+          // hardcorded until we have a way to send sats/vb
+          absFee: params.fee * (2048 + 1 * 85),
+        );
+        return pset;
+      } on LwkError catch (e) {
+        if (amount > 0) {
+          amount -= 100;
+        } else {
+          throw e.msg;
+        }
+      }
+    }
   }
 
   Future<String> build_asset_tx(TransactionBuilder params) async {
+    try {
     final pset = await config.liquid.wallet.build_asset_tx(
       sats: params.amount,
-      // outAddress: params.outAddress,
-      outAddress: 'lq1qq04wgtfhdl90yr0r22h25ymu6q6ctqjuwwgz3l4fvldrwh2clalxp56kgpxan9fe4tkhlqh9w0xx3h6ve2e5zeguzyr7lh7mv',
-      absFee: params.fee,
+      outAddress: params.outAddress,
+      // hardcorded until we have a way to send sats/vb
+      absFee: params.fee * (2048 + 1 * 85),
       assetId: params.assetId,
     );
     return pset;
+    } on LwkError catch (e) {
+      throw e.msg;
+    }
   }
 
   Future<PsetAmounts> decode(String pset) async {
@@ -63,8 +93,12 @@ class LiquidModel {
   }
 
   Future<String> broadcast(Uint8List signedTxBytes) async {
-    final tx = await config.liquid.wallet.broadcast(electrumUrl: config.electrumUrl, txBytes: signedTxBytes);
-    return tx;
+    try {
+      final tx = await config.liquid.wallet.broadcast(electrumUrl: config.electrumUrl, txBytes: signedTxBytes);
+      return tx;
+    } on LwkError catch (e) {
+      throw e.msg;
+    }
   }
 
 

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lwk_dart/lwk_dart.dart';
 import 'package:satsails/models/address_model.dart';
 import 'package:satsails/models/balance_model.dart';
 import 'package:satsails/models/bitcoin_model.dart' as bitcoinModel;
@@ -39,6 +40,17 @@ final feeCurrencyParamsProvider = FutureProvider.autoDispose<CurrencyParams>((re
   return CurrencyParams(currency, fee);
 });
 
+final liquidFeeCurrencyParamsProvider = FutureProvider.autoDispose<CurrencyParams>((ref) async {
+  final currency = ref.watch(settingsProvider).currency;
+  final fee = await ref.watch(liquidFeeProvider.future).then((value) => value);
+  return CurrencyParams(currency, fee);
+});
+
+final liquidFeeValueInCurrencyProvider = FutureProvider.autoDispose<double>((ref) async {
+  final currencyParams = await ref.watch(liquidFeeCurrencyParamsProvider.future).then((value) => value);
+  return ref.read(currentBitcoinPriceInCurrencyProvider(currencyParams));
+});
+
 final feeValueInCurrencyProvider = FutureProvider.autoDispose<double>((ref) async {
   final currencyParams = await ref.watch(feeCurrencyParamsProvider.future).then((value) => value);
   return ref.read(currentBitcoinPriceInCurrencyProvider(currencyParams));
@@ -63,11 +75,33 @@ final bitcoinTransactionBuilderProvider =  FutureProvider.autoDispose.family<bit
 });
 
 final liquidFeeProvider = FutureProvider.autoDispose<int>((ref) async {
+  final asset = ref.watch(sendTxProvider).assetId;
+if (asset == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
   final FeeCalculationParams params = ref.watch(feeParamsProvider);
   final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(params.amount).future).then((value) => value);
   final transaction = await ref.read(liquidProvider.buildLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
   final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
   return decodedPset.fee;
+} else {
+  final FeeCalculationParams params = ref.watch(feeParamsProvider);
+  final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(params.amount).future).then((value) => value);
+  final transaction = await ref.read(liquidProvider.buildLiquidAssetTransactionProvider(transactionBuilder).future).then((value) => value);
+  final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
+  return decodedPset.fee;
+}
+});
+
+final liquidDrainWalletProvider = FutureProvider.autoDispose<PsetAmounts>((ref) async {
+  final asset = ref.watch(sendTxProvider).assetId;
+  if (asset == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
+    final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(ref.watch(assetBalanceProvider)).future).then((value) => value);
+    final transaction = await ref.read(liquidProvider.buildDrainLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
+    return await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
+  } else {
+    final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(ref.watch(assetBalanceProvider)).future).then((value) => value);
+    final transaction = await ref.read(liquidProvider.buildLiquidAssetTransactionProvider(transactionBuilder).future).then((value) => value);
+    return await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
+  }
 });
 
 final liquidAssetFeeProvider = FutureProvider.autoDispose<int>((ref) async {

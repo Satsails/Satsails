@@ -41,6 +41,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: const Text('Confirm Payment'),

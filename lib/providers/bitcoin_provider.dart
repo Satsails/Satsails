@@ -1,7 +1,6 @@
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/bitcoin_model.dart';
-import 'package:satsails/models/send_tx_model.dart';
 import 'package:satsails/providers/send_tx_provider.dart';
 import 'bitcoin_config_provider.dart';
 
