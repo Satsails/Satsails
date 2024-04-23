@@ -53,10 +53,10 @@ packages:
     dependency: "direct main"
     description:
       name: bdk_flutter
-      sha256: a46e3daf1b3ef6823553bcf902ccafe8506ac9a8754f3ec399c375f13d63a92e
+      sha256: daa4a618f050a4ee72cbc0eb8f7e1948c722bffc0c4378dc10a0d5690d99de41
       url: "https://pub.dev"
     source: hosted
-    version: "0.31.1-dev"
+    version: "0.31.2-dev"
   bech32:
     dependency: transitive
     description:
@@ -86,7 +86,7 @@ packages:
     description:
       path: "."
       ref: trunk
-      resolved-ref: "8acdedd1d22dbb550eed46ed9f76211c3b8d4a61"
+      resolved-ref: "728c9715ea5b75d434335976107837260d4b0140"
       url: "https://github.com/SatoshiPortal/boltz-dart.git"
     source: git
     version: "0.1.4"
@@ -368,10 +368,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_rust_bridge
-      sha256: c51fa002e57e64d13030269ed9cd43752173ee4c6f60ec1e9c41450d63c75bae
+      sha256: e9a8716b1ad2fc81c434f3e4bf84b86c578578678c57e568b44aea7acf210102
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0-dev.28"
+    version: "2.0.0-dev.31"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -675,7 +675,7 @@ packages:
     description:
       path: "."
       ref: trunk
-      resolved-ref: "878d64befef5d067d1cd84d1ef1d5efe1bc6b2d8"
+      resolved-ref: "2ab0b1d01303bb409ec72d3fbae89be32003c79d"
       url: "https://github.com/SatoshiPortal/lwk-dart"
     source: git
     version: "0.1.3"
