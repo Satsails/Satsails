@@ -224,6 +224,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
         children: [
           Column(
             children: [
+              Text('Swipe to change asset', style: TextStyle(fontSize: dynamicFontSize, fontWeight: FontWeight.bold, color: Colors.grey), textAlign: TextAlign.center),
               SizedBox(
                 height: dynamicCardHeight,
                 child: CardSwiper(
@@ -266,7 +267,6 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                     keyboardType: TextInputType.number,
                     inputFormatters: <TextInputFormatter>[
                       CurrencyTextInputFormatter.currency(
-                        decimalDigits: showBitcoinRelatedWidgets.state ? 8 : 2,
                         enableNegative: false,
                         maxValue: showBitcoinRelatedWidgets.state ? 1000 : 1000000,
                         symbol: '',
