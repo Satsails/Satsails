@@ -10,17 +10,17 @@ class LiquidModel {
   LiquidModel(this.config);
 
   Future<String> getAddress() async {
-    final address = await config.liquid.wallet.lastUnusedAddress();
+    final address = await config.liquid.wallet.addressLastUnused();
     return address.confidential;
   }
 
   Future<bool> sync() async {
-    await config.liquid.wallet.sync(config.electrumUrl);
+    await config.liquid.wallet.sync(electrumUrl: config.electrumUrl);
     return true;
   }
 
   Future<Balances> balance() async {
-    final Balances balance = await config.liquid.wallet.balance();
+    final Balances balance = await config.liquid.wallet.balances();
     return balance;
   }
 
@@ -31,15 +31,15 @@ class LiquidModel {
 
   Future<String> build_lbtc_tx(TransactionBuilder params) async {
     try {
-      final pset = await config.liquid.wallet.build_lbtc_tx(
+      final pset = await config.liquid.wallet.buildLbtcTx(
         sats: params.amount,
         outAddress: params.outAddress,
         // hardcorded until we have a way to send sats/vb
         absFee: params.fee * (2048 + 1 * 85),
       );
       return pset;
-    } on LwkError catch (e) {
-      throw e.msg;
+    } catch (e) {
+      throw e;
     }
   }
 
@@ -48,18 +48,18 @@ class LiquidModel {
     var amount = params.amount;
     while (true) {
       try {
-        final pset = await config.liquid.wallet.build_lbtc_tx(
+        final pset = await config.liquid.wallet.buildLbtcTx(
           sats: amount,
           outAddress: params.outAddress,
           // hardcorded until we have a way to send sats/vb
           absFee: params.fee * (2048 + 1 * 85),
         );
         return pset;
-      } on LwkError catch (e) {
+      } catch (e) {
         if (amount > 0) {
           amount -= 100;
         } else {
-          throw e.msg;
+          throw e;
         }
       }
     }
@@ -67,37 +67,37 @@ class LiquidModel {
 
   Future<String> build_asset_tx(TransactionBuilder params) async {
     try {
-    final pset = await config.liquid.wallet.build_asset_tx(
+    final pset = await config.liquid.wallet.buildAssetTx(
       sats: params.amount,
       outAddress: params.outAddress,
       // hardcorded until we have a way to send sats/vb
       absFee: params.fee * (2048 + 1 * 85),
-      assetId: params.assetId,
+      asset: params.assetId,
     );
     return pset;
-    } on LwkError catch (e) {
-      throw e.msg;
+    } catch (e) {
+      throw e;
     }
   }
 
   Future<PsetAmounts> decode(String pset) async {
-    final decodedPset = await config.liquid.wallet.decode(pset: pset);
+    final decodedPset = await config.liquid.wallet.decodeTx(pset: pset);
     return decodedPset;
   }
 
   Future<Uint8List> sign(SignParams params) async {
     final signedTxBytes =
-    await config.liquid.wallet.sign(network: config.liquid.network, pset: params.pset, mnemonic: params.mnemonic);
+    await config.liquid.wallet.signTx(network: config.liquid.network, pset: params.pset, mnemonic: params.mnemonic);
 
     return signedTxBytes;
   }
 
   Future<String> broadcast(Uint8List signedTxBytes) async {
     try {
-      final tx = await config.liquid.wallet.broadcast(electrumUrl: config.electrumUrl, txBytes: signedTxBytes);
+      final tx = await Wallet.broadcastTx(electrumUrl: config.electrumUrl, txBytes: signedTxBytes);
       return tx;
-    } on LwkError catch (e) {
-      throw e.msg;
+    } catch (e) {
+      throw e;
     }
   }
 

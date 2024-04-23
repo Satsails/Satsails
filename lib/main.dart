@@ -1,6 +1,8 @@
+import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:lwk_dart/lwk_dart.dart';
 import 'package:satsails/providers/auth_provider.dart';
 import 'package:satsails/screens/creation/start.dart';
 import 'package:satsails/screens/pay/components/confirm_liquid_payment.dart';
@@ -39,6 +41,8 @@ void main() async {
   Hive.registerAdapter(TxOutAdapter());
   Hive.registerAdapter(TxAdapter());
   Hive.registerAdapter(BalanceAdapter());
+  await BoltzCore.init();
+  await LwkCore.init();
 
   runApp(
     const MaterialApp(

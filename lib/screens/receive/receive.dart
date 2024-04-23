@@ -113,11 +113,11 @@ class Receive extends ConsumerWidget {
                     data: (bitcoinAddress) {
                       return Column(
                         children: [
-                          buildQrCode(bitcoinAddress.address, context),
+                          buildQrCode(bitcoinAddress.address.toString(), context),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: buildAddressText(
-                                bitcoinAddress.address, context),
+                                bitcoinAddress.address.toString(), context),
                           ),
                         ],
                       );

@@ -4,7 +4,7 @@ import 'package:satsails/models/address_model.dart';
 
 Future<bool> isValidLiquidAddress(String address) async {
   try {
-    await validateAddress(address: address).then((value) => value);
+    await Address.validate(addressString: address).then((value) => value);
     return true;
   } catch (_) {
     return false;
@@ -13,7 +13,7 @@ Future<bool> isValidLiquidAddress(String address) async {
 
 Future<bool> isValidBitcoinAddress(String address) async {
   try {
-    await bdk.Address.create(address: address).then((value) => value);
+    await bdk.Address.fromString(s: address, network: bdk.Network.bitcoin);
     return true;
   } catch (e) {
     return false;

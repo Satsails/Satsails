@@ -11,9 +11,9 @@ final bitcoinConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
   }
   return BitcoinConfig(
     mnemonic: mnemonic,
-    network: Network.Bitcoin,
-    externalKeychain: KeychainKind.External,
-    internalKeychain: KeychainKind.Internal,
+    network: Network.bitcoin,
+    externalKeychain: KeychainKind.externalChain,
+    internalKeychain: KeychainKind.internalChain,
     isElectrumBlockchain: true,
   );
 });

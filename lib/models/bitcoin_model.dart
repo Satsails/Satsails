@@ -10,21 +10,21 @@ class BitcoinModel {
 
   Future<void> sync() async {
     try {
-      await config.wallet.sync(config.blockchain!);
+      await config.wallet.sync(blockchain: config.blockchain!);
     } on FormatException catch (e) {
       throw Exception(e.message);
     }
   }
 
   Future<AddressInfo> getAddress() async {
-    final address = await config.wallet.getAddress(addressIndex: const AddressIndex());
+    final address = await config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
     return address;
   }
 
   Future<String> getAddressWithAmount(int? amount) async {
-    final address = await config.wallet.getAddress(addressIndex: const AddressIndex());
+    final address = await config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
     if (amount == null) {
-      return address.address;
+      return address.address.toString();
     } else {
       final amountInBtc = amount / 1e8;
       return 'bitcoin:${address.address}?amount=$amountInBtc';
@@ -37,7 +37,7 @@ class BitcoinModel {
   }
 
   Future<List<TransactionDetails>> getTransactions() async {
-    final res = await config.wallet.listTransactions(true);
+    final res = await config.wallet.listTransactions(includeRaw: true);
     return res;
   }
 
@@ -67,11 +67,11 @@ class BitcoinModel {
     }
   }
 
-  Future<TxBuilderResult> buildBitcoinTransaction(TransactionBuilder transaction) async {
+  Future<(PartiallySignedTransaction, TransactionDetails)> buildBitcoinTransaction(TransactionBuilder transaction) async {
     try{
       final txBuilder = TxBuilder();
-      final address = await Address.create(address: transaction.outAddress);
-      final script = await address.scriptPubKey();
+      final address = await Address.fromString(s: transaction.outAddress, network: config.network);
+      final script = await address.scriptPubkey();
       final txBuilderResult = await txBuilder
           .addRecipient(script, transaction.amount!)
           .feeRate(transaction.fee)
@@ -86,11 +86,11 @@ class BitcoinModel {
     }
   }
 
-  Future<TxBuilderResult> drainWalletBitcoinTransaction(TransactionBuilder transaction) async {
+  Future<(PartiallySignedTransaction, TransactionDetails)> drainWalletBitcoinTransaction(TransactionBuilder transaction) async {
     try{
       final txBuilder = TxBuilder();
-      final address = await Address.create(address: transaction.outAddress);
-      final script = await address.scriptPubKey();
+      final address = await Address.fromString(s: transaction.outAddress, network: config.network);
+      final script = await address.scriptPubkey();
       final txBuilderResult = await txBuilder.drainWallet().feeRate(transaction.fee).drainTo(script).finish(config.wallet);
       return txBuilderResult;
     } on GenericException catch (e) {
@@ -102,22 +102,22 @@ class BitcoinModel {
     }
   }
 
-  Future<PartiallySignedTransaction> signBitcoinTransaction(TxBuilderResult txBuilderResult) async {
-    final psbt = await config.wallet.sign(psbt: txBuilderResult.psbt);
-    return psbt;
+  Future<bool> signBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) txBuilderResult) async {
+    return config.wallet.sign(psbt: txBuilderResult.$1);
   }
 
-  Future<void> broadcastBitcoinTransaction(PartiallySignedTransaction signedPsbt) async {
-    final tx = await signedPsbt.extractTx();
-    Isolate.run(() async => {await config.blockchain!.broadcast(tx)});
+  Future<void> broadcastBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) signedPsbt) async {
+    final tx = await signedPsbt.$1.extractTx();
+    Isolate.run(() async => {await config.blockchain!.broadcast(transaction: tx)});
   }
 }
 
 class Bitcoin {
   final Wallet wallet;
   final Blockchain? blockchain;
+  final Network network;
 
-  Bitcoin(this.wallet, this.blockchain);
+  Bitcoin(this.wallet, this.blockchain, this.network);
 }
 
 class TransactionBuilder {

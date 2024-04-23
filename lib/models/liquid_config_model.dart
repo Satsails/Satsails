@@ -17,23 +17,14 @@ class LiquidConfigModel {
     }
   }
 
-  static Future<Descriptor> createDescriptor(String mnemonic, Network network) async {
-    final descriptor = await Descriptor.create(
-      network: network,
-      mnemonic: mnemonic,
-    );
-
-    return descriptor;
-  }
-
   static Future<Wallet> createWallet(String mnemonic, Network network) async {
     final dbPath = await getDbDir();
-    final descriptor = await createDescriptor(mnemonic, network);
+    final descriptor = DescriptorBase(mnemonic: mnemonic, network: network);
 
-    final wallet = await Wallet.create(
-      descriptor: descriptor.descriptor,
+    final wallet = Wallet(
+      descriptor: descriptor,
       network: network,
-      dbPath: dbPath,
+      dbpath: dbPath,
     );
 
     return wallet;
