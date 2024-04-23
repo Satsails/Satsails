@@ -160,8 +160,8 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                         final balance = ref.watch(balanceNotifierProvider).btcBalance;
                         final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(sendAmount.state).future).then((value) => value);
                         final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future);
-                        final fee = transaction.txDetails.fee!;
-                        final amountToSet = (balance - fee).toDouble() / 100000000;
+                        final fee = await transaction.$1.feeAmount().then((value) => value);
+                        final amountToSet = (balance - fee!).toDouble() / 100000000;
                         controller.text = amountToSet.toStringAsFixed(8);
                         ref.read(sendAmountProvider.notifier).state = (amountToSet * 100000000).toInt();
                       }

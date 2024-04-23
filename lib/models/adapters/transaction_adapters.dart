@@ -32,7 +32,7 @@ class TransactionDetails {
   });
 
   TransactionDetails.fromBdk(bdk.TransactionDetails bdkTransactionDetails)
-      : serializedTx = bdkTransactionDetails.serializedTx,
+      : serializedTx = bdkTransactionDetails.transaction?.inner,
         txid = bdkTransactionDetails.txid,
         received = bdkTransactionDetails.received,
         sent = bdkTransactionDetails.sent,

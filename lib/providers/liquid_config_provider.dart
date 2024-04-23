@@ -10,11 +10,11 @@ final liquidConfigProvider = FutureProvider<LiquidConfig>((ref) async {
     throw Exception('Mnemonic is null or empty');
   }
 
-  final wallet = await LiquidConfigModel.createWallet(mnemonic, Network.Mainnet);
+  final wallet = await LiquidConfigModel.createWallet(mnemonic, Network.mainnet);
 
   return LiquidConfig(
     mnemonic: mnemonic,
-    network: Network.Mainnet,
+    network: Network.mainnet,
     wallet: wallet,
   );
 });
