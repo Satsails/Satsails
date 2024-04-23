@@ -129,11 +129,11 @@ class BlockTimeAdapter extends TypeAdapter<BlockTime> {
   void write(BinaryWriter writer, BlockTime obj) {
     // If the object is null (which shouldn't be the case as per TypeAdapter contract), write defaults
     if (obj == null) {
-      writer.write(null);
-      writer.write(null);
+      writer.write(0);
+      writer.write(0);
     } else {
-      writer.write(obj.height ?? 0);
-      writer.write(obj.timestamp ?? 0);
+      writer.write(obj.height);
+      writer.write(obj.timestamp);
     }
   }
 }
@@ -143,8 +143,8 @@ class BlockTimeAdapter extends TypeAdapter<BlockTime> {
   void write(BinaryWriter writer, BlockTime? blockTime) {
     if (blockTime == null) {
       // To handle null BlockTime, we write null values for its fields
-      writer.write(null);
-      writer.write(null);
+      writer.write(0);
+      writer.write(0);
     } else {
       writer.write(blockTime.height);
       writer.write(blockTime.timestamp);

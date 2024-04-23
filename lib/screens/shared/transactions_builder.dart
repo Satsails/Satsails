@@ -265,7 +265,7 @@ class BuildTransactions extends ConsumerWidget {
   }
 
   String _confirmationStatus(TransactionDetails transaction) {
-    if (transaction.confirmationTime == null) {
+    if (transaction.confirmationTime == null || transaction.confirmationTime!.height == 0) {
       return 'Unconfirmed';
     } else if (transaction.confirmationTime != null) {
       return 'Confirmed';
