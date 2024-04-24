@@ -29,7 +29,7 @@ class LiquidModel {
     return txs;
   }
 
-  Future<String> build_lbtc_tx(TransactionBuilder params) async {
+  Future<String> buildLbtcTx(TransactionBuilder params) async {
     try {
       final pset = await config.liquid.wallet.buildLbtcTx(
         sats: params.amount,
@@ -38,13 +38,13 @@ class LiquidModel {
         absFee: params.fee * (2048 + 1 * 85),
       );
       return pset;
-    } catch (e) {
-      throw e;
+    } on LwkError catch (e) {
+      throw e.msg!;
     }
   }
 
   // hardcorded until we have a drain wallet
-  Future<String> build_drain_wallet_tx(TransactionBuilder params) async {
+  Future<String> buildDrainWalletTx(TransactionBuilder params) async {
     var amount = params.amount;
     while (true) {
       try {
@@ -55,17 +55,17 @@ class LiquidModel {
           absFee: params.fee * (2048 + 1 * 85),
         );
         return pset;
-      } catch (e) {
+      } on LwkError catch (e) {
         if (amount > 0) {
           amount -= 100;
         } else {
-          throw e;
+          throw e.msg!;
         }
       }
     }
   }
 
-  Future<String> build_asset_tx(TransactionBuilder params) async {
+  Future<String> buildAssetTx(TransactionBuilder params) async {
     try {
     final pset = await config.liquid.wallet.buildAssetTx(
       sats: params.amount,
@@ -75,8 +75,8 @@ class LiquidModel {
       asset: params.assetId,
     );
     return pset;
-    } catch (e) {
-      throw e;
+    } on LwkError catch (e) {
+      throw e.msg!;
     }
   }
 
@@ -96,8 +96,8 @@ class LiquidModel {
     try {
       final tx = await Wallet.broadcastTx(electrumUrl: config.electrumUrl, txBytes: signedTxBytes);
       return tx;
-    } catch (e) {
-      throw e;
+    } on LwkError catch (e) {
+      throw e.msg!;
     }
   }
 

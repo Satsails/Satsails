@@ -52,14 +52,14 @@ final getCustomFeeRateProvider = FutureProvider.autoDispose<double>((ref) {
 final buildLiquidTransactionProvider = FutureProvider.family.autoDispose<String, TransactionBuilder>((ref, params) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
-    return liquidModel.build_lbtc_tx(params);
+    return liquidModel.buildLbtcTx(params);
   });
 });
 
 final buildLiquidAssetTransactionProvider = FutureProvider.family.autoDispose<String, TransactionBuilder>((ref, params) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
-    return liquidModel.build_asset_tx(params);
+    return liquidModel.buildAssetTx(params);
   });
 });
 
@@ -67,7 +67,7 @@ final buildLiquidAssetTransactionProvider = FutureProvider.family.autoDispose<St
 final buildDrainLiquidTransactionProvider = FutureProvider.family.autoDispose<String, TransactionBuilder>((ref, params) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
-    return liquidModel.build_drain_wallet_tx(params);
+    return liquidModel.buildDrainWalletTx(params);
   });
 });
 

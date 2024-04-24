@@ -76,15 +76,13 @@ final bitcoinTransactionBuilderProvider =  FutureProvider.autoDispose.family<bit
 
 final liquidFeeProvider = FutureProvider.autoDispose<int>((ref) async {
   final asset = ref.watch(sendTxProvider).assetId;
-if (asset == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
   final FeeCalculationParams params = ref.watch(feeParamsProvider);
   final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(params.amount).future).then((value) => value);
+if (asset == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
   final transaction = await ref.read(liquidProvider.buildLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
   final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
   return decodedPset.fee;
 } else {
-  final FeeCalculationParams params = ref.watch(feeParamsProvider);
-  final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(params.amount).future).then((value) => value);
   final transaction = await ref.read(liquidProvider.buildLiquidAssetTransactionProvider(transactionBuilder).future).then((value) => value);
   final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
   return decodedPset.fee;

@@ -267,6 +267,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                     keyboardType: TextInputType.number,
                     inputFormatters: <TextInputFormatter>[
                       CurrencyTextInputFormatter.currency(
+                        decimalDigits:  showBitcoinRelatedWidgets.state ? 8 : 2,
                         enableNegative: false,
                         maxValue: showBitcoinRelatedWidgets.state ? 1000 : 1000000,
                         symbol: '',
