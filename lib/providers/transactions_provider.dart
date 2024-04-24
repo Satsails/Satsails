@@ -38,6 +38,15 @@ final updateTransactionsProvider = FutureProvider.autoDispose<void>((ref) async 
   final bitcoinTransactions = await ref.refresh(getBitcoinTransactionsProvider.future);
   List<TransactionDetails> bitcoinTransactionsHive = bitcoinTransactions.map((transaction) => TransactionDetails.fromBdk(transaction)).toList();
   if (bitcoinTransactions.isNotEmpty) {
+    bitcoinTransactionsHive.sort((a, b) {
+      if (a.confirmationTime == null && b.confirmationTime != null) {
+        return -1;
+      } else if (a.confirmationTime != null && b.confirmationTime == null) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
     bitcoinBox.put('bitcoinTransactions', bitcoinTransactionsHive);
     transactionProvider.updateBitcoinTransactions(bitcoinTransactionsHive);
   }

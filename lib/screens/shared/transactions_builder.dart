@@ -17,15 +17,6 @@ class BuildTransactions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final transactions = ref.watch(transactionNotifierProvider);
     final bitcoinTransactions = transactions.bitcoinTransactions;
-    bitcoinTransactions.sort((a, b) {
-      if (a.confirmationTime == null && b.confirmationTime != null) {
-        return -1;
-      } else if (a.confirmationTime != null && b.confirmationTime == null) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
     final liquidTransactions = transactions.liquidTransactions;
     final transationType = ref.watch(transactionTypeShowProvider);
     final allTx = <dynamic>[];
