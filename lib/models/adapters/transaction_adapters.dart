@@ -37,10 +37,7 @@ class TransactionDetails {
         received = bdkTransactionDetails.received,
         sent = bdkTransactionDetails.sent,
         fee = bdkTransactionDetails.fee,
-        confirmationTime = bdkTransactionDetails.confirmationTime != null
-            ? BlockTime.fromBdk(bdkTransactionDetails.confirmationTime!)
-            : null;
-
+        confirmationTime = BlockTime.fromBdk(bdkTransactionDetails.confirmationTime);
 }
 
 @HiveType(typeId: 2)
@@ -56,9 +53,16 @@ class BlockTime {
     required this.timestamp,
   });
 
-  BlockTime.fromBdk(bdk.BlockTime bdkBlockTime)
-      : height = bdkBlockTime.height,
-        timestamp = bdkBlockTime.timestamp;
+  static BlockTime? fromBdk(bdk.BlockTime? bdkBlockTime) {
+    if (bdkBlockTime == null) {
+      return null;
+    } else {
+      return BlockTime(
+        height: bdkBlockTime.height,
+        timestamp: bdkBlockTime.timestamp,
+      );
+    }
+  }
 }
 
 class TransactionDetailsAdapter extends TypeAdapter<TransactionDetails> {
@@ -91,11 +95,7 @@ class TransactionDetailsAdapter extends TypeAdapter<TransactionDetails> {
     writer.write(obj.received);
     writer.write(obj.sent);
     writer.write(obj.fee);
-    if (obj.confirmationTime != null) {
-      BlockTimeAdapter().write(writer, obj.confirmationTime!);
-    } else {
-      writer.write(null);
-    }
+    BlockTimeAdapter().write(writer, obj.confirmationTime);
   }
 }
 
@@ -126,9 +126,9 @@ class BlockTimeAdapter extends TypeAdapter<BlockTime> {
   }
 
   @override
-  void write(BinaryWriter writer, BlockTime obj) {
-    // If the object is null (which shouldn't be the case as per TypeAdapter contract), write defaults
+  void write(BinaryWriter writer, BlockTime? obj) {
     if (obj == null) {
+      // To handle null BlockTime, we write default values for its fields
       writer.write(0);
       writer.write(0);
     } else {
@@ -137,21 +137,6 @@ class BlockTimeAdapter extends TypeAdapter<BlockTime> {
     }
   }
 }
-
-
-  @override
-  void write(BinaryWriter writer, BlockTime? blockTime) {
-    if (blockTime == null) {
-      // To handle null BlockTime, we write null values for its fields
-      writer.write(0);
-      writer.write(0);
-    } else {
-      writer.write(blockTime.height);
-      writer.write(blockTime.timestamp);
-    }
-  }
-
-
 @HiveType(typeId: 3)
 
 class Tx {

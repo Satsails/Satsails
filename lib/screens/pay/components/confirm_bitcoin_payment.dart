@@ -190,7 +190,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                 unfocusedHeight: dynamicFontSize * 2,
                 focusedHeight: dynamicFontSize * 2,
                 initialProgress: 15,
-                min: 25.0,
+                min: 5.0,
                 max: 1.0,
                 onChanged: (dynamic value){
                   ref.read(sendBlocksProvider.notifier).state = value;
@@ -199,7 +199,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
-                  'Transaction in ~ ${ref.watch(sendBlocksProvider).toInt() * 10} minutes',
+                  'Transaction in  ${getTimeFrame(ref.watch(sendBlocksProvider).toInt())}',
                   style: TextStyle(
                     fontSize: dynamicFontSize,
                     fontWeight: FontWeight.bold,

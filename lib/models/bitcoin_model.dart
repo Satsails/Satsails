@@ -16,15 +16,15 @@ class BitcoinModel {
     }
   }
 
-  Future<AddressInfo> getAddress() async {
+  Future<String> getAddress() async {
     final address = await config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
-    return address;
+    return await address.address.asString();
   }
 
   Future<String> getAddressWithAmount(int? amount) async {
     final address = await config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
     if (amount == null) {
-      return address.address.toString();
+      return await address.address.asString();
     } else {
       final amountInBtc = amount / 1e8;
       return 'bitcoin:${address.address}?amount=$amountInBtc';
@@ -54,11 +54,24 @@ class BitcoinModel {
   Future<double> estimateFeeRate(int blocks) async {
     try {
       Response response =
-      await get(Uri.parse('https://blockstream.info/api/fee-estimates'));
-      Map data = jsonDecode(response.body);
+      await get(Uri.parse('https://mempool.space/api/v1/fees/recommended'));
+      Map<String, dynamic> data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        return data[blocks.toString()];
+        switch (blocks) {
+          case 1:
+            return data['fastestFee'].toDouble();
+          case 2:
+            return data['halfHourFee'].toDouble();
+          case 3:
+            return data['hourFee'].toDouble();
+          case 4:
+            return data['economyFee'].toDouble();
+          case 5:
+            return data['minimumFee'].toDouble();
+          default:
+            throw Exception("Invalid number of blocks.");
+        }
       } else {
         throw Exception("Getting estimated fees is not successful.");
       }
@@ -95,7 +108,7 @@ class BitcoinModel {
       return txBuilderResult;
     } on GenericException catch (e) {
       throw e.message!;
-    }on InsufficientFundsException catch (_) {
+    } on InsufficientFundsException catch (_) {
       throw "Insufficient funds for a transaction this fast";
     } on OutputBelowDustLimitException catch (_) {
       throw 'Amount is too small';
@@ -107,8 +120,16 @@ class BitcoinModel {
   }
 
   Future<void> broadcastBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) signedPsbt) async {
-    final tx = await signedPsbt.$1.extractTx();
-    Isolate.run(() async => {await config.blockchain!.broadcast(transaction: tx)});
+    try {
+      final tx = await signedPsbt.$1.extractTx();
+      await config.blockchain!.broadcast(transaction: tx);
+    } on GenericException catch (e) {
+      throw e.message!;
+    } on InsufficientFundsException catch (_) {
+      throw "Insufficient funds for a transaction this fast";
+    } on OutputBelowDustLimitException catch (_) {
+      throw 'Amount is too small';
+    }
   }
 }
 

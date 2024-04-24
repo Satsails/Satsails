@@ -179,6 +179,23 @@ final assetBalanceProvider = StateProvider.autoDispose<int>((ref) {
   }
 });
 
+String getTimeFrame(int blocks) {
+  switch (blocks) {
+    case 1:
+      return '10 minutes';
+    case 2:
+      return '30 minutes';
+    case 3:
+      return '1 hour';
+    case 4:
+      return 'Days';
+    case 5:
+      return 'Weeks';
+    default:
+      return 'Invalid number of blocks.';
+  }
+}
+
 
 class FeeCalculationParams {
   final int amount;

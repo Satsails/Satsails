@@ -52,28 +52,16 @@ class Receive extends ConsumerWidget {
             onSelected: (index, isSelected, isLongPress) {
               switch (index) {
                 case 'Bitcoin':
-                  ref
-                      .read(selectedButtonProvider.notifier)
-                      .state = "Bitcoin";
-                  ref
-                      .read(transactionTypeShowProvider.notifier)
-                      .state = "Bitcoin";
+                  ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
+                  ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
                   break;
                 case 'Liquid':
-                  ref
-                      .read(selectedButtonProvider.notifier)
-                      .state = "Liquid";
-                  ref
-                      .read(transactionTypeShowProvider.notifier)
-                      .state = "Liquid";
+                  ref.read(selectedButtonProvider.notifier).state = "Liquid";
+                  ref.read(transactionTypeShowProvider.notifier).state = "Liquid";
                   break;
                 case 'Lightning':
-                  ref
-                      .read(selectedButtonProvider.notifier)
-                      .state = "Lightning";
-                  ref
-                      .read(transactionTypeShowProvider.notifier)
-                      .state = "Lightning";
+                  ref.read(selectedButtonProvider.notifier).state = "Lightning";
+                  ref.read(transactionTypeShowProvider.notifier).state = "Lightning";
                   break;
                 default:
                   'Bitcoin';
@@ -113,11 +101,10 @@ class Receive extends ConsumerWidget {
                     data: (bitcoinAddress) {
                       return Column(
                         children: [
-                          buildQrCode(bitcoinAddress.address.toString(), context),
+                          buildQrCode(bitcoinAddress, context),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: buildAddressText(
-                                bitcoinAddress.address.toString(), context),
+                            child: buildAddressText(bitcoinAddress, context),
                           ),
                         ],
                       );
