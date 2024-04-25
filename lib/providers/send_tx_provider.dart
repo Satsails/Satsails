@@ -19,6 +19,11 @@ final sendBlocksProvider = StateProvider.autoDispose<double>((ref) {
   return 1;
 });
 
+final amountInCurrencyProvider = StateProvider.autoDispose<double>((ref) {
+  final currencyParams = ref.watch(currencyParamsProvider);
+  return ref.read(currentBitcoinPriceInCurrencyProvider(currencyParams));
+});
+
 final currencyParamsProvider = StateProvider.autoDispose<CurrencyParams>((ref) {
   final currency = ref.watch(settingsProvider).currency;
   final sendAmount = ref.watch(sendTxProvider).amount;

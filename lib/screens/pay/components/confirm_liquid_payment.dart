@@ -37,8 +37,8 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
     final dynamicCardHeight = MediaQuery.of(context).size.height * 0.21;
     final showBitcoinRelatedWidgets = ref.watch(showBitcoinRelatedWidgetsProvider.notifier);
-    final sendAmountInSatsOrAsset = ref.watch(sendTxProvider).amount;
-    final sendAmountInBtc = sendAmountInSatsOrAsset / 100000000;
+    final btcFormart = ref.watch(settingsProvider).btcFormat;
+    final sendAmount = ref.watch(sendTxProvider).btcBalanceInDenominationFormatted(btcFormart);
 
     List<SizedBox> cards = [
       SizedBox(
@@ -209,7 +209,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
     }
 
     useEffect(() {
-      controller.text = sendAmountInBtc == 0 ? '' : sendAmountInBtc.toString();
+      controller.text = sendAmount == 0 ? '' : sendAmount.toString();
     }, [showBitcoinRelatedWidgets.state]);
 
     return Scaffold(
@@ -269,13 +269,13 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: showBitcoinRelatedWidgets.state ? '0.00000000' : '0.00',
+                      hintText: showBitcoinRelatedWidgets.state ? '0' : '0.00',
                     ),
                     onChanged: (value) async {
                       if (showBitcoinRelatedWidgets.state) {
-                        ref.read(sendTxProvider.notifier).updateAmount((double.parse(value)).toInt());
+                        ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
                       }
-                      ref.read(sendTxProvider.notifier).updateAmount((double.parse(value) * 100000000).toInt());
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
                     },
                   ),
                 ),

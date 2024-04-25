@@ -27,11 +27,10 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
     final initializeBalance = ref.watch(initializeBalanceProvider);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormart));
-    final sendAmountInSats = ref.watch(sendTxProvider).amount;
-    final sendAmountInBtc = sendAmountInSats / 100000000;
+    final sendAmount = ref.watch(sendTxProvider).btcBalanceInDenominationFormatted(btcFormart);
 
     useEffect(() {
-      Future.microtask(() => controller.text = sendAmountInBtc == 0 ? '' : sendAmountInBtc.toString());
+      Future.microtask(() => controller.text = sendAmount == 0 ? '' : sendAmount.toString());
     }, []);
 
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
@@ -117,10 +116,10 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                     textAlign: TextAlign.center,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      hintText: '0.00000000',
+                      hintText: '0',
                     ),
                     onChanged: (value) async {
-                      ref.read(sendTxProvider.notifier).updateAmount((double.parse(value) * 100000000).toInt());
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
                     },
                   ),
                 ),
@@ -154,8 +153,8 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                         final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(sendTxState.amount).future).then((value) => value);
                         final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future).then((value) => value);
                         final fee = await transaction.$1.feeAmount().then((value) => value);
-                        final amountToSet = (balance - fee!).toDouble() / 100000000;
-                        ref.read(sendTxProvider.notifier).updateAmount((amountToSet * 100000000).toInt());
+                        final amountToSet = (balance - fee!);
+                        ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), btcFormart);
                         controller.text = amountToSet.toString();
                       }
                       catch (e) {

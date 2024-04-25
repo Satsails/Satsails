@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:satsails/helpers/asset_mapper.dart';
 import 'package:satsails/models/address_model.dart';
 
 class SendTxModel extends StateNotifier<SendTx> {
@@ -18,6 +19,32 @@ class SendTxModel extends StateNotifier<SendTx> {
 
   void updateAssetId(String assetId) {
     state = state.copyWith(assetId: assetId);
+  }
+
+  void updateAmountFromInput(String value, String denomination) {
+    if (state.assetId != AssetMapper.reverseMapTicker(AssetId.LBTC)) {
+      state = state.copyWith(amount: (double.parse(value) * 100000000).toInt());
+      return;
+    }
+
+    int amount;
+    switch (denomination) {
+      case 'sats':
+        amount = int.parse(value);
+        break;
+      case 'BTC':
+        amount = (double.parse(value) * 100000000).toInt();
+        break;
+      case 'mBTC':
+        amount = (double.parse(value) * 100000).toInt();
+        break;
+      case 'bits':
+        amount = (double.parse(value) * 100).toInt();
+        break;
+      default:
+        amount = 0;
+    }
+    state = state.copyWith(amount: amount);
   }
 }
 
@@ -47,5 +74,31 @@ class SendTx {
       type: type ?? this.type,
       assetId: assetId ?? this.assetId,
     );
+  }
+
+
+  double btcBalanceInDenominationFormatted(String denomination) {
+    double balance;
+
+    if (assetId != AssetMapper.reverseMapTicker(AssetId.LBTC)) {
+      return amount / 100000000;
+    }
+
+    switch (denomination) {
+      case 'sats':
+        balance = amount.toDouble();
+        return balance;
+      case 'BTC':
+        balance = (amount / 100000000);
+        return balance;
+      case 'mBTC':
+        balance = (amount / 100000000) * 1000;
+        return balance;
+      case 'bits':
+        balance = (amount / 100000000) * 1000000;
+        return balance;
+      default:
+        return 0;
+    }
   }
 }
