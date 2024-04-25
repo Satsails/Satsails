@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk_dart/lwk_dart.dart';
+import 'package:satsails/helpers/asset_mapper.dart';
 import 'package:satsails/models/address_model.dart';
 import 'package:satsails/models/balance_model.dart';
 import 'package:satsails/models/bitcoin_model.dart' as bitcoinModel;
@@ -11,25 +12,21 @@ import 'package:satsails/providers/liquid_provider.dart' as liquidProvider;
 import 'package:satsails/providers/settings_provider.dart';
 
 final sendTxProvider = StateNotifierProvider<SendTxModel, SendTx>((ref) {
-  return SendTxModel(SendTx(address: '', amount: 0, type: PaymentType.Unknown, assetId: '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d'));
+  return SendTxModel(SendTx(address: '', amount: 0, type: PaymentType.Unknown, assetId: AssetMapper.reverseMapTicker(AssetId.LBTC)));
 });
 
 final sendBlocksProvider = StateProvider.autoDispose<double>((ref) {
   return 1;
 });
 
-final sendAmountProvider = StateProvider.autoDispose<int>((ref) {
-  return 0;
-});
-
 final currencyParamsProvider = StateProvider.autoDispose<CurrencyParams>((ref) {
   final currency = ref.watch(settingsProvider).currency;
-  final sendAmount = ref.watch(sendAmountProvider);
+  final sendAmount = ref.watch(sendTxProvider).amount;
   return CurrencyParams(currency, sendAmount.toInt());
 });
 
 final feeParamsProvider = StateProvider.autoDispose<FeeCalculationParams>((ref) {
-  final sendAmount = ref.watch(sendAmountProvider);
+  final sendAmount = ref.watch(sendTxProvider).amount;
   final sendBlocks = ref.watch(sendBlocksProvider);
   return FeeCalculationParams(sendAmount, sendBlocks.toInt());
 });
@@ -78,7 +75,7 @@ final liquidFeeProvider = FutureProvider.autoDispose<int>((ref) async {
   final asset = ref.watch(sendTxProvider).assetId;
   final FeeCalculationParams params = ref.watch(feeParamsProvider);
   final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(params.amount).future).then((value) => value);
-if (asset == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
+if (asset == AssetMapper.reverseMapTicker(AssetId.LBTC)) {
   final transaction = await ref.read(liquidProvider.buildLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
   final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
   return decodedPset.fee;
@@ -91,7 +88,7 @@ if (asset == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d')
 
 final liquidDrainWalletProvider = FutureProvider.autoDispose<PsetAmounts>((ref) async {
   final asset = ref.watch(sendTxProvider).assetId;
-  if (asset == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
+  if (asset == AssetMapper.reverseMapTicker(AssetId.LBTC)) {
     final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(ref.watch(assetBalanceProvider)).future).then((value) => value);
     final transaction = await ref.read(liquidProvider.buildDrainLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
     return await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
@@ -117,16 +114,6 @@ final liquidTransactionBuilderProvider =  FutureProvider.autoDispose.family<liqu
   return liquidModel.TransactionBuilder(amount: amount, outAddress: address, fee: fee, assetId: asset!);
 });
 
-
-final inputValueProvider = StateProvider.autoDispose<double>((ref) {
-  final sendTxState = ref.watch(sendTxProvider);
-  if (sendTxState.amount != 0) {
-    ref.read(sendAmountProvider.notifier).state = sendTxState.amount;
-    return (sendTxState.amount / 100000000);
-  }else {
-    return 0;
-  }
-});
 
 final showBitcoinRelatedWidgetsProvider = StateProvider.autoDispose<bool>((ref) {
   final sendTxState = ref.watch(sendTxProvider);

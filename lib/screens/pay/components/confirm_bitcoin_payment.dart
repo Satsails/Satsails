@@ -1,9 +1,10 @@
-import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:satsails/helpers/input_formatters/comma_text_input_formatter.dart';
+import 'package:satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
@@ -26,13 +27,12 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
     final initializeBalance = ref.watch(initializeBalanceProvider);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormart));
-    final sendAmount = ref.watch(sendAmountProvider.notifier);
-
+    final sendAmountInSats = ref.watch(sendTxProvider).amount;
+    final sendAmountInBtc = sendAmountInSats / 100000000;
 
     useEffect(() {
-      Future.microtask(() => controller.text = ref.watch(inputValueProvider).toStringAsFixed(8));
+      Future.microtask(() => controller.text = sendAmountInBtc == 0 ? '' : sendAmountInBtc.toString());
     }, []);
-
 
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
@@ -112,14 +112,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                   child: TextFormField(
                     controller: controller,
                     keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      CurrencyTextInputFormatter.currency(
-                        decimalDigits: 8,
-                        enableNegative: false,
-                        maxValue: 1000,
-                        symbol: '',
-                      ),
-                    ],
+                    inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
                     style: TextStyle(fontSize: dynamicFontSize * 3),
                     textAlign: TextAlign.center,
                     decoration: const InputDecoration(
@@ -127,7 +120,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                       hintText: '0.00000000',
                     ),
                     onChanged: (value) async {
-                      ref.read(sendAmountProvider.notifier).state = ((double.parse(value) * 100000000).toInt());
+                      ref.read(sendTxProvider.notifier).updateAmount((double.parse(value) * 100000000).toInt());
                     },
                   ),
                 ),
@@ -158,12 +151,12 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                     onTap: () async {
                       try {
                         final balance = ref.watch(balanceNotifierProvider).btcBalance;
-                        final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(sendAmount.state).future).then((value) => value);
-                        final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future);
+                        final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(sendTxState.amount).future).then((value) => value);
+                        final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future).then((value) => value);
                         final fee = await transaction.$1.feeAmount().then((value) => value);
                         final amountToSet = (balance - fee!).toDouble() / 100000000;
-                        controller.text = amountToSet.toStringAsFixed(8);
-                        ref.read(sendAmountProvider.notifier).state = (amountToSet * 100000000).toInt();
+                        ref.read(sendTxProvider.notifier).updateAmount((amountToSet * 100000000).toInt());
+                        controller.text = amountToSet.toString();
                       }
                       catch (e) {
                         Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
@@ -244,7 +237,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                 ),
                 error: (error, stack) => Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child:  TextButton(onPressed: () { ref.refresh(feeProvider); }, child: Text(ref.watch(sendAmountProvider.notifier).state == 0 ? '' : error.toString(), style: TextStyle(color: Colors.black, fontSize: dynamicFontSize))),
+                  child:  TextButton(onPressed: () { ref.refresh(feeProvider); }, child: Text(sendTxState.amount == 0 ? '' : error.toString(), style: TextStyle(color: Colors.black, fontSize: dynamicFontSize))),
                 ),
               ),
               SizedBox(height: dynamicSizedBox),
@@ -280,7 +273,6 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                     controller.loading();
                     await Future.delayed(const Duration(seconds: 3));
                     try {
-                      ref.watch(sendTxProvider.notifier).updateAmount(sendAmount.state);
                       await ref.watch(sendBitcoinTransactionProvider.future);
                       controller.success();
                       Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);

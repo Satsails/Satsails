@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk_dart/lwk_dart.dart';
+import 'package:satsails/helpers/asset_mapper.dart';
 import 'package:satsails/models/liquid_model.dart';
-import 'package:satsails/models/send_tx_model.dart';
 import 'package:satsails/providers/auth_provider.dart';
 import 'package:satsails/providers/liquid_config_provider.dart';
 import 'package:satsails/providers/send_tx_provider.dart';
@@ -104,7 +104,7 @@ final sendLiquidTransactionProvider = FutureProvider.autoDispose<String>((ref) a
     fee: feeRate,
     assetId: sendTx.state.assetId,
   );
-  final pset = sendTx.state.assetId == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d'
+  final pset = sendTx.state.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC)
       ? await ref.watch(buildLiquidTransactionProvider(transactionBuilder).future)
       : await ref.watch(buildLiquidAssetTransactionProvider(transactionBuilder).future);
   final signedTxBytes = await ref.watch(signLiquidPsetProvider(pset).future);

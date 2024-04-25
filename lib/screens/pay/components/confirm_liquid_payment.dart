@@ -1,4 +1,3 @@
-import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/helpers/asset_mapper.dart';
+import 'package:satsails/helpers/input_formatters/comma_text_input_formatter.dart';
+import 'package:satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:satsails/providers/liquid_provider.dart';
 import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
@@ -24,20 +25,20 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final titleFontSize = screenHeight * 0.03;
+    final titleFontSize = MediaQuery.of(context).size.height * 0.03;
     final sendTxState = ref.watch(sendTxProvider);
     final initializeBalance = ref.watch(initializeBalanceProvider);
     final liquidFormart = ref.watch(settingsProvider).btcFormat;
     final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(liquidFormart));
     final balance = ref.watch(balanceNotifierProvider);
-    final sendAmount = ref.watch(sendAmountProvider.notifier);
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final dynamicMargin = MediaQuery.of(context).size.width * 0.04;
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
     final dynamicCardHeight = MediaQuery.of(context).size.height * 0.21;
     final showBitcoinRelatedWidgets = ref.watch(showBitcoinRelatedWidgetsProvider.notifier);
+    final sendAmountInSatsOrAsset = ref.watch(sendTxProvider).amount;
+    final sendAmountInBtc = sendAmountInSatsOrAsset / 100000000;
 
     List<SizedBox> cards = [
       SizedBox(
@@ -183,34 +184,32 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
         int? currentIndex,
         CardSwiperDirection direction,
         ) {
-      Ticker ticker;
+      AssetId ticker;
       switch (currentIndex) {
         case 0:
-          ticker = Ticker.LBTC;
+          ticker = AssetId.LBTC;
           break;
         case 1:
-          ticker = Ticker.BRL;
+          ticker = AssetId.BRL;
           break;
         case 2:
-          ticker = Ticker.USD;
+          ticker = AssetId.USD;
           break;
         case 3:
-          ticker = Ticker.EUR;
+          ticker = AssetId.EUR;
           break;
         default:
-          ticker = Ticker.LBTC;
+          ticker = AssetId.LBTC;
       }
       String assetId = AssetMapper.reverseMapTicker(ticker);
       ref.read(sendTxProvider.notifier).updateAssetId(assetId);
+      ref.read(sendTxProvider.notifier).updateAmount(0);
+      controller.text = '';
       return true;
     }
 
     useEffect(() {
-      Future.microtask(() => controller.text = ref.watch(inputValueProvider).toStringAsFixed(8));
-    }, []);
-
-    useEffect(() {
-      controller.text = showBitcoinRelatedWidgets.state ? (sendAmount.state / 100000000).toStringAsFixed(8) : '0.00';
+      controller.text = sendAmountInBtc == 0 ? '' : sendAmountInBtc.toString();
     }, [showBitcoinRelatedWidgets.state]);
 
     return Scaffold(
@@ -265,25 +264,18 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                   child: TextFormField(
                     controller: controller,
                     keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      CurrencyTextInputFormatter.currency(
-                        decimalDigits:  showBitcoinRelatedWidgets.state ? 8 : 2,
-                        enableNegative: false,
-                        maxValue: showBitcoinRelatedWidgets.state ? 1000 : 1000000,
-                        symbol: '',
-                      ),
-                    ],
+                    inputFormatters: showBitcoinRelatedWidgets.state ? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()] : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()],
                     style: TextStyle(fontSize: dynamicFontSize * 3),
                     textAlign: TextAlign.center,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: '0.00000000',
+                      hintText: showBitcoinRelatedWidgets.state ? '0.00000000' : '0.00',
                     ),
                     onChanged: (value) async {
                       if (showBitcoinRelatedWidgets.state) {
-                        ref.read(sendAmountProvider.notifier).state = (double.parse(value)).toInt();
+                        ref.read(sendTxProvider.notifier).updateAmount((double.parse(value)).toInt());
                       }
-                      ref.read(sendAmountProvider.notifier).state = ((double.parse(value) * 100000000).toInt());
+                      ref.read(sendTxProvider.notifier).updateAmount((double.parse(value) * 100000000).toInt());
                     },
                   ),
                 ),
@@ -394,7 +386,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                 ),
                 error: (error, stack) => Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child:  TextButton(onPressed: () { ref.refresh(feeProvider); }, child: Text(ref.watch(sendAmountProvider.notifier).state == 0 ? '' : error.toString(), style: TextStyle(color: Colors.black, fontSize: dynamicFontSize))),
+                  child:  TextButton(onPressed: () { ref.refresh(feeProvider); }, child: Text(sendTxState.amount == 0 ? '' : error.toString(), style: TextStyle(color: Colors.black, fontSize: dynamicFontSize))),
                 ),
               ),
               SizedBox(height: dynamicSizedBox),
@@ -430,7 +422,6 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                     controller.loading();
                     await Future.delayed(const Duration(seconds: 3));
                     try {
-                      ref.watch(sendTxProvider.notifier).updateAmount(sendAmount.state);
                       await ref.watch(sendLiquidTransactionProvider.future);
                       controller.success();
                       Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);

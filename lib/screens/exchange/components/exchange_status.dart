@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/helpers/exchange.dart';
 
-class ExchangeStatus extends StatelessWidget {
+class ExchangeStatus extends ConsumerWidget {
   final Stream<dynamic> exchangeStatus;
   ExchangeStatus({required this.exchangeStatus});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return StreamBuilder<dynamic>(
       stream: exchangeStatus,
       builder: (context, snapshot) {

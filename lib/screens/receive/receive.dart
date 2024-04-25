@@ -27,9 +27,7 @@ class Receive extends ConsumerWidget {
     final bitcoinAddressAsyncValue = ref.watch(bitcoinAddressProvider);
     final liquidAddressAsyncValue = ref.watch(liquidAddressProvider);
     final controller = ref.watch(groupButtonControllerProvider);
-    final online = ref
-        .watch(settingsProvider)
-        .online;
+    final online = ref.watch(settingsProvider).online;
 
     return Scaffold(
       backgroundColor: Colors.white,

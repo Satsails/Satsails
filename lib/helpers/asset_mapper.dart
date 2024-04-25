@@ -21,14 +21,6 @@ enum AssetId {
   }
 }
 
-enum Ticker {
-  USD,
-  LBTC,
-  EUR,
-  BRL,
-  UNKNOWN
-}
-
 class AssetMapper {
   static AssetId mapAsset(String assetId) {
     switch (assetId) {
@@ -45,15 +37,15 @@ class AssetMapper {
     }
   }
 
-  static String reverseMapTicker(Ticker ticker) {
+  static String reverseMapTicker(AssetId ticker) {
     switch (ticker) {
-      case Ticker.USD:
+      case AssetId.USD:
         return 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2';
-      case Ticker.LBTC:
+      case AssetId.LBTC:
         return '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d';
-      case Ticker.EUR:
+      case AssetId.EUR:
         return '18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec';
-      case Ticker.BRL:
+      case AssetId.BRL:
         return '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189';
       default:
         return '';

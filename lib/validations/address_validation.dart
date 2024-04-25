@@ -1,5 +1,6 @@
 import 'package:lwk_dart/lwk_dart.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
+import 'package:satsails/helpers/asset_mapper.dart';
 import 'package:satsails/models/address_model.dart';
 
 Future<bool> isValidLiquidAddress(String address) async {
@@ -43,7 +44,7 @@ Future<AddressAndAmount>  parseAddressAndAmount(String data) async {
   var address = parts[0];
   var amount;
   var lightningInvoice = '';
-  var assetId = '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d';
+  var assetId = AssetMapper.reverseMapTicker(AssetId.LBTC);
 
   if (address.startsWith('bitcoin:')) {
     address = address.substring(8);

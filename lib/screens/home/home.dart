@@ -11,7 +11,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import 'package:satsails/screens/shared/build_balance_card.dart';
-import 'package:satsails/screens/shared/circulat_button.dart';
+import 'package:satsails/screens/shared/circular_button.dart';
 import 'package:satsails/screens/shared/custom_button.dart';
 import 'package:satsails/screens/shared/offline_transaction_warning.dart';
 import 'package:satsails/screens/shared/pie_chart.dart';

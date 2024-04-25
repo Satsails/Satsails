@@ -177,8 +177,7 @@ class BuildTransactions extends ConsumerWidget {
                         _valueOfLiquidSubTransaction(AssetMapper.mapAsset(
                             transaction.balances[0].assetId), transaction.balances[0]
                             .value, ref), style: const TextStyle(fontSize: 14))
-                        : Text(
-                        'Multiple', style: const TextStyle(fontSize: 14)),
+                        : Text('Multiple', style: const TextStyle(fontSize: 14)),
                   ],
                 ),
                 subtitle: Text(

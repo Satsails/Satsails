@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PegStatusSheet extends StatelessWidget {
+class PegStatusSheet extends ConsumerWidget {
   final Stream<dynamic> pegStatus;
 
   PegStatusSheet({required this.pegStatus});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return StreamBuilder<dynamic>(
       stream: pegStatus,
       builder: (context, snapshot) {
