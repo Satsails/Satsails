@@ -134,7 +134,7 @@ class BuildTransactions extends ConsumerWidget {
         GestureDetector(
           onTap: () {
             ref.read(transactionSearchProvider).isLiquid = false;
-            ref.read(transactionSearchProvider).transactionHash = transaction.txid;
+            ref.read(transactionSearchProvider).txid = transaction.txid;
             Navigator.pushNamed(context, '/search_modal');
           },
           child: ListTile(
@@ -190,12 +190,8 @@ class BuildTransactions extends ConsumerWidget {
                 children: transaction.balances.map((balance) {
                   return GestureDetector(
                     onTap: () {
-                      ref
-                          .read(transactionSearchProvider)
-                          .isLiquid = true;
-                      ref
-                          .read(transactionSearchProvider)
-                          .transactionHash = transaction.txid;
+                      setTransactionSearchProvider(transaction, ref);
+
                       Navigator.pushNamed(context, '/search_modal');
                     },
                     child: ListTile(
@@ -212,6 +208,27 @@ class BuildTransactions extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  void setTransactionSearchProvider(Tx transaction, WidgetRef ref) {
+    ref.read(transactionSearchProvider).isLiquid = true;
+    ref.read(transactionSearchProvider).txid = transaction.txid;
+
+    if (transaction.kind == 'incoming') {
+      final outputs = transaction.outputs[0];
+      final output = outputs.unblinded;
+      ref.read(transactionSearchProvider).amountBlinder = output.valueBf;
+      ref.read(transactionSearchProvider).assetBlinder = output.assetBf;
+      ref.read(transactionSearchProvider).amount = output.value;
+      ref.read(transactionSearchProvider).assetId = output.asset;
+    } else {
+      final inputs = transaction.inputs[0];
+      final input = inputs.unblinded;
+      ref.read(transactionSearchProvider).amountBlinder = input.valueBf;
+      ref.read(transactionSearchProvider).assetBlinder = input.assetBf;
+      ref.read(transactionSearchProvider).amount = input.value;
+      ref.read(transactionSearchProvider).assetId = input.asset;
+    }
   }
 
   Icon _subTransactionIcon(int value) {

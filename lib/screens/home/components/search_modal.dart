@@ -12,9 +12,13 @@ class SearchModal extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isLiquid = ref.watch(transactionSearchProvider).isLiquid;
-    final transactionHash = ref.watch(transactionSearchProvider).transactionHash;
+    final transactionHash = ref.watch(transactionSearchProvider).txid;
+    final amount = ref.watch(transactionSearchProvider).amount;
+    final assetId = ref.watch(transactionSearchProvider).assetId;
+    final amountBlinder = ref.watch(transactionSearchProvider).amountBlinder;
+    final assetBlinder = ref.watch(transactionSearchProvider).assetBlinder;
 
-    final uri = (isLiquid == null || transactionHash == null) ? 'https://mempool.space' : (isLiquid! ? 'https://liquid.network/tx/$transactionHash' : 'https://mempool.space/tx/$transactionHash');
+    final uri = (isLiquid == null || transactionHash == null) ? 'https://mempool.space' : (isLiquid! ? 'https://liquid.network/tx/$transactionHash#blinded=$amount,$assetId,$amountBlinder,$assetBlinder' : 'https://mempool.space/tx/$transactionHash');
     controller.loadRequest(Uri.parse(uri));
     return Scaffold(
       appBar: AppBar(
