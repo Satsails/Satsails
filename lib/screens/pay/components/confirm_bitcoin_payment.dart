@@ -119,6 +119,9 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                       hintText: '0',
                     ),
                     onChanged: (value) async {
+                      if (value.isEmpty) {
+                        ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                      }
                       ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
                     },
                   ),

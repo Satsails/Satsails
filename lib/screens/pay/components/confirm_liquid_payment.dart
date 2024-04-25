@@ -272,8 +272,8 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                       hintText: showBitcoinRelatedWidgets.state ? '0' : '0.00',
                     ),
                     onChanged: (value) async {
-                      if (showBitcoinRelatedWidgets.state) {
-                        ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                      if (value.isEmpty) {
+                        ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
                       }
                       ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
                     },
