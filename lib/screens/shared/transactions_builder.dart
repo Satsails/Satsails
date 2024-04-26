@@ -11,7 +11,7 @@ import 'package:satsails/providers/transaction_type_show_provider.dart';
 import 'package:satsails/providers/transactions_provider.dart';
 
 class BuildTransactions extends ConsumerWidget {
-  const BuildTransactions({Key? key}) : super(key: key);
+  const BuildTransactions({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
