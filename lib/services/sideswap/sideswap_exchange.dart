@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/io.dart';
 import 'package:http/http.dart' as http;
-import 'package:satsails/helpers/exchange.dart';
 
 class SideswapStreamPrices {
   late IOWebSocketChannel _channel;
@@ -142,8 +141,7 @@ class SideswapUploadData {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        WalletStrategy walletStrategy = WalletStrategy();
-        walletStrategy.signInputs(responseData, result["order_id"], uri, result["send_asset"]);
+        // walletStrategy.signInputs(responseData, result["order_id"], uri, result["send_asset"]);
 
       } else {
         print('HTTP request failed with status: ${response.statusCode}');

@@ -4,9 +4,9 @@ import 'package:web_socket_channel/io.dart';
 
 class SideswapServerStatus {
   late IOWebSocketChannel _channel;
-  final _messageController = StreamController<dynamic>.broadcast();
+  final _messageController = StreamController<Map<String, dynamic>>.broadcast();
 
-  Stream<dynamic> get messageStream => _messageController.stream;
+  Stream<Map<String, dynamic>> get messageStream => _messageController.stream;
 
   void connect() {
     _channel = IOWebSocketChannel.connect('wss://api.sideswap.io/json-rpc-ws');

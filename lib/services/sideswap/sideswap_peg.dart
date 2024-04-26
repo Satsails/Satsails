@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/io.dart';
 
-class SideswapPeg {
+class SideswapPegStream {
   late IOWebSocketChannel _channel;
   final _messageController = StreamController<dynamic>.broadcast();
 
@@ -46,7 +46,7 @@ class SideswapPeg {
   }
 }
 
-class SideswapPegStatus {
+class SideswapPegStatusStream {
   late IOWebSocketChannel _channel;
   final _messageController = StreamController<dynamic>.broadcast();
 
