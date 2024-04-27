@@ -19,11 +19,14 @@ dependencies:
   webview_flutter: ^4.5.0
   qr_flutter: ^4.1.0
   qr_code_scanner: ^1.0.1
+#  ai_barcode_scanner 3.4.3 for web compil
   fl_chart: ^0.66.2
   bip39: ^1.0.6
   flutter_riverpod: ^2.5.1
-  bdk_flutter: ^0.31.2-dev
+#  Need windows linux and web compils
+  bdk_flutter: ^0.31.2-dev.1
   flutter_i18n: ^0.35.1
+#  need windows linux ios and mac and web compils
   boltz_dart:
     git:
       url: https://github.com/SatoshiPortal/boltz-dart.git
@@ -36,7 +39,6 @@ dependencies:
   icons_plus: ^5.0.0
   loading_animation_widget: ^1.2.1
   group_button: ^5.3.4
-  pull_to_refresh: ^2.0.0
   responsive_framework: ^1.4.0
   liquid_pull_to_refresh: ^3.0.1
   bolt11_decoder: ^1.0.2
@@ -44,6 +46,7 @@ dependencies:
   hooks_riverpod: ^2.5.1
   interactive_slider: ^0.2.1
   fluttertoast: ^8.2.5
+#  flutter_styled_toast: ^2.2.1 use to compil toas everywhere
   flutter_card_swiper: ^7.0.0
 
 dev_dependencies:
@@ -57,6 +60,7 @@ flutter:
   assets:
     - lib/assets/satsails.png
 
+#compil incons to all envs
 flutter_launcher_icons:
   android: true
   image_path: "lib/assets/satsails.png"

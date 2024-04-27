@@ -29,10 +29,10 @@ packages:
     dependency: transitive
     description:
       name: archive
-      sha256: "22600aa1e926be775fa5fe7e6894e7fb3df9efda8891c73f70fb3262399a432d"
+      sha256: "0763b45fa9294197a2885c8567927e2830ade852e5c896fd4ab7e0e348d0f373"
       url: "https://pub.dev"
     source: hosted
-    version: "3.4.10"
+    version: "3.5.0"
   args:
     dependency: transitive
     description:
@@ -53,10 +53,10 @@ packages:
     dependency: "direct main"
     description:
       name: bdk_flutter
-      sha256: daa4a618f050a4ee72cbc0eb8f7e1948c722bffc0c4378dc10a0d5690d99de41
+      sha256: c912a10a473fc8d378a6fd56f9eeb46f0cacaabee6c51c61a5e4566dadc674a6
       url: "https://pub.dev"
     source: hosted
-    version: "0.31.2-dev"
+    version: "0.31.2-dev.1"
   bech32:
     dependency: transitive
     description:
@@ -86,7 +86,7 @@ packages:
     description:
       path: "."
       ref: trunk
-      resolved-ref: "728c9715ea5b75d434335976107837260d4b0140"
+      resolved-ref: "6cab03ee68c5151ecbf982f5f3831c69f422b903"
       url: "https://github.com/SatoshiPortal/boltz-dart.git"
     source: git
     version: "0.1.4"
@@ -562,10 +562,10 @@ packages:
     dependency: transitive
     description:
       name: json_annotation
-      sha256: b10a7b2ff83d83c777edba3c6a0f97045ddadd56c944e1a23a3fdf43a1bf4467
+      sha256: "1ce844379ca14835a50d2f019a3099f419082cfdd231cd86a142af94dd5c6bb1"
       url: "https://pub.dev"
     source: hosted
-    version: "4.8.1"
+    version: "4.9.0"
   leak_tracker:
     dependency: transitive
     description:
@@ -831,14 +831,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.3"
-  pull_to_refresh:
-    dependency: "direct main"
-    description:
-      name: pull_to_refresh
-      sha256: bbadd5a931837b57739cf08736bea63167e284e71fb23b218c8c9a6e042aad12
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
   qr:
     dependency: transitive
     description:
@@ -1088,10 +1080,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: "0a989dc7ca2bb51eac91e8fd00851297cfffd641aa7538b165c62637ca0eaa4a"
+      sha256: "0eaf06e3446824099858367950a813472af675116bf63f008a4c2a75ae13e9cb"
       url: "https://pub.dev"
     source: hosted
-    version: "5.4.0"
+    version: "5.5.0"
   xdg_directories:
     dependency: transitive
     description:
