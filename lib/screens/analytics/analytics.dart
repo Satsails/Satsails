@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:satsails/models/datetime_range_model.dart';
+import 'package:satsails/providers/analytics_provider.dart';
 import 'package:satsails/providers/navigation_provider.dart';
 import 'package:satsails/screens/analytics/components/button_picker.dart';
 import 'package:satsails/screens/analytics/components/calendar.dart';
+import 'package:satsails/screens/analytics/components/expenses_diagram.dart';
+import 'package:satsails/screens/analytics/components/liquid_expenses_diagram.dart';
 import 'package:satsails/screens/shared/transactions_builder.dart';
 import 'package:satsails/screens/shared/bottom_navigation_bar.dart';
 
@@ -25,19 +29,44 @@ class Analytics extends ConsumerWidget {
         currentIndex: ref.watch(navigationProvider),
         context: context,
         onTap: (int index) {
-          ref.read(navigationProvider.notifier).state = index;
+          ref
+              .read(navigationProvider.notifier)
+              .state = index;
         },
       ),
     );
   }
 
   Widget _buildBody(context, ref) {
+    final transactionType = ref.watch(selectedButtonProvider);
     return Column(
       children: [
-        Center(child: ButtonPicker()),
-        Expanded(child: Chart()),
-        Expanded(child: Calendar()),
-        Expanded(child: BuildTransactions(showAllTransactions: false,)),
+        const Center(child: ButtonPicker()),
+        if (transactionType == 'Bitcoin') const ExpensesDiagram(),
+        if (transactionType == 'Liquid') const LiquidExpensesDiagram(),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            const Calendar(),
+            ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
+                elevation: MaterialStateProperty.all<double>(4),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(
+                    start: DateTime.utc(0), end: DateTime.now()));
+              },
+              child: const Text('Max', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+        const Expanded(child: BuildTransactions(showAllTransactions: false,)),
       ],
     );
   }

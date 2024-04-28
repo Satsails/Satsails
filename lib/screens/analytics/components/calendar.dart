@@ -12,18 +12,7 @@ class Calendar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: Center(
-        child: SizedBox(
-          width: 375,
-          child: ListView(
-            children: <Widget>[
-              _buildCalendarDialogButton(context, ref),
-            ],
-          ),
-        ),
-      ),
-    );
+      return _buildCalendarDialogButton(context, ref);
   }
 
   _buildCalendarDialogButton(BuildContext context, WidgetRef ref) {
@@ -149,7 +138,7 @@ class Calendar extends ConsumerWidget {
           ElevatedButton(
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
-              elevation: MaterialStateProperty.all<double>(0),
+              elevation: MaterialStateProperty.all<double>(4),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
