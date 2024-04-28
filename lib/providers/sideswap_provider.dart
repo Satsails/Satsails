@@ -24,14 +24,28 @@ final sideswapStatusProvider = StateNotifierProvider.autoDispose<SideswapStatusM
 });
 
 final pegInProvider = StateProvider<bool>((ref) => false);
+final pegOutBlocksProvider = StateProvider<int>((ref) => 2);
+
+final pegOutBitcoinCostProvider = StateProvider.autoDispose<double>((ref) {
+  final chosenBlocks = ref.watch(pegOutBlocksProvider);
+  final txSize = ref.watch(sideswapStatusProvider).pegOutBitcoinTxVsize;
+  final rates = ref.watch(sideswapStatusProvider).bitcoinFeeRates ?? [];
+  for (var rate in rates) {
+    if (rate["blocks"] == chosenBlocks) {
+      return rate["value"] * txSize;
+    }
+  }
+  return 0.0;
+});
 
 final sideswapPegStreamProvider = StreamProvider.autoDispose<SideswapPeg>((ref) async* {
   final pegIn = ref.watch(pegInProvider);
+  final blocks = ref.watch(pegOutBlocksProvider);
   final service = SideswapPegStream();
   final liquidAddress = ref.watch(liquidAddressProvider.future).then((value) => value);
   final bitcoinAddress = ref.watch(bitcoinAddressProvider.future).then((value) => value);
 
-  pegIn ? service.connect(recv_addr: await liquidAddress, peg_in: pegIn) : service.connect(recv_addr: await bitcoinAddress, peg_in: pegIn);
+  pegIn ? service.connect(recv_addr: await liquidAddress, peg_in: pegIn) : service.connect(recv_addr: await bitcoinAddress, peg_in: pegIn, blocks: blocks);
   yield* service.messageStream.map((event) => SideswapPeg.fromJson(event));
 });
 

@@ -11,9 +11,10 @@ class SideswapPegStream {
   void connect({
     required String recv_addr,
     required bool peg_in,
+    int? blocks
   }) {
     _channel = IOWebSocketChannel.connect('wss://api.sideswap.io/json-rpc-ws');
-    peg(method: 'peg', peg_in: peg_in, recv_addr: recv_addr);
+    peg(method: 'peg', peg_in: peg_in, recv_addr: recv_addr, blocks: blocks);
 
     _channel.stream.listen(handleIncomingMessage);
   }
@@ -22,11 +23,13 @@ class SideswapPegStream {
     required String method,
     required bool? peg_in,
     required String? recv_addr,
+    required int? blocks
   }) {
     _channel.sink.add(json.encode({
       'id': 1,
       'method': method,
       'params': {
+        'blocks': blocks,
         'peg_in': peg_in,
         'recv_addr': recv_addr,
       },
