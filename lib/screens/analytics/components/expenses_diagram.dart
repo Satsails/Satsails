@@ -25,44 +25,74 @@ class ExpensesDiagram extends ConsumerWidget {
               ? PieChart(PieChartData(sections: [PieChartSectionData(value: 1, title: '', radius: 20, color: Colors.grey)], borderData: FlBorderData(show: false)))
               : PieChart(PieChartData(
             sections: [
-              PieChartSectionData(value: _calculateBitcoinExpenses(bitcoinTransactions).sent.toDouble(), title: '', radius: 20, badgeWidget: const Icon(Icons.arrow_downward, color: Colors.white), color: Colors.green),
+              PieChartSectionData(value: _calculateBitcoinExpenses(bitcoinTransactions).sent.toDouble(), title: '', radius: 20, badgeWidget: const Icon(Icons.arrow_downward, color: Colors.white), color: Colors.greenAccent),
               PieChartSectionData(value: _calculateBitcoinExpenses(bitcoinTransactions).received.toDouble(), title: '', radius: 20, badgeWidget: const Icon(Icons.arrow_upward, color: Colors.white), color: Colors.redAccent),
-              PieChartSectionData(value: _calculateBitcoinExpenses(bitcoinTransactions).fee.toDouble(), title: '', radius: 20, badgeWidget: const Icon(MingCute.pickax_fill, color: Colors.grey), color: Colors.yellow),
+              PieChartSectionData(value: _calculateBitcoinExpenses(bitcoinTransactions).fee.toDouble(), title: '', radius: 20, badgeWidget: const Icon(MingCute.pickax_fill, color: Colors.white), color: Colors.deepOrange),
             ],
             borderData: FlBorderData(show: false),
           )),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: dynamicHeight / 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Card(
-              color: Colors.red,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Sent: ${_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent}',
-                  style: TextStyle(color: Colors.white),
+              elevation: 4,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Colors.red, Colors.redAccent],
+                  ),
+                  borderRadius: BorderRadius.circular(6.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Sent: ${_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent}',
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                  ),
                 ),
               ),
             ),
             Card(
-              color: Colors.green,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Received: ${_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received}',
-                  style: TextStyle(color: Colors.white),
+              elevation: 4,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Colors.greenAccent, Colors.greenAccent],
+                  ),
+                  borderRadius: BorderRadius.circular(6.0), // Add this line
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Received: ${_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received}',
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                  ),
                 ),
               ),
             ),
             Card(
-              color: Colors.orange,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Fees: ${_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee}',
-                  style: TextStyle(color: Colors.white),
+              elevation: 4,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Colors.deepOrange, Colors.orangeAccent],
+                  ),
+                  borderRadius: BorderRadius.circular(6.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Fees: ${_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee}',
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                  ),
                 ),
               ),
             ),

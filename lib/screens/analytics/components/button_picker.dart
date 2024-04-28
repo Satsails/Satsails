@@ -43,8 +43,8 @@ class ButtonPicker extends ConsumerWidget {
       },
       buttons: const ["Bitcoin", "Liquid", "Lightning", 'Swaps'],
       options: GroupButtonOptions(
-        unselectedTextStyle: const TextStyle(fontSize: 16, color: Colors.black),
-        selectedTextStyle: const TextStyle(fontSize: 16, color: Colors.white),
+        unselectedTextStyle: const TextStyle(fontSize: 13, color: Colors.black),
+        selectedTextStyle: const TextStyle(fontSize: 13, color: Colors.white),
         selectedColor: Colors.deepOrange,
         mainGroupAlignment: MainGroupAlignment.center,
         crossGroupAlignment: CrossGroupAlignment.center,

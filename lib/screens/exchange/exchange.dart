@@ -19,8 +19,6 @@ import 'package:satsails/providers/sideswap_provider.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:satsails/screens/shared/offline_transaction_warning.dart';
 
-
-
 class Exchange extends HookConsumerWidget {
   Exchange({super.key});
   final controller = TextEditingController();
@@ -114,6 +112,7 @@ class Exchange extends HookConsumerWidget {
                 throw 'Amount is below minimum peg out amount';
               }
               await ref.watch(sendLiquidTransactionProvider.future);
+              // on sunccess store on hive peg and order id amount and timestampo
               controller.success();
               Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
               await Future.delayed(const Duration(seconds: 3));

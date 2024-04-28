@@ -55,19 +55,19 @@ class BuildTransactions extends ConsumerWidget {
                   if (index < bitcoinTransactions.length) {
                     return _buildTransactionItem(bitcoinTransactions[index], context, ref);
                   } else {
-                    return const Center(child: Text('No transactions', style: TextStyle(fontSize: 20, color: Colors.grey)));
+                    return const Center(child: Text('No transactions', style: TextStyle(fontSize: 14, color: Colors.grey)));
                   }
                 case 'Liquid':
                   if (index < liquidTransactions.length) {
                     return _buildTransactionItem(liquidTransactions[index], context, ref);
                   } else {
-                    return const Center(child: Text('No transactions', style: TextStyle(fontSize: 20, color: Colors.grey)));
+                    return const Center(child: Text('No transactions', style: TextStyle(fontSize: 14, color: Colors.grey)));
                   }
                 default:
                   if (index < allTx.length) {
                     return _buildTransactionItem(allTx[index], context, ref);
                   } else {
-                    return const Center(child: Text('No transactions', style: TextStyle(fontSize: 20, color: Colors.grey)));
+                    return const Center(child: Text('No transactions', style: TextStyle(fontSize: 14, color: Colors.grey)));
                   }
               }
             },
@@ -181,7 +181,7 @@ class BuildTransactions extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(transaction.kind.capitalize(),
-                        style: const TextStyle(fontSize: 16)),
+                        style: const TextStyle(fontSize: 14)),
                     transaction.balances.length == 1
                         ? Text(
                         _valueOfLiquidSubTransaction(AssetMapper.mapAsset(

@@ -58,3 +58,21 @@ final sideswapPegProvider = StateNotifierProvider.autoDispose<SideswapPegModel, 
   ));
 });
 
+final sideswapPegStatusStreamProvider = StreamProvider.autoDispose<SideswapPegStatus>((ref) {
+  final orderId = ref.watch(sideswapPegProvider).orderId ?? "";
+  final pegIn = ref.watch(pegInProvider);
+  final service = SideswapPegStatusStream();
+  service.connect(orderId: orderId, pegIn: pegIn);
+  final stream = service.messageStream;
+
+  return stream.map((event) => SideswapPegStatus.fromJson(event));
+});
+
+final sideswapPegStatusProvider = StateNotifierProvider.autoDispose<SideswapPegStatusModel, SideswapPegStatus>((ref) {
+  final status = ref.watch(sideswapPegStatusStreamProvider);
+  return SideswapPegStatusModel(status.when(
+    data:(value) => value,
+    loading: () => SideswapPegStatus(),
+    error: (error, stackTrace) => SideswapPegStatus(),
+  ));
+});

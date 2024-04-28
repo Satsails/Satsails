@@ -29,22 +29,26 @@ class SideswapPeg {
   }
 }
 
-// check for status
 class SideswapPegStatusModel extends StateNotifier<SideswapPegStatus> {
   SideswapPegStatusModel(super.state);
 }
 
-
 class SideswapPegStatus {
   final String? orderId;
-  final String? pegAddr;
-  final String? status;
+  final String? addr;
+  final String? addrRecv;
+  final int? createdAt;
+  final int? expiresAt;
+  final bool? pegIn;
   final List<SideswapPegStatusTransaction>? list;
 
   SideswapPegStatus({
     this.orderId,
-    this.pegAddr,
-    this.status,
+    this.addr,
+    this.addrRecv,
+    this.createdAt,
+    this.expiresAt,
+    this.pegIn,
     this.list,
   });
 
@@ -52,8 +56,11 @@ class SideswapPegStatus {
     var result = json['result'];
     return SideswapPegStatus(
       orderId: result["order_id"],
-      pegAddr: result["peg_addr"],
-      status: result["status"],
+      addr: result["addr"],
+      addrRecv: result["addr_recv"],
+      createdAt: result["created_at"],
+      expiresAt: result["expires_at"],
+      pegIn: result["peg_in"],
       list: (result["list"] as List).map((item) => SideswapPegStatusTransaction.fromJson(item)).toList(),
     );
   }

@@ -42,10 +42,12 @@ class Analytics extends ConsumerWidget {
     return Column(
       children: [
         const Center(child: ButtonPicker()),
+        Divider(),
         if (transactionType == 'Bitcoin') const ExpensesDiagram(),
         if (transactionType == 'Liquid') const LiquidExpensesDiagram(),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        Divider(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             const Calendar(),
             ElevatedButton(
@@ -62,7 +64,7 @@ class Analytics extends ConsumerWidget {
                 ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(
                     start: DateTime.utc(0), end: DateTime.now()));
               },
-              child: const Text('Max', style: TextStyle(color: Colors.white)),
+              child: const Text('All Transactions', style: TextStyle(color: Colors.white, fontSize: 13)),
             ),
           ],
         ),

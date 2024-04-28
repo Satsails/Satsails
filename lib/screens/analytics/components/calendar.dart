@@ -160,7 +160,7 @@ class Calendar extends ConsumerWidget {
                 ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[1]!.add(Duration(hours: 23, minutes: 59, seconds: 59))));
               }
             },
-            child: const Text('Select Range', style: TextStyle(fontSize: 16, color: Colors.white), textAlign: TextAlign.center),
+            child: const Text('Select Range', style: TextStyle(fontSize: 13, color: Colors.white), textAlign: TextAlign.center),
           ),
         ],
       ),
