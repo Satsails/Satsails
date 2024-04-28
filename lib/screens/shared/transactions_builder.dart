@@ -156,8 +156,8 @@ class BuildTransactions extends ConsumerWidget {
                 Text(_transactionAmount(transaction, ref),style: const TextStyle(fontSize: 14)),
               ],
             ),
-            subtitle: Text("Fee: ${_transactionFee(transaction, ref)}",
-                style: const TextStyle(fontSize: 14)),
+            // subtitle: Text("Fee: ${_transactionFee(transaction, ref)}", style: const TextStyle(fontSize: 14)),
+            subtitle: Text(timestampToDateTime(transaction.confirmationTime?.timestamp), style: const TextStyle(fontSize: 14)),
             trailing: _confirmationStatus(transaction) == 'Confirmed'
                 ? const Icon(Icons.check_circle, color: Colors.green)
                 : const Icon(Icons.access_alarm_outlined, color: Colors.red),
@@ -190,9 +190,8 @@ class BuildTransactions extends ConsumerWidget {
                         : Text('Multiple', style: const TextStyle(fontSize: 14)),
                   ],
                 ),
-                subtitle: Text(
-                    "Fee: ${_transactionValueLiquid(transaction.fee, ref)}",
-                    style: const TextStyle(fontSize: 14)),
+                // subtitle: Text("Fee: ${_transactionValueLiquid(transaction.fee, ref)}",style: const TextStyle(fontSize: 14)),
+                subtitle: Text(timestampToDateTime(transaction.timestamp),style: const TextStyle(fontSize: 14)),
                 trailing: transaction.outputs[0].height != null
                     ? const Icon(Icons.check_circle, color: Colors.green)
                     : const Icon(
@@ -218,6 +217,14 @@ class BuildTransactions extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  String timestampToDateTime(int? timestamp) {
+    if (timestamp == 0 || timestamp == null) {
+      return 'Unconfirmed';
+    }
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+    return "${date.day}/${date.month}/${date.year}";
   }
 
   void setTransactionSearchProvider(Tx transaction, WidgetRef ref) {
