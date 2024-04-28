@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/providers/navigation_provider.dart';
 import 'package:satsails/screens/analytics/components/button_picker.dart';
+import 'package:satsails/screens/analytics/components/calendar.dart';
 import 'package:satsails/screens/shared/transactions_builder.dart';
-import '../shared/bottom_navigation_bar.dart';
+import 'package:satsails/screens/shared/bottom_navigation_bar.dart';
 
 final date = StateProvider<DateTime>((ref) => DateTime.now());
 
@@ -31,10 +32,12 @@ class Analytics extends ConsumerWidget {
   }
 
   Widget _buildBody(context, ref) {
-    return const Column(
+    return Column(
       children: [
         Center(child: ButtonPicker()),
-        Expanded(child: BuildTransactions()),
+        Expanded(child: Chart()),
+        Expanded(child: Calendar()),
+        Expanded(child: BuildTransactions(showAllTransactions: false,)),
       ],
     );
   }

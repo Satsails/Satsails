@@ -11,13 +11,23 @@ import 'package:satsails/providers/transaction_type_show_provider.dart';
 import 'package:satsails/providers/transactions_provider.dart';
 
 class BuildTransactions extends ConsumerWidget {
-  const BuildTransactions({super.key});
+  final bool showAllTransactions;
+
+  const BuildTransactions({Key? key, required this.showAllTransactions}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transactions = ref.watch(transactionNotifierProvider);
-    final bitcoinTransactions = transactions.bitcoinTransactions;
-    final liquidTransactions = transactions.liquidTransactions;
+    final List bitcoinTransactions;
+    final List liquidTransactions;
+
+    if (showAllTransactions) {
+      final transactions = ref.watch(transactionNotifierProvider);
+      bitcoinTransactions = transactions.bitcoinTransactions;
+      liquidTransactions = transactions.liquidTransactions;
+    } else {
+      bitcoinTransactions = ref.watch(bitcoinTransactionsByDate);
+      liquidTransactions = ref.watch(liquidTransactionsByDate);
+    }
     final transationType = ref.watch(transactionTypeShowProvider);
     final allTx = <dynamic>[];
     allTx.addAll(bitcoinTransactions);

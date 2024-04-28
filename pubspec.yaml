@@ -48,6 +48,8 @@ dependencies:
   fluttertoast: ^8.2.5
 #  flutter_styled_toast: ^2.2.1 use to compil toas everywhere
   flutter_card_swiper: ^7.0.0
+  calendar_date_picker2: ^0.5.6
+  syncfusion_flutter_charts: ^25.1.41+2
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

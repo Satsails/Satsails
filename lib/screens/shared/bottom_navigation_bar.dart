@@ -45,9 +45,6 @@ class CustomBottomNavigationBar extends StatelessWidget {
           _navigateToScreen(index, context);
           onTap(index);
         },
-        selectedFontSize: screenWidth * 0.03,
-        unselectedFontSize: screenWidth * 0.03,
-        iconSize: screenWidth * 0.06,
         unselectedItemColor: Colors.black,
         selectedItemColor: Colors.orangeAccent,
         elevation: 0.0,

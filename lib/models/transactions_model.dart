@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:satsails/models/datetime_range_model.dart';
 
 class TransactionModel extends StateNotifier<Transaction>{
   TransactionModel(super.state);
@@ -36,5 +37,39 @@ class Transaction {
       ...bitcoinTransactions,
       ...liquidTransactions,
     ];
+  }
+
+  List<dynamic> get allTransactionsSorted {
+    final allTransactions = this.allTransactions;
+    allTransactions.sort((a, b) {
+      if (a['confirmationTime'] == null && b['confirmationTime'] != null) {
+        return -1;
+      } else if (a['confirmationTime'] != null && b['confirmationTime'] == null) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+    return allTransactions;
+  }
+
+  List<dynamic> filterBitcoinTransactions(DateTimeSelect range) {
+    return bitcoinTransactions.where((transaction) {
+      final confirmationTime = transaction.confirmationTime;
+      if (confirmationTime == null || confirmationTime.timestamp == 0) {
+        return true;
+      }
+      return confirmationTime.timestamp > range.start && confirmationTime.timestamp < range.end;
+    }).toList();
+  }
+
+  List<dynamic> filterLiquidTransactions(DateTimeSelect range) {
+    return liquidTransactions.where((transaction) {
+      final confirmationTime =  transaction.timestamp;
+      if (confirmationTime == null) {
+        return false;
+      }
+      return confirmationTime > range.start && confirmationTime < range.end;
+    }).toList();
   }
 }
