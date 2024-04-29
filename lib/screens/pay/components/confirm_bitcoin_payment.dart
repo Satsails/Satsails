@@ -38,260 +38,266 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
     final dynamicMargin = MediaQuery.of(context).size.width * 0.05;
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return PopScope(
+      onPopInvoked:(pop) async {
+        ref.read(sendTxProvider.notifier).resetToDefault();
+        ref.read(sendBlocksProvider.notifier).state = 1;
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
-        title: const Text('Confirm Payment'),
-      ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              SizedBox(
-                width: double.infinity,
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  elevation: 10,
-                  margin: EdgeInsets.all(dynamicMargin),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Colors.orange, Colors.deepOrange],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: const Text('Confirm Payment'),
+        ),
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: Card(
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: dynamicPadding, horizontal: dynamicPadding / 2),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('Bitcoin Balance', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
-                          initializeBalance.when(
-                              data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('$btcBalanceInFormat $btcFormart', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
-                              loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
-                              error: (error, stack) => SizedBox(height: titleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))))
+                    elevation: 10,
+                    margin: EdgeInsets.all(dynamicMargin),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Colors.orange, Colors.deepOrange],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: dynamicPadding, horizontal: dynamicPadding / 2),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text('Bitcoin Balance', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
+                            initializeBalance.when(
+                                data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('$btcBalanceInFormat $btcFormart', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
+                                loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
+                                error: (error, stack) => SizedBox(height: titleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))))
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Text(
+                          sendTxState.address,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        sendTxState.address,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: FocusScope(
-                  child: TextFormField(
-                    controller: controller,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
-                    style: TextStyle(fontSize: dynamicFontSize * 3),
-                    textAlign: TextAlign.center,
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      hintText: '0',
-                    ),
-                    onChanged: (value) async {
-                      if (value.isEmpty) {
-                        ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
-                      }
-                      ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
-                    },
-                  ),
-                ),
-              ),
-              SizedBox(height: dynamicSizedBox),
-              Text(
-                '~ ${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
-                style: TextStyle(
-                  fontSize: dynamicFontSize,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: dynamicSizedBox),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  gradient: const LinearGradient(
-                    colors: [Colors.orange, Colors.deepOrange],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(10),
-                    onTap: () async {
-                      try {
-                        final balance = ref.watch(balanceNotifierProvider).btcBalance;
-                        final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(sendTxState.amount).future).then((value) => value);
-                        final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future).then((value) => value);
-                        final fee = await transaction.$1.feeAmount().then((value) => value);
-                        final amountToSet = (balance - fee!);
-                        ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), btcFormart);
-                        controller.text = amountToSet.toString();
-                      }
-                      catch (e) {
-                        Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
-                      }
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: dynamicPadding, vertical: dynamicPadding / 2),
-                      child: Text(
-                        'Max',
-                        style: TextStyle(
-                          fontSize: dynamicFontSize,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(height: dynamicSizedBox),
-              InteractiveSlider(
-                centerIcon: Icon(Clarity.block_solid, color: Colors.black),
-                foregroundColor: Colors.deepOrange,
-                unfocusedHeight: dynamicFontSize * 2,
-                focusedHeight: dynamicFontSize * 2,
-                initialProgress: 15,
-                min: 5.0,
-                max: 1.0,
-                onChanged: (dynamic value){
-                  ref.read(sendBlocksProvider.notifier).state = value;
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Text(
-                  'Transaction in  ${getTimeFrame(ref.watch(sendBlocksProvider).toInt())}',
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: FocusScope(
+                    child: TextFormField(
+                      controller: controller,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
+                      style: TextStyle(fontSize: dynamicFontSize * 3),
+                      textAlign: TextAlign.center,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: '0',
+                      ),
+                      onChanged: (value) async {
+                        if (value.isEmpty) {
+                          ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                        }
+                        ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: dynamicSizedBox),
+                Text(
+                  '~ ${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
                   style: TextStyle(
                     fontSize: dynamicFontSize,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
                 ),
-              ),
-              SizedBox(height: dynamicSizedBox),
-              ref.watch(feeProvider).when(
-                data: (int fee) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      elevation: 10,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Colors.orange, Colors.deepOrange],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'Fee: ' + fee.toString() + ' sats',
-                            style: TextStyle(fontSize: dynamicFontSize, fontWeight: FontWeight.bold, color: Colors.white),
-                            textAlign: TextAlign.center,
+                SizedBox(height: dynamicSizedBox),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    gradient: const LinearGradient(
+                      colors: [Colors.orange, Colors.deepOrange],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      onTap: () async {
+                        try {
+                          final balance = ref.watch(balanceNotifierProvider).btcBalance;
+                          final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(sendTxState.amount).future).then((value) => value);
+                          final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future).then((value) => value);
+                          final fee = await transaction.$1.feeAmount().then((value) => value);
+                          final amountToSet = (balance - fee!);
+                          ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), btcFormart);
+                          controller.text = amountToSet.toString();
+                        }
+                        catch (e) {
+                          Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                        }
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: dynamicPadding, vertical: dynamicPadding / 2),
+                        child: Text(
+                          'Max',
+                          style: TextStyle(
+                            fontSize: dynamicFontSize,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                       ),
                     ),
-                  );
-                },
-                loading: () => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize, color: Colors.black),
+                  ),
                 ),
-                error: (error, stack) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child:  TextButton(onPressed: () { ref.refresh(feeProvider); }, child: Text(sendTxState.amount == 0 ? '' : error.toString(), style: TextStyle(color: Colors.black, fontSize: dynamicFontSize))),
+                SizedBox(height: dynamicSizedBox),
+                InteractiveSlider(
+                  centerIcon: Icon(Clarity.block_solid, color: Colors.black),
+                  foregroundColor: Colors.deepOrange,
+                  unfocusedHeight: dynamicFontSize * 2,
+                  focusedHeight: dynamicFontSize * 2,
+                  initialProgress: 15,
+                  min: 5.0,
+                  max: 1.0,
+                  onChanged: (dynamic value){
+                    ref.read(sendBlocksProvider.notifier).state = value;
+                  },
                 ),
-              ),
-              SizedBox(height: dynamicSizedBox),
-              ref.watch(feeValueInCurrencyProvider).when(
-                  data: (double feeValue) {
-                    return Text(
-                      '~ ${feeValue.toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
-                      style: TextStyle(
-                        fontSize: dynamicFontSize,
-                        fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    'Transaction in  ${getTimeFrame(ref.watch(sendBlocksProvider).toInt())}',
+                    style: TextStyle(
+                      fontSize: dynamicFontSize,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(height: dynamicSizedBox),
+                ref.watch(feeProvider).when(
+                  data: (int fee) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        elevation: 10,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Colors.orange, Colors.deepOrange],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              'Fee: ' + fee.toString() + ' sats',
+                              style: TextStyle(fontSize: dynamicFontSize, fontWeight: FontWeight.bold, color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
                       ),
-                      textAlign: TextAlign.center,
                     );
                   },
-                  loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize, color: Colors.black),
-                  error: (error, stack) => Text('')
-              ),
-            ],
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Center(
-                child: ActionSlider.standard(
-                  sliderBehavior: SliderBehavior.stretch,
-                  width: double.infinity,
-                  backgroundColor: Colors.white,
-                  toggleColor: Colors.deepOrangeAccent,
-                  action: (controller) async {
-                    controller.loading();
-                    await Future.delayed(const Duration(seconds: 3));
-                    try {
-                      await ref.watch(sendBitcoinTransactionProvider.future);
-                      controller.success();
-                      Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                  loading: () => Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize, color: Colors.black),
+                  ),
+                  error: (error, stack) => Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child:  TextButton(onPressed: () { ref.refresh(feeProvider); }, child: Text(sendTxState.amount == 0 ? '' : error.toString(), style: TextStyle(color: Colors.black, fontSize: dynamicFontSize))),
+                  ),
+                ),
+                SizedBox(height: dynamicSizedBox),
+                ref.watch(feeValueInCurrencyProvider).when(
+                    data: (double feeValue) {
+                      return Text(
+                        '~ ${feeValue.toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
+                        style: TextStyle(
+                          fontSize: dynamicFontSize,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      );
+                    },
+                    loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize, color: Colors.black),
+                    error: (error, stack) => Text('')
+                ),
+              ],
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Center(
+                  child: ActionSlider.standard(
+                    sliderBehavior: SliderBehavior.stretch,
+                    width: double.infinity,
+                    backgroundColor: Colors.white,
+                    toggleColor: Colors.deepOrangeAccent,
+                    action: (controller) async {
+                      controller.loading();
                       await Future.delayed(const Duration(seconds: 3));
-                      Navigator.pushNamed(context, '/home');
-                    } catch (e) {
-                      controller.failure();
-                      Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
-                      controller.reset();
-                    }
-                  },
-                  child: const Text('Slide to send'),
+                      try {
+                        await ref.watch(sendBitcoinTransactionProvider.future);
+                        controller.success();
+                        Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                        await Future.delayed(const Duration(seconds: 3));
+                        Navigator.pushNamed(context, '/home');
+                      } catch (e) {
+                        controller.failure();
+                        Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                        controller.reset();
+                      }
+                    },
+                    child: const Text('Slide to send'),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

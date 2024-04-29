@@ -1,14 +1,16 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
+part 'sideswap_peg_model.g.dart';
 
-// peg
-class SideswapPegModel extends StateNotifier<SideswapPeg> {
-  SideswapPegModel(super.state);
-}
 
-class SideswapPeg {
+@HiveType(typeId: 8)
+class SideswapPeg extends HiveObject {
+  @HiveField(0)
   final int? createdAt;
+  @HiveField(1)
   final int? expiresAt;
+  @HiveField(2)
   final String? orderId;
+  @HiveField(3)
   final String? pegAddr;
 
   SideswapPeg({
@@ -29,17 +31,21 @@ class SideswapPeg {
   }
 }
 
-class SideswapPegStatusModel extends StateNotifier<SideswapPegStatus> {
-  SideswapPegStatusModel(super.state);
-}
-
-class SideswapPegStatus {
+@HiveType(typeId: 9)
+class SideswapPegStatus extends HiveObject {
+  @HiveField(0)
   final String? orderId;
+  @HiveField(1)
   final String? addr;
+  @HiveField(2)
   final String? addrRecv;
+  @HiveField(3)
   final int? createdAt;
+  @HiveField(4)
   final int? expiresAt;
+  @HiveField(5)
   final bool? pegIn;
+  @HiveField(6)
   final List<SideswapPegStatusTransaction>? list;
 
   SideswapPegStatus({
@@ -66,17 +72,29 @@ class SideswapPegStatus {
   }
 }
 
-class SideswapPegStatusTransaction {
+@HiveType(typeId: 10)
+class SideswapPegStatusTransaction extends HiveObject {
+  @HiveField(0)
   final int? amount;
+  @HiveField(1)
   final int? createdAt;
+  @HiveField(2)
   final dynamic detectedConfs;
+  @HiveField(3)
   final dynamic payout;
+  @HiveField(4)
   final String? payoutTxid;
+  @HiveField(5)
   final String? status;
+  @HiveField(6)
   final dynamic totalConfs;
+  @HiveField(7)
   final String? txHash;
+  @HiveField(8)
   final String? txState;
+  @HiveField(9)
   final int? txStateCode;
+  @HiveField(10)
   final int? vout;
 
   SideswapPegStatusTransaction({

@@ -19,9 +19,9 @@ class ExpensesDiagram extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildCard('Sent',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent, [Colors.red, Colors.redAccent], context),
-            _buildCard('Received',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received, [Colors.green, Colors.greenAccent], context),
-            _buildCard('Fee',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.deepOrange, Colors.orangeAccent], context),
+            _buildCard('Sent',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent, [Colors.white, Colors.white], context),
+            _buildCard('Received',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received, [Colors.white, Colors.white], context),
+            _buildCard('Fee',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.white, Colors.white], context),
           ],),
       ],
     );
@@ -30,7 +30,7 @@ class ExpensesDiagram extends ConsumerWidget {
   Widget _buildCard(String title, double value, List<Color> gradientColors, BuildContext context) {
     final dynamicHeight = MediaQuery.of(context).size.height;
     final dynamicWidth = MediaQuery.of(context).size.width;
-    return Container(
+    return SizedBox(
       width: dynamicWidth / 3.5,
       height: dynamicHeight / 7,
       child: Card(
@@ -52,11 +52,11 @@ class ExpensesDiagram extends ConsumerWidget {
             children: [
               Text(
                 title,
-                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.blueGrey, fontSize: 14, fontWeight: FontWeight.bold),
               ),
               Text(
                 value.toString(),
-                style: TextStyle(color: Colors.white, fontSize: 14),
+                style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
             ],
           ),

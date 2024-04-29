@@ -42,10 +42,8 @@ class Analytics extends ConsumerWidget {
     return Column(
       children: [
         const Center(child: ButtonPicker()),
-        Divider(),
         if (transactionType == 'Bitcoin') const ExpensesDiagram(),
         if (transactionType == 'Liquid') const LiquidExpensesDiagram(),
-        Divider(),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -53,7 +51,7 @@ class Analytics extends ConsumerWidget {
             ElevatedButton(
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
-                elevation: MaterialStateProperty.all<double>(4),
+                elevation: MaterialStateProperty.all<double>(0),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),

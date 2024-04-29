@@ -9,6 +9,10 @@ class SendTxModel extends StateNotifier<SendTx> {
     state = state.copyWith(address: address);
   }
 
+  void resetToDefault() {
+    state = SendTx(address: '', amount: 0, type: PaymentType.Unknown, assetId: AssetMapper.reverseMapTicker(AssetId.LBTC));
+  }
+
   void updateAmount(int amount) {
     state = state.copyWith(amount: amount);
   }

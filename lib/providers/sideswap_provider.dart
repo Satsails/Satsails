@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:satsails/models/sideswap_peg_model.dart';
 import 'package:satsails/models/sideswap_status_model.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
@@ -23,8 +24,8 @@ final sideswapStatusProvider = StateNotifierProvider.autoDispose<SideswapStatusM
   ));
 });
 
-final pegInProvider = StateProvider<bool>((ref) => false);
-final pegOutBlocksProvider = StateProvider<int>((ref) => 2);
+final pegInProvider = StateProvider.autoDispose<bool>((ref) => false);
+final pegOutBlocksProvider = StateProvider.autoDispose<int>((ref) => 2);
 
 final pegOutBitcoinCostProvider = StateProvider.autoDispose<double>((ref) {
   final chosenBlocks = ref.watch(pegOutBlocksProvider);
@@ -49,30 +50,21 @@ final sideswapPegStreamProvider = StreamProvider.autoDispose<SideswapPeg>((ref) 
   yield* service.messageStream.map((event) => SideswapPeg.fromJson(event));
 });
 
-final sideswapPegProvider = StateNotifierProvider.autoDispose<SideswapPegModel, SideswapPeg>((ref) {
-  final peg = ref.watch(sideswapPegStreamProvider);
-  return SideswapPegModel(peg.when(
-    data:(value) => value,
-    loading: () => SideswapPeg(),
-    error: (error, stackTrace) => SideswapPeg(),
-  ));
-});
 
-final sideswapPegStatusStreamProvider = StreamProvider.autoDispose<SideswapPegStatus>((ref) {
-  final orderId = ref.watch(sideswapPegProvider).orderId ?? "";
+final sideswapPegStatusStreamProvider = StreamProvider.autoDispose<SideswapPegStatus>((ref) async* {
+  final orderId = await ref.watch(sideswapPegStreamProvider.future).then((value) => value.orderId ?? "");
   final pegIn = ref.watch(pegInProvider);
   final service = SideswapPegStatusStream();
   service.connect(orderId: orderId, pegIn: pegIn);
   final stream = service.messageStream;
 
-  return stream.map((event) => SideswapPegStatus.fromJson(event));
+  yield* stream.map((event) => SideswapPegStatus.fromJson(event));
 });
 
-final sideswapPegStatusProvider = StateNotifierProvider.autoDispose<SideswapPegStatusModel, SideswapPegStatus>((ref) {
-  final status = ref.watch(sideswapPegStatusStreamProvider);
-  return SideswapPegStatusModel(status.when(
-    data:(value) => value,
-    loading: () => SideswapPegStatus(),
-    error: (error, stackTrace) => SideswapPegStatus(),
-  ));
+
+final sideswapHiveStorageProvider = FutureProvider.autoDispose.family<void, String>((ref, orderId) async {
+  final sideswapStatusProvider = ref.watch(sideswapPegStatusStreamProvider);
+  final box = await Hive.openBox('sideswapStatus');
+  box.put(orderId, sideswapStatusProvider);
 });
+

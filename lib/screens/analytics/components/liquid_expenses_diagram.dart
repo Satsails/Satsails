@@ -23,9 +23,9 @@ class LiquidExpensesDiagram extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [Colors.red, Colors.redAccent], context),
-              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [Colors.green, Colors.greenAccent], context),
-              _buildCard('Fee', _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.deepOrange, Colors.orangeAccent], context),
+              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [Colors.white, Colors.white], context),
+              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [Colors.white, Colors.white], context),
+              _buildCard('Fee', _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.white, Colors.white], context),
             ],),],
     ),
       Column(
@@ -35,8 +35,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).brlSent / 100000000, [Colors.red, Colors.redAccent], context),
-              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).brlReceived / 100000000, [Colors.green, Colors.greenAccent], context),
+              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).brlSent / 100000000, [Colors.white, Colors.white], context),
+              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).brlReceived / 100000000, [Colors.white, Colors.white], context),
             ],
           ),
         ],
@@ -48,8 +48,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).usdSent / 100000000, [Colors.red, Colors.redAccent], context),
-              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).usdReceived / 100000000, [Colors.green, Colors.greenAccent], context),
+              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).usdSent / 100000000, [Colors.white, Colors.white], context),
+              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).usdReceived / 100000000, [Colors.white, Colors.white], context),
             ],
           ),
         ],
@@ -61,8 +61,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).euroSent / 100000000, [Colors.red, Colors.redAccent], context),
-              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).euroReceived / 100000000, [Colors.green, Colors.greenAccent], context),
+              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).euroSent / 100000000, [Colors.white, Colors.white], context),
+              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).euroReceived / 100000000, [Colors.white, Colors.white], context),
             ],
           ),
         ],
@@ -87,7 +87,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
   Widget _buildCard(String title, double value, List<Color> gradientColors, BuildContext context) {
     final dynamicHeight = MediaQuery.of(context).size.height;
     final dynamicWidth = MediaQuery.of(context).size.width;
-    return Container(
+    return SizedBox(
       width: dynamicWidth / 3.5,
       height: dynamicHeight / 7,
       child: Card(
@@ -109,11 +109,11 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             children: [
               Text(
                 title,
-                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.blueGrey, fontSize: 14, fontWeight: FontWeight.bold),
               ),
               Text(
                 value.toString(),
-                style: TextStyle(color: Colors.white, fontSize: 14),
+                style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
             ],
           ),
