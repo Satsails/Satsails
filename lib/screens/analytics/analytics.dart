@@ -5,8 +5,9 @@ import 'package:satsails/providers/analytics_provider.dart';
 import 'package:satsails/providers/navigation_provider.dart';
 import 'package:satsails/screens/analytics/components/button_picker.dart';
 import 'package:satsails/screens/analytics/components/calendar.dart';
-import 'package:satsails/screens/analytics/components/expenses_diagram.dart';
+import 'package:satsails/screens/analytics/components/bitcoin_expenses_diagram.dart';
 import 'package:satsails/screens/analytics/components/liquid_expenses_diagram.dart';
+import 'package:satsails/screens/analytics/components/swaps_builder.dart';
 import 'package:satsails/screens/shared/transactions_builder.dart';
 import 'package:satsails/screens/shared/bottom_navigation_bar.dart';
 
@@ -42,8 +43,9 @@ class Analytics extends ConsumerWidget {
     return Column(
       children: [
         const Center(child: ButtonPicker()),
-        if (transactionType == 'Bitcoin') const ExpensesDiagram(),
+        if (transactionType == 'Bitcoin') const BitcoinExpensesDiagram(),
         if (transactionType == 'Liquid') const LiquidExpensesDiagram(),
+        if (transactionType == 'Bitcoin' || transactionType == 'Liquid')
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -66,7 +68,9 @@ class Analytics extends ConsumerWidget {
             ),
           ],
         ),
+        if (transactionType == 'Bitcoin' || transactionType == 'Liquid')
         const Expanded(child: BuildTransactions(showAllTransactions: false,)),
+        if(transactionType == 'Swap') const Expanded(child: SwapsBuilder()),
       ],
     );
   }

@@ -4,13 +4,24 @@ import 'package:satsails/models/sideswap_peg_model.dart';
 import 'package:satsails/models/sideswap_status_model.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
-import 'package:satsails/services/sideswap/sideswap_peg.dart';
-import 'package:satsails/services/sideswap/sideswap_status.dart';
+import 'package:satsails/services/sideswap/sideswap.dart';
+
+final sideswapServiceProvider = Provider.autoDispose<Sideswap>((ref) {
+  final service = Sideswap();
+  service.connect();
+  return service;
+});
+
+final sideswapLoginStreamProvider = StreamProvider.autoDispose<void>((ref) {
+  final service = ref.watch(sideswapServiceProvider);
+  service.login();
+  return service.loginStream.map((event) => event);
+});
 
 final sideswapServerStatusStream = StreamProvider.autoDispose<SideswapStatus>((ref) {
-  final service = SideswapServerStatus();
-  service.connect();
-  final stream = service.messageStream;
+  final service = ref.watch(sideswapServiceProvider);
+  service.status();
+  final stream = service.statusStream;
 
   return stream.map((event) => SideswapStatus.fromJson(event));
 });
@@ -39,32 +50,42 @@ final pegOutBitcoinCostProvider = StateProvider.autoDispose<double>((ref) {
   return 0.0;
 });
 
-final sideswapPegStreamProvider = StreamProvider.autoDispose<SideswapPeg>((ref) async* {
+final sideswapPegProvider = StreamProvider.autoDispose<SideswapPeg>((ref) async* {
   final pegIn = ref.watch(pegInProvider);
   final blocks = ref.watch(pegOutBlocksProvider);
-  final service = SideswapPegStream();
-  final liquidAddress = ref.watch(liquidAddressProvider.future).then((value) => value);
-  final bitcoinAddress = ref.watch(bitcoinAddressProvider.future).then((value) => value);
+  final service = ref.watch(sideswapServiceProvider);
+  final liquidAddress = await ref.watch(liquidAddressProvider.future);
+  final bitcoinAddress = await ref.watch(bitcoinAddressProvider.future);
+  pegIn ? service.peg(recv_addr: liquidAddress, peg_in: pegIn) : service.peg(recv_addr: bitcoinAddress, peg_in: pegIn, blocks: blocks);
 
-  pegIn ? service.connect(recv_addr: await liquidAddress, peg_in: pegIn) : service.connect(recv_addr: await bitcoinAddress, peg_in: pegIn, blocks: blocks);
-  yield* service.messageStream.map((event) => SideswapPeg.fromJson(event));
+  yield* service.pegStream.map((event) => SideswapPeg.fromJson(event));
 });
 
 
-final sideswapPegStatusStreamProvider = StreamProvider.autoDispose<SideswapPegStatus>((ref) async* {
-  final orderId = await ref.watch(sideswapPegStreamProvider.future).then((value) => value.orderId ?? "");
+final sideswapPegStatusProvider = StreamProvider.autoDispose<SideswapPegStatus>((ref) async* {
+  final orderId = await ref.watch(sideswapPegProvider.future).then((value) => value.orderId ?? "");
   final pegIn = ref.watch(pegInProvider);
-  final service = SideswapPegStatusStream();
-  service.connect(orderId: orderId, pegIn: pegIn);
-  final stream = service.messageStream;
-
-  yield* stream.map((event) => SideswapPegStatus.fromJson(event));
+  final service = ref.watch(sideswapServiceProvider);
+  service.pegStatus(orderId: orderId, pegIn: pegIn);
+  yield* service.pegStatusStream.map((event) => SideswapPegStatus.fromJson(event));
 });
-
 
 final sideswapHiveStorageProvider = FutureProvider.autoDispose.family<void, String>((ref, orderId) async {
-  final sideswapStatusProvider = ref.watch(sideswapPegStatusStreamProvider);
+  final sideswapStatusProvider = await ref.watch(sideswapPegStatusProvider.future).then((value) => value);
   final box = await Hive.openBox('sideswapStatus');
   box.put(orderId, sideswapStatusProvider);
+});
+
+final sideswapAllPegsProvider = FutureProvider.autoDispose<List<SideswapPegStatus>>((ref) async {
+  final box = await Hive.openBox('sideswapStatus');
+  final keys = box.keys;
+  final List<SideswapPegStatus> swaps = [];
+  for (var key in keys) {
+    final value = box.get(key);
+    if (value != null) {
+      swaps.add(value);
+    }
+  }
+  return swaps;
 });
 

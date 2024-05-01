@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class Splash extends StatelessWidget {
   const Splash({Key? key}) : super(key: key);
@@ -17,7 +18,7 @@ class Splash extends StatelessWidget {
               height: 200, // Adjust as needed
             ),
             SizedBox(height: 30), // Adjust as needed
-            CircularProgressIndicator(),
+            LoadingAnimationWidget.threeArchedCircle(size: 50, color: Colors.orange),
           ],
         ),
       ),

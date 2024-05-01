@@ -23,9 +23,9 @@ class LiquidExpensesDiagram extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [Colors.white, Colors.white], context),
-              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [Colors.white, Colors.white], context),
-              _buildCard('Fee', _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.white, Colors.white], context),
+              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [Colors.blue, Colors.deepPurple], context),
+              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [Colors.blue, Colors.deepPurple], context),
+              _buildCard('Fee', _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.blue, Colors.deepPurple], context),
             ],),],
     ),
       Column(
@@ -35,8 +35,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).brlSent / 100000000, [Colors.white, Colors.white], context),
-              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).brlReceived / 100000000, [Colors.white, Colors.white], context),
+              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).brlSent / 100000000, [Colors.blue, Colors.deepPurple], context),
+              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).brlReceived / 100000000, [Colors.blue, Colors.deepPurple], context),
             ],
           ),
         ],
@@ -48,8 +48,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).usdSent / 100000000, [Colors.white, Colors.white], context),
-              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).usdReceived / 100000000, [Colors.white, Colors.white], context),
+              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).usdSent / 100000000, [Colors.blue, Colors.deepPurple], context),
+              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).usdReceived / 100000000, [Colors.blue, Colors.deepPurple], context),
             ],
           ),
         ],
@@ -61,8 +61,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).euroSent / 100000000, [Colors.white, Colors.white], context),
-              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).euroReceived / 100000000, [Colors.white, Colors.white], context),
+              _buildCard('Sent', _calculateLiquidExpenses(bitcoinTransactions).euroSent / 100000000, [Colors.blue, Colors.deepPurple], context),
+              _buildCard('Received', _calculateLiquidExpenses(bitcoinTransactions).euroReceived / 100000000, [Colors.blue, Colors.deepPurple], context),
             ],
           ),
         ],
@@ -109,11 +109,11 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             children: [
               Text(
                 title,
-                style: TextStyle(color: Colors.blueGrey, fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
               ),
               Text(
                 value.toString(),
-                style: TextStyle(color: Colors.grey, fontSize: 14),
+                style: TextStyle(color: Colors.white, fontSize: 14),
               ),
             ],
           ),

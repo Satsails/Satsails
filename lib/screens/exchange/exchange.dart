@@ -105,94 +105,100 @@ class Exchange extends ConsumerWidget {
 
   Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context) {
     final status = ref.watch(sideswapStatusProvider);
-    final pegStatus = ref.watch(sideswapPegStatusStreamProvider);
+    final pegStatus = ref.watch(sideswapPegStatusProvider);
 
     return pegStatus.when(
       data: (peg) {
-        return Align(
-          alignment: Alignment.bottomCenter,
-          child: ActionSlider.standard(
-              sliderBehavior: SliderBehavior.stretch,
-              width: double.infinity,
-              backgroundColor: Colors.white,
-              toggleColor: Colors.blueAccent,
-              action: (controller) async {
-                controller.loading();
-                await Future.delayed(const Duration(seconds: 3));
-                try {
-                  if (ref.watch(sendTxProvider).amount < status.minPegOutAmount) {
-                    throw 'Amount is below minimum peg out amount';
-                  }
-                  await ref.watch(sendLiquidTransactionProvider.future);
-                  await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-                  controller.success();
-                  Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+        return Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: ActionSlider.standard(
+                sliderBehavior: SliderBehavior.stretch,
+                width: double.infinity,
+                backgroundColor: Colors.white,
+                toggleColor: Colors.blueAccent,
+                action: (controller) async {
+                  controller.loading();
                   await Future.delayed(const Duration(seconds: 3));
-                  Navigator.pushNamed(context, '/analytics');
-                } catch (e) {
-                  controller.failure();
-                  Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
-                  controller.reset();
-                }
-              },
-              child: const Text('Swap')
+                  try {
+                    if (ref.watch(sendTxProvider).amount < status.minPegOutAmount) {
+                      throw 'Amount is below minimum peg out amount';
+                    }
+                    await ref.watch(sendLiquidTransactionProvider.future);
+                    controller.success();
+                    Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                    await Future.delayed(const Duration(seconds: 3));
+                    Navigator.pushNamed(context, '/analytics');
+                  } catch (e) {
+                    await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
+                    controller.failure();
+                    Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                    controller.reset();
+                  }
+                },
+                child: const Text('Swap')
+            ),
           ),
         );
       },
       loading: () => Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize / 2, color: Colors.grey),
-    ),
-      error: (error, stack) => Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString(), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize / 2))
+        child: Center(child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize * 2, color: Colors.grey)),
+      ),
+      error: (error, stack) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString(), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize))
       ),
     );
   }
 
 
   Widget _bitcoinSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context) {
-    final pegStatus = ref.watch(sideswapPegStatusStreamProvider);
+    final pegStatus = ref.watch(sideswapPegStatusProvider);
 
     return pegStatus.when(
       data: (peg) {
-        return Align(
-          alignment: Alignment.bottomCenter,
-          child: ActionSlider.standard(
-              sliderBehavior: SliderBehavior.stretch,
-              width: double.infinity,
-              backgroundColor: Colors.white,
-              toggleColor: Colors.deepOrangeAccent,
-              action: (controller) async {
-                controller.loading();
-                await Future.delayed(const Duration(seconds: 3));
-                try {
-                  if (ref.watch(sendTxProvider).amount < ref.watch(sideswapStatusProvider).minPegInAmount) {
-                    throw 'Amount is below minimum peg in amount';
-                  }
-                  await ref.watch(sendBitcoinTransactionProvider.future);
-                  await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-                  controller.success();
-                  Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+        return Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: ActionSlider.standard(
+                sliderBehavior: SliderBehavior.stretch,
+                width: double.infinity,
+                backgroundColor: Colors.white,
+                toggleColor: Colors.deepOrangeAccent,
+                action: (controller) async {
+                  controller.loading();
                   await Future.delayed(const Duration(seconds: 3));
-                  Navigator.pushNamed(context, '/analytics');
-                } catch (e) {
-                  controller.failure();
-                  Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
-                  controller.reset();
-                }
-              },
-              child: const Text('Swap')
+                  try {
+                    if (ref.watch(sendTxProvider).amount < ref.watch(sideswapStatusProvider).minPegInAmount) {
+                      throw 'Amount is below minimum peg in amount';
+                    }
+                    await ref.watch(sendBitcoinTransactionProvider.future);
+                    await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
+                    controller.success();
+                    Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                    await Future.delayed(const Duration(seconds: 3));
+                    Navigator.pushNamed(context, '/analytics');
+                  } catch (e) {
+                    controller.failure();
+                    Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                    controller.reset();
+                  }
+                },
+                child: const Text('Swap')
+            ),
           ),
         );
       },
       loading: () => Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize / 2, color: Colors.grey),
-    ),
-      error: (error, stack) => Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text(error.toString(), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize / 2))
+        child: Center(child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize * 2, color: Colors.grey)),
+      ),
+      error: (error, stack) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(error.toString(), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize / 2))
       ),
     );
   }
@@ -302,7 +308,7 @@ class Exchange extends ConsumerWidget {
     final btcFormart = ref.watch(settingsProvider).btcFormat;
     final valueToReceive = ref.watch(sendTxProvider).amount * ( 1- sideSwapStatus.serverFeePercentPegIn! / 100) - ref.watch(pegOutBitcoinCostProvider);
     final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormart);
-    final sideSwapPeg = ref.watch(sideswapPegStreamProvider);
+    final sideSwapPeg = ref.watch(sideswapPegProvider);
 
     return SizedBox(
       width: double.infinity,
@@ -384,7 +390,7 @@ class Exchange extends ConsumerWidget {
     final valueToReceive = ref.watch(sendTxProvider).amount / 100000000 * ( 1- sideSwapStatus.serverFeePercentPegIn! / 100);
     final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, 'BTC');
     final btcFormart = ref.watch(settingsProvider).btcFormat;
-    final sideSwapPeg = ref.watch(sideswapPegStreamProvider);
+    final sideSwapPeg = ref.watch(sideswapPegProvider);
 
     return SizedBox(
       width: double.infinity,
@@ -442,15 +448,15 @@ class Exchange extends ConsumerWidget {
                     },
                   );
                 },
-                loading: () => Padding(
-                  padding: EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
-                  child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white),
+                  loading: () => Padding(
+                    padding: EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
+                    child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white),
+                  ),
+                  error: (error, stack) => Padding(
+                      padding:EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
+                      child: Text(error.toString(), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
+                  ),
                 ),
-                error: (error, stack) => Padding(
-                  padding:EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
-                  child: Text(error.toString(), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
-                ),
-              ),
             ],
           ),
         ),

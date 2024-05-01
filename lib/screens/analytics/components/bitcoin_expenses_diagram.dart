@@ -1,13 +1,12 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:satsails/models/expenses_model.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import 'package:satsails/providers/transactions_provider.dart';
-import 'package:icons_plus/icons_plus.dart';
-class ExpensesDiagram extends ConsumerWidget {
 
-  const ExpensesDiagram({Key? key}) : super(key: key);
+class BitcoinExpensesDiagram extends ConsumerWidget {
+
+  const BitcoinExpensesDiagram({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,9 +18,9 @@ class ExpensesDiagram extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildCard('Sent',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent, [Colors.white, Colors.white], context),
-            _buildCard('Received',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received, [Colors.white, Colors.white], context),
-            _buildCard('Fee',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.white, Colors.white], context),
+            _buildCard('Sent',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent, [Colors.orange, Colors.deepOrange], context),
+            _buildCard('Received',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received, [Colors.orange, Colors.deepOrange], context),
+            _buildCard('Fee',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.orange, Colors.deepOrange], context),
           ],),
       ],
     );
@@ -52,11 +51,11 @@ class ExpensesDiagram extends ConsumerWidget {
             children: [
               Text(
                 title,
-                style: TextStyle(color: Colors.blueGrey, fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
               ),
               Text(
                 value.toString(),
-                style: TextStyle(color: Colors.grey, fontSize: 14),
+                style: TextStyle(color: Colors.white, fontSize: 14),
               ),
             ],
           ),

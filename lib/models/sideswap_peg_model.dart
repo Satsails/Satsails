@@ -1,7 +1,6 @@
 import 'package:hive/hive.dart';
 part 'sideswap_peg_model.g.dart';
 
-
 @HiveType(typeId: 8)
 class SideswapPeg extends HiveObject {
   @HiveField(0)
