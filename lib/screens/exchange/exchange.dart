@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:interactive_slider/interactive_slider.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -42,6 +41,7 @@ class Exchange extends ConsumerWidget {
       onPopInvoked:(pop) async {
         ref.read(sendTxProvider.notifier).resetToDefault();
         ref.read(sendBlocksProvider.notifier).state = 1;
+        ref.watch(closeSideswapProvider);
       },
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -126,12 +126,18 @@ class Exchange extends ConsumerWidget {
                       throw 'Amount is below minimum peg out amount';
                     }
                     await ref.watch(sendLiquidTransactionProvider.future);
+                    await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
                     controller.success();
                     Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                    ref.watch(closeSideswapProvider);
                     await Future.delayed(const Duration(seconds: 3));
-                    Navigator.pushNamed(context, '/analytics');
+                    Navigator.pushReplacementNamed(context, '/analytics');
                   } catch (e) {
+                    // temperarily here
+                    ref.watch(closeSideswapProvider);
                     await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
+                    Navigator.pushReplacementNamed(context, '/analytics');
+                    //
                     controller.failure();
                     Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                     controller.reset();
@@ -179,8 +185,9 @@ class Exchange extends ConsumerWidget {
                     await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
                     controller.success();
                     Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                    ref.watch(closeSideswapProvider);
                     await Future.delayed(const Duration(seconds: 3));
-                    Navigator.pushNamed(context, '/analytics');
+                    Navigator.pushReplacementNamed(context, '/analytics');
                   } catch (e) {
                     controller.failure();
                     Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
@@ -338,7 +345,7 @@ class Exchange extends ConsumerWidget {
                 child: Column(
                   children: [
                     Text("Receive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
-                    if (double.parse(formattedValueToReceive) < 0)
+                    if (double.parse(formattedValueToReceive) <= 0)
                       Text("0", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center)
                     else
                       Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
@@ -387,9 +394,9 @@ class Exchange extends ConsumerWidget {
 
   Widget _buildLiquidCard (WidgetRef ref, double dynamicPadding, double titleFontSize, bool pegIn) {
     final sideSwapStatus = ref.watch(sideswapStatusProvider);
-    final valueToReceive = ref.watch(sendTxProvider).amount / 100000000 * ( 1- sideSwapStatus.serverFeePercentPegIn! / 100);
-    final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, 'BTC');
+    final valueToReceive = ref.watch(sendTxProvider).amount * ( 1- sideSwapStatus.serverFeePercentPegOut! / 100);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
+    final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormart);
     final sideSwapPeg = ref.watch(sideswapPegProvider);
 
     return SizedBox(
@@ -420,7 +427,10 @@ class Exchange extends ConsumerWidget {
                 child:Column(
                   children: [
                     Text("Receive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
-                    Text("$formattedValueToReceive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                    if (double.parse(formattedValueToReceive) <= 0)
+                      Text("0", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center)
+                    else
+                      Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
                   ],
                 ),
               )

@@ -6,7 +6,7 @@ import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
 import 'package:satsails/services/sideswap/sideswap.dart';
 
-final sideswapServiceProvider = Provider.autoDispose<Sideswap>((ref) {
+final sideswapServiceProvider = StateProvider.autoDispose<Sideswap>((ref) {
   final service = Sideswap();
   service.connect();
   return service;
@@ -69,6 +69,11 @@ final sideswapPegStatusProvider = StreamProvider.autoDispose<SideswapPegStatus>(
   final service = ref.watch(sideswapServiceProvider);
   service.pegStatus(orderId: orderId, pegIn: pegIn);
   yield* service.pegStatusStream.map((event) => SideswapPegStatus.fromJson(event));
+});
+
+final closeSideswapProvider = Provider.autoDispose<void>((ref) {
+  final service = ref.watch(sideswapServiceProvider);
+  service.close();
 });
 
 final sideswapHiveStorageProvider = FutureProvider.autoDispose.family<void, String>((ref, orderId) async {
