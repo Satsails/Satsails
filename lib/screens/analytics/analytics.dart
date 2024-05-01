@@ -30,9 +30,7 @@ class Analytics extends ConsumerWidget {
         currentIndex: ref.watch(navigationProvider),
         context: context,
         onTap: (int index) {
-          ref
-              .read(navigationProvider.notifier)
-              .state = index;
+          ref.read(navigationProvider.notifier).state = index;
         },
       ),
     );

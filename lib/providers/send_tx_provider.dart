@@ -11,7 +11,7 @@ import 'package:satsails/providers/bitcoin_provider.dart' as bitcoinProvider;
 import 'package:satsails/providers/liquid_provider.dart' as liquidProvider;
 import 'package:satsails/providers/settings_provider.dart';
 
-final sendTxProvider = StateNotifierProvider.autoDispose<SendTxModel, SendTx>((ref) {
+final sendTxProvider = StateNotifierProvider<SendTxModel, SendTx>((ref) {
   return SendTxModel(SendTx(address: '', amount: 0, type: PaymentType.Unknown, assetId: AssetMapper.reverseMapTicker(AssetId.LBTC)));
 });
 

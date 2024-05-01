@@ -21,13 +21,13 @@ class Pay extends ConsumerWidget {
         await ref.refresh(setAddressAndAmountProvider(data.text ?? '').future);
         switch (ref.read(sendTxProvider.notifier).state.type) {
           case PaymentType.Bitcoin:
-            Navigator.pushNamed(context, '/confirm_bitcoin_payment');
+            Navigator.pushReplacementNamed(context, '/confirm_bitcoin_payment');
             break;
           case PaymentType.Lightning:
-            Navigator.pushNamed(context, '/confirm_lightning_payment');
+            Navigator.pushReplacementNamed(context, '/confirm_lightning_payment');
             break;
           case PaymentType.Liquid:
-            Navigator.pushNamed(context, '/confirm_liquid_payment');
+            Navigator.pushReplacementNamed(context, '/confirm_liquid_payment');
             break;
           default:
             Fluttertoast.showToast(
