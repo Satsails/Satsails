@@ -19,6 +19,7 @@ final sideswapLoginStreamProvider = StreamProvider.autoDispose<void>((ref) {
 });
 
 final sideswapServerStatusStream = StreamProvider.autoDispose<SideswapStatus>((ref) {
+  ref.watch(sideswapLoginStreamProvider);
   final service = ref.watch(sideswapServiceProvider);
   service.status();
   final stream = service.statusStream;

@@ -20,13 +20,12 @@ class Sideswap {
       _channel.stream.listen(
         handleIncomingMessage,
         onError: (error) {
-          print('Error in incoming message: $error');
+          throw Exception('Error connecting to WebSocket: $error');
         },
         cancelOnError: true,
       );
     } catch (e) {
-      print('Error connecting to WebSocket: $e');
-      rethrow;
+      throw Exception('Error connecting to WebSocket: $e');
     }
   }
 
@@ -46,7 +45,7 @@ class Sideswap {
         _pegStatusController.add(decodedMessage);
         break;
       default:
-        print('Unknown method: ${decodedMessage['method']}');
+        throw Exception('Unknown method: ${decodedMessage['method']}');
     }
   }
 
@@ -66,7 +65,7 @@ class Sideswap {
     _channel.sink.add(json.encode({
       'id': 1,
       'method': 'server_status',
-      'params': {}
+      'params': null,
     }));
   }
 
