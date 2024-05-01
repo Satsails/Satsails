@@ -18,8 +18,14 @@ class LiquidExpensesDiagram extends ConsumerWidget {
 
     List<Column> cards = [
     Column(children: [
-          Text("Bitcoin", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
-          SizedBox(height: 10),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Bitcoin", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
+              Icon(Icons.swipe, color: Colors.grey),
+            ],
+          ),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -30,8 +36,14 @@ class LiquidExpensesDiagram extends ConsumerWidget {
     ),
       Column(
         children: [
-          Text("Real", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
-          SizedBox(height: 10),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Real", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
+              Icon(Icons.swipe, color: Colors.grey),
+            ],
+          ),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -43,8 +55,14 @@ class LiquidExpensesDiagram extends ConsumerWidget {
       ),
       Column(
         children: [
-          Text("Dollar", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
-          SizedBox(height: 10),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Dollar", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
+              Icon(Icons.swipe, color: Colors.grey),
+            ],
+          ),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -56,8 +74,14 @@ class LiquidExpensesDiagram extends ConsumerWidget {
       ),
       Column(
         children: [
-          Text("Euro", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
-          SizedBox(height: 10),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Euro", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
+              Icon(Icons.swipe, color: Colors.grey),
+            ],
+          ),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -109,11 +133,11 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             children: [
               Text(
                 title,
-                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
               ),
               Text(
                 value.toString(),
-                style: TextStyle(color: Colors.white, fontSize: 14),
+                style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
             ],
           ),

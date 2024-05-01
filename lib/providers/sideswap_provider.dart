@@ -95,3 +95,9 @@ final sideswapAllPegsProvider = FutureProvider.autoDispose<List<SideswapPegStatu
   return swaps;
 });
 
+final sideswapStatusDetailsItemProvider = StreamProvider.autoDispose.family<SideswapPegStatus, OrderStatusParams>((ref, params) async* {
+  final service = ref.watch(sideswapServiceProvider);
+  service.pegStatus(orderId: params.orderId, pegIn: params.pegIn);
+  yield* service.pegStatusStream.map((event) => SideswapPegStatus.fromJson(event));
+});
+

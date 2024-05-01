@@ -126,3 +126,10 @@ class SideswapPegStatusTransaction extends HiveObject {
     );
   }
 }
+
+class OrderStatusParams {
+  final String orderId;
+  final bool pegIn;
+
+  OrderStatusParams({required this.orderId, required this.pegIn});
+}

@@ -228,7 +228,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
           children: [
             Column(
               children: [
-                Text('Swipe to change asset', style: TextStyle(fontSize: dynamicFontSize, fontWeight: FontWeight.bold, color: Colors.grey), textAlign: TextAlign.center),
+                const Icon(Icons.swipe, color: Colors.grey),
                 SizedBox(
                   height: dynamicCardHeight,
                   child: CardSwiper(
