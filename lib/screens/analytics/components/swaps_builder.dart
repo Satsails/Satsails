@@ -38,7 +38,7 @@ Widget _buildTransactionItem(swap, BuildContext context, WidgetRef ref) {
             color: Colors.grey.withOpacity(0.5),
             spreadRadius: 5,
             blurRadius: 7,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -49,31 +49,53 @@ Widget _buildTransactionItem(swap, BuildContext context, WidgetRef ref) {
 Widget _buildSwapTransactionItem(SideswapPegStatus swap, BuildContext context, WidgetRef ref) {
   return Column(
     children: [
-      // GestureDetector(
-      //   onTap: () {
-      //     OrderStatusParams orderStatusParams = OrderStatusParams(
-      //       orderId: swap.orderId!,
-      //       pegIn: swap.pegIn!,
-      //     );
-      //     ref.read(sideswapStatusDetailsItemProvider(orderStatusParams));
-      //     // Navigator.pushReplacementNamed(context, '/search_modal');
-      //   },
-      //   child: ListTile(
-      //     leading: const Icon(Icons.switch_access_shortcut_outlined, color: Colors.orange),
-      //     title: Row(
-      //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //       children: [
-      //         Text(_transactionTypeString(transaction), style: const TextStyle(fontSize: 16)),
-      //         Text(_transactionAmount(transaction, ref),style: const TextStyle(fontSize: 14)),
-      //       ],
-      //     ),
-      //     // subtitle: Text("Fee: ${_transactionFee(transaction, ref)}", style: const TextStyle(fontSize: 14)),
-      //     subtitle: Text(timestampToDateTime(transaction.confirmationTime?.timestamp), style: const TextStyle(fontSize: 14)),
-      //     trailing: _confirmationStatus(transaction) == 'Confirmed'
-      //         ? const Icon(Icons.check_circle, color: Colors.green)
-      //         : const Icon(Icons.access_alarm_outlined, color: Colors.red),
-      //   ),
-      // )
+      GestureDetector(
+        onTap: () {
+          OrderStatusParams orderStatusParams = OrderStatusParams(
+            orderId: swap.orderId!,
+            pegIn: swap.pegIn!,
+          );
+          ref.read(sideswapStatusDetailsItemProvider(orderStatusParams));
+          // Navigator.pushReplacementNamed(context, '/search_modal');
+        },
+        child: ListTile(
+          leading: const Icon(Icons.swap_calls_rounded, color: Colors.orange),
+          title: Center(child: Text(_timestampToDateTime(swap.createdAt!), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
+          subtitle: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              swap.pegIn! ? const Text("Bitcoin", style: TextStyle(fontSize: 16)) : const Text("Liquid Bitcoin", style: TextStyle(fontSize: 16)),
+              const Icon(Icons.arrow_forward, color: Colors.orange),
+              swap.pegIn! ? const Text("Liquid", style: TextStyle(fontSize: 16)) : const Text("Bitcoin", style: TextStyle(fontSize: 16)),
+            ],
+          ),
+          trailing: _statusIcon(swap.list),
+        ),
+      )
     ],
   );
+}
+
+String _timestampToDateTime(int timestamp) {
+  final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+  return "${date.day}/${date.month}/${date.year}";
+}
+
+Icon _statusIcon(List<SideswapPegStatusTransaction>? transactions) {
+  if (transactions == null || transactions.isEmpty) {
+    return const Icon(Icons.help, color: Colors.grey);
+  }
+  var lastTransaction;
+  switch (lastTransaction.txState) {
+    case 'InsufficientAmount':
+      return const Icon(Icons.error, color: Colors.red);
+    case 'Detected':
+      return const Icon(Icons.search, color: Colors.orange);
+    case 'Processing':
+      return const Icon(Icons.hourglass_empty, color: Colors.blue);
+    case 'Done':
+      return const Icon(Icons.check_circle, color: Colors.green);
+    default:
+      return const Icon(Icons.help, color: Colors.grey);
+  }
 }
