@@ -131,6 +131,7 @@ class Exchange extends ConsumerWidget {
                     Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                     ref.watch(closeSideswapProvider);
                     await Future.delayed(const Duration(seconds: 3));
+                    ref.read(selectedButtonProvider.notifier).state = 'Swap';
                     Navigator.pushReplacementNamed(context, '/analytics');
                   } catch (e) {
                     // temperarily here

@@ -49,16 +49,9 @@ Widget _buildTransactionItem(swap, BuildContext context, WidgetRef ref) {
 Widget _buildSwapTransactionItem(SideswapPegStatus swap, BuildContext context, WidgetRef ref) {
   return Column(
     children: [
-      GestureDetector(
-        onTap: () {
-          OrderStatusParams orderStatusParams = OrderStatusParams(
-            orderId: swap.orderId!,
-            pegIn: swap.pegIn!,
-          );
-          ref.read(sideswapStatusDetailsItemProvider(orderStatusParams));
-          // Navigator.pushReplacementNamed(context, '/search_modal');
-        },
-        child: ListTile(
+      Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
           leading: const Icon(Icons.swap_calls_rounded, color: Colors.orange),
           title: Center(child: Text(_timestampToDateTime(swap.createdAt!), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
           subtitle: Row(
@@ -70,10 +63,98 @@ Widget _buildSwapTransactionItem(SideswapPegStatus swap, BuildContext context, W
             ],
           ),
           trailing: _statusIcon(swap.list),
+          onExpansionChanged: (isExpanded) {
+            if (isExpanded) {
+              ref.read(orderIdStatusProvider.notifier).state = swap.orderId!;
+              ref.read(pegInStatusProvider.notifier).state = swap.pegIn!;
+              ref.refresh(sideswapStatusDetailsItemProvider);
+            }
+          },
+          children: <Widget>[
+            Consumer(builder: (context, watch, child) {
+              final updatedSwapStatus = ref.watch(sideswapStatusDetailsItemProvider);
+              return updatedSwapStatus.when(
+                data: (status) {
+                  return Column(
+                    children: [
+                      ListTile(
+                        title: const Text("Order ID"),
+                        subtitle: Text(status.orderId ?? "Error"),
+                      ),
+                      ListTile(
+                        title: const Text("Received at"),
+                        subtitle: Text(status.addrRecv ?? "Error"),
+                      ),
+                      ...status.list?.map((SideswapPegStatusTransaction e) {
+                        return Column(
+                          children: [
+                            ListTile(
+                              title: const Text("Send Transaction"),
+                              subtitle: Text(e.txHash ?? "Error"),
+                            ),
+                            ListTile(
+                              title: const Text("Received Transaction"),
+                              subtitle: Text(e.payoutTxid ?? "Error"),
+                            ),
+                            ListTile(
+                              title: const Text("Amount sent"),
+                              subtitle: Text(e.amount.toString()),
+                            ),
+                            ListTile(
+                              title: const Text("Amount received"),
+                              subtitle: Text(e.payout.toString()),
+                            ),
+                            ListTile(
+                              title: const Text("Status"),
+                              subtitle: Text(e.status ?? "Error"),
+                            ),
+                            _buildTxStatusTile(e),
+                          ],
+                        );
+                      }).toList() ?? [const Text('No transactions found. Check back later.')],
+                    ],
+                  );
+                },
+                loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
+                error: (error, stackTrace) => Center(child: Text('Error: $error')),
+              );
+            }),
+          ],
         ),
-      )
+      ),
     ],
   );
+}
+
+ListTile _buildTxStatusTile(SideswapPegStatusTransaction status) {
+  switch (status.txState) {
+    case 'InsufficientAmount':
+      return const ListTile(
+        title: Text("Status"),
+        subtitle: Text("Insufficient Amount"),
+      );
+    case 'Detected':
+      return ListTile(
+        title: const Text("Confirmations"),
+        subtitle: Text("${status.detectedConfs} Detected"),
+        trailing: Text("${status.totalConfs} Total needed"),
+      );
+    case 'Processing':
+      return const ListTile(
+        title: Text("Status"),
+        subtitle: Text("Processing"),
+      );
+    case 'Done':
+      return const ListTile(
+        title: Text("Status"),
+        subtitle: Text("Done"),
+      );
+    default:
+      return const ListTile(
+        title: Text("Status"),
+        subtitle: Text("Unknown"),
+      );
+  }
 }
 
 String _timestampToDateTime(int timestamp) {
