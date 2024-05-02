@@ -5,10 +5,10 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/models/sideswap_peg_model.dart';
 import 'package:satsails/providers/sideswap_provider.dart';
 
-class SwapDetails extends ConsumerWidget {
+class PegDetails extends ConsumerWidget {
   final SideswapPegStatus swap;
 
-  SwapDetails({required this.swap});
+  PegDetails({required this.swap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

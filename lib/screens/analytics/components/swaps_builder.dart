@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/models/sideswap_peg_model.dart';
 import 'package:satsails/providers/sideswap_provider.dart';
-import 'package:satsails/screens/analytics/components/swap_details.dart';
+import 'package:satsails/screens/analytics/components/peg_details.dart';
 
 class SwapsBuilder extends ConsumerWidget {
   const SwapsBuilder({Key? key}) : super(key: key);
@@ -76,7 +76,7 @@ void _showDetailsPage(BuildContext context, SideswapPegStatus swap) {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => SwapDetails(swap: swap),
+      builder: (context) => PegDetails(swap: swap),
     ),
   );
 }
