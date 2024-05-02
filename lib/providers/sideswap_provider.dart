@@ -105,3 +105,4 @@ final sideswapStatusDetailsItemProvider = StreamProvider.autoDispose<SideswapPeg
   service.pegStatus(orderId: orderId, pegIn: pegIn);
   yield* service.pegStatusStream.map((event) => SideswapPegStatus.fromJson(event));
 });
+

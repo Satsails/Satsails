@@ -17,6 +17,7 @@ class Sideswap {
   Future<void> connect() async {
     try {
       _channel = WebSocketChannel.connect(Uri.parse('wss://api.sideswap.io/json-rpc-ws'));
+      // _channel = WebSocketChannel.connect(Uri.parse('ws://api-testnet.sideswap.io/json-rpc-ws'));
       _channel.stream.listen(
         handleIncomingMessage,
         onError: (error) {
