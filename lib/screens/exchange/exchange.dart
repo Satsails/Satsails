@@ -12,6 +12,7 @@ import 'package:satsails/helpers/input_formatters/decimal_text_input_formatter.d
 import 'package:satsails/providers/balance_provider.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
+import 'package:satsails/providers/navigation_provider.dart';
 import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import 'package:satsails/screens/exchange/components/button_picker.dart';
@@ -128,17 +129,11 @@ class Exchange extends ConsumerWidget {
                     await ref.watch(sendLiquidTransactionProvider.future);
                     await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
                     controller.success();
-                    Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                    Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                     ref.watch(closeSideswapProvider);
                     await Future.delayed(const Duration(seconds: 3));
-                    ref.read(selectedButtonProvider.notifier).state = 'Swap';
-                    Navigator.pushReplacementNamed(context, '/analytics');
+                    Navigator.pushReplacementNamed(context, '/home');
                   } catch (e) {
-                    // temperarily here
-                    ref.watch(closeSideswapProvider);
-                    await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-                    Navigator.pushReplacementNamed(context, '/analytics');
-                    //
                     controller.failure();
                     Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                     controller.reset();
@@ -185,10 +180,10 @@ class Exchange extends ConsumerWidget {
                     await ref.watch(sendBitcoinTransactionProvider.future);
                     await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
                     controller.success();
-                    Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                    Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                     ref.watch(closeSideswapProvider);
                     await Future.delayed(const Duration(seconds: 3));
-                    Navigator.pushReplacementNamed(context, '/analytics');
+                    Navigator.pushReplacementNamed(context, '/home');
                   } catch (e) {
                     controller.failure();
                     Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);

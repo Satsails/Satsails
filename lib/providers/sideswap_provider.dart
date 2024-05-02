@@ -92,6 +92,7 @@ final sideswapAllPegsProvider = FutureProvider.autoDispose<List<SideswapPegStatu
       swaps.add(value);
     }
   }
+  swaps.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
   return swaps;
 });
 
@@ -105,4 +106,3 @@ final sideswapStatusDetailsItemProvider = StreamProvider.autoDispose<SideswapPeg
   service.pegStatus(orderId: orderId, pegIn: pegIn);
   yield* service.pegStatusStream.map((event) => SideswapPegStatus.fromJson(event));
 });
-

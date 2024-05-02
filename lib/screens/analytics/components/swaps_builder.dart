@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/models/sideswap_peg_model.dart';
 import 'package:satsails/providers/sideswap_provider.dart';
-import 'package:satsails/screens/analytics/swap_details.dart';
+import 'package:satsails/screens/analytics/components/swap_details.dart';
 
 class SwapsBuilder extends ConsumerWidget {
   const SwapsBuilder({Key? key}) : super(key: key);
@@ -65,14 +65,14 @@ Widget _buildSwapTransactionItem(SideswapPegStatus swap, BuildContext context, W
         onTap: () {
           ref.read(orderIdStatusProvider.notifier).state = swap.orderId!;
           ref.read(pegInStatusProvider.notifier).state = swap.pegIn!;
-          _showDetailsPage(context, swap, ref);
+          _showDetailsPage(context, swap);
         },
       ),
     ],
   );
 }
 
-void _showDetailsPage(BuildContext context, SideswapPegStatus swap, WidgetRef ref) {
+void _showDetailsPage(BuildContext context, SideswapPegStatus swap) {
   Navigator.push(
     context,
     MaterialPageRoute(
@@ -84,7 +84,7 @@ void _showDetailsPage(BuildContext context, SideswapPegStatus swap, WidgetRef re
 
 String _timestampToDateTime(int timestamp) {
   final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-  return "${date.day}/${date.month}/${date.year}";
+  return "${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
 }
 
 Icon _statusIcon(List<SideswapPegStatusTransaction>? transactions) {
