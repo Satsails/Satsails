@@ -31,6 +31,11 @@ class SendTxModel extends StateNotifier<SendTx> {
       return;
     }
 
+    if (value.isEmpty) {
+      state = state.copyWith(amount: 0);
+      return;
+    }
+
     int amount;
     switch (denomination) {
       case 'sats':

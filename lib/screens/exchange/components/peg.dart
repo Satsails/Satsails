@@ -16,10 +16,9 @@ import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import 'package:satsails/providers/sideswap_provider.dart';
 
+// tthere are a couple null check error here, check after beta and sentry logging
 class Peg extends ConsumerWidget {
-  Peg({Key? key}) : super(key: key);
-  final controller = TextEditingController();
-
+  Peg({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -64,7 +63,6 @@ class Peg extends ConsumerWidget {
                 ref.read(pegInProvider.notifier).state = !pegIn;
                 ref.read(sendTxProvider.notifier).updateAddress('');
                 ref.read(sendTxProvider.notifier).updateAmount(0);
-                controller.clear();
                 ref.read(sendBlocksProvider.notifier).state = 1;
               },
               child: Column(
@@ -323,7 +321,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
   Widget _buildBitcoinCard (WidgetRef ref, double dynamicPadding, double titleFontSize, bool pegIn) {
     final sideSwapStatus = ref.watch(sideswapStatusProvider);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
-    final valueToReceive = ref.watch(sendTxProvider).amount * ( 1- sideSwapStatus.serverFeePercentPegIn! / 100) - ref.watch(pegOutBitcoinCostProvider);
+    final valueToReceive = ref.watch(sendTxProvider).amount * ( 1- sideSwapStatus.serverFeePercentPegIn / 100) - ref.watch(pegOutBitcoinCostProvider);
     final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormart);
     final sideSwapPeg = ref.watch(sideswapPegProvider);
 
@@ -366,7 +364,6 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                 sideSwapPeg.when(data:
                     (peg) {
                   return TextFormField(
-                    controller: controller,
                     keyboardType: TextInputType.number,
                     inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
                     style: const TextStyle(color: Colors.white),
@@ -379,10 +376,10 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                     onChanged: (value) async {
                       if (value.isEmpty) {
                         ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
-                        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr!);
+                        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
                       }
                       ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
-                      ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr!);
+                      ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
                     },
                   );
                 },
@@ -404,7 +401,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
 
   Widget _buildLiquidCard (WidgetRef ref, double dynamicPadding, double titleFontSize, bool pegIn) {
     final sideSwapStatus = ref.watch(sideswapStatusProvider);
-    final valueToReceive = ref.watch(sendTxProvider).amount * ( 1- sideSwapStatus.serverFeePercentPegOut! / 100);
+    final valueToReceive = ref.watch(sendTxProvider).amount * ( 1- sideSwapStatus.serverFeePercentPegOut / 100);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
     final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormart);
     final sideSwapPeg = ref.watch(sideswapPegProvider);
@@ -448,7 +445,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                 sideSwapPeg.when(data:
                     (peg) {
                   return TextFormField(
-                    controller: controller,
+                    // controller: controller,
                     keyboardType: TextInputType.number,
                     inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
                     style: const TextStyle(color: Colors.white),
@@ -461,10 +458,10 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                     onChanged: (value) async {
                       if (value.isEmpty) {
                         ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
-                        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr!);
+                        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
                       }
                       ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
-                      ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr!);
+                      ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
                     },
                   );
                 },
