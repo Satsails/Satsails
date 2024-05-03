@@ -28,10 +28,34 @@ class Peg extends ConsumerWidget {
     final pegIn = ref.watch(pegInProvider);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormart));
-    final liquidFormart = ref.watch(settingsProvider).btcFormat;
-    final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(liquidFormart));
+    final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(btcFormart));
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
     final status = ref.watch(sideswapStatusProvider);
+
+    // Create a list of widgets
+    List<Widget> cards = [
+      _buildBitcoinCard(ref, dynamicPadding, titleFontSize, pegIn),
+      GestureDetector(
+        onTap: () {
+          ref.read(pegInProvider.notifier).state = !pegIn;
+          ref.read(sendTxProvider.notifier).updateAddress('');
+          ref.read(sendTxProvider.notifier).updateAmount(0);
+          ref.read(sendBlocksProvider.notifier).state = 1;
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Switch", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey)),
+            Icon(EvaIcons.swap, size: titleFontSize, color: Colors.grey),
+          ],
+        ),
+      ),
+      _buildLiquidCard(ref, dynamicPadding, titleFontSize, pegIn),
+    ];
+
+    if (!pegIn) {
+      cards = cards.reversed.toList();
+    }
 
     return Stack(
       children: [
@@ -41,68 +65,26 @@ class Peg extends ConsumerWidget {
               "Balance to spend:",
               style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
             ),
-            if (pegIn)
-              Text(
-                '$btcBalanceInFormat $btcFormart',
-                style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                textAlign: TextAlign.center,
-              )
-            else
-              Text(
-                '$liquidBalanceInFormat $liquidFormart',
-                style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-            SizedBox(height: dynamicSizedBox / 2),
-            if (pegIn)
-              _buildBitcoinCard(ref, dynamicPadding, titleFontSize, pegIn)
-            else
-              _buildLiquidCard(ref, dynamicPadding, titleFontSize, pegIn),
-            GestureDetector(
-              onTap: () {
-                ref.read(pegInProvider.notifier).state = !pegIn;
-                ref.read(sendTxProvider.notifier).updateAddress('');
-                ref.read(sendTxProvider.notifier).updateAmount(0);
-                ref.read(sendBlocksProvider.notifier).state = 1;
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Switch", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey)),
-                  Icon(EvaIcons.swap, size: titleFontSize, color: Colors.grey),
-                ],
-              ),
+            Text(
+              pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
+              style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+              textAlign: TextAlign.center,
             ),
-            if (pegIn)
-              _buildLiquidCard(ref, dynamicPadding, titleFontSize, pegIn)
-            else
-              _buildBitcoinCard(ref, dynamicPadding, titleFontSize, pegIn),
-            if (pegIn)
-              Text(
-                'Minimum amount: ${btcInDenominationFormatted(status.minPegInAmount.toDouble(), btcFormart)} ${btcFormart}',
-                style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
-                textAlign: TextAlign.center,
-              )
-            else
-              Text(
-                'Minimum amount: ${btcInDenominationFormatted(status.minPegOutAmount.toDouble(), btcFormart)} ${btcFormart}',
-                style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-            if (pegIn)
-              _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize)
-            else
-              _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
+            SizedBox(height: dynamicSizedBox / 2),
+            ...cards, // Spread operator to insert all elements of the list
+            Text(
+              'Minimum amount: ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} ${btcFormart}',
+              style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+            pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
             if (!pegIn)
               Text(
                 'Bitcoin Network fee: ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats',
                 style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
-            if (pegIn)
-              _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize)
-            else
-              _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
+            pegIn ? _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize) : _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
           ],
         ),
         Positioned(
@@ -385,7 +367,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                 },
                   loading: () => Padding(
                     padding: EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
-                    child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize / 2, color: Colors.white),
+                    child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize , color: Colors.white),
                   ),
                   error: (error, stack) => Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -445,7 +427,6 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                 sideSwapPeg.when(data:
                     (peg) {
                   return TextFormField(
-                    // controller: controller,
                     keyboardType: TextInputType.number,
                     inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
                     style: const TextStyle(color: Colors.white),

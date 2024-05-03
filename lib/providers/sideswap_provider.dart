@@ -37,6 +37,7 @@ final sideswapStatusProvider = StateNotifierProvider.autoDispose<SideswapStatusM
 });
 
 final pegInProvider = StateProvider.autoDispose<bool>((ref) => false);
+final sendBitcoinProvider = StateProvider.autoDispose<bool>((ref) => false);
 final pegOutBlocksProvider = StateProvider.autoDispose<int>((ref) => 2);
 
 final pegOutBitcoinCostProvider = StateProvider.autoDispose<double>((ref) {

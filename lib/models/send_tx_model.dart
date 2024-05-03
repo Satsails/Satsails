@@ -26,13 +26,13 @@ class SendTxModel extends StateNotifier<SendTx> {
   }
 
   void updateAmountFromInput(String value, String denomination) {
-    if (state.assetId != AssetMapper.reverseMapTicker(AssetId.LBTC)) {
-      state = state.copyWith(amount: (double.parse(value) * 100000000).toInt());
+    if (value.isEmpty) {
+      state = state.copyWith(amount: 0);
       return;
     }
 
-    if (value.isEmpty) {
-      state = state.copyWith(amount: 0);
+    if (state.assetId != AssetMapper.reverseMapTicker(AssetId.LBTC)) {
+      state = state.copyWith(amount: (double.parse(value) * 100000000).toInt());
       return;
     }
 

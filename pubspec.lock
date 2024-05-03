@@ -94,7 +94,7 @@ packages:
     description:
       path: "."
       ref: trunk
-      resolved-ref: "6cab03ee68c5151ecbf982f5f3831c69f422b903"
+      resolved-ref: "483ca530663c6768509740fe1193fce540b9dffe"
       url: "https://github.com/SatoshiPortal/boltz-dart.git"
     source: git
     version: "0.1.4"
@@ -1224,10 +1224,10 @@ packages:
     dependency: transitive
     description:
       name: webview_flutter_android
-      sha256: f038ee2fae73b509dde1bc9d2c5a50ca92054282de17631a9a3d515883740934
+      sha256: dad3313c9ead95517bb1cae5e1c9d20ba83729d5a59e5e83c0a2d66203f27f91
       url: "https://pub.dev"
     source: hosted
-    version: "3.16.0"
+    version: "3.16.1"
   webview_flutter_platform_interface:
     dependency: transitive
     description:
