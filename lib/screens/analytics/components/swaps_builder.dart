@@ -22,7 +22,7 @@ class SwapsBuilder extends ConsumerWidget {
           },
         );
       },
-      loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
+      loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.white),
       error: (error, stackTrace) => Center(child: Text('Error: $error')),
     );
   }
