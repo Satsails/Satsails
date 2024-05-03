@@ -15,6 +15,7 @@ class Exchange extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
     final online = ref.watch(settingsProvider).online;
+    final button = ref.watch(selectedButtonProvider);
 
     return PopScope(
       onPopInvoked: (pop) async {
@@ -36,7 +37,8 @@ class Exchange extends ConsumerWidget {
               ButtonPicker(),
               OfflineTransactionWarning(online: online),
               SizedBox(height: dynamicSizedBox),
-              // Expanded(child: Peg()),
+              if(button == 'Bitcoin Layer Swap')  Expanded(child: Peg()),
+              // if(button == 'Swap') Expanded(child: Peg()),
             ],
           ),
         ),

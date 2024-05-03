@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
 
-final selectedButtonProvider = StateProvider<String>((ref) => "Stablecoin Swap");
+final selectedButtonProvider = StateProvider<String>((ref) => "Bitcoin Layer Swap");
 final groupButtonControllerProvider = Provider<GroupButtonController>((ref) {
   return GroupButtonController(selectedIndex: 0);
 });
@@ -16,7 +16,7 @@ class ButtonPicker extends ConsumerWidget {
       isRadio: true,
       controller: controller,
       onSelected: (index, isSelected, isLongPress) {
-        switch (index) {
+        switch (isSelected) {
           case 0:
             ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
             break;
@@ -24,7 +24,7 @@ class ButtonPicker extends ConsumerWidget {
             ref.read(selectedButtonProvider.notifier).state = "Swap";
             break;
           default:
-            ref.read(selectedButtonProvider.notifier).state = "Stablecoin Swap";
+            ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
         }
       },
       buttons: ["Bitcoin Layer Swap", 'Swap'],

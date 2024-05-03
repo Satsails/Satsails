@@ -18,8 +18,8 @@ import 'package:satsails/providers/sideswap_provider.dart';
 
 class Peg extends ConsumerWidget {
   Peg({Key? key}) : super(key: key);
-
   final controller = TextEditingController();
+
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
