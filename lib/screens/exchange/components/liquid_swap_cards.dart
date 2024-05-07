@@ -61,7 +61,7 @@ class LiquidSwapCards extends ConsumerWidget {
       SizedBox(
         height: dynamicCardHeight,
         child: CardSwiper(
-          scale: 0.3,
+          scale: 0,
           padding: const EdgeInsets.all(0),
           allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
           cardsCount: cards.length,
@@ -116,10 +116,13 @@ class LiquidSwapCards extends ConsumerWidget {
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final btcFormart = ref.read(settingsProvider).btcFormat;
     final sendBitcoin = ref.watch(sendBitcoinProvider);
-    ref.watch(assetExchangeProvider);
 
     return Column(
       children: [
+        if (!isBitcoin) const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Icon(Icons.swipe, color: Colors.grey),
+        ),
         SizedBox(
           width: double.infinity,
           child: Card(
@@ -157,7 +160,7 @@ class LiquidSwapCards extends ConsumerWidget {
                                 }
                               },
                               loading: () => Padding(
-                                padding: EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.all(8.0),
                                 child: Center(child: LoadingAnimationWidget.prograssiveDots(size: 15, color: Colors.white)),
                               ),
                               error: (error, stack) => Padding(
