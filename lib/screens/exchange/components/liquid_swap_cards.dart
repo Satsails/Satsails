@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/helpers/asset_mapper.dart';
 import 'package:satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
@@ -21,7 +22,6 @@ final currentBalanceProvider = StateProvider.autoDispose<String>((ref) {
 });
 
 class LiquidSwapCards extends ConsumerWidget {
-  final controller = TextEditingController();
   LiquidSwapCards({super.key});
 
   @override
@@ -32,9 +32,10 @@ class LiquidSwapCards extends ConsumerWidget {
     final sendBitcoin = ref.watch(sendBitcoinProvider);
     final titleFontSize = MediaQuery.of(context).size.height * 0.03;
 
+
     List<Column> cards = [
       buildCard('Real', 'BRL', Colors.greenAccent, Colors.green, ref, context, false),
-      buildCard('Dollar', 'USD', Colors.greenAccent, Color.fromARGB(255, 0, 128, 0), ref, context, false),
+      buildCard('Dollar', 'USD', Colors.greenAccent, const Color.fromARGB(255, 0, 128, 0), ref, context, false),
       buildCard('Euro', 'EUR', Colors.lightBlueAccent, Colors.cyan, ref, context, false),
     ];
 
@@ -59,6 +60,7 @@ class LiquidSwapCards extends ConsumerWidget {
       SizedBox(
         height: dynamicCardHeight,
         child: CardSwiper(
+          scale: 0.3,
           padding: const EdgeInsets.all(0),
           allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
           cardsCount: cards.length,
@@ -74,12 +76,10 @@ class LiquidSwapCards extends ConsumerWidget {
                 ticker = AssetId.USD;
                 ref.read(currentBalanceProvider.notifier).state = ref.watch(balanceNotifierProvider).usdBalance.toStringAsFixed(2);
                 ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(ticker);
-                break;
               case 2:
                 ticker = AssetId.EUR;
                 ref.read(currentBalanceProvider.notifier).state = ref.watch(balanceNotifierProvider).eurBalance.toStringAsFixed(2);
                 ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(ticker);
-                break;
               default:
                 ticker = AssetId.BRL;
                 ref.read(currentBalanceProvider.notifier).state = ref.watch(balanceNotifierProvider).brlBalance.toStringAsFixed(2);
@@ -89,8 +89,6 @@ class LiquidSwapCards extends ConsumerWidget {
 
             String assetId = AssetMapper.reverseMapTicker(ticker);
             ref.read(sendTxProvider.notifier).updateAssetId(assetId);
-            ref.read(sendTxProvider.notifier).updateAmount(0);
-            controller.text = '';
             return true;
           },
           cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
@@ -117,6 +115,7 @@ class LiquidSwapCards extends ConsumerWidget {
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final btcFormart = ref.read(settingsProvider).btcFormat;
     final sendBitcoin = ref.watch(sendBitcoinProvider);
+    ref.watch(assetExchangeProvider);
 
     return Column(
       children: [
@@ -144,25 +143,46 @@ class LiquidSwapCards extends ConsumerWidget {
                   children: [
                     Text(title, style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                     if (sendBitcoin && !isBitcoin || !sendBitcoin && isBitcoin)
-                      Text('value to receive', style: const TextStyle(fontSize: 15, color: Colors.white), textAlign: TextAlign.center)
+                      Consumer(
+                          builder: (context, watch, child) {
+                            final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
+                            return sideswapPriceStreamAsyncValue.when(
+                              data: (value) {
+                                final valueToReceive = value.recvAmount;
+                                if (value.errorMsg != null) {
+                                  return Text("Error: ${value.errorMsg!}", style: const TextStyle( color: Colors.white), textAlign: TextAlign.center);
+                                }
+                                return Text('Value to receive: $valueToReceive', style: const TextStyle( color: Colors.white), textAlign: TextAlign.center);
+                              },
+                              loading: () => Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Center(child: LoadingAnimationWidget.prograssiveDots(size: 15, color: Colors.white)),
+                              ),
+                              error: (error, stack) => Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Error: $error', style: const TextStyle( color: Colors.white), textAlign: TextAlign.center),
+                              ),
+                            );
+                          }
+                      )
                     else
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      inputFormatters: isBitcoin? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()] : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()],
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: isBitcoin ? '0' : '0.00',
-                        hintStyle: TextStyle(color: Colors.white),
+                      TextFormField(
+                        keyboardType: TextInputType.number,
+                        inputFormatters: isBitcoin? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()] : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()],
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: isBitcoin ? '0' : '0.00',
+                          hintStyle: const TextStyle(color: Colors.white),
+                        ),
+                        style: const TextStyle(color: Colors.white),
+                        onChanged: (value) async {
+                          if (value.isEmpty) {
+                            ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                          }
+                          ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                        },
                       ),
-                      style: const TextStyle(color: Colors.white),
-                      onChanged: (value) async {
-                        if (value.isEmpty) {
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
-                        }
-                        ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
-                      },
-                    ),
                   ],
                 ),
               ),

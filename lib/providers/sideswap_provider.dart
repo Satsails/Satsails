@@ -119,6 +119,9 @@ final sideswapPriceStreamProvider = StreamProvider.autoDispose<SideswapPrice>((r
   final sendBitcoin = ref.watch(sendBitcoinProvider);
   final asset = ref.watch(assetExchangeProvider);
   final sendAmount = ref.watch(sendTxProvider).amount;
+  if (sendAmount == 0) {
+    return const Stream<SideswapPrice>.empty();
+  }
   service.streamPrices(asset: asset, sendBitcoins: sendBitcoin, sendAmount: sendAmount);
   return service.priceStream.map((event) => SideswapPrice.fromJson(event));
 });

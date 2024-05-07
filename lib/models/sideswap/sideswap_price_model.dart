@@ -20,7 +20,7 @@ class SideswapPrice {
   });
 
   factory SideswapPrice.fromJson(Map<String, dynamic> json) {
-    var result = json['result'];
+    var result = json['result'] ?? json['params'];
     return SideswapPrice(
       subscribeId: result['subscribe_id'],
       asset: result['asset'],
