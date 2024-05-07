@@ -150,7 +150,7 @@ class LiquidSwapCards extends ConsumerWidget {
                               data: (value) {
                                 final valueToReceive = value.recvAmount;
                                 if (value.errorMsg != null) {
-                                  return Text("Error: ${value.errorMsg!}", style: const TextStyle( color: Colors.white), textAlign: TextAlign.center);
+                                  return Text(value.errorMsg!, style: const TextStyle(color: Colors.white), textAlign: TextAlign.center);
                                 }
                                 return Text('Value to receive: $valueToReceive', style: const TextStyle( color: Colors.white), textAlign: TextAlign.center);
                               },
