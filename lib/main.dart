@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:lwk_dart/lwk_dart.dart';
-import 'package:satsails/models/sideswap_peg_model.dart';
+import 'package:satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:satsails/providers/auth_provider.dart';
 import 'package:satsails/screens/creation/start.dart';
 import 'package:satsails/screens/pay/components/confirm_liquid_payment.dart';

@@ -318,13 +318,25 @@ class BuildTransactions extends ConsumerWidget {
     }
   }
 
-  String _transactionFee(TransactionDetails transaction, WidgetRef ref) {
-    return ref.watch(conversionProvider(transaction.fee ?? 0));
-  }
+  // for later. We shall build a screen with all transactions values similar to whta we do in swaps
+  // String _transactionAmountInFiat(TransactionDetails transaction, WidgetRef ref) {
+  //   if (transaction.received == 0 && transaction.sent > 0) {
+  //     return ref.watch(conversionToFiatProvider((double.parse(btcInDenominationFormatted(transaction.sent.toDouble(), 'BTC'))).toInt()));
+  //   } else if (transaction.received > 0 && transaction.sent == 0) {
+  //     return ref.watch(conversionToFiatProvider((double.parse(btcInDenominationFormatted(transaction.received.toDouble(), 'BTC'))).toInt()));
+  //   } else {
+  //     int total = (transaction.received - transaction.sent).abs();
+  //     return ref.watch(conversionToFiatProvider((double.parse(btcInDenominationFormatted(total.toDouble(), 'BTC'))).toInt()));
+  //   }
+  // }
 
-  String _transactionValueLiquid(int transaction, WidgetRef ref) {
-    return ref.watch(conversionProvider(transaction));
-  }
+  // String _transactionFee(TransactionDetails transaction, WidgetRef ref) {
+  //   return ref.watch(conversionProvider(transaction.fee ?? 0));
+  // }
+  //
+  // String _transactionValueLiquid(int transaction, WidgetRef ref) {
+  //   return ref.watch(conversionProvider(transaction));
+  // }
 
   String _valueOfLiquidSubTransaction(AssetId asset, int value, WidgetRef ref) {
     switch (asset) {

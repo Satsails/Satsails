@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:satsails/providers/currency_conversions_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
 
 final conversionProvider = StateProvider.autoDispose.family<String, int>((ref, amount) {
@@ -17,6 +18,26 @@ final conversionProvider = StateProvider.autoDispose.family<String, int>((ref, a
       return balance.toStringAsFixed(5);
     case 'bits':
       balance = (amount / 100000000) * 1000000;
+      return balance.toStringAsFixed(2);
+    default:
+      return "Invalid format";
+  }
+});
+
+final conversionToFiatProvider = StateProvider.autoDispose.family<String, int>((ref, amount) {
+  final settings = ref.watch(settingsProvider);
+  final rates = ref.watch(currencyNotifierProvider);
+  final balance;
+
+  switch (settings.currency) {
+    case 'USD':
+      balance = amount * rates.btcToUsd;
+      return balance.toStringAsFixed(2);
+    case 'BRL':
+      balance = amount * rates.btcToBrl;
+      return balance.toStringAsFixed(2);
+    case 'EUR':
+      balance = amount * rates.btcToEur;
       return balance.toStringAsFixed(2);
     default:
       return "Invalid format";

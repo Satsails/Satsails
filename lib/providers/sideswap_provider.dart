@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'package:satsails/models/sideswap_peg_model.dart';
-import 'package:satsails/models/sideswap_status_model.dart';
+import 'package:satsails/models/sideswap/sideswap_peg_model.dart';
+import 'package:satsails/models/sideswap/sideswap_price_model.dart';
+import 'package:satsails/models/sideswap/sideswap_status_model.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
+import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/services/sideswap/sideswap.dart';
 
 final sideswapServiceProvider = StateProvider.autoDispose<Sideswap>((ref) {
@@ -37,7 +39,6 @@ final sideswapStatusProvider = StateNotifierProvider.autoDispose<SideswapStatusM
 });
 
 final pegInProvider = StateProvider.autoDispose<bool>((ref) => false);
-final sendBitcoinProvider = StateProvider.autoDispose<bool>((ref) => false);
 final pegOutBlocksProvider = StateProvider.autoDispose<int>((ref) => 2);
 
 final pegOutBitcoinCostProvider = StateProvider.autoDispose<double>((ref) {
@@ -107,3 +108,31 @@ final sideswapStatusDetailsItemProvider = StreamProvider.autoDispose<SideswapPeg
   service.pegStatus(orderId: orderId, pegIn: pegIn);
   yield* service.pegStatusStream.map((event) => SideswapPegStatus.fromJson(event));
 });
+
+// exchange tokens
+
+final sendBitcoinProvider = StateProvider.autoDispose<bool>((ref) => false);
+final assetExchangeProvider = StateProvider.autoDispose<String>((ref) => '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189');
+
+final sideswapPriceStreamProvider = StreamProvider.autoDispose<SideswapPrice>((ref) {
+  final service = ref.watch(sideswapServiceProvider);
+  final sendBitcoin = ref.watch(sendBitcoinProvider);
+  final asset = ref.watch(assetExchangeProvider);
+  final sendAmount = ref.watch(sendTxProvider).amount;
+  service.streamPrices(asset: asset, sendBitcoins: sendBitcoin, sendAmount: sendAmount);
+  return service.priceStream.map((event) => SideswapPrice.fromJson(event));
+});
+
+final sideswapPriceUnsubscribeProvider = StreamProvider.autoDispose<void>((ref) {
+  final service = ref.watch(sideswapServiceProvider);
+  final asset = ref.watch(assetExchangeProvider);
+  service.unsubscribePrice(asset: asset);
+  return const Stream<void>.empty();
+});
+
+// final sideswapStartExchangeProvider = Provider.autoDispose<void>((ref) {
+//   final service = ref.watch(sideswapServiceProvider);
+//   final liquidAddress = ref.watch(liquidAddressProvider);
+//   final bitcoinAddress = ref.watch(bitcoinAddressProvider);
+//   service.peg(recv_addr: liquidAddress, peg_in: false);
+// });

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:satsails/models/sideswap_peg_model.dart';
+import 'package:satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:satsails/providers/sideswap_provider.dart';
 
 class PegDetails extends ConsumerWidget {
