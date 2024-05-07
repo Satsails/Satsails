@@ -1,5 +1,9 @@
-String btcInDenominationFormatted(double amount, String denomination) {
+String btcInDenominationFormatted(double amount, String denomination, [bool isBitcoin = true]) {
   double balance = 0;
+
+  if (!isBitcoin) {
+    return (amount / 1000000000).toStringAsFixed(2);
+  }
 
   switch (denomination) {
     case 'sats':

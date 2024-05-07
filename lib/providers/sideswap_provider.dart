@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
+import 'package:satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:satsails/models/sideswap/sideswap_price_model.dart';
 import 'package:satsails/models/sideswap/sideswap_status_model.dart';
@@ -133,9 +134,21 @@ final sideswapPriceUnsubscribeProvider = StreamProvider.autoDispose<void>((ref) 
   return const Stream<void>.empty();
 });
 
-// final sideswapStartExchangeProvider = Provider.autoDispose<void>((ref) {
-//   final service = ref.watch(sideswapServiceProvider);
-//   final liquidAddress = ref.watch(liquidAddressProvider);
-//   final bitcoinAddress = ref.watch(bitcoinAddressProvider);
-//   service.peg(recv_addr: liquidAddress, peg_in: false);
-// });
+final sideswapStartExchangeProvider = StreamProvider.autoDispose.family<SideswapStartExchange, int>((ref, receiveAmount) async* {
+  final service = ref.watch(sideswapServiceProvider);
+  final asset = ref.watch(assetExchangeProvider);
+  final price = ref.watch(sideswapPriceStreamProvider);
+  price.when(data:
+    (value) {
+      service.startExchange(
+        asset: asset,
+        sendBitcoins: ref.watch(sendBitcoinProvider),
+        sendAmount: value.sendAmount!,
+        recvAmount: receiveAmount,
+        price: value.price!,
+      );
+    },
+    loading: () {},
+    error: (error, stackTrace) {},
+  );
+});

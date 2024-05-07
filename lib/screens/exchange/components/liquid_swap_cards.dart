@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/helpers/asset_mapper.dart';
+import 'package:satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:satsails/providers/balance_provider.dart';
@@ -148,19 +149,20 @@ class LiquidSwapCards extends ConsumerWidget {
                             final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
                             return sideswapPriceStreamAsyncValue.when(
                               data: (value) {
-                                final valueToReceive = value.recvAmount;
                                 if (value.errorMsg != null) {
-                                  return Text(value.errorMsg!, style: const TextStyle(color: Colors.white), textAlign: TextAlign.center);
+                                  return Text(value.errorMsg!, style: const TextStyle(color: Colors.orange), textAlign: TextAlign.center);
+                                } else {
+                                  final valueToReceive = value.recvAmount!;
+                                  return Text('Value to receive: ${btcInDenominationFormatted(valueToReceive.toDouble(), btcFormart, !sendBitcoin)}', style: const TextStyle( color: Colors.white), textAlign: TextAlign.center);
                                 }
-                                return Text('Value to receive: $valueToReceive', style: const TextStyle( color: Colors.white), textAlign: TextAlign.center);
                               },
                               loading: () => Padding(
                                 padding: EdgeInsets.all(8.0),
                                 child: Center(child: LoadingAnimationWidget.prograssiveDots(size: 15, color: Colors.white)),
                               ),
                               error: (error, stack) => Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text('Error: $error', style: const TextStyle( color: Colors.white), textAlign: TextAlign.center),
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Error: $error', style: const TextStyle( color: Colors.white), textAlign: TextAlign.center),
                               ),
                             );
                           }
