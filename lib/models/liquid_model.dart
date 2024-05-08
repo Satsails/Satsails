@@ -14,6 +14,12 @@ class LiquidModel {
     return address.confidential;
   }
 
+  Future<String> getNextAddress() async {
+    final lastUnused = await config.liquid.wallet.addressLastUnused();
+    final address = await config.liquid.wallet.address(index: lastUnused.index + 1);
+    return address.confidential;
+  }
+
   Future<bool> sync() async {
     await config.liquid.wallet.sync(electrumUrl: config.electrumUrl);
     return true;
@@ -29,13 +35,18 @@ class LiquidModel {
     return txs;
   }
 
+  // Future<List<TxOut>> listUnspent() async {
+  //   final txs = await config.liquid.wallet.utxos();
+  //   return txs;
+  // }
+
   Future<String> buildLbtcTx(TransactionBuilder params) async {
     try {
       final pset = await config.liquid.wallet.buildLbtcTx(
         sats: params.amount,
         outAddress: params.outAddress,
         // hardcorded until we have a way to send sats/vb
-        absFee: params.fee * (2048 + 1 * 85),
+        feeRate: params.fee * (2048 + 1 * 85),
       );
       return pset;
     } on LwkError catch (e) {
@@ -52,7 +63,7 @@ class LiquidModel {
           sats: amount,
           outAddress: params.outAddress,
           // hardcorded until we have a way to send sats/vb
-          absFee: params.fee * (2048 + 1 * 85),
+          feeRate: params.fee * (2048 + 1 * 85),
         );
         return pset;
       } on LwkError catch (e) {
@@ -71,7 +82,7 @@ class LiquidModel {
       sats: params.amount,
       outAddress: params.outAddress,
       // hardcorded until we have a way to send sats/vb
-      absFee: params.fee * (2048 + 1 * 85),
+      feeRate: params.fee * (2048 + 1 * 85),
       asset: params.assetId,
     );
     return pset;
