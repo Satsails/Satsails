@@ -27,13 +27,6 @@ final liquidAddressProvider = FutureProvider.autoDispose<String>((ref) {
   });
 });
 
-final liquidNextAddressProvider = FutureProvider.autoDispose<String>((ref) {
-  return ref.watch(initializeLiquidProvider.future).then((liquid) {
-    LiquidModel liquidModel = LiquidModel(liquid);
-    return liquidModel.getNextAddress();
-  });
-});
-
 final liquidBalanceProvider = FutureProvider<Balances>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
@@ -45,13 +38,6 @@ final liquidTransactionsProvider = FutureProvider<List<Tx>>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     return liquidModel.txs();
-  });
-});
-
-final liquidUnspentUtxosProvider = FutureProvider<List<TxOut>>((ref) {
-  return ref.watch(initializeLiquidProvider.future).then((liquid) {
-    LiquidModel liquidModel = LiquidModel(liquid);
-    return liquidModel.listUnspent();
   });
 });
 
