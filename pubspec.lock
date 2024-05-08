@@ -37,10 +37,10 @@ packages:
     dependency: transitive
     description:
       name: archive
-      sha256: ecf4273855368121b1caed0d10d4513c7241dfc813f7d3c8933b36622ae9b265
+      sha256: "0763b45fa9294197a2885c8567927e2830ade852e5c896fd4ab7e0e348d0f373"
       url: "https://pub.dev"
     source: hosted
-    version: "3.5.1"
+    version: "3.5.0"
   args:
     dependency: transitive
     description:
@@ -94,7 +94,7 @@ packages:
     description:
       path: "."
       ref: trunk
-      resolved-ref: "69a78ebe6caf7a563f35e4c6343c4f7464b16c87"
+      resolved-ref: "483ca530663c6768509740fe1193fce540b9dffe"
       url: "https://github.com/SatoshiPortal/boltz-dart.git"
     source: git
     version: "0.1.4"
@@ -355,10 +355,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_card_swiper
-      sha256: "880ad669017154d6d1f8c3abd861db08af97b3b7b0f7d7d5cbde690a9253811d"
+      sha256: "05bbbc11a0f57a6b9294cebe857d4d3dfdfbdad4e1628f4dc910c317d9684319"
       url: "https://pub.dev"
     source: hosted
-    version: "7.0.1"
+    version: "7.0.0"
   flutter_hooks:
     dependency: transitive
     description:
@@ -456,26 +456,26 @@ packages:
     dependency: transitive
     description:
       name: flutter_secure_storage_platform_interface
-      sha256: fa6beabb78596a93540d7c23519ed11f80f85431016b1660ce7b985ed6a7fd49
+      sha256: "0d4d3a5dd4db28c96ae414d7ba3b8422fd735a8255642774803b2532c9a61d7e"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.0.2"
   flutter_secure_storage_web:
     dependency: transitive
     description:
       name: flutter_secure_storage_web
-      sha256: cb8dcc88a97a7ec7458a51cb3a4487697bd5a52603b25f1a93764d04eb3d1d5f
+      sha256: "30f84f102df9dcdaa2241866a958c2ec976902ebdaa8883fbfe525f1f2f3cf20"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "1.1.2"
   flutter_secure_storage_windows:
     dependency: transitive
     description:
       name: flutter_secure_storage_windows
-      sha256: "583a738a15e940c63735ef929f78cde5bf2c2c2e66c54b7c7c1dc9c418923d4a"
+      sha256: "5809c66f9dd3b4b93b0a6e2e8561539405322ee767ac2f64d084e2ab5429d108"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.0"
+    version: "3.0.0"
   flutter_svg:
     dependency: transitive
     description:
@@ -859,10 +859,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_foundation
-      sha256: f234384a3fdd67f989b4d54a5d73ca2a6c422fa55ae694381ae0f4375cd1ea16
+      sha256: "5a7999be66e000916500be4f15a3633ebceb8302719b47b9cc49ce924125350f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.0"
+    version: "2.3.2"
   path_provider_linux:
     dependency: transitive
     description:
@@ -923,10 +923,10 @@ packages:
     dependency: transitive
     description:
       name: pointycastle
-      sha256: "4be0097fcf3fd3e8449e53730c631200ebc7b88016acecab2b0da2f0149222fe"
+      sha256: "79fbafed02cfdbe85ef3fd06c7f4bc2cbcba0177e61b765264853d4253b21744"
       url: "https://pub.dev"
     source: hosted
-    version: "3.9.1"
+    version: "3.9.0"
   pool:
     dependency: transitive
     description:

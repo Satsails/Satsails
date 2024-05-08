@@ -1,3 +1,49 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+class SideswapStartExchangeModel extends StateNotifier<SideswapStartExchange> {
+  SideswapStartExchangeModel(SideswapStartExchange state) : super(state);
+
+  void update(SideswapStartExchange state) {
+    state = state;
+  }
+
+  Future<Map<String, dynamic>> uploadInputs(String returnAddress, Map<String, dynamic> inputs, String receiveAddress) async {
+    final Map<String, dynamic> requestData = {
+      "id": 1,
+      "method": "swap_start",
+      "params": {
+        "change_addr": returnAddress,
+        "inputs": inputs,
+        "order_id": state.orderId,
+        "recv_addr": receiveAddress,
+        "recv_amount": state.recvAmount,
+        "recv_asset": state.recvAsset,
+        "send_amount": state.sendAmount,
+        "send_asset": state.sendAsset,
+      },
+    };
+    final uri = Uri.parse(state.uploadUrl);
+
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(requestData),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      return responseData;
+    } else {
+      throw Exception('Failed: ${response.body}');
+    }
+  }
+}
+
 class SideswapStartExchange {
   String orderId;
   String sendAsset;
@@ -28,7 +74,15 @@ class SideswapStartExchange {
   }
 }
 
-class SideswapExchangeDone {
+class SideswapExchangeStateModel extends StateNotifier<SideswapExchangeState> {
+  SideswapExchangeStateModel(SideswapExchangeState state) : super(state);
+
+  void update(SideswapExchangeState state) {
+    state = state;
+  }
+}
+
+class SideswapExchangeState {
   String orderId;
   String status;
   int price;
@@ -39,7 +93,7 @@ class SideswapExchangeDone {
   String? txid;
   int? networkFee;
 
-  SideswapExchangeDone({
+  SideswapExchangeState({
     required this.orderId,
     required this.status,
     required this.price,
@@ -51,8 +105,8 @@ class SideswapExchangeDone {
     this.networkFee,
   });
 
-  factory SideswapExchangeDone.fromJson(Map<String, dynamic> json) {
-    return SideswapExchangeDone(
+  factory SideswapExchangeState.fromJson(Map<String, dynamic> json) {
+    return SideswapExchangeState(
       orderId: json['order_id'],
       status: json['status'],
       price: json['price'],

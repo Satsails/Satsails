@@ -1,3 +1,13 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class SideswapPriceModel extends StateNotifier<SideswapPrice> {
+  SideswapPriceModel(super.state);
+
+  void updatePrice(SideswapPrice newPrice) {
+    state = newPrice;
+  }
+}
+
 class SideswapPrice {
   String? subscribeId;
   String? asset;
