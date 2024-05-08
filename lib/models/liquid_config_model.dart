@@ -19,9 +19,9 @@ class LiquidConfigModel {
 
   static Future<Wallet> createWallet(String mnemonic, Network network) async {
     final dbPath = await getDbDir();
-    final descriptor = DescriptorBase(mnemonic: mnemonic, network: network);
+    final descriptor = await Descriptor.newConfidential(network: network, mnemonic: mnemonic).then((value) => value);
 
-    final wallet = Wallet(
+    final wallet = Wallet.init(
       descriptor: descriptor,
       network: network,
       dbpath: dbPath,

@@ -134,21 +134,52 @@ final sideswapPriceUnsubscribeProvider = StreamProvider.autoDispose<void>((ref) 
   return const Stream<void>.empty();
 });
 
-final sideswapStartExchangeProvider = StreamProvider.autoDispose.family<SideswapStartExchange, int>((ref, receiveAmount) async* {
+final sideswapPriceProvider = StateNotifierProvider.autoDispose<SideswapPriceModel, SideswapPrice>((ref) {
+  final price = ref.watch(sideswapPriceStreamProvider);
+  return SideswapPriceModel(price.when(
+    data: (value) => value,
+    loading: () => SideswapPrice(),
+    error: (error, stackTrace) => SideswapPrice(),
+  ));
+});
+
+final sideswapStartExchangeProvider = StreamProvider.autoDispose<SideswapStartExchange>((ref) {
   final service = ref.watch(sideswapServiceProvider);
   final asset = ref.watch(assetExchangeProvider);
-  final price = ref.watch(sideswapPriceStreamProvider);
-  price.when(data:
-    (value) {
-      service.startExchange(
-        asset: asset,
-        sendBitcoins: ref.watch(sendBitcoinProvider),
-        sendAmount: value.sendAmount!,
-        recvAmount: receiveAmount,
-        price: value.price!,
-      );
-    },
-    loading: () {},
-    error: (error, stackTrace) {},
-  );
+  final price = ref.watch(sideswapPriceProvider);
+  final sendBitcoin = ref.watch(sendBitcoinProvider);
+  service.startExchange(asset: asset, price: price.price!, sendBitcoins: sendBitcoin, sendAmount: price.sendAmount!, recvAmount: price.recvAmount!);
+  return service.exchangeStream.map((event) => SideswapStartExchange.fromJson(event));
+});
+
+final sideswapStartExchangeStateProvider = StateNotifierProvider.autoDispose<SideswapStartExchangeModel, SideswapStartExchange>((ref) {
+  final state = ref.watch(sideswapStartExchangeProvider);
+  return SideswapStartExchangeModel(state.when(
+    data: (value) => value,
+    loading: () => SideswapStartExchange(orderId: '', sendAsset: '', sendAmount: 0, recvAsset: '', recvAmount: 0, uploadUrl: ''),
+    error: (error, stackTrace) => SideswapStartExchange(orderId: '', sendAsset: '', sendAmount: 0, recvAsset: '', recvAmount: 0, uploadUrl: ''),
+  ));
+});
+
+final sideswapUploadInputsProvider = FutureProvider.autoDispose<void>((ref) async {
+  final state = ref.watch(sideswapStartExchangeStateProvider.notifier);
+  final receiveAddress = await ref.watch(liquidAddressProvider.future).then((value) => value);
+  final returnAddress = await ref.watch(liquidNextAddressProvider.future).then((value) => value);
+  final liquidUnspentUtxos = await ref.watch(liquidUnspentUtxosProvider.future).then((value) => value);
+
+});
+
+
+final sideswapExchangeCompletionProvider = StreamProvider.autoDispose<SideswapExchangeState>((ref) {
+  final service = ref.watch(sideswapServiceProvider);
+  return service.exchangeDoneStream.map((event) => SideswapExchangeState.fromJson(event));
+});
+
+final sideswapExchangeStateProvider = StateNotifierProvider.autoDispose<SideswapExchangeStateModel, SideswapExchangeState>((ref) {
+  final state = ref.watch(sideswapExchangeCompletionProvider);
+  return SideswapExchangeStateModel(state.when(
+    data: (value) => value,
+    loading: () => SideswapExchangeState(orderId: '', status: '', price: 0, sendAsset: '', sendAmount: 0, recvAsset: '', recvAmount: 0),
+    error: (error, stackTrace) => SideswapExchangeState(orderId: '', status: '', price: 0, sendAsset: '', sendAmount: 0, recvAsset: '', recvAmount: 0),
+  ));
 });

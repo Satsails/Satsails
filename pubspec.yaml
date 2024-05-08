@@ -32,7 +32,7 @@ dependencies:
       ref: trunk
   lwk_dart:
     git:
-      url: https://github.com/JoaoLobo94/lwk-dart
+      url: https://github.com/SatoshiPortal/lwk-dart
       ref: trunk
   forex_currency_conversion: ^0.9.1
   icons_plus: ^5.0.0
