@@ -1,8 +1,6 @@
-import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/helpers/asset_mapper.dart';
@@ -109,7 +107,6 @@ class LiquidSwapCards extends ConsumerWidget {
       children: [
         Text("Balance to spend: ${currentBalance}", style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),),
         ...swapCards,
-        _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
       ],
     );
   }
@@ -123,7 +120,7 @@ class LiquidSwapCards extends ConsumerWidget {
     return Column(
       children: [
         if (!isBitcoin) const Padding(
-          padding: EdgeInsets.only(top: 10),
+          padding: EdgeInsets.all(8.0),
           child: Icon(Icons.swipe, color: Colors.grey),
         ),
         SizedBox(
@@ -198,42 +195,6 @@ class LiquidSwapCards extends ConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context) {
-    ref.watch(sideswapStartExchangeProvider);
-    ref.watch(sideswapUploadInputsProvider);
-
-    return Padding(
-      padding: const EdgeInsets.all(15.0),
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: ActionSlider.standard(
-          sliderBehavior: SliderBehavior.stretch,
-          width: double.infinity,
-          backgroundColor: Colors.white,
-          toggleColor: Colors.blueAccent,
-          action: (controller) async {
-            controller.loading();
-            await Future.delayed(const Duration(seconds: 3));
-            try {
-              // await ref.watch(sendLiquidTransactionProvider.future);
-              // await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-              controller.success();
-              Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
-              ref.watch(closeSideswapProvider);
-              await Future.delayed(const Duration(seconds: 3));
-              Navigator.pushReplacementNamed(context, '/home');
-            } catch (e) {
-              controller.failure();
-              Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
-              controller.reset();
-            }
-          },
-          child: const Text('Exchange'),
-        ),
-      ),
     );
   }
 }
