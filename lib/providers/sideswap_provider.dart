@@ -161,12 +161,21 @@ final sideswapStartExchangeStateProvider = StateNotifierProvider.autoDispose<Sid
   ));
 });
 
-final sideswapUploadInputsProvider = FutureProvider.autoDispose<void>((ref) async {
+final sideswapUploadInputsProvider = FutureProvider.autoDispose<SideswapPsetToSign>((ref) async {
   final state = ref.watch(sideswapStartExchangeStateProvider.notifier);
   final receiveAddress = await ref.watch(liquidAddressProvider.future).then((value) => value);
   final returnAddress = await ref.watch(liquidNextAddressProvider.future).then((value) => value);
   final liquidUnspentUtxos = await ref.watch(liquidUnspentUtxosProvider.future).then((value) => value);
+  final sendAmount = ref.watch(sideswapPriceProvider).sendAmount!;
+  return await state.uploadInputs(returnAddress, liquidUnspentUtxos, receiveAddress, sendAmount).then((value) => value);
 
+});
+
+final sideswapSignPsetProvider = FutureProvider.autoDispose<bool>((ref) async {
+  final state = ref.watch(sideswapStartExchangeStateProvider.notifier);
+  final result = await ref.watch(sideswapUploadInputsProvider.future).then((value) => value);
+  final signedPset = await ref.watch(signLiquidPsetProvider(result.pset).future).then((value) => value);
+  return await state.uploadPset(signedPset, result.submitId).then((value) => value);
 });
 
 
