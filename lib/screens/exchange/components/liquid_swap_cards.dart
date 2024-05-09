@@ -105,11 +105,20 @@ class LiquidSwapCards extends ConsumerWidget {
       swapCards = swapCards.reversed.toList();
     }
 
-    return Column(
+    return Stack(
       children: [
-        Text("Balance to spend: ${currentBalance}", style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),),
-        ...swapCards,
-        _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
+        Column(
+          children: [
+            Text("Balance to spend: ${currentBalance}", style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),),
+            ...swapCards,
+          ],
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
+        ),
       ],
     );
   }
@@ -202,8 +211,6 @@ class LiquidSwapCards extends ConsumerWidget {
   }
 
   Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context) {
-    ref.watch(sideswapStartExchangeProvider);
-    ref.watch(sideswapUploadInputsProvider);
 
     return Padding(
       padding: const EdgeInsets.all(15.0),
@@ -218,12 +225,12 @@ class LiquidSwapCards extends ConsumerWidget {
             controller.loading();
             await Future.delayed(const Duration(seconds: 3));
             try {
-              // await ref.watch(sendLiquidTransactionProvider.future);
-              // await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
+              await ref.watch(sideswapSignPsetProvider.future).then((value) => value);
               controller.success();
               Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
               ref.watch(closeSideswapProvider);
               await Future.delayed(const Duration(seconds: 3));
+              ref.watch(closeSideswapProvider);
               Navigator.pushReplacementNamed(context, '/home');
             } catch (e) {
               controller.failure();

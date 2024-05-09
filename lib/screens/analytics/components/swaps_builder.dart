@@ -61,7 +61,6 @@ Widget _buildSwapTransactionItem(SideswapPegStatus swap, BuildContext context, W
             swap.pegIn! ? const Text("Liquid", style: TextStyle(fontSize: 16)) : const Text("Bitcoin", style: TextStyle(fontSize: 16)),
           ],
         ),
-        trailing: _statusIcon(swap.list),
         onTap: () {
           ref.read(orderIdStatusProvider.notifier).state = swap.orderId!;
           ref.read(pegInStatusProvider.notifier).state = swap.pegIn!;
@@ -85,23 +84,4 @@ void _showDetailsPage(BuildContext context, SideswapPegStatus swap) {
 String _timestampToDateTime(int timestamp) {
   final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
   return "${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
-}
-
-Icon _statusIcon(List<SideswapPegStatusTransaction>? transactions) {
-  if (transactions == null || transactions.isEmpty) {
-    return const Icon(Icons.help, color: Colors.grey);
-  }
-  var lastTransaction;
-  switch (lastTransaction.txState) {
-    case 'InsufficientAmount':
-      return const Icon(Icons.error, color: Colors.red);
-    case 'Detected':
-      return const Icon(Icons.search, color: Colors.orange);
-    case 'Processing':
-      return const Icon(Icons.hourglass_empty, color: Colors.blue);
-    case 'Done':
-      return const Icon(Icons.check_circle, color: Colors.green);
-    default:
-      return const Icon(Icons.help, color: Colors.grey);
-  }
 }

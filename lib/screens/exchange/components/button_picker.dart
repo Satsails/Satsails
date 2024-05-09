@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
+import 'package:satsails/providers/send_tx_provider.dart';
+import 'package:satsails/providers/sideswap_provider.dart';
 
 final selectedButtonProvider = StateProvider<String>((ref) => "Bitcoin Layer Swap");
 final groupButtonControllerProvider = Provider<GroupButtonController>((ref) {
@@ -18,12 +20,21 @@ class ButtonPicker extends ConsumerWidget {
       onSelected: (index, isSelected, isLongPress) {
         switch (isSelected) {
           case 0:
+            ref.read(sendTxProvider.notifier).updateAddress('');
+            ref.read(sendTxProvider.notifier).updateAmount(0);
+            ref.read(sendBlocksProvider.notifier).state = 1;
             ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
             break;
           case 1:
+            ref.read(sendTxProvider.notifier).updateAddress('');
+            ref.read(sendTxProvider.notifier).updateAmount(0);
+            ref.read(sendBlocksProvider.notifier).state = 1;
             ref.read(selectedButtonProvider.notifier).state = "Swap";
             break;
           default:
+            ref.read(sendTxProvider.notifier).updateAddress('');
+            ref.read(sendTxProvider.notifier).updateAmount(0);
+            ref.read(sendBlocksProvider.notifier).state = 1;
             ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
         }
       },

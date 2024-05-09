@@ -1,21 +1,42 @@
 import 'dart:typed_data';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:lwk_dart/lwk_dart.dart';
 
-class SideswapStartExchangeModel extends StateNotifier<SideswapStartExchange> {
-  SideswapStartExchangeModel(SideswapStartExchange state) : super(state);
+class SideswapStartExchange {
+  String orderId;
+  String sendAsset;
+  num sendAmount;
+  String recvAsset;
+  num recvAmount;
+  String uploadUrl;
 
-  void update(SideswapStartExchange state) {
-    state = state;
+  SideswapStartExchange({
+    required this.orderId,
+    required this.sendAsset,
+    required this.sendAmount,
+    required this.recvAsset,
+    required this.recvAmount,
+    required this.uploadUrl,
+  });
+
+  factory SideswapStartExchange.fromJson(Map<String, dynamic> json) {
+    var result = json['result'];
+    return SideswapStartExchange(
+      orderId: result['order_id'],
+      sendAsset: result['send_asset'],
+      sendAmount: result['send_amount'],
+      recvAsset: result['recv_asset'],
+      recvAmount: result['recv_amount'],
+      uploadUrl: result['upload_url'],
+    );
   }
 
   Future<SideswapPsetToSign> uploadInputs(String returnAddress, List<TxOut> inputs, String receiveAddress, int sendAmount) async {
 
-    final List<TxOut> assetInputs = inputs.where((TxOut utxo) => utxo.unblinded.asset == state.sendAsset).toList();
+    final List<TxOut> assetInputs = inputs.where((TxOut utxo) => utxo.unblinded.asset == sendAsset).toList();
 
     List<TxOut> assetInputForAmount = [];
     int total = 0;
@@ -33,8 +54,8 @@ class SideswapStartExchangeModel extends StateNotifier<SideswapStartExchange> {
 
       for (TxOut utxo in assetInputForAmount) {
         Map<String, dynamic> transactionInput = {
-          "asset": state.sendAsset,
-          "asset_bf": utxo.unblinded.asset,
+          "asset": sendAsset,
+          "asset_bf": utxo.unblinded.assetBf,
           "redeem_script": utxo.scriptPubkey,
           "txid": utxo.outpoint.txid,
           "value": utxo.unblinded.value,
@@ -53,41 +74,43 @@ class SideswapStartExchangeModel extends StateNotifier<SideswapStartExchange> {
       "method": "swap_start",
       "params": {
         "change_addr": returnAddress,
-        "inputs": generateTransactionInputs,
-        "order_id": state.orderId,
+        "inputs": generateTransactionInputs(assetInputForAmount),
+        "order_id": orderId,
         "recv_addr": receiveAddress,
-        "recv_amount": state.recvAmount,
-        "recv_asset": state.recvAsset,
-        "send_amount": state.sendAmount,
-        "send_asset": state.sendAsset,
+        "recv_amount": recvAmount,
+        "recv_asset": recvAsset,
+        "send_amount": sendAmount,
+        "send_asset": sendAsset,
       },
     };
-    final uri = Uri.parse(state.uploadUrl);
 
-    final response = await http.post(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode(requestData),
-    );
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
-      return SideswapPsetToSign.fromJson(responseData);
-    } else {
-      throw Exception('Failed: ${response.body}');
-    }
+    final uri = Uri.parse(uploadUrl);
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(requestData),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        return SideswapPsetToSign.fromJson(responseData);
+      } else {
+        throw Exception('Failed: ${response.body}');
+      }
   }
 
+
   Future<bool> uploadPset(Uint8List pset, String submitId) async {
-    final uri = Uri.parse(state.uploadUrl);
+    final uri = Uri.parse(uploadUrl);
 
     final Map<String, dynamic> requestData = {
       "id": 1,
       "method": "swap_sign",
       "params": {
-        "order_id":state.orderId,
+        "order_id": orderId,
         "submit_id": submitId,
         "pset": pset,
       },
@@ -119,36 +142,6 @@ class SideswapPsetToSign {
     return SideswapPsetToSign(
       pset: json['result']['pset'],
       submitId: json['result']['submit_id'],
-    );
-  }
-}
-
-class SideswapStartExchange {
-  String orderId;
-  String sendAsset;
-  num sendAmount;
-  String recvAsset;
-  num recvAmount;
-  String uploadUrl;
-
-  SideswapStartExchange({
-    required this.orderId,
-    required this.sendAsset,
-    required this.sendAmount,
-    required this.recvAsset,
-    required this.recvAmount,
-    required this.uploadUrl,
-  });
-
-  factory SideswapStartExchange.fromJson(Map<String, dynamic> json) {
-    var result = json['result'];
-    return SideswapStartExchange(
-      orderId: result['order_id'],
-      sendAsset: result['send_asset'],
-      sendAmount: result['send_amount'],
-      recvAsset: result['recv_asset'],
-      recvAmount: result['recv_amount'],
-      uploadUrl: result['upload_url'],
     );
   }
 }

@@ -289,7 +289,7 @@ class BuildTransactions extends ConsumerWidget {
     } else if (transaction.received > 0 && transaction.sent == 0) {
       return 'Received';
     } else {
-      return 'Redeposit';
+      return 'Multiple';
     }
   }
 
@@ -340,13 +340,21 @@ class BuildTransactions extends ConsumerWidget {
   }
 
   String _liquidTransactionAmountInFiat(transaction, WidgetRef ref) {
-    final currency = ref.watch(settingsProvider).currency;
-    final value = ref.watch(conversionToFiatProvider(transaction.value));
+    if (AssetMapper.mapAsset(transaction.assetId) == AssetId.LBTC) {
+      final currency = ref
+          .watch(settingsProvider)
+          .currency;
+      final value = ref.watch(conversionToFiatProvider(transaction.value));
 
-    if (transaction.value < 0) {
-      return '${(double.parse(value) / 100000000).toStringAsFixed(2)} $currency';
+      if (transaction.value < 0) {
+        return '${(double.parse(value) / 100000000).toStringAsFixed(
+            2)} $currency';
+      } else {
+        return '${(double.parse(value) / 100000000).toStringAsFixed(
+            2)} $currency';
+      }
     } else {
-      return '${(double.parse(value) / 100000000).toStringAsFixed(2)} $currency';
+      return '';
     }
   }
 

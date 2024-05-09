@@ -152,27 +152,18 @@ final sideswapStartExchangeProvider = StreamProvider.autoDispose<SideswapStartEx
   return service.exchangeStream.map((event) => SideswapStartExchange.fromJson(event));
 });
 
-final sideswapStartExchangeStateProvider = StateNotifierProvider.autoDispose<SideswapStartExchangeModel, SideswapStartExchange>((ref) {
-  final state = ref.watch(sideswapStartExchangeProvider);
-  return SideswapStartExchangeModel(state.when(
-    data: (value) => value,
-    loading: () => SideswapStartExchange(orderId: '', sendAsset: '', sendAmount: 0, recvAsset: '', recvAmount: 0, uploadUrl: ''),
-    error: (error, stackTrace) => SideswapStartExchange(orderId: '', sendAsset: '', sendAmount: 0, recvAsset: '', recvAmount: 0, uploadUrl: ''),
-  ));
-});
 
 final sideswapUploadInputsProvider = FutureProvider.autoDispose<SideswapPsetToSign>((ref) async {
-  final state = ref.watch(sideswapStartExchangeStateProvider.notifier);
+  final state = await ref.watch(sideswapStartExchangeProvider.future).then((value) => value);
   final receiveAddress = await ref.watch(liquidAddressProvider.future).then((value) => value);
   final returnAddress = await ref.watch(liquidNextAddressProvider.future).then((value) => value);
   final liquidUnspentUtxos = await ref.watch(liquidUnspentUtxosProvider.future).then((value) => value);
   final sendAmount = ref.watch(sideswapPriceProvider).sendAmount!;
   return await state.uploadInputs(returnAddress, liquidUnspentUtxos, receiveAddress, sendAmount).then((value) => value);
-
 });
 
 final sideswapSignPsetProvider = FutureProvider.autoDispose<bool>((ref) async {
-  final state = ref.watch(sideswapStartExchangeStateProvider.notifier);
+  final state = await ref.watch(sideswapStartExchangeProvider.future).then((value) => value);
   final result = await ref.watch(sideswapUploadInputsProvider.future).then((value) => value);
   final signedPset = await ref.watch(signLiquidPsetProvider(result.pset).future).then((value) => value);
   return await state.uploadPset(signedPset, result.submitId).then((value) => value);

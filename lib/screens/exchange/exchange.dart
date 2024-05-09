@@ -4,8 +4,8 @@ import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import 'package:satsails/screens/exchange/components/button_picker.dart';
 import 'package:satsails/providers/sideswap_provider.dart';
+import 'package:satsails/screens/exchange/components/liquid_swap_cards.dart';
 import 'package:satsails/screens/exchange/components/peg.dart';
-import 'package:satsails/screens/exchange/components/swap.dart';
 import 'package:satsails/screens/shared/offline_transaction_warning.dart';
 
 class Exchange extends ConsumerWidget {
@@ -38,9 +38,8 @@ class Exchange extends ConsumerWidget {
               ButtonPicker(),
               OfflineTransactionWarning(online: online),
               SizedBox(height: dynamicSizedBox),
-              // if(button == 'Bitcoin Layer Swap')  Expanded(child: Peg()),
-              // if(button == 'Swap') Expanded(child: Swap()),
-               Expanded(child: Swap()),
+              if(button == 'Bitcoin Layer Swap')  Expanded(child: Peg()),
+              if(button == 'Swap') Expanded(child: LiquidSwapCards()),
             ],
           ),
         ),
