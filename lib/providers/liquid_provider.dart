@@ -48,12 +48,12 @@ final liquidTransactionsProvider = FutureProvider<List<Tx>>((ref) {
   });
 });
 
-// final liquidUnspentUtxosProvider = FutureProvider<List<TxOut>>((ref) {
-//   return ref.watch(initializeLiquidProvider.future).then((liquid) {
-//     LiquidModel liquidModel = LiquidModel(liquid);
-//     return liquidModel.listUnspent();
-//   });
-// });
+final liquidUnspentUtxosProvider = FutureProvider<List<TxOut>>((ref) {
+  return ref.watch(initializeLiquidProvider.future).then((liquid) {
+    LiquidModel liquidModel = LiquidModel(liquid);
+    return liquidModel.listUnspent();
+  });
+});
 
 final getCustomFeeRateProvider = FutureProvider.autoDispose<double>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {

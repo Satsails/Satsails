@@ -165,7 +165,7 @@ final sideswapUploadInputsProvider = FutureProvider.autoDispose<void>((ref) asyn
   final state = ref.watch(sideswapStartExchangeStateProvider.notifier);
   final receiveAddress = await ref.watch(liquidAddressProvider.future).then((value) => value);
   final returnAddress = await ref.watch(liquidNextAddressProvider.future).then((value) => value);
-  // final liquidUnspentUtxos = await ref.watch(liquidUnspentUtxosProvider.future).then((value) => value);
+  final liquidUnspentUtxos = await ref.watch(liquidUnspentUtxosProvider.future).then((value) => value);
 
 });
 

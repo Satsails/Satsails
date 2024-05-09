@@ -35,26 +35,27 @@ class LiquidModel {
     return txs;
   }
 
-  // Future<List<TxOut>> listUnspent() async {
-  //   final txs = await config.liquid.wallet.utxos();
-  //   return txs;
-  // }
+  Future<List<TxOut>> listUnspent() async {
+    final utxos = await config.liquid.wallet.utxos();
+    return utxos;
+  }
 
   Future<String> buildLbtcTx(TransactionBuilder params) async {
     try {
       final pset = await config.liquid.wallet.buildLbtcTx(
         sats: params.amount,
         outAddress: params.outAddress,
-        // hardcorded until we have a way to send sats/vb
-        feeRate: params.fee * (2048 + 1 * 85),
+        feeRate: params.fee * 1000,
       );
       return pset;
     } catch (e) {
+      if (e.toString().contains("InsufficientFunds")) {
+        throw "Insufficient funds";
+      }
       throw e.toString();
     }
   }
 
-  // hardcorded until we have a drain wallet
   Future<String> buildDrainWalletTx(TransactionBuilder params) async {
     var amount = params.amount;
     while (true) {
@@ -62,31 +63,36 @@ class LiquidModel {
         final pset = await config.liquid.wallet.buildLbtcTx(
           sats: amount,
           outAddress: params.outAddress,
-          // hardcorded until we have a way to send sats/vb
-          feeRate: params.fee * (2048 + 1 * 85),
+          feeRate: params.fee * 1000,
         );
         return pset;
       } catch (e) {
         if (amount > 0) {
-          amount -= 100;
+          amount -= 1000;
         } else {
+          if (e.toString().contains("InsufficientFunds")) {
+            throw "Insufficient funds";
+          }
           throw e.toString();
         }
       }
     }
   }
 
+
   Future<String> buildAssetTx(TransactionBuilder params) async {
     try {
     final pset = await config.liquid.wallet.buildAssetTx(
       sats: params.amount,
       outAddress: params.outAddress,
-      // hardcorded until we have a way to send sats/vb
-      feeRate: params.fee * (2048 + 1 * 85),
+      feeRate: params.fee * 1000,
       asset: params.assetId,
     );
     return pset;
     } catch (e) {
+      if (e.toString().contains("InsufficientFunds")) {
+        throw "Insufficient funds";
+      }
       throw e.toString();
     }
   }

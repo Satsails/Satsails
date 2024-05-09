@@ -771,7 +771,7 @@ packages:
     description:
       path: "."
       ref: trunk
-      resolved-ref: "4a4f38daa5bfbbd3d5862d1d6e564dea93379f6e"
+      resolved-ref: "737f77215b70d56060f9f9a4f598abe0f0ac9ea3"
       url: "https://github.com/SatoshiPortal/lwk-dart"
     source: git
     version: "0.1.3"

@@ -25,6 +25,6 @@ String btcInDenominationFormatted(double amount, String denomination, [bool isBi
   if (balance == balance.floor()) {
     return balance.toInt().toString();
   } else {
-    return balance.toString(); // You can adjust the number of digits after the decimal point
+    return balance.toString();
   }
 }

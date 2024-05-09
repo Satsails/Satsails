@@ -297,51 +297,51 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                   ),
                 SizedBox(height: dynamicSizedBox),
                 // commented until there is a drain wallet method
-                // Container(
-                //   decoration: BoxDecoration(
-                //     borderRadius: BorderRadius.circular(10),
-                //     gradient: const LinearGradient(
-                //       colors: [Colors.blueAccent, Colors.deepPurple],
-                //       begin: Alignment.topLeft,
-                //       end: Alignment.bottomRight,
-                //     ),
-                //   ),
-                //   child: Material(
-                //     color: Colors.transparent,
-                //     child: InkWell(
-                //       borderRadius: BorderRadius.circular(10),
-                //       onTap: () async {
-                //         final assetId = ref.watch(sendTxProvider).assetId;
-                //         try{
-                //         if (assetId == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
-                //           final pset = await ref.watch(liquidDrainWalletProvider.future);
-                //           final sendingBalance = pset.balances[0];
-                //           final controllerValue = (sendingBalance.value / 100000000).abs();
-                //           controller.text = controllerValue.toStringAsFixed(8);
-                //           ref.read(sendAmountProvider.notifier).state = (sendingBalance.value.abs());
-                //         } else {
-                //           await ref.watch(liquidDrainWalletProvider.future);
-                //           final sendingBalance = ref.watch(assetBalanceProvider);
-                //           controller.text = sendingBalance.toStringAsFixed(2);
-                //           ref.read(sendAmountProvider.notifier).state = (sendingBalance);
-                //         }}catch(e) {
-                //           Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
-                //         }
-                //       },
-                //       child: Padding(
-                //         padding: EdgeInsets.symmetric(horizontal: dynamicPadding, vertical: dynamicPadding / 2),
-                //         child: Text(
-                //           'Max',
-                //           style: TextStyle(
-                //             fontSize: dynamicFontSize,
-                //             fontWeight: FontWeight.bold,
-                //             color: Colors.white,
-                //           ),
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    gradient: const LinearGradient(
+                      colors: [Colors.blueAccent, Colors.deepPurple],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      onTap: () async {
+                        final assetId = ref.watch(sendTxProvider).assetId;
+                        try{
+                          if (assetId == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
+                            final pset = await ref.watch(liquidDrainWalletProvider.future);
+                            final sendingBalance = pset.balances[0];
+                            final controllerValue = (sendingBalance.value / 100000000).abs();
+                            controller.text = controllerValue.toStringAsFixed(8);
+                            ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
+                          } else {
+                            await ref.watch(liquidDrainWalletProvider.future);
+                            final sendingBalance = ref.watch(assetBalanceProvider);
+                            controller.text = sendingBalance.toStringAsFixed(2);
+                            ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
+                          }}catch(e) {
+                          Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                        }
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: dynamicPadding, vertical: dynamicPadding / 2),
+                        child: Text(
+                          'Max',
+                          style: TextStyle(
+                            fontSize: dynamicFontSize,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 SizedBox(height: dynamicSizedBox),
                 InteractiveSlider(
                   centerIcon: const Icon(Clarity.block_solid, color: Colors.black),

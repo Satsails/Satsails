@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:satsails/helpers/asset_mapper.dart';
+import 'package:satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:satsails/helpers/string_extension.dart';
 import 'package:satsails/models/adapters/transaction_adapters.dart';
 import 'package:satsails/providers/background_sync_provider.dart';
 import 'package:satsails/providers/conversion_provider.dart';
+import 'package:satsails/providers/settings_provider.dart';
 import 'package:satsails/providers/transaction_search_provider.dart';
 import 'package:satsails/providers/transaction_type_show_provider.dart';
 import 'package:satsails/providers/transactions_provider.dart';
@@ -55,19 +57,19 @@ class BuildTransactions extends ConsumerWidget {
                   if (index < bitcoinTransactions.length) {
                     return _buildTransactionItem(bitcoinTransactions[index], context, ref);
                   } else {
-                    return const Center(child: Text('No transactions', style: TextStyle(fontSize: 14, color: Colors.grey)));
+                    return const Center(child: Text('Pull up to refresh', style: TextStyle(fontSize: 14, color: Colors.grey)));
                   }
                 case 'Liquid':
                   if (index < liquidTransactions.length) {
                     return _buildTransactionItem(liquidTransactions[index], context, ref);
                   } else {
-                    return const Center(child: Text('No transactions', style: TextStyle(fontSize: 14, color: Colors.grey)));
+                    return const Center(child: Text('Pull up to refresh', style: TextStyle(fontSize: 14, color: Colors.grey)));
                   }
                 default:
                   if (index < allTx.length) {
                     return _buildTransactionItem(allTx[index], context, ref);
                   } else {
-                    return const Center(child: Text('No transactions', style: TextStyle(fontSize: 14, color: Colors.grey)));
+                    return const Center(child: Text('Pull up to refresh', style: TextStyle(fontSize: 14, color: Colors.grey)));
                   }
               }
             },
@@ -148,7 +150,12 @@ class BuildTransactions extends ConsumerWidget {
             Navigator.pushNamed(context, '/search_modal');
           },
           child: ListTile(
-            leading: _transactionTypeIcon(transaction),
+            leading: Column(
+              children: [
+                _transactionTypeIcon(transaction),
+                Text(_transactionAmountInFiat(transaction, ref),style: const TextStyle(fontSize: 14)),
+              ],
+            ),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -162,7 +169,7 @@ class BuildTransactions extends ConsumerWidget {
                 ? const Icon(Icons.check_circle, color: Colors.green)
                 : const Icon(Icons.access_alarm_outlined, color: Colors.red),
           ),
-        )
+        ),
       ],
     );
   }
@@ -180,14 +187,8 @@ class BuildTransactions extends ConsumerWidget {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(transaction.kind.capitalize(),
-                        style: const TextStyle(fontSize: 14)),
-                    transaction.balances.length == 1
-                        ? Text(
-                        _valueOfLiquidSubTransaction(AssetMapper.mapAsset(
-                            transaction.balances[0].assetId), transaction.balances[0]
-                            .value, ref), style: const TextStyle(fontSize: 14))
-                        : Text('Multiple', style: const TextStyle(fontSize: 14)),
+                    Text(transaction.kind.capitalize(), style: const TextStyle(fontSize: 14)),
+                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: const TextStyle(fontSize: 14)) : Text('Multiple', style: const TextStyle(fontSize: 14)),
                   ],
                 ),
                 // subtitle: Text("Fee: ${_transactionValueLiquid(transaction.fee, ref)}",style: const TextStyle(fontSize: 14)),
@@ -204,7 +205,12 @@ class BuildTransactions extends ConsumerWidget {
                       Navigator.pushNamed(context, '/search_modal');
                     },
                     child: ListTile(
-                      trailing: _subTransactionIcon(balance.value),
+                      trailing: Column(
+                        children: [
+                          _subTransactionIcon(balance.value),
+                          Text(_liquidTransactionAmountInFiat(balance, ref), style: const TextStyle(fontSize: 14)),
+                        ],
+                      ),
                       title: Text(AssetMapper.mapAsset(balance.assetId).name),
                       subtitle: Text(_valueOfLiquidSubTransaction(
                           AssetMapper.mapAsset(balance.assetId), balance.value, ref)),
@@ -318,17 +324,31 @@ class BuildTransactions extends ConsumerWidget {
     }
   }
 
-  // for later. We shall build a screen with all transactions values similar to whta we do in swaps
-  // String _transactionAmountInFiat(TransactionDetails transaction, WidgetRef ref) {
-  //   if (transaction.received == 0 && transaction.sent > 0) {
-  //     return ref.watch(conversionToFiatProvider((double.parse(btcInDenominationFormatted(transaction.sent.toDouble(), 'BTC'))).toInt()));
-  //   } else if (transaction.received > 0 && transaction.sent == 0) {
-  //     return ref.watch(conversionToFiatProvider((double.parse(btcInDenominationFormatted(transaction.received.toDouble(), 'BTC'))).toInt()));
-  //   } else {
-  //     int total = (transaction.received - transaction.sent).abs();
-  //     return ref.watch(conversionToFiatProvider((double.parse(btcInDenominationFormatted(total.toDouble(), 'BTC'))).toInt()));
-  //   }
-  // }
+  String _transactionAmountInFiat(TransactionDetails transaction, WidgetRef ref) {
+    final sent = ref.watch(conversionToFiatProvider(transaction.sent));
+    final received = ref.watch(conversionToFiatProvider(transaction.received));
+    final currency = ref.watch(settingsProvider).currency;
+
+    if (transaction.received == 0 && transaction.sent > 0) {
+      return '${(double.parse(sent) / 100000000).toStringAsFixed(2)} $currency';
+    } else if (transaction.received > 0 && transaction.sent == 0) {
+      return '${(double.parse(received) / 100000000).toStringAsFixed(2)} $currency';
+    } else {
+      double total = (double.parse(received) - double.parse(sent)).abs() / 100000000;
+      return '${total.toStringAsFixed(2)} $currency';
+    }
+  }
+
+  String _liquidTransactionAmountInFiat(transaction, WidgetRef ref) {
+    final currency = ref.watch(settingsProvider).currency;
+    final value = ref.watch(conversionToFiatProvider(transaction.value));
+
+    if (transaction.value < 0) {
+      return '${(double.parse(value) / 100000000).toStringAsFixed(2)} $currency';
+    } else {
+      return '${(double.parse(value) / 100000000).toStringAsFixed(2)} $currency';
+    }
+  }
 
   // String _transactionFee(TransactionDetails transaction, WidgetRef ref) {
   //   return ref.watch(conversionProvider(transaction.fee ?? 0));
