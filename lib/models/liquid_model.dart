@@ -103,10 +103,14 @@ class LiquidModel {
   }
 
   Future<Uint8List> sign(SignParams params) async {
-    final signedTxBytes =
-    await config.liquid.wallet.signTx(network: config.liquid.network, pset: params.pset, mnemonic: params.mnemonic);
+    try {
+      final signedTxBytes =
+      await config.liquid.wallet.signTx(network: config.liquid.network, pset: params.pset, mnemonic: params.mnemonic);
 
-    return signedTxBytes;
+      return signedTxBytes;
+    } catch (e) {
+      throw e.toString();
+    }
   }
 
   Future<String> broadcast(Uint8List signedTxBytes) async {

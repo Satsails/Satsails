@@ -98,6 +98,7 @@ class SideswapStartExchange {
         final Map<String, dynamic> responseData = json.decode(response.body);
         return SideswapPsetToSign.fromJson(responseData);
       } else {
+        response.body.contains("UTXO amount") ? throw Exception('Balance insufficient.') :
         throw Exception('Failed: ${response.body}');
       }
   }

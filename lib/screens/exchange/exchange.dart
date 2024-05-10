@@ -21,6 +21,7 @@ class Exchange extends ConsumerWidget {
     return PopScope(
       onPopInvoked: (pop) async {
         ref.read(sendTxProvider.notifier).resetToDefault();
+        ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
         ref.read(sendBlocksProvider.notifier).state = 1;
         ref.watch(closeSideswapProvider);
       },

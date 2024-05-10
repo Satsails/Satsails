@@ -154,18 +154,19 @@ final sideswapStartExchangeProvider = StreamProvider.autoDispose<SideswapStartEx
 
 
 final sideswapUploadInputsProvider = FutureProvider.autoDispose<SideswapPsetToSign>((ref) async {
-  final state = await ref.watch(sideswapStartExchangeProvider.future).then((value) => value);
-  final receiveAddress = await ref.watch(liquidAddressProvider.future).then((value) => value);
-  final returnAddress = await ref.watch(liquidNextAddressProvider.future).then((value) => value);
-  final liquidUnspentUtxos = await ref.watch(liquidUnspentUtxosProvider.future).then((value) => value);
-  final sendAmount = ref.watch(sideswapPriceProvider).sendAmount!;
+  final state = await ref.read(sideswapStartExchangeProvider.future).then((value) => value);
+  final receiveAddress = await ref.read(liquidAddressProvider.future).then((value) => value);
+  final returnAddress = await ref.read(liquidNextAddressProvider.future).then((value) => value);
+  final liquidUnspentUtxos = await ref.read(liquidUnspentUtxosProvider.future).then((value) => value);
+  final sendAmount = ref.read(sideswapPriceProvider).sendAmount!;
   return await state.uploadInputs(returnAddress, liquidUnspentUtxos, receiveAddress, sendAmount).then((value) => value);
 });
 
 final sideswapSignPsetProvider = FutureProvider.autoDispose<bool>((ref) async {
-  final state = await ref.watch(sideswapStartExchangeProvider.future).then((value) => value);
-  final result = await ref.watch(sideswapUploadInputsProvider.future).then((value) => value);
-  final signedPset = await ref.watch(signLiquidPsetProvider(result.pset).future).then((value) => value);
+  final state = await ref.read(sideswapStartExchangeProvider.future).then((value) => value);
+  final result = await ref.read(sideswapUploadInputsProvider.future).then((value) => value);
+  final decodedPset = await ref.read(decodeLiquidPsetProvider(result.pset).future).then((value) => value);
+  final signedPset = await ref.read(signLiquidPsetProvider(result.pset).future).then((value) => value);
   return await state.uploadPset(signedPset, result.submitId).then((value) => value);
 });
 

@@ -2,7 +2,7 @@ String btcInDenominationFormatted(double amount, String denomination, [bool isBi
   double balance = 0;
 
   if (!isBitcoin) {
-    return (amount / 1000000000).toStringAsFixed(2);
+    return (amount / 100000000).toStringAsFixed(2);
   }
 
   switch (denomination) {
