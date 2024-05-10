@@ -6,7 +6,7 @@ import 'package:satsails/providers/analytics_provider.dart';
 import 'package:satsails/providers/bitcoin_provider.dart';
 import 'package:satsails/providers/liquid_provider.dart';
 
-final initializeTransactionsProvider = FutureProvider<Transaction>((ref) async {
+final initializeTransactionsProvider = FutureProvider.autoDispose<Transaction>((ref) async {
   final bitcoinBox = await Hive.openBox('bitcoin');
   final liquidBox = await Hive.openBox('liquid');
   final bitcoinTransactions = bitcoinBox.get('bitcoinTransactions', defaultValue: []);
@@ -18,7 +18,7 @@ final initializeTransactionsProvider = FutureProvider<Transaction>((ref) async {
   );
 });
 
-final transactionNotifierProvider = StateNotifierProvider<TransactionModel, Transaction>((ref) {
+final transactionNotifierProvider = StateNotifierProvider.autoDispose<TransactionModel, Transaction>((ref) {
   final initialTransactions = ref.watch(initializeTransactionsProvider);
 
   return TransactionModel(initialTransactions.when(
