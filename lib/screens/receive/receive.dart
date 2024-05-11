@@ -65,7 +65,7 @@ class Receive extends ConsumerWidget {
                   'Bitcoin';
               }
             },
-            buttons: ["Lightening", 'Bitcoin', "Liquid"],
+            buttons: ["Lightning", 'Bitcoin', "Liquid"],
             options: GroupButtonOptions(
               unselectedTextStyle: const TextStyle(
                   fontSize: 16, color: Colors.black),
@@ -134,7 +134,9 @@ class Receive extends ConsumerWidget {
                         Center(child: LoadingAnimationWidget.threeArchedCircle(
                             size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
                   ),
-                const Expanded(child: BuildTransactions(showAllTransactions: true,)),
+                // const Expanded(child: BuildTransactions(showAllTransactions: true,)),
+                if (selectedIndex == "Lightning")
+                  const Expanded(child: Text("Lightning")),
               ],
             ),
           ),

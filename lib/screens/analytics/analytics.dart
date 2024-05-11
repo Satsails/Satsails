@@ -51,7 +51,7 @@ class Analytics extends ConsumerWidget {
             ElevatedButton(
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
-                elevation: MaterialStateProperty.all<double>(0),
+                elevation: MaterialStateProperty.all<double>(4),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),

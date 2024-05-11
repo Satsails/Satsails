@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:satsails/providers/auth_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends ConsumerWidget {
   const Settings({super.key});
@@ -141,12 +142,14 @@ class Settings extends ConsumerWidget {
   }
 
   Widget _buildSupportSection() {
+    final Uri url = Uri.parse('https://t.me/deepcodevalue');
+
     return ListTile(
-      leading: const Icon(LineAwesome.whatsapp),
-      title: const Text('WhatsApp'),
-      subtitle: const Text('Coming soon!'),
+      leading: const Icon(LineAwesome.telegram),
+      title: const Text('Help & Support & Bug reporting'),
+      subtitle: const Text('Chat with us on Telegram!'),
       onTap: () {
-        null;
+        launchUrl(url);
       },
     );
   }
@@ -157,7 +160,7 @@ class Settings extends ConsumerWidget {
       title: const Text('Information'),
       onTap: () {
         Navigator.pushNamed(context, '/info');
-      },
+      }
     );
   }
 

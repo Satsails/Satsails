@@ -34,7 +34,7 @@ class Accounts extends StatelessWidget {
           children: [
             SizedBox(height: screenWidth * 0.02),
             const Text(
-              'Savings',
+              'Secure Bitcoin',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: screenWidth * 0.02),
@@ -71,7 +71,7 @@ class Accounts extends StatelessWidget {
             ),
             SizedBox(height: screenWidth * 0.02),
             const Text(
-              'Spending',
+              'Instant Payments',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: screenWidth * 0.02),

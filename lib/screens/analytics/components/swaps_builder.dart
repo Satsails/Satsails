@@ -14,6 +14,9 @@ class SwapsBuilder extends ConsumerWidget {
 
     return allSwaps.when(
       data: (swaps) {
+        if (swaps.isEmpty) {
+          return const Center(child: Text('No swaps found', style: TextStyle(fontSize: 20, color: Colors.grey)));
+        }
         return ListView.builder(
           itemCount: swaps.length,
           itemBuilder: (context, index) {

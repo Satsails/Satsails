@@ -16,6 +16,8 @@ import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import 'package:satsails/providers/sideswap_provider.dart';
 
+final bitcoinReceiveSpeedProvider = StateProvider<String>((ref) => '');
+
 // tthere are a couple null check error here, check after beta and sentry logging
 class Peg extends ConsumerWidget {
   Peg({super.key});
@@ -105,7 +107,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
     return pegStatus.when(
       data: (peg) {
         return Padding(
-          padding: const EdgeInsets.all(15.0),
+          padding: const EdgeInsets.all(6.0),
           child: Align(
             alignment: Alignment.bottomCenter,
             child: ActionSlider.standard(
@@ -156,7 +158,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
     return pegStatus.when(
       data: (peg) {
         return Padding(
-          padding: const EdgeInsets.all(15.0),
+          padding: const EdgeInsets.all(6.0),
           child: Align(
             alignment: Alignment.bottomCenter,
             child: ActionSlider.standard(
@@ -202,25 +204,32 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
 
   Widget _pickBitcoinFeeSuggestions(WidgetRef ref, double dynamicPadding, double titleFontSize) {
     final status = ref.watch(sideswapStatusProvider).bitcoinFeeRates ?? [];
-    return DropdownButton<dynamic>(
-      hint: Text("How fast would you like to receive your bitcoin", style: TextStyle(fontSize:  titleFontSize / 2)),
-      dropdownColor: Colors.white,
-      items: status.map((dynamic value) {
-        return DropdownMenuItem<dynamic>(
-          value: value,
-          child: Center(
-            child: Text(
-              "${value["blocks"]} blocks - ${value["value"]} sats/vbyte",
-              style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.grey),
-            ),
-          ),
-        );
-      }).toList(),
-      onChanged: (dynamic? newValue) {
-        if (newValue != null) {
-          ref.read(pegOutBlocksProvider.notifier).state = newValue["blocks"];
-        }
-      },
+    final speed = ref.watch(bitcoinReceiveSpeedProvider);
+    return Column(
+      children: [
+        Text(speed, style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.grey)),
+        DropdownButton<dynamic>(
+          hint: Text("How fast would you like to receive your bitcoin", style: TextStyle(fontSize:  titleFontSize / 2)),
+          dropdownColor: Colors.white,
+          items: status.map((dynamic value) {
+            return DropdownMenuItem<dynamic>(
+              value: value,
+              child: Center(
+                child: Text(
+                  "${value["blocks"]} blocks - ${value["value"]} sats/vbyte",
+                  style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.grey),
+                ),
+              ),
+            );
+          }).toList(),
+          onChanged: (dynamic? newValue) {
+            if (newValue != null) {
+              ref.read(bitcoinReceiveSpeedProvider.notifier).state = "${newValue["value"]} sats/vbyte";
+              ref.read(pegOutBlocksProvider.notifier).state = newValue["blocks"];
+            }
+          },
+        ),
+      ],
     );
   }
 
@@ -367,7 +376,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                 },
                   loading: () => Padding(
                     padding: EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
-                    child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize , color: Colors.white),
+                    child: LoadingAnimationWidget.prograssiveDots(size: 15, color: Colors.white),
                   ),
                   error: (error, stack) => Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -448,7 +457,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                 },
                   loading: () => Padding(
                     padding: EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
-                    child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white),
+                    child: LoadingAnimationWidget.prograssiveDots(size: 15, color: Colors.white),
                   ),
                   error: (error, stack) => Padding(
                       padding:EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),

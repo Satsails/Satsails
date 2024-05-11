@@ -341,9 +341,7 @@ class BuildTransactions extends ConsumerWidget {
 
   String _liquidTransactionAmountInFiat(transaction, WidgetRef ref) {
     if (AssetMapper.mapAsset(transaction.assetId) == AssetId.LBTC) {
-      final currency = ref
-          .watch(settingsProvider)
-          .currency;
+      final currency = ref.watch(settingsProvider).currency;
       final value = ref.watch(conversionToFiatProvider(transaction.value));
 
       if (transaction.value < 0) {
