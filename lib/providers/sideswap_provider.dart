@@ -165,8 +165,8 @@ final sideswapUploadInputsProvider = FutureProvider.autoDispose<SideswapPsetToSi
 final sideswapSignPsetProvider = FutureProvider.autoDispose<bool>((ref) async {
   final state = await ref.read(sideswapStartExchangeProvider.future).then((value) => value);
   final result = await ref.read(sideswapUploadInputsProvider.future).then((value) => value);
-  final decodedPset = await ref.read(decodeLiquidPsetProvider(result.pset).future).then((value) => value);
-  final signedPset = await ref.read(signLiquidPsetProvider(result.pset).future).then((value) => value);
+  // add new method for pset generation
+  // final signedPset = await ref.read(signLiquidPsetProvider(result.pset).future).then((value) => value);
   return await state.uploadPset(signedPset, result.submitId).then((value) => value);
 });
 
