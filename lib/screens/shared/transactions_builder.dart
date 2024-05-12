@@ -56,13 +56,13 @@ class BuildTransactions extends ConsumerWidget {
                 case 'Bitcoin':
                   if (index < bitcoinTransactions.length) {
                     return _buildTransactionItem(bitcoinTransactions[index], context, ref);
-                  } else {
+                  } else if (bitcoinTransactions.isEmpty) {
                     return const Center(child: Text('Pull up to refresh', style: TextStyle(fontSize: 14, color: Colors.grey)));
                   }
-                case 'Liquid':
+                case 'Instant Bitcoin':
                   if (index < liquidTransactions.length) {
                     return _buildTransactionItem(liquidTransactions[index], context, ref);
-                  } else {
+                  } else if (liquidTransactions.isEmpty) {
                     return const Center(child: Text('Pull up to refresh', style: TextStyle(fontSize: 14, color: Colors.grey)));
                   }
                 default:

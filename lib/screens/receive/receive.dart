@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -26,6 +27,7 @@ class Receive extends ConsumerWidget {
     final selectedIndex = ref.watch(selectedButtonProvider);
     final bitcoinAddressAsyncValue = ref.watch(bitcoinReceiveAddressAmountProvider);
     final liquidAddressAsyncValue = ref.watch(liquidReceiveAddressAmountProvider);
+    final boltzInvoiceAsyncValue = ref.watch(boltzReceiveProvider);
     final controller = ref.watch(groupButtonControllerProvider);
     final online = ref.watch(settingsProvider).online;
 
@@ -106,12 +108,8 @@ class Receive extends ConsumerWidget {
                         ],
                       );
                     },
-                    loading: () =>
-                        Center(child: LoadingAnimationWidget.threeArchedCircle(
-                            size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
-                    error: (error, stack) =>
-                        Center(child: LoadingAnimationWidget.threeArchedCircle(
-                            size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
+                    loading: () =>Center(child: LoadingAnimationWidget.threeArchedCircle(size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
+                    error: (error, stack) => Center(child: LoadingAnimationWidget.threeArchedCircle(size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
                   ),
                 if (selectedIndex == "Liquid")
                   liquidAddressAsyncValue.when(

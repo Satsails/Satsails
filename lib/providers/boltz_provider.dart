@@ -1,5 +1,24 @@
-// import 'package:boltz_dart/boltz_dart.dart';
-//
+import 'package:boltz_dart/boltz_dart.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+
+final boltzReceiveProvider = FutureProvider.autoDispose<void>((ref) async {
+      final api = await BoltzApi.newBoltzApi('api.boltz.exchange');
+      final val = await LbtcLnV2Swap.newReverse(
+        mnemonic: 'near angle old frequent only pair banana giggle armed penalty torch boat',
+        index: 3,
+        outAmount: 3000 ,
+        network: Chain.liquid,
+        electrumUrl: 'blockstream.info:995',
+        boltzUrl: 'api.boltz.exchange/v2'
+      );
+      final res = await AllFees.fetch(boltzUrl: 'https://api.boltz.exchange');
+      print(res);
+      print(val);
+
+
+});
+
 // Future<(SwapTx?, Err?)> receiveV2({
 //   required String mnemonic,
 //   required int index,
