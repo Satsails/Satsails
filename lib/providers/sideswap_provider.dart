@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
+import 'package:satsails/models/adapters/transaction_adapters.dart';
 import 'package:satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:satsails/models/sideswap/sideswap_price_model.dart';
@@ -162,14 +163,27 @@ final sideswapUploadInputsProvider = FutureProvider.autoDispose<SideswapPsetToSi
   return await state.uploadInputs(returnAddress, liquidUnspentUtxos, receiveAddress, sendAmount).then((value) => value);
 });
 
-final sideswapSignPsetProvider = FutureProvider.autoDispose<bool>((ref) async {
+final sideswapSignPsetProvider = FutureProvider.autoDispose<String>((ref) async {
   final state = await ref.read(sideswapStartExchangeProvider.future).then((value) => value);
   final result = await ref.read(sideswapUploadInputsProvider.future).then((value) => value);
   // add new method for pset generation
   final signedPset = await ref.read(signLiquidPsetProvider(result.pset).future).then((value) => value);
-  return await state.uploadPset(signedPset, result.submitId).then((value) => value);
+  final txId = await state.uploadPset(signedPset, result.submitId).then((value) => value);
+  final box = await Hive.openBox('sideswapSwaps');
+  box.put(state.orderId, txId);
+  return txId;
 });
 
+final sideswapGetLiquidTxProvider = FutureProvider.autoDispose<List<Tx>>((ref) async {
+  final box = await Hive.openBox('sideswapStatus');
+  final liquidTransactions = await ref.read(liquidTransactionsProvider.future);
+
+  final matchingTransactions = box.values.where((boxValue) {
+    return liquidTransactions.any((liquidTransaction) => liquidTransaction.txid == boxValue.txid);
+  }).cast<Tx>().toList();
+
+  return Future.value(matchingTransactions);
+});
 
 final sideswapExchangeCompletionProvider = StreamProvider.autoDispose<SideswapExchangeState>((ref) {
   final service = ref.watch(sideswapServiceProvider);

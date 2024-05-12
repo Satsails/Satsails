@@ -22,24 +22,24 @@ class AmountInput extends ConsumerWidget {
             value: ref.watch(inputCurrencyProvider),
             items: const [
               DropdownMenuItem(
-                child: Text('BTC'),
                 value: 'BTC',
+                child: Text('BTC'),
               ),
               DropdownMenuItem(
-                child: Text('USD'),
                 value: 'USD',
+                child: Text('USD'),
               ),
               DropdownMenuItem(
-                child: Text('EUR'),
                 value: 'EUR',
+                child: Text('EUR'),
               ),
               DropdownMenuItem(
-                child: Text('BRL'),
                 value: 'BRL',
+                child: Text('BRL'),
               ),
-              DropdownMenuItem(child: Text('Sats'), value: 'Sats'),
-              DropdownMenuItem(child: Text('mBTC'), value: 'mBTC'),
-              DropdownMenuItem(child: Text('bits'), value: 'bits'),
+              DropdownMenuItem(value: 'Sats', child: Text('Sats')),
+              DropdownMenuItem(value: 'mBTC', child: Text('mBTC')),
+              DropdownMenuItem(value: 'bits', child: Text('bits')),
             ],
             onChanged: (value) {
               ref.read(inputCurrencyProvider.notifier).state = value.toString();

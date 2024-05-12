@@ -11,6 +11,9 @@ class SwapsBuilder extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final allSwaps = ref.watch(sideswapAllPegsProvider);
+    // TODO once i fix sideswap
+    final swapsToFiat = ref.watch(sideswapGetLiquidTxProvider);
+    // Map these and create a list these swaps
 
     return allSwaps.when(
       data: (swaps) {
@@ -31,7 +34,7 @@ class SwapsBuilder extends ConsumerWidget {
   }
 }
 
-Widget _buildTransactionItem(swap, BuildContext context, WidgetRef ref) {
+Widget _buildTransactionItem(SideswapPegStatus swap, BuildContext context, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(

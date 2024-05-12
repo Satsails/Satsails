@@ -104,7 +104,7 @@ class SideswapStartExchange {
   }
 
 
-  Future<bool> uploadPset(Uint8List pset, String submitId) async {
+  Future<String> uploadPset(Uint8List pset, String submitId) async {
     final uri = Uri.parse(uploadUrl);
 
     final Map<String, dynamic> requestData = {
@@ -126,7 +126,8 @@ class SideswapStartExchange {
     );
 
     if (response.statusCode == 200) {
-      return true;
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      return responseData['result']['txid'];
     } else {
       throw Exception('Failed: ${response.body}');
     }
