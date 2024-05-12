@@ -42,8 +42,8 @@ class Analytics extends ConsumerWidget {
       children: [
         const Center(child: ButtonPicker()),
         if (transactionType == 'Bitcoin') const BitcoinExpensesDiagram(),
-        if (transactionType == 'Liquid') const LiquidExpensesDiagram(),
-        if (transactionType == 'Bitcoin' || transactionType == 'Liquid')
+        if (transactionType == 'Instant Bitcoin') const LiquidExpensesDiagram(),
+        if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -66,7 +66,7 @@ class Analytics extends ConsumerWidget {
             ),
           ],
         ),
-        if (transactionType == 'Bitcoin' || transactionType == 'Liquid')
+        if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')
         const Expanded(child: BuildTransactions(showAllTransactions: false,)),
         if(transactionType == 'Swap') const Expanded(child: SwapsBuilder()),
       ],

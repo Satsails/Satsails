@@ -16,7 +16,7 @@ import 'package:satsails/providers/send_tx_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
 import 'package:satsails/providers/sideswap_provider.dart';
 
-final bitcoinReceiveSpeedProvider = StateProvider<String>((ref) => '');
+final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');
 
 // tthere are a couple null check error here, check after beta and sentry logging
 class Peg extends ConsumerWidget {
@@ -207,7 +207,10 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
     final speed = ref.watch(bitcoinReceiveSpeedProvider);
     return Column(
       children: [
-        Text(speed, style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.grey)),
+        Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(speed, style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.grey)),
+        ),
         DropdownButton<dynamic>(
           hint: Text("How fast would you like to receive your bitcoin", style: TextStyle(fontSize:  titleFontSize / 2)),
           dropdownColor: Colors.white,

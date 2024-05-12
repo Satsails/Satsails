@@ -3,20 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:satsails/providers/bitcoin_provider.dart';
-import 'package:satsails/providers/liquid_provider.dart';
+import 'package:satsails/providers/address_receive_provider.dart';
 import 'package:satsails/providers/settings_provider.dart';
+import 'package:satsails/screens/receive/components/amount_input.dart';
 import 'package:satsails/screens/shared/copy_text.dart';
 import 'package:satsails/screens/shared/offline_transaction_warning.dart';
 import 'package:satsails/screens/shared/qr_code.dart';
 import '../../providers/transaction_type_show_provider.dart';
-import '../shared/transactions_builder.dart';
 import 'package:group_button/group_button.dart';
+
+final selectedButtonProvider = StateProvider<String>((ref) => "Bitcoin");
 
 class Receive extends ConsumerWidget {
   Receive({Key? key}) : super(key: key);
 
-  final selectedButtonProvider = StateProvider<String>((ref) => "Bitcoin");
   final groupButtonControllerProvider = Provider<GroupButtonController>((ref) {
     return GroupButtonController(selectedIndex: 1);
   });
@@ -24,8 +24,8 @@ class Receive extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = ref.watch(selectedButtonProvider);
-    final bitcoinAddressAsyncValue = ref.watch(bitcoinAddressProvider);
-    final liquidAddressAsyncValue = ref.watch(liquidAddressProvider);
+    final bitcoinAddressAsyncValue = ref.watch(bitcoinReceiveAddressAmountProvider);
+    final liquidAddressAsyncValue = ref.watch(liquidReceiveAddressAmountProvider);
     final controller = ref.watch(groupButtonControllerProvider);
     final online = ref.watch(settingsProvider).online;
 
@@ -41,58 +41,57 @@ class Receive extends ConsumerWidget {
           },
         ),
       ),
-      body: Column(
-        children: [
-          OfflineTransactionWarning(online: online),
-          GroupButton(
-            isRadio: true,
-            controller: controller,
-            onSelected: (index, isSelected, isLongPress) {
-              switch (index) {
-                case 'Bitcoin':
-                  ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
-                  ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
-                  break;
-                case 'Liquid':
-                  ref.read(selectedButtonProvider.notifier).state = "Liquid";
-                  ref.read(transactionTypeShowProvider.notifier).state = "Liquid";
-                  break;
-                case 'Lightning':
-                  ref.read(selectedButtonProvider.notifier).state = "Lightning";
-                  ref.read(transactionTypeShowProvider.notifier).state = "Lightning";
-                  break;
-                default:
-                  'Bitcoin';
-              }
-            },
-            buttons: ["Lightning", 'Bitcoin', "Liquid"],
-            options: GroupButtonOptions(
-              unselectedTextStyle: const TextStyle(
-                  fontSize: 16, color: Colors.black),
-              selectedTextStyle: const TextStyle(
-                  fontSize: 16, color: Colors.white),
-              selectedColor: Colors.deepOrange,
-              mainGroupAlignment: MainGroupAlignment.center,
-              crossGroupAlignment: CrossGroupAlignment.center,
-              groupRunAlignment: GroupRunAlignment.center,
-              unselectedColor: Colors.white,
-              groupingType: GroupingType.row,
-              alignment: Alignment.center,
-              elevation: 0,
-              textPadding: EdgeInsets.zero,
-              selectedShadow: <BoxShadow>[
-                const BoxShadow(color: Colors.transparent)
-              ],
-              unselectedShadow: <BoxShadow>[
-                const BoxShadow(color: Colors.transparent)
-              ],
-              borderRadius: BorderRadius.circular(30.0),
-            ),
-          ),
-          const SizedBox(height: 16.0),
-
-          Expanded(
-            child: Column(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            OfflineTransactionWarning(online: online),
+              GroupButton(
+                isRadio: true,
+                controller: controller,
+                onSelected: (index, isSelected, isLongPress) {
+                  switch (index) {
+                    case 'Bitcoin':
+                      ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
+                      ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
+                      break;
+                    case 'Liquid':
+                      ref.read(selectedButtonProvider.notifier).state = "Liquid";
+                      ref.read(transactionTypeShowProvider.notifier).state = "Liquid";
+                      break;
+                    case 'Lightning':
+                      ref.read(selectedButtonProvider.notifier).state = "Lightning";
+                      ref.read(transactionTypeShowProvider.notifier).state = "Lightning";
+                      break;
+                    default:
+                      'Bitcoin';
+                  }
+                },
+                buttons: ["Lightning", 'Bitcoin', "Liquid"],
+                options: GroupButtonOptions(
+                  unselectedTextStyle: const TextStyle(
+                      fontSize: 16, color: Colors.black),
+                  selectedTextStyle: const TextStyle(
+                      fontSize: 16, color: Colors.white),
+                  selectedColor: Colors.deepOrange,
+                  mainGroupAlignment: MainGroupAlignment.center,
+                  crossGroupAlignment: CrossGroupAlignment.center,
+                  groupRunAlignment: GroupRunAlignment.center,
+                  unselectedColor: Colors.white,
+                  groupingType: GroupingType.row,
+                  alignment: Alignment.center,
+                  elevation: 0,
+                  textPadding: EdgeInsets.zero,
+                  selectedShadow: <BoxShadow>[
+                    const BoxShadow(color: Colors.transparent)
+                  ],
+                  unselectedShadow: <BoxShadow>[
+                    const BoxShadow(color: Colors.transparent)
+                  ],
+                  borderRadius: BorderRadius.circular(30.0),
+                ),
+              ),
+            const SizedBox(height: 16.0),
+            Column(
               children: [
                 if (selectedIndex == 'Bitcoin')
                   bitcoinAddressAsyncValue.when(
@@ -134,13 +133,13 @@ class Receive extends ConsumerWidget {
                         Center(child: LoadingAnimationWidget.threeArchedCircle(
                             size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
                   ),
-                // const Expanded(child: BuildTransactions(showAllTransactions: true,)),
                 if (selectedIndex == "Lightning")
-                  const Expanded(child: Text("Lightning")),
+                  Text("Lightning"),
+                const AmountInput(),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:satsails/providers/background_sync_provider.dart';
@@ -164,7 +165,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                           final fee = await transaction.$1.feeAmount().then((value) => value);
                           final amountToSet = (balance - fee!);
                           ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), btcFormart);
-                          controller.text = amountToSet.toString();
+                          controller.text = btcInDenominationFormatted(amountToSet.toDouble(), btcFormart);
                         }
                         catch (e) {
                           Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);

@@ -18,15 +18,15 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildCard('Sent',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent, [Colors.orange, Colors.deepOrange], context),
-            _buildCard('Received',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received, [Colors.orange, Colors.deepOrange], context),
-            _buildCard('Fee',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.orange, Colors.deepOrange], context),
+            _buildCard('Sent',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent, [Colors.orange, Colors.deepOrange], context, btcFormat),
+            _buildCard('Received',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received, [Colors.orange, Colors.deepOrange], context, btcFormat),
+            _buildCard('Fee',_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.orange, Colors.deepOrange], context, btcFormat),
           ],),
       ],
     );
   }
 
-  Widget _buildCard(String title, double value, List<Color> gradientColors, BuildContext context) {
+  Widget _buildCard(String title, double value, List<Color> gradientColors, BuildContext context, String btcFormat) {
     final dynamicHeight = MediaQuery.of(context).size.height;
     final dynamicWidth = MediaQuery.of(context).size.width;
     return SizedBox(
@@ -54,7 +54,7 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
                 style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
               ),
               Text(
-                value.toString(),
+                btcFormat == 'sats' ? value.toStringAsFixed(0) : value.toString(),
                 style: TextStyle(color: Colors.white, fontSize: 14),
               ),
             ],

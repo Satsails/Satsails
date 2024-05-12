@@ -29,13 +29,6 @@ final bitcoinAddressProvider = FutureProvider.autoDispose<String>((ref) async {
     return bitcoinModel.getAddress();
   });
 });
-// maybe implement into static addresses service.
-final bitcoinAddressWithAmountProvider = FutureProvider.autoDispose.family<String, int>((ref, amount) {
-  return ref.watch(bitcoinProvider.future).then((bitcoin) {
-    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    return bitcoinModel.getAddressWithAmount(amount);
-  });
-});
 
 final getBitcoinTransactionsProvider = FutureProvider<List<TransactionDetails>>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {

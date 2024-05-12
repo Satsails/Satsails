@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:satsails/helpers/asset_mapper.dart';
+import 'package:satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:satsails/providers/background_sync_provider.dart';
@@ -317,8 +318,8 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                           if (assetId == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
                             final pset = await ref.watch(liquidDrainWalletProvider.future);
                             final sendingBalance = pset.balances[0];
-                            final controllerValue = (sendingBalance.value / 100000000).abs();
-                            controller.text = controllerValue.toStringAsFixed(8);
+                            final controllerValue = sendingBalance.value.abs();
+                            controller.text = btcInDenominationFormatted(controllerValue.toDouble(), btcFormart);
                             ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
                           } else {
                             await ref.watch(liquidDrainWalletProvider.future);

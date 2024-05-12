@@ -25,14 +25,10 @@ class ButtonPicker extends ConsumerWidget {
             ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
             break;
           case 1:
-            ref.read(selectedButtonProvider.notifier).state = "Liquid";
-            ref.read(transactionTypeShowProvider.notifier).state = "Liquid";
+            ref.read(selectedButtonProvider.notifier).state = "Instant Bitcoin";
+            ref.read(transactionTypeShowProvider.notifier).state = "Instant Bitcoin";
             break;
           case 2:
-            ref.read(selectedButtonProvider.notifier).state = "Lightning";
-            ref.read(transactionTypeShowProvider.notifier).state = "Lightning";
-            break;
-          case 3:
             ref.read(selectedButtonProvider.notifier).state = "Swap";
             ref.read(transactionTypeShowProvider.notifier).state = "Swap";
             break;
@@ -41,7 +37,7 @@ class ButtonPicker extends ConsumerWidget {
             ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
         }
       },
-      buttons: const ["Bitcoin", "Liquid", "Lightning", 'Swaps'],
+      buttons: const ["Bitcoin", "Instant Bitcoin", 'Swaps'],
       options: GroupButtonOptions(
         unselectedTextStyle: const TextStyle(fontSize: 13, color: Colors.black),
         selectedTextStyle: const TextStyle(fontSize: 13, color: Colors.white),
