@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:satsails/models/balance_model.dart';
+import 'package:Satsails/models/balance_model.dart';
 
 Widget buildDiagram(BuildContext context, Percentage percentage) {
   return percentage.total == 0

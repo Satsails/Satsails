@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/providers/transaction_search_provider.dart';
+import 'package:Satsails/providers/transaction_search_provider.dart';
 
 class SearchModal extends ConsumerWidget {
   SearchModal({super.key});

@@ -3,30 +3,30 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:lwk_dart/lwk_dart.dart';
-import 'package:satsails/models/sideswap/sideswap_peg_model.dart';
-import 'package:satsails/providers/auth_provider.dart';
-import 'package:satsails/screens/creation/start.dart';
-import 'package:satsails/screens/pay/components/confirm_liquid_payment.dart';
-import 'package:satsails/screens/settings/components/seed_words.dart';
-import 'package:satsails/screens/settings/settings.dart';
-import 'package:satsails/screens/receive/receive.dart';
-import 'package:satsails/screens/accounts/accounts.dart';
-import 'package:satsails/screens/creation/set_pin.dart';
-import 'package:satsails/screens/analytics/analytics.dart';
-import 'package:satsails/screens/login/open_pin.dart';
-import 'package:satsails/screens/services/services.dart';
-import 'package:satsails/screens/charge/charge.dart';
-import 'package:satsails/screens/home/home.dart';
-import 'package:satsails/screens/pay/pay.dart';
-import 'package:satsails/screens/creation/recover_wallet.dart';
-import 'package:satsails/screens/pay/components/confirm_bitcoin_payment.dart';
-import 'package:satsails/screens/exchange/exchange.dart';
-import 'package:satsails/screens/splash/splash.dart';
-import 'package:satsails/screens/support/info.dart';
-import 'package:satsails/screens/home/components/search_modal.dart';
+import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/screens/creation/start.dart';
+import 'package:Satsails/screens/pay/components/confirm_liquid_payment.dart';
+import 'package:Satsails/screens/settings/components/seed_words.dart';
+import 'package:Satsails/screens/settings/settings.dart';
+import 'package:Satsails/screens/receive/receive.dart';
+import 'package:Satsails/screens/accounts/accounts.dart';
+import 'package:Satsails/screens/creation/set_pin.dart';
+import 'package:Satsails/screens/analytics/analytics.dart';
+import 'package:Satsails/screens/login/open_pin.dart';
+import 'package:Satsails/screens/services/services.dart';
+import 'package:Satsails/screens/charge/charge.dart';
+import 'package:Satsails/screens/home/home.dart';
+import 'package:Satsails/screens/pay/pay.dart';
+import 'package:Satsails/screens/creation/recover_wallet.dart';
+import 'package:Satsails/screens/pay/components/confirm_bitcoin_payment.dart';
+import 'package:Satsails/screens/exchange/exchange.dart';
+import 'package:Satsails/screens/splash/splash.dart';
+import 'package:Satsails/screens/support/info.dart';
+import 'package:Satsails/screens/home/components/search_modal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:satsails/models/adapters/transaction_adapters.dart';
+import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 
@@ -72,7 +72,7 @@ class MainApp extends ConsumerWidget {
           return Text('Error: ${snapshot.error}');
         } else {
           final mnemonic = snapshot.data;
-          final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/receive';
+          final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/open_pin';
 
           return MaterialApp(
             initialRoute: initialRoute,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/helpers/asset_mapper.dart';
-import 'package:satsails/models/expenses_model.dart';
-import 'package:satsails/providers/settings_provider.dart';
-import 'package:satsails/providers/transactions_provider.dart';
+import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/models/expenses_model.dart';
+import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/transactions_provider.dart';
 class LiquidExpensesDiagram extends ConsumerWidget {
 
   const LiquidExpensesDiagram({Key? key}) : super(key: key);

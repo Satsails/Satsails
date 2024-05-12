@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
-import 'package:satsails/providers/transaction_type_show_provider.dart';
+import 'package:Satsails/providers/transaction_type_show_provider.dart';
 
 final selectedButtonProvider = StateProvider<String>((ref) => "Bitcoin");
 final groupButtonControllerProvider = Provider<GroupButtonController>((ref) {

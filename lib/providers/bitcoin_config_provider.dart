@@ -1,7 +1,7 @@
 import 'package:bdk_flutter/bdk_flutter.dart';
-import 'package:satsails/models/bitcoin_config_model.dart';
+import 'package:Satsails/models/bitcoin_config_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/providers/auth_provider.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 
 final bitcoinConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
   final authModel = ref.read(authModelProvider);

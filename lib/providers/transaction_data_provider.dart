@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/models/address_model.dart';
-import 'package:satsails/providers/send_tx_provider.dart';
-import 'package:satsails/validations/address_validation.dart';
+import 'package:Satsails/models/address_model.dart';
+import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:Satsails/validations/address_validation.dart';
 
 final addressAndAmountProvider = FutureProvider.autoDispose.family<AddressAndAmount, String>((ref, address) async {
   return parseAddressAndAmount(address);

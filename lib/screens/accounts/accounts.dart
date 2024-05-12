@@ -4,16 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:satsails/helpers/asset_mapper.dart';
-import 'package:satsails/models/balance_model.dart';
-import 'package:satsails/providers/balance_provider.dart';
-import 'package:satsails/providers/bitcoin_provider.dart';
-import 'package:satsails/providers/liquid_provider.dart';
-import 'package:satsails/providers/settings_provider.dart';
-import 'package:satsails/providers/transaction_data_provider.dart';
-import 'package:satsails/screens/shared/copy_text.dart';
-import 'package:satsails/screens/shared/qr_code.dart';
-import 'package:satsails/screens/shared/qr_view_widget.dart';
+import 'package:Satsails/models/balance_model.dart';
+import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/providers/bitcoin_provider.dart';
+import 'package:Satsails/providers/liquid_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/screens/shared/copy_text.dart';
+import 'package:Satsails/screens/shared/qr_code.dart';
+import 'package:Satsails/screens/shared/qr_view_widget.dart';
 
 class Accounts extends StatelessWidget {
   const Accounts({Key? key}) : super(key: key);
@@ -102,6 +100,43 @@ class Accounts extends StatelessWidget {
                       children: [
                         _buildListTile('Liquid', liquidBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, liquid, liquidInCurrency, currency, format, ref),
                         _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, liquid, '', '', '', ref),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+            SizedBox(height: screenWidth * 0.02),
+            const Text(
+              'Assets',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: screenWidth * 0.02),
+            Consumer(
+              builder: (context, ref, _) {
+                final format = ref.watch(settingsProvider).btcFormat;
+                final currency = ref.watch(settingsProvider).currency;
+                final balanceProvider = ref.watch(balanceNotifierProvider);
+                final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
+                final balance = ref.watch(balanceNotifierProvider);
+                final liquid = ref.watch(liquidAddressProvider.future);
+                final liquidInCurrency = ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, balanceProvider.liquidBalance))).toStringAsFixed(2);
+                return Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  elevation: 10,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Colors.green, Colors.greenAccent],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: Column(
+                      children: [
                         _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, liquid, '', '', '', ref),
                         _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, liquid, '', '', '', ref),
                         _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, liquid, '', '', '', ref),
@@ -109,6 +144,7 @@ class Accounts extends StatelessWidget {
                     ),
                   ),
                 );
+
               },
             ),
           ],

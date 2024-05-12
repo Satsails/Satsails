@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'package:satsails/helpers/asset_mapper.dart';
-import 'package:satsails/providers/balance_provider.dart';
-import 'package:satsails/providers/bitcoin_provider.dart';
-import 'package:satsails/providers/liquid_provider.dart';
-import 'package:satsails/providers/settings_provider.dart';
-import 'package:satsails/providers/transactions_provider.dart';
+import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/providers/bitcoin_provider.dart';
+import 'package:Satsails/providers/liquid_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/transactions_provider.dart';
 
 class BackgroundSyncNotifier extends StateNotifier<void> {
   final Ref ref;

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/providers/currency_conversions_provider.dart';
-import 'package:satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 
 final conversionProvider = StateProvider.autoDispose.family<String, int>((ref, amount) {
   final settings = ref.watch(settingsProvider);

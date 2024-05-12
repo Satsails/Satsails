@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/models/settings_model.dart';
+import 'package:Satsails/models/settings_model.dart';
 import 'package:hive/hive.dart';
 
 final initialSettingsProvider = FutureProvider.autoDispose<Settings>((ref) async {

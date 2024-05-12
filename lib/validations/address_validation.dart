@@ -1,7 +1,7 @@
 import 'package:lwk_dart/lwk_dart.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
-import 'package:satsails/helpers/asset_mapper.dart';
-import 'package:satsails/models/address_model.dart';
+import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/models/address_model.dart';
 
 Future<bool> isValidLiquidAddress(String address) async {
   try {

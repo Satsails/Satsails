@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/models/currency_conversions.dart';
+import 'package:Satsails/models/currency_conversions.dart';
 
 class BalanceModel extends StateNotifier<Balance>{
   BalanceModel(super.state);

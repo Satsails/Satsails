@@ -1,20 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/models/balance_model.dart';
-import 'package:satsails/providers/background_sync_provider.dart';
-import 'package:satsails/providers/balance_provider.dart';
-import 'package:satsails/providers/navigation_provider.dart';
-import 'package:satsails/screens/accounts/accounts.dart';
-import 'package:satsails/screens/shared/bottom_navigation_bar.dart';
+import 'package:Satsails/models/balance_model.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
+import 'package:Satsails/screens/accounts/accounts.dart';
+import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:satsails/providers/settings_provider.dart';
-import 'package:satsails/screens/shared/build_balance_card.dart';
-import 'package:satsails/screens/shared/circular_button.dart';
-import 'package:satsails/screens/shared/custom_button.dart';
-import 'package:satsails/screens/shared/offline_transaction_warning.dart';
-import 'package:satsails/screens/shared/pie_chart.dart';
+import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/screens/shared/build_balance_card.dart';
+import 'package:Satsails/screens/shared/circular_button.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
+import 'package:Satsails/screens/shared/offline_transaction_warning.dart';
+import 'package:Satsails/screens/shared/pie_chart.dart';
 
 class Home extends ConsumerWidget {
   const Home({super.key});

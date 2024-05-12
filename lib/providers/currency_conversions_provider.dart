@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/models/currency_conversions.dart';
-import 'package:satsails/providers/settings_provider.dart';
+import 'package:Satsails/models/currency_conversions.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 
 final initializeCurrencyProvider = FutureProvider.autoDispose<CurrencyConversions>((ref) async {
   final currencyBox = await Hive.openBox('currency');

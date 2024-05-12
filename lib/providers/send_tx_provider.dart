@@ -1,15 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk_dart/lwk_dart.dart';
-import 'package:satsails/helpers/asset_mapper.dart';
-import 'package:satsails/models/address_model.dart';
-import 'package:satsails/models/balance_model.dart';
-import 'package:satsails/models/bitcoin_model.dart' as bitcoinModel;
-import 'package:satsails/models/liquid_model.dart' as liquidModel;
-import 'package:satsails/models/send_tx_model.dart';
-import 'package:satsails/providers/balance_provider.dart';
-import 'package:satsails/providers/bitcoin_provider.dart' as bitcoinProvider;
-import 'package:satsails/providers/liquid_provider.dart' as liquidProvider;
-import 'package:satsails/providers/settings_provider.dart';
+import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/models/address_model.dart';
+import 'package:Satsails/models/balance_model.dart';
+import 'package:Satsails/models/bitcoin_model.dart' as bitcoinModel;
+import 'package:Satsails/models/liquid_model.dart' as liquidModel;
+import 'package:Satsails/models/send_tx_model.dart';
+import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/providers/bitcoin_provider.dart' as bitcoinProvider;
+import 'package:Satsails/providers/liquid_provider.dart' as liquidProvider;
+import 'package:Satsails/providers/settings_provider.dart';
 
 final sendTxProvider = StateNotifierProvider<SendTxModel, SendTx>((ref) {
   return SendTxModel(SendTx(address: '', amount: 0, type: PaymentType.Unknown, assetId: AssetMapper.reverseMapTicker(AssetId.LBTC)));

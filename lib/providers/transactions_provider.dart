@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'package:satsails/models/adapters/transaction_adapters.dart';
-import 'package:satsails/models/transactions_model.dart';
-import 'package:satsails/providers/analytics_provider.dart';
-import 'package:satsails/providers/bitcoin_provider.dart';
-import 'package:satsails/providers/liquid_provider.dart';
+import 'package:Satsails/models/adapters/transaction_adapters.dart';
+import 'package:Satsails/models/transactions_model.dart';
+import 'package:Satsails/providers/analytics_provider.dart';
+import 'package:Satsails/providers/bitcoin_provider.dart';
+import 'package:Satsails/providers/liquid_provider.dart';
 
 final initializeTransactionsProvider = FutureProvider.autoDispose<Transaction>((ref) async {
   final bitcoinBox = await Hive.openBox('bitcoin');

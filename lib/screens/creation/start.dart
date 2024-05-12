@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:satsails/screens/shared/custom_button.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
 import './components/logo.dart';
 
 class Start extends StatelessWidget {

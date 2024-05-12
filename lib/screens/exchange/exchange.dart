@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/providers/send_tx_provider.dart';
-import 'package:satsails/providers/settings_provider.dart';
-import 'package:satsails/screens/exchange/components/button_picker.dart';
-import 'package:satsails/providers/sideswap_provider.dart';
-import 'package:satsails/screens/exchange/components/liquid_swap_cards.dart';
-import 'package:satsails/screens/exchange/components/peg.dart';
-import 'package:satsails/screens/shared/offline_transaction_warning.dart';
+import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/screens/exchange/components/button_picker.dart';
+import 'package:Satsails/providers/sideswap_provider.dart';
+import 'package:Satsails/screens/exchange/components/liquid_swap_cards.dart';
+import 'package:Satsails/screens/exchange/components/peg.dart';
+import 'package:Satsails/screens/shared/offline_transaction_warning.dart';
 
 class Exchange extends ConsumerWidget {
   Exchange({super.key});

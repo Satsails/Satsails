@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:satsails/providers/auth_provider.dart';
-import 'package:satsails/screens/shared/custom_button.dart';
+import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class SetPin extends ConsumerWidget {

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:satsails/models/address_model.dart';
-import 'package:satsails/providers/send_tx_provider.dart';
-import 'package:satsails/providers/transaction_data_provider.dart';
-import 'package:satsails/screens/shared/qr_view_widget.dart';
+import 'package:Satsails/models/address_model.dart';
+import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:Satsails/providers/transaction_data_provider.dart';
+import 'package:Satsails/screens/shared/qr_view_widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class Pay extends ConsumerWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:satsails/screens/analytics/analytics.dart';
-import 'package:satsails/screens/home/home.dart';
+import 'package:Satsails/screens/analytics/analytics.dart';
+import 'package:Satsails/screens/home/home.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;

@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:satsails/providers/address_receive_provider.dart';
-import 'package:satsails/providers/settings_provider.dart';
-import 'package:satsails/screens/receive/components/amount_input.dart';
-import 'package:satsails/screens/shared/copy_text.dart';
-import 'package:satsails/screens/shared/offline_transaction_warning.dart';
-import 'package:satsails/screens/shared/qr_code.dart';
+import 'package:Satsails/providers/address_receive_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/screens/receive/components/amount_input.dart';
+import 'package:Satsails/screens/shared/copy_text.dart';
+import 'package:Satsails/screens/shared/offline_transaction_warning.dart';
+import 'package:Satsails/screens/shared/qr_code.dart';
 import '../../providers/transaction_type_show_provider.dart';
 import 'package:group_button/group_button.dart';
 

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/models/datetime_range_model.dart';
-import 'package:satsails/providers/analytics_provider.dart';
-import 'package:satsails/providers/navigation_provider.dart';
-import 'package:satsails/screens/analytics/components/button_picker.dart';
-import 'package:satsails/screens/analytics/components/calendar.dart';
-import 'package:satsails/screens/analytics/components/bitcoin_expenses_diagram.dart';
-import 'package:satsails/screens/analytics/components/liquid_expenses_diagram.dart';
-import 'package:satsails/screens/analytics/components/swaps_builder.dart';
-import 'package:satsails/screens/shared/transactions_builder.dart';
-import 'package:satsails/screens/shared/bottom_navigation_bar.dart';
+import 'package:Satsails/models/datetime_range_model.dart';
+import 'package:Satsails/providers/analytics_provider.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
+import 'package:Satsails/screens/analytics/components/button_picker.dart';
+import 'package:Satsails/screens/analytics/components/calendar.dart';
+import 'package:Satsails/screens/analytics/components/bitcoin_expenses_diagram.dart';
+import 'package:Satsails/screens/analytics/components/liquid_expenses_diagram.dart';
+import 'package:Satsails/screens/analytics/components/swaps_builder.dart';
+import 'package:Satsails/screens/shared/transactions_builder.dart';
+import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
 
 final date = StateProvider<DateTime>((ref) => DateTime.now());
 

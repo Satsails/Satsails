@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:satsails/providers/auth_provider.dart';
-import 'package:satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends ConsumerWidget {

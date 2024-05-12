@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
-import 'package:satsails/providers/send_tx_provider.dart';
-import 'package:satsails/providers/sideswap_provider.dart';
+import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:Satsails/providers/sideswap_provider.dart';
 
 final selectedButtonProvider = StateProvider<String>((ref) => "Bitcoin Layer Swap");
 final groupButtonControllerProvider = Provider<GroupButtonController>((ref) {

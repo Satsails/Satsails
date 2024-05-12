@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/helpers/asset_mapper.dart';
-import 'package:satsails/models/address_model.dart';
+import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/models/address_model.dart';
 
 class SendTxModel extends StateNotifier<SendTx> {
   SendTxModel(SendTx state) : super(state);

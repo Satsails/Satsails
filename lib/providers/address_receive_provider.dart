@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/providers/bitcoin_provider.dart';
-import 'package:satsails/providers/currency_conversions_provider.dart';
-import 'package:satsails/providers/liquid_provider.dart';
+import 'package:Satsails/providers/bitcoin_provider.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:Satsails/providers/liquid_provider.dart';
 
 final isBitcoinInputProvider = StateProvider.autoDispose<bool>((ref) => true);
 final inputCurrencyProvider = StateProvider.autoDispose<String>((ref) => 'BTC');

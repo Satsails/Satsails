@@ -1,7 +1,7 @@
 import 'package:lwk_dart/lwk_dart.dart';
-import 'package:satsails/models/liquid_config_model.dart';
+import 'package:Satsails/models/liquid_config_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/providers/auth_provider.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 
 final liquidConfigProvider = FutureProvider<LiquidConfig>((ref) async {
   final authModel = ref.read(authModelProvider);

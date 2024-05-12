@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:satsails/models/sideswap/sideswap_peg_model.dart';
-import 'package:satsails/providers/sideswap_provider.dart';
-import 'package:satsails/screens/analytics/components/peg_details.dart';
+import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
+import 'package:Satsails/providers/sideswap_provider.dart';
+import 'package:Satsails/screens/analytics/components/peg_details.dart';
 
 class SwapsBuilder extends ConsumerWidget {
   const SwapsBuilder({Key? key}) : super(key: key);

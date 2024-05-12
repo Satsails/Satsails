@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/helpers/input_formatters/comma_text_input_formatter.dart';
-import 'package:satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
-import 'package:satsails/providers/address_receive_provider.dart';
+import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
+import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
+import 'package:Satsails/providers/address_receive_provider.dart';
 
 class AmountInput extends ConsumerWidget {
   const AmountInput({super.key});

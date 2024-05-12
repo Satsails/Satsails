@@ -5,14 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:satsails/helpers/asset_mapper.dart';
-import 'package:satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:satsails/helpers/input_formatters/comma_text_input_formatter.dart';
-import 'package:satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
-import 'package:satsails/providers/balance_provider.dart';
-import 'package:satsails/providers/send_tx_provider.dart';
-import 'package:satsails/providers/settings_provider.dart';
-import 'package:satsails/providers/sideswap_provider.dart';
+import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
+import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
+import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/sideswap_provider.dart';
 
 final currentBalanceProvider = StateProvider.autoDispose<String>((ref) {
   final btcFormat = ref.read(settingsProvider).btcFormat;

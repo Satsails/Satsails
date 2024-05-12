@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:satsails/providers/auth_provider.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 
 class SeedWords extends ConsumerWidget {
   const SeedWords({super.key});

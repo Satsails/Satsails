@@ -1,14 +1,15 @@
+import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'package:satsails/models/adapters/transaction_adapters.dart';
-import 'package:satsails/models/sideswap/sideswap_exchange_model.dart';
-import 'package:satsails/models/sideswap/sideswap_peg_model.dart';
-import 'package:satsails/models/sideswap/sideswap_price_model.dart';
-import 'package:satsails/models/sideswap/sideswap_status_model.dart';
-import 'package:satsails/providers/bitcoin_provider.dart';
-import 'package:satsails/providers/liquid_provider.dart';
-import 'package:satsails/providers/send_tx_provider.dart';
-import 'package:satsails/services/sideswap/sideswap.dart';
+import 'package:Satsails/models/adapters/transaction_adapters.dart';
+import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
+import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
+import 'package:Satsails/models/sideswap/sideswap_price_model.dart';
+import 'package:Satsails/models/sideswap/sideswap_status_model.dart';
+import 'package:Satsails/providers/bitcoin_provider.dart';
+import 'package:Satsails/providers/liquid_provider.dart';
+import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:Satsails/services/sideswap/sideswap.dart';
 
 final sideswapServiceProvider = StateProvider.autoDispose<Sideswap>((ref) {
   final service = Sideswap();
@@ -176,7 +177,7 @@ final sideswapSignPsetProvider = FutureProvider.autoDispose<String>((ref) async 
 
 final sideswapGetLiquidTxProvider = FutureProvider.autoDispose<List<Tx>>((ref) async {
   final box = await Hive.openBox('sideswapStatus');
-  final liquidTransactions = await ref.read(liquidTransactionsProvider.future);
+  final liquidTransactions = ref.read(transactionNotifierProvider).liquidTransactions;
 
   final matchingTransactions = box.values.where((boxValue) {
     return liquidTransactions.any((liquidTransaction) => liquidTransaction.txid == boxValue.txid);

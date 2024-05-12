@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:satsails/providers/balance_provider.dart';
-import 'package:satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 
 Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProviderName, String balanceInFiatName) {
   final screenWidth = MediaQuery.of(context).size.width;
