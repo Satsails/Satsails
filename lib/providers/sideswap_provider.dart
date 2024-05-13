@@ -168,7 +168,7 @@ final sideswapSignPsetProvider = FutureProvider.autoDispose<String>((ref) async 
   final state = await ref.read(sideswapStartExchangeProvider.future).then((value) => value);
   final result = await ref.read(sideswapUploadInputsProvider.future).then((value) => value);
   // add new method for pset generation
-  final signedPset = await ref.read(signLiquidPsetProvider(result.pset).future).then((value) => value);
+  final signedPset = await ref.read(signLiquidPsetStringProvider(result.pset).future).then((value) => value);
   final txId = await state.uploadPset(signedPset, result.submitId).then((value) => value);
   final box = await Hive.openBox('sideswapSwaps');
   box.put(state.orderId, txId);

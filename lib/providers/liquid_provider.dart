@@ -102,6 +102,17 @@ final signLiquidPsetProvider = FutureProvider.family.autoDispose<Uint8List, Stri
   return await liquidModel.sign(signParams);
 });
 
+final signLiquidPsetStringProvider = FutureProvider.family.autoDispose<String, String>((ref, pset) async {
+  final liquid = await ref.watch(initializeLiquidProvider.future);
+  final LiquidModel liquidModel = LiquidModel(liquid);
+  final mnemonic = await ref.watch(authModelProvider).getMnemonic();
+  final SignParams signParams = SignParams(
+    pset: pset,
+    mnemonic: mnemonic!,
+  );
+  return await liquidModel.signedPsetString(signParams);
+});
+
 final broadcastLiquidTransactionProvider = FutureProvider.family.autoDispose<String, Uint8List>((ref, signedTxBytes) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);

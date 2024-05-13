@@ -104,7 +104,7 @@ class SideswapStartExchange {
   }
 
 
-  Future<String> uploadPset(Uint8List pset, String submitId) async {
+  Future<String> uploadPset(String pset, String submitId) async {
     final uri = Uri.parse(uploadUrl);
 
     final Map<String, dynamic> requestData = {

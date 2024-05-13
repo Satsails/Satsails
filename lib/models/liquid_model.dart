@@ -113,6 +113,18 @@ class LiquidModel {
     }
   }
 
+  Future<String> signedPsetString(SignParams params) async {
+    try {
+      final pset = '';
+      // await config.liquid.wallet.signedPsetWithExtraDetails(network: config.liquid.network, pset: params.pset, mnemonic: params.mnemonic);
+
+
+      return pset;
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
   Future<String> broadcast(Uint8List signedTxBytes) async {
     try {
       final tx = await Wallet.broadcastTx(electrumUrl: config.electrumUrl, txBytes: signedTxBytes);
