@@ -9,9 +9,9 @@ class LiquidModel {
 
   LiquidModel(this.config);
 
-  Future<String> getAddress() async {
+  Future<Address> getAddress() async {
     final address = await config.liquid.wallet.addressLastUnused();
-    return address.confidential;
+    return address;
   }
 
   Future<String> getNextAddress() async {

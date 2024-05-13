@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
@@ -28,6 +29,27 @@ String calculateAmountToDisplay(String amount, String currency, currencyConverte
   }
 }
 
+int calculateAmountInSatsToDisplay(String amount, String currency, currencyConverter) {
+  switch (currency) {
+    case 'BTC':
+      return (double.parse(amount) * 100000000).toInt();
+    case 'USD':
+      return (double.parse(amount) * currencyConverter.usdToBtc * 100000000).toInt();
+    case 'EUR':
+      return (double.parse(amount) * currencyConverter.eurToBtc * 100000000).toInt();
+    case 'BRL':
+      return (double.parse(amount) * currencyConverter.brlToBtc * 100000000).toInt();
+    case 'Sats':
+      return (double.parse(amount)).toInt();
+    case 'mBTC':
+      return (double.parse(amount) * 1000).toInt();
+    case 'bits':
+      return (double.parse(amount) * 1000000).toInt();
+    default:
+      return (double.parse(amount) * 100000000).toInt();
+  }
+}
+
 final bitcoinReceiveAddressAmountProvider = FutureProvider.autoDispose<String>((ref) async {
   final address = await ref.read(bitcoinAddressProvider.future);
   final amount = ref.watch(inputAmountProvider);
@@ -43,15 +65,26 @@ final bitcoinReceiveAddressAmountProvider = FutureProvider.autoDispose<String>((
 });
 
 final liquidReceiveAddressAmountProvider = FutureProvider.autoDispose<String>((ref) async {
-  final address = await ref.read(liquidAddressProvider.future);
+  final address = await ref.read(liquidAddressProvider.future).then((value) => value.confidential);
   final amount = ref.watch(inputAmountProvider);
   final currency = ref.watch(inputCurrencyProvider);
   final currencyConverter = ref.watch(currencyNotifierProvider);
 
   if (amount == '' || amount == '0.0') {
-    return address;
+    return address ;
   } else {
     final amountToDisplay = calculateAmountToDisplay(amount, currency, currencyConverter);
     return 'liquidnetwork:$address?amount=${amountToDisplay}';
   }
+});
+
+final lnAmountProvider = FutureProvider.autoDispose<int>((ref) async {
+  final amount = ref.watch(inputAmountProvider);
+  final currency = ref.watch(inputCurrencyProvider);
+  final currencyConverter = ref.watch(currencyNotifierProvider);
+  return calculateAmountInSatsToDisplay(amount, currency, currencyConverter);
+});
+
+final receiveLnAmountProvider = FutureProvider.autoDispose<String>((ref) async {
+  return ref.watch(boltzReceiveProvider.future).then((value) => value.invoice);
 });

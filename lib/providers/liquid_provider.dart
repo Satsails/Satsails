@@ -20,7 +20,7 @@ final syncLiquidProvider = FutureProvider.autoDispose<void>((ref) {
   });
 });
 
-final liquidAddressProvider = FutureProvider.autoDispose<String>((ref) {
+final liquidAddressProvider = FutureProvider.autoDispose<Address>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     return liquidModel.getAddress();

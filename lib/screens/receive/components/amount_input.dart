@@ -11,8 +11,7 @@ class AmountInput extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bitcoinInput = ref.watch(isBitcoinInputProvider);
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
-
-    String inputValue = '';
+    final TextEditingController controller = TextEditingController();
 
     return Column(
       children: [
@@ -42,6 +41,7 @@ class AmountInput extends ConsumerWidget {
               DropdownMenuItem(value: 'bits', child: Text('bits')),
             ],
             onChanged: (value) {
+              ref.read(inputAmountProvider.notifier).state = '0.0';
               ref.read(inputCurrencyProvider.notifier).state = value.toString();
               if (value == 'Sats' || value == 'Bitcoin') {
                 ref.read(isBitcoinInputProvider.notifier).state = true;
@@ -54,6 +54,7 @@ class AmountInput extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextFormField(
+            controller: controller,
             keyboardType: TextInputType.number,
             inputFormatters: bitcoinInput ? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()] : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()],
             style: TextStyle(fontSize: dynamicFontSize * 3),
@@ -62,9 +63,6 @@ class AmountInput extends ConsumerWidget {
               border: InputBorder.none,
               hintText: '0',
             ),
-            onChanged: (value) {
-              inputValue = value;
-            },
           ),
         ),
         ElevatedButton(
@@ -78,9 +76,10 @@ class AmountInput extends ConsumerWidget {
             ),
           ),
           onPressed: () {
+            String inputValue = controller.text;
             ref.read(inputAmountProvider.notifier).state = inputValue.isEmpty ? '0.0' : inputValue;
           },
-          child: const Text('Set Amount', style: TextStyle(color: Colors.white, fontSize: 13)),
+          child: const Text('Create Address', style: TextStyle(color: Colors.white, fontSize: 13)),
         ),
       ],
     );

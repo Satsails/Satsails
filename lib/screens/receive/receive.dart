@@ -1,4 +1,3 @@
-import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -13,7 +12,7 @@ import 'package:Satsails/screens/shared/qr_code.dart';
 import '../../providers/transaction_type_show_provider.dart';
 import 'package:group_button/group_button.dart';
 
-final selectedButtonProvider = StateProvider<String>((ref) => "Bitcoin");
+final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
 
 class Receive extends ConsumerWidget {
   Receive({Key? key}) : super(key: key);
@@ -27,7 +26,6 @@ class Receive extends ConsumerWidget {
     final selectedIndex = ref.watch(selectedButtonProvider);
     final bitcoinAddressAsyncValue = ref.watch(bitcoinReceiveAddressAmountProvider);
     final liquidAddressAsyncValue = ref.watch(liquidReceiveAddressAmountProvider);
-    final boltzInvoiceAsyncValue = ref.watch(boltzReceiveProvider);
     final controller = ref.watch(groupButtonControllerProvider);
     final online = ref.watch(settingsProvider).online;
 
@@ -40,6 +38,7 @@ class Receive extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();
+            ref.read(inputAmountProvider.notifier).state = '0.0';
           },
         ),
       ),
@@ -132,7 +131,21 @@ class Receive extends ConsumerWidget {
                             size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
                   ),
                 if (selectedIndex == "Lightning")
-                  Text("Lightning"),
+                  ref.watch(receiveLnAmountProvider).when(
+                    data: (lnAddress) {
+                      return Column(
+                        children: [
+                          buildQrCode(lnAddress, context),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: buildAddressText(lnAddress, context),
+                          ),
+                        ],
+                      );
+                    },
+                    loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
+                    error: (error, stack) => Center(child: Text('Error: $error')),
+                  ),
                 const AmountInput(),
               ],
             ),
