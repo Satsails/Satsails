@@ -81,10 +81,6 @@ final liquidReceiveAddressAmountProvider = FutureProvider.autoDispose<String>((r
 final lnAmountProvider = FutureProvider.autoDispose<int>((ref) async {
   final amount = ref.watch(inputAmountProvider);
   final currency = ref.watch(inputCurrencyProvider);
-  final currencyConverter = ref.watch(currencyNotifierProvider);
+  final currencyConverter = ref.read(currencyNotifierProvider);
   return calculateAmountInSatsToDisplay(amount, currency, currencyConverter);
-});
-
-final receiveLnAmountProvider = FutureProvider.autoDispose<String>((ref) async {
-  return ref.watch(boltzReceiveProvider.future).then((value) => value.invoice);
 });

@@ -115,9 +115,8 @@ class LiquidModel {
 
   Future<String> signedPsetString(SignParams params) async {
     try {
-      final pset = '';
-      // await config.liquid.wallet.signedPsetWithExtraDetails(network: config.liquid.network, pset: params.pset, mnemonic: params.mnemonic);
-
+      final pset =
+      await config.liquid.wallet.signedPsetWithExtraDetails(network: config.liquid.network, pset: params.pset, mnemonic: params.mnemonic);
 
       return pset;
     } catch (e) {

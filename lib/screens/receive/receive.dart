@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -28,6 +29,7 @@ class Receive extends ConsumerWidget {
     final liquidAddressAsyncValue = ref.watch(liquidReceiveAddressAmountProvider);
     final controller = ref.watch(groupButtonControllerProvider);
     final online = ref.watch(settingsProvider).online;
+    final claim = ref.watch(claimBoltzTransactionProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -131,14 +133,14 @@ class Receive extends ConsumerWidget {
                             size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
                   ),
                 if (selectedIndex == "Lightning")
-                  ref.watch(receiveLnAmountProvider).when(
-                    data: (lnAddress) {
+                  ref.watch(boltzReceiveProvider).when(
+                    data: (data) {
                       return Column(
                         children: [
-                          buildQrCode(lnAddress, context),
+                          buildQrCode(data.invoice, context),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: buildAddressText(lnAddress, context),
+                            child: buildAddressText(data.invoice, context),
                           ),
                         ],
                       );
@@ -146,6 +148,7 @@ class Receive extends ConsumerWidget {
                     loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
                     error: (error, stack) => Center(child: Text('Error: $error')),
                   ),
+
                 const AmountInput(),
               ],
             ),

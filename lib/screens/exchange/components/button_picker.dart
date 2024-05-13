@@ -4,8 +4,8 @@ import 'package:group_button/group_button.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 
-final selectedButtonProvider = StateProvider<String>((ref) => "Bitcoin Layer Swap");
-final groupButtonControllerProvider = Provider<GroupButtonController>((ref) {
+final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin Layer Swap");
+final groupButtonControllerProvider = Provider.autoDispose<GroupButtonController>((ref) {
   return GroupButtonController(selectedIndex: 0);
 });
 
