@@ -80,14 +80,24 @@ Widget _buildFiatTransactionItem(SideswapCompletedSwap swap, BuildContext contex
               Column(
                 children: [
                   Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.sendAsset)), style: TextStyle(fontSize: 16)),
-                  Text(ref.watch(conversionProvider(swap.sendAmount.toInt())), style: TextStyle(fontSize: 16)),
+                  Text(
+                      _assetNameFromTicker(AssetMapper.mapAsset(swap.sendAsset)) == 'BTC'
+                          ? ref.watch(conversionProvider(swap.sendAmount.toInt()))
+                          : (swap.sendAmount / 100000000).toStringAsFixed(2),
+                      style: TextStyle(fontSize: 16)
+                  ),
                 ],
               ),
               const Icon(Icons.arrow_forward, color: Colors.orange),
               Column(
                 children: [
                   Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)), style: TextStyle(fontSize: 16)),
-                  Text((swap.recvAmount / 100000000).toStringAsFixed(2) , style: TextStyle(fontSize: 16)),
+                  Text(
+                      _assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)) == 'BTC'
+                          ? ref.watch(conversionProvider((swap.recvAmount).toInt()))
+                          : (swap.recvAmount / 100000000).toStringAsFixed(2),
+                      style: TextStyle(fontSize: 16)
+                  ),
                 ],
               ),
             ],

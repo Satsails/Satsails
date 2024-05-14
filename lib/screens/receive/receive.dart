@@ -29,7 +29,6 @@ class Receive extends ConsumerWidget {
     final liquidAddressAsyncValue = ref.watch(liquidReceiveAddressAmountProvider);
     final controller = ref.watch(groupButtonControllerProvider);
     final online = ref.watch(settingsProvider).online;
-    final claim = ref.watch(claimBoltzTransactionProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -56,14 +55,20 @@ class Receive extends ConsumerWidget {
                     case 'Bitcoin':
                       ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
                       ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
+                      ref.read(inputCurrencyProvider.notifier).state = 'BTC';
+                      ref.read(inputAmountProvider.notifier).state = '0.0';
                       break;
                     case 'Liquid':
                       ref.read(selectedButtonProvider.notifier).state = "Liquid";
                       ref.read(transactionTypeShowProvider.notifier).state = "Liquid";
+                      ref.read(inputCurrencyProvider.notifier).state = 'BTC';
+                      ref.read(inputAmountProvider.notifier).state = '0.0';
                       break;
                     case 'Lightning':
                       ref.read(selectedButtonProvider.notifier).state = "Lightning";
                       ref.read(transactionTypeShowProvider.notifier).state = "Lightning";
+                      ref.read(inputCurrencyProvider.notifier).state = 'BTC';
+                      ref.read(inputAmountProvider.notifier).state = '0.0';
                       break;
                     default:
                       'Bitcoin';
@@ -137,10 +142,10 @@ class Receive extends ConsumerWidget {
                     data: (data) {
                       return Column(
                         children: [
-                          buildQrCode(data.invoice, context),
+                          buildQrCode(data.swap.invoice, context),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: buildAddressText(data.invoice, context),
+                            child: buildAddressText(data.swap.invoice, context),
                           ),
                         ],
                       );
@@ -148,7 +153,13 @@ class Receive extends ConsumerWidget {
                     loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
                     error: (error, stack) => Center(child: Text('Error: $error')),
                   ),
-
+                if (selectedIndex == "Lightning")
+                  ElevatedButton(
+                    onPressed: () async {
+                      await ref.read(claimBoltzTransactionProvider.future);
+                    },
+                    child: const Text('Claim'),
+                  ),
                 const AmountInput(),
               ],
             ),

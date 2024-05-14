@@ -79,7 +79,6 @@ class Accounts extends StatelessWidget {
                 final currency = ref.watch(settingsProvider).currency;
                 final balanceProvider = ref.watch(balanceNotifierProvider);
                 final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
-                final balance = ref.watch(balanceNotifierProvider);
                 final liquid = ref.watch(liquidAddressProvider.future);
                 final liquidInCurrency = ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, balanceProvider.liquidBalance))).toStringAsFixed(2);
                 return Card(
@@ -99,7 +98,6 @@ class Accounts extends StatelessWidget {
                     child: Column(
                       children: [
                         _buildListTile('Liquid', liquidBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, liquid, liquidInCurrency, currency, format, ref),
-                        _buildListTile('Lightning', '', const Icon(LineAwesome.bolt_solid, color: Colors.white), context, liquid, '', '', '', ref),
                       ],
                     ),
                   ),

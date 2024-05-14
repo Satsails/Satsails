@@ -1,4 +1,3 @@
-import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
