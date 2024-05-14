@@ -6,7 +6,7 @@ import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final boltzFeesProvider = FutureProvider.autoDispose<AllFees>((ref) async {
-      return await AllFees.fetch(boltzUrl: 'https://api.boltz.exchange');
+  return await AllFees.fetch(boltzUrl: 'https://api.boltz.exchange');
 });
 
 final boltzReceiveProvider = FutureProvider.autoDispose<BoltzReceive>((ref) async {
@@ -23,4 +23,20 @@ final claimBoltzTransactionProvider = FutureProvider.autoDispose<bool>((ref) asy
   final fees = await ref.read(boltzFeesProvider.future);
   final boltzReceive = await ref.watch(boltzReceiveProvider.future);
   return await boltzReceive.claimBoltzTransaction(receiveAddress: receiveAddress.confidential, fees: fees);
+});
+
+final claimBoltzTransactionStreamProvider = StreamProvider.autoDispose<bool>((ref) async* {
+  while (true) {
+    try {
+      final result = await ref.read(claimBoltzTransactionProvider.future);
+      yield result;
+      if (result) {
+        break;
+      }
+    } catch (e) {
+      yield false;
+    } finally {
+      await Future.delayed(Duration(seconds: 2));
+    }
+  }
 });

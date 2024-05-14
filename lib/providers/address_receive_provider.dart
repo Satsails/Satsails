@@ -53,7 +53,7 @@ final bitcoinReceiveAddressAmountProvider = FutureProvider.autoDispose<String>((
   final address = await ref.read(bitcoinAddressProvider.future);
   final amount = ref.watch(inputAmountProvider);
   final currency = ref.watch(inputCurrencyProvider);
-  final currencyConverter = ref.watch(currencyNotifierProvider);
+  final currencyConverter = ref.read(currencyNotifierProvider);
 
   if (amount == '' || amount == '0.0') {
     return address;
@@ -67,7 +67,7 @@ final liquidReceiveAddressAmountProvider = FutureProvider.autoDispose<String>((r
   final address = await ref.read(liquidAddressProvider.future).then((value) => value.confidential);
   final amount = ref.watch(inputAmountProvider);
   final currency = ref.watch(inputCurrencyProvider);
-  final currencyConverter = ref.watch(currencyNotifierProvider);
+  final currencyConverter = ref.read(currencyNotifierProvider);
 
   if (amount == '' || amount == '0.0') {
     return address ;

@@ -1,14 +1,8 @@
-import 'package:hive/hive.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 
-part 'boltz_model.g.dart';
-
-@HiveType(typeId: 12)
 class ExtendedKeyPair {
-  @HiveField(0)
   final KeyPair keyPair;
 
-  // Unnamed constructor
   ExtendedKeyPair(this.keyPair);
 
   ExtendedKeyPair.raw({
@@ -20,12 +14,9 @@ class ExtendedKeyPair {
   );
 }
 
-@HiveType(typeId: 13)
 class ExtendedPreImage {
-  @HiveField(0)
   final PreImage preImage;
 
-  // Unnamed constructor
   ExtendedPreImage(this.preImage);
 
   ExtendedPreImage.raw({
@@ -39,12 +30,9 @@ class ExtendedPreImage {
   );
 }
 
-@HiveType(typeId: 14)
 class ExtendedLBtcSwapScriptV2Str {
-  @HiveField(0)
   final LBtcSwapScriptV2Str swapScript;
 
-  // Unnamed constructor
   ExtendedLBtcSwapScriptV2Str(this.swapScript);
 
   ExtendedLBtcSwapScriptV2Str.raw({
@@ -66,19 +54,11 @@ class ExtendedLBtcSwapScriptV2Str {
   );
 }
 
-@HiveType(typeId: 15)
 class BoltzReceive {
-  @HiveField(0)
   final LbtcLnV2Swap swap;
-  @HiveField(1)
   final ExtendedKeyPair keys;
-  @HiveField(2)
   final ExtendedPreImage preimage;
-  @HiveField(3)
   final ExtendedLBtcSwapScriptV2Str swapScript;
-
-  // Remove the unnamed constructor
-  // BoltzReceive(this.swap, this.keys, this.preimage, this.swapScript);
 
   BoltzReceive({
     required String id,
@@ -115,6 +95,11 @@ class BoltzReceive {
     required int amount,
     required int index,
   }) async {
+
+    if(amount == 0){
+      throw 'Set an amount to create an invoice';
+    }
+
     if (fees.lbtcLimits.minimal > amount){
       throw 'Amount is below the minimal limit';
     }

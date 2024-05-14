@@ -1,4 +1,7 @@
 import 'package:Satsails/providers/boltz_provider.dart';
+import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
+import 'package:Satsails/screens/receive/components/lightning_widget.dart';
+import 'package:Satsails/screens/receive/components/liquid_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -25,8 +28,6 @@ class Receive extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = ref.watch(selectedButtonProvider);
-    final bitcoinAddressAsyncValue = ref.watch(bitcoinReceiveAddressAmountProvider);
-    final liquidAddressAsyncValue = ref.watch(liquidReceiveAddressAmountProvider);
     final controller = ref.watch(groupButtonControllerProvider);
     final online = ref.watch(settingsProvider).online;
 
@@ -47,122 +48,64 @@ class Receive extends ConsumerWidget {
         child: Column(
           children: [
             OfflineTransactionWarning(online: online),
-              GroupButton(
-                isRadio: true,
-                controller: controller,
-                onSelected: (index, isSelected, isLongPress) {
-                  switch (index) {
-                    case 'Bitcoin':
-                      ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
-                      ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
-                      ref.read(inputCurrencyProvider.notifier).state = 'BTC';
-                      ref.read(inputAmountProvider.notifier).state = '0.0';
-                      break;
-                    case 'Liquid':
-                      ref.read(selectedButtonProvider.notifier).state = "Liquid";
-                      ref.read(transactionTypeShowProvider.notifier).state = "Liquid";
-                      ref.read(inputCurrencyProvider.notifier).state = 'BTC';
-                      ref.read(inputAmountProvider.notifier).state = '0.0';
-                      break;
-                    case 'Lightning':
-                      ref.read(selectedButtonProvider.notifier).state = "Lightning";
-                      ref.read(transactionTypeShowProvider.notifier).state = "Lightning";
-                      ref.read(inputCurrencyProvider.notifier).state = 'BTC';
-                      ref.read(inputAmountProvider.notifier).state = '0.0';
-                      break;
-                    default:
-                      'Bitcoin';
-                  }
-                },
-                buttons: ["Lightning", 'Bitcoin', "Liquid"],
-                options: GroupButtonOptions(
-                  unselectedTextStyle: const TextStyle(
-                      fontSize: 16, color: Colors.black),
-                  selectedTextStyle: const TextStyle(
-                      fontSize: 16, color: Colors.white),
-                  selectedColor: Colors.deepOrange,
-                  mainGroupAlignment: MainGroupAlignment.center,
-                  crossGroupAlignment: CrossGroupAlignment.center,
-                  groupRunAlignment: GroupRunAlignment.center,
-                  unselectedColor: Colors.white,
-                  groupingType: GroupingType.row,
-                  alignment: Alignment.center,
-                  elevation: 0,
-                  textPadding: EdgeInsets.zero,
-                  selectedShadow: <BoxShadow>[
-                    const BoxShadow(color: Colors.transparent)
-                  ],
-                  unselectedShadow: <BoxShadow>[
-                    const BoxShadow(color: Colors.transparent)
-                  ],
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
+            GroupButton(
+              isRadio: true,
+              controller: controller,
+              onSelected: (index, isSelected, isLongPress) {
+                switch (index) {
+                  case 'Bitcoin':
+                    ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
+                    ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
+                    ref.read(inputCurrencyProvider.notifier).state = 'BTC';
+                    ref.read(inputAmountProvider.notifier).state = '0.0';
+                    break;
+                  case 'Liquid':
+                    ref.read(selectedButtonProvider.notifier).state = "Liquid";
+                    ref.read(transactionTypeShowProvider.notifier).state = "Liquid";
+                    ref.read(inputCurrencyProvider.notifier).state = 'BTC';
+                    ref.read(inputAmountProvider.notifier).state = '0.0';
+                    break;
+                  case 'Lightning':
+                    ref.read(selectedButtonProvider.notifier).state = "Lightning";
+                    ref.read(transactionTypeShowProvider.notifier).state = "Lightning";
+                    ref.read(inputCurrencyProvider.notifier).state = 'BTC';
+                    ref.read(inputAmountProvider.notifier).state = '0.0';
+                    break;
+                  default:
+                    'Bitcoin';
+                }
+              },
+              buttons: ["Lightning", 'Bitcoin', "Liquid"],
+              options: GroupButtonOptions(
+                unselectedTextStyle: const TextStyle(
+                    fontSize: 16, color: Colors.black),
+                selectedTextStyle: const TextStyle(
+                    fontSize: 16, color: Colors.white),
+                selectedColor: Colors.deepOrange,
+                mainGroupAlignment: MainGroupAlignment.center,
+                crossGroupAlignment: CrossGroupAlignment.center,
+                groupRunAlignment: GroupRunAlignment.center,
+                unselectedColor: Colors.white,
+                groupingType: GroupingType.row,
+                alignment: Alignment.center,
+                elevation: 0,
+                textPadding: EdgeInsets.zero,
+                selectedShadow: <BoxShadow>[
+                  const BoxShadow(color: Colors.transparent)
+                ],
+                unselectedShadow: <BoxShadow>[
+                  const BoxShadow(color: Colors.transparent)
+                ],
+                borderRadius: BorderRadius.circular(30.0),
               ),
-            const SizedBox(height: 16.0),
-            Column(
-              children: [
-                if (selectedIndex == 'Bitcoin')
-                  bitcoinAddressAsyncValue.when(
-                    data: (bitcoinAddress) {
-                      return Column(
-                        children: [
-                          buildQrCode(bitcoinAddress, context),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: buildAddressText(bitcoinAddress, context),
-                          ),
-                        ],
-                      );
-                    },
-                    loading: () =>Center(child: LoadingAnimationWidget.threeArchedCircle(size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
-                    error: (error, stack) => Center(child: LoadingAnimationWidget.threeArchedCircle(size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
-                  ),
-                if (selectedIndex == "Liquid")
-                  liquidAddressAsyncValue.when(
-                    data: (liquidAddress) {
-                      return Column(
-                        children: [
-                          buildQrCode(liquidAddress, context),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: buildAddressText(liquidAddress, context),
-                          ),
-                        ],
-                      );
-                    },
-                    loading: () =>
-                        Center(child: LoadingAnimationWidget.threeArchedCircle(
-                            size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
-                    error: (error, stack) =>
-                        Center(child: LoadingAnimationWidget.threeArchedCircle(
-                            size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
-                  ),
-                if (selectedIndex == "Lightning")
-                  ref.watch(boltzReceiveProvider).when(
-                    data: (data) {
-                      return Column(
-                        children: [
-                          buildQrCode(data.swap.invoice, context),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: buildAddressText(data.swap.invoice, context),
-                          ),
-                        ],
-                      );
-                    },
-                    loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
-                    error: (error, stack) => Center(child: Text('Error: $error')),
-                  ),
-                if (selectedIndex == "Lightning")
-                  ElevatedButton(
-                    onPressed: () async {
-                      await ref.read(claimBoltzTransactionProvider.future);
-                    },
-                    child: const Text('Claim'),
-                  ),
-                const AmountInput(),
-              ],
             ),
+            const SizedBox(height: 16.0),
+            if (selectedIndex == 'Bitcoin')
+              BitcoinWidget(),
+            if (selectedIndex == "Liquid")
+              LiquidWidget(),
+            if (selectedIndex == "Lightning")
+              LightningWidget(),
           ],
         ),
       ),

@@ -112,13 +112,8 @@ class Accounts extends StatelessWidget {
             SizedBox(height: screenWidth * 0.02),
             Consumer(
               builder: (context, ref, _) {
-                final format = ref.watch(settingsProvider).btcFormat;
-                final currency = ref.watch(settingsProvider).currency;
-                final balanceProvider = ref.watch(balanceNotifierProvider);
-                final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
                 final balance = ref.watch(balanceNotifierProvider);
                 final liquid = ref.watch(liquidAddressProvider.future);
-                final liquidInCurrency = ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, balanceProvider.liquidBalance))).toStringAsFixed(2);
                 return Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
@@ -224,7 +219,7 @@ class Accounts extends StatelessWidget {
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (snapshot.hasData) {
-              final String address = snapshot.data is String ? snapshot.data : snapshot.data.address;
+              final String address = snapshot.data is String ? snapshot.data : snapshot.data.confidential;
               return Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
