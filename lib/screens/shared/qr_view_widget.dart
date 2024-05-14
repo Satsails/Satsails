@@ -41,7 +41,7 @@ class QRViewWidget extends StatelessWidget {
       }
       catch (e) {
         Fluttertoast.showToast(
-          msg: 'Error scanning QR code',
+          msg: e.toString(),
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 1,

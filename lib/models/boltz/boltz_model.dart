@@ -186,16 +186,19 @@ class Boltz {
     required int amount,
     required int index,
   }) async {
+
     if(amount == 0){
-      throw 'Set an amount to create an invoice';
+      throw 'Amount cannot be 0';
     }
 
-    if (fees.lbtcLimits.minimal > amount){
+    if (fees.lbtcLimits.minimal >= amount){
       throw 'Amount is below the minimal limit';
     }
-    if (fees.lbtcLimits.maximal < amount){
+
+    if (fees.lbtcLimits.maximal <= amount){
       throw 'Amount is above the maximal limit';
     }
+
     final result = await LbtcLnV2Swap.newSubmarine(
         mnemonic: mnemonic,
         index: index,

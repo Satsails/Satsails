@@ -21,6 +21,7 @@ Future<bool> isValidBitcoinAddress(String address) async {
     return false;
   }
 }
+
 Future<DecodedInvoice> isValidLightningAddress(String invoice) async {
   try {
     final res = await DecodedInvoice.fromString(
@@ -51,7 +52,7 @@ Future<AddressAndAmount> parseAddressAndAmount(String data) async {
     address = address.substring(14);
   }
 
-  if ((await isValidBitcoinAddress(address).then((value) => !value)) && (await isValidLiquidAddress(address).then((value) => !value))) {
+  if ((await isValidBitcoinAddress(address).then((value) => !value)) && (await isValidLiquidAddress(address).then((value) => !value)) && (await isValidLightningAddress(address).then((value) => false))){
     throw FormatException('Invalid address');
   }
 
@@ -81,12 +82,11 @@ Future<AddressAndAmount> parseAddressAndAmount(String data) async {
     return AddressAndAmount(address, amount, assetId, type: type);
   } else {
     try {
-      throw FormatException('Invalid lightning address');
-      // DecodedInvoice decodedInvoice = await isValidLightningAddress(address);
-      // type = PaymentType.Lightning;
-      // address = decodedInvoice.destination; // Use the destination from the decoded invoice
-      // amount = decodedInvoice.amount; // Use the amount from the decoded invoice
-      // return AddressAndAmount(address, amount, assetId, type: type);
+      DecodedInvoice decodedInvoice = await isValidLightningAddress(address);
+      type = PaymentType.Lightning;
+      address = address;
+      amount = decodedInvoice.msats ~/ 1000;
+      return AddressAndAmount(address, amount, assetId, type: type);
     } catch (e) {
       throw FormatException('Invalid lightning address');
     }

@@ -2,6 +2,7 @@ import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
+import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -41,11 +42,14 @@ final claimBoltzTransactionStreamProvider = StreamProvider.autoDispose<bool>((re
   }
 });
 
-final boltzPayProvider = FutureProvider.autoDispose.family<Boltz, String>((ref, invoice) async {
+final boltzPayProvider = FutureProvider.autoDispose<Boltz>((ref) async {
   final fees = await ref.read(boltzFeesProvider.future);
+  var sendTx = ref.watch(sendTxProvider.notifier);
   final address = await ref.read(liquidAddressProvider.future);
   final authModel = ref.read(authModelProvider);
   final mnemonic = await authModel.getMnemonic();
-  final amount = await ref.watch(lnAmountProvider.future);
-  return await Boltz.createBoltzPay(fees: fees, mnemonic: mnemonic!, invoice: invoice, amount: amount, index: address.index);
+  final pay = await Boltz.createBoltzPay(fees: fees, mnemonic: mnemonic!, invoice: sendTx.state.address, amount: sendTx.state.amount, index: address.index);
+  sendTx.state = sendTx.state.copyWith(address: pay.swap.scriptAddress, amount: (pay.swap.outAmount).toInt());
+  await ref.read(sendLiquidTransactionProvider.future).then((value) => value);
+  return pay;
 });
