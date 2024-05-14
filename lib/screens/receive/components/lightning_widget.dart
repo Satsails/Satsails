@@ -17,10 +17,10 @@ class LightningWidget extends ConsumerWidget {
           data: (data) {
             return Column(
               children: [
-                buildQrCode(data.swap.invoice, context),
+                buildQrCode(data.swap!.invoice, context),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: buildAddressText(data.swap.invoice, context),
+                  child: buildAddressText(data.swap!.invoice, context),
                 ),
               ],
             );

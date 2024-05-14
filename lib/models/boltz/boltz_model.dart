@@ -1,12 +1,19 @@
 import 'package:boltz_dart/boltz_dart.dart';
+import 'package:hive/hive.dart';
 
+part 'boltz_model.g.dart';
+
+@HiveType(typeId: 12)
 class ExtendedKeyPair {
+  @HiveField(0)
   final KeyPair keyPair;
 
   ExtendedKeyPair(this.keyPair);
 
   ExtendedKeyPair.raw({
+    @HiveField(1)
     required String secretKey,
+    @HiveField(2)
     required String publicKey,
   }) : keyPair = KeyPair.raw(
     secretKey: secretKey,
@@ -14,14 +21,19 @@ class ExtendedKeyPair {
   );
 }
 
+@HiveType(typeId: 13)
 class ExtendedPreImage {
+  @HiveField(0)
   final PreImage preImage;
 
   ExtendedPreImage(this.preImage);
 
   ExtendedPreImage.raw({
+    @HiveField(1)
     required String value,
+    @HiveField(2)
     required String sha256,
+    @HiveField(3)
     required String hash160,
   }) : preImage = PreImage.raw(
     value: value,
@@ -30,18 +42,27 @@ class ExtendedPreImage {
   );
 }
 
+@HiveType(typeId: 14)
 class ExtendedLBtcSwapScriptV2Str {
+  @HiveField(0)
   final LBtcSwapScriptV2Str swapScript;
 
   ExtendedLBtcSwapScriptV2Str(this.swapScript);
 
   ExtendedLBtcSwapScriptV2Str.raw({
+    @HiveField(1)
     required SwapType swapType,
+    @HiveField(2)
     String? fundingAddrs,
+    @HiveField(3)
     required String hashlock,
+    @HiveField(4)
     required String receiverPubkey,
+    @HiveField(5)
     required int locktime,
+    @HiveField(6)
     required String senderPubkey,
+    @HiveField(7)
     required String blindingKey,
   }) : swapScript = LBtcSwapScriptV2Str.raw(
     swapType: swapType,
@@ -54,39 +75,66 @@ class ExtendedLBtcSwapScriptV2Str {
   );
 }
 
-class Boltz {
-  final LbtcLnV2Swap swap;
-  final ExtendedKeyPair keys;
-  final ExtendedPreImage preimage;
-  final ExtendedLBtcSwapScriptV2Str swapScript;
+@HiveType(typeId: 15)
+class ExtendedLbtcLnV2Swap {
+  @HiveField(0)
+  final String id;
+  @HiveField(1)
+  final SwapType kind;
+  @HiveField(2)
+  final Chain network;
+  @HiveField(3)
+  final KeyPair keys;
+  @HiveField(4)
+  final PreImage preimage;
+  @HiveField(5)
+  final LBtcSwapScriptV2Str swapScript;
+  @HiveField(6)
+  final String invoice;
+  @HiveField(7)
+  final int outAmount;
+  @HiveField(8)
+  final String scriptAddress;
+  @HiveField(9)
+  final String blindingKey;
+  @HiveField(10)
+  final String electrumUrl;
+  @HiveField(11)
+  final String boltzUrl;
 
-  Boltz({
-    required String id,
-    required SwapType kind,
-    required Chain network,
+  ExtendedLbtcLnV2Swap({
+    required this.id,
+    required this.kind,
+    required this.network,
     required this.keys,
     required this.preimage,
     required this.swapScript,
-    required String invoice,
-    required int outAmount,
-    required String scriptAddress,
-    required String blindingKey,
-    required String electrumUrl,
-    required String boltzUrl,
-  }) : swap = LbtcLnV2Swap(
-    id: id,
-    kind: kind,
-    network: network,
-    keys: keys.keyPair,
-    preimage: preimage.preImage,
-    swapScript: swapScript.swapScript,
-    invoice: invoice,
-    outAmount: outAmount,
-    scriptAddress: scriptAddress,
-    blindingKey: blindingKey,
-    electrumUrl: electrumUrl,
-    boltzUrl: boltzUrl,
-  );
+    required this.invoice,
+    required this.outAmount,
+    required this.scriptAddress,
+    required this.blindingKey,
+    required this.electrumUrl,
+    required this.boltzUrl,
+  });
+}
+
+@HiveType(typeId: 16)
+class Boltz {
+  @HiveField(0)
+  final ExtendedLbtcLnV2Swap swap;
+  @HiveField(1)
+  final ExtendedKeyPair keys;
+  @HiveField(2)
+  final ExtendedPreImage preimage;
+  @HiveField(3)
+  final ExtendedLBtcSwapScriptV2Str swapScript;
+
+  Boltz({
+    required this.swap,
+    required this.keys,
+    required this.preimage,
+    required this.swapScript,
+  });
 
   static Future<Boltz> createBoltzReceive({
     required AllFees fees,
@@ -116,6 +164,7 @@ class Boltz {
         boltzUrl: 'https://api.boltz.exchange/v2'
     );
 
+
     final extendedPreImage = ExtendedPreImage.raw(
       value: result.preimage.value,
       sha256: result.preimage.sha256,
@@ -137,19 +186,26 @@ class Boltz {
       blindingKey: result.swapScript.blindingKey,
     );
 
-    return Boltz(
+    final extendedSwap = ExtendedLbtcLnV2Swap(
       id: result.id,
       kind: result.kind,
       network: result.network,
-      keys: extendedKeyPair,
-      preimage: extendedPreImage,
-      swapScript: extendedLBtcSwapScriptV2Str,
+      keys: extendedKeyPair.keyPair,
+      preimage: extendedPreImage.preImage,
+      swapScript: extendedLBtcSwapScriptV2Str.swapScript,
       invoice: result.invoice,
       outAmount: result.outAmount,
       scriptAddress: result.scriptAddress,
       blindingKey: result.blindingKey,
       electrumUrl: result.electrumUrl,
       boltzUrl: result.boltzUrl,
+    );
+
+    return Boltz(
+      swap: extendedSwap,
+      keys: extendedKeyPair,
+      preimage: extendedPreImage,
+      swapScript: extendedLBtcSwapScriptV2Str,
     );
   }
 
@@ -162,12 +218,12 @@ class Boltz {
         id: swap.id,
         kind: swap.kind,
         network: swap.network,
-        keys: swap.keys,
-        preimage: swap.preimage,
-        swapScript: swap.swapScript,
+        keys: keys.keyPair,
+        preimage: preimage.preImage,
+        swapScript: swapScript.swapScript,
         invoice: swap.invoice,
         outAmount: swap.outAmount,
-        outAddress: receiveAddress,
+        outAddress: swap.scriptAddress,
         blindingKey: swap.blindingKey,
         electrumUrl: swap.electrumUrl,
         boltzUrl: swap.boltzUrl,
@@ -229,19 +285,26 @@ class Boltz {
       blindingKey: result.swapScript.blindingKey,
     );
 
-    return Boltz(
+    final extendedSwap = ExtendedLbtcLnV2Swap(
       id: result.id,
       kind: result.kind,
       network: result.network,
-      keys: extendedKeyPair,
-      preimage: extendedPreImage,
-      swapScript: extendedLBtcSwapScriptV2Str,
+      keys: extendedKeyPair.keyPair,
+      preimage: extendedPreImage.preImage,
+      swapScript: extendedLBtcSwapScriptV2Str.swapScript,
       invoice: result.invoice,
       outAmount: result.outAmount,
       scriptAddress: result.scriptAddress,
       blindingKey: result.blindingKey,
       electrumUrl: result.electrumUrl,
       boltzUrl: result.boltzUrl,
+    );
+
+    return Boltz(
+      swap: extendedSwap,
+      keys: extendedKeyPair,
+      preimage: extendedPreImage,
+      swapScript: extendedLBtcSwapScriptV2Str,
     );
   }
 }
