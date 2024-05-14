@@ -770,9 +770,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: fix-pset-details
-      resolved-ref: "3fd18484b526ce708aa2dafbd26d5d47149ea016"
-      url: "https://github.com/JoaoLobo94/lwk-dart"
+      ref: trunk
+      resolved-ref: f5ce325c9f64ea9d1f3c6bd1c0e3b3e690d87dfd
+      url: "https://github.com/SatoshiPortal/lwk-dart.git"
     source: git
     version: "0.1.3"
   matcher:

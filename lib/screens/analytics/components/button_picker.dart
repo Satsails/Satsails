@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
 import 'package:Satsails/providers/transaction_type_show_provider.dart';
 
-final selectedButtonProvider = StateProvider<String>((ref) => "Bitcoin");
-final groupButtonControllerProvider = Provider<GroupButtonController>((ref) {
+final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
+final groupButtonControllerProvider = Provider.autoDispose<GroupButtonController>((ref) {
   return GroupButtonController(selectedIndex: 0);
 });
 
@@ -26,7 +26,7 @@ class ButtonPicker extends ConsumerWidget {
             break;
           case 1:
             ref.read(selectedButtonProvider.notifier).state = "Instant Bitcoin";
-            ref.read(transactionTypeShowProvider.notifier).state = "Instant Bitcoin";
+            ref.read(transactionTypeShowProvider.notifier).state = "Liquid";
             break;
           case 2:
             ref.read(selectedButtonProvider.notifier).state = "Swap";

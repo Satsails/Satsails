@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
@@ -59,7 +58,7 @@ class BuildTransactions extends ConsumerWidget {
                   } else if (bitcoinTransactions.isEmpty) {
                     return const Center(child: Text('Pull up to refresh', style: TextStyle(fontSize: 14, color: Colors.grey)));
                   }
-                case 'Instant Bitcoin':
+                case 'Liquid':
                   if (index < liquidTransactions.length) {
                     return _buildTransactionItem(liquidTransactions[index], context, ref);
                   } else if (liquidTransactions.isEmpty) {
