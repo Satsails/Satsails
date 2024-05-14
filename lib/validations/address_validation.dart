@@ -1,3 +1,4 @@
+import 'package:boltz_dart/boltz_dart.dart';
 import 'package:lwk_dart/lwk_dart.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:Satsails/helpers/asset_mapper.dart';
@@ -20,23 +21,19 @@ Future<bool> isValidBitcoinAddress(String address) async {
     return false;
   }
 }
-
-
-
-
-Future<bool> isValidLightningAddress(String address) async {
+Future<DecodedInvoice> isValidLightningAddress(String invoice) async {
   try {
-    // implement a bad response from the boltz if other 2 are down
-    // await lnUrlType(address);
-    // await Bolt11Invoice.decode(invoice: address);
-    return false;
+    final res = await DecodedInvoice.fromString(
+      s: invoice,
+      boltzUrl: 'https://api.boltz.exchange',
+    );
+    return res;
   } catch (e) {
-  return false;
+    throw FormatException('Invalid lightning address');
   }
 }
 
-
-Future<AddressAndAmount>  parseAddressAndAmount(String data) async {
+Future<AddressAndAmount> parseAddressAndAmount(String data) async {
   if (data == null || data.isEmpty) {
     throw FormatException('Data cannot be null or empty');
   }
@@ -49,14 +46,12 @@ Future<AddressAndAmount>  parseAddressAndAmount(String data) async {
   if (address.startsWith('bitcoin:')) {
     address = address.substring(8);
   }
-  if (address.startsWith('lightning:')) {
-    address = address.substring(10);
-  }
+
   if(address.startsWith('liquidnetwork:')) {
     address = address.substring(14);
   }
 
-  if ((await isValidBitcoinAddress(address).then((value) => !value)) && (await isValidLiquidAddress(address).then((value) => !value)) && (await isValidLightningAddress(address).then((value) => !value))) {
+  if ((await isValidBitcoinAddress(address).then((value) => !value)) && (await isValidLiquidAddress(address).then((value) => !value))) {
     throw FormatException('Invalid address');
   }
 
@@ -84,11 +79,16 @@ Future<AddressAndAmount>  parseAddressAndAmount(String data) async {
   } else if ((await isValidLiquidAddress(address).then((value) => value))) {
     type = PaymentType.Liquid;
     return AddressAndAmount(address, amount, assetId, type: type);
-  } else if ((await isValidLightningAddress(address).then((value) => value))) {
-    type = PaymentType.Lightning;
-    return AddressAndAmount(address, amount, assetId, type: type);
   } else {
-    type = PaymentType.Unknown;
-    return AddressAndAmount(address, amount, assetId, type: type);
+    try {
+      throw FormatException('Invalid lightning address');
+      // DecodedInvoice decodedInvoice = await isValidLightningAddress(address);
+      // type = PaymentType.Lightning;
+      // address = decodedInvoice.destination; // Use the destination from the decoded invoice
+      // amount = decodedInvoice.amount; // Use the amount from the decoded invoice
+      // return AddressAndAmount(address, amount, assetId, type: type);
+    } catch (e) {
+      throw FormatException('Invalid lightning address');
+    }
   }
 }

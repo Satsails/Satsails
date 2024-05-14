@@ -23,7 +23,6 @@ class Exchange extends ConsumerWidget {
         ref.read(sendTxProvider.notifier).resetToDefault();
         ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
         ref.read(sendBlocksProvider.notifier).state = 1;
-        ref.watch(closeSideswapProvider);
       },
       child: Scaffold(
         backgroundColor: Colors.white,

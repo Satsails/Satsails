@@ -9,13 +9,13 @@ final boltzFeesProvider = FutureProvider.autoDispose<AllFees>((ref) async {
   return await AllFees.fetch(boltzUrl: 'https://api.boltz.exchange');
 });
 
-final boltzReceiveProvider = FutureProvider.autoDispose<BoltzReceive>((ref) async {
+final boltzReceiveProvider = FutureProvider.autoDispose<Boltz>((ref) async {
   final fees = await ref.read(boltzFeesProvider.future);
   final authModel = ref.read(authModelProvider);
   final mnemonic = await authModel.getMnemonic();
   final address = await ref.read(liquidAddressProvider.future);
   final amount = await ref.watch(lnAmountProvider.future);
-  return await BoltzReceive.createBoltzReceive(fees: fees, mnemonic: mnemonic!, index:address.index, address: address.confidential, amount: amount);
+  return await Boltz.createBoltzReceive(fees: fees, mnemonic: mnemonic!, index:address.index, address: address.confidential, amount: amount);
 });
 
 final claimBoltzTransactionProvider = FutureProvider.autoDispose<bool>((ref) async {
@@ -39,4 +39,13 @@ final claimBoltzTransactionStreamProvider = StreamProvider.autoDispose<bool>((re
       await Future.delayed(Duration(seconds: 2));
     }
   }
+});
+
+final boltzPayProvider = FutureProvider.autoDispose.family<Boltz, String>((ref, invoice) async {
+  final fees = await ref.read(boltzFeesProvider.future);
+  final address = await ref.read(liquidAddressProvider.future);
+  final authModel = ref.read(authModelProvider);
+  final mnemonic = await authModel.getMnemonic();
+  final amount = await ref.watch(lnAmountProvider.future);
+  return await Boltz.createBoltzPay(fees: fees, mnemonic: mnemonic!, invoice: invoice, amount: amount, index: address.index);
 });

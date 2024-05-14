@@ -21,6 +21,7 @@ class OpenPin extends ConsumerWidget {
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: const Center(child: Text('Enter PIN')),
+          backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
         ),
         body: Center(

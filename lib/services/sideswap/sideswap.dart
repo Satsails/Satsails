@@ -176,5 +176,6 @@ class Sideswap {
     _priceController.close();
     _exchangeController.close();
     _unsubscribePriceController.close();
+    _exchangeDoneController.close();
   }
 }

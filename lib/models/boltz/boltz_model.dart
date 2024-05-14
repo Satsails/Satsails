@@ -54,13 +54,13 @@ class ExtendedLBtcSwapScriptV2Str {
   );
 }
 
-class BoltzReceive {
+class Boltz {
   final LbtcLnV2Swap swap;
   final ExtendedKeyPair keys;
   final ExtendedPreImage preimage;
   final ExtendedLBtcSwapScriptV2Str swapScript;
 
-  BoltzReceive({
+  Boltz({
     required String id,
     required SwapType kind,
     required Chain network,
@@ -88,7 +88,7 @@ class BoltzReceive {
     boltzUrl: boltzUrl,
   );
 
-  static Future<BoltzReceive> createBoltzReceive({
+  static Future<Boltz> createBoltzReceive({
     required AllFees fees,
     required String mnemonic,
     required String address,
@@ -137,7 +137,7 @@ class BoltzReceive {
       blindingKey: result.swapScript.blindingKey,
     );
 
-    return BoltzReceive(
+    return Boltz(
       id: result.id,
       kind: result.kind,
       network: result.network,
@@ -177,5 +177,68 @@ class BoltzReceive {
     } catch (e) {
       return false;
     }
+  }
+
+  static Future<Boltz> createBoltzPay({
+    required AllFees fees,
+    required String mnemonic,
+    required String invoice,
+    required int amount,
+    required int index,
+  }) async {
+    if(amount == 0){
+      throw 'Set an amount to create an invoice';
+    }
+
+    if (fees.lbtcLimits.minimal > amount){
+      throw 'Amount is below the minimal limit';
+    }
+    if (fees.lbtcLimits.maximal < amount){
+      throw 'Amount is above the maximal limit';
+    }
+    final result = await LbtcLnV2Swap.newSubmarine(
+        mnemonic: mnemonic,
+        index: index,
+        invoice: invoice,
+        network: Chain.liquid,
+        electrumUrl: 'blockstream.info:995',
+        boltzUrl: 'https://api.boltz.exchange/v2'
+    );
+
+    final extendedPreImage = ExtendedPreImage.raw(
+      value: result.preimage.value,
+      sha256: result.preimage.sha256,
+      hash160: result.preimage.hash160,
+    );
+
+    final extendedKeyPair = ExtendedKeyPair.raw(
+      secretKey: result.keys.secretKey,
+      publicKey: result.keys.publicKey,
+    );
+
+    final extendedLBtcSwapScriptV2Str = ExtendedLBtcSwapScriptV2Str.raw(
+      swapType: result.swapScript.swapType,
+      fundingAddrs: result.swapScript.fundingAddrs,
+      hashlock: result.swapScript.hashlock,
+      receiverPubkey: result.swapScript.receiverPubkey,
+      locktime: result.swapScript.locktime,
+      senderPubkey: result.swapScript.senderPubkey,
+      blindingKey: result.swapScript.blindingKey,
+    );
+
+    return Boltz(
+      id: result.id,
+      kind: result.kind,
+      network: result.network,
+      keys: extendedKeyPair,
+      preimage: extendedPreImage,
+      swapScript: extendedLBtcSwapScriptV2Str,
+      invoice: result.invoice,
+      outAmount: result.outAmount,
+      scriptAddress: result.scriptAddress,
+      blindingKey: result.blindingKey,
+      electrumUrl: result.electrumUrl,
+      boltzUrl: result.boltzUrl,
+    );
   }
 }

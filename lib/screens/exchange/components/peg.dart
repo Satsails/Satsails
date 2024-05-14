@@ -34,7 +34,6 @@ class Peg extends ConsumerWidget {
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
     final status = ref.watch(sideswapStatusProvider);
 
-    // Create a list of widgets
     List<Widget> cards = [
       _buildBitcoinCard(ref, dynamicPadding, titleFontSize, pegIn),
       GestureDetector(
@@ -126,7 +125,9 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                     await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
                     controller.success();
                     Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
-                    ref.watch(closeSideswapProvider);
+                    ref.read(sendTxProvider.notifier).updateAddress('');
+                    ref.read(sendTxProvider.notifier).updateAmount(0);
+                    ref.read(sendBlocksProvider.notifier).state = 1;
                     await Future.delayed(const Duration(seconds: 3));
                     Navigator.pushReplacementNamed(context, '/home');
                   } catch (e) {
@@ -177,7 +178,9 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                     await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
                     controller.success();
                     Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
-                    ref.watch(closeSideswapProvider);
+                    ref.read(sendTxProvider.notifier).updateAddress('');
+                    ref.read(sendTxProvider.notifier).updateAmount(0);
+                    ref.read(sendBlocksProvider.notifier).state = 1;
                     await Future.delayed(const Duration(seconds: 3));
                     Navigator.pushReplacementNamed(context, '/home');
                   } catch (e) {

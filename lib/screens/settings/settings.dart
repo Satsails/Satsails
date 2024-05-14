@@ -6,11 +6,10 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends ConsumerWidget {
-  const Settings({super.key});
+  const Settings({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -26,9 +25,7 @@ class Settings extends ConsumerWidget {
             _buildDivider(),
             _buildSupportSection(),
             _buildDivider(),
-            // only show this section before release
-            // _buildInfoSection(context),
-            // only show this section before release
+            _buildClaimLightningTransactionsSection(context),
             _buildDivider(),
             _buildSeedSection(context),
             _buildDivider(),
@@ -48,7 +45,7 @@ class Settings extends ConsumerWidget {
     final settingsNotifier = ref.read(settingsProvider.notifier);
 
     return ListTile(
-      leading: const Icon(Iconsax.dollar_circle_outline),
+      leading: const Icon(Iconsax.dollar_circle_outline, color: Colors.orangeAccent),
       title: const Text('Currency'),
       subtitle: Text(settings.currency),
       onTap: () {
@@ -95,46 +92,46 @@ class Settings extends ConsumerWidget {
     final settingsNotifier = ref.read(settingsProvider.notifier);
 
     return ListTile(
-      leading: const Icon(Icons.language),
+      leading: const Icon(Icons.language, color: Colors.orangeAccent),
       title: const Text('Language'),
       subtitle: Text(settings.language),
-        onTap: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (BuildContext context) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  ListTile(
-                    leading: Flag(Flags.portugal),
-                    title: const Text('Portuguese'),
-                    onTap: () {
-                      settingsNotifier.setLanguage('PT');
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: Flag(Flags.united_states_of_america),
-                    title: const Text('English'),
-                    onTap: () {
-                      settingsNotifier.setLanguage('EN');
-                      Navigator.pop(context);
-                    },
-                  ),
-                ]
-              );
-            },
-          );
-        },
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          builder: (BuildContext context) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  leading: Flag(Flags.portugal),
+                  title: const Text('Portuguese'),
+                  onTap: () {
+                    settingsNotifier.setLanguage('PT');
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: Flag(Flags.united_states_of_america),
+                  title: const Text('English'),
+                  onTap: () {
+                    settingsNotifier.setLanguage('EN');
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
   Widget _buildSeedSection(BuildContext context) {
     return ListTile(
-      leading: const Icon(Icons.currency_bitcoin),
+      leading: const Icon(Icons.currency_bitcoin, color: Colors.orangeAccent),
       title: const Text('View Seed Words'),
       subtitle: const Text('Write them down and keep them safe!'),
-      trailing: const Icon(Icons.arrow_forward_ios),
+      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.orangeAccent),
       onTap: () {
         Navigator.pushNamed(context, '/seed_words');
       },
@@ -145,7 +142,7 @@ class Settings extends ConsumerWidget {
     final Uri url = Uri.parse('https://t.me/deepcodevalue');
 
     return ListTile(
-      leading: const Icon(LineAwesome.telegram),
+      leading: const Icon(LineAwesome.telegram, color: Colors.orangeAccent),
       title: const Text('Help & Support & Bug reporting'),
       subtitle: const Text('Chat with us on Telegram!'),
       onTap: () {
@@ -154,13 +151,13 @@ class Settings extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoSection(BuildContext context) {
+  Widget _buildClaimLightningTransactionsSection(BuildContext context) {
     return ListTile(
-      leading: const Icon(Clarity.info_circle_line),
-      title: const Text('Information'),
+      leading: Icon(Icons.flash_on, color: Colors.orangeAccent),
+      title: const Text('Claim Lightning Transactions'),
       onTap: () {
-        Navigator.pushNamed(context, '/info');
-      }
+        Navigator.pushNamed(context, '/claim_lightning_transactions');
+      },
     );
   }
 
@@ -174,7 +171,7 @@ class Settings extends ConsumerWidget {
   Widget _builDeleteWalletSection(BuildContext context, WidgetRef ref) {
     final authModel = ref.read(authModelProvider);
     return ListTile(
-      leading: const Icon(Icons.delete),
+      leading: const Icon(Icons.delete, color: Colors.orangeAccent),
       title: const Text('Delete Wallet'),
       onTap: () {
         showDialog(
@@ -210,7 +207,7 @@ class Settings extends ConsumerWidget {
     final settingsNotifier = ref.read(settingsProvider.notifier);
 
     return ListTile(
-      leading: Icon(Icons.add_chart),
+      leading: Icon(Icons.add_chart, color: Colors.orangeAccent),
       title: const Text('Bitcoin Unit'),
       subtitle: Text(settings.btcFormat),
       onTap: () {
