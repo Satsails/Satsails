@@ -47,12 +47,10 @@ class PaymentMethodCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context).textTheme.headline6,
             ),
             const SizedBox(height: 8.0),
             Text(
               description,
-              style: Theme.of(context).textTheme.subtitle1,
             ),
           ],
         ),

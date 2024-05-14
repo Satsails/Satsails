@@ -155,23 +155,18 @@ final sideswapStartExchangeProvider = StreamProvider.autoDispose<SideswapStartEx
 });
 
 
-final sideswapUploadInputsProvider = FutureProvider.autoDispose<SideswapPsetToSign>((ref) async {
+final sideswapUploadAndSignInputsProvider = FutureProvider.autoDispose<SideswapCompletedSwap>((ref) async {
   final state = await ref.read(sideswapStartExchangeProvider.future).then((value) => value);
   final receiveAddress = await ref.read(liquidAddressProvider.future).then((value) => value);
   final returnAddress = await ref.read(liquidNextAddressProvider.future).then((value) => value);
   final liquidUnspentUtxos = await ref.read(liquidUnspentUtxosProvider.future).then((value) => value);
   final sendAmount = ref.read(sideswapPriceProvider).sendAmount!;
-  return await state.uploadInputs(returnAddress, liquidUnspentUtxos, receiveAddress.confidential, sendAmount).then((value) => value);
-});
-
-final sideswapSignPsetProvider = FutureProvider.autoDispose<String>((ref) async {
-  final state = await ref.read(sideswapStartExchangeProvider.future).then((value) => value);
-  final result = await ref.read(sideswapUploadInputsProvider.future).then((value) => value);
-  final signedPset = await ref.read(signLiquidPsetStringProvider(result.pset).future).then((value) => value);
-  final txId = await state.uploadPset(signedPset, result.submitId).then((value) => value);
-  final box = await Hive.openBox('sideswapSwaps');
-  box.put(state.orderId, txId);
-  return txId;
+  final inputsUpload =  await state.uploadInputs(returnAddress, liquidUnspentUtxos, receiveAddress.confidential, sendAmount).then((value) => value);
+  final signedPset = await ref.read(signLiquidPsetStringProvider(inputsUpload.pset).future).then((value) => value);
+  final transaction = await state.uploadPset(signedPset, inputsUpload.submitId).then((value) => value);
+  final box = await Hive.openBox('sideswapSwapData');
+  box.put(transaction.txid, transaction);
+  return transaction;
 });
 
 final sideswapGetLiquidTxProvider = FutureProvider.autoDispose<List<Tx>>((ref) async {

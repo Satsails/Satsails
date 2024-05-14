@@ -1,9 +1,11 @@
-import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:lwk_dart/lwk_dart.dart';
+
+part 'sideswap_exchange_model.g.dart';
 
 class SideswapStartExchange {
   String orderId;
@@ -96,7 +98,7 @@ class SideswapStartExchange {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        return SideswapPsetToSign.fromJson(responseData);
+        return SideswapPsetToSign.fromJson(responseData, orderId);
       } else {
         response.body.contains("UTXO amount") ? throw Exception('Balance insufficient.') :
         throw Exception('Failed: ${response.body}');
@@ -104,7 +106,7 @@ class SideswapStartExchange {
   }
 
 
-  Future<String> uploadPset(String pset, String submitId) async {
+  Future<SideswapCompletedSwap> uploadPset(String pset, String submitId) async {
     final uri = Uri.parse(uploadUrl);
 
     final Map<String, dynamic> requestData = {
@@ -127,23 +129,57 @@ class SideswapStartExchange {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = json.decode(response.body);
-      return responseData['result']['txid'];
+      return  SideswapCompletedSwap(
+        txid: responseData['result']['txid'],
+        sendAsset: sendAsset,
+        sendAmount: sendAmount,
+        recvAsset: recvAsset,
+        recvAmount: recvAmount,
+        orderId: orderId,
+      );
     } else {
       throw Exception('Failed: ${response.body}');
     }
   }
 }
 
+@HiveType(typeId: 11)
+class SideswapCompletedSwap {
+  @HiveField(0)
+  final String txid;
+  @HiveField(1)
+  final String sendAsset;
+  @HiveField(2)
+  final num sendAmount;
+  @HiveField(3)
+  final String recvAsset;
+  @HiveField(4)
+  final num recvAmount;
+  @HiveField(5)
+  final String orderId;
+
+  SideswapCompletedSwap({
+    required this.txid,
+    required this.sendAsset,
+    required this.sendAmount,
+    required this.recvAsset,
+    required this.recvAmount,
+    required this.orderId,
+  });
+}
+
 class SideswapPsetToSign {
   final String pset;
   final String submitId;
+  final String orderId;
 
-  SideswapPsetToSign({required this.pset, required this.submitId});
+  SideswapPsetToSign({required this.pset, required this.submitId, required this.orderId});
 
-  factory SideswapPsetToSign.fromJson(Map<String, dynamic> json) {
+  factory SideswapPsetToSign.fromJson(Map<String, dynamic> json, String orderId) {
     return SideswapPsetToSign(
       pset: json['result']['pset'],
       submitId: json['result']['submit_id'],
+      orderId: orderId,
     );
   }
 }

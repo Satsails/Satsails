@@ -1,3 +1,4 @@
+import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,7 @@ void main() async {
   Hive.registerAdapter(TxAdapter());
   Hive.registerAdapter(BalanceAdapter());
   Hive.registerAdapter(SideswapPegStatusAdapter());
+  Hive.registerAdapter(SideswapCompletedSwapAdapter());
 
   await BoltzCore.init();
   await LwkCore.init();

@@ -225,7 +225,7 @@ class LiquidSwapCards extends ConsumerWidget {
             controller.loading();
             await Future.delayed(const Duration(seconds: 3));
             try {
-              await ref.read(sideswapSignPsetProvider.future).then((value) => value);
+              await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
               controller.success();
               Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
               ref.watch(closeSideswapProvider);
