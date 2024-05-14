@@ -771,7 +771,7 @@ packages:
     description:
       path: "."
       ref: fix-pset-details
-      resolved-ref: "7dcb88d9333e51218c678b8fd9cc952f6f226aca"
+      resolved-ref: "3fd18484b526ce708aa2dafbd26d5d47149ea016"
       url: "https://github.com/JoaoLobo94/lwk-dart"
     source: git
     version: "0.1.3"

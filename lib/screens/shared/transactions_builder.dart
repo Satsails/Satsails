@@ -112,7 +112,7 @@ class BuildTransactions extends ConsumerWidget {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 5,
               blurRadius: 7,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -129,7 +129,7 @@ class BuildTransactions extends ConsumerWidget {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 5,
               blurRadius: 7,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -187,8 +187,8 @@ class BuildTransactions extends ConsumerWidget {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(transaction.kind.capitalize(), style: const TextStyle(fontSize: 14)),
-                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: const TextStyle(fontSize: 14)) : Text('Multiple', style: const TextStyle(fontSize: 14)),
+                    transaction.kind == 'unknown' ? const Text("Swap", style: TextStyle(fontSize: 14)) : Text(transaction.kind.capitalize(), style: const TextStyle(fontSize: 14)),
+                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: const TextStyle(fontSize: 14)) : const Text('Multiple', style: TextStyle(fontSize: 14)),
                   ],
                 ),
                 // subtitle: Text("Fee: ${_transactionValueLiquid(transaction.fee, ref)}",style: const TextStyle(fontSize: 14)),
@@ -279,7 +279,7 @@ class BuildTransactions extends ConsumerWidget {
       case 'reissuance':
         return const Icon(Icons.add_circle, color: Colors.green);
       default:
-        return const Icon(Icons.device_unknown_outlined, color: Colors.grey);
+        return const Icon(Icons.swap_calls, color: Colors.orange);
     }
   }
 
@@ -345,11 +345,9 @@ class BuildTransactions extends ConsumerWidget {
       final value = ref.watch(conversionToFiatProvider(transaction.value));
 
       if (transaction.value < 0) {
-        return '${(double.parse(value) / 100000000).toStringAsFixed(
-            2)} $currency';
+        return '${(double.parse(value) / 100000000).toStringAsFixed(2)} $currency';
       } else {
-        return '${(double.parse(value) / 100000000).toStringAsFixed(
-            2)} $currency';
+        return '${(double.parse(value) / 100000000).toStringAsFixed(2)} $currency';
       }
     } else {
       return '';

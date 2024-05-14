@@ -1,3 +1,7 @@
+import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
+import 'package:Satsails/providers/conversion_provider.dart';
+import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -11,21 +15,32 @@ class SwapsBuilder extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final allSwaps = ref.watch(sideswapAllPegsProvider);
-    // TODO once i fix sideswap
-    final swapsToFiat = ref.watch(sideswapGetLiquidTxProvider);
-    // Map these and create a list these swaps
+    final swapsToFiat = ref.watch(sideswapGetSwapsProvider);
 
     return allSwaps.when(
       data: (swaps) {
-        if (swaps.isEmpty) {
-          return const Center(child: Text('No swaps found', style: TextStyle(fontSize: 20, color: Colors.grey)));
-        }
-        return ListView.builder(
-          itemCount: swaps.length,
-          itemBuilder: (context, index) {
-            final swap = swaps[index];
-            return _buildTransactionItem(swap, context, ref);
+        return swapsToFiat.when(
+          data: (fiatSwaps) {
+            final combinedSwaps = [...swaps, ...fiatSwaps];
+            if (combinedSwaps.isEmpty) {
+              return const Center(child: Text('No swaps found', style: TextStyle(fontSize: 20, color: Colors.grey)));
+            }
+            return ListView.builder(
+              itemCount: combinedSwaps.length,
+              itemBuilder: (context, index) {
+                final swap = combinedSwaps[index];
+                if (swap is SideswapPegStatus) {
+                  return _buildTransactionItem(swap, context, ref);
+                } else if (swap is SideswapCompletedSwap) {
+                  return _buildFiatTransactionItem(swap, context, ref);
+                } else {
+                  throw Exception('Unknown swap type');
+                }
+              },
+            );
           },
+          loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.white),
+          error: (error, stackTrace) => Center(child: Text('Error: $error')),
         );
       },
       loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.white),
@@ -33,6 +48,76 @@ class SwapsBuilder extends ConsumerWidget {
     );
   }
 }
+
+Widget _buildFiatTransactionItem(SideswapCompletedSwap swap, BuildContext context, WidgetRef ref) {
+    return Container(
+      margin: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: _buildFiatSwapTransactionItem(swap, context, ref),
+    );
+  }
+
+  Widget _buildFiatSwapTransactionItem(SideswapCompletedSwap swap, BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        ListTile(
+          leading: const Icon(Icons.swap_calls_rounded, color: Colors.orange),
+          title: Center(child: Text("Fiat Swap", style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
+          subtitle: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(
+                children: [
+                  Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.sendAsset)), style: TextStyle(fontSize: 16)),
+                  Text(ref.watch(conversionProvider(swap.sendAmount.toInt())), style: TextStyle(fontSize: 16)),
+                ],
+              ),
+              const Icon(Icons.arrow_forward, color: Colors.orange),
+              Column(
+                children: [
+                  Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)), style: TextStyle(fontSize: 16)),
+                  Text((swap.recvAmount / 100000000).toStringAsFixed(2) , style: TextStyle(fontSize: 16)),
+                ],
+              ),
+            ],
+          ),
+          onTap: () {
+            ref.read(transactionSearchProvider).isLiquid = true;
+            ref.read(transactionSearchProvider).txid = swap.txid;
+            Navigator.pushNamed(context, '/search_modal');
+          },
+        ),
+      ],
+    );
+  }
+
+  String _assetNameFromTicker(AssetId ticker) {
+    switch (ticker) {
+      case AssetId.USD:
+        return 'USD';
+      case AssetId.LBTC:
+        return 'BTC';
+      case AssetId.EUR:
+        return 'EUR';
+      case AssetId.BRL:
+        return 'BRL';
+      default:
+        return 'UNKNOWN';
+    }
+  }
+
+
 
 Widget _buildTransactionItem(SideswapPegStatus swap, BuildContext context, WidgetRef ref) {
     return Container(
@@ -57,7 +142,7 @@ Widget _buildSwapTransactionItem(SideswapPegStatus swap, BuildContext context, W
   return Column(
     children: [
       ListTile(
-        leading: const Icon(Icons.swap_calls_rounded, color: Colors.orange),
+        leading: const Icon(Icons.swap_horizontal_circle, color: Colors.orange),
         title: Center(child: Text(_timestampToDateTime(swap.createdAt!), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
         subtitle: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,

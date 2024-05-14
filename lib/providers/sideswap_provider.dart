@@ -169,15 +169,9 @@ final sideswapUploadAndSignInputsProvider = FutureProvider.autoDispose<SideswapC
   return transaction;
 });
 
-final sideswapGetLiquidTxProvider = FutureProvider.autoDispose<List<Tx>>((ref) async {
-  final box = await Hive.openBox('sideswapStatus');
-  final liquidTransactions = ref.read(transactionNotifierProvider).liquidTransactions;
-
-  final matchingTransactions = box.values.where((boxValue) {
-    return liquidTransactions.any((liquidTransaction) => liquidTransaction.txid == boxValue.txid);
-  }).cast<Tx>().toList();
-
-  return Future.value(matchingTransactions);
+final sideswapGetSwapsProvider = FutureProvider.autoDispose<List<SideswapCompletedSwap>>((ref) async {
+  final box = await Hive.openBox('sideswapSwapData');
+  return box.values.map((e) => e as SideswapCompletedSwap).toList();
 });
 
 final sideswapExchangeCompletionProvider = StreamProvider.autoDispose<SideswapExchangeState>((ref) {
