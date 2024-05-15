@@ -1,12 +1,14 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class OfflineTransactionWarning extends StatelessWidget {
+class OfflineTransactionWarning extends ConsumerWidget {
   final bool online;
 
   OfflineTransactionWarning({required this.online});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = MediaQuery.of(context).size;
 
     final dynamicPadding = screenSize.width * 0.03;
@@ -22,7 +24,7 @@ class OfflineTransactionWarning extends StatelessWidget {
             color: Colors.orange,
           ),
           Text(
-            'You are offline.',
+            'You are offline.'.i18n(ref),
             style: TextStyle(
               color: Colors.orange,
               fontSize: dynamicFontSize,

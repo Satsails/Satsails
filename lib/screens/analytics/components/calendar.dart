@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -160,7 +161,7 @@ class Calendar extends ConsumerWidget {
                 ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[1]!.add(Duration(hours: 23, minutes: 59, seconds: 59))));
               }
             },
-            child: const Text('Select Range', style: TextStyle(fontSize: 13, color: Colors.white), textAlign: TextAlign.center),
+            child: Text('Select Range'.i18n(ref), style: TextStyle(fontSize: 13, color: Colors.white), textAlign: TextAlign.center),
           ),
         ],
       ),

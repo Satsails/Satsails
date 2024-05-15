@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
@@ -79,7 +80,7 @@ class AmountInput extends ConsumerWidget {
             String inputValue = controller.text;
             ref.read(inputAmountProvider.notifier).state = inputValue.isEmpty ? '0.0' : inputValue;
           },
-          child: const Text('Create Address', style: TextStyle(color: Colors.white, fontSize: 13)),
+          child: Text('Create Address'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: 13)),
         ),
       ],
     );

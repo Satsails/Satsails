@@ -1,13 +1,15 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import './components/logo.dart';
 
-class Start extends StatelessWidget {
+class Start extends ConsumerWidget {
   const Start({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: SafeArea(
         child: Container(
@@ -23,7 +25,7 @@ class Start extends StatelessWidget {
                   child: Logo(),
                 ),
               ),
-              const Center(
+              Center(
                 child: Column(
                   children: [
                     Text(
@@ -38,7 +40,7 @@ class Start extends StatelessWidget {
                     Opacity(
                       opacity: 0.5,
                       child: Text(
-                        'Sail your wealth to the cloud',
+                        'Sail your wealth to the cloud'.i18n(ref),
                         style: TextStyle(
                           fontSize: 20.0,
                           color: Colors.black,
@@ -58,14 +60,14 @@ class Start extends StatelessWidget {
                     children: [
                       const SizedBox(height: 10),
                       CustomButton(
-                        text: 'Register Account',
+                        text: 'Register Account'.i18n(ref),
                         onPressed: () {
                           Navigator.pushNamed(context, '/set_pin');
                         },
                       ),
                       const SizedBox(height: 10),
                       CustomButton(
-                        text: 'Recover Account',
+                        text: 'Recover Account'.i18n(ref),
                         onPressed: () {
                           Navigator.pushNamed(context, '/recover_wallet');
                         },

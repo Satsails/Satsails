@@ -36,7 +36,7 @@ class Home extends ConsumerWidget {
     return Column(
       children: [
         Expanded(child: _buildMiddleSection(context, ref)),
-        buildActionButtons(context),
+        buildActionButtons(context, ref),
         CustomBottomNavigationBar(
           currentIndex: ref.watch(navigationProvider),
           context: context,

@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
@@ -28,7 +29,7 @@ class Exchange extends ConsumerWidget {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Colors.white,
-          title: const Text('Exchange'),
+          title: Text('Exchange'.i18n(ref)),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),

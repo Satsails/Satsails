@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -15,7 +16,7 @@ class SetPin extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Set PIN'),
+        title: Text('Set PIN'.i18n(ref)),
       ),
       body: Center(
         child: Form(
@@ -42,7 +43,7 @@ class SetPin extends ConsumerWidget {
                 ),
                 const SizedBox(height: 10),
                 CustomButton(
-                  text: 'Set PIN',
+                  text: 'Set PIN'.i18n(ref),
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
                       final authModel = ref.read(authModelProvider);
@@ -53,7 +54,7 @@ class SetPin extends ConsumerWidget {
                       Navigator.pushReplacementNamed(context, '/home');
                     } else {
                       Fluttertoast.showToast(
-                        msg: 'Please enter a 6 digit PIN',
+                        msg: 'Please enter a 6 digit PIN'.i18n(ref),
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.TOP,
                         timeInSecForIosWeb: 1,

@@ -2,6 +2,7 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -23,7 +24,7 @@ class SwapsBuilder extends ConsumerWidget {
           data: (fiatSwaps) {
             final combinedSwaps = [...swaps, ...fiatSwaps];
             if (combinedSwaps.isEmpty) {
-              return const Center(child: Text('No swaps found', style: TextStyle(fontSize: 20, color: Colors.grey)));
+              return Center(child: Text('No swaps found'.i18n(ref), style: TextStyle(fontSize: 20, color: Colors.grey)));
             }
             return ListView.builder(
               itemCount: combinedSwaps.length,
@@ -73,7 +74,7 @@ Widget _buildFiatTransactionItem(SideswapCompletedSwap swap, BuildContext contex
       children: [
         ListTile(
           leading: const Icon(Icons.swap_calls_rounded, color: Colors.orange),
-          title: Center(child: Text("Fiat Swap", style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
+          title: Center(child: Text("Fiat Swap".i18n(ref), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
           subtitle: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [

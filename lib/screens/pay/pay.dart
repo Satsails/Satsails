@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,7 +32,7 @@ class Pay extends ConsumerWidget {
             break;
           default:
             Fluttertoast.showToast(
-              msg: 'Invalid address',
+              msg: 'Invalid address'.i18n(ref),
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.TOP,
               timeInSecForIosWeb: 1,
@@ -43,7 +44,7 @@ class Pay extends ConsumerWidget {
       }
       catch (e) {
         Fluttertoast.showToast(
-          msg: e.toString(),
+          msg: e.toString().i18n(ref),
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 1,

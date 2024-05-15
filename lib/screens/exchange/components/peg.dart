@@ -1,4 +1,5 @@
 import 'package:action_slider/action_slider.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +19,6 @@ import 'package:Satsails/providers/sideswap_provider.dart';
 
 final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');
 
-// tthere are a couple null check error here, check after beta and sentry logging
 class Peg extends ConsumerWidget {
   Peg({super.key});
 
@@ -46,7 +46,7 @@ class Peg extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Switch", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey)),
+            Text("Switch".i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey)),
             Icon(EvaIcons.swap, size: titleFontSize, color: Colors.grey),
           ],
         ),
@@ -63,7 +63,7 @@ class Peg extends ConsumerWidget {
         Column(
           children: [
             Text(
-              "Balance to spend:",
+              "Balance to spend:".i18n(ref),
               style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
             ),
             Text(
@@ -74,14 +74,14 @@ class Peg extends ConsumerWidget {
             SizedBox(height: dynamicSizedBox / 2),
             ...cards, // Spread operator to insert all elements of the list
             Text(
-              'Minimum amount: ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} ${btcFormart}',
+              'Minimum amount: ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} ${btcFormart}'.i18n(ref).fill([pegIn ? status.minPegInAmount.toString() : status.minPegOutAmount.toString()]),
               style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
             pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
             if (!pegIn)
               Text(
-                'Bitcoin Network fee: ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats',
+                'Bitcoin Network fee: ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats'.i18n(ref).fill([ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)]),
                 style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
@@ -119,12 +119,12 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                   await Future.delayed(const Duration(seconds: 3));
                   try {
                     if (ref.watch(sendTxProvider).amount < status.minPegOutAmount) {
-                      throw 'Amount is below minimum peg out amount';
+                      throw 'Amount is below minimum peg out amount'.i18n(ref);
                     }
                     await ref.watch(sendLiquidTransactionProvider.future);
                     await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
                     controller.success();
-                    Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                    Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                     ref.read(sendTxProvider.notifier).updateAddress('');
                     ref.read(sendTxProvider.notifier).updateAmount(0);
                     ref.read(sendBlocksProvider.notifier).state = 1;
@@ -136,7 +136,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                     controller.reset();
                   }
                 },
-                child: const Text('Swap')
+                child:Text('Swap'.i18n(ref))
             ),
           ),
         );
@@ -172,12 +172,12 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                   await Future.delayed(const Duration(seconds: 3));
                   try {
                     if (ref.watch(sendTxProvider).amount < ref.watch(sideswapStatusProvider).minPegInAmount) {
-                      throw 'Amount is below minimum peg in amount';
+                      throw 'Amount is below minimum peg in amount'.i18n(ref);
                     }
                     await ref.watch(sendBitcoinTransactionProvider.future);
                     await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
                     controller.success();
-                    Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                    Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                     ref.read(sendTxProvider.notifier).updateAddress('');
                     ref.read(sendTxProvider.notifier).updateAmount(0);
                     ref.read(sendBlocksProvider.notifier).state = 1;
@@ -189,7 +189,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                     controller.reset();
                   }
                 },
-                child: const Text('Swap')
+                child: Text('Swap'.i18n(ref))
             ),
           ),
         );
@@ -215,7 +215,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
           child: Text(speed, style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.grey)),
         ),
         DropdownButton<dynamic>(
-          hint: Text("How fast would you like to receive your bitcoin", style: TextStyle(fontSize:  titleFontSize / 2)),
+          hint: Text("How fast would you like to receive your bitcoin".i18n(ref), style: TextStyle(fontSize:  titleFontSize / 2)),
           dropdownColor: Colors.white,
           items: status.map((dynamic value) {
             return DropdownMenuItem<dynamic>(
@@ -262,7 +262,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Sending Transaction fee: $fee sats',
+                  'Sending Transaction fee: $fee sats'.i18n(ref).fill([fee.toString()]),
                   style: TextStyle(fontSize:  titleFontSize / 2, fontWeight: FontWeight.bold, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
@@ -292,7 +292,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Sending Transaction fee: $fee sats',
+                  'Sending Transaction fee: $fee sats'.i18n(ref),
                   style: TextStyle(fontSize:  titleFontSize / 2, fontWeight: FontWeight.bold, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
@@ -349,7 +349,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                 padding: EdgeInsets.only(bottom: dynamicPadding / 2 , top: dynamicPadding / 3),
                 child: Column(
                   children: [
-                    Text("Receive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                    Text("Receive".i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
                     if (double.parse(formattedValueToReceive) <= 0)
                       Text("0", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center)
                     else

@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
@@ -55,7 +56,7 @@ class LiquidSwapCards extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Switch", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey)),
+            Text("Switch".i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey)),
             Icon(EvaIcons.swap, size: titleFontSize, color: Colors.grey),
           ],
         ),
@@ -125,7 +126,7 @@ class LiquidSwapCards extends ConsumerWidget {
       children: [
         Column(
           children: [
-            Text("Balance to spend: ${currentBalance}", style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),),
+            Text("Balance to spend: ${currentBalance}".i18n(ref).fill([currentBalance]), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),),
             ...swapCards,
           ],
         ),
@@ -243,7 +244,7 @@ class LiquidSwapCards extends ConsumerWidget {
             try {
               await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
               controller.success();
-              Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+              Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
@@ -255,7 +256,7 @@ class LiquidSwapCards extends ConsumerWidget {
               controller.reset();
             }
           },
-          child: const Text('Exchange'),
+          child: Text('Exchange'.i18n(ref)),
         ),
       ),
     );

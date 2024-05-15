@@ -3,6 +3,7 @@ import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -49,23 +50,23 @@ class LightningWidget extends ConsumerWidget {
             return FutureBuilder(
               future: () async {
                 if (data) {
-                  await Fluttertoast.showToast(msg: "Transaction Received", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                  await Fluttertoast.showToast(msg: "Transaction Received".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                   ref.read(inputAmountProvider.notifier).state = '0.0';
                   ref.read(inputCurrencyProvider.notifier).state = 'BTC';
                   return Container(); // return a Widget here
                 } else {
-                  return const Padding(
+                  return Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Text('Waiting for transaction...', style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)),
+                    child: Text('Waiting for transaction...'.i18n(ref), style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)),
                   );
                 }
               }(),
               builder: (context, snapshot) {
-                return snapshot.data ?? Text('Waiting for transaction...', style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold));
+                return snapshot.data ?? Text('Waiting for transaction...'.i18n(ref), style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold));
               },
             );
           },
-          loading: () => const Center(child:Text('Waiting for transaction...', style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold))),
+          loading: () => Center(child:Text('Waiting for transaction...'.i18n(ref), style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold))),
           error: (error, stack) => Text('Error: $error'),
         ),
       ],

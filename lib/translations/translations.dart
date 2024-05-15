@@ -13,8 +13,8 @@ extension Localization on String {
         'pt_br': 'Saldo total',
       } +
       {
-        'en_us': 'Or',
-        'pt_br': 'Ou',
+        'en_us': 'or',
+        'pt_br': 'ou',
       } +
       {
         'en_us': 'Sail your wealth to the cloud',
@@ -171,16 +171,16 @@ extension Localization on String {
         'pt_br': 'Trocar',
       } +
       {
-        'en_us': 'Balance to Spend:',
-        'pt_br': 'Saldo para Gastar:',
+        'en_us': 'Balance to Spend: %s',
+        'pt_br': 'Saldo para Gastar: %s',
       } +
       {
         'en_us': 'Receive',
         'pt_br': 'Receber',
       } +
       {
-        'en_us': 'Minimum amount:',
-        'pt_br': 'Quantidade mínima:',
+        'en_us': 'Minimum amount: %s',
+        'pt_br': 'Quantidade mínima: %s',
       } +
       {
         'en_us': 'Fastest',
@@ -191,12 +191,8 @@ extension Localization on String {
         'pt_br': 'Quão rápido você gostaria de receber seu bitcoin',
       } +
       {
-        'en_us': 'Bitcoin Network fee',
-        'pt_br': 'Taxa da Rede Bitcoin',
-      } +
-      {
-        'en_us': 'Balance to spend:',
-        'pt_br': 'Saldo para gastar:',
+        'en_us': 'Bitcoin Network fee: %s sats',
+        'pt_br': 'Taxa da Rede Bitcoin: %s sats',
       } +
       {
         'en_us': 'Switch',
@@ -284,7 +280,7 @@ extension Localization on String {
       } +
       {
         'en_us': 'Multiple',
-        'pt_br': 'Múltiplo',
+        'pt_br': 'Múltiplas',
       } +
       {
         'en_us': 'Received',
@@ -307,8 +303,8 @@ extension Localization on String {
         'pt_br': 'Saldo Bitcoin',
       } +
       {
-        'en_us': 'Transaction In',
-        'pt_br': 'Transação em',
+        'en_us': 'Transaction in %s',
+        'pt_br': 'Transação em %s',
       } +
       {
         'en_us': 'Slide to send',
@@ -361,10 +357,106 @@ extension Localization on String {
       {
         'en_us': 'Invoice',
         'pt_br': 'Fatura',
+      } +
+      {
+        'en_us': 'Please authenticate to open the app',
+        'pt_br': 'Por favor, autentique-se para abrir o aplicativo'
+      } +
+      {
+        'en_us': 'You are offline.',
+        'pt_br': 'Você está offline.'
+      } +
+      {
+        'en_us': 'Amount is below minimum peg out amount',
+        'pt_br': 'O valor está abaixo do valor mínimo'
+      } +
+      {
+        'en_us': 'Swap done! Check Analytics for more info',
+        'pt_br': 'Troca feita! Verifique Análises para mais informações'
+      } +
+      {
+        'en_us': 'Sending Transaction fee: %s sats',
+        'pt_br': 'Taxa de transação de envio: %s sats',
+      }+
+      {
+        'en_us': 'Value to receive: %s',
+        'pt_br': 'Valor a receber: %s',
+      }+
+      {
+        'en_us': 'Invalid address',
+        'pt_br': 'Endereço inválido',
+      } +
+      {
+        'en_us': 'Invalid lightning address',
+        'pt_br': 'Endereço lightning inválido',
+      } +
+      {
+        'en_us': 'Data cannot be null or empty',
+        'pt_br': 'Os dados não podem ser nulos ou vazios',
+      } +
+      {
+        'en_us': 'Transaction Sent',
+        'pt_br': 'Transação Enviada',
+      }+
+      {
+        'en_us': 'Fee: %s sats',
+        'pt_br': 'Taxa: %s sats',
+      } +
+      {
+        'en_us': 'Transaction Received',
+        'pt_br': 'Transação Recebida',
+      } +
+      {
+        'en_us': 'Instant Bitcoin',
+        'pt_br': 'Bitcoin Instantâneo',
+      }+
+      {
+        'en_us': 'Fiat Swap',
+        'pt_br': 'Troca de Fiat',
+      } +
+      {
+        'en_us': 'Unconfirmed',
+        'pt_br': 'Não confirmada',
+      } +
+      {
+        'en_us': 'Confirmed',
+        'pt_br': 'Confirmada',
+      } +
+      {
+        'en_us': 'Unknown',
+        'pt_br': 'Desconhecida',
+      } +
+      {
+        'en_us': 'Issuance',
+        'pt_br': 'Emissão',
+      } +
+      {
+        'en_us': 'Reissuance',
+        'pt_br': 'Reemissão',
+      } +
+      {
+        'en_us': 'Burn',
+        'pt_br': 'Queimafa',
+      } +
+      {
+        'en_us': 'Incoming',
+        'pt_br': 'Entrada',
+      } +
+      {
+        'en_us': 'Outgoing',
+        'pt_br': 'Saída',
       };
+
 
   String i18n(WidgetRef ref) {
     final currentLanguage = ref.read(settingsProvider).language;
     return localize(this, _t, locale: currentLanguage);
+  }
+  String fill(List<String> replacements) {
+    var result = this;
+    for (var i = 0; i < replacements.length; i++) {
+      result = result.replaceAll('%s', replacements[i]);
+    }
+    return result;
   }
 }

@@ -1,8 +1,10 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/home/home.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CustomBottomNavigationBar extends StatelessWidget {
+class CustomBottomNavigationBar extends ConsumerWidget {
   final int currentIndex;
   final void Function(int) onTap;
   final BuildContext context;
@@ -14,7 +16,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery
         .of(context)
         .size
@@ -25,17 +27,17 @@ class CustomBottomNavigationBar extends StatelessWidget {
         .height;
 
     List<BottomNavigationBarItem> bottomNavBarItems = [
-      const BottomNavigationBarItem(
+      BottomNavigationBarItem(
         icon: Icon(Icons.home),
-        label: 'Home',
+        label: 'Home'.i18n(ref),
       ),
       // const BottomNavigationBarItem(
       //   icon: Icon(Icons.apps),
       //   label: 'Services',
       // ),
-      const BottomNavigationBarItem(
+      BottomNavigationBarItem(
         icon: Icon(Icons.bar_chart),
-        label: 'Analytics',
+        label: 'Analytics'.i18n(ref),
       ),
     ];
 

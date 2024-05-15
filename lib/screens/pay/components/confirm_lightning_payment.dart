@@ -1,4 +1,5 @@
 import 'package:Satsails/providers/boltz_provider.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -51,7 +52,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Colors.white,
-          title: const Text('Confirm Payment'),
+          title: Text('Confirm Payment'.i18n(ref)),
         ),
         body:Stack(
           children: [
@@ -81,7 +82,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('Liquid Balance', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
+                              Text('Liquid Balance'.i18n(ref), style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                               initializeBalance.when(
                                   data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('$liquidBalanceInFormat $liquidFormart', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                                   loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
@@ -169,7 +170,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                       try {
                         await ref.read(boltzPayProvider.future);
                         controller.success();
-                        Fluttertoast.showToast(msg: "Transaction Sent", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                        Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                         await Future.delayed(const Duration(seconds: 3));
                         ref.read(sendTxProvider.notifier).resetToDefault();
                         ref.refresh(backgroundSyncNotifierProvider);
@@ -180,7 +181,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                         controller.reset();
                       }
                     },
-                    child: const Text('Slide to send'),
+                    child: Text('Slide to send'.i18n(ref)),
                   ),
                 ),
               ),

@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,17 +14,17 @@ import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/screens/shared/qr_view_widget.dart';
 
-class Accounts extends StatelessWidget {
+class Accounts extends ConsumerWidget {
   const Accounts({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Account Management'),
+        title: Text('Account Management'.i18n(ref)),
       ),
       body: Padding(
         padding: EdgeInsets.all(screenWidth * 0.05),
@@ -31,8 +32,8 @@ class Accounts extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(height: screenWidth * 0.02),
-            const Text(
-              'Secure Bitcoin',
+            Text(
+              'Secure Bitcoin'.i18n(ref),
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: screenWidth * 0.02),
@@ -68,8 +69,8 @@ class Accounts extends StatelessWidget {
               },
             ),
             SizedBox(height: screenWidth * 0.02),
-            const Text(
-              'Instant Payments',
+            Text(
+              'Instant Payments'.i18n(ref),
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: screenWidth * 0.02),
@@ -105,8 +106,8 @@ class Accounts extends StatelessWidget {
               },
             ),
             SizedBox(height: screenWidth * 0.02),
-            const Text(
-              'Assets',
+            Text(
+              'Assets'.i18n(ref),
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: screenWidth * 0.02),
@@ -167,7 +168,7 @@ class Accounts extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: () {
-                  _receivePayment(context, bitcoin);
+                  _receivePayment(context, bitcoin, ref);
                 },
                 child: const Icon(Icons.arrow_downward, color: Colors.white),
               ),
@@ -206,7 +207,7 @@ class Accounts extends StatelessWidget {
 
 
 
-  void _receivePayment(BuildContext context, dynamic bitcoin) {
+  void _receivePayment(BuildContext context, dynamic bitcoin, WidgetRef ref) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -231,11 +232,11 @@ class Accounts extends StatelessWidget {
                   itemBuilder: (BuildContext context, int index) {
                     return Column(
                       children: [
-                        const Center(
+                        Center(
                           child: Padding(
                             padding: EdgeInsets.only(top: 10.0),
                             child: Text(
-                              'Receive',
+                              'Receive'.i18n(ref),
                               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ),

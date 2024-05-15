@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -13,14 +14,14 @@ class OpenPin extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     WidgetsBinding.instance?.addPostFrameCallback((_) =>
-        _checkBiometrics(context));
+        _checkBiometrics(context, ref));
 
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: const Center(child: Text('Enter PIN')),
+          title: Center(child: Text('Enter PIN'.i18n(ref))),
           backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
         ),
@@ -40,20 +41,20 @@ class OpenPin extends ConsumerWidget {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a PIN';
+                      return 'Please enter a PIN'.i18n(ref);
                     } else if (value.length != 6) {
-                      return 'PIN must be exactly 6 digits';
+                      return 'PIN must be exactly 6 digits'.i18n(ref);
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 20),
-                CustomButton(text: 'Unlock', onPressed: () => _checkPin(context, ref)),
+                CustomButton(text: 'Unlock'.i18n(ref), onPressed: () => _checkPin(context, ref)),
                 const SizedBox(height: 20),
                 TextButton(
                   onPressed: () => _showConfirmationDialog(context, ref),
-                  child: const Text(
-                    'Forgot PIN',
+                  child: Text(
+                    'Forgot PIN'.i18n(ref),
                     style: TextStyle(fontSize: 20.0, color: Colors.blue),
                   ),
                 ),
@@ -72,7 +73,7 @@ class OpenPin extends ConsumerWidget {
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       Fluttertoast.showToast(
-          msg: 'Invalid PIN',
+          msg: 'Invalid PIN'.i18n(ref),
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 1,
@@ -83,11 +84,11 @@ class OpenPin extends ConsumerWidget {
     }
   }
 
-  Future<void> _checkBiometrics(BuildContext context) async {
+  Future<void> _checkBiometrics(BuildContext context, WidgetRef ref) async {
     bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
     if (canCheckBiometrics) {
       bool authenticated = await _localAuth.authenticate(
-          localizedReason: 'Please authenticate to open the app',
+          localizedReason: 'Please authenticate to open the app'.i18n(ref),
           options: const AuthenticationOptions(
               stickyAuth: true,
               biometricOnly: true
@@ -106,23 +107,23 @@ class OpenPin extends ConsumerWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Reset PIN'),
-          content: const SingleChildScrollView(
+          content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('This will delete all your data and reset your PIN.'),
+                Text('This will delete all your data and reset your PIN.'.i18n(ref)),
                 Text('Do you want to proceed?'),
               ],
             ),
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: Text('Cancel'.i18n(ref)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('Yes'),
+              child: Text('Yes'.i18n(ref)),
               onPressed: () {
                 Navigator.of(context).pop();
                 _forgotPin(context, ref);

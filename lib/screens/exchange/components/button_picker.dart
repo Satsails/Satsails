@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
@@ -38,7 +39,7 @@ class ButtonPicker extends ConsumerWidget {
             ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
         }
       },
-      buttons: ["Bitcoin Layer Swap", 'Swap'],
+      buttons: ["Bitcoin Layer Swap".i18n(ref), 'Swap'.i18n(ref)],
       options: GroupButtonOptions(
         unselectedTextStyle: const TextStyle(
             fontSize: 16, color: Colors.black),

@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -14,7 +15,7 @@ class Settings extends ConsumerWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Settings'),
+        title: Text('Settings'.i18n(ref)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -23,11 +24,11 @@ class Settings extends ConsumerWidget {
           children: [
             _buildCurrencySection(ref, context),
             _buildDivider(),
-            _buildSupportSection(),
+            _buildSupportSection(ref),
             _buildDivider(),
-            _buildClaimBoltzTransactionsSection(context),
+            _buildClaimBoltzTransactionsSection(context, ref),
             _buildDivider(),
-            _buildSeedSection(context),
+            _buildSeedSection(context, ref),
             _buildDivider(),
             _buildLanguageSection(ref, context),
             _buildDivider(),
@@ -46,7 +47,7 @@ class Settings extends ConsumerWidget {
 
     return ListTile(
       leading: const Icon(Iconsax.dollar_circle_outline, color: Colors.orangeAccent),
-      title: const Text('Currency'),
+      title: Text('Currency'.i18n(ref)),
       subtitle: Text(settings.currency),
       onTap: () {
         showModalBottomSheet(
@@ -93,7 +94,7 @@ class Settings extends ConsumerWidget {
 
     return ListTile(
       leading: const Icon(Icons.language, color: Colors.orangeAccent),
-      title: const Text('Language'),
+      title: Text('Language'.i18n(ref)),
       subtitle: Text(settings.language),
       onTap: () {
         showModalBottomSheet(
@@ -104,7 +105,7 @@ class Settings extends ConsumerWidget {
               children: <Widget>[
                 ListTile(
                   leading: Flag(Flags.portugal),
-                  title: const Text('Portuguese'),
+                  title: Text('Portuguese'.i18n(ref)),
                   onTap: () {
                     settingsNotifier.setLanguage('PT');
                     Navigator.pop(context);
@@ -112,7 +113,7 @@ class Settings extends ConsumerWidget {
                 ),
                 ListTile(
                   leading: Flag(Flags.united_states_of_america),
-                  title: const Text('English'),
+                  title: Text('English'.i18n(ref)),
                   onTap: () {
                     settingsNotifier.setLanguage('EN');
                     Navigator.pop(context);
@@ -126,11 +127,11 @@ class Settings extends ConsumerWidget {
     );
   }
 
-  Widget _buildSeedSection(BuildContext context) {
+  Widget _buildSeedSection(BuildContext context, WidgetRef ref) {
     return ListTile(
       leading: const Icon(Icons.currency_bitcoin, color: Colors.orangeAccent),
-      title: const Text('View Seed Words'),
-      subtitle: const Text('Write them down and keep them safe!'),
+      title: Text('View Seed Words'.i18n(ref)),
+      subtitle: Text('Write them down and keep them safe!'.i18n(ref)),
       trailing: const Icon(Icons.arrow_forward_ios, color: Colors.orangeAccent),
       onTap: () {
         Navigator.pushNamed(context, '/seed_words');
@@ -138,23 +139,23 @@ class Settings extends ConsumerWidget {
     );
   }
 
-  Widget _buildSupportSection() {
+  Widget _buildSupportSection(WidgetRef ref) {
     final Uri url = Uri.parse('https://t.me/deepcodevalue');
 
     return ListTile(
       leading: const Icon(LineAwesome.telegram, color: Colors.orangeAccent),
-      title: const Text('Help & Support & Bug reporting'),
-      subtitle: const Text('Chat with us on Telegram!'),
+      title:  Text('Help & Support & Bug reporting'.i18n(ref)),
+      subtitle: Text('Chat with us on Telegram!'.i18n(ref)),
       onTap: () {
         launchUrl(url);
       },
     );
   }
 
-  Widget _buildClaimBoltzTransactionsSection(BuildContext context) {
+  Widget _buildClaimBoltzTransactionsSection(BuildContext context, WidgetRef ref) {
     return ListTile(
       leading: Icon(Icons.flash_on, color: Colors.orangeAccent),
-      title: const Text('Claim Lightning Transactions'),
+      title: Text('Claim Lightning Transactions'.i18n(ref)),
       onTap: () {
         Navigator.pushNamed(context, '/claim_boltz_transactions');
       },
@@ -172,23 +173,23 @@ class Settings extends ConsumerWidget {
     final authModel = ref.read(authModelProvider);
     return ListTile(
       leading: const Icon(Icons.delete, color: Colors.orangeAccent),
-      title: const Text('Delete Wallet'),
+      title: Text('Delete Wallet'.i18n(ref)),
       onTap: () {
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Confirm'),
-              content: const Text('Are you sure you want to delete the wallet?'),
+              title: Text('Confirm'.i18n(ref)),
+              content:  Text('Are you sure you want to delete the wallet?'.i18n(ref)),
               actions: <Widget>[
                 TextButton(
-                  child: const Text('Cancel'),
+                  child:  Text('Cancel'.i18n(ref)),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
                 ),
                 TextButton(
-                  child: const Text('Yes'),
+                  child: Text('Yes'.i18n(ref)),
                   onPressed: () async {
                     await authModel.deleteAuthentication();
                     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
@@ -208,7 +209,7 @@ class Settings extends ConsumerWidget {
 
     return ListTile(
       leading: Icon(Icons.add_chart, color: Colors.orangeAccent),
-      title: const Text('Bitcoin Unit'),
+      title: Text('Bitcoin Unit'.i18n(ref)),
       subtitle: Text(settings.btcFormat),
       onTap: () {
         showModalBottomSheet(

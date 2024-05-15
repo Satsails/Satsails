@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
@@ -56,19 +57,19 @@ class BuildTransactions extends ConsumerWidget {
                   if (index < bitcoinTransactions.length) {
                     return _buildTransactionItem(bitcoinTransactions[index], context, ref);
                   } else if (bitcoinTransactions.isEmpty) {
-                    return const Center(child: Text('Pull up to refresh', style: TextStyle(fontSize: 14, color: Colors.grey)));
+                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: TextStyle(fontSize: 14, color: Colors.grey)));
                   }
                 case 'Liquid':
                   if (index < liquidTransactions.length) {
                     return _buildTransactionItem(liquidTransactions[index], context, ref);
                   } else if (liquidTransactions.isEmpty) {
-                    return const Center(child: Text('Pull up to refresh', style: TextStyle(fontSize: 14, color: Colors.grey)));
+                    return Center(child: Text('Pull up to refresh'.i18n(ref).i18n(ref), style: TextStyle(fontSize: 14, color: Colors.grey)));
                   }
                 default:
                   if (index < allTx.length) {
                     return _buildTransactionItem(allTx[index], context, ref);
                   } else {
-                    return const Center(child: Text('Pull up to refresh', style: TextStyle(fontSize: 14, color: Colors.grey)));
+                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: TextStyle(fontSize: 14, color: Colors.grey)));
                   }
               }
             },
@@ -158,13 +159,13 @@ class BuildTransactions extends ConsumerWidget {
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(_transactionTypeString(transaction), style: const TextStyle(fontSize: 16)),
+                Text(_transactionTypeString(transaction, ref), style: const TextStyle(fontSize: 16)),
                 Text(_transactionAmount(transaction, ref),style: const TextStyle(fontSize: 14)),
               ],
             ),
             // subtitle: Text("Fee: ${_transactionFee(transaction, ref)}", style: const TextStyle(fontSize: 14)),
             subtitle: Text(timestampToDateTime(transaction.confirmationTime?.timestamp), style: const TextStyle(fontSize: 14)),
-            trailing: _confirmationStatus(transaction) == 'Confirmed'
+            trailing: _confirmationStatus(transaction, ref) == 'Confirmed'
                 ? const Icon(Icons.check_circle, color: Colors.green)
                 : const Icon(Icons.access_alarm_outlined, color: Colors.red),
           ),
@@ -186,7 +187,7 @@ class BuildTransactions extends ConsumerWidget {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    transaction.kind == 'unknown' ? const Text("Swap", style: TextStyle(fontSize: 14)) : Text(transaction.kind.capitalize(), style: const TextStyle(fontSize: 14)),
+                    transaction.kind == 'unknown' ? Text("Swap".i18n(ref), style: TextStyle(fontSize: 14)) : Text(transaction.kind.capitalize().i18n(ref), style: const TextStyle(fontSize: 14)),
                     transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: const TextStyle(fontSize: 14)) : const Text('Multiple', style: TextStyle(fontSize: 14)),
                   ],
                 ),
@@ -282,13 +283,13 @@ class BuildTransactions extends ConsumerWidget {
     }
   }
 
-  String _transactionTypeString(TransactionDetails transaction) {
+  String _transactionTypeString(TransactionDetails transaction, WidgetRef ref) {
     if (transaction.received == 0 && transaction.sent > 0) {
-      return 'Sent';
+      return 'Sent'.i18n(ref);
     } else if (transaction.received > 0 && transaction.sent == 0) {
-      return 'Received';
+      return 'Received'.i18n(ref);
     } else {
-      return 'Multiple';
+      return 'Multiple'.i18n(ref);
     }
   }
 
@@ -302,13 +303,13 @@ class BuildTransactions extends ConsumerWidget {
     }
   }
 
-  String _confirmationStatus(TransactionDetails transaction) {
+  String _confirmationStatus(TransactionDetails transaction, WidgetRef ref) {
     if (transaction.confirmationTime == null || transaction.confirmationTime!.height == 0) {
-      return 'Unconfirmed';
+      return 'Unconfirmed'.i18n(ref);
     } else if (transaction.confirmationTime != null) {
-      return 'Confirmed';
+      return 'Confirmed'.i18n(ref);
     } else {
-      return 'Unknown';
+      return 'Unknown'.i18n(ref);
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/auth_provider.dart';
@@ -45,7 +46,7 @@ class RecoverWallet extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Recover Account'),
+        title:Text('Recover Account'.i18n(ref)),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -56,7 +57,7 @@ class RecoverWallet extends ConsumerWidget {
                 items: _wordCounts.map((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
-                    child: Text('$value words'),
+                    child: Text('$value words'.i18n(ref)),
                   );
                 }).toList(),
                 onChanged: (newValue) {
@@ -80,7 +81,7 @@ class RecoverWallet extends ConsumerWidget {
                           ref.read(recoverWalletProvider.notifier).setWord(index, newValue);
                         },
                         decoration: InputDecoration(
-                          hintText: '       Word ${index + 1}',
+                          hintText: '       Word ${index + 1}'.i18n(ref),
                           hintStyle: const TextStyle(
                             color: Colors.grey,
                           ),
@@ -103,7 +104,7 @@ class RecoverWallet extends ConsumerWidget {
                 width: screenSize.width * 0.8,
                 height: screenSize.height * 0.09,
                 child: CustomButton(
-                    text: 'Recover Account',
+                    text: 'Recover Account'.i18n(ref),
                     onPressed: () async {
                       // final mnemonic = data.words.join(' ');
                       final mnemonic = "near angle old frequent only pair banana giggle armed penalty torch boat";
@@ -112,7 +113,7 @@ class RecoverWallet extends ConsumerWidget {
                         Navigator.pushNamed(context, '/set_pin');
                       } else {
                         Fluttertoast.showToast(
-                          msg: 'Invalid mnemonic',
+                          msg: 'Invalid mnemonic'.i18n(ref),
                           toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.TOP,
                           timeInSecForIosWeb: 1,

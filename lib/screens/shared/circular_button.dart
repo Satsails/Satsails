@@ -1,4 +1,6 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Widget buildCircularButton(BuildContext context, icon, String subtitle, VoidCallback onPressed, Color color) {
   return Column(
@@ -36,7 +38,7 @@ Widget buildCircularButton(BuildContext context, icon, String subtitle, VoidCall
 }
 
 
-Widget buildActionButtons(BuildContext context) {
+Widget buildActionButtons(BuildContext context, WidgetRef ref) {
   return SizedBox(
     height: MediaQuery
         .of(context)
@@ -45,18 +47,18 @@ Widget buildActionButtons(BuildContext context) {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        buildCircularButton(context, Icons.add, 'Add Money', () {
+        buildCircularButton(context, Icons.add, 'Add Money'.i18n(ref), () {
           Navigator.pushNamed(context, '/charge');
         }, Colors.white),
-        buildCircularButton(context, Icons.swap_horizontal_circle, 'Exchange',
+        buildCircularButton(context, Icons.swap_horizontal_circle, 'Exchange'.i18n(ref),
                 () {
               Navigator.pushNamed(context, '/exchange');
             }, Colors.white),
-        buildCircularButton(context, Icons.payments, 'Pay', () {
+        buildCircularButton(context, Icons.payments, 'Pay'.i18n(ref), () {
           Navigator.pushNamed(context, '/pay');
         }, Colors.white),
         buildCircularButton(
-            context, Icons.arrow_downward_sharp, 'Receive', () {
+            context, Icons.arrow_downward_sharp, 'Receive'.i18n(ref), () {
           Navigator.pushNamed(context, '/receive');
         }, Colors.white),
       ],

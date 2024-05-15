@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
@@ -21,7 +22,7 @@ class Analytics extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Center(child: Text('Analytics')),
+        title: Center(child: Text('Analytics'.i18n(ref))),
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
       ),
@@ -62,7 +63,7 @@ class Analytics extends ConsumerWidget {
                 ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(
                     start: DateTime.utc(0), end: DateTime.now()));
               },
-              child: const Text('All Transactions', style: TextStyle(color: Colors.white, fontSize: 13)),
+              child: Text('All Transactions'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: 13)),
             ),
           ],
         ),
