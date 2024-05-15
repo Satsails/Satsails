@@ -1,7 +1,5 @@
 import 'package:Satsails/translations/translations.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -15,7 +13,7 @@ import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/screens/shared/qr_view_widget.dart';
 
 class Accounts extends ConsumerWidget {
-  const Accounts({Key? key}) : super(key: key);
+  const Accounts({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,7 +32,7 @@ class Accounts extends ConsumerWidget {
             SizedBox(height: screenWidth * 0.02),
             Text(
               'Secure Bitcoin'.i18n(ref),
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: screenWidth * 0.02),
             Consumer(
@@ -71,7 +69,7 @@ class Accounts extends ConsumerWidget {
             SizedBox(height: screenWidth * 0.02),
             Text(
               'Instant Payments'.i18n(ref),
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: screenWidth * 0.02),
             Consumer(
@@ -108,7 +106,7 @@ class Accounts extends ConsumerWidget {
             SizedBox(height: screenWidth * 0.02),
             Text(
               'Assets'.i18n(ref),
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: screenWidth * 0.02),
             Consumer(
@@ -161,7 +159,7 @@ class Accounts extends ConsumerWidget {
             ],
           ),
         ),
-        trailing: Text(trailing + ' '+ format, style: const TextStyle(fontSize: 16, color: Colors.white)),
+        trailing: Text('$trailing $format', style: const TextStyle(fontSize: 16, color: Colors.white)),
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -234,10 +232,10 @@ class Accounts extends ConsumerWidget {
                       children: [
                         Center(
                           child: Padding(
-                            padding: EdgeInsets.only(top: 10.0),
+                            padding: const EdgeInsets.only(top: 10.0),
                             child: Text(
                               'Receive'.i18n(ref),
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),

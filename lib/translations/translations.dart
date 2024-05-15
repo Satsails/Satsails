@@ -457,6 +457,10 @@ extension Localization on String {
       {
         'en': 'Swaps',
         'pt': 'Trocas',
+      } +
+      {
+        'en': 'PIN must be exactly 6 digits',
+        'pt': 'O PIN deve ter exatamente 6 dígitos',
       };
 
 

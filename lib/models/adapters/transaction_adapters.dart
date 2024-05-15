@@ -108,7 +108,7 @@ class BlockTimeAdapter extends TypeAdapter<BlockTime> {
     try {
       if (reader.availableBytes < 8) { // 4 bytes for each int
         // Not enough bytes to read, return a default BlockTime
-        return BlockTime(height: 0, timestamp: 0);
+        return const BlockTime(height: 0, timestamp: 0);
       }
 
       final int? height = reader.read();
@@ -116,12 +116,12 @@ class BlockTimeAdapter extends TypeAdapter<BlockTime> {
 
       if (height == null || timestamp == null) {
         // Handle the case where data is effectively null by returning a default or empty object
-        return BlockTime(height: 0, timestamp: 0); // Default or sentinel values indicating no data
+        return const BlockTime(height: 0, timestamp: 0); // Default or sentinel values indicating no data
       }
       return BlockTime(height: height, timestamp: timestamp);
     } catch (e) {
       // If reading fails due to insufficient data, return a default BlockTime
-      return BlockTime(height: 0, timestamp: 0); // Adjust these values as appropriate
+      return const BlockTime(height: 0, timestamp: 0); // Adjust these values as appropriate
     }
   }
 

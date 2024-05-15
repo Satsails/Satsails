@@ -18,7 +18,7 @@ class SearchModal extends ConsumerWidget {
     final amountBlinder = ref.watch(transactionSearchProvider).amountBlinder;
     final assetBlinder = ref.watch(transactionSearchProvider).assetBlinder;
 
-    final uri = (isLiquid == null || transactionHash == null) ? 'https://mempool.space' : (isLiquid! ? 'https://liquid.network/tx/$transactionHash#blinded=$amount,$assetId,$amountBlinder,$assetBlinder' : 'https://mempool.space/tx/$transactionHash');
+    final uri = (isLiquid == null || transactionHash == null) ? 'https://mempool.space' : (isLiquid ? 'https://liquid.network/tx/$transactionHash#blinded=$amount,$assetId,$amountBlinder,$assetBlinder' : 'https://mempool.space/tx/$transactionHash');
     controller.loadRequest(Uri.parse(uri));
     return Scaffold(
       appBar: AppBar(

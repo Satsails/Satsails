@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class BitcoinWidget extends ConsumerWidget {
+  const BitcoinWidget({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bitcoinAddressAsyncValue = ref.watch(bitcoinReceiveAddressAmountProvider);

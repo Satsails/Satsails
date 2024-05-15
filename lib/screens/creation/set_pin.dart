@@ -7,7 +7,7 @@ import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class SetPin extends ConsumerWidget {
-  const SetPin({Key? key}) : super(key: key);
+  const SetPin({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,6 +16,7 @@ class SetPin extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text('Set PIN'.i18n(ref)),
       ),
       body: Center(

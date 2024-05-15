@@ -9,7 +9,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
   final void Function(int) onTap;
   final BuildContext context;
 
-  CustomBottomNavigationBar({
+  const CustomBottomNavigationBar({super.key, 
     required this.currentIndex,
     required this.onTap,
     required this.context,
@@ -28,7 +28,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
 
     List<BottomNavigationBarItem> bottomNavBarItems = [
       BottomNavigationBarItem(
-        icon: Icon(Icons.home),
+        icon: const Icon(Icons.home),
         label: 'Home'.i18n(ref),
       ),
       // const BottomNavigationBarItem(
@@ -36,7 +36,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
       //   label: 'Services',
       // ),
       BottomNavigationBarItem(
-        icon: Icon(Icons.bar_chart),
+        icon: const Icon(Icons.bar_chart),
         label: 'Analytics'.i18n(ref),
       ),
     ];
@@ -63,17 +63,17 @@ class CustomBottomNavigationBar extends ConsumerWidget {
   }
 
   void _navigateToScreen(int index, BuildContext context) {
-    Widget page = Home();
+    Widget page = const Home();
 
     switch (index) {
       case 0:
-        page = Home();
+        page = const Home();
         break;
     // case 1:
     //   page = Services();
     //   break;
       case 1:
-        page = Analytics();
+        page = const Analytics();
         break;
     }
 

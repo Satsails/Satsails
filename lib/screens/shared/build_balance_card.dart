@@ -35,10 +35,10 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Total balance'.i18n(ref), style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
+              Text('Total balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
               _buildBalanceConsumer(ref, titleFontSize, balanceProviderName, 'btcFormat'),
               SizedBox(height: screenHeight * 0.01),
-              Text('or'.i18n(ref), style: TextStyle(fontSize: 14, color: Colors.white), textAlign: TextAlign.center),
+              Text('or'.i18n(ref), style: const TextStyle(fontSize: 14, color: Colors.white), textAlign: TextAlign.center),
               SizedBox(height: screenHeight * 0.01),
               _buildBalanceConsumer(ref, subtitleFontSize, balanceInFiatName, 'currency'),
             ],
@@ -65,7 +65,7 @@ Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName
       throw Exception('Invalid providerName: $providerName');
   }
 
-  var settingsValue;
+  String settingsValue;
   switch (settingsName) {
     case 'btcFormat':
       settingsValue = settings.btcFormat;

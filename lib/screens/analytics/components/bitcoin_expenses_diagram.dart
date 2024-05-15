@@ -7,7 +7,7 @@ import 'package:Satsails/providers/transactions_provider.dart';
 
 class BitcoinExpensesDiagram extends ConsumerWidget {
 
-  const BitcoinExpensesDiagram({Key? key}) : super(key: key);
+  const BitcoinExpensesDiagram({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -52,11 +52,11 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
             children: [
               Text(
                 title,
-                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
               ),
               Text(
                 btcFormat == 'sats' ? value.toStringAsFixed(0) : value.toString(),
-                style: TextStyle(color: Colors.white, fontSize: 14),
+                style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
             ],
           ),

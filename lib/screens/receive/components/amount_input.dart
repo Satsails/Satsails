@@ -68,9 +68,9 @@ class AmountInput extends ConsumerWidget {
         ),
         ElevatedButton(
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
-            elevation: MaterialStateProperty.all<double>(4),
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            backgroundColor: WidgetStateProperty.all<Color>(Colors.deepOrangeAccent),
+            elevation: WidgetStateProperty.all<double>(4),
+            shape: WidgetStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
@@ -80,7 +80,7 @@ class AmountInput extends ConsumerWidget {
             String inputValue = controller.text;
             ref.read(inputAmountProvider.notifier).state = inputValue.isEmpty ? '0.0' : inputValue;
           },
-          child: Text('Create Address'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: 13)),
+          child: Text('Create Address'.i18n(ref), style: const TextStyle(color: Colors.white, fontSize: 13)),
         ),
       ],
     );

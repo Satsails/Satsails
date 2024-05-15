@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:isolate';
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:http/http.dart';
 
@@ -76,13 +75,13 @@ class BitcoinModel {
       final address = await Address.fromString(s: transaction.outAddress, network: config.network);
       final script = await address.scriptPubkey();
       final txBuilderResult = await txBuilder
-          .addRecipient(script, transaction.amount!)
+          .addRecipient(script, transaction.amount)
           .feeRate(transaction.fee)
           .finish(config.wallet);
       return txBuilderResult;
     } on GenericException catch (e) {
       throw e.message!;
-    } on InsufficientFundsException catch (e) {
+    } on InsufficientFundsException {
       throw "Insufficient funds";
     } on OutputBelowDustLimitException catch (_) {
       throw 'Amount is too small';

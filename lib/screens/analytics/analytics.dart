@@ -51,9 +51,9 @@ class Analytics extends ConsumerWidget {
             const Calendar(),
             ElevatedButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
-                elevation: MaterialStateProperty.all<double>(4),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                backgroundColor: WidgetStateProperty.all<Color>(Colors.deepOrangeAccent),
+                elevation: WidgetStateProperty.all<double>(4),
+                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -63,7 +63,7 @@ class Analytics extends ConsumerWidget {
                 ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(
                     start: DateTime.utc(0), end: DateTime.now()));
               },
-              child: Text('All Transactions'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: 13)),
+              child: Text('All Transactions'.i18n(ref), style: const TextStyle(color: Colors.white, fontSize: 13)),
             ),
           ],
         ),

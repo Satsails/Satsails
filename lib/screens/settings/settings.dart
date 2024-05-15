@@ -7,7 +7,7 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends ConsumerWidget {
-  const Settings({Key? key}) : super(key: key);
+  const Settings({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -154,7 +154,7 @@ class Settings extends ConsumerWidget {
 
   Widget _buildClaimBoltzTransactionsSection(BuildContext context, WidgetRef ref) {
     return ListTile(
-      leading: Icon(Icons.flash_on, color: Colors.orangeAccent),
+      leading: const Icon(Icons.flash_on, color: Colors.orangeAccent),
       title: Text('Claim Lightning Transactions'.i18n(ref)),
       onTap: () {
         Navigator.pushNamed(context, '/claim_boltz_transactions');
@@ -208,7 +208,7 @@ class Settings extends ConsumerWidget {
     final settingsNotifier = ref.read(settingsProvider.notifier);
 
     return ListTile(
-      leading: Icon(Icons.add_chart, color: Colors.orangeAccent),
+      leading: const Icon(Icons.add_chart, color: Colors.orangeAccent),
       title: Text('Bitcoin Unit'.i18n(ref)),
       subtitle: Text(settings.btcFormat),
       onTap: () {

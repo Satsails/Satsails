@@ -8,7 +8,7 @@ import 'package:Satsails/providers/analytics_provider.dart';
 final today = DateUtils.dateOnly(DateTime.now());
 
 class Calendar extends ConsumerWidget {
-  const Calendar({Key? key}) : super(key: key);
+  const Calendar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -137,9 +137,9 @@ class Calendar extends ConsumerWidget {
         children: [
           ElevatedButton(
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
-              elevation: MaterialStateProperty.all<double>(4),
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              backgroundColor: WidgetStateProperty.all<Color>(Colors.deepOrangeAccent),
+              elevation: WidgetStateProperty.all<double>(4),
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -155,12 +155,12 @@ class Calendar extends ConsumerWidget {
               );
               if (values != null) {
                 if (values.length == 1) {
-                  ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[0]!.add(Duration(hours: 23, minutes: 59, seconds: 59))));
+                  ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[0]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
                 } else if (values.length == 2)
-                ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[1]!.add(Duration(hours: 23, minutes: 59, seconds: 59))));
+                ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[1]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
               }
             },
-            child: Text('Select Range'.i18n(ref), style: TextStyle(fontSize: 13, color: Colors.white), textAlign: TextAlign.center),
+            child: Text('Select Range'.i18n(ref), style: const TextStyle(fontSize: 13, color: Colors.white), textAlign: TextAlign.center),
           ),
         ],
       ),

@@ -185,7 +185,7 @@ class SideswapPsetToSign {
 }
 
 class SideswapExchangeStateModel extends StateNotifier<SideswapExchangeState> {
-  SideswapExchangeStateModel(SideswapExchangeState state) : super(state);
+  SideswapExchangeStateModel(super.state);
 
   void update(SideswapExchangeState state) {
     state = state;

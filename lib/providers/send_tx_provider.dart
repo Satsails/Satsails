@@ -116,7 +116,7 @@ final liquidTransactionBuilderProvider =  FutureProvider.autoDispose.family<liqu
   final double fee = await ref.read(liquidProvider.getCustomFeeRateProvider.future).then((value) => value);
   final address = ref.watch(sendTxProvider.notifier).state.address;
   final asset = ref.watch(sendTxProvider).assetId;
-  return liquidModel.TransactionBuilder(amount: amount, outAddress: address, fee: fee, assetId: asset!);
+  return liquidModel.TransactionBuilder(amount: amount, outAddress: address, fee: fee, assetId: asset);
 });
 
 

@@ -15,7 +15,7 @@ import 'package:Satsails/providers/transactions_provider.dart';
 class BuildTransactions extends ConsumerWidget {
   final bool showAllTransactions;
 
-  const BuildTransactions({Key? key, required this.showAllTransactions}) : super(key: key);
+  const BuildTransactions({super.key, required this.showAllTransactions});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -57,21 +57,22 @@ class BuildTransactions extends ConsumerWidget {
                   if (index < bitcoinTransactions.length) {
                     return _buildTransactionItem(bitcoinTransactions[index], context, ref);
                   } else if (bitcoinTransactions.isEmpty) {
-                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: TextStyle(fontSize: 14, color: Colors.grey)));
+                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: const TextStyle(fontSize: 14, color: Colors.grey)));
                   }
                 case 'Liquid':
                   if (index < liquidTransactions.length) {
                     return _buildTransactionItem(liquidTransactions[index], context, ref);
                   } else if (liquidTransactions.isEmpty) {
-                    return Center(child: Text('Pull up to refresh'.i18n(ref).i18n(ref), style: TextStyle(fontSize: 14, color: Colors.grey)));
+                    return Center(child: Text('Pull up to refresh'.i18n(ref).i18n(ref), style: const TextStyle(fontSize: 14, color: Colors.grey)));
                   }
                 default:
                   if (index < allTx.length) {
                     return _buildTransactionItem(allTx[index], context, ref);
                   } else {
-                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: TextStyle(fontSize: 14, color: Colors.grey)));
+                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: const TextStyle(fontSize: 14, color: Colors.grey)));
                   }
               }
+              return null;
             },
           ),
         ),
@@ -187,7 +188,7 @@ class BuildTransactions extends ConsumerWidget {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    transaction.kind == 'unknown' ? Text("Swap".i18n(ref), style: TextStyle(fontSize: 14)) : Text(transaction.kind.capitalize().i18n(ref), style: const TextStyle(fontSize: 14)),
+                    transaction.kind == 'unknown' ? Text("Swap".i18n(ref), style: const TextStyle(fontSize: 14)) : Text(transaction.kind.capitalize().i18n(ref), style: const TextStyle(fontSize: 14)),
                     transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: const TextStyle(fontSize: 14)) : const Text('Multiple', style: TextStyle(fontSize: 14)),
                   ],
                 ),

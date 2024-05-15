@@ -35,11 +35,11 @@ class Exchange extends ConsumerWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              ButtonPicker(),
+              const ButtonPicker(),
               OfflineTransactionWarning(online: online),
               SizedBox(height: dynamicSizedBox),
-              if(button == 'Bitcoin Layer Swap')  Expanded(child: Peg()),
-              if(button == 'Swap') Expanded(child: LiquidSwapCards()),
+              if(button == 'Bitcoin Layer Swap')  const Expanded(child: Peg()),
+              if(button == 'Swap') const Expanded(child: LiquidSwapCards()),
             ],
           ),
         ),

@@ -1,25 +1,18 @@
-import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
 import 'package:Satsails/screens/receive/components/lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/screens/receive/components/amount_input.dart';
-import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/offline_transaction_warning.dart';
-import 'package:Satsails/screens/shared/qr_code.dart';
 import '../../providers/transaction_type_show_provider.dart';
 import 'package:group_button/group_button.dart';
 
 final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
 
 class Receive extends ConsumerWidget {
-  Receive({Key? key}) : super(key: key);
+  Receive({super.key});
 
   final groupButtonControllerProvider = Provider<GroupButtonController>((ref) {
     return GroupButtonController(selectedIndex: 1);
@@ -75,7 +68,7 @@ class Receive extends ConsumerWidget {
                     'Bitcoin';
                 }
               },
-              buttons: ["Lightning", 'Bitcoin', "Liquid"],
+              buttons: const ["Lightning", 'Bitcoin', "Liquid"],
               options: GroupButtonOptions(
                 unselectedTextStyle: const TextStyle(
                     fontSize: 16, color: Colors.black),
@@ -101,11 +94,11 @@ class Receive extends ConsumerWidget {
             ),
             const SizedBox(height: 16.0),
             if (selectedIndex == 'Bitcoin')
-              BitcoinWidget(),
+              const BitcoinWidget(),
             if (selectedIndex == "Liquid")
-              LiquidWidget(),
+              const LiquidWidget(),
             if (selectedIndex == "Lightning")
-              LightningWidget(),
+              const LightningWidget(),
           ],
         ),
       ),

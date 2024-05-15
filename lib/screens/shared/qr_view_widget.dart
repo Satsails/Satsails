@@ -11,7 +11,7 @@ class QRViewWidget extends StatelessWidget {
   final GlobalKey qrKey;
   final WidgetRef ref;
 
-  QRViewWidget({required this.qrKey, required this.ref});
+  const QRViewWidget({super.key, required this.qrKey, required this.ref});
 
   void onQRViewCreated(QRViewController controller, BuildContext context) {
     controller.scannedDataStream.listen((scanData) async {

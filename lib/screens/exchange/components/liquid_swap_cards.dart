@@ -26,7 +26,7 @@ final currentBalanceProvider = StateProvider.autoDispose<String>((ref) {
 });
 
 class LiquidSwapCards extends ConsumerWidget {
-  LiquidSwapCards({super.key});
+  const LiquidSwapCards({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

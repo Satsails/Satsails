@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class PegStatusSheet extends ConsumerWidget {
   final Stream<dynamic> pegStatus;
 
-  PegStatusSheet({required this.pegStatus});
+  const PegStatusSheet({super.key, required this.pegStatus});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

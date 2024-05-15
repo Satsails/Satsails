@@ -1,8 +1,5 @@
 import 'package:Satsails/translations/translations.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
@@ -66,7 +63,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Liquid Balance'.i18n(ref), style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
+                  Text('Liquid Balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                   initializeBalance.when(
                       data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('$liquidBalanceInFormat $liquidFormart', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                       loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
@@ -100,9 +97,9 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Reais Balance'.i18n(ref), style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
+                  Text('Reais Balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                   initializeBalance.when(
-                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text(balance.brlBalance.toStringAsFixed(2) + ' BRL', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
+                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('${balance.brlBalance.toStringAsFixed(2)} BRL', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                       loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                       error: (error, stack) => SizedBox(height: titleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))))
                   ),
@@ -134,9 +131,9 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Dollar Balance'.i18n(ref), style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
+                  Text('Dollar Balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                   initializeBalance.when(
-                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text(balance.usdBalance.toStringAsFixed(2) + ' USD', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
+                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('${balance.usdBalance.toStringAsFixed(2)} USD', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                       loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                       error: (error, stack) => SizedBox(height: titleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))))
                   ),
@@ -168,9 +165,9 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Euro Balance'.i18n(ref), style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
+                  Text('Euro Balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                   initializeBalance.when(
-                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text(balance.eurBalance.toStringAsFixed(2) + ' EUR', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
+                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('${balance.eurBalance.toStringAsFixed(2)} EUR', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                       loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                       error: (error, stack) => SizedBox(height: titleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))))
                   ),
@@ -182,7 +179,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
       ),
     ];
 
-    bool _onSwipe(
+    bool onSwipe(
         int previousIndex,
         int? currentIndex,
         CardSwiperDirection direction,
@@ -213,6 +210,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
 
     useEffect(() {
       controller.text = sendAmount == 0 ? '' : sendAmount.toString();
+      return null;
     }, [showBitcoinRelatedWidgets.state]);
 
     return PopScope(
@@ -240,7 +238,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                     allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
                     cardsCount: cards.length,
                     initialIndex: ref.watch(currentCardIndexProvider),
-                    onSwipe: _onSwipe,
+                    onSwipe: onSwipe,
                     cardBuilder: (context, index, percentThresholdX, percentThresholdY) { return cards[index]; },
                   ),
                 ),
@@ -379,7 +377,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'Fee: ' + fee.toString() + ' sats'.i18n(ref).fill([fee.toString()]),
+                              'Fee: $fee${' sats'.i18n(ref).fill([fee.toString()])}',
                               style: TextStyle(fontSize: dynamicFontSize, fontWeight: FontWeight.bold, color: Colors.white),
                               textAlign: TextAlign.center,
                             ),

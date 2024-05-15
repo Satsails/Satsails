@@ -3,7 +3,7 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/address_model.dart';
 
 class SendTxModel extends StateNotifier<SendTx> {
-  SendTxModel(SendTx state) : super(state);
+  SendTxModel(super.state);
 
   void updateAddress(String address) {
     state = state.copyWith(address: address);

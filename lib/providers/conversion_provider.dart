@@ -4,7 +4,7 @@ import 'package:Satsails/providers/settings_provider.dart';
 
 final conversionProvider = StateProvider.autoDispose.family<String, int>((ref, amount) {
   final settings = ref.watch(settingsProvider);
-  final balance;
+  final num balance;
 
   switch (settings.btcFormat) {
     case 'sats':
@@ -27,7 +27,7 @@ final conversionProvider = StateProvider.autoDispose.family<String, int>((ref, a
 final conversionToFiatProvider = StateProvider.autoDispose.family<String, int>((ref, amount) {
   final settings = ref.watch(settingsProvider);
   final rates = ref.watch(currencyNotifierProvider);
-  final balance;
+  final double balance;
 
   switch (settings.currency) {
     case 'USD':

@@ -59,7 +59,7 @@ final bitcoinReceiveAddressAmountProvider = FutureProvider.autoDispose<String>((
     return address;
   } else {
     final amountToDisplay = calculateAmountToDisplay(amount, currency, currencyConverter);
-    return 'bitcoin:$address?amount=${amountToDisplay}';
+    return 'bitcoin:$address?amount=$amountToDisplay';
   }
 });
 
@@ -73,7 +73,7 @@ final liquidReceiveAddressAmountProvider = FutureProvider.autoDispose<String>((r
     return address ;
   } else {
     final amountToDisplay = calculateAmountToDisplay(amount, currency, currencyConverter);
-    return 'liquidnetwork:$address?amount=${amountToDisplay}';
+    return 'liquidnetwork:$address?amount=$amountToDisplay';
   }
 });
 

@@ -8,7 +8,7 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 class LiquidExpensesDiagram extends ConsumerWidget {
 
-  const LiquidExpensesDiagram({Key? key}) : super(key: key);
+  const LiquidExpensesDiagram({super.key});
 
   @override
   @override

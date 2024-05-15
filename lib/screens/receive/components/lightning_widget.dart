@@ -10,6 +10,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class LightningWidget extends ConsumerWidget {
+  const LightningWidget({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
@@ -18,10 +20,10 @@ class LightningWidget extends ConsumerWidget {
           data: (data) {
             return Column(
               children: [
-                buildQrCode(data.swap!.invoice, context),
+                buildQrCode(data.swap.invoice, context),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: buildAddressText(data.swap!.invoice, context),
+                  child: buildAddressText(data.swap.invoice, context),
                 ),
               ],
             );
@@ -56,17 +58,17 @@ class LightningWidget extends ConsumerWidget {
                   return Container(); // return a Widget here
                 } else {
                   return Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('Waiting for transaction...'.i18n(ref), style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)),
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Waiting for transaction...'.i18n(ref), style: const TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)),
                   );
                 }
               }(),
               builder: (context, snapshot) {
-                return snapshot.data ?? Text('Waiting for transaction...'.i18n(ref), style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold));
+                return snapshot.data ?? Text('Waiting for transaction...'.i18n(ref), style: const TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold));
               },
             );
           },
-          loading: () => Center(child:Text('Waiting for transaction...'.i18n(ref), style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold))),
+          loading: () => Center(child:Text('Waiting for transaction...'.i18n(ref), style: const TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold))),
           error: (error, stack) => Text('Error: $error'),
         ),
       ],

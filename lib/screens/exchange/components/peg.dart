@@ -1,7 +1,6 @@
 import 'package:action_slider/action_slider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -20,7 +19,7 @@ import 'package:Satsails/providers/sideswap_provider.dart';
 final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');
 
 class Peg extends ConsumerWidget {
-  Peg({super.key});
+  const Peg({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,14 +73,14 @@ class Peg extends ConsumerWidget {
             SizedBox(height: dynamicSizedBox / 2),
             ...cards, // Spread operator to insert all elements of the list
             Text(
-              'Minimum amount:'.i18n(ref) + ' ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} ${btcFormart}',
+              '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
               style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
             pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
             if (!pegIn)
               Text(
-                'Bitcoin Network fee:'.i18n(ref) + ' ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats',
+                '${'Bitcoin Network fee:'.i18n(ref)} ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats',
                 style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
@@ -228,7 +227,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
               ),
             );
           }).toList(),
-          onChanged: (dynamic? newValue) {
+          onChanged: (dynamic newValue) {
             if (newValue != null) {
               ref.read(bitcoinReceiveSpeedProvider.notifier).state = "${newValue["value"]} sats/vbyte";
               ref.read(pegOutBlocksProvider.notifier).state = newValue["blocks"];
@@ -241,7 +240,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
 
   Widget _bitcoinFeeSlider(WidgetRef ref, double dynamicPadding, double titleFontSize) {
     return InteractiveSlider(
-      centerIcon: Icon(Clarity.block_solid, color: Colors.black),
+      centerIcon: const Icon(Clarity.block_solid, color: Colors.black),
       foregroundColor: Colors.deepOrange,
       unfocusedHeight: titleFontSize ,
       focusedHeight: titleFontSize,
@@ -262,7 +261,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Sending Transaction fee:' + "$fee sats",
+                  'Sending Transaction fee:' "$fee sats",
                   style: TextStyle(fontSize:  titleFontSize / 2, fontWeight: FontWeight.bold, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
@@ -292,7 +291,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Sending Transaction fee:'.i18n(ref) + "$fee sats",
+                  "${'Sending Transaction fee:'.i18n(ref)}$fee sats",
                   style: TextStyle(fontSize:  titleFontSize / 2, fontWeight: FontWeight.bold, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),

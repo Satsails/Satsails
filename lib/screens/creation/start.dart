@@ -1,12 +1,11 @@
 import 'package:Satsails/translations/translations.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import './components/logo.dart';
 
 class Start extends ConsumerWidget {
-  const Start({Key? key}) : super(key: key);
+  const Start({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,7 +27,7 @@ class Start extends ConsumerWidget {
               Center(
                 child: Column(
                   children: [
-                    Text(
+                    const Text(
                       'Satsails',
                       style: TextStyle(
                         fontSize: 40.0,
@@ -36,12 +35,12 @@ class Start extends ConsumerWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Opacity(
                       opacity: 0.5,
                       child: Text(
                         'Sail your wealth to the cloud'.i18n(ref),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 20.0,
                           color: Colors.black,
                         ),

@@ -11,7 +11,7 @@ import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/screens/analytics/components/peg_details.dart';
 
 class SwapsBuilder extends ConsumerWidget {
-  const SwapsBuilder({Key? key}) : super(key: key);
+  const SwapsBuilder({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,7 +24,7 @@ class SwapsBuilder extends ConsumerWidget {
           data: (fiatSwaps) {
             final combinedSwaps = [...swaps, ...fiatSwaps];
             if (combinedSwaps.isEmpty) {
-              return Center(child: Text('No swaps found'.i18n(ref), style: TextStyle(fontSize: 20, color: Colors.grey)));
+              return Center(child: Text('No swaps found'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.grey)));
             }
             return ListView.builder(
               itemCount: combinedSwaps.length,
@@ -80,24 +80,24 @@ Widget _buildFiatTransactionItem(SideswapCompletedSwap swap, BuildContext contex
             children: [
               Column(
                 children: [
-                  Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.sendAsset)), style: TextStyle(fontSize: 16)),
+                  Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.sendAsset)), style: const TextStyle(fontSize: 16)),
                   Text(
                       _assetNameFromTicker(AssetMapper.mapAsset(swap.sendAsset)) == 'BTC'
                           ? ref.watch(conversionProvider(swap.sendAmount.toInt()))
                           : (swap.sendAmount / 100000000).toStringAsFixed(2),
-                      style: TextStyle(fontSize: 16)
+                      style: const TextStyle(fontSize: 16)
                   ),
                 ],
               ),
               const Icon(Icons.arrow_forward, color: Colors.orange),
               Column(
                 children: [
-                  Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)), style: TextStyle(fontSize: 16)),
+                  Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)), style: const TextStyle(fontSize: 16)),
                   Text(
                       _assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)) == 'BTC'
                           ? ref.watch(conversionProvider((swap.recvAmount).toInt()))
                           : (swap.recvAmount / 100000000).toStringAsFixed(2),
-                      style: TextStyle(fontSize: 16)
+                      style: const TextStyle(fontSize: 16)
                   ),
                 ],
               ),

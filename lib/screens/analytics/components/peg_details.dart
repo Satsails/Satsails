@@ -8,14 +8,14 @@ import 'package:Satsails/providers/sideswap_provider.dart';
 class PegDetails extends ConsumerWidget {
   final SideswapPegStatus swap;
 
-  PegDetails({required this.swap});
+  const PegDetails({super.key, required this.swap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(sideswapStatusDetailsItemProvider);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Details', style: TextStyle(color: Colors.black)),
+        title: const Text('Details', style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
       ),
       body: status.when(
@@ -42,7 +42,7 @@ class PegDetails extends ConsumerWidget {
           );
         },
         loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange)),
-        error: (error, stackTrace) => Center(child: Text('Error: $error', style: TextStyle(fontSize: 18, color: Colors.red))),
+        error: (error, stackTrace) => Center(child: Text('Error: $error', style: const TextStyle(fontSize: 18, color: Colors.red))),
       ),
     );
   }
@@ -50,8 +50,8 @@ class PegDetails extends ConsumerWidget {
   ListTile _buildListTile(String title, String subtitle, IconData icon) {
     return ListTile(
       leading: Icon(icon, color: Colors.grey),
-      title: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-      subtitle: Text(subtitle, style: TextStyle(fontSize: 16)),
+      title: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      subtitle: Text(subtitle, style: const TextStyle(fontSize: 16)),
       onTap: () {
         Clipboard.setData(ClipboardData(text: subtitle));
       },
@@ -64,10 +64,10 @@ class PegDetails extends ConsumerWidget {
         return _buildListTile("Status", "Insufficient Amount", Icons.error);
       case 'Detected':
         return ListTile(
-          leading: Icon(Icons.search, color: Colors.black),
+          leading: const Icon(Icons.search, color: Colors.black),
           title: const Text("Confirmations", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          subtitle: Text("${status.detectedConfs} Detected", style: TextStyle(fontSize: 16)),
-          trailing: Text("${status.totalConfs} Needed", style: TextStyle(fontSize: 16)),
+          subtitle: Text("${status.detectedConfs} Detected", style: const TextStyle(fontSize: 16)),
+          trailing: Text("${status.totalConfs} Needed", style: const TextStyle(fontSize: 16)),
         );
       case 'Processing':
         return _buildListTile("Status", "Processing", Icons.hourglass_empty);

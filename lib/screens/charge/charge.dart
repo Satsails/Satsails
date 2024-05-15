@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Charge extends ConsumerWidget {
+  const Charge({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
@@ -13,7 +15,7 @@ class Charge extends ConsumerWidget {
       backgroundColor: Colors.white,
       body: Center(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -35,7 +37,7 @@ class PaymentMethodCard extends StatelessWidget {
   final String description;
   final IconData icon;
 
-  const PaymentMethodCard({
+  const PaymentMethodCard({super.key, 
     required this.title,
     required this.description,
     required this.icon,
@@ -54,17 +56,17 @@ class PaymentMethodCard extends StatelessWidget {
             Row(
               children: [
                 Icon(icon, color: Colors.orangeAccent, size: 24.0),
-                SizedBox(width: 8.0),
+                const SizedBox(width: 8.0),
                 Text(
                   title,
-                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 12.0),
             Text(
               description,
-              style: TextStyle(fontSize: 16.0, color: Colors.grey),
+              style: const TextStyle(fontSize: 16.0, color: Colors.grey),
             ),
           ],
         ),

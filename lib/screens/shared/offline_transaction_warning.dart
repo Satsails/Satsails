@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class OfflineTransactionWarning extends ConsumerWidget {
   final bool online;
 
-  OfflineTransactionWarning({required this.online});
+  const OfflineTransactionWarning({super.key, required this.online});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,7 +19,7 @@ class OfflineTransactionWarning extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Icon(
+          const Icon(
             Icons.warning,
             color: Colors.orange,
           ),

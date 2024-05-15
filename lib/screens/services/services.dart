@@ -14,7 +14,7 @@ class Services extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Services'),
       ),
-      body: AppGrid(),
+      body: const AppGrid(),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: ref.watch(navigationProvider),
         context: context,
@@ -69,7 +69,7 @@ class AppCard extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  AppCard({super.key, required this.title, required this.subtitle});
+  const AppCard({super.key, required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {

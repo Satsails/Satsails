@@ -11,9 +11,11 @@ class OpenPin extends ConsumerWidget {
   final TextEditingController _pinController = TextEditingController();
   final LocalAuthentication _localAuth = LocalAuthentication();
 
+  OpenPin({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    WidgetsBinding.instance?.addPostFrameCallback((_) =>
+    WidgetsBinding.instance.addPostFrameCallback((_) =>
         _checkBiometrics(context, ref));
 
     return WillPopScope(
@@ -55,7 +57,7 @@ class OpenPin extends ConsumerWidget {
                   onPressed: () => _showConfirmationDialog(context, ref),
                   child: Text(
                     'Forgot PIN'.i18n(ref),
-                    style: TextStyle(fontSize: 20.0, color: Colors.blue),
+                    style: const TextStyle(fontSize: 20.0, color: Colors.blue),
                   ),
                 ),
               ],
@@ -111,7 +113,7 @@ class OpenPin extends ConsumerWidget {
             child: ListBody(
               children: <Widget>[
                 Text('This will delete all your data and reset your PIN.'.i18n(ref)),
-                Text('Do you want to proceed?'),
+                const Text('Do you want to proceed?'),
               ],
             ),
           ),

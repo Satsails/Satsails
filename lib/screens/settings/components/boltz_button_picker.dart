@@ -8,6 +8,8 @@ final groupButtonControllerProvider = Provider.autoDispose<GroupButtonController
 });
 
 class BoltzButtonPicker extends ConsumerWidget {
+  const BoltzButtonPicker({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(groupButtonControllerProvider);
@@ -27,7 +29,7 @@ class BoltzButtonPicker extends ConsumerWidget {
             ref.read(selectedButtonProvider.notifier).state = "Claim Receiving";
         }
       },
-      buttons: ["Claim Receiving", 'Refund Sending'],
+      buttons: const ["Claim Receiving", 'Refund Sending'],
       options: GroupButtonOptions(
         unselectedTextStyle: const TextStyle(
             fontSize: 16, color: Colors.black),

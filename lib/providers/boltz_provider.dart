@@ -30,7 +30,7 @@ final claimBoltzTransactionProvider = FutureProvider.autoDispose<bool>((ref) asy
   final received = await boltzReceive.claimBoltzTransaction(receiveAddress: receiveAddress.confidential, fees: fees);
   if (received) {
     final box = await Hive.openBox('receiveBoltz');
-    await box.delete(boltzReceive.swap!.id);
+    await box.delete(boltzReceive.swap.id);
   }
   return received;
 });
@@ -42,7 +42,7 @@ final claimSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<bo
   final boltzReceive = box.get(id) as Boltz;
   final received = await boltzReceive.claimBoltzTransaction(receiveAddress: receiveAddress.confidential, fees: fees);
   if (received) {
-    await box.delete(boltzReceive.swap!.id);
+    await box.delete(boltzReceive.swap.id);
   } else {
     throw Exception('Could not claim transaction');
   }
@@ -67,7 +67,7 @@ final claimBoltzTransactionStreamProvider = StreamProvider.autoDispose<bool>((re
     } catch (e) {
       yield false;
     } finally {
-      await Future.delayed(Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 2));
     }
   }
 });
@@ -80,10 +80,10 @@ final boltzPayProvider = FutureProvider.autoDispose<Boltz>((ref) async {
     final mnemonic = await authModel.getMnemonic();
     final pay = await Boltz.createBoltzPay(fees: fees, mnemonic: mnemonic!, invoice: sendTx.state.address, amount: sendTx.state.amount, index: address.index);
     final box = await Hive.openBox('payBoltz');
-    await box.put(pay.swap!.id, pay);
-    sendTx.state = sendTx.state.copyWith(address: pay.swap!.scriptAddress, amount: (pay.swap!.outAmount).toInt());
+    await box.put(pay.swap.id, pay);
+    sendTx.state = sendTx.state.copyWith(address: pay.swap.scriptAddress, amount: (pay.swap.outAmount).toInt());
     await ref.read(sendLiquidTransactionProvider.future).then((value) => value);
-    box.delete(pay.swap!.id);
+    box.delete(pay.swap.id);
     return pay;
   }
 );
@@ -95,7 +95,7 @@ final refundSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<b
   final boltzPay = box.get(id) as Boltz;
   final refunded = await boltzPay.refund(fees: fees, tryCooperate: true, outAddress: address.confidential);
   if (refunded) {
-    await box.delete(boltzPay.swap!.id);
+    await box.delete(boltzPay.swap.id);
   } else {
     throw Exception('Could not refund transaction');
   }

@@ -100,13 +100,13 @@ class Balance {
         return "${balance.toInt()}";
       case 'BTC':
         balance = btcBalance / 100000000;
-        return "${balance.toStringAsFixed(8)}";
+        return balance.toStringAsFixed(8);
       case 'mBTC':
         balance = (btcBalance / 100000000) * 1000;
-        return "${balance.toStringAsFixed(5)}";
+        return balance.toStringAsFixed(5);
       case 'bits':
         balance = (btcBalance / 100000000) * 1000000;
-        return "${balance.toStringAsFixed(2)}";
+        return balance.toStringAsFixed(2);
       default:
         return "0";
     }

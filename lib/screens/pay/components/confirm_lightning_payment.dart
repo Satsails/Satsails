@@ -1,15 +1,10 @@
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import '../../../providers/balance_provider.dart';
@@ -40,6 +35,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
 
     useEffect(() {
       controller.text = sendAmount == 0 ? '' : sendAmount.toString();
+      return null;
     }, []);
 
     return PopScope(
@@ -82,7 +78,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Liquid Balance'.i18n(ref), style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
+                              Text('Liquid Balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                               initializeBalance.when(
                                   data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('$liquidBalanceInFormat $liquidFormart', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                                   loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),

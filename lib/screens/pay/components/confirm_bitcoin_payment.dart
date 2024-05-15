@@ -1,7 +1,5 @@
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
@@ -34,6 +32,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
 
     useEffect(() {
       Future.microtask(() => controller.text = sendAmount == 0 ? '' : sendAmount.toString());
+      return null;
     }, []);
 
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
@@ -79,7 +78,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('Bitcoin Balance'.i18n(ref), style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
+                            Text('Bitcoin Balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                             initializeBalance.when(
                                 data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('$btcBalanceInFormat $btcFormart', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                                 loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
@@ -188,7 +187,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                 ),
                 SizedBox(height: dynamicSizedBox),
                 InteractiveSlider(
-                  centerIcon: Icon(Clarity.block_solid, color: Colors.black),
+                  centerIcon: const Icon(Clarity.block_solid, color: Colors.black),
                   foregroundColor: Colors.deepOrange,
                   unfocusedHeight: dynamicFontSize * 2,
                   focusedHeight: dynamicFontSize * 2,
@@ -232,7 +231,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'Fee: ' + fee.toString() + ' sats',
+                              'Fee: $fee sats',
                               style: TextStyle(fontSize: dynamicFontSize, fontWeight: FontWeight.bold, color: Colors.white),
                               textAlign: TextAlign.center,
                             ),
@@ -263,7 +262,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                       );
                     },
                     loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize, color: Colors.black),
-                    error: (error, stack) => Text('')
+                    error: (error, stack) => const Text('')
                 ),
               ],
             ),

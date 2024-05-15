@@ -4,14 +4,14 @@ import 'package:qr_flutter/qr_flutter.dart';
 Widget buildQrCode(String address, BuildContext context) {
   return Container(
     decoration: BoxDecoration(
-      borderRadius: BorderRadius.all(Radius.circular(20)),
+      borderRadius: const BorderRadius.all(Radius.circular(20)),
       color: Colors.white,
       boxShadow: [
         BoxShadow(
           color: Colors.grey.withOpacity(0.5),
           spreadRadius: 5,
           blurRadius: 7,
-          offset: Offset(0, 3),
+          offset: const Offset(0, 3),
         ),
       ],
     ),

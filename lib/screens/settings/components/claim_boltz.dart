@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class ClaimBoltz extends ConsumerWidget {
   ClaimBoltz({super.key});
@@ -29,7 +28,7 @@ class ClaimBoltz extends ConsumerWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            BoltzButtonPicker(),
+            const BoltzButtonPicker(),
             OfflineTransactionWarning(online: online),
             if(button == 'Refund Sending')  const Expanded(child: RefundSending()),
             if(button == 'Claim Receiving') const Expanded(child: ClaimReceiving()),
@@ -41,7 +40,7 @@ class ClaimBoltz extends ConsumerWidget {
 }
 
 class ClaimReceiving extends ConsumerWidget {
-  const ClaimReceiving({Key? key}) : super(key: key);
+  const ClaimReceiving({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -67,7 +66,7 @@ class ClaimReceiving extends ConsumerWidget {
 
 
 class RefundSending extends ConsumerWidget {
-  const RefundSending({Key? key}) : super(key: key);
+  const RefundSending({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

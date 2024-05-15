@@ -75,8 +75,8 @@ void main() async {
         Locale('pt'),
       ],
       home: I18n(
-        initialLocale: Locale('en'),
-        child: ProviderScope(
+        initialLocale: const Locale('en'),
+        child: const ProviderScope(
           child: MainApp(),
         ),
       ),
@@ -85,7 +85,7 @@ void main() async {
 }
 
 class MainApp extends ConsumerWidget {
-  const MainApp({Key? key}) : super(key: key);
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -119,14 +119,14 @@ class MainApp extends ConsumerWidget {
               '/': (context) => const Start(),
               '/seed_words': (context) => const SeedWords(),
               '/open_pin': (context) => OpenPin(),
-              '/charge': (context) => Charge(),
+              '/charge': (context) => const Charge(),
               '/accounts': (context) => const Accounts(),
               '/receive': (context) => Receive(),
               '/settings': (context) => const Settings(),
-              '/analytics': (context) => Analytics(),
+              '/analytics': (context) => const Analytics(),
               '/set_pin': (context) => const SetPin(),
               '/exchange': (context) => Exchange(),
-              '/info': (context) => Info(),
+              '/info': (context) => const Info(),
               '/apps': (context) => const Services(),
               '/pay': (context) => Pay(),
               '/home': (context) => const Home(),

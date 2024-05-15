@@ -15,15 +15,15 @@ class CustomButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ButtonStyle(
-        elevation: MaterialStateProperty.all<double>(0.0),
-        padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(10)),
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        elevation: WidgetStateProperty.all<double>(0.0),
+        padding: WidgetStateProperty.all<EdgeInsets>(const EdgeInsets.all(10)),
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30.0),
           ),
         ),
-        backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
-        shadowColor: MaterialStateProperty.all<Color>(Colors.transparent),
+        backgroundColor: WidgetStateProperty.all<Color>(Colors.transparent),
+        shadowColor: WidgetStateProperty.all<Color>(Colors.transparent),
       ),
       child: Ink(
         decoration: BoxDecoration(
