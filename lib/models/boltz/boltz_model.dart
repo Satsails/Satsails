@@ -235,15 +235,21 @@ class Boltz {
     if (fees.lbtcLimits.maximal < amount){
       throw 'Amount is above the maximal limit';
     }
-    final result = await LbtcLnV2Swap.newReverse(
-        mnemonic: mnemonic,
-        index: index,
-        outAddress: address,
-        outAmount: amount,
-        network: Chain.liquid,
-        electrumUrl: 'blockstream.info:995',
-        boltzUrl: 'https://api.boltz.exchange/v2'
-    );
+
+    LbtcLnV2Swap result;
+    try{
+      result = await LbtcLnV2Swap.newReverse(
+          mnemonic: mnemonic,
+          index: index,
+          outAddress: address,
+          outAmount: amount,
+          network: Chain.liquid,
+          electrumUrl: 'blockstream.info:995',
+          boltzUrl: 'https://api.boltz.exchange/v2'
+      );
+    } catch (e) {
+      throw 'Error creating swap';
+    }
 
 
 
@@ -316,15 +322,20 @@ class Boltz {
       throw 'Amount is above the maximal limit';
     }
 
-    final result = await LbtcLnV2Swap.newSubmarine(
-        mnemonic: mnemonic,
-        index: index,
-        invoice: invoice,
-        network: Chain.liquid,
-        electrumUrl: 'blockstream.info:995',
-        boltzUrl: 'https://api.boltz.exchange/v2'
-    );
+    LbtcLnV2Swap result;
 
+    try {
+      result = await LbtcLnV2Swap.newSubmarine(
+          mnemonic: mnemonic,
+          index: index,
+          invoice: invoice,
+          network: Chain.liquid,
+          electrumUrl: 'blockstream.info:995',
+          boltzUrl: 'https://api.boltz.exchange/v2'
+      );
+    } catch (e) {
+      throw 'Error creating swap';
+    }
 
     final extendedSwap = ExtendedLbtcLnV2Swap(
       id: result.id,
