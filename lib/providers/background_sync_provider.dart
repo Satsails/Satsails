@@ -60,6 +60,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
             break;
           }
           liquidBox.put('usd', balance);
+          liquidBox.flush();
           balanceModel.updateUsdBalance(balance);
           break;
         case AssetId.EUR:
@@ -68,6 +69,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
             break;
           }
           liquidBox.put('eur', balance);
+          liquidBox.flush();
           balanceModel.updateEurBalance(balance);
           break;
         case AssetId.BRL:
@@ -76,6 +78,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
             break;
           }
           liquidBox.put('brl', balance);
+          liquidBox.flush();
           balanceModel.updateBrlBalance(balance);
           break;
         case AssetId.LBTC:
@@ -83,6 +86,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
             break;
           }
           liquidBox.put('liquid', balance.value);
+          liquidBox.flush();
           balanceModel.updateLiquidBalance(balance.value);
           break;
         default:

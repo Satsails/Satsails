@@ -303,8 +303,8 @@ extension Localization on String {
         'pt': 'Saldo Bitcoin',
       } +
       {
-        'en': 'Transaction in %s',
-        'pt': 'Transação em %s',
+        'en': 'Transaction in',
+        'pt': 'Transação em',
       } +
       {
         'en': 'Slide to send',
@@ -399,8 +399,8 @@ extension Localization on String {
         'pt': 'Transação Enviada',
       }+
       {
-        'en': 'Fee: %s sats',
-        'pt': 'Taxa: %s sats',
+        'en': 'Fee:',
+        'pt': 'Taxa:',
       } +
       {
         'en': 'Transaction Received',
@@ -461,6 +461,77 @@ extension Localization on String {
       {
         'en': 'PIN must be exactly 6 digits',
         'pt': 'O PIN deve ter exatamente 6 dígitos',
+      } +
+      {
+        'en': 'Insufficient funds',
+        'pt': 'Fundos insuficientes',
+      }+    {
+    'en': 'Order ID',
+    'pt': 'ID do Pedido',
+  } +
+      {
+        'en': 'Received at',
+        'pt': 'Recebido em',
+      } +
+      {
+        'en': 'Send Transaction',
+        'pt': 'Transação de Enviada',
+      } +
+      {
+        'en': 'Received Transaction',
+        'pt': 'Transação Recebida',
+      } +
+      {
+        'en': 'Amount sent',
+        'pt': 'Quantidade enviada',
+      } +
+      {
+        'en': 'Amount received',
+        'pt': 'Quantidade recebida',
+      } +
+      {
+        'en': 'Status',
+        'pt': 'Status',
+      } +
+      {
+        'en': 'Insufficient Amount',
+        'pt': 'Quantidade Insuficiente',
+      } +
+      {
+        'en': 'Confirmations',
+        'pt': 'Confirmações',
+      } +
+      {
+        'en': 'Detected',
+        'pt': 'Detectada',
+      } +
+      {
+        'en': 'Needed',
+        'pt': 'Necessárias',
+      } +
+      {
+        'en': 'Processing',
+        'pt': 'Processando',
+      } +
+      {
+        'en': 'Done',
+        'pt': 'Concluído',
+      } +
+      {
+        'en': 'Unknown',
+        'pt': 'Desconhecido',
+      } +
+      {
+        'en': 'Error',
+        'pt': 'Erro',
+      } +
+      {
+        'en': 'No Information',
+        'pt': 'Sem Informação',
+      } +
+      {
+        'en': 'No transactions found. Check back later.',
+        'pt': 'Nenhuma transação encontrada. Verifique novamente mais tarde.',
       };
 
 
@@ -474,11 +545,5 @@ extension Localization on String {
     return localize(this, _t, locale: currentLanguage);
   }
 
-  String fill(List<String> replacements) {
-    var result = this;
-    for (var i = 0; i < replacements.length; i++) {
-      result = result.replaceAll('%s', replacements[i]);
-    }
-    return result;
-  }
+
 }

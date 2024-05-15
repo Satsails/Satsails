@@ -146,7 +146,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
       ),
       error: (error, stack) => Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString(), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize))
+          child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize))
       ),
     );
   }
@@ -199,7 +199,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
       ),
       error: (error, stack) => Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(error.toString(), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize / 2))
+          child: Text(error.toString().i18n(ref), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize / 2))
       ),
     );
   }
@@ -275,7 +275,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
               padding: const EdgeInsets.all(8.0),
               child: TextButton(
                   onPressed: () { ref.refresh(feeProvider); },
-                  child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString(), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize / 2))
+                  child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize / 2))
               ),
             ),
           ),
@@ -305,7 +305,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
               padding: const EdgeInsets.all(8.0),
               child: TextButton(
                   onPressed: () { ref.refresh(liquidFeeProvider); },
-                  child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString(), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize / 2))
+                  child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize / 2))
               ),
             ),
           ),
@@ -385,7 +385,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                   ),
                   error: (error, stack) => Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text(error.toString(), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
+                      child: Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
                   ),
                 ),
             ],
@@ -466,7 +466,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                   ),
                   error: (error, stack) => Padding(
                       padding:EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
-                      child: Text(error.toString(), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
+                      child: Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
                   ),
                 ),
             ],

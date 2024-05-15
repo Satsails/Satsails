@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,8 +15,9 @@ class PegDetails extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(sideswapStatusDetailsItemProvider);
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Details', style: TextStyle(color: Colors.black)),
+        title: Text('Details'.i18n(ref), style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
       ),
       body: status.when(
@@ -24,19 +26,19 @@ class PegDetails extends ConsumerWidget {
             padding: const EdgeInsets.all(8.0),
             child: ListView(
               children: [
-                _buildListTile("Order ID", status.orderId ?? "Error", Icons.swap_calls_rounded),
-                _buildListTile("Received at", status.addrRecv ?? "Error", Icons.account_balance_wallet_rounded),
+                _buildListTile("Order ID".i18n(ref), status.orderId ?? "Error".i18n(ref), Icons.swap_calls_rounded),
+                _buildListTile("Received at".i18n(ref), status.addrRecv ?? "Error".i18n(ref), Icons.account_balance_wallet_rounded),
                 ...(status.list?.map((SideswapPegStatusTransaction e) {
                   return Column(
                     children: [
-                      _buildListTile("Send Transaction", e.txHash ?? "Error", Icons.send_and_archive_rounded),
-                      _buildListTile("Received Transaction", e.payoutTxid ?? "No Information", Icons.call_received),
-                      _buildListTile("Amount sent", e.amount.toString(), Icons.schedule_send_rounded),
-                      _buildListTile("Amount received", e.payout?.toString() ?? "0", Icons.receipt_long),
-                      _buildTxStatusTile(e),
+                      _buildListTile("Send Transaction".i18n(ref), e.txHash ?? "Error".i18n(ref), Icons.send_and_archive_rounded),
+                      _buildListTile("Received Transaction".i18n(ref), e.payoutTxid ?? "No Information".i18n(ref), Icons.call_received),
+                      _buildListTile("Amount sent".i18n(ref), e.amount.toString(), Icons.schedule_send_rounded),
+                      _buildListTile("Amount received".i18n(ref), e.payout?.toString() ?? "0", Icons.receipt_long),
+                      _buildTxStatusTile(e, ref),
                     ],
                   );
-                }).toList() ?? [const Text('No transactions found. Check back later.', style: TextStyle(fontSize: 18))]),
+                }).toList() ?? [Text('No transactions found. Check back later.'.i18n(ref), style: TextStyle(fontSize: 18))]),
               ],
             ),
           );
@@ -49,7 +51,7 @@ class PegDetails extends ConsumerWidget {
 
   ListTile _buildListTile(String title, String subtitle, IconData icon) {
     return ListTile(
-      leading: Icon(icon, color: Colors.grey),
+      leading: Icon(icon, color: Colors.orangeAccent),
       title: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
       subtitle: Text(subtitle, style: const TextStyle(fontSize: 16)),
       onTap: () {
@@ -58,23 +60,23 @@ class PegDetails extends ConsumerWidget {
     );
   }
 
-  ListTile _buildTxStatusTile(SideswapPegStatusTransaction status) {
+  ListTile _buildTxStatusTile(SideswapPegStatusTransaction status, WidgetRef ref) {
     switch (status.txState) {
       case 'InsufficientAmount':
-        return _buildListTile("Status", "Insufficient Amount", Icons.error);
+        return _buildListTile("Status".i18n(ref), "Insufficient Amount".i18n(ref), Icons.error);
       case 'Detected':
         return ListTile(
           leading: const Icon(Icons.search, color: Colors.black),
-          title: const Text("Confirmations", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          subtitle: Text("${status.detectedConfs} Detected", style: const TextStyle(fontSize: 16)),
-          trailing: Text("${status.totalConfs} Needed", style: const TextStyle(fontSize: 16)),
+          title: Text("Confirmations".i18n(ref), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          subtitle: Text("${status.detectedConfs} ${"Detected".i18n(ref)}", style: const TextStyle(fontSize: 16)),
+          trailing: Text("${status.totalConfs} ${"Needed".i18n(ref)}", style: const TextStyle(fontSize: 16)),
         );
       case 'Processing':
-        return _buildListTile("Status", "Processing", Icons.hourglass_empty);
+        return _buildListTile("Status", "Processing".i18n(ref), Icons.hourglass_empty);
       case 'Done':
-        return _buildListTile("Status", "Done", Icons.check_circle);
+        return _buildListTile("Status", "Done".i18n(ref), Icons.check_circle);
       default:
-        return _buildListTile("Status", "Unknown", Icons.help);
+        return _buildListTile("Status", "Unknown".i18n(ref), Icons.help);
     }
   }
 }

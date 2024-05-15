@@ -201,7 +201,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Text(
-                    'Transaction in  ${getTimeFrame(ref.watch(sendBlocksProvider).toInt())}'.i18n(ref).fill([ref.watch(sendBlocksProvider).toInt().toString()]),
+                    "${"Transaction in".i18n(ref)}${getTimeFrame(ref.watch(sendBlocksProvider).toInt())}",
                     style: TextStyle(
                       fontSize: dynamicFontSize,
                       fontWeight: FontWeight.bold,
