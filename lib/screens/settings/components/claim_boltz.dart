@@ -1,3 +1,4 @@
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/screens/settings/components/boltz_button_picker.dart';
@@ -91,12 +92,13 @@ class RefundSending extends ConsumerWidget {
 }
 
 Widget buildBoltzItem(Boltz boltz, BuildContext context, WidgetRef ref) {
+  final btcFormat = ref.watch(settingsProvider).btcFormat;
   return ListTile(
     leading: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Text("Amount", style: TextStyle(fontSize: 13)),
-        Text("${boltz.swap.outAmount} sats", style: const TextStyle(fontSize: 13)),
+        Text("${btcInDenominationFormatted(boltz.swap.outAmount.toDouble(), btcFormat)}$btcFormat", style: const TextStyle(fontSize: 13)),
       ],
     ),
     onTap: () {

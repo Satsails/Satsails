@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -34,10 +35,10 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('Total balance', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
+              Text('Total balance'.i18n(ref), style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
               _buildBalanceConsumer(ref, titleFontSize, balanceProviderName, 'btcFormat'),
               SizedBox(height: screenHeight * 0.01),
-              const Text('or', style: TextStyle(fontSize: 14, color: Colors.white), textAlign: TextAlign.center),
+              Text('or'.i18n(ref), style: TextStyle(fontSize: 14, color: Colors.white), textAlign: TextAlign.center),
               SizedBox(height: screenHeight * 0.01),
               _buildBalanceConsumer(ref, subtitleFontSize, balanceInFiatName, 'currency'),
             ],

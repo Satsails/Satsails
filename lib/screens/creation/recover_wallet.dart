@@ -45,7 +45,7 @@ class RecoverWallet extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Recover Wallet'),
+        title: const Text('Recover Account'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -103,7 +103,7 @@ class RecoverWallet extends ConsumerWidget {
                 width: screenSize.width * 0.8,
                 height: screenSize.height * 0.09,
                 child: CustomButton(
-                    text: 'Recover Wallet',
+                    text: 'Recover Account',
                     onPressed: () async {
                       // final mnemonic = data.words.join(' ');
                       final mnemonic = "near angle old frequent only pair banana giggle armed penalty torch boat";

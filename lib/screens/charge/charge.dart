@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Charge extends StatelessWidget {
+class Charge extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Charge Wallet'),
       ),
       backgroundColor: Colors.white,
@@ -17,6 +19,7 @@ class Charge extends StatelessWidget {
               PaymentMethodCard(
                 title: 'Add Money with Pix',
                 description: 'Coming Soon',
+                icon: Icons.payment,
               ),
             ],
           ),
@@ -29,10 +32,12 @@ class Charge extends StatelessWidget {
 class PaymentMethodCard extends StatelessWidget {
   final String title;
   final String description;
+  final IconData icon;
 
   const PaymentMethodCard({
     required this.title,
     required this.description,
+    required this.icon,
   });
 
   @override
@@ -41,16 +46,24 @@ class PaymentMethodCard extends StatelessWidget {
       elevation: 4.0,
       color: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
+            Row(
+              children: [
+                Icon(icon, color: Colors.blue, size: 24.0),
+                SizedBox(width: 8.0),
+                Text(
+                  title,
+                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
-            const SizedBox(height: 8.0),
+            const SizedBox(height: 12.0),
             Text(
               description,
+              style: TextStyle(fontSize: 16.0, color: Colors.grey),
             ),
           ],
         ),

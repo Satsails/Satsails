@@ -65,7 +65,7 @@ class Start extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       CustomButton(
-                        text: 'Recover account',
+                        text: 'Recover Account',
                         onPressed: () {
                           Navigator.pushNamed(context, '/recover_wallet');
                         },
