@@ -68,7 +68,11 @@ class Sideswap {
         _exchangeDoneController.add(decodedMessage);
         break;
       default:
-        throw Exception('Unknown method: ${decodedMessage['method']}');
+        if (decodedMessage['error']['message'] == 'already registered') {
+          break;
+        } else {
+          throw Exception('Unknown method: ${decodedMessage['method']}');
+        }
     }
   }
 

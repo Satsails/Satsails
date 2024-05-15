@@ -377,7 +377,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'Fee:'.i18n(ref) + '$fee${' sats'}',
+                              'Fee:'.i18n(ref) + ' $fee${' sats'}',
                               style: TextStyle(fontSize: dynamicFontSize, fontWeight: FontWeight.bold, color: Colors.white),
                               textAlign: TextAlign.center,
                             ),

@@ -542,7 +542,43 @@ extension Localization on String {
   } + {
     'en': 'Details',
     'pt': 'Detalhes',
-  };
+  } +    {
+    'en': '10 minutes',
+    'pt': '10 minutos',
+  } +
+      {
+        'en': '30 minutes',
+        'pt': '30 minutos',
+      } +
+      {
+        'en': '1 hour',
+        'pt': '1 hora',
+      } +
+      {
+        'en': 'Days',
+        'pt': 'Dias',
+      } +
+      {
+        'en': 'Weeks',
+        'pt': 'Semanas',
+      } +
+      {
+        'en': 'Invalid number of blocks.',
+        'pt': 'Número inválido de blocos.',
+      } +
+      {
+        'en': 'Invalid number of blocks.',
+        'pt': 'Número inválido de blocos.',
+      } +
+      {
+        'en': 'Insufficient funds for a transaction this fast',
+        'pt': 'Fundos insuficientes para uma transação tão rápida',
+      } +
+      {
+        'en': 'Amount is too small',
+        'pt': 'O valor é muito pequeno',
+      };
+
 
 
 
@@ -555,6 +591,4 @@ extension Localization on String {
     }
     return localize(this, _t, locale: currentLanguage);
   }
-
-
 }

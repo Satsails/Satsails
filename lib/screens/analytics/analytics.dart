@@ -19,20 +19,23 @@ class Analytics extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Center(child: Text('Analytics'.i18n(ref))),
-        automaticallyImplyLeading: false,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
         backgroundColor: Colors.white,
-      ),
-      body: _buildBody(context, ref),
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: ref.watch(navigationProvider),
-        context: context,
-        onTap: (int index) {
-          ref.read(navigationProvider.notifier).state = index;
-        },
+        appBar: AppBar(
+          title: Center(child: Text('Analytics'.i18n(ref))),
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.white,
+        ),
+        body: _buildBody(context, ref),
+        bottomNavigationBar: CustomBottomNavigationBar(
+          currentIndex: ref.watch(navigationProvider),
+          context: context,
+          onTap: (int index) {
+            ref.read(navigationProvider.notifier).state = index;
+          },
+        ),
       ),
     );
   }

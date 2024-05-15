@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk_dart/lwk_dart.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
@@ -169,20 +170,20 @@ final assetBalanceProvider = StateProvider.autoDispose<int>((ref) {
   }
 });
 
-String getTimeFrame(int blocks) {
+String getTimeFrame(int blocks, WidgetRef ref) {
   switch (blocks) {
     case 1:
-      return '10 minutes';
+      return '10 minutes'.i18n(ref);
     case 2:
-      return '30 minutes';
+      return '30 minutes'.i18n(ref);
     case 3:
-      return '1 hour';
+      return '1 hour'.i18n(ref);
     case 4:
-      return 'Days';
+      return 'Days'.i18n(ref);
     case 5:
-      return 'Weeks';
+      return 'Weeks'.i18n(ref);
     default:
-      return 'Invalid number of blocks.';
+      return 'Invalid number of blocks.'.i18n(ref);
   }
 }
 

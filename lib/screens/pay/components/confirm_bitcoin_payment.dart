@@ -164,11 +164,11 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                           final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future).then((value) => value);
                           final fee = await transaction.$1.feeAmount().then((value) => value);
                           final amountToSet = (balance - fee!);
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), btcFormart);
+                          ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), 'sats');
                           controller.text = btcInDenominationFormatted(amountToSet.toDouble(), btcFormart);
                         }
                         catch (e) {
-                          Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                          Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                         }
                       },
                       child: Padding(
@@ -201,7 +201,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Text(
-                    "${"Transaction in".i18n(ref)}${getTimeFrame(ref.watch(sendBlocksProvider).toInt())}",
+                    "${"Transaction in".i18n(ref)}${getTimeFrame(ref.watch(sendBlocksProvider).toInt(), ref)}",
                     style: TextStyle(
                       fontSize: dynamicFontSize,
                       fontWeight: FontWeight.bold,
@@ -231,7 +231,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'Fee: $fee sats',
+                              'Fee:'.i18n(ref) + ' $fee sats',
                               style: TextStyle(fontSize: dynamicFontSize, fontWeight: FontWeight.bold, color: Colors.white),
                               textAlign: TextAlign.center,
                             ),
@@ -246,7 +246,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                   ),
                   error: (error, stack) => Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child:  TextButton(onPressed: () { ref.refresh(feeProvider); }, child: Text(sendTxState.amount == 0 ? '' : error.toString(), style: TextStyle(color: Colors.black, fontSize: dynamicFontSize))),
+                    child:  TextButton(onPressed: () { ref.refresh(feeProvider); }, child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.black, fontSize: dynamicFontSize))),
                   ),
                 ),
                 SizedBox(height: dynamicSizedBox),

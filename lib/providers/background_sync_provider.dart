@@ -69,6 +69,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           break;
         case AssetId.LBTC:
           balanceModel.updateLiquidBalance(balance.value);
+          liquidBox.put('liquid', balance.value);
           break;
         default:
           break;
@@ -77,6 +78,6 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
   }
 }
 
-final backgroundSyncNotifierProvider = StateProvider.autoDispose((ref) {
+final backgroundSyncNotifierProvider = StateProvider((ref) {
   return BackgroundSyncNotifier(ref);
 });
