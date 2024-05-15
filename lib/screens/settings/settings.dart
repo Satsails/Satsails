@@ -25,7 +25,7 @@ class Settings extends ConsumerWidget {
             _buildDivider(),
             _buildSupportSection(),
             _buildDivider(),
-            _buildClaimLightningTransactionsSection(context),
+            _buildClaimBoltzTransactionsSection(context),
             _buildDivider(),
             _buildSeedSection(context),
             _buildDivider(),
@@ -151,12 +151,12 @@ class Settings extends ConsumerWidget {
     );
   }
 
-  Widget _buildClaimLightningTransactionsSection(BuildContext context) {
+  Widget _buildClaimBoltzTransactionsSection(BuildContext context) {
     return ListTile(
       leading: Icon(Icons.flash_on, color: Colors.orangeAccent),
       title: const Text('Claim Lightning Transactions'),
       onTap: () {
-        Navigator.pushNamed(context, '/claim_lightning_transactions');
+        Navigator.pushNamed(context, '/claim_boltz_transactions');
       },
     );
   }

@@ -348,4 +348,32 @@ class Boltz {
       swapScript: result.swapScript,
     );
   }
+
+  Future<bool> refund({
+    required String outAddress,
+    required AllFees fees,
+    required bool tryCooperate,
+  }) async {
+
+    try{
+      final refund = await LbtcLnV2Swap.newInstance(
+        id: swap.id,
+        kind: swap.kind,
+        network: swap.network,
+        keys: keys,
+        preimage: preimage,
+        swapScript: swapScript,
+        invoice: swap.invoice,
+        outAmount: swap.outAmount,
+        outAddress: swap.scriptAddress,
+        blindingKey: swap.blindingKey,
+        electrumUrl: swap.electrumUrl,
+        boltzUrl: swap.boltzUrl,
+      );
+      await refund.refund(outAddress: outAddress, absFee: fees.lbtcSubmarine.lockupFeesEstimate, tryCooperate: tryCooperate);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
+import 'package:Satsails/screens/settings/components/claim_boltz.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -116,6 +117,7 @@ class MainApp extends ConsumerWidget {
               '/confirm_bitcoin_payment': (context) => ConfirmBitcoinPayment(),
               '/confirm_liquid_payment': (context) => ConfirmLiquidPayment(),
               '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
+              '/claim_boltz_transactions': (context) => ClaimBoltz(),
             },
           );
         }
