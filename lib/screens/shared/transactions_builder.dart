@@ -19,11 +19,11 @@ class BuildTransactions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final transactions = ref.watch(transactionNotifierProvider);
     final List bitcoinTransactions;
     final List liquidTransactions;
 
     if (showAllTransactions) {
-      final transactions = ref.watch(transactionNotifierProvider);
       bitcoinTransactions = transactions.bitcoinTransactions;
       liquidTransactions = transactions.liquidTransactions;
     } else {
@@ -188,7 +188,7 @@ class BuildTransactions extends ConsumerWidget {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    transaction.kind == 'unknown' ? Text("Swap".i18n(ref), style: const TextStyle(fontSize: 14)) : Text(transaction.kind.capitalize().i18n(ref), style: const TextStyle(fontSize: 14)),
+                    Text(liquidTransactionType(transaction, ref), style: const TextStyle(fontSize: 16)),
                     transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: const TextStyle(fontSize: 14)) : Text('Multiple'.i18n(ref), style: TextStyle(fontSize: 14)),
                   ],
                 ),
@@ -224,6 +224,25 @@ class BuildTransactions extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  String liquidTransactionType(Tx transaction, WidgetRef ref) {
+    switch (transaction.kind) {
+      case 'incoming':
+        return 'Received'.i18n(ref);
+      case 'outgoing':
+        return 'Sent'.i18n(ref);
+      case 'burn':
+        return 'Burn'.i18n(ref);
+      case 'redeposit':
+        return 'Redeposit'.i18n(ref);
+      case 'issuance':
+        return 'Issuance'.i18n(ref);
+      case 'reissuance':
+        return 'Reissuance'.i18n(ref);
+      default:
+        return 'Swap'.i18n(ref);
+    }
   }
 
   String timestampToDateTime(int? timestamp) {

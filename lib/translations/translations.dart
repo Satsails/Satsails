@@ -171,8 +171,8 @@ extension Localization on String {
         'pt': 'Troca',
       } +
       {
-        'en': 'Balance to Spend:',
-        'pt': 'Saldo para Gastar:',
+        'en': 'Balance to Spend: ',
+        'pt': 'Saldo para Gastar: ',
       } +
       {
         'en': 'Receive',
