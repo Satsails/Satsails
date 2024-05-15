@@ -100,7 +100,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                 children: [
                   Text('Reais Balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                   initializeBalance.when(
-                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text(fiatInDenominationFormatted(balance.brlBalance) + ' BRL', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
+                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('${fiatInDenominationFormatted(balance.brlBalance)} BRL', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                       loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                       error: (error, stack) => SizedBox(height: titleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))))
                   ),
@@ -134,7 +134,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                 children: [
                   Text('Dollar Balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                   initializeBalance.when(
-                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text(fiatInDenominationFormatted(balance.usdBalance) + ' USD', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
+                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('${fiatInDenominationFormatted(balance.usdBalance)} USD', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                       loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                       error: (error, stack) => SizedBox(height: titleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))))
                   ),
@@ -168,7 +168,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                 children: [
                   Text('Euro Balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                   initializeBalance.when(
-                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text(fiatInDenominationFormatted(balance.eurBalance) + ' EUR', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
+                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('${fiatInDenominationFormatted(balance.eurBalance)} EUR', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                       loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                       error: (error, stack) => SizedBox(height: titleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))))
                   ),
@@ -378,7 +378,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'Fee:'.i18n(ref) + ' $fee${' sats'}',
+                              '${'Fee:'.i18n(ref)} $fee${' sats'}',
                               style: TextStyle(fontSize: dynamicFontSize, fontWeight: FontWeight.bold, color: Colors.white),
                               textAlign: TextAlign.center,
                             ),

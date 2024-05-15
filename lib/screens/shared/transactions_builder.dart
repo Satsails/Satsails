@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
@@ -189,7 +188,7 @@ class BuildTransactions extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(liquidTransactionType(transaction, ref), style: const TextStyle(fontSize: 16)),
-                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: const TextStyle(fontSize: 14)) : Text('Multiple'.i18n(ref), style: TextStyle(fontSize: 14)),
+                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: const TextStyle(fontSize: 14)) : Text('Multiple'.i18n(ref), style: const TextStyle(fontSize: 14)),
                   ],
                 ),
                 // subtitle: Text("Fee: ${_transactionValueLiquid(transaction.fee, ref)}",style: const TextStyle(fontSize: 14)),

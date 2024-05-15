@@ -21,7 +21,7 @@ class PegDetails extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Details'.i18n(ref), style: TextStyle(color: Colors.black)),
+        title: Text('Details'.i18n(ref), style: const TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
       ),
       body: status.when(
@@ -42,7 +42,7 @@ class PegDetails extends ConsumerWidget {
                       _buildTxStatusTile(e, ref),
                     ],
                   );
-                }).toList() ?? [Text('No transactions found. Check back later.'.i18n(ref), style: TextStyle(fontSize: 18))]),
+                }).toList() ?? [Text('No transactions found. Check back later.'.i18n(ref), style: const TextStyle(fontSize: 18))]),
               ],
             ),
           );
@@ -71,7 +71,7 @@ class PegDetails extends ConsumerWidget {
       case 'Detected':
         return ListTile(
           leading: const Icon(Icons.search, color: Colors.black),
-          title: Text("Confirmations".i18n(ref), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          title: Text("Confirmations".i18n(ref), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           subtitle: Text("${status.detectedConfs} ${"Detected".i18n(ref)}", style: const TextStyle(fontSize: 16)),
           trailing: Text("${status.totalConfs} ${"Needed".i18n(ref)}", style: const TextStyle(fontSize: 16)),
         );

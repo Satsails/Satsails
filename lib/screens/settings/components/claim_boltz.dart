@@ -97,7 +97,7 @@ Widget buildBoltzItem(Boltz boltz, BuildContext context, WidgetRef ref) {
     leading: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text("Amount".i18n(ref), style: TextStyle(fontSize: 13)),
+        Text("Amount".i18n(ref), style: const TextStyle(fontSize: 13)),
         Text("${btcInDenominationFormatted(boltz.swap.outAmount.toDouble(), btcFormat)}$btcFormat", style: const TextStyle(fontSize: 13)),
       ],
     ),
