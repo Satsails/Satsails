@@ -144,12 +144,15 @@ final sideswapPriceProvider = StateNotifierProvider.autoDispose<SideswapPriceMod
 });
 
 final sideswapStartExchangeProvider = StreamProvider.autoDispose<SideswapStartExchange>((ref) {
-  final service = ref.watch(sideswapServiceProvider);
-  final asset = ref.watch(assetExchangeProvider);
-  final price = ref.watch(sideswapPriceProvider);
-  final sendBitcoin = ref.watch(sendBitcoinProvider);
-  service.startExchange(asset: asset, price: price.price!, sendBitcoins: sendBitcoin, sendAmount: price.sendAmount!, recvAmount: price.recvAmount!);
-  return service.exchangeStream.map((event) => SideswapStartExchange.fromJson(event));
+    final service = ref.watch(sideswapServiceProvider);
+    final asset = ref.watch(assetExchangeProvider);
+    final price = ref.watch(sideswapPriceProvider);
+    final sendBitcoin = ref.watch(sendBitcoinProvider);
+    if (price.errorMsg != null) {
+      throw price.errorMsg!;
+    }
+    service.startExchange(asset: asset, price: price.price!, sendBitcoins: sendBitcoin, sendAmount: price.sendAmount!, recvAmount: price.recvAmount!);
+    return service.exchangeStream.map((event) => SideswapStartExchange.fromJson(event));
 });
 
 

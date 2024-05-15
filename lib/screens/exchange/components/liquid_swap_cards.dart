@@ -1,3 +1,4 @@
+import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ final currentBalanceProvider = StateProvider.autoDispose<String>((ref) {
   final btcFormat = ref.read(settingsProvider).btcFormat;
   final sendBitcoin = ref.read(sendBitcoinProvider);
   if (!sendBitcoin) {
-    return ref.read(balanceNotifierProvider).brlBalance.toStringAsFixed(2);
+    return fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
   } else {
     return ref.read(liquidBalanceInFormatProvider(btcFormat));
   }
@@ -74,7 +75,7 @@ class LiquidSwapCards extends ConsumerWidget {
               case 0:
                 ticker = AssetId.BRL;
                 if (!sendBitcoin) {
-                  ref.read(currentBalanceProvider.notifier).state = ref.watch(balanceNotifierProvider).brlBalance.toStringAsFixed(2);
+                  ref.read(currentBalanceProvider.notifier).state = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
                 } else {
                   ref.read(currentBalanceProvider.notifier).state = ref.watch(liquidBalanceInFormatProvider(ref.read(settingsProvider).btcFormat));
                 }
@@ -83,7 +84,7 @@ class LiquidSwapCards extends ConsumerWidget {
               case 1:
                 ticker = AssetId.USD;
                 if (!sendBitcoin) {
-                  ref.read(currentBalanceProvider.notifier).state = ref.watch(balanceNotifierProvider).usdBalance.toStringAsFixed(2);
+                  ref.read(currentBalanceProvider.notifier).state = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance);
                 } else {
                   ref.read(currentBalanceProvider.notifier).state = ref.watch(liquidBalanceInFormatProvider(ref.read(settingsProvider).btcFormat));
                 }
@@ -91,7 +92,7 @@ class LiquidSwapCards extends ConsumerWidget {
               case 2:
                 ticker = AssetId.EUR;
                 if (!sendBitcoin) {
-                  ref.read(currentBalanceProvider.notifier).state = ref.watch(balanceNotifierProvider).eurBalance.toStringAsFixed(2);
+                  ref.read(currentBalanceProvider.notifier).state = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance);
                 } else {
                   ref.read(currentBalanceProvider.notifier).state = ref.watch(liquidBalanceInFormatProvider(ref.read(settingsProvider).btcFormat));
                 }
@@ -99,7 +100,7 @@ class LiquidSwapCards extends ConsumerWidget {
               default:
                 ticker = AssetId.BRL;
                 if (!sendBitcoin) {
-                  ref.read(currentBalanceProvider.notifier).state = ref.watch(balanceNotifierProvider).brlBalance.toStringAsFixed(2);
+                  ref.read(currentBalanceProvider.notifier).state = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
                 } else {
                   ref.read(currentBalanceProvider.notifier).state = ref.watch(liquidBalanceInFormatProvider(ref.read(settingsProvider).btcFormat));
                 }
@@ -126,7 +127,7 @@ class LiquidSwapCards extends ConsumerWidget {
       children: [
         Column(
           children: [
-            Text("Balance to Spend:".i18n(ref) + currentBalance, style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),),
+            Text("Balance to Spend: ".i18n(ref) + currentBalance, style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),),
             ...swapCards,
           ],
         ),

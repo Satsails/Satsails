@@ -95,7 +95,7 @@ class Settings extends ConsumerWidget {
     return ListTile(
       leading: const Icon(Icons.language, color: Colors.orangeAccent),
       title: Text('Language'.i18n(ref)),
-      subtitle: Text(settings.language),
+      subtitle: Text(settings.language.toUpperCase()),
       onTap: () {
         showModalBottomSheet(
           context: context,

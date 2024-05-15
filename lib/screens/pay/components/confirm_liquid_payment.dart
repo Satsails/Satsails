@@ -1,3 +1,4 @@
+import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -99,7 +100,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                 children: [
                   Text('Reais Balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                   initializeBalance.when(
-                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('${balance.brlBalance.toStringAsFixed(2)} BRL', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
+                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text(fiatInDenominationFormatted(balance.brlBalance) + ' BRL', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                       loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                       error: (error, stack) => SizedBox(height: titleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))))
                   ),
@@ -133,7 +134,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                 children: [
                   Text('Dollar Balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                   initializeBalance.when(
-                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('${balance.usdBalance.toStringAsFixed(2)} USD', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
+                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text(fiatInDenominationFormatted(balance.usdBalance) + ' USD', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                       loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                       error: (error, stack) => SizedBox(height: titleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))))
                   ),
@@ -167,7 +168,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                 children: [
                   Text('Euro Balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                   initializeBalance.when(
-                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('${balance.eurBalance.toStringAsFixed(2)} EUR', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
+                      data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text(fiatInDenominationFormatted(balance.eurBalance) + ' EUR', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                       loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
                       error: (error, stack) => SizedBox(height: titleFontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: titleFontSize))))
                   ),
@@ -326,7 +327,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                             controller.text = sendingBalance.toStringAsFixed(2);
                             ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
                           }}catch(e) {
-                          Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                          Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                         }
                       },
                       child: Padding(
@@ -437,7 +438,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                         Navigator.pushNamed(context, '/home');
                       } catch (e) {
                         controller.failure();
-                        Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                        Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                         controller.reset();
                       }
                     },

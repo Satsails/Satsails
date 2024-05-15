@@ -1,3 +1,4 @@
+import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -129,9 +130,9 @@ class Accounts extends ConsumerWidget {
                     ),
                     child: Column(
                       children: [
-                        _buildListTile('Real', balance.brlBalance.toString(), Flag(Flags.brazil), context, liquid, '', '', '', ref),
-                        _buildListTile('Dollar', balance.usdBalance.toString(), Flag(Flags.united_states_of_america), context, liquid, '', '', '', ref),
-                        _buildListTile('Euro', balance.eurBalance.toString(), Flag(Flags.european_union), context, liquid, '', '', '', ref),
+                        _buildListTile('Real', fiatInDenominationFormatted(balance.brlBalance), Flag(Flags.brazil), context, liquid, '', '', '', ref),
+                        _buildListTile('Dollar', fiatInDenominationFormatted(balance.usdBalance), Flag(Flags.united_states_of_america), context, liquid, '', '', '', ref),
+                        _buildListTile('Euro', fiatInDenominationFormatted(balance.eurBalance), Flag(Flags.european_union), context, liquid, '', '', '', ref),
                       ],
                     ),
                   ),

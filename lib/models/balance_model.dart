@@ -124,8 +124,8 @@ class Balance {
       eurPercentage: conversions.eurToBtc * eurBalance.toDouble() / total,
       usdPercentage: conversions.usdToBtc * usdBalance.toDouble() / total,
       brlPercentage: conversions.brlToBtc * brlBalance.toDouble() / total,
-      liquidPercentage: (liquidBalance / 100000000) / total,
-      btcPercentage: (btcBalance / 100000000) / total,
+      liquidPercentage: (liquidBalance) / total,
+      btcPercentage: (btcBalance) / total,
       total: total,
     );
   }
@@ -179,32 +179,31 @@ class Balance {
     switch (currency) {
       case 'BTC':
         total += totalInBtc;
-        total += conversions.brlToBtc * brlBalance.toDouble();
-        total += conversions.eurToBtc * eurBalance.toDouble();
-        total += conversions.usdToBtc * usdBalance.toDouble();
+        total += conversions.brlToBtc * brlBalance.toDouble() / 100000000;
+        total += conversions.eurToBtc * eurBalance.toDouble() / 100000000;
+        total += conversions.usdToBtc * usdBalance.toDouble() / 100000000;
         break;
       case 'USD':
-        total += usdBalance.toDouble();
-        total += conversions.brlToUsd * brlBalance.toDouble();
-        total += conversions.eurToUsd * eurBalance.toDouble();
+        total += usdBalance.toDouble() / 100000000;
+        total += conversions.brlToUsd * brlBalance.toDouble() / 100000000;
+        total += conversions.eurToUsd * eurBalance.toDouble() / 100000000;
         total += totalInBtc * conversions.btcToUsd;
         break;
       case 'EUR':
-        total += eurBalance.toDouble();
-        total += conversions.brlToEur * brlBalance.toDouble();
+        total += eurBalance.toDouble() / 100000000;
+        total += conversions.brlToEur * brlBalance.toDouble() / 100000000;
         total += totalInBtc * conversions.btcToEur;
-        total += conversions.usdToEur * usdBalance.toDouble();
+        total += conversions.usdToEur * usdBalance.toDouble() / 100000000;
         break;
       case 'BRL':
-        total += brlBalance.toDouble();
+        total += brlBalance.toDouble() / 100000000;
         total += totalInBtc * conversions.btcToBrl;
-        total += conversions.eurToBrl * eurBalance.toDouble();
-        total += conversions.usdToBrl * usdBalance.toDouble();
+        total += conversions.eurToBrl * eurBalance.toDouble() / 100000000;
+        total += conversions.usdToBrl * usdBalance.toDouble() / 100000000;
         break;
     }
     return total;
   }
-
 }
 
 class Percentage {
