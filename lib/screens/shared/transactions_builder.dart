@@ -45,7 +45,7 @@ class BuildTransactions extends ConsumerWidget {
         height: MediaQuery.of(context).size.height - kToolbarHeight,
         child: LiquidPullToRefresh(
           onRefresh: () async {
-            ref.refresh(backgroundSyncNotifierProvider);
+           ref.read(backgroundSyncNotifierProvider).performSync();
           },
           color: Colors.orangeAccent,
           showChildOpacityTransition: false,

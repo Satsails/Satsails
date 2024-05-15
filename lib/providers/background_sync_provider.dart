@@ -13,11 +13,11 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
 
   BackgroundSyncNotifier(this.ref) : super(null) {
     Timer.periodic(const Duration(seconds: 120), (timer) {
-      _performSync();
+      performSync();
     });
   }
 
-  Future<void> _performSync() async {
+  Future<void> performSync() async {
     const maxAttempts = 3;
     int attempt = 0;
 
@@ -77,6 +77,6 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
   }
 }
 
-final backgroundSyncNotifierProvider = StateProvider((ref) {
+final backgroundSyncNotifierProvider = StateProvider.autoDispose((ref) {
   return BackgroundSyncNotifier(ref);
 });

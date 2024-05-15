@@ -94,7 +94,7 @@ class Home extends ConsumerWidget {
 
     void toggleOnlineStatus() {
       settingsNotifier.setOnline(true);
-      ref.refresh(backgroundSyncNotifierProvider);
+     ref.read(backgroundSyncNotifierProvider).performSync();
     }
 
     return PreferredSize(

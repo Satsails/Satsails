@@ -287,7 +287,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                         Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                         await Future.delayed(const Duration(seconds: 3));
                         ref.read(sendTxProvider.notifier).resetToDefault();
-                        ref.refresh(backgroundSyncNotifierProvider);
+                       ref.read(backgroundSyncNotifierProvider).performSync();
                         Navigator.pushNamed(context, '/home');
                       } catch (e) {
                         controller.failure();
