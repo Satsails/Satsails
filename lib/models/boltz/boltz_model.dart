@@ -3,76 +3,154 @@ import 'package:hive/hive.dart';
 
 part 'boltz_model.g.dart';
 
-@HiveType(typeId: 12)
-class ExtendedKeyPair {
-  @HiveField(0)
-  final KeyPair keyPair;
+class KeyPairAdapter extends TypeAdapter<KeyPair> {
+  @override
+  final typeId = 19;
 
-  ExtendedKeyPair(this.keyPair);
+  @override
+  KeyPair read(BinaryReader reader) {
+    // Read the fields of the KeyPairImp from the reader and use them to create a KeyPairImp
+    String secretKey = reader.readString();
+    String publicKey = reader.readString();
+    return KeyPair(secretKey: secretKey, publicKey: publicKey);
+  }
 
-  ExtendedKeyPair.raw({
-    @HiveField(1)
-    required String secretKey,
-    @HiveField(2)
-    required String publicKey,
-  }) : keyPair = KeyPair.raw(
-    secretKey: secretKey,
-    publicKey: publicKey,
-  );
+  @override
+  void write(BinaryWriter writer, KeyPair obj) {
+    // Write the fields of the KeyPairImp to the writer
+    writer.writeString(obj.secretKey);
+    writer.writeString(obj.publicKey);
+  }
 }
 
-@HiveType(typeId: 13)
-class ExtendedPreImage {
-  @HiveField(0)
-  final PreImage preImage;
 
-  ExtendedPreImage(this.preImage);
+class SwapTypeAdapter extends TypeAdapter<SwapType> {
+  @override
+  final typeId = 17; // Choose an unused typeId
 
-  ExtendedPreImage.raw({
-    @HiveField(1)
-    required String value,
-    @HiveField(2)
-    required String sha256,
-    @HiveField(3)
-    required String hash160,
-  }) : preImage = PreImage.raw(
-    value: value,
-    sha256: sha256,
-    hash160: hash160,
-  );
+  @override
+  SwapType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return SwapType.submarine;
+      case 1:
+        return SwapType.reverse;
+      default:
+        throw Exception('Unknown SwapType');
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, SwapType obj) {
+    switch (obj) {
+      case SwapType.submarine:
+        writer.writeByte(0);
+        break;
+      case SwapType.reverse:
+        writer.writeByte(1);
+        break;
+    }
+  }
 }
 
-@HiveType(typeId: 14)
-class ExtendedLBtcSwapScriptV2Str {
-  @HiveField(0)
-  final LBtcSwapScriptV2Str swapScript;
+class ChainAdapter extends TypeAdapter<Chain> {
+  @override
+  final typeId = 18; // Choose an unused typeId
 
-  ExtendedLBtcSwapScriptV2Str(this.swapScript);
+  @override
+  Chain read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return Chain.bitcoin;
+      case 1:
+        return Chain.bitcoinTestnet;
+      case 2:
+        return Chain.liquid;
+      case 3:
+        return Chain.liquidTestnet;
+      default:
+        throw Exception('Unknown Chain');
+    }
+  }
 
-  ExtendedLBtcSwapScriptV2Str.raw({
-    @HiveField(1)
-    required SwapType swapType,
-    @HiveField(2)
-    String? fundingAddrs,
-    @HiveField(3)
-    required String hashlock,
-    @HiveField(4)
-    required String receiverPubkey,
-    @HiveField(5)
-    required int locktime,
-    @HiveField(6)
-    required String senderPubkey,
-    @HiveField(7)
-    required String blindingKey,
-  }) : swapScript = LBtcSwapScriptV2Str.raw(
-    swapType: swapType,
-    fundingAddrs: fundingAddrs,
-    hashlock: hashlock,
-    receiverPubkey: receiverPubkey,
-    locktime: locktime,
-    senderPubkey: senderPubkey,
-    blindingKey: blindingKey,
-  );
+  @override
+  void write(BinaryWriter writer, Chain obj) {
+    switch (obj) {
+      case Chain.bitcoin:
+        writer.writeByte(0);
+        break;
+      case Chain.bitcoinTestnet:
+        writer.writeByte(1);
+        break;
+      case Chain.liquid:
+        writer.writeByte(2);
+        break;
+      case Chain.liquidTestnet:
+        writer.writeByte(3);
+        break;
+    }
+  }
+}
+
+class PreImageAdapter extends TypeAdapter<PreImage> {
+  @override
+  final typeId = 20; // Choose an unused typeId
+
+  @override
+  PreImage read(BinaryReader reader) {
+    // Read the fields of the PreImage from the reader and use them to create a PreImage
+    String value = reader.readString();
+    String sha256 = reader.readString();
+    String hash160 = reader.readString();
+    return PreImage(value: value, sha256: sha256, hash160: hash160);
+  }
+
+  @override
+  void write(BinaryWriter writer, PreImage obj) {
+    // Write the fields of the PreImage to the writer
+    writer.writeString(obj.value);
+    writer.writeString(obj.sha256);
+    writer.writeString(obj.hash160);
+  }
+}
+
+
+class LBtcSwapScriptV2StrAdapter extends TypeAdapter<LBtcSwapScriptV2Str> {
+  @override
+  final typeId = 21; // Choose an unused typeId
+
+  @override
+  LBtcSwapScriptV2Str read(BinaryReader reader) {
+    // Read the fields of the LBtcSwapScriptV2Str from the reader and use them to create a LBtcSwapScriptV2Str
+    SwapType swapType = SwapType.values[reader.readByte()];
+    String? fundingAddrs = reader.readString();
+    String hashlock = reader.readString();
+    String receiverPubkey = reader.readString();
+    int locktime = reader.readInt();
+    String senderPubkey = reader.readString();
+    String blindingKey = reader.readString();
+    return LBtcSwapScriptV2Str(
+      swapType: swapType,
+      fundingAddrs: fundingAddrs ?? '',
+      hashlock: hashlock,
+      receiverPubkey: receiverPubkey,
+      locktime: locktime,
+      senderPubkey: senderPubkey,
+      blindingKey: blindingKey,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, LBtcSwapScriptV2Str obj) {
+    // Write the fields of the LBtcSwapScriptV2Str to the writer
+    writer.writeByte(obj.swapType.index);
+    writer.writeString(obj.fundingAddrs ?? '');
+    writer.writeString(obj.hashlock);
+    writer.writeString(obj.receiverPubkey);
+    writer.writeInt(obj.locktime);
+    writer.writeString(obj.senderPubkey);
+    writer.writeString(obj.blindingKey);
+  }
 }
 
 @HiveType(typeId: 15)
@@ -84,11 +162,11 @@ class ExtendedLbtcLnV2Swap {
   @HiveField(2)
   final Chain network;
   @HiveField(3)
-  final KeyPair keys;
+  final KeyPair keys; // Changed from KeyPairAdapter to KeyPair
   @HiveField(4)
-  final PreImage preimage;
+  final PreImage preimage; // Changed from PreImageAdapter to PreImage
   @HiveField(5)
-  final LBtcSwapScriptV2Str swapScript;
+  final LBtcSwapScriptV2Str swapScript; // Changed from LBtcSwapScriptV2StrAdapter to LBtcSwapScriptV2Str
   @HiveField(6)
   final String invoice;
   @HiveField(7)
@@ -118,16 +196,19 @@ class ExtendedLbtcLnV2Swap {
   });
 }
 
+
+
+
 @HiveType(typeId: 16)
 class Boltz {
   @HiveField(0)
   final ExtendedLbtcLnV2Swap swap;
   @HiveField(1)
-  final ExtendedKeyPair keys;
+  final KeyPair keys; // Changed from KeyPairAdapter to KeyPair
   @HiveField(2)
-  final ExtendedPreImage preimage;
+  final PreImage preimage; // Changed from PreImageAdapter to PreImage
   @HiveField(3)
-  final ExtendedLBtcSwapScriptV2Str swapScript;
+  final LBtcSwapScriptV2Str swapScript; // Changed from LBtcSwapScriptV2StrAdapter to LBtcSwapScriptV2Str
 
   Boltz({
     required this.swap,
@@ -165,34 +246,14 @@ class Boltz {
     );
 
 
-    final extendedPreImage = ExtendedPreImage.raw(
-      value: result.preimage.value,
-      sha256: result.preimage.sha256,
-      hash160: result.preimage.hash160,
-    );
-
-    final extendedKeyPair = ExtendedKeyPair.raw(
-      secretKey: result.keys.secretKey,
-      publicKey: result.keys.publicKey,
-    );
-
-    final extendedLBtcSwapScriptV2Str = ExtendedLBtcSwapScriptV2Str.raw(
-      swapType: result.swapScript.swapType,
-      fundingAddrs: result.swapScript.fundingAddrs,
-      hashlock: result.swapScript.hashlock,
-      receiverPubkey: result.swapScript.receiverPubkey,
-      locktime: result.swapScript.locktime,
-      senderPubkey: result.swapScript.senderPubkey,
-      blindingKey: result.swapScript.blindingKey,
-    );
 
     final extendedSwap = ExtendedLbtcLnV2Swap(
       id: result.id,
       kind: result.kind,
       network: result.network,
-      keys: extendedKeyPair.keyPair,
-      preimage: extendedPreImage.preImage,
-      swapScript: extendedLBtcSwapScriptV2Str.swapScript,
+      keys: result.keys,
+      preimage: result.preimage,
+      swapScript: result.swapScript,
       invoice: result.invoice,
       outAmount: result.outAmount,
       scriptAddress: result.scriptAddress,
@@ -203,9 +264,9 @@ class Boltz {
 
     return Boltz(
       swap: extendedSwap,
-      keys: extendedKeyPair,
-      preimage: extendedPreImage,
-      swapScript: extendedLBtcSwapScriptV2Str,
+      keys: result.keys,
+      preimage: result.preimage,
+      swapScript: result.swapScript,
     );
   }
 
@@ -218,9 +279,9 @@ class Boltz {
         id: swap.id,
         kind: swap.kind,
         network: swap.network,
-        keys: keys.keyPair,
-        preimage: preimage.preImage,
-        swapScript: swapScript.swapScript,
+        keys: keys,
+        preimage: preimage,
+        swapScript: swapScript,
         invoice: swap.invoice,
         outAmount: swap.outAmount,
         outAddress: swap.scriptAddress,
@@ -264,34 +325,14 @@ class Boltz {
         boltzUrl: 'https://api.boltz.exchange/v2'
     );
 
-    final extendedPreImage = ExtendedPreImage.raw(
-      value: result.preimage.value,
-      sha256: result.preimage.sha256,
-      hash160: result.preimage.hash160,
-    );
-
-    final extendedKeyPair = ExtendedKeyPair.raw(
-      secretKey: result.keys.secretKey,
-      publicKey: result.keys.publicKey,
-    );
-
-    final extendedLBtcSwapScriptV2Str = ExtendedLBtcSwapScriptV2Str.raw(
-      swapType: result.swapScript.swapType,
-      fundingAddrs: result.swapScript.fundingAddrs,
-      hashlock: result.swapScript.hashlock,
-      receiverPubkey: result.swapScript.receiverPubkey,
-      locktime: result.swapScript.locktime,
-      senderPubkey: result.swapScript.senderPubkey,
-      blindingKey: result.swapScript.blindingKey,
-    );
 
     final extendedSwap = ExtendedLbtcLnV2Swap(
       id: result.id,
       kind: result.kind,
       network: result.network,
-      keys: extendedKeyPair.keyPair,
-      preimage: extendedPreImage.preImage,
-      swapScript: extendedLBtcSwapScriptV2Str.swapScript,
+      keys: result.keys,
+      preimage: result.preimage,
+      swapScript: result.swapScript,
       invoice: result.invoice,
       outAmount: result.outAmount,
       scriptAddress: result.scriptAddress,
@@ -302,9 +343,9 @@ class Boltz {
 
     return Boltz(
       swap: extendedSwap,
-      keys: extendedKeyPair,
-      preimage: extendedPreImage,
-      swapScript: extendedLBtcSwapScriptV2Str,
+      keys: result.keys,
+      preimage: result.preimage,
+      swapScript: result.swapScript,
     );
   }
 }

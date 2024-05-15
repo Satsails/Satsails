@@ -47,10 +47,13 @@ void main() async {
   Hive.registerAdapter(BalanceAdapter());
   Hive.registerAdapter(SideswapPegStatusAdapter());
   Hive.registerAdapter(SideswapCompletedSwapAdapter());
-  Hive.registerAdapter(ExtendedKeyPairAdapter());
-  Hive.registerAdapter(ExtendedPreImageAdapter());
-  Hive.registerAdapter(ExtendedLBtcSwapScriptV2StrAdapter());
+  Hive.registerAdapter(KeyPairAdapter());
+  Hive.registerAdapter(PreImageAdapter());
+  Hive.registerAdapter(LBtcSwapScriptV2StrAdapter());
+  Hive.registerAdapter(ExtendedLbtcLnV2SwapAdapter());
   Hive.registerAdapter(BoltzAdapter());
+  Hive.registerAdapter(SwapTypeAdapter());
+  Hive.registerAdapter(ChainAdapter());
 
   await BoltzCore.init();
   await LwkCore.init();

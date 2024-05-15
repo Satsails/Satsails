@@ -17,7 +17,8 @@ final boltzReceiveProvider = FutureProvider.autoDispose<Boltz>((ref) async {
   final mnemonic = await authModel.getMnemonic();
   final address = await ref.read(liquidAddressProvider.future);
   final amount = await ref.watch(lnAmountProvider.future);
-  final recieve = await Boltz.createBoltzReceive(fees: fees, mnemonic: mnemonic!, index:address.index, address: address.confidential, amount: amount);final box = await Hive.openBox('receiveBoltz');
+  final recieve = await Boltz.createBoltzReceive(fees: fees, mnemonic: mnemonic!, index:address.index, address: address.confidential, amount: amount);
+  final box = await Hive.openBox('receiveBoltz');
   await box.put(recieve.swap.id, recieve);
   return recieve;
 });
