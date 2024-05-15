@@ -3,6 +3,7 @@ import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/screens/settings/components/boltz_button_picker.dart';
 import 'package:Satsails/screens/shared/offline_transaction_warning.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -22,7 +23,7 @@ class ClaimBoltz extends ConsumerWidget {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Exchange'),
+        title: Text('Claim lightning transactions'.i18n(ref)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -30,8 +31,8 @@ class ClaimBoltz extends ConsumerWidget {
           children: [
             const BoltzButtonPicker(),
             OfflineTransactionWarning(online: online),
-            if(button == 'Refund Sending')  const Expanded(child: RefundSending()),
-            if(button == 'Claim Receiving') const Expanded(child: ClaimReceiving()),
+            if(button == 'Refund Sending'.i18n(ref))  const Expanded(child: RefundSending()),
+            if(button == 'Claim Receiving'.i18n(ref)) const Expanded(child: ClaimReceiving()),
           ],
         ),
       ),
@@ -58,7 +59,7 @@ class ClaimReceiving extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text('Error: $error')),
+        error: (error, stackTrace) => Center(child: Text('Error: $error'.i18n(ref))),
       ),
     );
   }
@@ -84,7 +85,7 @@ class RefundSending extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text('Error: $error')),
+        error: (error, stackTrace) => Center(child: Text('Error: $error'.i18n(ref))),
       ),
     );
   }
@@ -96,7 +97,7 @@ Widget buildBoltzItem(Boltz boltz, BuildContext context, WidgetRef ref) {
     leading: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text("Amount", style: TextStyle(fontSize: 13)),
+        Text("Amount".i18n(ref), style: TextStyle(fontSize: 13)),
         Text("${btcInDenominationFormatted(boltz.swap.outAmount.toDouble(), btcFormat)}$btcFormat", style: const TextStyle(fontSize: 13)),
       ],
     ),
@@ -108,31 +109,31 @@ Widget buildBoltzItem(Boltz boltz, BuildContext context, WidgetRef ref) {
             children: <Widget>[
               ListTile(
                 leading: const Icon(Icons.money_off, color: Colors.orangeAccent),
-                title: const Text('Claim'),
+                title: Text('Claim'.i18n(ref)),
                 onTap: () async {
                   try {
                     await ref.read(claimSingleBoltzTransactionProvider(boltz.swap.id).future).then((value) => value);
                     ref.refresh(receivedBoltzProvider);
                     ref.refresh(payedBoltzProvider);
-                    Fluttertoast.showToast(msg:"Claimed" , toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                    Fluttertoast.showToast(msg:"Claimed".i18n(ref) , toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                   } catch (e) {
-                    Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                    Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                   }
                   Navigator.pop(context);
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Delete'),
+                title: Text('Delete'.i18n(ref)),
                 onTap: () async {
                   try {
                     await ref.read(deleteSingleBoltzTransactionProvider(boltz.swap.id).future);
                     await ref.read(deleteSingleBoltzTransactionProvider(boltz.swap.id).future);
                     ref.refresh(receivedBoltzProvider);
                     ref.refresh(payedBoltzProvider);
-                    Fluttertoast.showToast(msg: "Deleted", toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                    Fluttertoast.showToast(msg: "Deleted".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                   } catch (e) {
-                    Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                    Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                   }
                   Navigator.pop(context);
                 },

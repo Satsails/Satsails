@@ -1,3 +1,5 @@
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +16,8 @@ class PegDetails extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(sideswapStatusDetailsItemProvider);
+    final btcFormat = ref.watch(settingsProvider).btcFormat;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -33,8 +37,8 @@ class PegDetails extends ConsumerWidget {
                     children: [
                       _buildListTile("Send Transaction".i18n(ref), e.txHash ?? "Error".i18n(ref), Icons.send_and_archive_rounded),
                       _buildListTile("Received Transaction".i18n(ref), e.payoutTxid ?? "No Information".i18n(ref), Icons.call_received),
-                      _buildListTile("Amount sent".i18n(ref), e.amount.toString(), Icons.schedule_send_rounded),
-                      _buildListTile("Amount received".i18n(ref), e.payout?.toString() ?? "0", Icons.receipt_long),
+                      _buildListTile("Amount sent".i18n(ref), btcInDenominationFormatted(e.amount!.toDouble(), btcFormat), Icons.schedule_send_rounded),
+                      _buildListTile("Amount received".i18n(ref), btcInDenominationFormatted(e.payout!.toDouble() ?? 0, btcFormat), Icons.receipt_long),
                       _buildTxStatusTile(e, ref),
                     ],
                   );

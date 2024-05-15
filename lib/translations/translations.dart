@@ -577,7 +577,52 @@ extension Localization on String {
       {
         'en': 'Amount is too small',
         'pt': 'O valor é muito pequeno',
+      } +
+      {
+        'en': 'Deleted',
+        'pt': 'Excluído',
+      } +
+      {
+        'en': 'Delete',
+        'pt': 'Excluir',
+      } +
+      {
+        'en': 'Claimed',
+        'pt': 'Reivindicado',
+      } +
+      {
+        'en': 'Claim',
+        'pt': 'Reivindicar',
+      } +
+      {
+        'en': 'Amount',
+        'pt': 'Quantidade',
+      } +
+      {
+        'en': 'Claim lightning transactions',
+        'pt': 'Reivindicar transações lightning',
+      } +
+      {
+        'en': 'Set an amount to create an invoice',
+        'pt': 'Defina um valor para criar uma fatura',
+      } +
+      {
+        'en': 'Amount is below the minimal limit',
+        'pt': 'O valor está abaixo do limite mínimo',
+      } +
+      {
+        'en': 'Amount is above the maximal limit',
+        'pt': 'O valor está acima do limite máximo',
+      } +
+      {
+        'en': 'Error creating swap',
+        'pt': 'Erro ao criar troca',
+      } +
+      {
+        'en': 'Could not claim transaction',
+        'pt': 'Não foi possível reivindicar a transação',
       };
+
 
 
 

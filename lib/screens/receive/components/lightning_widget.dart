@@ -35,7 +35,7 @@ class LightningWidget extends ConsumerWidget {
               height: MediaQuery.of(context).size.width * 0.6,
               alignment: Alignment.center,
               child: Text(
-                '$error',
+                '$error'.i18n(ref),
                 style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 16,

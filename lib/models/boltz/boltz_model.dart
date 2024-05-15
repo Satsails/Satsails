@@ -334,7 +334,7 @@ class Boltz {
           boltzUrl: 'https://api.boltz.exchange/v2'
       );
     } catch (e) {
-      throw 'Error creating swap';
+      throw 'Error creating swa';
     }
 
     final extendedSwap = ExtendedLbtcLnV2Swap(

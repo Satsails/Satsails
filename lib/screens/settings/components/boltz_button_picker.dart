@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
@@ -29,12 +30,12 @@ class BoltzButtonPicker extends ConsumerWidget {
             ref.read(selectedButtonProvider.notifier).state = "Claim Receiving";
         }
       },
-      buttons: const ["Claim Receiving", 'Refund Sending'],
+      buttons: ["Claim Receiving".i18n(ref), 'Refund Sending'.i18n(ref)],
       options: GroupButtonOptions(
         unselectedTextStyle: const TextStyle(
-            fontSize: 16, color: Colors.black),
+            fontSize: 13, color: Colors.black),
         selectedTextStyle: const TextStyle(
-            fontSize: 16, color: Colors.white),
+            fontSize: 13, color: Colors.white),
         selectedColor: Colors.deepOrange,
         mainGroupAlignment: MainGroupAlignment.center,
         crossGroupAlignment: CrossGroupAlignment.center,
