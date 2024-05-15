@@ -532,7 +532,18 @@ extension Localization on String {
       {
         'en': 'No transactions found. Check back later.',
         'pt': 'Nenhuma transação encontrada. Verifique novamente mais tarde.',
-      };
+      }+
+      {
+        'en': 'Account Management',
+        'pt': 'Gerenciamento de Contas',
+      } + {
+    'en': 'Confirm Payment',
+    'pt': 'Confirmar Pagamento',
+  } + {
+    'en': 'Details',
+    'pt': 'Detalhes',
+  };
+
 
 
   String i18n(WidgetRef ref) {

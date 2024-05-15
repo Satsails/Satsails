@@ -74,7 +74,11 @@ Widget _buildFiatTransactionItem(SideswapCompletedSwap swap, BuildContext contex
       children: [
         ListTile(
           leading: const Icon(Icons.swap_calls_rounded, color: Colors.orange),
-          title: Center(child: Text("Fiat Swap".i18n(ref), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
+          title: Column(
+            children: [
+              Center(child: Text("Fiat Swap".i18n(ref), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold))),
+            ],
+          ),
           subtitle: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [

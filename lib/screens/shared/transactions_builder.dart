@@ -189,7 +189,7 @@ class BuildTransactions extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     transaction.kind == 'unknown' ? Text("Swap".i18n(ref), style: const TextStyle(fontSize: 14)) : Text(transaction.kind.capitalize().i18n(ref), style: const TextStyle(fontSize: 14)),
-                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: const TextStyle(fontSize: 14)) : const Text('Multiple', style: TextStyle(fontSize: 14)),
+                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: const TextStyle(fontSize: 14)) : Text('Multiple'.i18n(ref), style: TextStyle(fontSize: 14)),
                   ],
                 ),
                 // subtitle: Text("Fee: ${_transactionValueLiquid(transaction.fee, ref)}",style: const TextStyle(fontSize: 14)),

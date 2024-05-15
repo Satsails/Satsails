@@ -61,6 +61,7 @@ class Transaction {
       }
       return confirmationTime.timestamp > range.start && confirmationTime.timestamp < range.end;
     }).toList();
+
   }
 
   List<dynamic> filterLiquidTransactions(DateTimeSelect range) {
