@@ -12,6 +12,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
   final Ref ref;
 
   BackgroundSyncNotifier(this.ref) : super(null) {
+    performSync();
     Timer.periodic(const Duration(seconds: 120), (timer) {
       performSync();
     });
@@ -54,17 +55,17 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
     for (var balance in balances){
       switch (AssetMapper.mapAsset(balance.assetId)){
         case AssetId.USD:
-          balance = balance.value ~/ 100000000;
+          balance = balance.value;
           liquidBox.put('usd', balance);
           balanceModel.updateUsdBalance(balance);
           break;
         case AssetId.EUR:
-          balance = balance.value ~/ 100000000;
+          balance = balance.value;
           liquidBox.put('eur', balance);
           balanceModel.updateEurBalance(balance);
           break;
         case AssetId.BRL:
-          balance = balance.value ~/ 100000000;
+          balance = balance.value;
           balanceModel.updateBrlBalance(balance);
           break;
         case AssetId.LBTC:

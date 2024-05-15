@@ -204,11 +204,11 @@ class Boltz {
   @HiveField(0)
   final ExtendedLbtcLnV2Swap swap;
   @HiveField(1)
-  final KeyPair keys; // Changed from KeyPairAdapter to KeyPair
+  final KeyPair keys;
   @HiveField(2)
-  final PreImage preimage; // Changed from PreImageAdapter to PreImage
+  final PreImage preimage;
   @HiveField(3)
-  final LBtcSwapScriptV2Str swapScript; // Changed from LBtcSwapScriptV2StrAdapter to LBtcSwapScriptV2Str
+  final LBtcSwapScriptV2Str swapScript;
 
   Boltz({
     required this.swap,
