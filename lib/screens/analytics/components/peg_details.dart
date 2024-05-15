@@ -48,7 +48,7 @@ class PegDetails extends ConsumerWidget {
           );
         },
         loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange)),
-        error: (error, stackTrace) => Center(child: Text('Error: $error', style: const TextStyle(fontSize: 18, color: Colors.red))),
+        error: (error, stackTrace) => Center(child: Text('Error: $error Contact the developer (in the settings) about this', style: const TextStyle(fontSize: 18, color: Colors.red))),
       ),
     );
   }
