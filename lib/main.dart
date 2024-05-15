@@ -32,6 +32,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:i18n_extension/i18n_extension.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 
 void main() async {
@@ -60,10 +62,22 @@ void main() async {
   await LwkCore.init();
 
   runApp(
-    const MaterialApp(
+    MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ProviderScope(
-        child: MainApp(),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', 'US'),
+        Locale('pt', 'BR'),
+      ],
+      home: I18n(
+        initialLocale: Locale('en', 'US'),
+        child: ProviderScope(
+          child: MainApp(),
+        ),
       ),
     ),
   );

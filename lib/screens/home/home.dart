@@ -15,6 +15,7 @@ import 'package:Satsails/screens/shared/circular_button.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/offline_transaction_warning.dart';
 import 'package:Satsails/screens/shared/pie_chart.dart';
+import 'package:Satsails/translations/translations.dart';
 
 class Home extends ConsumerWidget {
   const Home({super.key});
@@ -73,9 +74,14 @@ class Home extends ConsumerWidget {
         ),
         SizedBox(height: screenHeight * 0.05),
         SizedBox(
-            height:screenWidth * 0.15,
-            width: screenWidth * 0.6,
-            child: CustomButton(text: 'View Accounts', onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => const Accounts())); },)
+          height: screenWidth * 0.15,
+          width: screenWidth * 0.6,
+          child: CustomButton(
+            text: 'View Accounts'.i18n(ref),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const Accounts()));
+            },
+          ),
         )
       ],
     );

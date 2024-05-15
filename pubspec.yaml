@@ -7,6 +7,8 @@ environment:
   sdk: '>=3.2.3 <4.0.0'
 
 dependencies:
+  flutter_localizations:
+    sdk: flutter
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
@@ -50,6 +52,7 @@ dependencies:
   calendar_date_picker2: ^0.5.6
   flutter_native_splash: ^2.4.0
   url_launcher: ^6.2.6
+  i18n_extension: ^12.0.1
 
 dev_dependencies:
   build_runner: ^2.4.9
