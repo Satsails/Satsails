@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
@@ -37,7 +38,7 @@ class ButtonPicker extends ConsumerWidget {
             ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
         }
       },
-      buttons: const ["Bitcoin", "Instant Bitcoin", 'Swaps'],
+      buttons: ["Bitcoin", "Instant Bitcoin".i18n(ref), 'Swaps'.i18n(ref)],
       options: GroupButtonOptions(
         unselectedTextStyle: const TextStyle(fontSize: 13, color: Colors.black),
         selectedTextStyle: const TextStyle(fontSize: 13, color: Colors.white),

@@ -63,7 +63,7 @@ class Peg extends ConsumerWidget {
         Column(
           children: [
             Text(
-              "Balance to spend:".i18n(ref),
+              "Balance to Spend:".i18n(ref),
               style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
             ),
             Text(
@@ -74,14 +74,14 @@ class Peg extends ConsumerWidget {
             SizedBox(height: dynamicSizedBox / 2),
             ...cards, // Spread operator to insert all elements of the list
             Text(
-              'Minimum amount: ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} ${btcFormart}'.i18n(ref).fill([pegIn ? status.minPegInAmount.toString() : status.minPegOutAmount.toString()]),
+              'Minimum amount:'.i18n(ref) + ' ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} ${btcFormart}',
               style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
             pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
             if (!pegIn)
               Text(
-                'Bitcoin Network fee: ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats'.i18n(ref).fill([ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)]),
+                'Bitcoin Network fee:'.i18n(ref) + ' ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats',
                 style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
@@ -207,7 +207,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
 
   Widget _pickBitcoinFeeSuggestions(WidgetRef ref, double dynamicPadding, double titleFontSize) {
     final status = ref.watch(sideswapStatusProvider).bitcoinFeeRates ?? [];
-    final speed = ref.watch(bitcoinReceiveSpeedProvider);
+    final speed = ref.watch(bitcoinReceiveSpeedProvider).i18n(ref);
     return Column(
       children: [
         Padding(
@@ -262,7 +262,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Sending Transaction fee: $fee sats'.i18n(ref).fill([fee.toString()]),
+                  'Sending Transaction fee:' + "$fee sats",
                   style: TextStyle(fontSize:  titleFontSize / 2, fontWeight: FontWeight.bold, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
@@ -292,7 +292,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Sending Transaction fee: $fee sats'.i18n(ref),
+                  'Sending Transaction fee:'.i18n(ref) + "$fee sats",
                   style: TextStyle(fontSize:  titleFontSize / 2, fontWeight: FontWeight.bold, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),

@@ -126,7 +126,7 @@ class LiquidSwapCards extends ConsumerWidget {
       children: [
         Column(
           children: [
-            Text("Balance to spend: ${currentBalance}".i18n(ref).fill([currentBalance]), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),),
+            Text("Balance to Spend:".i18n(ref) + currentBalance, style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),),
             ...swapCards,
           ],
         ),

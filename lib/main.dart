@@ -1,5 +1,6 @@
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
 import 'package:Satsails/screens/settings/components/claim_boltz.dart';
 import 'package:boltz_dart/boltz_dart.dart';
@@ -70,11 +71,11 @@ void main() async {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('en', 'US'),
-        Locale('pt', 'BR'),
+        Locale('en'),
+        Locale('pt'),
       ],
       home: I18n(
-        initialLocale: Locale('en', 'US'),
+        initialLocale: Locale('en'),
         child: ProviderScope(
           child: MainApp(),
         ),
@@ -89,6 +90,8 @@ class MainApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Future<String?> mnemonicFuture = ref.read(authModelProvider).getMnemonic();
+    final language = ref.watch(settingsProvider.notifier).state.language;
+
     return FutureBuilder<String?>(
       future: mnemonicFuture,
       builder: (context, snapshot) {
@@ -101,6 +104,7 @@ class MainApp extends ConsumerWidget {
           final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/open_pin';
 
           return MaterialApp(
+            locale: Locale(language),
             initialRoute: initialRoute,
             debugShowCheckedModeBanner: false,
             builder: (context, child) => ResponsiveBreakpoints.builder(child: child!,

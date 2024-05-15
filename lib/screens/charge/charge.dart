@@ -53,7 +53,7 @@ class PaymentMethodCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, color: Colors.blue, size: 24.0),
+                Icon(icon, color: Colors.orangeAccent, size: 24.0),
                 SizedBox(width: 8.0),
                 Text(
                   title,

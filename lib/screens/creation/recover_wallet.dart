@@ -57,7 +57,7 @@ class RecoverWallet extends ConsumerWidget {
                 items: _wordCounts.map((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
-                    child: Text('$value words'.i18n(ref)),
+                    child: Text('$value words'.i18n(ref).fill([value.toString()])),
                   );
                 }).toList(),
                 onChanged: (newValue) {
@@ -81,7 +81,7 @@ class RecoverWallet extends ConsumerWidget {
                           ref.read(recoverWalletProvider.notifier).setWord(index, newValue);
                         },
                         decoration: InputDecoration(
-                          hintText: '       Word ${index + 1}'.i18n(ref),
+                          hintText: '       Word ${index + 1}'.i18n(ref).fill([(index + 1).toString()]),
                           hintStyle: const TextStyle(
                             color: Colors.grey,
                           ),

@@ -165,7 +165,7 @@ class BuildTransactions extends ConsumerWidget {
             ),
             // subtitle: Text("Fee: ${_transactionFee(transaction, ref)}", style: const TextStyle(fontSize: 14)),
             subtitle: Text(timestampToDateTime(transaction.confirmationTime?.timestamp), style: const TextStyle(fontSize: 14)),
-            trailing: _confirmationStatus(transaction, ref) == 'Confirmed'
+            trailing: _confirmationStatus(transaction, ref) == 'Confirmed'.i18n(ref)
                 ? const Icon(Icons.check_circle, color: Colors.green)
                 : const Icon(Icons.access_alarm_outlined, color: Colors.red),
           ),

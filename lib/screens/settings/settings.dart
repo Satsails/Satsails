@@ -107,7 +107,7 @@ class Settings extends ConsumerWidget {
                   leading: Flag(Flags.portugal),
                   title: Text('Portuguese'.i18n(ref)),
                   onTap: () {
-                    settingsNotifier.setLanguage('PT');
+                    settingsNotifier.setLanguage('pt');
                     Navigator.pop(context);
                   },
                 ),
@@ -115,7 +115,7 @@ class Settings extends ConsumerWidget {
                   leading: Flag(Flags.united_states_of_america),
                   title: Text('English'.i18n(ref)),
                   onTap: () {
-                    settingsNotifier.setLanguage('EN');
+                    settingsNotifier.setLanguage('en');
                     Navigator.pop(context);
                   },
                 ),

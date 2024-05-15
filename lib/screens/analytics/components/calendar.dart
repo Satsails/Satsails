@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
-import 'package:Satsails/providers/transactions_provider.dart';
 
 final today = DateUtils.dateOnly(DateTime.now());
 

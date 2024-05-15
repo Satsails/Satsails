@@ -14,10 +14,10 @@ class Splash extends StatelessWidget {
           children: <Widget>[
             Image.asset(
               'lib/assets/satsails.png',
-              width: 200,  // Adjust as needed
-              height: 200, // Adjust as needed
+              width: 200,
+              height: 200,
             ),
-            SizedBox(height: 30), // Adjust as needed
+            SizedBox(height: 30),
             LoadingAnimationWidget.threeArchedCircle(size: 50, color: Colors.orange),
           ],
         ),
