@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,9 +14,13 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bitcoinTransactions = ref.watch(bitcoinTransactionsByDate);
     final btcFormat = ref.watch(settingsProvider).btcFormat;
+    final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormat));
 
     return Column(
       children: [
+        Text(
+          'Current Balance'.i18n(ref) + ': ' + btcBalanceInFormat.toString() + ' ' + btcFormat, style: const TextStyle(fontSize: 20, color: Colors.grey),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [

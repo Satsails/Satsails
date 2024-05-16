@@ -63,7 +63,7 @@ class Peg extends ConsumerWidget {
         Column(
           children: [
             Text(
-              "Balance to Spend:".i18n(ref),
+              "Balance to Spend: ".i18n(ref),
               style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
             ),
             Text(

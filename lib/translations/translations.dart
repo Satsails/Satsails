@@ -621,6 +621,10 @@ extension Localization on String {
       {
         'en': 'Could not claim transaction',
         'pt': 'Não foi possível reivindicar a transação',
+      } +
+      {
+        'en': 'Current Balance',
+        'pt': 'Saldo Atual',
       };
 
 

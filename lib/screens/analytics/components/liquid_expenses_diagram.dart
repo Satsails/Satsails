@@ -1,3 +1,5 @@
+import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
@@ -16,25 +18,32 @@ class LiquidExpensesDiagram extends ConsumerWidget {
     final bitcoinTransactions = ref.watch(liquidTransactionsByDate);
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final dynamicHeight = MediaQuery.of(context).size.height;
+    final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(btcFormat));
+    final balance = ref.watch(balanceNotifierProvider);
 
     List<Column> cards = [
-    Column(children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("Bitcoin", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
-              Icon(Icons.swipe, color: Colors.grey),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [Colors.blue, Colors.deepPurple], context, btcFormat),
-              _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [Colors.blue, Colors.deepPurple], context, btcFormat),
-              _buildCard('Fee'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.blue, Colors.deepPurple], context, btcFormat),
-            ],),],
-    ),
+      Column(children: [
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Bitcoin", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
+            Icon(Icons.swipe, color: Colors.grey),
+          ],
+        ),
+        Text(
+          'Current Balance'.i18n(ref) + ': ' + liquidBalanceInFormat.toString() + ' ' + btcFormat, style: const TextStyle(fontSize: 20, color: Colors.grey),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [Colors.blue, Colors.deepPurple], context, btcFormat),
+            _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [Colors.blue, Colors.deepPurple], context, btcFormat),
+            _buildCard('Fee'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.blue, Colors.deepPurple], context, btcFormat),
+          ],
+        ),
+      ],
+      ),
       Column(
         children: [
           const Row(
@@ -43,6 +52,9 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               Text("Real", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
               Icon(Icons.swipe, color: Colors.grey),
             ],
+          ),
+          Text(
+            'Current Balance'.i18n(ref) + ': ' + fiatInDenominationFormatted(balance.brlBalance), style: const TextStyle(fontSize: 20, color: Colors.grey),
           ),
           const SizedBox(height: 10),
           Row(
@@ -63,6 +75,9 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               Icon(Icons.swipe, color: Colors.grey),
             ],
           ),
+          Text(
+            'Current Balance'.i18n(ref) + ': ' + fiatInDenominationFormatted(balance.usdBalance), style: const TextStyle(fontSize: 20, color: Colors.grey),
+          ),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -82,6 +97,9 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               Icon(Icons.swipe, color: Colors.grey),
             ],
           ),
+          Text(
+            'Current Balance'.i18n(ref) + ': ' + fiatInDenominationFormatted(balance.eurBalance), style: const TextStyle(fontSize: 20, color: Colors.grey),
+          ),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -94,10 +112,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
       ),
     ];
 
-
-
     return SizedBox(
-      height: dynamicHeight / 5,
+      height: dynamicHeight / 4.5,
       child: CardSwiper(
         scale: 0.1,
         padding: const EdgeInsets.all(0),
