@@ -1,7 +1,9 @@
 String fiatInDenominationFormatted(int amount) {
-  double balance = 0;
+  double balance = amount / 100000000;
 
-  balance = (amount / 100000000);
-
-  return balance.toStringAsFixed(2);
+  if (balance == balance.floor()) {
+    return balance.toInt().toString();
+  } else {
+    return balance.toStringAsFixed(2);
+  }
 }
