@@ -384,7 +384,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                 },
                   loading: () => Padding(
                     padding: EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
-                    child: LoadingAnimationWidget.prograssiveDots(size: 15, color: Colors.white),
+                    child: LoadingAnimationWidget.prograssiveDots(size: 18, color: Colors.white),
                   ),
                   error: (error, stack) => Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -465,7 +465,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                 },
                   loading: () => Padding(
                     padding: EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
-                    child: LoadingAnimationWidget.prograssiveDots(size: 15, color: Colors.white),
+                    child: LoadingAnimationWidget.prograssiveDots(size: 18, color: Colors.white),
                   ),
                   error: (error, stack) => Padding(
                       padding:EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),

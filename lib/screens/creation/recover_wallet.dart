@@ -53,6 +53,7 @@ class RecoverWallet extends ConsumerWidget {
           child: Column(
             children: [
               DropdownButton<int>(
+                dropdownColor: Colors.white,
                 value: data.wordCount,
                 items: wordCounts.map((int value) {
                   return DropdownMenuItem<int>(

@@ -303,8 +303,8 @@ extension Localization on String {
         'pt': 'Saldo Bitcoin',
       } +
       {
-        'en': 'Transaction in',
-        'pt': 'Transação em',
+        'en': 'Transaction in ',
+        'pt': 'Transação em ',
       } +
       {
         'en': 'Slide to send',

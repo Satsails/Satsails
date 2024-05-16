@@ -19,6 +19,7 @@ class AmountInput extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: DropdownButton(
+            dropdownColor: Colors.white,
             value: ref.watch(inputCurrencyProvider),
             items: const [
               DropdownMenuItem(
