@@ -253,7 +253,7 @@ class LiquidSwapCards extends ConsumerWidget {
               Navigator.pushReplacementNamed(context, '/home');
             } catch (e) {
               controller.failure();
-              Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+              Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
               controller.reset();
             }
           },

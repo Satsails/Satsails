@@ -151,6 +151,9 @@ final sideswapStartExchangeProvider = StreamProvider.autoDispose<SideswapStartEx
     if (price.errorMsg != null) {
       throw price.errorMsg!;
     }
+    if (price.sendAmount == null) {
+      throw 'Cannot exchange 0 amount';
+    }
     service.startExchange(asset: asset, price: price.price!, sendBitcoins: sendBitcoin, sendAmount: price.sendAmount!, recvAmount: price.recvAmount!);
     return service.exchangeStream.map((event) => SideswapStartExchange.fromJson(event));
 });

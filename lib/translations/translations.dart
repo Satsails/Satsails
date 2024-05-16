@@ -629,6 +629,10 @@ extension Localization on String {
       {
         'en': 'Add money with Euro',
         'pt': 'Adicionar dinheiro com Euro',
+      } +
+      {
+        'en': 'Cannot exchange 0 amount',
+        'pt': 'Não é possível trocar 0 quantidade',
       };
 
 
