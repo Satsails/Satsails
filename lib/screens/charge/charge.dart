@@ -22,7 +22,7 @@ class Charge extends ConsumerWidget {
               PaymentMethodCard(
                 title: 'Add Money with Pix'.i18n(ref),
                 description: 'Coming Soon'.i18n(ref),
-                icon: Icons.payment,
+                icon: Icons.qr_code,
               ),
               PaymentMethodCard(
                 title: 'Add money with Euro'.i18n(ref),
