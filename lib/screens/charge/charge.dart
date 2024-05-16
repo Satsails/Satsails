@@ -24,6 +24,11 @@ class Charge extends ConsumerWidget {
                 description: 'Coming Soon'.i18n(ref),
                 icon: Icons.payment,
               ),
+              PaymentMethodCard(
+                title: 'Add money with Euro'.i18n(ref),
+                description: 'Coming Soon'.i18n(ref),
+                icon: Icons.payment,
+              ),
             ],
           ),
         ),

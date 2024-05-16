@@ -625,6 +625,10 @@ extension Localization on String {
       {
         'en': 'Current Balance',
         'pt': 'Saldo Atual',
+      } +
+      {
+        'en': 'Add money with Euro',
+        'pt': 'Adicionar dinheiro com Euro',
       };
 
 
