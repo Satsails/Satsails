@@ -5,6 +5,16 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 
+final balanceProvider = StateProvider<Balance>((ref) {
+  return Balance(
+    btcBalance: 0,
+    liquidBalance: 0,
+    usdBalance: 0,
+    eurBalance: 0,
+    brlBalance: 0,
+  );
+});
+
 final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) async {
   final online = ref.watch(settingsProvider).online;
   final bitcoinBox = await Hive.openBox('bitcoin');
@@ -18,13 +28,15 @@ final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) asyn
     await ref.read(updateCurrencyProvider.future);
     ref.read(backgroundSyncNotifierProvider);
   }
-  return Balance(
+  final balance = Balance(
     btcBalance: bitcoinBalance,
     liquidBalance: liquidBalance,
     usdBalance: usdBalance,
     eurBalance: eurBalance,
     brlBalance: brlBalance,
   );
+  ref.read(balanceProvider.notifier).state = balance;
+  return balance;
 });
 
 final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, Balance>((ref) {
@@ -32,13 +44,7 @@ final balanceNotifierProvider = StateNotifierProvider.autoDispose<BalanceModel, 
 
   return BalanceModel(initialBalance.when(
     data: (balance) => balance,
-    loading: () => Balance(
-      btcBalance: 0,
-      liquidBalance: 0,
-      usdBalance: 0,
-      eurBalance: 0,
-      brlBalance: 0,
-    ),
+    loading: () => ref.read(balanceProvider.notifier).state,
     error: (Object error, StackTrace stackTrace) {
       throw error;
     },
