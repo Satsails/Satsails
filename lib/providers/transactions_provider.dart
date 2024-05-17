@@ -50,20 +50,20 @@ final updateTransactionsProvider = FutureProvider.autoDispose<void>((ref) async 
   final bitcoinTransactions = await ref.refresh(getBitcoinTransactionsProvider.future);
   List<TransactionDetails> bitcoinTransactionsHive = bitcoinTransactions.map((transaction) => TransactionDetails.fromBdk(transaction)).toList();
   if (bitcoinTransactions.isNotEmpty) {
-    bitcoinTransactionsHive.sort((a, b) {
-      if (a.confirmationTime == null && b.confirmationTime != null) {
-        return 1;
-      } else if (a.confirmationTime != null && b.confirmationTime == null) {
-        return -1;
-      } else if (a.confirmationTime != null && b.confirmationTime != null) {
-        // If both transactions are confirmed, sort by timestamp.
-        // The most recent transaction (with the larger timestamp) should come first.
-        return b.confirmationTime!.timestamp.compareTo(a.confirmationTime!.timestamp);
-      } else {
-        // If both transactions are unconfirmed, they are considered equal for sorting purposes.
-        return 0;
-      }
-    });
+    // bitcoinTransactionsHive.sort((a, b) {
+    //   if (a.confirmationTime == null && b.confirmationTime != null) {
+    //     return 1;
+    //   } else if (a.confirmationTime != null && b.confirmationTime == null) {
+    //     return -1;
+    //   } else if (a.confirmationTime != null && b.confirmationTime != null) {
+    //     // If both transactions are confirmed, sort by timestamp.
+    //     // The most recent transaction (with the larger timestamp) should come first.
+    //     return b.confirmationTime!.timestamp.compareTo(a.confirmationTime!.timestamp);
+    //   } else {
+    //     // If both transactions are unconfirmed, they are considered equal for sorting purposes.
+    //     return 0;
+    //   }
+    // });
 
     bitcoinBox.put('bitcoinTransactions', bitcoinTransactionsHive);
     transactionProvider.updateBitcoinTransactions(bitcoinTransactionsHive);

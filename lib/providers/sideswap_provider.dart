@@ -18,6 +18,11 @@ final sideswapServiceProvider = StateProvider.autoDispose<Sideswap>((ref) {
   final service = Sideswap();
   service.connect();
   service.login();
+
+  ref.onDispose(
+    () => service.close(),
+  );
+
   return service;
 });
 

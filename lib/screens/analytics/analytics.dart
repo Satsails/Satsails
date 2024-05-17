@@ -64,7 +64,7 @@ class Analytics extends ConsumerWidget {
               ),
               onPressed: () {
                 ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(
-                    start: DateTime.utc(0), end: DateTime.now()));
+                    start: DateTime.utc(0), end: DateTime.now().add(Duration(days: 1))));
               },
               child: Text('All Transactions'.i18n(ref), style: const TextStyle(color: Colors.white, fontSize: 13)),
             ),
