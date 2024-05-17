@@ -23,7 +23,7 @@ class ClaimBoltz extends ConsumerWidget {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Claim lightning transactions'.i18n(ref)),
+        title: Text('Claim lightning transactions'.i18n(ref), style: const TextStyle(color: Colors.black, fontSize: 15)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
