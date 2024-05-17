@@ -78,7 +78,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Instant Bitcoin', style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
+                              Text('Instant Bitcoin'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                               initializeBalance.when(
                                   data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('$liquidBalanceInFormat $liquidFormart', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                                   loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
