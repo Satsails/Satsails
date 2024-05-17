@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -62,6 +63,8 @@ void main() async {
   await BoltzCore.init();
   await LwkCore.init();
 
+  bool isPtLanguage = Platform.localeName == 'pt';
+
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -75,7 +78,7 @@ void main() async {
         Locale('pt'),
       ],
       home: I18n(
-        initialLocale: const Locale('en'),
+        initialLocale: isPtLanguage ? const Locale('pt') : const Locale('en'),
         child: const ProviderScope(
           child: MainApp(),
         ),

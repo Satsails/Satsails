@@ -669,6 +669,10 @@ extension Localization on String {
       {
         'en': 'Beta software, use at your own risk',
         'pt': 'Software beta, use por sua conta e risco',
+      }+
+      {
+        'en': 'Opt out of the system',
+        'pt': 'Opte por sair do sistema',
       };
 
 
