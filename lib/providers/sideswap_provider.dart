@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
@@ -9,20 +11,17 @@ import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/services/sideswap/sideswap.dart';
 
+final appLifecycleStateProvider = StateProvider.autoDispose<AppLifecycleState>((ref) => AppLifecycleState.resumed);
+
 final sideswapServiceProvider = StateProvider.autoDispose<Sideswap>((ref) {
+  ref.watch(appLifecycleStateProvider);
   final service = Sideswap();
   service.connect();
+  service.login();
   return service;
 });
 
-final sideswapLoginStreamProvider = StreamProvider.autoDispose<void>((ref) {
-  final service = ref.watch(sideswapServiceProvider);
-  service.login();
-  return service.loginStream.map((event) => event);
-});
-
 final sideswapServerStatusStream = StreamProvider.autoDispose<SideswapStatus>((ref) {
-  ref.watch(sideswapLoginStreamProvider);
   final service = ref.watch(sideswapServiceProvider);
   service.status();
   final stream = service.statusStream;

@@ -22,7 +22,7 @@ class Sideswap {
   Stream<Map<String, dynamic>> get unsubscribePriceStream => _unsubscribePriceController.stream;
   Stream<Map<String, dynamic>> get exchangeDoneStream => _exchangeDoneController.stream;
 
-  Future<void> connect() async {
+  void connect() {
     try {
       _channel = WebSocketChannel.connect(Uri.parse('wss://api.sideswap.io/json-rpc-ws'));
       _channel.stream.listen(
