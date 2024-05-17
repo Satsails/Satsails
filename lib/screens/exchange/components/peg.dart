@@ -58,43 +58,41 @@ class Peg extends ConsumerWidget {
       cards = cards.reversed.toList();
     }
 
-    return Stack(
-      children: [
-        Column(
-          children: [
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Text(
+            "Balance to Spend: ".i18n(ref),
+            style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+          ),
+          Text(
+            pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
+            style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: dynamicSizedBox / 2),
+          ...cards, // Spread operator to insert all elements of the list
+          Text(
+            '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
+            style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+          pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
+          if (!pegIn)
             Text(
-              "Balance to Spend: ".i18n(ref),
-              style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
-            ),
-            Text(
-              pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
-              style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: dynamicSizedBox / 2),
-            ...cards, // Spread operator to insert all elements of the list
-            Text(
-              '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
+              '${'Bitcoin Network fee:'.i18n(ref)} ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats',
               style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
-            pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
-            if (!pegIn)
-              Text(
-                '${'Bitcoin Network fee:'.i18n(ref)} ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats',
-                style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-            pegIn ? _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize) : _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
-          ],
-        ),
-        Positioned(
-          bottom: 10,
-          left: 0,
-          right: 0,
-          child: pegIn ? _bitcoinSlideToSend(ref, dynamicPadding, titleFontSize, context) : _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context),
-        ),
-      ],
+          pegIn ? _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize) : _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
+          Positioned(
+            bottom: 5,
+            left: 0,
+            right: 0,
+            child: pegIn ? _bitcoinSlideToSend(ref, dynamicPadding, titleFontSize, context) : _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context),
+          ),
+        ],
+      ),
     );
   }
 

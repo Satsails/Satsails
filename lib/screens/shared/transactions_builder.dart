@@ -18,17 +18,10 @@ class BuildTransactions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transactions = ref.watch(transactionNotifierProvider);
     final List bitcoinTransactions;
     final List liquidTransactions;
-
-    if (showAllTransactions) {
-      bitcoinTransactions = transactions.bitcoinTransactions;
-      liquidTransactions = transactions.liquidTransactions;
-    } else {
-      bitcoinTransactions = ref.watch(bitcoinTransactionsByDate);
-      liquidTransactions = ref.watch(liquidTransactionsByDate);
-    }
+    bitcoinTransactions = ref.watch(bitcoinTransactionsByDate);
+    liquidTransactions = ref.watch(liquidTransactionsByDate);
     final transationType = ref.watch(transactionTypeShowProvider);
     final allTx = <dynamic>[];
     allTx.addAll(bitcoinTransactions);
@@ -44,7 +37,7 @@ class BuildTransactions extends ConsumerWidget {
         height: MediaQuery.of(context).size.height - kToolbarHeight,
         child: LiquidPullToRefresh(
           onRefresh: () async {
-           ref.read(backgroundSyncNotifierProvider).performSync();
+            ref.read(backgroundSyncNotifierProvider).performSync();
           },
           color: Colors.orangeAccent,
           showChildOpacityTransition: false,

@@ -641,6 +641,10 @@ extension Localization on String {
       {
         'en': 'Address copied to clipboard',
         'pt': 'Endereço copiado para a área de transferência',
+      } +
+      {
+        'en': 'Please enter a PIN',
+        'pt': 'Por favor, insira um PIN',
       };
 
 

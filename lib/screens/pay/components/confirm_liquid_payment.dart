@@ -324,7 +324,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                           } else {
                             await ref.watch(liquidDrainWalletProvider.future);
                             final sendingBalance = ref.watch(assetBalanceProvider);
-                            controller.text = sendingBalance.toStringAsFixed(2);
+                            controller.text = fiatInDenominationFormatted(sendingBalance);
                             ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
                           }}catch(e) {
                           Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
