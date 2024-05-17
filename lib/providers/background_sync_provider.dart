@@ -64,6 +64,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           break;
         case AssetId.BRL:
           balance = balance.value;
+          liquidBox.put('brl', balance);
           balanceModel.updateBrlBalance(balance);
           break;
         case AssetId.LBTC:
