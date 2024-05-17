@@ -4,6 +4,7 @@ String fiatInDenominationFormatted(int amount) {
   if (balance == balance.floor()) {
     return balance.toInt().toString();
   } else {
-    return balance.toStringAsFixed(2);
+    double truncated = (balance * 100).floor() / 100;
+    return truncated.toStringAsFixed(2);
   }
 }

@@ -1,15 +1,17 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-Widget buildAddressText(String address, BuildContext context) {
+Widget buildAddressText(String address, BuildContext context, WidgetRef ref) {
   return Padding(
     padding: const EdgeInsets.all(8.0),
     child: InkWell(
       onTap: () {
         Clipboard.setData(ClipboardData(text: address));
         Fluttertoast.showToast(
-          msg: 'Address copied to clipboard',
+          msg: 'Address copied to clipboard'.i18n(ref),
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 1,

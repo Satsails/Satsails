@@ -23,7 +23,7 @@ class LightningWidget extends ConsumerWidget {
                 buildQrCode(data.swap.invoice, context),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: buildAddressText(data.swap.invoice, context),
+                  child: buildAddressText(data.swap.invoice, context, ref),
                 ),
               ],
             );

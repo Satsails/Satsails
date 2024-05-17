@@ -19,7 +19,7 @@ class BitcoinWidget extends ConsumerWidget {
             buildQrCode(bitcoinAddress, context),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: buildAddressText(bitcoinAddress, context),
+              child: buildAddressText(bitcoinAddress, context, ref),
             ),
             const AmountInput()
           ],

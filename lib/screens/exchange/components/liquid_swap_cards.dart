@@ -20,7 +20,7 @@ final currentBalanceProvider = StateProvider.autoDispose<String>((ref) {
   final btcFormat = ref.read(settingsProvider).btcFormat;
   final sendBitcoin = ref.read(sendBitcoinProvider);
   if (!sendBitcoin) {
-    return fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
+    return fiatInDenominationFormatted(ref.read(balanceNotifierProvider).brlBalance);
   } else {
     return ref.read(liquidBalanceInFormatProvider(btcFormat));
   }

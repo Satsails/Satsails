@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -11,7 +12,7 @@ class QRViewWidget extends StatelessWidget {
   final GlobalKey qrKey;
   final WidgetRef ref;
 
-  const QRViewWidget({super.key, required this.qrKey, required this.ref});
+const QRViewWidget({super.key, required this.qrKey, required this.ref});
 
   void onQRViewCreated(QRViewController controller, BuildContext context) {
     controller.scannedDataStream.listen((scanData) async {
@@ -29,7 +30,7 @@ class QRViewWidget extends StatelessWidget {
             break;
           default:
             Fluttertoast.showToast(
-              msg: 'Invalid address',
+              msg: 'Invalid address'.i18n(ref),
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.TOP,
               timeInSecForIosWeb: 1,
@@ -41,7 +42,7 @@ class QRViewWidget extends StatelessWidget {
       }
       catch (e) {
         Fluttertoast.showToast(
-          msg: e.toString(),
+          msg: e.toString().i18n(ref),
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 1,

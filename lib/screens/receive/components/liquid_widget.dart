@@ -19,7 +19,7 @@ class LiquidWidget extends ConsumerWidget {
             buildQrCode(liquidAddress, context),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: buildAddressText(liquidAddress, context),
+              child: buildAddressText(liquidAddress, context, ref),
             ),
             const AmountInput()
           ],

@@ -1,4 +1,3 @@
-import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,7 +23,6 @@ class Exchange extends ConsumerWidget {
         ref.read(sendTxProvider.notifier).resetToDefault();
         ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
         ref.read(sendBlocksProvider.notifier).state = 1;
-        ref.read(closeSideswapProvider);
       },
       child: Scaffold(
         backgroundColor: Colors.white,

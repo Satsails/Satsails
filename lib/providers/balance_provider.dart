@@ -5,7 +5,7 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 
-final balanceProvider = StateProvider<Balance>((ref) {
+final balanceProvider = StateProvider.autoDispose<Balance>((ref) {
   return Balance(
     btcBalance: 0,
     liquidBalance: 0,

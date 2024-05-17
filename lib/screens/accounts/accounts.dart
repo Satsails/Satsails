@@ -243,7 +243,7 @@ class Accounts extends ConsumerWidget {
                         const SizedBox(height: 10),
                         buildQrCode(address, context),
                         SizedBox(height: screenSize.height * 0.02),
-                        buildAddressText(address, context),
+                        buildAddressText(address, context, ref),
                         SizedBox(height: screenSize.height * 0.02),
                       ],
                     );

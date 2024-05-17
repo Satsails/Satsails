@@ -18,7 +18,7 @@ final setAddressAndAmountProvider = FutureProvider.autoDispose.family<AddressAnd
     });
     return addressAndAmount;
   } catch (e) {
-    throw Exception('Invalid address');
+    throw 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported. Lnurl is not supported currently.';
   }
 });
 
