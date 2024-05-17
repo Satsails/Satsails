@@ -30,8 +30,8 @@ dependencies:
 #  need windows linux ios and mac and web compils
   boltz_dart:
     git:
-      url: https://github.com/JoaoLobo94/satsails-boltz-dart
-      ref: fix-referral-id
+      url: https://github.com/SatoshiPortal/boltz-dart
+      ref: trunk
   lwk_dart:
     git:
       url: https://github.com/SatoshiPortal/lwk-dart.git

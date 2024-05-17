@@ -93,9 +93,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: fix-referral-id
-      resolved-ref: f18941d523b38541ebc51e5b199ef1dcaaf555cf
-      url: "https://github.com/JoaoLobo94/satsails-boltz-dart"
+      ref: trunk
+      resolved-ref: "2bbd7ca3e3a4229b0cd7cc5d445b1859c9029404"
+      url: "https://github.com/SatoshiPortal/boltz-dart"
     source: git
     version: "0.1.4"
   boolean_selector:
