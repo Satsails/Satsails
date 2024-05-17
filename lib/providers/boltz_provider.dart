@@ -44,7 +44,7 @@ final claimSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<bo
   if (received) {
     await box.delete(boltzReceive.swap.id);
   } else {
-    throw Exception('Could not claim transaction');
+    throw 'Could not claim transaction';
   }
   return received;
 });
@@ -97,7 +97,7 @@ final refundSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<b
   if (refunded) {
     await box.delete(boltzPay.swap.id);
   } else {
-    throw Exception('Could not refund transaction');
+    throw 'Could not refund transaction';
   }
   return refunded;
 });

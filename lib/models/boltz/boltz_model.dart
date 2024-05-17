@@ -162,11 +162,11 @@ class ExtendedLbtcLnV2Swap {
   @HiveField(2)
   final Chain network;
   @HiveField(3)
-  final KeyPair keys; // Changed from KeyPairAdapter to KeyPair
+  final KeyPair keys;
   @HiveField(4)
-  final PreImage preimage; // Changed from PreImageAdapter to PreImage
+  final PreImage preimage;
   @HiveField(5)
-  final LBtcSwapScriptV2Str swapScript; // Changed from LBtcSwapScriptV2StrAdapter to LBtcSwapScriptV2Str
+  final LBtcSwapScriptV2Str swapScript;
   @HiveField(6)
   final String invoice;
   @HiveField(7)
@@ -245,7 +245,8 @@ class Boltz {
           outAmount: amount,
           network: Chain.liquid,
           electrumUrl: 'blockstream.info:995',
-          boltzUrl: 'https://api.boltz.exchange/v2'
+          boltzUrl: 'https://api.boltz.exchange/v2',
+          referralId: 'satsails',
       );
     } catch (e) {
       throw 'Error creating swap';
@@ -294,6 +295,7 @@ class Boltz {
         blindingKey: swap.blindingKey,
         electrumUrl: swap.electrumUrl,
         boltzUrl: swap.boltzUrl,
+        referralId: 'satsails',
       );
       await claimToInvoice.claim(outAddress: receiveAddress, absFee: fees.lbtcReverse.claimFeesEstimate, tryCooperate: true);
       return true;
@@ -331,10 +333,11 @@ class Boltz {
           invoice: invoice,
           network: Chain.liquid,
           electrumUrl: 'blockstream.info:995',
-          boltzUrl: 'https://api.boltz.exchange/v2'
+          boltzUrl: 'https://api.boltz.exchange/v2',
+          referralId: 'satsails',
       );
     } catch (e) {
-      throw 'Error creating swa';
+      throw 'Error creating swap';
     }
 
     final extendedSwap = ExtendedLbtcLnV2Swap(

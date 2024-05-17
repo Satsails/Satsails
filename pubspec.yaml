@@ -53,6 +53,7 @@ dependencies:
   flutter_native_splash: ^2.4.0
   url_launcher: ^6.2.6
   i18n_extension: ^12.0.1
+  google_fonts: ^6.2.1
 
   path_provider: any
   flutter_hooks: any

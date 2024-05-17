@@ -1,7 +1,8 @@
-import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
+import 'package:Satsails/translations/translations.dart';
+import 'package:google_fonts/google_fonts.dart';
 import './components/logo.dart';
 
 class Start extends ConsumerWidget {
@@ -27,12 +28,12 @@ class Start extends ConsumerWidget {
               Center(
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'Satsails',
-                      style: TextStyle(
+                      style: GoogleFonts.roboto(
                         fontSize: 40.0,
-                        color: Colors.black,
                         fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -41,7 +42,18 @@ class Start extends ConsumerWidget {
                       child: Text(
                         'Sail your wealth to the cloud'.i18n(ref),
                         style: const TextStyle(
-                          fontSize: 20.0,
+                          fontSize: 25.0,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Opacity(
+                      opacity: 0.5,
+                      child: Text(
+                        'Beta software, use at your own risk'.i18n(ref),
+                        style: const TextStyle(
+                          fontSize: 12.0,
                           color: Colors.black,
                         ),
                       ),

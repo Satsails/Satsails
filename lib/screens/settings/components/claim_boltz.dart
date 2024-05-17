@@ -31,8 +31,8 @@ class ClaimBoltz extends ConsumerWidget {
           children: [
             const BoltzButtonPicker(),
             OfflineTransactionWarning(online: online),
-            if(button == 'Refund Sending'.i18n(ref))  const Expanded(child: RefundSending()),
-            if(button == 'Claim Receiving'.i18n(ref)) const Expanded(child: ClaimReceiving()),
+            if(button == 'Refund Sending')  const Expanded(child: RefundSending()),
+            if(button == 'Claim Receiving') const Expanded(child: ClaimReceiving()),
           ],
         ),
       ),
@@ -109,10 +109,14 @@ Widget buildBoltzItem(Boltz boltz, BuildContext context, WidgetRef ref) {
             children: <Widget>[
               ListTile(
                 leading: const Icon(Icons.money_off, color: Colors.orangeAccent),
-                title: Text('Claim'.i18n(ref)),
+                title: boltz.swap.kind.name == 'reverse' ? Text('Claim'.i18n(ref)) : Text('Refund'.i18n(ref)),
                 onTap: () async {
                   try {
-                    await ref.read(claimSingleBoltzTransactionProvider(boltz.swap.id).future).then((value) => value);
+                    if(boltz.swap.kind.name == 'reverse') {
+                      await ref.read(claimSingleBoltzTransactionProvider(boltz.swap.id).future).then((value) => value);
+                    } else {
+                      await ref.read(refundSingleBoltzTransactionProvider(boltz.swap.id).future).then((value) => value);
+                    }
                     ref.refresh(receivedBoltzProvider);
                     ref.refresh(payedBoltzProvider);
                     Fluttertoast.showToast(msg:"Claimed".i18n(ref) , toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
@@ -146,11 +150,13 @@ Widget buildBoltzItem(Boltz boltz, BuildContext context, WidgetRef ref) {
     title: Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Column(
-          children: [
-            const Text('Type', style: TextStyle(fontSize: 13)),
-            Text(boltz.swap.kind.name, style: const TextStyle(fontSize: 13)),
-          ],
+        Center(
+          child: Column(
+            children: [
+              const Text('Type', style: TextStyle(fontSize: 13)),
+              Text(boltz.swap.kind.name, style: const TextStyle(fontSize: 13)),
+            ],
+          ),
         ),
       ],
     ),

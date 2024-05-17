@@ -48,7 +48,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Colors.white,
-          title: Text('Confirm Payment'.i18n(ref)),
+          title: Text('Confirm lightning payment'.i18n(ref), style: const TextStyle(color: Colors.black, fontSize: 17)),
         ),
         body:Stack(
           children: [
@@ -78,7 +78,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Liquid Balance'.i18n(ref), style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
+                              Text('Instant Bitcoin', style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                               initializeBalance.when(
                                   data: (_) => SizedBox(height: titleFontSize * 1.5, child: Text('$liquidBalanceInFormat $liquidFormart', style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)),
                                   loading: () => SizedBox(height: titleFontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),

@@ -645,7 +645,41 @@ extension Localization on String {
       {
         'en': 'Please enter a PIN',
         'pt': 'Por favor, insira um PIN',
+      } +
+      {
+        'en': 'Refund',
+        'pt': 'Reembolso',
+      } +
+      {
+        'en': 'Could not refund transaction',
+        'pt': 'Não foi possível reembolsar a transação',
+      } +
+      {
+        'en': 'Could not claim transaction',
+        'pt': 'Não foi possível reivindicar a transação',
+      } +
+      {
+        'en': 'Could not claim transaction',
+        'pt': 'Não foi possível reivindicar a transação',
+      }+
+      {
+        'en': 'Confirm lightning payment',
+        'pt': 'Confirmar pagamento lightning',
+      }+
+      {
+        'en': 'Beta software, use at your own risk',
+        'pt': 'Software beta, use por sua conta e risco',
       };
+
+
+
+
+
+
+
+
+
+
 
 
 
