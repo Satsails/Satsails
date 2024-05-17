@@ -1,0 +1,134 @@
+import 'package:Satsails/translations/translations.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+class RecoverWalletState extends StateNotifier<RecoverWalletData> {
+  RecoverWalletState() : super(RecoverWalletData());
+
+  void setSelectedWordCount(int count) {
+    state = RecoverWalletData(wordCount: count, words: List.generate(count, (index) => ''));
+  }
+
+  void setWord(int index, String word) {
+    state = RecoverWalletData(
+      wordCount: state.wordCount,
+      words: List<String>.from(state.words)..[index] = word,
+    );
+  }
+}
+
+class RecoverWalletData {
+  final int wordCount;
+  final List<String> words;
+
+  RecoverWalletData({this.wordCount = 12, this.words = const ['','','','','','','','','','','','']});
+}
+
+final recoverWalletProvider = StateNotifierProvider<RecoverWalletState, RecoverWalletData>((ref) {
+  return RecoverWalletState();
+});
+
+class RecoverWallet extends ConsumerWidget {
+  const RecoverWallet({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final List<int> wordCounts = [12, 24];
+    final data = ref.watch(recoverWalletProvider);
+    final authModel = ref.read(authModelProvider);
+
+    // Get the screen size using MediaQuery
+    final screenSize = MediaQuery.of(context).size;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title:Text('Recover Account'.i18n(ref)),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              DropdownButton<int>(
+                dropdownColor: Colors.white,
+                value: data.wordCount,
+                items: wordCounts.map((int value) {
+                  return DropdownMenuItem<int>(
+                    value: value,
+                    child: Text('$value words'.i18n(ref)),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  ref.read(recoverWalletProvider.notifier).setSelectedWordCount(newValue!);
+                },
+              ),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                ),
+                itemCount: data.wordCount,
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: Container(
+                      color: Colors.white,
+                      alignment: Alignment.center,
+                      child: TextField(
+                        onChanged: (newValue) {
+                          ref.read(recoverWalletProvider.notifier).setWord(index, newValue);
+                        },
+                        decoration: InputDecoration(
+                          hintText: '       Word ${index + 1}'.i18n(ref),
+                          hintStyle: const TextStyle(
+                            color: Colors.grey,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        style: TextStyle(
+                          color: ref.read(recoverWalletProvider).words[index].isEmpty
+                              ? Colors.grey
+                              : Colors.black,
+                          fontSize: 13.0,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: screenSize.height * 0.02),
+              SizedBox(
+                width: screenSize.width * 0.8,
+                height: screenSize.height * 0.09,
+                child: CustomButton(
+                    text: 'Recover Account'.i18n(ref),
+                    onPressed: () async {
+                      final mnemonic = data.words.join(' ');
+                      if (await authModel.validateMnemonic(mnemonic)) {
+                        await authModel.setMnemonic(mnemonic);
+                        Navigator.pushNamed(context, '/set_pin');
+                      } else {
+                        Fluttertoast.showToast(
+                          msg: 'Invalid mnemonic'.i18n(ref),
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.TOP,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+                      }
+                    }
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
