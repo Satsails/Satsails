@@ -18,5 +18,5 @@ We are committed to being open source and transparent and a a non-custodial serv
 ## Acknowledgements
 
  - Special thanks to Renato 38 and Alan Schramm for the motivation to build this platform. 
- - Thanks to the entire BullBitcoin team for the libraries they created and the support they provide.a
-- Special thanks to Ishi for the great help and quick responses to our questions.
+ - Thanks to the entire Bull Bitcoin team for the libraries they created and the support they provide.
+-  A special thanks to Ishi for the great help and quick responses to our questions.
