@@ -1,4 +1,5 @@
 import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
@@ -249,6 +250,7 @@ class LiquidSwapCards extends ConsumerWidget {
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
+              ref.read(backgroundSyncNotifierProvider).performSync();
               await Future.delayed(const Duration(seconds: 3));
               Navigator.pushReplacementNamed(context, '/home');
             } catch (e) {

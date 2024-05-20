@@ -18,6 +18,7 @@ const QRViewWidget({super.key, required this.qrKey, required this.ref});
     controller.scannedDataStream.listen((scanData) async {
       try {
         await ref.refresh(setAddressAndAmountProvider(scanData.code ?? '').future);
+        controller.pauseCamera();
         switch (ref.read(sendTxProvider.notifier).state.type) {
           case PaymentType.Bitcoin:
             Navigator.pushReplacementNamed(context, '/confirm_bitcoin_payment');

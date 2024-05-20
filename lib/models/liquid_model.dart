@@ -68,7 +68,7 @@ class LiquidModel {
         return pset;
       } catch (e) {
         if (amount > 0) {
-          amount -= 1000;
+          amount -= 10;
         } else {
           if (e.toString().contains("InsufficientFunds")) {
             throw "Insufficient funds";
