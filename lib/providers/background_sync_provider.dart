@@ -22,28 +22,33 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
     const maxAttempts = 3;
     int attempt = 0;
 
-    while (attempt < maxAttempts) {
-      try {
-        final bitcoinBox = await Hive.openBox('bitcoin');
-        final balanceModel = ref.read(balanceNotifierProvider.notifier);
-        ref.read(syncBitcoinProvider);
-        final bitcoinBalance = await ref.refresh(getBitcoinBalanceProvider.future);
-        bitcoinBox.put('bitcoin', bitcoinBalance.total);
-        balanceModel.updateBtcBalance(bitcoinBalance.total);
-        ref.read(syncLiquidProvider);
-        final liquidBalance = await ref.refresh(liquidBalanceProvider.future);
-        updateLiquidBalances(liquidBalance);
-        ref.read(updateTransactionsProvider);
-        ref.read(settingsProvider.notifier).setOnline(true);
+    try {
+      while (attempt < maxAttempts) {
+        try {
+          ref.read(backgroundSyncInProgressProvider.notifier).state = true;
+          final bitcoinBox = await Hive.openBox('bitcoin');
+          final balanceModel = ref.read(balanceNotifierProvider.notifier);
+          ref.read(syncBitcoinProvider);
+          final bitcoinBalance = await ref.refresh(getBitcoinBalanceProvider.future);
+          bitcoinBox.put('bitcoin', bitcoinBalance.total);
+          balanceModel.updateBtcBalance(bitcoinBalance.total);
+          ref.read(syncLiquidProvider);
+          final liquidBalance = await ref.refresh(liquidBalanceProvider.future);
+          updateLiquidBalances(liquidBalance);
+          ref.read(updateTransactionsProvider);
+          ref.read(settingsProvider.notifier).setOnline(true);
 
-        break;
-      } catch (e) {
-        if (attempt == maxAttempts - 1) {
-          ref.read(settingsProvider.notifier).setOnline(false);
-          rethrow;
+          break;
+        } catch (e) {
+          if (attempt == maxAttempts - 1) {
+            ref.read(settingsProvider.notifier).setOnline(false);
+            rethrow;
+          }
+          attempt++;
         }
-        attempt++;
       }
+    } finally {
+      ref.read(backgroundSyncInProgressProvider.notifier).state = false;
     }
   }
 

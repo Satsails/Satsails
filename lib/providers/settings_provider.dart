@@ -22,3 +22,5 @@ final settingsProvider = StateNotifierProvider.autoDispose<SettingsModel, Settin
             },
       ));
 });
+
+final backgroundSyncInProgressProvider = StateProvider.autoDispose<bool>((ref) => false);

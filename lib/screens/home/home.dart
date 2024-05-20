@@ -131,9 +131,10 @@ class Home extends ConsumerWidget {
               Navigator.pushNamed(context, '/settings');
             },
           ),
-          IconButton(
+
+          ref.watch(backgroundSyncInProgressProvider) ? LoadingAnimationWidget.bouncingBall(color: Colors.orange, size: 50) : IconButton(
             icon: Icon(
-              Icons.fiber_manual_record,
+              Icons.sync,
               color: settings.online ? Colors.green : Colors.red,
             ),
             onPressed: () {
