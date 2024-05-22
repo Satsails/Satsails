@@ -18,14 +18,6 @@ class CustomBottomNavigationBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
-    final screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
 
     List<BottomNavigationBarItem> bottomNavBarItems = [
       BottomNavigationBarItem(

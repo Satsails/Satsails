@@ -155,7 +155,7 @@ class Settings extends ConsumerWidget {
   Widget _buildClaimBoltzTransactionsSection(BuildContext context, WidgetRef ref) {
     return ListTile(
       leading: const Icon(Icons.flash_on, color: Colors.orangeAccent),
-      title: Text('Claim Lightning Transactions'.i18n(ref)),
+      title: Text('Unfinished Lightning Transactions'.i18n(ref)),
       onTap: () {
         Navigator.pushNamed(context, '/claim_boltz_transactions');
       },

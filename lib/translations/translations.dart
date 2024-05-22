@@ -95,8 +95,8 @@ extension Localization on String {
         'pt': 'Converse conosco no Telegram!',
       } +
       {
-        'en': 'Claim Lightning Transactions',
-        'pt': 'Reivindique Transações Lightning',
+        'en': 'Unfinished Lightning Transactions',
+        'pt': 'Transações Lightning Inacabadas',
       } +
       {
         'en': 'View Seed Words',
@@ -119,12 +119,12 @@ extension Localization on String {
         'pt': 'Excluir Carteira',
       } +
       {
-        'en': 'Claim Receiving',
-        'pt': 'Reivindicar Recebimento',
+        'en': 'Complete Receiving',
+        'pt': 'Completar Recebimento',
       } +
       {
-        'en': 'Refund Sending',
-        'pt': 'Envio de Reembolso',
+        'en': 'Complete Sending',
+        'pt': 'Completar Envio',
       } +
       {
         'en': 'Seed Words',
@@ -677,23 +677,23 @@ extension Localization on String {
       {
         'en': 'Your wallet is empty',
         'pt': 'Sua carteira está vazia',
+      }+
+      {
+        'en': 'Request camera permission',
+        'pt': 'Solicitar permissão da câmera',
+      }+
+      {
+      'en': 'Complete lightning transactions',
+      'pt': 'Completar transações lightning',
+      }+
+      {
+        'en': 'All lightning transactions were complete',
+        'pt': "Todas as transações lightning foram completadas",
+      }+
+      {
+        'en': 'Pay to complete',
+        'pt': "Pague para completar",
       };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   String i18n(WidgetRef ref) {

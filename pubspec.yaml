@@ -72,7 +72,6 @@ flutter:
   uses-material-design: true
   assets:
     - lib/assets/satsails.png
-    - lib/assets/s.png
 
 #compil incons to all envs
 flutter_launcher_icons:

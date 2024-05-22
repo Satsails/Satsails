@@ -78,10 +78,6 @@ class Balance {
   String liquidBalanceInDenominationFormatted(String denomination) {
     double balance;
 
-    if (liquidBalance == 0) {
-      return "0";
-    }
-
     switch (denomination) {
       case 'sats':
         balance = liquidBalance.toDouble();
@@ -102,10 +98,6 @@ class Balance {
 
   String btcBalanceInDenominationFormatted(String denomination) {
     double balance;
-
-    if (btcBalance == 0) {
-      return "0";
-    }
 
     switch (denomination) {
       case 'sats':

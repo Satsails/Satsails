@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
@@ -37,6 +38,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           updateLiquidBalances(liquidBalance);
           ref.read(updateTransactionsProvider);
           ref.read(settingsProvider.notifier).setOnline(true);
+          await ref.read(claimAndDeleteAllBoltzProvider.future);
 
           break;
         } catch (e) {
