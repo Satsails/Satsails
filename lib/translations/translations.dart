@@ -673,7 +673,13 @@ extension Localization on String {
       {
         'en': 'Opt out of the system',
         'pt': 'Opte por sair do sistema',
+      }+
+      {
+        'en': 'Your wallet is empty',
+        'pt': 'Sua carteira está vazia',
       };
+
+
 
 
 

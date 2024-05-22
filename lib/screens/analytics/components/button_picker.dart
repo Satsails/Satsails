@@ -43,6 +43,7 @@ class ButtonPicker extends ConsumerWidget {
         unselectedTextStyle: const TextStyle(fontSize: 13, color: Colors.black),
         selectedTextStyle: const TextStyle(fontSize: 13, color: Colors.white),
         selectedColor: Colors.deepOrange,
+        spacing: 7,
         mainGroupAlignment: MainGroupAlignment.center,
         crossGroupAlignment: CrossGroupAlignment.center,
         groupRunAlignment: GroupRunAlignment.center,

@@ -23,6 +23,7 @@ class BalanceModel extends StateNotifier<Balance>{
   void updateBrlBalance(int newBrlBalance) {
     state = state.copyWith(brlBalance: newBrlBalance);
   }
+
 }
 
 class Balance {
@@ -31,6 +32,10 @@ class Balance {
   final int usdBalance;
   final int eurBalance;
   final int brlBalance;
+
+  bool get isEmpty {
+    return btcBalance == 0 && liquidBalance == 0 && usdBalance == 0 && eurBalance == 0 && brlBalance == 0;
+  }
 
   Balance({
     required this.btcBalance,
@@ -73,6 +78,10 @@ class Balance {
   String liquidBalanceInDenominationFormatted(String denomination) {
     double balance;
 
+    if (liquidBalance == 0) {
+      return "0";
+    }
+
     switch (denomination) {
       case 'sats':
         balance = liquidBalance.toDouble();
@@ -93,6 +102,10 @@ class Balance {
 
   String btcBalanceInDenominationFormatted(String denomination) {
     double balance;
+
+    if (btcBalance == 0) {
+      return "0";
+    }
 
     switch (denomination) {
       case 'sats':

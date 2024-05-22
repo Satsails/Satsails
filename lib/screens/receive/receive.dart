@@ -80,6 +80,7 @@ class Receive extends ConsumerWidget {
                 groupRunAlignment: GroupRunAlignment.center,
                 unselectedColor: Colors.white,
                 groupingType: GroupingType.row,
+                spacing: 7,
                 alignment: Alignment.center,
                 elevation: 0,
                 textPadding: EdgeInsets.zero,

@@ -40,17 +40,6 @@ class Start extends ConsumerWidget {
                     Opacity(
                       opacity: 0.5,
                       child: Text(
-                        'Sail your wealth to the cloud'.i18n(ref),
-                        style: const TextStyle(
-                          fontSize: 25.0,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Opacity(
-                      opacity: 0.5,
-                      child: Text(
                         'Opt out of the system'.i18n(ref),
                         style: const TextStyle(
                           fontSize: 25.0,

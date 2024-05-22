@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/home/home.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 class CustomBottomNavigationBar extends ConsumerWidget {
   final int currentIndex;
@@ -28,7 +29,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
 
     List<BottomNavigationBarItem> bottomNavBarItems = [
       BottomNavigationBarItem(
-        icon: const Icon(Icons.home),
+        icon: const Icon(AntDesign.home_outline),
         label: 'Home'.i18n(ref),
       ),
       // const BottomNavigationBarItem(
@@ -36,7 +37,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
       //   label: 'Services',
       // ),
       BottomNavigationBarItem(
-        icon: const Icon(Icons.bar_chart),
+        icon: const Icon(AntDesign.area_chart_outline),
         label: 'Analytics'.i18n(ref),
       ),
     ];
