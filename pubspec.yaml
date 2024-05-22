@@ -58,6 +58,7 @@ dependencies:
   flutter_hooks: any
   decimal: any
   web_socket_channel: any
+  permission_handler: ^9.0.1
 
 dev_dependencies:
   build_runner: ^2.4.9

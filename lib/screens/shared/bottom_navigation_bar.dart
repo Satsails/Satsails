@@ -37,7 +37,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
       //   label: 'Services',
       // ),
       BottomNavigationBarItem(
-        icon: const Icon(AntDesign.area_chart_outline),
+        icon: const Icon(AntDesign.bar_chart_outline),
         label: 'Analytics'.i18n(ref),
       ),
     ];
