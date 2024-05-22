@@ -46,6 +46,7 @@ class LiquidModel {
         sats: params.amount,
         outAddress: params.outAddress,
         feeRate: params.fee * 1000,
+        drain: false,
       );
       return pset;
     } catch (e) {
@@ -57,38 +58,32 @@ class LiquidModel {
   }
 
   Future<String> buildDrainWalletTx(TransactionBuilder params) async {
-    var amount = params.amount;
-    while (true) {
-      try {
-        final pset = await config.liquid.wallet.buildLbtcTx(
-          sats: amount,
-          outAddress: params.outAddress,
-          feeRate: params.fee * 1000,
-        );
-        return pset;
-      } catch (e) {
-        if (amount > 0) {
-          amount -= 10;
-        } else {
-          if (e.toString().contains("InsufficientFunds")) {
-            throw "Insufficient funds";
-          }
-          throw e.toString();
-        }
+    try {
+      final pset = await config.liquid.wallet.buildLbtcTx(
+        sats: params.amount,
+        outAddress: params.outAddress,
+        feeRate: params.fee * 1000,
+        drain: true,
+      );
+      return pset;
+    } catch (e) {
+      if (e.toString().contains("InsufficientFunds")) {
+        throw "Insufficient funds";
       }
+      throw e.toString();
     }
   }
 
 
   Future<String> buildAssetTx(TransactionBuilder params) async {
     try {
-    final pset = await config.liquid.wallet.buildAssetTx(
-      sats: params.amount,
-      outAddress: params.outAddress,
-      feeRate: params.fee * 1000,
-      asset: params.assetId,
-    );
-    return pset;
+      final pset = await config.liquid.wallet.buildAssetTx(
+        sats: params.amount,
+        outAddress: params.outAddress,
+        feeRate: params.fee * 1000,
+        asset: params.assetId,
+      );
+      return pset;
     } catch (e) {
       if (e.toString().contains("InsufficientFunds")) {
         throw "Insufficient funds";

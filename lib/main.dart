@@ -63,7 +63,6 @@ void main() async {
   await BoltzCore.init();
   await LwkCore.init();
 
-  bool isPtLanguage = Platform.localeName == 'pt';
 
   runApp(
     MaterialApp(
@@ -78,7 +77,6 @@ void main() async {
         Locale('pt'),
       ],
       home: I18n(
-        initialLocale: isPtLanguage ? const Locale('pt') : const Locale('en'),
         child: const ProviderScope(
           child: MainApp(),
         ),

@@ -12,8 +12,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 class QRViewWidget extends StatefulWidget {
   final GlobalKey qrKey;
   final WidgetRef ref;
+  final Function(QRViewController)? onQRViewCreated;
 
-  const QRViewWidget({Key? key, required this.qrKey, required this.ref}) : super(key: key);
+  const QRViewWidget({
+    Key? key,
+    required this.qrKey,
+    required this.ref,
+    this.onQRViewCreated,
+  }) : super(key: key);
 
   @override
   _QRViewWidgetState createState() => _QRViewWidgetState();
@@ -55,6 +61,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
   }
 
   void onQRViewCreated(QRViewController controller, BuildContext context) {
+    widget.onQRViewCreated?.call(controller);
     controller.scannedDataStream.listen((scanData) async {
       try {
         await widget.ref.refresh(setAddressAndAmountProvider(scanData.code ?? '').future);
