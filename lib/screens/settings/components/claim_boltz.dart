@@ -51,6 +51,9 @@ class ClaimReceiving extends ConsumerWidget {
     return Container(
       child: transactions.when(
         data: (List<Boltz> boltz) {
+          if (boltz.isEmpty) {
+            return Center(child: Text('All lightning transactions were complete'.i18n(ref)));
+          }
           return ListView.builder(
             itemCount: boltz.length,
             itemBuilder: (context, index) {

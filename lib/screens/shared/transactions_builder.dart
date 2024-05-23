@@ -186,10 +186,9 @@ class BuildTransactions extends ConsumerWidget {
                 ),
                 // subtitle: Text("Fee: ${_transactionValueLiquid(transaction.fee, ref)}",style: const TextStyle(fontSize: 14)),
                 subtitle: Text(timestampToDateTime(transaction.timestamp),style: const TextStyle(fontSize: 14)),
-                trailing: transaction.outputs[0].height != null
+                trailing: transaction.outputs.isNotEmpty && transaction.outputs[0].height != null || transaction.inputs.isNotEmpty && transaction.inputs[0].height != null
                     ? const Icon(Icons.check_circle, color: Colors.green)
-                    : const Icon(
-                    Icons.access_alarm_outlined, color: Colors.red),
+                    : const Icon(Icons.access_alarm_outlined, color: Colors.red),
                 children: transaction.balances.map((balance) {
                   return GestureDetector(
                     onTap: () {

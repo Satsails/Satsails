@@ -38,6 +38,7 @@ class BoltzButtonPicker extends ConsumerWidget {
             fontSize: 13, color: Colors.white),
         selectedColor: Colors.deepOrange,
         mainGroupAlignment: MainGroupAlignment.center,
+        spacing: 2,
         crossGroupAlignment: CrossGroupAlignment.center,
         groupRunAlignment: GroupRunAlignment.center,
         unselectedColor: Colors.white,
