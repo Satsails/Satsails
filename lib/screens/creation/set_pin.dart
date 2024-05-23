@@ -32,6 +32,7 @@ class SetPin extends ConsumerWidget {
                   length: 6,
                   obscureText: true,
                   keyboardType: TextInputType.number,
+                  autoFocus: true,
                   validator: (value) {
                     if (value == null || value.isEmpty || value.length != 6) {
                       return '';

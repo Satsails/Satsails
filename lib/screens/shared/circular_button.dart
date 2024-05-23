@@ -1,6 +1,7 @@
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 Widget buildCircularButton(BuildContext context, icon, String subtitle, VoidCallback onPressed, Color color) {
   return Column(
@@ -17,15 +18,15 @@ Widget buildCircularButton(BuildContext context, icon, String subtitle, VoidCall
                 end: Alignment.bottomRight,
                 colors: [color, color],
               ),
-              border: Border.all(color: Colors.black.withOpacity(0.7)),
+              // border: Border.all(color: Colors.black.withOpacity(0.7)),
             ),
             child: CircleAvatar(
               backgroundColor: Colors.transparent,
               radius: 25,
               child: Icon(
                 icon,
-                color: Colors.black.withOpacity(0.7),
-                size: 25,
+                color: Colors.orange,
+                size: MediaQuery.of(context).size.width * 0.08,
               ),
             ),
           ),
@@ -43,22 +44,22 @@ Widget buildActionButtons(BuildContext context, WidgetRef ref) {
     height: MediaQuery
         .of(context)
         .padding
-        .top + kToolbarHeight + 30,
+        .top + kToolbarHeight * 1.1,
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        buildCircularButton(context, Icons.add, 'Add Money'.i18n(ref), () {
+        buildCircularButton(context, Clarity.add_line, 'Add Money'.i18n(ref), () {
           Navigator.pushNamed(context, '/charge');
         }, Colors.white),
-        buildCircularButton(context, Icons.swap_horizontal_circle, 'Exchange'.i18n(ref),
+        buildCircularButton(context, Clarity.two_way_arrows_line, 'Exchange'.i18n(ref),
                 () {
               Navigator.pushNamed(context, '/exchange');
             }, Colors.white),
-        buildCircularButton(context, Icons.payments, 'Pay'.i18n(ref), () {
+        buildCircularButton(context, Clarity.credit_card_line, 'Pay'.i18n(ref), () {
           Navigator.pushNamed(context, '/pay');
         }, Colors.white),
         buildCircularButton(
-            context, Icons.arrow_downward_sharp, 'Receive'.i18n(ref), () {
+            context, TeenyIcons.arrow_down, 'Receive'.i18n(ref), () {
           Navigator.pushNamed(context, '/receive');
         }, Colors.white),
       ],

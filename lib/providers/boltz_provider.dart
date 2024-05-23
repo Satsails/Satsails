@@ -1,3 +1,4 @@
+import 'package:Satsails/helpers/liquid_block_height.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/auth_provider.dart';
@@ -110,4 +111,32 @@ final receivedBoltzProvider = FutureProvider.autoDispose<List<Boltz>>((ref) asyn
 final payedBoltzProvider = FutureProvider.autoDispose<List<Boltz>>((ref) async {
   final box = await Hive.openBox('payBoltz');
   return box.values.map((item) => item as Boltz).toList();
+});
+
+final claimAndDeleteAllBoltzProvider = FutureProvider.autoDispose<void>((ref) async {
+  try {
+    final receiveBox = await Hive.openBox('receiveBoltz');
+    final payBox = await Hive.openBox('payBoltz');
+    final receive = await ref.read(receivedBoltzProvider.future).then((value) => value);
+    final pay = await ref.read(payedBoltzProvider.future).then((value) => value);
+    final currentLiquidTip = await getCurrentBlockHeight();
+
+    for (var item in receive) {
+      if (item.swapScript.locktime < currentLiquidTip) {
+        receiveBox.delete(item.swap.id);
+      } else {
+        await ref.read(claimSingleBoltzTransactionProvider(item.swap.id).future).then((value) => value);
+      }
+    }
+
+    for (var item in pay) {
+      if (item.swapScript.locktime < currentLiquidTip) {
+        payBox.delete(item.swap.id);
+      } else {
+        await ref.read(refundSingleBoltzTransactionProvider(item.swap.id).future).then((value) => value);
+      }
+    }
+  } catch (_) {
+    // Ignore any errors
+  }
 });

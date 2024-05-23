@@ -64,7 +64,7 @@ class Home extends ConsumerWidget {
               final initializeBalance = ref.watch(initializeBalanceProvider);
               final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
               return initializeBalance.when(
-                data: (_) => buildDiagram(context, percentageOfEachCurrency),
+                data: (balance) => balance.isEmpty ? emptyBalance(ref) : buildDiagram(context, percentageOfEachCurrency),
                 loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
                 error: (error, stack) => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
               );
@@ -73,7 +73,7 @@ class Home extends ConsumerWidget {
         ),
         SizedBox(height: screenHeight * 0.05),
         SizedBox(
-          height: screenWidth * 0.15,
+          height: screenWidth * 0.17,
           width: screenWidth * 0.6,
           child: CustomButton(
             text: 'View Accounts'.i18n(ref),
@@ -82,6 +82,23 @@ class Home extends ConsumerWidget {
             },
           ),
         )
+      ],
+    );
+  }
+
+  Widget emptyBalance(WidgetRef ref) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Your wallet is empty'.i18n(ref),
+          style: const TextStyle(
+            fontSize: 20,
+            color: Colors.grey,
+          ),
+        ),
+        // LoadingAnimationWidget.flickr(size: 150, leftDotColor: Colors.deepOrangeAccent, rightDotColor: Colors.blueAccent),
+        Icon(Iconsax.security_safe_bold, size: 150, color: Colors.blueAccent),
       ],
     );
   }
@@ -108,20 +125,27 @@ class Home extends ConsumerWidget {
             Navigator.pushNamed(context, '/search_modal');
           },
         ),
-        title: Text(
-          '$value ${settings.currency}',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            shadows: <Shadow>[
-              Shadow(
-                offset: const Offset(1.0, 1.0),
-                blurRadius: 3.0,
-                color: Colors.grey.withOpacity(0.5),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Clarity.bitcoin_line, color: Colors.black),
+            const SizedBox(width: 10),
+            Text(
+              '$value ${settings.currency}',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                shadows: <Shadow>[
+                  Shadow(
+                    offset: const Offset(1.0, 1.0),
+                    blurRadius: 3.0,
+                    color: Colors.grey.withOpacity(0.5),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         centerTitle: true,
         actions: [

@@ -3,6 +3,7 @@ import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/screens/settings/components/boltz_button_picker.dart';
 import 'package:Satsails/screens/shared/offline_transaction_warning.dart';
+import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,7 @@ class ClaimBoltz extends ConsumerWidget {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Claim lightning transactions'.i18n(ref), style: const TextStyle(color: Colors.black, fontSize: 15)),
+        title: Text('Complete lightning transactions'.i18n(ref), style: const TextStyle(color: Colors.black, fontSize: 15)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -31,8 +32,8 @@ class ClaimBoltz extends ConsumerWidget {
           children: [
             const BoltzButtonPicker(),
             OfflineTransactionWarning(online: online),
-            if(button == 'Refund Sending')  const Expanded(child: RefundSending()),
-            if(button == 'Claim Receiving') const Expanded(child: ClaimReceiving()),
+            if(button == 'Complete Sending')  const Expanded(child: RefundSending()),
+            if(button == 'Complete Receiving') const Expanded(child: ClaimReceiving()),
           ],
         ),
       ),
@@ -50,6 +51,9 @@ class ClaimReceiving extends ConsumerWidget {
     return Container(
       child: transactions.when(
         data: (List<Boltz> boltz) {
+          if (boltz.isEmpty) {
+            return Center(child: Text('All lightning transactions were complete'.i18n(ref)));
+          }
           return ListView.builder(
             itemCount: boltz.length,
             itemBuilder: (context, index) {
@@ -76,6 +80,9 @@ class RefundSending extends ConsumerWidget {
     return Container(
       child: transactions.when(
         data: (List<Boltz> boltz) {
+          if (boltz.isEmpty) {
+            return Center(child: Text('All lightning transactions were complete'.i18n(ref)));
+          }
           return ListView.builder(
             itemCount: boltz.length,
             itemBuilder: (context, index) {
@@ -103,10 +110,20 @@ Widget buildBoltzItem(Boltz boltz, BuildContext context, WidgetRef ref) {
     ),
     onTap: () {
       showModalBottomSheet(
+        backgroundColor: Colors.white,
         context: context,
         builder: (context) {
           return Wrap(
             children: <Widget>[
+              Column(
+                children: [
+                  Text('Pay to complete'.i18n(ref), style: const TextStyle(fontSize: 20)),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(child: buildQrCode(boltz.swap.invoice, context)),
+                  ),
+                ],
+              ),
               ListTile(
                 leading: const Icon(Icons.money_off, color: Colors.orangeAccent),
                 title: boltz.swap.kind.name == 'reverse' ? Text('Claim'.i18n(ref)) : Text('Refund'.i18n(ref)),

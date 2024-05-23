@@ -68,7 +68,7 @@ class LiquidSwapCards extends ConsumerWidget {
         child: CardSwiper(
           scale: 0,
           padding: const EdgeInsets.all(0),
-          allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
+          allowedSwipeDirection: const AllowedSwipeDirection.symmetric(vertical: true),
           cardsCount: cards.length,
           onSwipe: (int previousIndex, int? currentIndex, CardSwiperDirection direction) {
             AssetId ticker;
@@ -152,7 +152,7 @@ class LiquidSwapCards extends ConsumerWidget {
       children: [
         if (!isBitcoin) const Padding(
           padding: EdgeInsets.only(top: 10),
-          child: Icon(Icons.swipe, color: Colors.grey),
+          child: Icon(Icons.swipe_vertical, color: Colors.grey),
         ),
         SizedBox(
           width: double.infinity,

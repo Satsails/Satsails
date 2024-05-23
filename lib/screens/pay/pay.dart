@@ -68,6 +68,9 @@ class Pay extends ConsumerWidget {
         children: <Widget>[
           QRViewWidget(
             qrKey: qrKey,
+            onQRViewCreated: (QRViewController ctrl) {
+              controller = ctrl;
+            },
             ref: ref,
           ),
           Positioned(

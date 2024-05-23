@@ -29,9 +29,7 @@ class SeedWords extends ConsumerWidget {
               padding: const EdgeInsets.all(8.0),
               child: GridView.count(
                 crossAxisCount: 2,
-                childAspectRatio: 4,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 4,
+                childAspectRatio: 3,
                 children: List.generate(words.length, (index) {
                   return Card(
                     color: Colors.white,

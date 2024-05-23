@@ -77,7 +77,6 @@ final buildLiquidAssetTransactionProvider = FutureProvider.family.autoDispose<St
   });
 });
 
-// temporary until library supports build a drain method
 final buildDrainLiquidTransactionProvider = FutureProvider.family.autoDispose<String, TransactionBuilder>((ref, params) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
@@ -129,9 +128,12 @@ final sendLiquidTransactionProvider = FutureProvider.autoDispose<String>((ref) a
     fee: feeRate,
     assetId: sendTx.state.assetId,
   );
-  final pset = sendTx.state.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC)
-      ? await ref.watch(buildLiquidTransactionProvider(transactionBuilder).future)
-      : await ref.watch(buildLiquidAssetTransactionProvider(transactionBuilder).future);
+  String pset;
+  if (sendTx.state.drain) {
+    pset = await ref.watch(buildDrainLiquidTransactionProvider(transactionBuilder).future);
+  } else {
+    pset = sendTx.state.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC) ? await ref.watch(buildLiquidTransactionProvider(transactionBuilder).future): await ref.watch(buildLiquidAssetTransactionProvider(transactionBuilder).future);
+  }
   final signedTxBytes = await ref.watch(signLiquidPsetProvider(pset).future);
   return ref.watch(broadcastLiquidTransactionProvider(signedTxBytes).future);
 });

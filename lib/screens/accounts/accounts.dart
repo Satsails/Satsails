@@ -151,14 +151,27 @@ class Accounts extends ConsumerWidget {
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
         leading: icon,
-        title: RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(text: '$title  ', style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
-              TextSpan(text: balance, style: const TextStyle(fontSize: 16, color: Colors.white)),
-              TextSpan(text: ' $denomination', style: const TextStyle(fontSize: 16, color: Colors.white)),
-            ],
-          ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$title',
+              style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+            if (balance.isNotEmpty)
+            Row(
+              children: [
+                Text(
+                  balance,
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
+                ),
+                Text(
+                  ' $denomination',
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
+                ),
+              ],
+            ),
+          ],
         ),
         trailing: Text('$trailing $format', style: const TextStyle(fontSize: 16, color: Colors.white)),
         children: <Widget>[
