@@ -102,20 +102,24 @@ class MainApp extends ConsumerWidget {
           return Text('Error: ${snapshot.error}');
         } else {
           final mnemonic = snapshot.data;
-          final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/open_pin';
+          final initialRoute = (mnemonic == null || mnemonic.isEmpty)
+              ? '/'
+              : '/open_pin';
 
           return MaterialApp(
             locale: Locale(language),
             initialRoute: initialRoute,
             debugShowCheckedModeBanner: false,
-            builder: (context, child) => ResponsiveBreakpoints.builder(child: child!,
-              breakpoints: [
-                const Breakpoint(start: 0, end: 450, name: MOBILE),
-                const Breakpoint(start: 451, end: 800, name: TABLET),
-                const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
-              ],
-            ),
+            builder: (context, child) =>
+                ResponsiveBreakpoints.builder(child: child!,
+                  breakpoints: [
+                    const Breakpoint(start: 0, end: 450, name: MOBILE),
+                    const Breakpoint(start: 451, end: 800, name: TABLET),
+                    const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+                    const Breakpoint(
+                        start: 1921, end: double.infinity, name: '4K'),
+                  ],
+                ),
             routes: {
               '/': (context) => const Start(),
               '/seed_words': (context) => const SeedWords(),
@@ -135,12 +139,13 @@ class MainApp extends ConsumerWidget {
               '/search_modal': (context) => SearchModal(),
               '/confirm_bitcoin_payment': (context) => ConfirmBitcoinPayment(),
               '/confirm_liquid_payment': (context) => ConfirmLiquidPayment(),
-              '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
+              '/confirm_lightning_payment': (context) =>
+                  ConfirmLightningPayment(),
               '/claim_boltz_transactions': (context) => ClaimBoltz(),
             },
           );
         }
-      },
+      }
     );
   }
 }

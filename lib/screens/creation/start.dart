@@ -30,10 +30,10 @@ class Start extends ConsumerWidget {
                   children: [
                     Text(
                       'Satsails',
-                      style: GoogleFonts.roboto(
+                      style: GoogleFonts.fragmentMono(
                         fontSize: 40.0,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Colors.orangeAccent,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -41,10 +41,10 @@ class Start extends ConsumerWidget {
                       opacity: 0.5,
                       child: Text(
                         'Opt out of the system'.i18n(ref),
-                        style: const TextStyle(
-                          fontSize: 25.0,
-                          color: Colors.black,
-                        ),
+                          style: GoogleFonts.fragmentMono(
+                            fontSize: 20.0,
+                            color: Colors.grey,
+                          )
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -52,10 +52,10 @@ class Start extends ConsumerWidget {
                       opacity: 0.5,
                       child: Text(
                         'Beta software, use at your own risk'.i18n(ref),
-                        style: const TextStyle(
-                          fontSize: 12.0,
-                          color: Colors.black,
-                        ),
+                          style: GoogleFonts.fragmentMono(
+                            fontSize: 12.0,
+                            color: Colors.grey,
+                          )
                       ),
                     ),
                   ],

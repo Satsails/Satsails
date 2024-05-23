@@ -71,15 +71,15 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - lib/assets/satsails.png
+    - lib/assets/logo.png
 
 #compil incons to all envs
 flutter_launcher_icons:
   android: true
-  image_path: "lib/assets/satsails.png"
+  image_path: "lib/assets/logo.png"
 flutter_native_splash:
     color: "#FFFFFF"
-    image: "lib/assets/satsails.png"
+    image: "lib/assets/logo.png"
     android: true
     ios: true
     web: true

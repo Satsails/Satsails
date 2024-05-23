@@ -50,7 +50,7 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if (e.toString().contains("InsufficientFunds")) {
+      if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
         throw "Insufficient funds";
       }
       throw e.toString();
@@ -67,7 +67,7 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if (e.toString().contains("InsufficientFunds")) {
+      if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
         throw "Insufficient funds";
       }
       throw e.toString();
@@ -85,7 +85,7 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if (e.toString().contains("InsufficientFunds")) {
+      if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
         throw "Insufficient funds";
       }
       throw e.toString();

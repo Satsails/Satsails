@@ -13,7 +13,7 @@ import 'package:Satsails/providers/liquid_provider.dart' as liquidProvider;
 import 'package:Satsails/providers/settings_provider.dart';
 
 final sendTxProvider = StateNotifierProvider<SendTxModel, SendTx>((ref) {
-  return SendTxModel(SendTx(address: '', amount: 0, type: PaymentType.Unknown, assetId: AssetMapper.reverseMapTicker(AssetId.LBTC)));
+  return SendTxModel(SendTx(address: '', amount: 0, type: PaymentType.Unknown, assetId: AssetMapper.reverseMapTicker(AssetId.LBTC), drain: false));
 });
 
 final sendBlocksProvider = StateProvider.autoDispose<double>((ref) {
@@ -79,9 +79,15 @@ final bitcoinTransactionBuilderProvider =  FutureProvider.autoDispose.family<bit
 
 final liquidFeeProvider = FutureProvider.autoDispose<int>((ref) async {
   final asset = ref.watch(sendTxProvider).assetId;
+  final drain = ref.watch(sendTxProvider).drain;
   final FeeCalculationParams params = ref.watch(feeParamsProvider);
   final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(params.amount).future).then((value) => value);
 if (asset == AssetMapper.reverseMapTicker(AssetId.LBTC)) {
+  if (drain) {
+    final transaction = await ref.read(liquidProvider.buildDrainLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
+    final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
+    return decodedPset.absoluteFees;
+  }
   final transaction = await ref.read(liquidProvider.buildLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
   final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
   return decodedPset.absoluteFees;

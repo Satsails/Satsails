@@ -10,7 +10,7 @@ class SendTxModel extends StateNotifier<SendTx> {
   }
 
   void resetToDefault() {
-    state = SendTx(address: '', amount: 0, type: PaymentType.Unknown, assetId: AssetMapper.reverseMapTicker(AssetId.LBTC));
+    state = SendTx(address: '', amount: 0, type: PaymentType.Unknown, assetId: AssetMapper.reverseMapTicker(AssetId.LBTC), drain: false);
   }
 
   void updateAmount(int amount) {
@@ -23,6 +23,10 @@ class SendTxModel extends StateNotifier<SendTx> {
 
   void updateAssetId(String assetId) {
     state = state.copyWith(assetId: assetId);
+  }
+
+  void updateDrain(bool drain) {
+    state = state.copyWith(drain: drain);
   }
 
   void updateAmountFromInput(String value, String denomination) {
@@ -57,31 +61,34 @@ class SendTxModel extends StateNotifier<SendTx> {
   }
 }
 
-
 class SendTx {
   final String address;
   final int amount;
   final PaymentType type;
   final String assetId;
+  final bool drain;
 
   SendTx({
     required this.address,
     required this.amount,
     required this.type,
-    required this.assetId
+    required this.assetId,
+    required this.drain,
   });
-  
+
   SendTx copyWith({
     String? address,
     int? amount,
     PaymentType? type,
     String? assetId,
+    bool? drain,
   }) {
     return SendTx(
       address: address ?? this.address,
       amount: amount ?? this.amount,
       type: type ?? this.type,
       assetId: assetId ?? this.assetId,
+      drain: drain ?? this.drain,
     );
   }
 

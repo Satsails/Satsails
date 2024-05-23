@@ -693,6 +693,10 @@ extension Localization on String {
       {
         'en': 'Pay to complete',
         'pt': "Pague para completar",
+      }+
+      {
+        'en': 'Amount is too small',
+        'pt': "O valor é muito pequeno",
       };
 
 
