@@ -26,7 +26,7 @@ Widget buildCircularButton(BuildContext context, icon, String subtitle, VoidCall
               child: Icon(
                 icon,
                 color: Colors.orange,
-                size: MediaQuery.of(context).size.width * 0.08,
+                size: 30,
               ),
             ),
           ),
