@@ -125,8 +125,7 @@ class MainApp extends ConsumerWidget {
               '/search_modal': (context) => SearchModal(),
               '/confirm_bitcoin_payment': (context) => ConfirmBitcoinPayment(),
               '/confirm_liquid_payment': (context) => ConfirmLiquidPayment(),
-              '/confirm_lightning_payment': (context) =>
-                  ConfirmLightningPayment(),
+              '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
               '/claim_boltz_transactions': (context) => ClaimBoltz(),
             },
           );

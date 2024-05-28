@@ -2,9 +2,12 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'dart:math' as math;
 
 Widget buildCircularButton(BuildContext context, icon, String subtitle, VoidCallback onPressed, Color color) {
   final screenHeight = MediaQuery.of(context).size.height;
+  const maxIconSize = 30.0; // Set your desired max size
+  const maxTextSize = 15.0; // Set your desired max size
 
   return Column(
     children: [
@@ -23,18 +26,21 @@ Widget buildCircularButton(BuildContext context, icon, String subtitle, VoidCall
             ),
             child: CircleAvatar(
               backgroundColor: Colors.transparent,
-              radius: screenHeight * 0.03, // 3% of screen height
+              radius: 25,
               child: Icon(
                 icon,
-                color: Colors.orange,
-                size: screenHeight * 0.04, // 3% of screen height
+                color: Colors.orangeAccent,
+                size: math.min(screenHeight * 0.04, maxIconSize), // 4% of screen height or maxIconSize, whichever is smaller
               ),
             ),
           ),
         ),
       ),
       SizedBox(height: screenHeight * 0.01), // 1% of screen height
-      Text(subtitle, style: TextStyle(fontSize: screenHeight * 0.015, color: Colors.black)), // 2% of screen height
+      Text(
+        subtitle,
+        style: TextStyle(fontSize: math.min(screenHeight * 0.015, maxTextSize), color: Colors.black), // 1.5% of screen height or maxTextSize, whichever is smaller
+      ),
     ],
   );
 }

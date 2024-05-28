@@ -15,8 +15,8 @@ class OpenPin extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkBiometrics(context, ref));
-    double screenWidth = MediaQuery.of(context).size.width;
+    WidgetsBinding.instance.addPostFrameCallback((_) =>
+        _checkBiometrics(context, ref));
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -29,7 +29,7 @@ class OpenPin extends ConsumerWidget {
         ),
         body: Center(
           child: Padding(
-            padding: EdgeInsets.all(screenWidth * 0.04),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -50,14 +50,14 @@ class OpenPin extends ConsumerWidget {
                     return null;
                   },
                 ),
-                SizedBox(height: screenWidth * 0.01),
+                const SizedBox(height: 20),
                 CustomButton(text: 'Unlock'.i18n(ref), onPressed: () => _checkPin(context, ref)),
-                SizedBox(height: screenWidth * 0.01),
+                const SizedBox(height: 20),
                 TextButton(
                   onPressed: () => _showConfirmationDialog(context, ref),
                   child: Text(
                     'Forgot PIN'.i18n(ref),
-                    style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.red),
+                    style: const TextStyle(fontSize: 20.0, color: Colors.red),
                   ),
                 ),
               ],
@@ -69,7 +69,6 @@ class OpenPin extends ConsumerWidget {
   }
 
   Future<void> _checkPin(BuildContext context, WidgetRef ref) async {
-    double screenWidth = MediaQuery.of(context).size.width;
     final authModel = ref.read(authModelProvider);
     final pinText = await authModel.getPin();
     if (pinText == _pinController.text) {
@@ -82,7 +81,7 @@ class OpenPin extends ConsumerWidget {
           timeInSecForIosWeb: 1,
           backgroundColor: Colors.red,
           textColor: Colors.white,
-          fontSize: screenWidth * 0.04
+          fontSize: 16.0
       );
     }
   }

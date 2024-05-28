@@ -22,7 +22,7 @@ class CustomButton extends StatelessWidget {
         padding: WidgetStateProperty.all<EdgeInsets>(EdgeInsets.all(screenWidth * 0.02)),
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(screenHeight * 0.05)
           ),
         ),
         backgroundColor: WidgetStateProperty.all<Color>(Colors.transparent),
@@ -35,7 +35,7 @@ class CustomButton extends StatelessWidget {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-          borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(screenHeight * 0.05)
         ),
         child: Container(
           alignment: Alignment.center,
