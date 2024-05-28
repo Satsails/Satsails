@@ -146,7 +146,9 @@ class Accounts extends ConsumerWidget {
     );
   }
 
+
   Widget _buildListTile(String title, String trailing, icon, BuildContext context, bitcoin, String balance, String denomination, String format, WidgetRef ref) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
@@ -155,25 +157,25 @@ class Accounts extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '$title',
-              style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+              title,
+              style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white, fontWeight: FontWeight.bold), // 4% of screen width
             ),
             if (balance.isNotEmpty)
-            Row(
-              children: [
-                Text(
-                  balance,
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
-                ),
-                Text(
-                  ' $denomination',
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ],
-            ),
+              Row(
+                children: [
+                  Text(
+                    balance,
+                    style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white), // 4% of screen width
+                  ),
+                  Text(
+                    ' $denomination',
+                    style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white), // 4% of screen width
+                  ),
+                ],
+              ),
           ],
         ),
-        trailing: Text('$trailing $format', style: const TextStyle(fontSize: 16, color: Colors.white)),
+        trailing: Text('$trailing $format', style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white)), // 4% of screen width
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -246,10 +248,10 @@ class Accounts extends ConsumerWidget {
                       children: [
                         Center(
                           child: Padding(
-                            padding: const EdgeInsets.only(top: 10.0),
+                            padding: EdgeInsets.only(top: screenSize.height * 0.02),
                             child: Text(
                               'Receive'.i18n(ref),
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: screenSize.width * 0.06),
                             ),
                           ),
                         ),

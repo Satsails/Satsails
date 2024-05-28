@@ -10,26 +10,24 @@ class CustomBottomNavigationBar extends ConsumerWidget {
   final void Function(int) onTap;
   final BuildContext context;
 
-  const CustomBottomNavigationBar({super.key, 
+  const CustomBottomNavigationBar({
+    Key? key,
     required this.currentIndex,
     required this.onTap,
     required this.context,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final screenHeight = MediaQuery.of(context).size.height;
 
     List<BottomNavigationBarItem> bottomNavBarItems = [
       BottomNavigationBarItem(
-        icon: const Icon(AntDesign.home_outline),
+        icon: Icon(AntDesign.home_outline, size: screenHeight * 0.03), // 3% of screen height
         label: 'Home'.i18n(ref),
       ),
-      // const BottomNavigationBarItem(
-      //   icon: Icon(Icons.apps),
-      //   label: 'Services',
-      // ),
       BottomNavigationBarItem(
-        icon: const Icon(AntDesign.bar_chart_outline),
+        icon: Icon(AntDesign.bar_chart_outline, size: screenHeight * 0.03), // 3% of screen height
         label: 'Analytics'.i18n(ref),
       ),
     ];
@@ -49,8 +47,9 @@ class CustomBottomNavigationBar extends ConsumerWidget {
         unselectedItemColor: Colors.black,
         selectedItemColor: Colors.orangeAccent,
         elevation: 8.0,
-        // Set the elevation to 8.0
         items: bottomNavBarItems,
+        unselectedFontSize: screenHeight * 0.02, // 2% of screen height
+        selectedFontSize: screenHeight * 0.02, // 2% of screen height
       ),
     );
   }
@@ -62,9 +61,6 @@ class CustomBottomNavigationBar extends ConsumerWidget {
       case 0:
         page = const Home();
         break;
-    // case 1:
-    //   page = Services();
-    //   break;
       case 1:
         page = const Analytics();
         break;

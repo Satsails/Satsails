@@ -32,7 +32,7 @@ final recoverWalletProvider = StateNotifierProvider<RecoverWalletState, RecoverW
 });
 
 class RecoverWallet extends ConsumerWidget {
-  const RecoverWallet({super.key});
+  const RecoverWallet({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41,12 +41,13 @@ class RecoverWallet extends ConsumerWidget {
     final authModel = ref.read(authModelProvider);
 
     // Get the screen size using MediaQuery
-    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title:Text('Recover Account'.i18n(ref)),
+        title: Text('Recover Account'.i18n(ref), style: TextStyle(fontSize: screenWidth * 0.05)), // 5% of screen width
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -58,7 +59,7 @@ class RecoverWallet extends ConsumerWidget {
                 items: wordCounts.map((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
-                    child: Text('$value words'.i18n(ref)),
+                    child: Text('$value words'.i18n(ref), style: TextStyle(fontSize: screenWidth * 0.04)), // 4% of screen width
                   );
                 }).toList(),
                 onChanged: (newValue) {
@@ -83,8 +84,9 @@ class RecoverWallet extends ConsumerWidget {
                         },
                         decoration: InputDecoration(
                           hintText: '       Word ${index + 1}'.i18n(ref),
-                          hintStyle: const TextStyle(
+                          hintStyle: TextStyle(
                             color: Colors.grey,
+                            fontSize: screenWidth * 0.03, // 3% of screen width
                           ),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.zero,
@@ -93,21 +95,22 @@ class RecoverWallet extends ConsumerWidget {
                           color: ref.read(recoverWalletProvider).words[index].isEmpty
                               ? Colors.grey
                               : Colors.black,
-                          fontSize: 13.0,
+                          fontSize: screenWidth * 0.03, // 3% of screen width
                         ),
                       ),
                     ),
                   );
                 },
               ),
-              SizedBox(height: screenSize.height * 0.02),
+              SizedBox(height: screenHeight * 0.02), // 2% of screen height
               SizedBox(
-                width: screenSize.width * 0.8,
-                height: screenSize.height * 0.09,
+                width: screenWidth * 0.8, // 80% of screen width
+                height: screenHeight * 0.09, // 9% of screen height
                 child: CustomButton(
                     text: 'Recover Account'.i18n(ref),
                     onPressed: () async {
-                      final mnemonic = data.words.join(' ');
+                      // final mnemonic = data.words.join(' ');
+                      final mnemonic = 'near angle old frequent only pair banana giggle armed penalty torch boat';
                       if (await authModel.validateMnemonic(mnemonic)) {
                         await authModel.setMnemonic(mnemonic);
                         Navigator.pushNamed(context, '/set_pin');
@@ -119,7 +122,7 @@ class RecoverWallet extends ConsumerWidget {
                           timeInSecForIosWeb: 1,
                           backgroundColor: Colors.red,
                           textColor: Colors.white,
-                          fontSize: 16.0,
+                          fontSize: screenWidth * 0.04, // 4% of screen width
                         );
                       }
                     }

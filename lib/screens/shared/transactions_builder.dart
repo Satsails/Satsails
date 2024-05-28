@@ -18,6 +18,9 @@ class BuildTransactions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     final List bitcoinTransactions;
     final List liquidTransactions;
     bitcoinTransactions = ref.watch(bitcoinTransactionsByDate);
@@ -33,8 +36,8 @@ class BuildTransactions extends ConsumerWidget {
         color: Colors.white,
       ),
       child: SizedBox(
-        width: double.infinity,
-        height: MediaQuery.of(context).size.height - kToolbarHeight,
+        width: screenWidth, // use screenWidth here
+        height: screenHeight - kToolbarHeight, // use screenHeight here
         child: LiquidPullToRefresh(
           onRefresh: () async {
             ref.read(backgroundSyncNotifierProvider).performSync();
@@ -49,19 +52,19 @@ class BuildTransactions extends ConsumerWidget {
                   if (index < bitcoinTransactions.length) {
                     return _buildTransactionItem(bitcoinTransactions[index], context, ref);
                   } else if (bitcoinTransactions.isEmpty) {
-                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: const TextStyle(fontSize: 14, color: Colors.grey)));
+                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey))); // use screenHeight here
                   }
                 case 'Liquid':
                   if (index < liquidTransactions.length) {
                     return _buildTransactionItem(liquidTransactions[index], context, ref);
                   } else if (liquidTransactions.isEmpty) {
-                    return Center(child: Text('Pull up to refresh'.i18n(ref).i18n(ref), style: const TextStyle(fontSize: 14, color: Colors.grey)));
+                    return Center(child: Text('Pull up to refresh'.i18n(ref).i18n(ref), style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey))); // use screenHeight here
                   }
                 default:
                   if (index < allTx.length) {
                     return _buildTransactionItem(allTx[index], context, ref);
                   } else {
-                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: const TextStyle(fontSize: 14, color: Colors.grey)));
+                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey))); // use screenHeight here
                   }
               }
               return null;
@@ -94,12 +97,18 @@ class BuildTransactions extends ConsumerWidget {
   }
 
   Widget _buildTransactionItem(transaction, BuildContext context, WidgetRef ref) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    final dynamicMargin = screenHeight * 0.01; // 1% of screen height
+    final dynamicRadius = screenWidth * 0.03; // 3% of screen width
+
     if (transaction is TransactionDetails) {
       return Container(
-        margin: const EdgeInsets.all(8.0),
+        margin: EdgeInsets.all(dynamicMargin),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(dynamicRadius),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.5),
@@ -113,10 +122,10 @@ class BuildTransactions extends ConsumerWidget {
       );
     } else if (transaction is Tx) {
       return Container(
-        margin: const EdgeInsets.all(8.0),
+        margin: EdgeInsets.all(dynamicMargin),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(dynamicRadius),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.5),
@@ -134,6 +143,11 @@ class BuildTransactions extends ConsumerWidget {
   }
 
   Widget _buildBitcoinTransactionItem(TransactionDetails transaction, BuildContext context, WidgetRef ref) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    final dynamicFontSize = screenHeight * 0.02; // 2% of screen height
+
     return Column(
       children: [
         GestureDetector(
@@ -146,18 +160,18 @@ class BuildTransactions extends ConsumerWidget {
             leading: Column(
               children: [
                 _transactionTypeIcon(transaction),
-                Text(_transactionAmountInFiat(transaction, ref),style: const TextStyle(fontSize: 14)),
+                Text(_transactionAmountInFiat(transaction, ref), style: TextStyle(fontSize: dynamicFontSize)),
               ],
             ),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(_transactionTypeString(transaction, ref), style: const TextStyle(fontSize: 16)),
-                Text(_transactionAmount(transaction, ref),style: const TextStyle(fontSize: 14)),
+                Text(_transactionTypeString(transaction, ref), style: TextStyle(fontSize: dynamicFontSize)),
+                Text(_transactionAmount(transaction, ref), style: TextStyle(fontSize: dynamicFontSize)),
               ],
             ),
-            // subtitle: Text("Fee: ${_transactionFee(transaction, ref)}", style: const TextStyle(fontSize: 14)),
-            subtitle: Text(timestampToDateTime(transaction.confirmationTime?.timestamp), style: const TextStyle(fontSize: 14)),
+            // subtitle: Text("Fee: ${_transactionFee(transaction, ref)}", style: TextStyle(fontSize: dynamicFontSize)),
+            subtitle: Text(timestampToDateTime(transaction.confirmationTime?.timestamp), style: TextStyle(fontSize: dynamicFontSize)),
             trailing: _confirmationStatus(transaction, ref) == 'Confirmed'.i18n(ref)
                 ? const Icon(Icons.check_circle, color: Colors.green)
                 : const Icon(Icons.access_alarm_outlined, color: Colors.red),
@@ -168,6 +182,11 @@ class BuildTransactions extends ConsumerWidget {
   }
 
   Widget _buildLiquidTransactionItem(Tx transaction, BuildContext context, WidgetRef ref) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    final dynamicFontSize = screenHeight * 0.02; // 2% of screen height
+
     return Column(
       children: [
         StatefulBuilder(
@@ -180,12 +199,12 @@ class BuildTransactions extends ConsumerWidget {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(liquidTransactionType(transaction, ref), style: const TextStyle(fontSize: 16)),
-                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: const TextStyle(fontSize: 14)) : Text('Multiple'.i18n(ref), style: const TextStyle(fontSize: 14)),
+                    Text(liquidTransactionType(transaction, ref), style: TextStyle(fontSize: dynamicFontSize)),
+                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: TextStyle(fontSize: dynamicFontSize)) : Text('Multiple'.i18n(ref), style: TextStyle(fontSize: dynamicFontSize)),
                   ],
                 ),
-                // subtitle: Text("Fee: ${_transactionValueLiquid(transaction.fee, ref)}",style: const TextStyle(fontSize: 14)),
-                subtitle: Text(timestampToDateTime(transaction.timestamp),style: const TextStyle(fontSize: 14)),
+                // subtitle: Text("Fee: ${_transactionValueLiquid(transaction.fee, ref)}",style: TextStyle(fontSize: dynamicFontSize)),
+                subtitle: Text(timestampToDateTime(transaction.timestamp),style: TextStyle(fontSize: dynamicFontSize)),
                 trailing: transaction.outputs.isNotEmpty && transaction.outputs[0].height != null || transaction.inputs.isNotEmpty && transaction.inputs[0].height != null
                     ? const Icon(Icons.check_circle, color: Colors.green)
                     : const Icon(Icons.access_alarm_outlined, color: Colors.red),
@@ -200,12 +219,12 @@ class BuildTransactions extends ConsumerWidget {
                       trailing: Column(
                         children: [
                           _subTransactionIcon(balance.value),
-                          Text(_liquidTransactionAmountInFiat(balance, ref), style: const TextStyle(fontSize: 14)),
+                          Text(_liquidTransactionAmountInFiat(balance, ref), style: TextStyle(fontSize: dynamicFontSize)),
                         ],
                       ),
-                      title: Text(AssetMapper.mapAsset(balance.assetId).name),
+                      title: Text(AssetMapper.mapAsset(balance.assetId).name, style: TextStyle(fontSize: dynamicFontSize)),
                       subtitle: Text(_valueOfLiquidSubTransaction(
-                          AssetMapper.mapAsset(balance.assetId), balance.value, ref)),
+                          AssetMapper.mapAsset(balance.assetId), balance.value, ref), style: TextStyle(fontSize: dynamicFontSize)),
                     ),
                   );
                 }).toList(),

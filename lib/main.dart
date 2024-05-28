@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -28,12 +27,10 @@ import 'package:Satsails/screens/creation/recover_wallet.dart';
 import 'package:Satsails/screens/pay/components/confirm_bitcoin_payment.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/screens/splash/splash.dart';
-import 'package:Satsails/screens/support/info.dart';
 import 'package:Satsails/screens/home/components/search_modal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:Satsails/models/adapters/transaction_adapters.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -110,16 +107,6 @@ class MainApp extends ConsumerWidget {
             locale: Locale(language),
             initialRoute: initialRoute,
             debugShowCheckedModeBanner: false,
-            builder: (context, child) =>
-                ResponsiveBreakpoints.builder(child: child!,
-                  breakpoints: [
-                    const Breakpoint(start: 0, end: 450, name: MOBILE),
-                    const Breakpoint(start: 451, end: 800, name: TABLET),
-                    const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                    const Breakpoint(
-                        start: 1921, end: double.infinity, name: '4K'),
-                  ],
-                ),
             routes: {
               '/': (context) => const Start(),
               '/seed_words': (context) => const SeedWords(),
@@ -131,7 +118,6 @@ class MainApp extends ConsumerWidget {
               '/analytics': (context) => const Analytics(),
               '/set_pin': (context) => const SetPin(),
               '/exchange': (context) => Exchange(),
-              '/info': (context) => const Info(),
               '/apps': (context) => const Services(),
               '/pay': (context) => Pay(),
               '/home': (context) => const Home(),

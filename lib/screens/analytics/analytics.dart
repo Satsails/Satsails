@@ -41,6 +41,7 @@ class Analytics extends ConsumerWidget {
   }
 
   Widget _buildBody(context, ref) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final transactionType = ref.watch(selectedButtonProvider);
     return Column(
       children: [
@@ -64,9 +65,9 @@ class Analytics extends ConsumerWidget {
               ),
               onPressed: () {
                 ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(
-                    start: DateTime.utc(0), end: DateTime.now().add(Duration(days: 1))));
+                    start: DateTime.utc(0), end: DateTime.now().add(const Duration(days: 1))));
               },
-              child: Text('All Transactions'.i18n(ref), style: const TextStyle(color: Colors.white, fontSize: 13)),
+              child: Text('All Transactions'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.03)),
             ),
           ],
         ),

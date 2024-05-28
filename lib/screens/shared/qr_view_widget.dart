@@ -15,11 +15,11 @@ class QRViewWidget extends StatefulWidget {
   final Function(QRViewController)? onQRViewCreated;
 
   const QRViewWidget({
-    Key? key,
+    super.key,
     required this.qrKey,
     required this.ref,
     this.onQRViewCreated,
-  }) : super(key: key);
+  });
 
   @override
   _QRViewWidgetState createState() => _QRViewWidgetState();

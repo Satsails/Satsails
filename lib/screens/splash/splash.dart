@@ -6,6 +6,12 @@ class Splash extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    final dynamicImageSize = screenHeight * 0.2; // 20% of screen height
+    final dynamicAnimationSize = screenHeight * 0.05; // 5% of screen height
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
@@ -14,11 +20,11 @@ class Splash extends StatelessWidget {
           children: <Widget>[
             Image.asset(
               'lib/assets/app_icon.png',
-              width: 200,
-              height: 200,
+              width: dynamicImageSize,
+              height: dynamicImageSize,
             ),
-            const SizedBox(height: 30),
-            LoadingAnimationWidget.threeArchedCircle(size: 50, color: Colors.orange),
+            SizedBox(height: screenHeight * 0.03), // 3% of screen height
+            LoadingAnimationWidget.threeArchedCircle(size: dynamicAnimationSize, color: Colors.orange),
           ],
         ),
       ),

@@ -10,14 +10,17 @@ class Start extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: SafeArea(
         child: Container(
           color: Colors.white,
           child: Column(
             children: [
-              const SizedBox(
-                height: 30.0,
+              SizedBox(
+                height: screenHeight * 0.03,
               ),
               const Expanded(
                 flex: 1,
@@ -31,29 +34,29 @@ class Start extends ConsumerWidget {
                     Text(
                       'Satsails',
                       style: GoogleFonts.fragmentMono(
-                        fontSize: 40.0,
+                        fontSize: screenWidth * 0.1,
                         fontWeight: FontWeight.bold,
                         color: Colors.orangeAccent,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: screenHeight * 0.01),
                     Opacity(
                       opacity: 0.5,
                       child: Text(
-                        'Opt out of the system'.i18n(ref),
+                          'Opt out of the system'.i18n(ref),
                           style: GoogleFonts.fragmentMono(
-                            fontSize: 20.0,
+                            fontSize: screenWidth * 0.05,
                             color: Colors.grey,
                           )
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: screenHeight * 0.01),
                     Opacity(
                       opacity: 0.5,
                       child: Text(
-                        'Beta software, use at your own risk'.i18n(ref),
+                          'Beta software, use at your own risk'.i18n(ref),
                           style: GoogleFonts.fragmentMono(
-                            fontSize: 12.0,
+                            fontSize: screenWidth * 0.03,
                             color: Colors.grey,
                           )
                       ),
@@ -64,19 +67,19 @@ class Start extends ConsumerWidget {
               Expanded(
                 flex: 1,
                 child: Container(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: EdgeInsets.all(screenWidth * 0.02), // 2% of screen width
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 10),
+                      SizedBox(height: screenHeight * 0.01), // 1% of screen height
                       CustomButton(
                         text: 'Register Account'.i18n(ref),
                         onPressed: () {
                           Navigator.pushNamed(context, '/set_pin');
                         },
                       ),
-                      const SizedBox(height: 10),
+                      SizedBox(height: screenHeight * 0.01), // 1% of screen height
                       CustomButton(
                         text: 'Recover Account'.i18n(ref),
                         onPressed: () {

@@ -10,10 +10,11 @@ final groupButtonControllerProvider = Provider.autoDispose<GroupButtonController
 });
 
 class ButtonPicker extends ConsumerWidget {
-  const ButtonPicker({super.key});
+  const ButtonPicker({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final controller = ref.watch(groupButtonControllerProvider);
 
     return GroupButton(
@@ -40,10 +41,10 @@ class ButtonPicker extends ConsumerWidget {
       },
       buttons: ["Bitcoin", "Instant Bitcoin".i18n(ref), 'Swaps'.i18n(ref)],
       options: GroupButtonOptions(
-        unselectedTextStyle: const TextStyle(fontSize: 13, color: Colors.black),
-        selectedTextStyle: const TextStyle(fontSize: 13, color: Colors.white),
+        unselectedTextStyle: TextStyle(fontSize: screenWidth * 0.03, color: Colors.black), // 3% of screen width
+        selectedTextStyle: TextStyle(fontSize: screenWidth * 0.03, color: Colors.white), // 3% of screen width
         selectedColor: Colors.deepOrange,
-        spacing: 7,
+        spacing: screenWidth * 0.01, // 1% of screen width
         mainGroupAlignment: MainGroupAlignment.center,
         crossGroupAlignment: CrossGroupAlignment.center,
         groupRunAlignment: GroupRunAlignment.center,
@@ -58,7 +59,7 @@ class ButtonPicker extends ConsumerWidget {
         unselectedShadow: <BoxShadow>[
           const BoxShadow(color: Colors.transparent)
         ],
-        borderRadius: BorderRadius.circular(30.0),
+        borderRadius: BorderRadius.circular(screenWidth * 0.075), // 7.5% of screen width
       ),
     );
   }

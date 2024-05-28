@@ -64,7 +64,7 @@ class Home extends ConsumerWidget {
               final initializeBalance = ref.watch(initializeBalanceProvider);
               final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
               return initializeBalance.when(
-                data: (balance) => balance.isEmpty ? emptyBalance(ref) : buildDiagram(context, percentageOfEachCurrency),
+                data: (balance) => balance.isEmpty ? emptyBalance(ref, context) : buildDiagram(context, percentageOfEachCurrency),
                 loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
                 error: (error, stack) => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
               );
@@ -86,7 +86,8 @@ class Home extends ConsumerWidget {
     );
   }
 
-  Widget emptyBalance(WidgetRef ref) {
+  Widget emptyBalance(WidgetRef ref, BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -97,8 +98,7 @@ class Home extends ConsumerWidget {
             color: Colors.grey,
           ),
         ),
-        // LoadingAnimationWidget.flickr(size: 150, leftDotColor: Colors.deepOrangeAccent, rightDotColor: Colors.blueAccent),
-        Icon(Iconsax.security_safe_bold, size: 150, color: Colors.blueAccent),
+        Icon(Iconsax.security_safe_bold, size: screenHeight * 0.2, color: Colors.blueAccent),
       ],
     );
   }
@@ -107,6 +107,7 @@ class Home extends ConsumerWidget {
   PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {
     final value = ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, 100000000))).toStringAsFixed(2);
     final settings = ref.read(settingsProvider);
+    final screenWidth = MediaQuery.of(context).size.width;
     final settingsNotifier = ref.read(settingsProvider.notifier);
 
     void toggleOnlineStatus() {
@@ -128,13 +129,12 @@ class Home extends ConsumerWidget {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Clarity.bitcoin_line, color: Colors.black),
-            const SizedBox(width: 10),
+            const Icon(Clarity.bitcoin_line, color: Colors.black),
             Text(
               '$value ${settings.currency}',
               style: TextStyle(
                 color: Colors.black,
-                fontSize: 20,
+                fontSize: screenWidth * 0.04,
                 fontWeight: FontWeight.bold,
                 shadows: <Shadow>[
                   Shadow(
