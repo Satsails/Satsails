@@ -697,6 +697,10 @@ extension Localization on String {
       {
         'en': 'Amount is too small',
         'pt': "O valor é muito pequeno",
+      }+
+      {
+        'en': 'Search the blockchain',
+        'pt': "Pesquisar na blockchain",
       };
 
 

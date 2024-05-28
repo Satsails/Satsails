@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 class Logo extends StatelessWidget {
-  const Logo({super.key});
+  final double? widthFactor;
+  final double? heightFactor;
+
+  const Logo({Key? key, this.widthFactor, this.heightFactor}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -10,8 +13,8 @@ class Logo extends StatelessWidget {
 
     return Image.asset(
       'lib/assets/app_icon.png',
-      width: screenWidth * 0.5, // 50% of screen width
-      height: screenHeight * 0.3, // 30% of screen height
+      width: screenWidth * (widthFactor ?? 0.5), // Use provided widthFactor or default to 50%
+      height: screenHeight * (heightFactor ?? 0.3), // Use provided heightFactor or default to 30%
     );
   }
 }
