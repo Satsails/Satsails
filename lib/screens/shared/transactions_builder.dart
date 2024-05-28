@@ -1,3 +1,4 @@
+import 'package:Satsails/screens/analytics/components/button_picker.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +9,6 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
-import 'package:Satsails/providers/transaction_type_show_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 
 class BuildTransactions extends ConsumerWidget {

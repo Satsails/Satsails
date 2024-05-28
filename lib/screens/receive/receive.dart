@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/offline_transaction_warning.dart';
-import '../../providers/transaction_type_show_provider.dart';
 import 'package:group_button/group_button.dart';
 
 final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
@@ -51,19 +50,16 @@ class Receive extends ConsumerWidget {
                 switch (index) {
                   case 'Bitcoin':
                     ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
-                    ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
                     ref.read(inputCurrencyProvider.notifier).state = 'BTC';
                     ref.read(inputAmountProvider.notifier).state = '0.0';
                     break;
                   case 'Liquid':
                     ref.read(selectedButtonProvider.notifier).state = "Liquid";
-                    ref.read(transactionTypeShowProvider.notifier).state = "Liquid";
                     ref.read(inputCurrencyProvider.notifier).state = 'BTC';
                     ref.read(inputAmountProvider.notifier).state = '0.0';
                     break;
                   case 'Lightning':
                     ref.read(selectedButtonProvider.notifier).state = "Lightning";
-                    ref.read(transactionTypeShowProvider.notifier).state = "Lightning";
                     ref.read(inputCurrencyProvider.notifier).state = 'BTC';
                     ref.read(inputAmountProvider.notifier).state = '0.0';
                     break;

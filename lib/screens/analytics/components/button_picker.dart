@@ -2,12 +2,13 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
-import 'package:Satsails/providers/transaction_type_show_provider.dart';
 
 final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
 final groupButtonControllerProvider = Provider.autoDispose<GroupButtonController>((ref) {
   return GroupButtonController(selectedIndex: 0);
 });
+
+final transactionTypeShowProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
 
 class ButtonPicker extends ConsumerWidget {
   const ButtonPicker({super.key});

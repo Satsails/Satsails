@@ -21,6 +21,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
+    const maxFontSize = 16.0; // Set your desired max size
 
     List<BottomNavigationBarItem> bottomNavBarItems = [
       BottomNavigationBarItem(
@@ -49,8 +50,8 @@ class CustomBottomNavigationBar extends ConsumerWidget {
         selectedItemColor: Colors.orangeAccent,
         elevation: 8.0,
         items: bottomNavBarItems,
-        unselectedFontSize: screenHeight * 0.02, // 2% of screen height
-        selectedFontSize: screenHeight * 0.02, // 2% of screen height
+        unselectedFontSize: math.min(screenHeight * 0.02, maxFontSize), // 2% of screen height or maxFontSize, whichever is smaller
+        selectedFontSize: math.min(screenHeight * 0.02, maxFontSize), // 2% of screen height or maxFontSize, whichever is smaller
       ),
     );
   }
@@ -71,7 +72,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
   }
 
   void _navigateToPage(Widget page, BuildContext context) {
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         pageBuilder: (BuildContext context, Animation<double> animation1, Animation<double> animation2) {
