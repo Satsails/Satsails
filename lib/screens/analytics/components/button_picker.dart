@@ -10,7 +10,7 @@ final groupButtonControllerProvider = Provider.autoDispose<GroupButtonController
 });
 
 class ButtonPicker extends ConsumerWidget {
-  const ButtonPicker({Key? key}) : super(key: key);
+  const ButtonPicker({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

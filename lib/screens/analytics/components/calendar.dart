@@ -8,7 +8,7 @@ import 'package:Satsails/providers/analytics_provider.dart';
 final today = DateUtils.dateOnly(DateTime.now());
 
 class Calendar extends ConsumerWidget {
-  const Calendar({Key? key}) : super(key: key);
+  const Calendar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

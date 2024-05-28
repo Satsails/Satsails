@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 
 class SearchModal extends ConsumerWidget {
-  SearchModal({Key? key}) : super(key: key);
+  SearchModal({super.key});
 
   final controller = WebViewController()
     ..setJavaScriptMode(JavaScriptMode.unrestricted);

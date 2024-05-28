@@ -11,11 +11,11 @@ class CustomBottomNavigationBar extends ConsumerWidget {
   final BuildContext context;
 
   const CustomBottomNavigationBar({
-    Key? key,
+    super.key,
     required this.currentIndex,
     required this.onTap,
     required this.context,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

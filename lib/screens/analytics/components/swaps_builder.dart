@@ -11,7 +11,7 @@ import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/screens/analytics/components/peg_details.dart';
 
 class SwapsBuilder extends ConsumerWidget {
-  const SwapsBuilder({Key? key}) : super(key: key);
+  const SwapsBuilder({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

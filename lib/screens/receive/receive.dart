@@ -12,7 +12,7 @@ import 'package:group_button/group_button.dart';
 final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
 
 class Receive extends ConsumerWidget {
-  Receive({Key? key}) : super(key: key);
+  Receive({super.key});
 
   final groupButtonControllerProvider = Provider<GroupButtonController>((ref) {
     return GroupButtonController(selectedIndex: 1);

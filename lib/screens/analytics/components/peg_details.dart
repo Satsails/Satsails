@@ -11,7 +11,7 @@ import 'package:Satsails/providers/sideswap_provider.dart';
 class PegDetails extends ConsumerWidget {
   final SideswapPegStatus swap;
 
-  const PegDetails({Key? key, required this.swap}) : super(key: key);
+  const PegDetails({super.key, required this.swap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

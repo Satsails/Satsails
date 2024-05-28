@@ -29,7 +29,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text("Bitcoin", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
-            Icon(Icons.swipe, color: Colors.grey),
+            const Icon(Icons.swipe, color: Colors.grey),
           ],
         ),
         Text(
@@ -52,7 +52,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text("Real", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
-              Icon(Icons.swipe, color: Colors.grey),
+              const Icon(Icons.swipe, color: Colors.grey),
             ],
           ),
           Text(
@@ -74,7 +74,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text("Dollar", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
-              Icon(Icons.swipe, color: Colors.grey),
+              const Icon(Icons.swipe, color: Colors.grey),
             ],
           ),
           Text(
@@ -96,7 +96,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text("Euro", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
-              Icon(Icons.swipe, color: Colors.grey),
+              const Icon(Icons.swipe, color: Colors.grey),
             ],
           ),
           Text(

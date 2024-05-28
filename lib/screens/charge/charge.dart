@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Charge extends ConsumerWidget {
-  const Charge({Key? key}) : super(key: key);
+  const Charge({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,12 +46,12 @@ class PaymentMethodCard extends StatelessWidget {
   final IconData icon;
   final double screenWidth;
 
-  const PaymentMethodCard({Key? key,
+  const PaymentMethodCard({super.key,
     required this.title,
     required this.description,
     required this.icon,
     required this.screenWidth,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

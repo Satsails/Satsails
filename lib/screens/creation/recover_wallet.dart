@@ -32,7 +32,7 @@ final recoverWalletProvider = StateNotifierProvider<RecoverWalletState, RecoverW
 });
 
 class RecoverWallet extends ConsumerWidget {
-  const RecoverWallet({Key? key}) : super(key: key);
+  const RecoverWallet({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -110,7 +110,7 @@ class RecoverWallet extends ConsumerWidget {
                     text: 'Recover Account'.i18n(ref),
                     onPressed: () async {
                       // final mnemonic = data.words.join(' ');
-                      final mnemonic = 'near angle old frequent only pair banana giggle armed penalty torch boat';
+                      const mnemonic = 'near angle old frequent only pair banana giggle armed penalty torch boat';
                       if (await authModel.validateMnemonic(mnemonic)) {
                         await authModel.setMnemonic(mnemonic);
                         Navigator.pushNamed(context, '/set_pin');
