@@ -1,3 +1,4 @@
+import 'package:Satsails/helpers/life_cycle_handler.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -82,64 +83,94 @@ void main() async {
         final mediaQueryData = MediaQuery.of(context);
         final scale = mediaQueryData.textScaleFactor.clamp(1.0, 1.3);
         return MediaQuery(
-          child: child!,
           data: mediaQueryData.copyWith(textScaleFactor: scale),
+          child: child!,
         );
       },
     ),
   );
 }
 
-
-class MainApp extends ConsumerWidget {
+class MainApp extends ConsumerStatefulWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(LifecycleHandler(onAppPaused: handleAppPaused));
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(LifecycleHandler(onAppPaused: handleAppPaused));
+    super.dispose();
+  }
+
+  Future<void> handleAppPaused() async {
+    final authModel = ref.read(authModelProvider);
+    final mnemonic = await authModel.getMnemonic();
+
+    if (mnemonic == null || mnemonic.isEmpty) {
+      navigatorKey.currentState?.pushNamedAndRemoveUntil('/', (route) => false);
+    } else {
+      navigatorKey.currentState?.pushNamedAndRemoveUntil('/open_pin', (route) => false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     Future<String?> mnemonicFuture = ref.read(authModelProvider).getMnemonic();
     final language = ref.watch(settingsProvider.notifier).state.language;
 
     return FutureBuilder<String?>(
-      future: mnemonicFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Splash();
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          final mnemonic = snapshot.data;
-          final initialRoute = (mnemonic == null || mnemonic.isEmpty)
-              ? '/'
-              : '/open_pin';
+        future: mnemonicFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Splash();
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            final mnemonic = snapshot.data;
+            final initialRoute = (mnemonic == null || mnemonic.isEmpty)
+                ? '/'
+                : '/open_pin';
 
-          return MaterialApp(
-            locale: Locale(language),
-            initialRoute: initialRoute,
-            debugShowCheckedModeBanner: false,
-            routes: {
-              '/': (context) => const Start(),
-              '/seed_words': (context) => const SeedWords(),
-              '/open_pin': (context) => OpenPin(),
-              '/charge': (context) => const Charge(),
-              '/accounts': (context) => const Accounts(),
-              '/receive': (context) => Receive(),
-              '/settings': (context) => const Settings(),
-              '/analytics': (context) => const Analytics(),
-              '/set_pin': (context) => const SetPin(),
-              '/exchange': (context) => Exchange(),
-              '/apps': (context) => const Services(),
-              '/pay': (context) => Pay(),
-              '/home': (context) => const Home(),
-              '/recover_wallet': (context) => const RecoverWallet(),
-              '/search_modal': (context) => SearchModal(),
-              '/confirm_bitcoin_payment': (context) => ConfirmBitcoinPayment(),
-              '/confirm_liquid_payment': (context) => ConfirmLiquidPayment(),
-              '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
-              '/claim_boltz_transactions': (context) => ClaimBoltz(),
-            },
-          );
+            return MaterialApp(
+              navigatorKey: navigatorKey,
+              locale: Locale(language),
+              initialRoute: initialRoute,
+              debugShowCheckedModeBanner: false,
+              routes: {
+                '/': (context) => const Start(),
+                '/seed_words': (context) => const SeedWords(),
+                '/open_pin': (context) => OpenPin(),
+                '/charge': (context) => const Charge(),
+                '/accounts': (context) => const Accounts(),
+                '/receive': (context) => Receive(),
+                '/settings': (context) => const Settings(),
+                '/analytics': (context) => const Analytics(),
+                '/set_pin': (context) => const SetPin(),
+                '/exchange': (context) => Exchange(),
+                '/apps': (context) => const Services(),
+                '/pay': (context) => Pay(),
+                '/home': (context) => const Home(),
+                '/recover_wallet': (context) => const RecoverWallet(),
+                '/search_modal': (context) => SearchModal(),
+                '/confirm_bitcoin_payment': (context) => ConfirmBitcoinPayment(),
+                '/confirm_liquid_payment': (context) => ConfirmLiquidPayment(),
+                '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
+                '/claim_boltz_transactions': (context) => ClaimBoltz(),
+              },
+            );
+          }
         }
-      }
     );
   }
 }
