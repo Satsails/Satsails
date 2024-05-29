@@ -12,14 +12,17 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return ElevatedButton(
       onPressed: onPressed,
       style: ButtonStyle(
         elevation: WidgetStateProperty.all<double>(0.0),
-        padding: WidgetStateProperty.all<EdgeInsets>(const EdgeInsets.all(10)),
+        padding: WidgetStateProperty.all<EdgeInsets>(EdgeInsets.all(screenWidth * 0.02)),
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(screenHeight * 0.05)
           ),
         ),
         backgroundColor: WidgetStateProperty.all<Color>(Colors.transparent),
@@ -32,14 +35,14 @@ class CustomButton extends StatelessWidget {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-          borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(screenHeight * 0.05)
         ),
         child: Container(
           alignment: Alignment.center,
-          constraints: const BoxConstraints(maxWidth: 300.0, minHeight: 60.0),
+          constraints: BoxConstraints(maxWidth: screenWidth * 0.75, minHeight: screenHeight * 0.075),
           child: Text(
             text,
-            style: const TextStyle(fontSize: 18.0, color: Colors.white),
+            style: TextStyle(fontSize: screenWidth * 0.045, color: Colors.white),
           ),
         ),
       ),

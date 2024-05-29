@@ -1,3 +1,4 @@
+import 'package:Satsails/screens/creation/components/logo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/balance_model.dart';
@@ -6,6 +7,7 @@ import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/accounts/accounts.dart';
 import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -64,7 +66,7 @@ class Home extends ConsumerWidget {
               final initializeBalance = ref.watch(initializeBalanceProvider);
               final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
               return initializeBalance.when(
-                data: (balance) => balance.isEmpty ? emptyBalance(ref) : buildDiagram(context, percentageOfEachCurrency),
+                data: (balance) => balance.isEmpty ? emptyBalance(ref, context) : buildDiagram(context, percentageOfEachCurrency),
                 loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
                 error: (error, stack) => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
               );
@@ -86,7 +88,8 @@ class Home extends ConsumerWidget {
     );
   }
 
-  Widget emptyBalance(WidgetRef ref) {
+  Widget emptyBalance(WidgetRef ref, BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -97,76 +100,57 @@ class Home extends ConsumerWidget {
             color: Colors.grey,
           ),
         ),
-        // LoadingAnimationWidget.flickr(size: 150, leftDotColor: Colors.deepOrangeAccent, rightDotColor: Colors.blueAccent),
-        Icon(Iconsax.security_safe_bold, size: 150, color: Colors.blueAccent),
+        Icon(Iconsax.security_safe_bold, size: screenHeight * 0.2, color: Colors.blueAccent),
       ],
     );
   }
 
 
   PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {
-    final value = ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, 100000000))).toStringAsFixed(2);
     final settings = ref.read(settingsProvider);
+    final screenWidth = MediaQuery.of(context).size.width;
     final settingsNotifier = ref.read(settingsProvider.notifier);
 
     void toggleOnlineStatus() {
       settingsNotifier.setOnline(true);
-     ref.read(backgroundSyncNotifierProvider).performSync();
+      ref.read(backgroundSyncNotifierProvider).performSync();
     }
 
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(kToolbarHeight),
-      child: AppBar(
-        backgroundColor: Colors.transparent,
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Clarity.block_solid, color: Colors.black),
-          onPressed: () {
-            Navigator.pushNamed(context, '/search_modal');
-          },
-        ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Clarity.bitcoin_line, color: Colors.black),
-            const SizedBox(width: 10),
-            Text(
-              '$value ${settings.currency}',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                shadows: <Shadow>[
-                  Shadow(
-                    offset: const Offset(1.0, 1.0),
-                    blurRadius: 3.0,
-                    color: Colors.grey.withOpacity(0.5),
-                  ),
-                ],
-              ),
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      automaticallyImplyLeading: false,
+      leading: Row(
+        children: [
+          Logo(widthFactor: 0.1, heightFactor: 0.1),
+          SizedBox(width: screenWidth * 0.02), // 2% of screen width
+          Text(
+            'Satsails',
+            style: GoogleFonts.fragmentMono(
+              fontSize: screenWidth * 0.06,
+              color: Colors.orangeAccent,
             ),
-          ],
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Clarity.settings_line, color: Colors.black),
-            onPressed: () {
-              Navigator.pushNamed(context, '/settings');
-            },
-          ),
-
-          ref.watch(backgroundSyncInProgressProvider) ? LoadingAnimationWidget.bouncingBall(color: Colors.orange, size: 50) : IconButton(
-            icon: Icon(
-              Icons.sync,
-              color: settings.online ? Colors.green : Colors.red,
-            ),
-            onPressed: () {
-              toggleOnlineStatus();
-            },
           ),
         ],
       ),
+      centerTitle: true,
+      actions: [
+        IconButton(
+          icon: const Icon(Clarity.settings_line, color: Colors.black),
+          onPressed: () {
+            Navigator.pushNamed(context, '/settings');
+          },
+        ),
+
+        ref.watch(backgroundSyncInProgressProvider) ? LoadingAnimationWidget.bouncingBall(color: Colors.orange, size: 50) : IconButton(
+          icon: Icon(
+            Icons.sync,
+            color: settings.online ? Colors.green : Colors.red,
+          ),
+          onPressed: () {
+            toggleOnlineStatus();
+          },
+        ),
+      ],
     );
   }
 }

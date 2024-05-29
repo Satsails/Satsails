@@ -14,6 +14,7 @@ class ButtonPicker extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final controller = ref.watch(groupButtonControllerProvider);
 
     return GroupButton(
@@ -42,10 +43,10 @@ class ButtonPicker extends ConsumerWidget {
       },
       buttons: ["Bitcoin Layer Swap".i18n(ref), 'Swap'.i18n(ref)],
       options: GroupButtonOptions(
-        unselectedTextStyle: const TextStyle(
-            fontSize: 16, color: Colors.black),
-        selectedTextStyle: const TextStyle(
-            fontSize: 16, color: Colors.white),
+        unselectedTextStyle: TextStyle(
+            fontSize: screenWidth * 0.04, color: Colors.black), // 4% of screen width
+        selectedTextStyle: TextStyle(
+            fontSize: screenWidth * 0.04, color: Colors.white), // 4% of screen width
         selectedColor: Colors.deepOrange,
         mainGroupAlignment: MainGroupAlignment.center,
         crossGroupAlignment: CrossGroupAlignment.center,
@@ -61,7 +62,7 @@ class ButtonPicker extends ConsumerWidget {
         unselectedShadow: <BoxShadow>[
           const BoxShadow(color: Colors.transparent)
         ],
-        borderRadius: BorderRadius.circular(30.0),
+        borderRadius: BorderRadius.circular(screenWidth * 0.075), // 7.5% of screen width
       ),
     );
   }

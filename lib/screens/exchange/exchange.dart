@@ -32,7 +32,7 @@ class Exchange extends ConsumerWidget {
           title: Text('Exchange'.i18n(ref)),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(dynamicSizedBox),
           child: Column(
             children: [
               const ButtonPicker(),

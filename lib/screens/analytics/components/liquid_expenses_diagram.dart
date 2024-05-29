@@ -17,95 +17,97 @@ class LiquidExpensesDiagram extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bitcoinTransactions = ref.watch(liquidTransactionsByDate);
     final btcFormat = ref.watch(settingsProvider).btcFormat;
-    final dynamicHeight = MediaQuery.of(context).size.height;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
     final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(btcFormat));
     final balance = ref.watch(balanceNotifierProvider);
 
+
     List<Column> cards = [
       Column(children: [
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Bitcoin", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
-            Icon(Icons.swipe, color: Colors.grey),
+            Text("Bitcoin", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
+            const Icon(Icons.swipe, color: Colors.grey),
           ],
         ),
         Text(
-          'Current Balance'.i18n(ref) + ': ' + liquidBalanceInFormat.toString() + ' ' + btcFormat, style: const TextStyle(fontSize: 20, color: Colors.grey),
+          '${'Current Balance'.i18n(ref)}: $liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: screenHeight * 0.01), // 1% of screen height
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [Colors.blue, Colors.deepPurple], context, btcFormat),
-            _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [Colors.blue, Colors.deepPurple], context, btcFormat),
-            _buildCard('Fee'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.blue, Colors.deepPurple], context, btcFormat),
+            _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+            _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+            _buildCard('Fee'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
           ],
         ),
       ],
       ),
       Column(
         children: [
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Real", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
-              Icon(Icons.swipe, color: Colors.grey),
+              Text("Real", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
+              const Icon(Icons.swipe, color: Colors.grey),
             ],
           ),
           Text(
-            'Current Balance'.i18n(ref) + ': ' + fiatInDenominationFormatted(balance.brlBalance), style: const TextStyle(fontSize: 20, color: Colors.grey),
+            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.brlBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: screenHeight * 0.01),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).brlSent / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat),
-              _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).brlReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat),
+              _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).brlSent / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+              _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).brlReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
             ],
           ),
         ],
       ),
       Column(
         children: [
-          const Row(
+           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Dollar", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
-              Icon(Icons.swipe, color: Colors.grey),
+              Text("Dollar", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
+              const Icon(Icons.swipe, color: Colors.grey),
             ],
           ),
           Text(
-            'Current Balance'.i18n(ref) + ': ' + fiatInDenominationFormatted(balance.usdBalance), style: const TextStyle(fontSize: 20, color: Colors.grey),
+            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.usdBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
           ),
-          const SizedBox(height: 10),
+           SizedBox(height: screenHeight * 0.01),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).usdSent / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat),
-              _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).usdReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat),
+              _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).usdSent / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+              _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).usdReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
             ],
           ),
         ],
       ),
       Column(
         children: [
-          const Row(
+           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Euro", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
-              Icon(Icons.swipe, color: Colors.grey),
+              Text("Euro", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
+              const Icon(Icons.swipe, color: Colors.grey),
             ],
           ),
           Text(
-            'Current Balance'.i18n(ref) + ': ' + fiatInDenominationFormatted(balance.eurBalance), style: const TextStyle(fontSize: 20, color: Colors.grey),
+            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.eurBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
           ),
-          const SizedBox(height: 10),
+            SizedBox(height: screenHeight * 0.01),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).euroSent / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat),
-              _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).euroReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat),
+              _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).euroSent / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+              _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).euroReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
             ],
           ),
         ],
@@ -113,7 +115,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
     ];
 
     return SizedBox(
-      height: dynamicHeight / 4.5,
+      height: screenHeight / 4.5,
       child: CardSwiper(
         scale: 0.1,
         padding: const EdgeInsets.all(0),
@@ -125,16 +127,14 @@ class LiquidExpensesDiagram extends ConsumerWidget {
     );
   }
 
-  Widget _buildCard(String title, double value, List<Color> gradientColors, BuildContext context, btcFormat) {
-    final dynamicHeight = MediaQuery.of(context).size.height;
-    final dynamicWidth = MediaQuery.of(context).size.width;
+  Widget _buildCard(String title, double value, List<Color> gradientColors, BuildContext context, btcFormat, double screenWidth, double screenHeight) {
     return SizedBox(
-      width: dynamicWidth / 3.5,
-      height: dynamicHeight / 7,
+      width: screenWidth / 3.5,
+      height: screenHeight / 7,
       child: Card(
         elevation: 10,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(screenWidth * 0.03), // 3% of screen width
         ),
         child: Container(
           decoration: BoxDecoration(
@@ -143,18 +143,18 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(screenWidth * 0.03), // 3% of screen width
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 title,
-                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.03, fontWeight: FontWeight.bold), // 3% of screen width
               ),
               Text(
                 btcFormat == 'sats' ? value.toStringAsFixed(0) : value.toString(),
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.03), // 3% of screen width
               ),
             ],
           ),

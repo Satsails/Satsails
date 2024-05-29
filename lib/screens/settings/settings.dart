@@ -22,6 +22,8 @@ class Settings extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            _builBlockExplorerSection(context, ref),
+            _buildDivider(),
             _buildCurrencySection(ref, context),
             _buildDivider(),
             _buildSupportSection(ref),
@@ -38,6 +40,17 @@ class Settings extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _builBlockExplorerSection(BuildContext context, WidgetRef ref) {
+    return ListTile(
+      leading: const Icon(Clarity.block_solid, color: Colors.orangeAccent),
+      title: Text('Search the blockchain'.i18n(ref)),
+      subtitle: Text('mempool.com'),
+      onTap: () {
+        Navigator.pushNamed(context, '/search_modal');
+      },
     );
   }
 

@@ -1,7 +1,7 @@
 name: Satsails
 description: "Sail your wealth to the cloud!"
 publish_to: 'none'
-version: 0.2.1
+version: 0.2.1+6
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
@@ -40,7 +40,6 @@ dependencies:
   icons_plus: ^5.0.0
   loading_animation_widget: ^1.2.1
   group_button: ^5.3.4
-  responsive_framework: ^1.4.0
   liquid_pull_to_refresh: ^3.0.1
   bolt11_decoder: ^1.0.2
   action_slider: ^0.7.0
@@ -59,6 +58,7 @@ dependencies:
   decimal: any
   web_socket_channel: any
   permission_handler: ^9.0.1
+  flutter_screenutil: ^5.9.1
 
 dev_dependencies:
   build_runner: ^2.4.9

@@ -50,9 +50,8 @@ class ConfirmLightningPayment extends HookConsumerWidget {
           backgroundColor: Colors.white,
           title: Text('Confirm lightning payment'.i18n(ref), style: const TextStyle(color: Colors.black, fontSize: 17)),
         ),
-        body:Stack(
-          children: [
-            Column(
+        body:SingleChildScrollView(
+            child: Column(
               children: [
                 SizedBox(
                   height: dynamicCardHeight,
@@ -146,43 +145,40 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: dynamicSizedBox),
-              ],
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Center(
-                  child: ActionSlider.standard(
-                    sliderBehavior: SliderBehavior.stretch,
-                    width: double.infinity,
-                    backgroundColor: Colors.white,
-                    toggleColor: Colors.blueAccent,
-                    action: (controller) async {
-                      controller.loading();
-                      await Future.delayed(const Duration(seconds: 3));
-                      try {
-                        await ref.read(boltzPayProvider.future);
-                        controller.success();
-                        Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
-                        await Future.delayed(const Duration(seconds: 3));
-                        ref.read(sendTxProvider.notifier).resetToDefault();
-                       ref.read(backgroundSyncNotifierProvider).performSync();
-                        Navigator.pushNamed(context, '/home');
-                      } catch (e) {
-                        controller.failure();
-                        Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
-                        controller.reset();
-                      }
-                    },
-                    child: Text('Slide to send'.i18n(ref)),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Center(
+                      child: ActionSlider.standard(
+                        sliderBehavior: SliderBehavior.stretch,
+                        width: double.infinity,
+                        backgroundColor: Colors.white,
+                        toggleColor: Colors.blueAccent,
+                        action: (controller) async {
+                          controller.loading();
+                          await Future.delayed(const Duration(seconds: 3));
+                          try {
+                            await ref.read(boltzPayProvider.future);
+                            controller.success();
+                            Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                            await Future.delayed(const Duration(seconds: 3));
+                            ref.read(sendTxProvider.notifier).resetToDefault();
+                            ref.read(backgroundSyncNotifierProvider).performSync();
+                            Navigator.pushNamed(context, '/home');
+                          } catch (e) {
+                            controller.failure();
+                            Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                            controller.reset();
+                          }
+                        },
+                        child: Text('Slide to send'.i18n(ref)),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
         ),
       ),
     );

@@ -15,11 +15,12 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
     final bitcoinTransactions = ref.watch(bitcoinTransactionsByDate);
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormat));
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Column(
       children: [
         Text(
-          'Current Balance'.i18n(ref) + ': ' + btcBalanceInFormat.toString() + ' ' + btcFormat, style: const TextStyle(fontSize: 20, color: Colors.grey),
+          '${'Current Balance'.i18n(ref)}: $btcBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth / 20, color: Colors.grey),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -57,11 +58,11 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontSize: dynamicWidth / 30, fontWeight: FontWeight.bold),
               ),
               Text(
                 btcFormat == 'sats' ? value.toStringAsFixed(0) : value.toString(),
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: TextStyle(color: Colors.white, fontSize: dynamicWidth / 30)
               ),
             ],
           ),

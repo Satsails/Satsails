@@ -2,18 +2,20 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
-import 'package:Satsails/providers/transaction_type_show_provider.dart';
 
 final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
 final groupButtonControllerProvider = Provider.autoDispose<GroupButtonController>((ref) {
   return GroupButtonController(selectedIndex: 0);
 });
 
+final transactionTypeShowProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
+
 class ButtonPicker extends ConsumerWidget {
   const ButtonPicker({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final controller = ref.watch(groupButtonControllerProvider);
 
     return GroupButton(
@@ -40,10 +42,10 @@ class ButtonPicker extends ConsumerWidget {
       },
       buttons: ["Bitcoin", "Instant Bitcoin".i18n(ref), 'Swaps'.i18n(ref)],
       options: GroupButtonOptions(
-        unselectedTextStyle: const TextStyle(fontSize: 13, color: Colors.black),
-        selectedTextStyle: const TextStyle(fontSize: 13, color: Colors.white),
+        unselectedTextStyle: TextStyle(fontSize: screenWidth * 0.04, color: Colors.black), // 3% of screen width
+        selectedTextStyle: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white), // 3% of screen width
         selectedColor: Colors.deepOrange,
-        spacing: 7,
+        spacing: screenWidth * 0.01, // 1% of screen width
         mainGroupAlignment: MainGroupAlignment.center,
         crossGroupAlignment: CrossGroupAlignment.center,
         groupRunAlignment: GroupRunAlignment.center,
@@ -58,7 +60,7 @@ class ButtonPicker extends ConsumerWidget {
         unselectedShadow: <BoxShadow>[
           const BoxShadow(color: Colors.transparent)
         ],
-        borderRadius: BorderRadius.circular(30.0),
+        borderRadius: BorderRadius.circular(screenWidth * 0.075), // 7.5% of screen width
       ),
     );
   }

@@ -13,6 +13,7 @@ class BoltzButtonPicker extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final controller = ref.watch(groupButtonControllerProvider);
 
     return GroupButton(
@@ -32,13 +33,13 @@ class BoltzButtonPicker extends ConsumerWidget {
       },
       buttons: ["Complete Receiving".i18n(ref), 'Complete Sending'.i18n(ref)],
       options: GroupButtonOptions(
-        unselectedTextStyle: const TextStyle(
-            fontSize: 13, color: Colors.black),
-        selectedTextStyle: const TextStyle(
-            fontSize: 13, color: Colors.white),
+        unselectedTextStyle: TextStyle(
+            fontSize: screenWidth * 0.035, color: Colors.black),
+        selectedTextStyle: TextStyle(
+            fontSize: screenWidth * 0.035, color: Colors.white),
         selectedColor: Colors.deepOrange,
         mainGroupAlignment: MainGroupAlignment.center,
-        spacing: 2,
+        spacing: screenWidth * 0.005, // 0.5% of screen width
         crossGroupAlignment: CrossGroupAlignment.center,
         groupRunAlignment: GroupRunAlignment.center,
         unselectedColor: Colors.white,
@@ -52,7 +53,7 @@ class BoltzButtonPicker extends ConsumerWidget {
         unselectedShadow: <BoxShadow>[
           const BoxShadow(color: Colors.transparent)
         ],
-        borderRadius: BorderRadius.circular(30.0),
+        borderRadius: BorderRadius.circular(screenWidth * 0.075),
       ),
     );
   }

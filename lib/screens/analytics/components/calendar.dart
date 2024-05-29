@@ -12,10 +12,11 @@ class Calendar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-      return _buildCalendarDialogButton(context, ref);
+    return _buildCalendarDialogButton(context, ref);
   }
 
   _buildCalendarDialogButton(BuildContext context, WidgetRef ref) {
+    final screenWidth = MediaQuery.of(context).size.width;
     const dayTextStyle =
     TextStyle(color: Colors.black, fontWeight: FontWeight.w700);
     final anniversaryTextStyle = TextStyle(
@@ -30,18 +31,19 @@ class Calendar extends ConsumerWidget {
       closeDialogOnCancelTapped: true,
       calendarViewMode: DatePickerMode.day,
       firstDayOfWeek: 1,
-      weekdayLabelTextStyle: const TextStyle(
+      weekdayLabelTextStyle: TextStyle(
         color: Colors.black87,
         fontWeight: FontWeight.bold,
+        fontSize: screenWidth * 0.03, // 3% of screen width
       ),
-      controlsTextStyle: const TextStyle(
+      controlsTextStyle: TextStyle(
         color: Colors.black,
-        fontSize: 15,
+        fontSize: screenWidth * 0.03, // 3% of screen width
         fontWeight: FontWeight.bold,
       ),
       centerAlignModePicker: true,
       customModePickerIcon: const SizedBox(),
-      selectedDayTextStyle: dayTextStyle.copyWith(color: Colors.white),
+      selectedDayTextStyle: dayTextStyle.copyWith(color: Colors.white, fontSize: screenWidth * 0.03),
       dayTextStylePredicate: ({required date}) {
         TextStyle? textStyle;
         if (DateUtils.isSameDay(date, DateTime(2021, 1, 25))) {
@@ -70,12 +72,12 @@ class Calendar extends ConsumerWidget {
                     style: textStyle,
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 27.5),
+                    padding: EdgeInsets.only(top: screenWidth * 0.07),
                     child: Container(
-                      height: 4,
-                      width: 4,
+                      height: screenWidth * 0.01,
+                      width: screenWidth * 0.01,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
+                        borderRadius: BorderRadius.circular(screenWidth * 0.01),
                         color: isSelected == true
                             ? Colors.white
                             : Colors.grey[500],
@@ -100,8 +102,8 @@ class Calendar extends ConsumerWidget {
         return Center(
           child: Container(
             decoration: decoration,
-            height: 36,
-            width: 72,
+            height: screenWidth * 0.09, // 9% of screen width
+            width: screenWidth * 0.18, // 18% of screen width
             child: Center(
               child: Semantics(
                 selected: isSelected,
@@ -115,8 +117,8 @@ class Calendar extends ConsumerWidget {
                     ),
                     if (isCurrentYear == true)
                       Container(
-                        padding: const EdgeInsets.all(5),
-                        margin: const EdgeInsets.only(left: 5),
+                        padding: EdgeInsets.all(screenWidth * 0.01),
+                        margin: EdgeInsets.only(left: screenWidth * 0.01),
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.redAccent,
@@ -131,7 +133,7 @@ class Calendar extends ConsumerWidget {
       },
     );
     return Padding(
-      padding: const EdgeInsets.all(15),
+      padding: EdgeInsets.all(screenWidth * 0.03),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -149,18 +151,18 @@ class Calendar extends ConsumerWidget {
               final values = await showCalendarDatePicker2Dialog(
                 context: context,
                 config: config,
-                dialogSize: const Size(325, 400),
-                borderRadius: BorderRadius.circular(15),
+                dialogSize: Size(screenWidth * 0.8, screenWidth),
+                borderRadius: BorderRadius.circular(screenWidth * 0.03),
                 dialogBackgroundColor: Colors.white,
               );
               if (values != null) {
                 if (values.length == 1) {
                   ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[0]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
                 } else if (values.length == 2)
-                ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[1]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
+                  ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[1]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
               }
             },
-            child: Text('Select Range'.i18n(ref), style: const TextStyle(fontSize: 13, color: Colors.white), textAlign: TextAlign.center),
+            child: Text('Select Range'.i18n(ref), style: TextStyle(fontSize: screenWidth * 0.03, color: Colors.white), textAlign: TextAlign.center), // 3% of screen width
           ),
         ],
       ),

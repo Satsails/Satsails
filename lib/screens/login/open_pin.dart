@@ -57,7 +57,7 @@ class OpenPin extends ConsumerWidget {
                   onPressed: () => _showConfirmationDialog(context, ref),
                   child: Text(
                     'Forgot PIN'.i18n(ref),
-                    style: const TextStyle(fontSize: 20.0, color: Colors.blue),
+                    style: const TextStyle(fontSize: 20.0, color: Colors.red),
                   ),
                 ),
               ],

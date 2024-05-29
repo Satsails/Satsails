@@ -13,7 +13,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
   final Ref ref;
 
   BackgroundSyncNotifier(this.ref) : super(null) {
-    performSync();
+    Future.microtask(() => performSync());
     Timer.periodic(const Duration(seconds: 120), (timer) {
       performSync();
     });
@@ -29,14 +29,14 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           ref.read(backgroundSyncInProgressProvider.notifier).state = true;
           final bitcoinBox = await Hive.openBox('bitcoin');
           final balanceModel = ref.read(balanceNotifierProvider.notifier);
-          ref.read(syncBitcoinProvider);
+          await ref.read(syncBitcoinProvider);
           final bitcoinBalance = await ref.refresh(getBitcoinBalanceProvider.future);
-          bitcoinBox.put('bitcoin', bitcoinBalance.total);
+          await bitcoinBox.put('bitcoin', bitcoinBalance.total);
           balanceModel.updateBtcBalance(bitcoinBalance.total);
-          ref.read(syncLiquidProvider);
+          await ref.read(syncLiquidProvider);
           final liquidBalance = await ref.refresh(liquidBalanceProvider.future);
-          updateLiquidBalances(liquidBalance);
-          ref.read(updateTransactionsProvider);
+          await updateLiquidBalances(liquidBalance);
+          await ref.read(updateTransactionsProvider);
           ref.read(settingsProvider.notifier).setOnline(true);
           await ref.read(claimAndDeleteAllBoltzProvider.future);
 
@@ -54,29 +54,29 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
     }
   }
 
-  void updateLiquidBalances(balances) async {
+  Future<void> updateLiquidBalances(balances) async {
     final balanceModel = ref.read(balanceNotifierProvider.notifier);
     final liquidBox = await Hive.openBox('liquid');
     for (var balance in balances){
       switch (AssetMapper.mapAsset(balance.assetId)){
         case AssetId.USD:
           balance = balance.value;
-          liquidBox.put('usd', balance);
+          await liquidBox.put('usd', balance);
           balanceModel.updateUsdBalance(balance);
           break;
         case AssetId.EUR:
           balance = balance.value;
-          liquidBox.put('eur', balance);
+          await liquidBox.put('eur', balance);
           balanceModel.updateEurBalance(balance);
           break;
         case AssetId.BRL:
           balance = balance.value;
-          liquidBox.put('brl', balance);
+          await liquidBox.put('brl', balance);
           balanceModel.updateBrlBalance(balance);
           break;
         case AssetId.LBTC:
           balanceModel.updateLiquidBalance(balance.value);
-          liquidBox.put('liquid', balance.value);
+          await liquidBox.put('liquid', balance.value);
           break;
         default:
           break;
@@ -86,5 +86,9 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
 }
 
 final backgroundSyncNotifierProvider = StateProvider((ref) {
-  return BackgroundSyncNotifier(ref);
+  final notifier = BackgroundSyncNotifier(ref);
+  ref.onDispose(() {
+    notifier.dispose();
+  });
+  return notifier;
 });

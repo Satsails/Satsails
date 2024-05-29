@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/offline_transaction_warning.dart';
-import '../../providers/transaction_type_show_provider.dart';
 import 'package:group_button/group_button.dart';
 
 final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
@@ -20,6 +19,9 @@ class Receive extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     final selectedIndex = ref.watch(selectedButtonProvider);
     final controller = ref.watch(groupButtonControllerProvider);
     final online = ref.watch(settingsProvider).online;
@@ -28,9 +30,9 @@ class Receive extends ConsumerWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Receive'),
+        title: Text('Receive', style: TextStyle(fontSize: screenHeight * 0.03)), // 3% of screen height
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, size: screenHeight * 0.03), // 3% of screen height
           onPressed: () {
             Navigator.of(context).pop();
             ref.read(inputAmountProvider.notifier).state = '0.0';
@@ -48,19 +50,16 @@ class Receive extends ConsumerWidget {
                 switch (index) {
                   case 'Bitcoin':
                     ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
-                    ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
                     ref.read(inputCurrencyProvider.notifier).state = 'BTC';
                     ref.read(inputAmountProvider.notifier).state = '0.0';
                     break;
                   case 'Liquid':
                     ref.read(selectedButtonProvider.notifier).state = "Liquid";
-                    ref.read(transactionTypeShowProvider.notifier).state = "Liquid";
                     ref.read(inputCurrencyProvider.notifier).state = 'BTC';
                     ref.read(inputAmountProvider.notifier).state = '0.0';
                     break;
                   case 'Lightning':
                     ref.read(selectedButtonProvider.notifier).state = "Lightning";
-                    ref.read(transactionTypeShowProvider.notifier).state = "Lightning";
                     ref.read(inputCurrencyProvider.notifier).state = 'BTC';
                     ref.read(inputAmountProvider.notifier).state = '0.0';
                     break;
@@ -70,17 +69,17 @@ class Receive extends ConsumerWidget {
               },
               buttons: const ["Lightning", 'Bitcoin', "Liquid"],
               options: GroupButtonOptions(
-                unselectedTextStyle: const TextStyle(
-                    fontSize: 16, color: Colors.black),
-                selectedTextStyle: const TextStyle(
-                    fontSize: 16, color: Colors.white),
+                unselectedTextStyle: TextStyle(
+                    fontSize: screenHeight * 0.02, color: Colors.black), // 2% of screen height
+                selectedTextStyle: TextStyle(
+                    fontSize: screenHeight * 0.02, color: Colors.white), // 2% of screen height
                 selectedColor: Colors.deepOrange,
                 mainGroupAlignment: MainGroupAlignment.center,
                 crossGroupAlignment: CrossGroupAlignment.center,
                 groupRunAlignment: GroupRunAlignment.center,
                 unselectedColor: Colors.white,
                 groupingType: GroupingType.row,
-                spacing: 7,
+                spacing: screenWidth * 0.01, // 1% of screen width
                 alignment: Alignment.center,
                 elevation: 0,
                 textPadding: EdgeInsets.zero,
@@ -93,7 +92,7 @@ class Receive extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(30.0),
               ),
             ),
-            const SizedBox(height: 16.0),
+            SizedBox(height: screenHeight * 0.02), // 2% of screen height
             if (selectedIndex == 'Bitcoin')
               const BitcoinWidget(),
             if (selectedIndex == "Liquid")
