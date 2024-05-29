@@ -34,9 +34,9 @@ class BoltzButtonPicker extends ConsumerWidget {
       buttons: ["Complete Receiving".i18n(ref), 'Complete Sending'.i18n(ref)],
       options: GroupButtonOptions(
         unselectedTextStyle: TextStyle(
-            fontSize: screenWidth * 0.03, color: Colors.black),
+            fontSize: screenWidth * 0.035, color: Colors.black),
         selectedTextStyle: TextStyle(
-            fontSize: screenWidth * 0.03, color: Colors.white),
+            fontSize: screenWidth * 0.035, color: Colors.white),
         selectedColor: Colors.deepOrange,
         mainGroupAlignment: MainGroupAlignment.center,
         spacing: screenWidth * 0.005, // 0.5% of screen width
