@@ -13,7 +13,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
   final Ref ref;
 
   BackgroundSyncNotifier(this.ref) : super(null) {
-    Future.microtask(() => performSync());
+    performSync();
     Timer.periodic(const Duration(seconds: 120), (timer) {
       performSync();
     });

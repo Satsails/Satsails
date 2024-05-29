@@ -78,9 +78,18 @@ void main() async {
           child: MainApp(),
         ),
       ),
+      builder: (context, child) {
+        final mediaQueryData = MediaQuery.of(context);
+        final scale = mediaQueryData.textScaleFactor.clamp(1.0, 1.3);
+        return MediaQuery(
+          child: child!,
+          data: mediaQueryData.copyWith(textScaleFactor: scale),
+        );
+      },
     ),
   );
 }
+
 
 class MainApp extends ConsumerWidget {
   const MainApp({super.key});
