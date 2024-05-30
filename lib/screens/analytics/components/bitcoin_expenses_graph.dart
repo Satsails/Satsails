@@ -8,6 +8,7 @@ class LineChartSample extends StatelessWidget {
   final Map<int, num> feeData;
   final Map<int, num> incomeData;
   final Map<int, num> spendingData;
+  final Map<int, num>? mainData;
 
   const LineChartSample({
     super.key,
@@ -15,6 +16,7 @@ class LineChartSample extends StatelessWidget {
     required this.feeData,
     required this.incomeData,
     required this.spendingData,
+    this.mainData,
   });
 
   @override
@@ -25,7 +27,8 @@ class LineChartSample extends StatelessWidget {
   }
 
   LineChartData _chartData() {
-    final allValues = [...feeData.values, ...incomeData.values, ...spendingData.values];
+    final dataToUse = mainData ?? {...feeData, ...incomeData, ...spendingData};
+    final allValues = [...dataToUse.values];
     final double minY = allValues.isNotEmpty ? allValues.reduce((a, b) => a < b ? a : b).toDouble() : 0;
     final double maxY = allValues.isNotEmpty ? allValues.reduce((a, b) => a > b ? a : b).toDouble() : 4;
     final double midY = (minY + maxY) / 2;
@@ -85,7 +88,9 @@ class LineChartSample extends StatelessWidget {
   }
 
   List<LineChartBarData> _lineBarsData() {
-    return [
+    return mainData != null
+        ? [_mainLine()]
+        : [
       _spendingLine(),
       _incomeLine(),
       _feeLine(),
@@ -181,13 +186,34 @@ class LineChartSample extends StatelessWidget {
           .toList(),
     );
   }
+
+  LineChartBarData _mainLine() {
+    return LineChartBarData(
+      isCurved: true,
+      color: Colors.orangeAccent,
+      barWidth: 8,
+      isStrokeCapRound: true,
+      dotData: const FlDotData(show: false),
+      belowBarData: BarAreaData(show: false),
+      spots: selectedDays
+          .map((day) => FlSpot(day.toDouble(), mainData?[day]?.toDouble() ?? 0))
+          .toList(),
+    );
+  }
 }
 
-class ExpensesGraph extends ConsumerWidget {
+class ExpensesGraph extends ConsumerStatefulWidget {
   const ExpensesGraph({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _ExpensesGraphState createState() => _ExpensesGraphState();
+}
+
+class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
+  bool isShowingMainData = false;
+
+  @override
+  Widget build(BuildContext context) {
     final selectedDays = ref.watch(selectedDaysDateArrayProvider);
     final feeData = ref.watch(bitcoinFeeSpentPerDayProvider);
     final incomeData = ref.watch(bitcoinIncomePerDayProvider);
@@ -209,6 +235,7 @@ class ExpensesGraph extends ConsumerWidget {
                     feeData: feeData,
                     incomeData: incomeData,
                     spendingData: spendingData,
+                    mainData: isShowingMainData ? bitcoinBalanceByDay : null,
                   ),
                 ),
               ),
@@ -216,7 +243,9 @@ class ExpensesGraph extends ConsumerWidget {
                 padding: const EdgeInsets.only(top: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
+                  children: isShowingMainData
+                      ? [_buildLegend('Balance Over Time', Colors.orangeAccent)]
+                      : [
                     _buildLegend('Spending', Colors.blueAccent),
                     _buildLegend('Income', Colors.greenAccent),
                     _buildLegend('Fee', Colors.orangeAccent),
@@ -224,6 +253,21 @@ class ExpensesGraph extends ConsumerWidget {
                 ),
               ),
             ],
+          ),
+          Positioned(
+            top: 16,
+            left: 16,
+            child: IconButton(
+              icon: Icon(
+                Icons.track_changes,
+                color: Colors.red.withOpacity(isShowingMainData ? 1.0 : 0.5),
+              ),
+              onPressed: () {
+                setState(() {
+                  isShowingMainData = !isShowingMainData;
+                });
+              },
+            ),
           ),
         ],
       ),
@@ -244,4 +288,3 @@ class ExpensesGraph extends ConsumerWidget {
     );
   }
 }
-

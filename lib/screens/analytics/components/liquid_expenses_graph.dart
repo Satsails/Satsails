@@ -9,6 +9,7 @@ class LineChartSample extends StatelessWidget {
   final Map<int, num> feeData;
   final Map<int, num> incomeData;
   final Map<int, num> spendingData;
+  final Map<int, num>? balanceData;
   final bool showFeeLine;
 
   const LineChartSample({
@@ -17,6 +18,7 @@ class LineChartSample extends StatelessWidget {
     required this.feeData,
     required this.incomeData,
     required this.spendingData,
+    this.balanceData,
     required this.showFeeLine,
   });
 
@@ -28,10 +30,9 @@ class LineChartSample extends StatelessWidget {
   }
 
   LineChartData _chartData() {
-    final allValues = [...incomeData.values, ...spendingData.values];
-    if (showFeeLine) {
-      allValues.addAll(feeData.values);
-    }
+    final allValues = balanceData != null
+        ? balanceData!.values.toList()
+        : [...incomeData.values, ...spendingData.values, if (showFeeLine) ...feeData.values];
     final double minY = allValues.isNotEmpty ? allValues.reduce((a, b) => a < b ? a : b).toDouble() : 0;
     final double maxY = allValues.isNotEmpty ? allValues.reduce((a, b) => a > b ? a : b).toDouble() : 4;
     final double midY = (minY + maxY) / 2;
@@ -44,7 +45,7 @@ class LineChartSample extends StatelessWidget {
       gridData: _gridData(),
       titlesData: _titlesData(minY, midY, maxY, selectedDays.length),
       borderData: _borderData(),
-      lineBarsData: _lineBarsData(),
+      lineBarsData: balanceData != null ? [_balanceLine()] : _lineBarsData(),
       minX: minX,
       maxX: maxX,
       minY: minY,
@@ -190,24 +191,46 @@ class LineChartSample extends StatelessWidget {
           .toList(),
     );
   }
+
+  LineChartBarData _balanceLine() {
+    return LineChartBarData(
+      isCurved: true,
+      color: Colors.orangeAccent,
+      barWidth: 8,
+      isStrokeCapRound: true,
+      dotData: const FlDotData(show: false),
+      belowBarData: BarAreaData(show: false),
+      spots: selectedDays
+          .map((day) => FlSpot(day.toDouble(), balanceData?[day]?.toDouble() ?? 0))
+          .toList(),
+    );
+  }
 }
 
-class ExpensesGraph extends ConsumerWidget {
+class ExpensesGraph extends ConsumerStatefulWidget {
   final String assetId;
 
   const ExpensesGraph({super.key, required this.assetId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final selectedDays = ref.watch(selectedDaysDateArrayProvider);
-    final feeData = ref.watch(liquidFeePerDayProvider(assetId));
-    final incomeData = ref.watch(liquidIncomePerDayProvider(assetId));
-    final spendingData = ref.watch(liquidSpentPerDayProvider(assetId));
+  _ExpensesGraphState createState() => _ExpensesGraphState();
+}
 
-    final bool showFeeLine = assetId == AssetMapper.reverseMapTicker(AssetId.LBTC);
+class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
+  bool isShowingBalanceData = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedDays = ref.watch(selectedDaysDateArrayProvider);
+    final feeData = ref.watch(liquidFeePerDayProvider(widget.assetId));
+    final incomeData = ref.watch(liquidIncomePerDayProvider(widget.assetId));
+    final spendingData = ref.watch(liquidSpentPerDayProvider(widget.assetId));
+    final balanceData = ref.watch(liquidBalanceOverPeriodByDayProvider(widget.assetId));
+
+    final bool showFeeLine = widget.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC);
 
     return AspectRatio(
-      aspectRatio: 1.5,
+      aspectRatio: 1.7,
       child: Stack(
         children: <Widget>[
           Column(
@@ -221,6 +244,7 @@ class ExpensesGraph extends ConsumerWidget {
                     feeData: feeData,
                     incomeData: incomeData,
                     spendingData: spendingData,
+                    balanceData: isShowingBalanceData ? balanceData : null,
                     showFeeLine: showFeeLine,
                   ),
                 ),
@@ -229,7 +253,9 @@ class ExpensesGraph extends ConsumerWidget {
                 padding: const EdgeInsets.only(top: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
+                  children: isShowingBalanceData
+                      ? [_buildLegend('Balance Over Time', Colors.orangeAccent)]
+                      : [
                     _buildLegend('Spending', Colors.blueAccent),
                     _buildLegend('Income', Colors.greenAccent),
                     if (showFeeLine) _buildLegend('Fee', Colors.orangeAccent),
@@ -237,6 +263,21 @@ class ExpensesGraph extends ConsumerWidget {
                 ),
               ),
             ],
+          ),
+          Positioned(
+            top: 16,
+            left: 16,
+            child: IconButton(
+              icon: Icon(
+                Icons.track_changes,
+                color: Colors.red.withOpacity(isShowingBalanceData ? 1.0 : 0.5),
+              ),
+              onPressed: () {
+                setState(() {
+                  isShowingBalanceData = !isShowingBalanceData;
+                });
+              },
+            ),
           ),
         ],
       ),

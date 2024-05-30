@@ -133,7 +133,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
       child: SizedBox(
         height: screenHeight / 4.5,
         child: CardSwiper(
-          scale: 0.1,
+          scale: 0,
           padding: const EdgeInsets.all(0),
           allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
           cardsCount: cards.length,
