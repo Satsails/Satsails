@@ -36,7 +36,7 @@ class Exchange extends ConsumerWidget {
           child: Column(
             children: [
               const ButtonPicker(),
-              OfflineTransactionWarning(online: online),
+              // OfflineTransactionWarning(online: online),
               SizedBox(height: dynamicSizedBox),
               if(button == 'Bitcoin Layer Swap')  const Expanded(child: Peg()),
               if(button == 'Swap') const Expanded(child: LiquidSwapCards()),

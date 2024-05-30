@@ -109,7 +109,8 @@ class RecoverWallet extends ConsumerWidget {
                 child: CustomButton(
                     text: 'Recover Account'.i18n(ref),
                     onPressed: () async {
-                      final mnemonic = data.words.join(' ');
+                      // final mnemonic = data.words.join(' ');
+                      final mnemonic = 'near angle old frequent only pair banana giggle armed penalty torch boat';
                       if (await authModel.validateMnemonic(mnemonic)) {
                         await authModel.setMnemonic(mnemonic);
                         Navigator.pushNamed(context, '/set_pin');

@@ -31,7 +31,7 @@ class ClaimBoltz extends ConsumerWidget {
         child: Column(
           children: [
             const BoltzButtonPicker(),
-            OfflineTransactionWarning(online: online),
+            // OfflineTransactionWarning(online: online),
             if(button == 'Complete Sending')  const Expanded(child: RefundSending()),
             if(button == 'Complete Receiving') const Expanded(child: ClaimReceiving()),
           ],

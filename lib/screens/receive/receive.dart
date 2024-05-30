@@ -42,7 +42,7 @@ class Receive extends ConsumerWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            OfflineTransactionWarning(online: online),
+            // OfflineTransactionWarning(online: online),
             GroupButton(
               isRadio: true,
               controller: controller,

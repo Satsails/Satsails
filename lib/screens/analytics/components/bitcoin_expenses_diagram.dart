@@ -1,4 +1,6 @@
+import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/screens/analytics/components/expenses_graph.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,12 +18,14 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormat));
     final screenWidth = MediaQuery.of(context).size.width;
+    final moreThanOneMonth = ref.watch(moreThanOneMonthProvider);
 
     return Column(
       children: [
         Text(
           '${'Current Balance'.i18n(ref)}: $btcBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth / 20, color: Colors.grey),
         ),
+        if (moreThanOneMonth || ref.watch(oneDay))
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -29,6 +33,8 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
             _buildCard('Received'.i18n(ref),_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received, [Colors.orange, Colors.deepOrange], context, btcFormat),
             _buildCard('Fee'.i18n(ref),_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.orange, Colors.deepOrange], context, btcFormat),
           ],),
+        if (!moreThanOneMonth && !ref.watch(oneDay))
+          ExpensesGraph()
       ],
     );
   }

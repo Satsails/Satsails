@@ -52,12 +52,12 @@ class Home extends ConsumerWidget {
   Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final online = ref.watch(settingsProvider).online;
+    // final online = ref.watch(settingsProvider).online;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        OfflineTransactionWarning(online: online),
+        // OfflineTransactionWarning(online: online),
         buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
         Flexible(
           child: SizedBox(

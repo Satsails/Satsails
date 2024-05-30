@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 String btcInDenominationFormatted(double amount, String denomination, [bool isBitcoin = true]) {
   double balance = 0;
 
@@ -27,4 +29,36 @@ String btcInDenominationFormatted(double amount, String denomination, [bool isBi
   } else {
     return balance.toString();
   }
+}
+
+num truncateToDecimalPlaces(num number, int decimalPlaces) {
+  num mod = math.pow(10.0, decimalPlaces);
+  return ((number * mod).toInt().toDouble() / mod);
+}
+
+num btcInDenominationNum(num amount, String denomination, [bool isBitcoin = true]) {
+  num balance = 0;
+
+  if (!isBitcoin) {
+    return truncateToDecimalPlaces(amount / 100000000, 8);
+  }
+
+  switch (denomination) {
+    case 'sats':
+      balance = amount;
+      break;
+    case 'BTC':
+      balance = (amount / 100000000);
+      break;
+    case 'mBTC':
+      balance = (amount / 100000000) * 1000;
+      break;
+    case 'bits':
+      balance = (amount / 100000000) * 1000000;
+      break;
+    default:
+      return 0;
+  }
+
+  return truncateToDecimalPlaces(balance, 8);
 }
