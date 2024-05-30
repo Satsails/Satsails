@@ -1,3 +1,4 @@
+import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ class LineChartSample extends StatelessWidget {
   final Map<int, num> feeData;
   final Map<int, num> incomeData;
   final Map<int, num> spendingData;
+  final bool showFeeLine;
 
   const LineChartSample({
     super.key,
@@ -15,6 +17,7 @@ class LineChartSample extends StatelessWidget {
     required this.feeData,
     required this.incomeData,
     required this.spendingData,
+    required this.showFeeLine,
   });
 
   @override
@@ -25,7 +28,10 @@ class LineChartSample extends StatelessWidget {
   }
 
   LineChartData _chartData() {
-    final allValues = [...feeData.values, ...incomeData.values, ...spendingData.values];
+    final allValues = [...incomeData.values, ...spendingData.values];
+    if (showFeeLine) {
+      allValues.addAll(feeData.values);
+    }
     final double minY = allValues.isNotEmpty ? allValues.reduce((a, b) => a < b ? a : b).toDouble() : 0;
     final double maxY = allValues.isNotEmpty ? allValues.reduce((a, b) => a > b ? a : b).toDouble() : 4;
     final double midY = (minY + maxY) / 2;
@@ -85,11 +91,14 @@ class LineChartSample extends StatelessWidget {
   }
 
   List<LineChartBarData> _lineBarsData() {
-    return [
+    final lines = [
       _spendingLine(),
       _incomeLine(),
-      _feeLine(),
     ];
+    if (showFeeLine) {
+      lines.add(_feeLine());
+    }
+    return lines;
   }
 
   Widget _bottomTitleWidgets(double value, TitleMeta meta) {
@@ -184,17 +193,21 @@ class LineChartSample extends StatelessWidget {
 }
 
 class ExpensesGraph extends ConsumerWidget {
-  const ExpensesGraph({super.key});
+  final String assetId;
+
+  const ExpensesGraph({super.key, required this.assetId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedDays = ref.watch(selectedDaysDateArrayProvider);
-    final feeData = ref.watch(bitcoinFeeSpentPerDayProvider);
-    final incomeData = ref.watch(bitcoinIncomePerDayProvider);
-    final spendingData = ref.watch(bitcoinSpentPerDayProvider);
+    final feeData = ref.watch(liquidFeePerDayProvider(assetId));
+    final incomeData = ref.watch(liquidIncomePerDayProvider(assetId));
+    final spendingData = ref.watch(liquidSpentPerDayProvider(assetId));
+
+    final bool showFeeLine = assetId == AssetMapper.reverseMapTicker(AssetId.LBTC);
 
     return AspectRatio(
-      aspectRatio: 1.23,
+      aspectRatio: 1.5,
       child: Stack(
         children: <Widget>[
           Column(
@@ -208,6 +221,7 @@ class ExpensesGraph extends ConsumerWidget {
                     feeData: feeData,
                     incomeData: incomeData,
                     spendingData: spendingData,
+                    showFeeLine: showFeeLine,
                   ),
                 ),
               ),
@@ -218,7 +232,7 @@ class ExpensesGraph extends ConsumerWidget {
                   children: [
                     _buildLegend('Spending', Colors.blueAccent),
                     _buildLegend('Income', Colors.greenAccent),
-                    _buildLegend('Fee', Colors.orangeAccent),
+                    if (showFeeLine) _buildLegend('Fee', Colors.orangeAccent),
                   ],
                 ),
               ),
@@ -243,4 +257,3 @@ class ExpensesGraph extends ConsumerWidget {
     );
   }
 }
-
