@@ -262,54 +262,49 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
     final selectedCurrency = ref.watch(settingsProvider).currency;
     final currencyRate = ref.watch(selectedCurrencyProvider(selectedCurrency));
 
-    return SingleChildScrollView(
-      child: Column(
-        children: <Widget>[
-          Container(
-            height: 300, // or any other fixed height
-            padding: const EdgeInsets.only(right: 16, left: 6, top: 34),
-            child: LineChartSample(
-              selectedDays: selectedDays,
-              feeData: feeData,
-              incomeData: incomeData,
-              spendingData: spendingData,
-              mainData: !isShowingMainData ? bitcoinBalanceByDay : null,
-              balanceInCurrency: calculateBalanceInCurrency(bitcoinBalanceByDayUnformatted, currencyRate),
-              selectedCurrency: selectedCurrency,
-              isShowingMainData: isShowingMainData,
-            ),
+    return Column(
+      children: <Widget>[
+        Container(
+          height: 200, // or any other fixed height
+          padding: const EdgeInsets.only(right: 16, left: 6, top: 34),
+          child: LineChartSample(
+            selectedDays: selectedDays,
+            feeData: feeData,
+            incomeData: incomeData,
+            spendingData: spendingData,
+            mainData: !isShowingMainData ? bitcoinBalanceByDay : null,
+            balanceInCurrency: calculateBalanceInCurrency(bitcoinBalanceByDayUnformatted, currencyRate),
+            selectedCurrency: selectedCurrency,
+            isShowingMainData: isShowingMainData,
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: !isShowingMainData
-                  ? [_buildLegend('Balance Over Time', Colors.orangeAccent)]
-                  : [
-                _buildLegend('Spending', Colors.blueAccent),
-                _buildLegend('Income', Colors.greenAccent),
-                _buildLegend('Fee', Colors.orangeAccent),
-              ],
+        ),
+        Center(
+          child: TextButton(
+            child: Text(
+              isShowingMainData ? 'Show Bitcoin Balance' : 'Show Statistics over period',
+              style: TextStyle(color: Colors.grey),
             ),
+            onPressed: () {
+              setState(() {
+                isShowingMainData = !isShowingMainData;
+              });
+            },
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: Center(
-              child: TextButton(
-                child: Text(
-                  isShowingMainData ? 'Show Bitcoin Balance' : 'Show Statistics over period',
-                  style: TextStyle(color: Colors.grey),
-                ),
-                onPressed: () {
-                  setState(() {
-                    isShowingMainData = !isShowingMainData;
-                  });
-                },
-              ),
-            ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: !isShowingMainData
+                ? [_buildLegend('Balance Over Time', Colors.orangeAccent)]
+                : [
+              _buildLegend('Spending', Colors.blueAccent),
+              _buildLegend('Income', Colors.greenAccent),
+              _buildLegend('Fee', Colors.orangeAccent),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

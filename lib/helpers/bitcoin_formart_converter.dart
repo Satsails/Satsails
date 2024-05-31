@@ -39,10 +39,6 @@ num truncateToDecimalPlaces(num number, int decimalPlaces) {
 num btcInDenominationNum(num amount, String denomination, [bool isBitcoin = true]) {
   num balance = 0;
 
-  if (!isBitcoin) {
-    return truncateToDecimalPlaces(amount / 100000000, 8);
-  }
-
   switch (denomination) {
     case 'sats':
       balance = amount;
