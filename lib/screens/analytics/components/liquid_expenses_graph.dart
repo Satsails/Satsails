@@ -1,5 +1,7 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +12,8 @@ class LineChartSample extends StatelessWidget {
   final Map<int, num> incomeData;
   final Map<int, num> spendingData;
   final Map<int, num>? balanceData;
+  final Map<int, num> balanceInCurrency;
+  final String selectedCurrency;
   final bool showFeeLine;
 
   const LineChartSample({
@@ -19,6 +23,8 @@ class LineChartSample extends StatelessWidget {
     required this.incomeData,
     required this.spendingData,
     this.balanceData,
+    required this.balanceInCurrency,
+    required this.selectedCurrency,
     required this.showFeeLine,
   });
 
@@ -54,12 +60,43 @@ class LineChartSample extends StatelessWidget {
   }
 
   LineTouchData _lineTouchData() {
-    return LineTouchData(
-      handleBuiltInTouches: true,
-      touchTooltipData: LineTouchTooltipData(
-        tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
-      ),
-    );
+    if (balanceData == null || !showFeeLine) {
+      return LineTouchData(
+        handleBuiltInTouches: true,
+        touchTooltipData: LineTouchTooltipData(
+          tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
+          tooltipMargin: 8,
+          tooltipPadding: EdgeInsets.all(8),
+          fitInsideHorizontally: true,
+          fitInsideVertically: true,
+          tooltipRoundedRadius: 8,
+        ),
+      );
+    } else {
+      return LineTouchData(
+        handleBuiltInTouches: true,
+        touchTooltipData: LineTouchTooltipData(
+          tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
+          getTooltipItems: (touchedSpots) {
+            return touchedSpots.map((touchedSpot) {
+              final FlSpot spot = touchedSpot;
+              final int day = spot.x.toInt();
+              final num balance = spot.y;
+              final num? currencyBalance = balanceInCurrency[day];
+              return LineTooltipItem(
+                'Bitcoin: $balance\n$selectedCurrency: ${currencyBalance?.toStringAsFixed(2)}',
+                TextStyle(color: Colors.white),
+              );
+            }).toList();
+          },
+          tooltipMargin: 8,
+          tooltipPadding: EdgeInsets.all(8),
+          fitInsideHorizontally: true,
+          fitInsideVertically: true,
+          tooltipRoundedRadius: 8,
+        ),
+      );
+    }
   }
 
   FlTitlesData _titlesData(double minY, double midY, double maxY, int days) {
@@ -227,56 +264,55 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
     final spendingData = ref.watch(liquidSpentPerDayProvider(widget.assetId));
     final balanceData = ref.watch(liquidBalanceOverPeriodByDayProvider(widget.assetId));
 
+    final selectedCurrency = ref.watch(settingsProvider).currency;
+    final currencyRate = ref.watch(selectedCurrencyProvider(selectedCurrency));
+    final balanceInCurrency = calculateBalanceInCurrency(balanceData, currencyRate);
+
+    // final bitcoinBalanceByDayUnformatted = ref.watch(bitcoinBalanceInBtcByDayProvider);
+
     final bool showFeeLine = widget.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC);
 
-    return AspectRatio(
-      aspectRatio: 1.7,
-      child: Stack(
+    return Expanded(
+      child: Column(
         children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 16, left: 6, top: 34),
-                  child: LineChartSample(
-                    selectedDays: selectedDays,
-                    feeData: feeData,
-                    incomeData: incomeData,
-                    spendingData: spendingData,
-                    balanceData: !isShowingBalanceData ? balanceData : null,
-                    showFeeLine: showFeeLine,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: !isShowingBalanceData
-                      ? [_buildLegend('Balance Over Time', Colors.orangeAccent)]
-                      : [
-                    _buildLegend('Spending', Colors.blueAccent),
-                    _buildLegend('Income', Colors.greenAccent),
-                    if (showFeeLine) _buildLegend('Fee', Colors.orangeAccent),
-                  ],
-                ),
-              ),
-            ],
+          Container(
+            height: 190, // or any other fixed height
+            padding: const EdgeInsets.only(right: 16, left: 6, top: 34),
+            child: LineChartSample(
+              selectedDays: selectedDays,
+              feeData: feeData,
+              incomeData: incomeData,
+              spendingData: spendingData,
+              balanceData: !isShowingBalanceData ? balanceData : null,
+              balanceInCurrency: balanceInCurrency,
+              selectedCurrency: selectedCurrency,
+              showFeeLine: showFeeLine,
+            ),
           ),
-          Positioned(
-            top: 16,
-            left: 16,
-            child: IconButton(
-              icon: Icon(
-                Icons.track_changes,
-                color: Colors.red.withOpacity(!isShowingBalanceData ? 1.0 : 0.5),
+          Center(
+            child: TextButton(
+              child: Text(
+                !isShowingBalanceData ? 'Show Statistics over period' : 'Show Balance Over Time',
+                style: TextStyle(color: Colors.grey),
               ),
               onPressed: () {
                 setState(() {
                   isShowingBalanceData = !isShowingBalanceData;
                 });
               },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: !isShowingBalanceData
+                  ? [_buildLegend('Balance Over Time', Colors.orangeAccent)]
+                  : [
+                _buildLegend('Spending', Colors.blueAccent),
+                _buildLegend('Income', Colors.greenAccent),
+                if (showFeeLine) _buildLegend('Fee', Colors.orangeAccent),
+              ],
             ),
           ),
         ],
@@ -296,5 +332,13 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
         Text(label),
       ],
     );
+  }
+
+  Map<int, num> calculateBalanceInCurrency(Map<int, num>? balanceByDay, num currencyRate) {
+    final Map<int, num> balanceInCurrency = {};
+    balanceByDay?.forEach((day, balance) {
+      balanceInCurrency[day] = (balance * currencyRate).toDouble();
+    });
+    return balanceInCurrency;
   }
 }

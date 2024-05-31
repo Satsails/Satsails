@@ -28,6 +28,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
     List<Widget> cards = [
       Column(
         children: [
+          SizedBox(height: screenHeight * 0.01), // 1% of screen height
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -35,10 +36,6 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               const Icon(Icons.swipe, color: Colors.grey),
             ],
           ),
-          Text(
-            '${'Current Balance'.i18n(ref)}: $liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
-          ),
-          SizedBox(height: screenHeight * 0.01), // 1% of screen height
           if (moreThanOneMonth || oneDay)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -50,10 +47,14 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             ),
           if (!moreThanOneMonth && !oneDay)
             ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.LBTC)),
+          Text(
+            '${'Current Balance'.i18n(ref)}: $liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
+          ),
         ],
       ),
       Column(
         children: [
+          SizedBox(height: screenHeight * 0.01),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -61,10 +62,6 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               const Icon(Icons.swipe, color: Colors.grey),
             ],
           ),
-          Text(
-            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.brlBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
-          ),
-          SizedBox(height: screenHeight * 0.01),
           if (moreThanOneMonth || oneDay)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -75,10 +72,14 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             ),
           if (!moreThanOneMonth && !oneDay)
             ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.BRL)),
+          Text(
+            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.brlBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
+          ),
         ],
       ),
       Column(
         children: [
+          SizedBox(height: screenHeight * 0.01),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -86,10 +87,6 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               const Icon(Icons.swipe, color: Colors.grey),
             ],
           ),
-          Text(
-            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.usdBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
-          ),
-          SizedBox(height: screenHeight * 0.01),
           if (moreThanOneMonth || oneDay)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -100,10 +97,14 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             ),
           if (!moreThanOneMonth && !oneDay)
             ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.USD)),
+          Text(
+            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.usdBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
+          ),
         ],
       ),
       Column(
         children: [
+          SizedBox(height: screenHeight * 0.01),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -111,10 +112,6 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               const Icon(Icons.swipe, color: Colors.grey),
             ],
           ),
-          Text(
-            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.eurBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
-          ),
-          SizedBox(height: screenHeight * 0.01),
           if (moreThanOneMonth || oneDay)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -125,21 +122,21 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             ),
           if (!moreThanOneMonth && !oneDay)
             ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.EUR)),
+          Text(
+            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.eurBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
+          ),
         ],
       ),
     ];
 
     return Expanded(
-      child: SizedBox(
-        height: screenHeight / 4.5,
-        child: CardSwiper(
-          scale: 0,
-          padding: const EdgeInsets.all(0),
-          allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
-          cardsCount: cards.length,
-          initialIndex: 0,
-          cardBuilder: (context, index, percentThresholdX, percentThresholdY) { return cards[index]; },
-        ),
+      child: CardSwiper(
+        scale: 0,
+        padding: const EdgeInsets.all(0),
+        allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
+        cardsCount: cards.length,
+        initialIndex: 0,
+        cardBuilder: (context, index, percentThresholdX, percentThresholdY) { return cards[index]; },
       ),
     );
   }
