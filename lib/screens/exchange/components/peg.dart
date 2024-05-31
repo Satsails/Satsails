@@ -1,4 +1,5 @@
 import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -324,7 +325,11 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
   Widget _buildBitcoinCard (WidgetRef ref, double dynamicPadding, double titleFontSize, bool pegIn) {
     final sideSwapStatus = ref.watch(sideswapStatusProvider);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
+    final currency = ref.read(settingsProvider).currency;
+    final currencyRate = ref.read(selectedCurrencyProvider(currency));
     final valueToReceive = ref.watch(sendTxProvider).amount * ( 1- sideSwapStatus.serverFeePercentPegIn / 100) - ref.watch(pegOutBitcoinCostProvider);
+    final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
+    final valueInCurrency = double.parse(formattedValueInBtc) * currencyRate;
     final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormart);
     final sideSwapPeg = ref.watch(sideswapPegProvider);
 
@@ -359,7 +364,13 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                     if (double.parse(formattedValueToReceive) <= 0)
                       Text("0", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center)
                     else
-                      Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                      Column(
+                        children: [
+                          Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                          Text("or".i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                          Text(valueInCurrency.toStringAsFixed(2), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                        ],
+                      ),
                   ],
                 ),
               )
@@ -406,8 +417,12 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
     final sideSwapStatus = ref.watch(sideswapStatusProvider);
     final valueToReceive = ref.watch(sendTxProvider).amount * ( 1- sideSwapStatus.serverFeePercentPegOut / 100);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
+    final currency = ref.read(settingsProvider).currency;
+    final currencyRate = ref.read(selectedCurrencyProvider(currency));
     final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormart);
     final sideSwapPeg = ref.watch(sideswapPegProvider);
+    final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
+    final valueInCurrency = double.parse(formattedValueInBtc) * currencyRate;
 
     return SizedBox(
       width: double.infinity,
@@ -440,7 +455,13 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                     if (double.parse(formattedValueToReceive) <= 0)
                       Text("0", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center)
                     else
-                      Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                      Column(
+                        children: [
+                          Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                          Text("or".i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                          Text(valueInCurrency.toStringAsFixed(2), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                        ],
+                      ),
                   ],
                 ),
               )

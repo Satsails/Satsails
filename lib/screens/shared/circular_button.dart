@@ -56,7 +56,7 @@ Widget buildActionButtons(BuildContext context, WidgetRef ref) {
         buildCircularButton(context, Clarity.add_line, 'Add Money'.i18n(ref), () {
           Navigator.pushNamed(context, '/charge');
         }, Colors.white),
-        buildCircularButton(context, Clarity.two_way_arrows_line, 'Exchange'.i18n(ref), () {
+        buildCircularButton(context, Clarity.two_way_arrows_line, 'Swaps'.i18n(ref), () {
           Navigator.pushNamed(context, '/exchange');
         }, Colors.white),
         buildCircularButton(context, Clarity.credit_card_line, 'Pay'.i18n(ref), () {
