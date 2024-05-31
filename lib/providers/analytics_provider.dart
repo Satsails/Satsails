@@ -131,7 +131,7 @@ final bitcoinSpentPerDayProvider = StateProvider.autoDispose<Map<int, num>>((ref
 
 final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<int, num>>((ref) {
   final List<int> selectedDays = ref.watch(selectedDaysDateArrayProvider);
-  final transactions = ref.watch(bitcoinTransactionsByDate);
+  final transactions = ref.watch(transactionNotifierProvider).bitcoinTransactions;
   final btcFormat = ref.watch(settingsProvider).btcFormat;
   final Map<int, num> balancePerDay = {};
 
@@ -139,24 +139,23 @@ final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<int,
     balancePerDay[day] = 0;
   }
 
+  transactions.sort((a, b) => a.confirmationTime!.timestamp.compareTo(b.confirmationTime!.timestamp));
+
   for (TransactionDetails transaction in transactions) {
     final DateTime date = DateTime.fromMillisecondsSinceEpoch(transaction.confirmationTime!.timestamp * 1000);
     final int day = date.day;
-    if (selectedDays.contains(day)) {
-      final shouldDeductFee = transaction.sent > 0;
-      final fee = shouldDeductFee ? transaction.fee! : 0;
-      balancePerDay[day] = balancePerDay[day]! + btcInDenominationNum(transaction.received - transaction.sent - fee, btcFormat);
-    }
-  }
 
-  num cumulativeBalance = 0;
-  for (int day in selectedDays) {
-    cumulativeBalance += balancePerDay[day]!;
-    balancePerDay[day] = cumulativeBalance;
+    final netAmount = transaction.received - transaction.sent;
+
+    if (selectedDays.contains(day)) {
+      balancePerDay[day] = balancePerDay[day]! + btcInDenominationNum(netAmount, btcFormat);
+    }
   }
 
   return balancePerDay;
 });
+
+
 
 final liquidFeePerDayProvider = StateProvider.autoDispose.family<Map<int, num>, String>((ref, asset) {
   final List<int> selectedDays = ref.watch(selectedDaysDateArrayProvider);
@@ -249,10 +248,9 @@ final liquidSpentPerDayProvider = StateProvider.autoDispose.family<Map<int, num>
 
   return valueSpentPerDay;
 });
-
 final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Map<int, num>, String>((ref, asset) {
   final List<int> selectedDays = ref.watch(selectedDaysDateArrayProvider);
-  final transactions = ref.watch(liquidTransactionsByDate);
+  final transactions = ref.watch(transactionNotifierProvider).liquidTransactions;
   final btcFormat = ref.watch(settingsProvider).btcFormat;
   final Map<int, num> balancePerDay = {};
 
@@ -260,26 +258,21 @@ final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Ma
     balancePerDay[day] = 0;
   }
 
+  transactions.sort((a, b) => a.timestamp!.compareTo(b.timestamp!));
+
   for (Tx transaction in transactions) {
     if (transaction.timestamp != 0 && transaction.timestamp != null) {
       final DateTime date = DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000);
       final int day = date.day;
-      final hasSentFromAsset = transaction.balances.any((element) => element.assetId == asset && element.value < 0);
-      final hasReceivedAsset = transaction.balances.any((element) => element.assetId == asset && element.value > 0);
-      final assetIsBtc = asset ==  AssetMapper.reverseMapTicker(AssetId.LBTC);
-      if (selectedDays.contains(day) && (hasSentFromAsset || hasReceivedAsset)) {
+
+      final hasAsset = transaction.balances.any((element) => element.assetId == asset);
+      if (selectedDays.contains(day) && hasAsset) {
         final sentValue = transaction.balances.firstWhere((element) => element.assetId == asset && element.value < 0, orElse: () => Balance(assetId: asset, value: 0)).value;
         final receivedValue = transaction.balances.firstWhere((element) => element.assetId == asset && element.value > 0, orElse: () => Balance(assetId: asset, value: 0)).value;
-        final fee = transaction.fee;
-        balancePerDay[day] = balancePerDay[day]! + btcInDenominationNum(receivedValue.abs() - sentValue.abs(), btcFormat, assetIsBtc);
+        final netAmount = receivedValue - sentValue;
+        balancePerDay[day] = balancePerDay[day]! + btcInDenominationNum(netAmount, btcFormat);
       }
     }
-  }
-
-  num cumulativeBalance = 0;
-  for (int day in selectedDays) {
-    cumulativeBalance += balancePerDay[day]!;
-    balancePerDay[day] = cumulativeBalance;
   }
 
   return balancePerDay;

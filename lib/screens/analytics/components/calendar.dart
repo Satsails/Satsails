@@ -4,21 +4,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
+import 'package:segmented_button_slide/segmented_button_slide.dart';
 
 final today = DateUtils.dateOnly(DateTime.now());
 
-class Calendar extends ConsumerWidget {
+// Define the selectedButtonProvider to manage the selected segment
+final selectedButtonProvider = StateProvider.autoDispose<int>((ref) => 1);
+
+class Calendar extends ConsumerStatefulWidget {
   const Calendar({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _CalendarState createState() => _CalendarState();
+}
+
+class _CalendarState extends ConsumerState<Calendar> {
+  @override
+  Widget build(BuildContext context) {
     return _buildCalendarDialogButton(context, ref);
   }
 
-  _buildCalendarDialogButton(BuildContext context, WidgetRef ref) {
+  Widget _buildCalendarDialogButton(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
-    const dayTextStyle =
-    TextStyle(color: Colors.black, fontWeight: FontWeight.w700);
+    const dayTextStyle = TextStyle(color: Colors.black, fontWeight: FontWeight.w700);
     final anniversaryTextStyle = TextStyle(
       color: Colors.red[400],
       fontWeight: FontWeight.w700,
@@ -132,37 +140,84 @@ class Calendar extends ConsumerWidget {
         );
       },
     );
+
     return Padding(
-      padding: EdgeInsets.all(screenWidth * 0.03),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      padding: EdgeInsets.all(screenWidth * 0.01),
+      child: Column(
         children: [
-          ElevatedButton(
-            style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all<Color>(Colors.deepOrangeAccent),
-              elevation: WidgetStateProperty.all<double>(4),
-              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+          FractionallySizedBox(
+            widthFactor: 0.9,
+            child: SegmentedButtonSlide(
+              entries: const [
+                SegmentedButtonSlideEntry(
+                  label: "1w",
                 ),
+                SegmentedButtonSlideEntry(
+                  label: "1m",
+                ),
+                SegmentedButtonSlideEntry(
+                  label: "6m",
+                ),
+                SegmentedButtonSlideEntry(
+                  label: "Custom",
+                ),
+              ],
+              selectedEntry: ref.watch(selectedButtonProvider),
+              onChange: (selected) async {
+                final DateTime now = DateTime.now();
+                DateTime startDate;
+
+                switch (selected) {
+                  case 0:
+                  // Find the start of the current week (assuming the week starts on Monday)
+                    startDate = now.subtract(Duration(days: now.weekday - 1));
+                    ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: now));
+                    break;
+                  case 1:
+                    startDate = DateTime(now.year, now.month - 1, now.day);
+                    ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: now));
+                    break;
+                  case 2:
+                    startDate = DateTime(now.year, now.month - 6, now.day);
+                    ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: now));
+                    break;
+                  case 3:
+                  default:
+                    final values = await showCalendarDatePicker2Dialog(
+                      context: context,
+                      config: config,
+                      dialogSize: Size(screenWidth * 0.8, screenWidth),
+                      borderRadius: BorderRadius.circular(screenWidth * 0.03),
+                      dialogBackgroundColor: Colors.white,
+                    );
+                    if (values != null) {
+                      if (values.length == 1) {
+                        ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[0]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
+                      } else if (values.length == 2) {
+                        ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[1]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
+                      }
+                    }
+                    break;
+                }
+                ref.read(selectedButtonProvider.notifier).state = selected;
+              },
+              colors: SegmentedButtonSlideColors(
+                barColor: Colors.grey.withOpacity(0.08),
+                backgroundSelectedColor: Colors.orangeAccent,
+                foregroundSelectedColor: Colors.white,
+                foregroundUnselectedColor: Colors.black,
+                hoverColor: Colors.orangeAccent.withOpacity(0.2),
               ),
+              slideShadow: [
+                BoxShadow(
+                  color: Colors.orangeAccent.withOpacity(0.5),
+                  blurRadius: 5,
+                  spreadRadius: 1,
+                ),
+              ],
+              margin: const EdgeInsets.all(16),
+              height: 50,
             ),
-            onPressed: () async {
-              final values = await showCalendarDatePicker2Dialog(
-                context: context,
-                config: config,
-                dialogSize: Size(screenWidth * 0.8, screenWidth),
-                borderRadius: BorderRadius.circular(screenWidth * 0.03),
-                dialogBackgroundColor: Colors.white,
-              );
-              if (values != null) {
-                if (values.length == 1) {
-                  ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[0]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
-                } else if (values.length == 2)
-                  ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[1]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
-              }
-            },
-            child: Text('Select Range'.i18n(ref), style: TextStyle(fontSize: screenWidth * 0.03, color: Colors.white), textAlign: TextAlign.center), // 3% of screen width
           ),
         ],
       ),

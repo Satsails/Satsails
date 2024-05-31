@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
 
-final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
+final topSelectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
 final groupButtonControllerProvider = Provider.autoDispose<GroupButtonController>((ref) {
   return GroupButtonController(selectedIndex: 0);
 });
@@ -24,19 +24,19 @@ class ButtonPicker extends ConsumerWidget {
       onSelected: (index, isSelected, isLongPress) {
         switch (isSelected) {
           case 0:
-            ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
+            ref.read(topSelectedButtonProvider.notifier).state = "Bitcoin";
             ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
             break;
           case 1:
-            ref.read(selectedButtonProvider.notifier).state = "Instant Bitcoin";
+            ref.read(topSelectedButtonProvider.notifier).state = "Instant Bitcoin";
             ref.read(transactionTypeShowProvider.notifier).state = "Liquid";
             break;
           case 2:
-            ref.read(selectedButtonProvider.notifier).state = "Swap";
+            ref.read(topSelectedButtonProvider.notifier).state = "Swap";
             ref.read(transactionTypeShowProvider.notifier).state = "Swap";
             break;
           default:
-            ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
+            ref.read(topSelectedButtonProvider.notifier).state = "Bitcoin";
             ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
         }
       },

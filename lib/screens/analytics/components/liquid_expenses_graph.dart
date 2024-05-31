@@ -244,7 +244,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
                     feeData: feeData,
                     incomeData: incomeData,
                     spendingData: spendingData,
-                    balanceData: isShowingBalanceData ? balanceData : null,
+                    balanceData: !isShowingBalanceData ? balanceData : null,
                     showFeeLine: showFeeLine,
                   ),
                 ),
@@ -253,7 +253,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
                 padding: const EdgeInsets.only(top: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: isShowingBalanceData
+                  children: !isShowingBalanceData
                       ? [_buildLegend('Balance Over Time', Colors.orangeAccent)]
                       : [
                     _buildLegend('Spending', Colors.blueAccent),
@@ -270,7 +270,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
             child: IconButton(
               icon: Icon(
                 Icons.track_changes,
-                color: Colors.red.withOpacity(isShowingBalanceData ? 1.0 : 0.5),
+                color: Colors.red.withOpacity(!isShowingBalanceData ? 1.0 : 0.5),
               ),
               onPressed: () {
                 setState(() {

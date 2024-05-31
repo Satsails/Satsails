@@ -146,7 +146,7 @@ class BuildTransactions extends ConsumerWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    final dynamicFontSize = screenHeight * 0.02; // 2% of screen height
+    final dynamicFontSize = screenHeight * 0.015; // 2% of screen height
 
     return Column(
       children: [
@@ -185,7 +185,7 @@ class BuildTransactions extends ConsumerWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    final dynamicFontSize = screenHeight * 0.02; // 2% of screen height
+    final dynamicFontSize = screenHeight * 0.015; // 2% of screen height
 
     return Column(
       children: [
