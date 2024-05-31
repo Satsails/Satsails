@@ -57,6 +57,21 @@ final currencyNotifierProvider = StateNotifierProvider.autoDispose<CurrencyExcha
   ));
 });
 
+final selectedCurrencyProvider = StateProvider.autoDispose.family<double, String>((ref, currency) {
+  final currencyModel = ref.watch(currencyNotifierProvider);
+
+  switch (currency) {
+    case 'USD':
+      return currencyModel.btcToUsd;
+    case 'EUR':
+      return currencyModel.btcToEur;
+    case 'BRL':
+      return currencyModel.btcToBrl;
+    default:
+      return 0.0;
+  }
+});
+
 final updateCurrencyProvider = FutureProvider.autoDispose<void>((ref) async {
   final currencyModel = ref.watch(currencyNotifierProvider.notifier);
   final settingsModel = ref.read(settingsProvider.notifier);

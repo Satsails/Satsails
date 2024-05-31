@@ -169,7 +169,6 @@ class _CalendarState extends ConsumerState<Calendar> {
 
                 switch (selected) {
                   case 0:
-                  // Find the start of the current week (assuming the week starts on Monday)
                     startDate = now.subtract(Duration(days: now.weekday - 1));
                     ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: now));
                     break;
