@@ -64,7 +64,7 @@ class LineChartSample extends StatelessWidget {
         touchTooltipData: LineTouchTooltipData(
           tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
           tooltipMargin: 8,
-          tooltipPadding: EdgeInsets.all(8),
+          tooltipPadding: const EdgeInsets.all(8),
           fitInsideHorizontally: true,
           fitInsideVertically: true,
           tooltipRoundedRadius: 8,
@@ -83,12 +83,12 @@ class LineChartSample extends StatelessWidget {
               final num? currencyBalance = balanceInCurrency[day];
               return LineTooltipItem(
                 'Bitcoin: $balance\n$selectedCurrency: ${currencyBalance?.toStringAsFixed(2)}',
-                TextStyle(color: Colors.white),
+                const TextStyle(color: Colors.white),
               );
             }).toList();
           },
           tooltipMargin: 8,
-          tooltipPadding: EdgeInsets.all(8),
+          tooltipPadding: const EdgeInsets.all(8),
           fitInsideHorizontally: true,
           fitInsideVertically: true,
           tooltipRoundedRadius: 8,
@@ -110,17 +110,17 @@ class LineChartSample extends StatelessWidget {
           );
           String text;
           if (value >= 1000) {
-            text = (value / 1000).toInt().toString() + 'K';
+            text = '${(value / 1000).toInt()}K';
           } else {
             text = value.toInt().toString();
           }
           return Text(text, style: style);
         }),
       ),
-      topTitles: AxisTitles(
+      topTitles: const AxisTitles(
         sideTitles: SideTitles(showTitles: false),
       ),
-      rightTitles: AxisTitles(
+      rightTitles: const AxisTitles(
         sideTitles: SideTitles(showTitles: false),
       ),
     );
@@ -172,7 +172,7 @@ class LineChartSample extends StatelessWidget {
   }
 
   FlGridData _gridData() {
-    return FlGridData(show: false);
+    return const FlGridData(show: false);
   }
 
   FlBorderData _borderData() {
@@ -262,10 +262,12 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
     final selectedCurrency = ref.watch(settingsProvider).currency;
     final currencyRate = ref.watch(selectedCurrencyProvider(selectedCurrency));
 
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Column(
       children: <Widget>[
         Container(
-          height: 200, // or any other fixed height
+          height: screenHeight * 0.2,
           padding: const EdgeInsets.only(right: 16, left: 6, top: 34),
           child: LineChartSample(
             selectedDays: selectedDays,
@@ -282,7 +284,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
           child: TextButton(
             child: Text(
               isShowingMainData ? 'Show Bitcoin Balance' : 'Show Statistics over period',
-              style: TextStyle(color: Colors.grey),
+              style: const TextStyle(color: Colors.grey),
             ),
             onPressed: () {
               setState(() {
@@ -291,18 +293,15 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
             },
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: !isShowingMainData
-                ? [_buildLegend('Balance Over Time', Colors.orangeAccent)]
-                : [
-              _buildLegend('Spending', Colors.blueAccent),
-              _buildLegend('Income', Colors.greenAccent),
-              _buildLegend('Fee', Colors.orangeAccent),
-            ],
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: !isShowingMainData
+              ? [_buildLegend('Balance Over Time', Colors.orangeAccent)]
+              : [
+            _buildLegend('Spending', Colors.blueAccent),
+            _buildLegend('Income', Colors.greenAccent),
+            _buildLegend('Fee', Colors.orangeAccent),
+          ],
         ),
       ],
     );

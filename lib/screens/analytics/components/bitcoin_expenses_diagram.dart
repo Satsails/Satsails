@@ -17,11 +17,11 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormat));
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final moreThanOneMonth = ref.watch(moreThanOneMonthProvider);
 
     return Column(
       children: [
-
         if (moreThanOneMonth || ref.watch(oneDayProvider))
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -50,7 +50,10 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
             ],
           ),
         if (!moreThanOneMonth && !ref.watch(oneDayProvider))
-          Container(height: 290, child: const ExpensesGraph()),
+          SizedBox(
+            height: screenHeight * 0.30,
+            child: const ExpensesGraph(),
+          ),
         Text(
           '${'Current Balance'.i18n(ref)}: $btcBalanceInFormat $btcFormat',
           style: TextStyle(fontSize: screenWidth / 20, color: Colors.grey),

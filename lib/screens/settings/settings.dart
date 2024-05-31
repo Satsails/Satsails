@@ -47,7 +47,7 @@ class Settings extends ConsumerWidget {
     return ListTile(
       leading: const Icon(Clarity.block_solid, color: Colors.orangeAccent),
       title: Text('Search the blockchain'.i18n(ref)),
-      subtitle: Text('mempool.com'),
+      subtitle: const Text('mempool.com'),
       onTap: () {
         Navigator.pushNamed(context, '/search_modal');
       },

@@ -4,7 +4,7 @@ class Logo extends StatelessWidget {
   final double? widthFactor;
   final double? heightFactor;
 
-  const Logo({Key? key, this.widthFactor, this.heightFactor}) : super(key: key);
+  const Logo({super.key, this.widthFactor, this.heightFactor});
 
   @override
   Widget build(BuildContext context) {

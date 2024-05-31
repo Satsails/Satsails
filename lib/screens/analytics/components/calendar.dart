@@ -1,4 +1,3 @@
-import 'package:Satsails/translations/translations.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -214,8 +213,11 @@ class _CalendarState extends ConsumerState<Calendar> {
                   spreadRadius: 1,
                 ),
               ],
-              margin: const EdgeInsets.all(16),
-              height: 50,
+              margin: EdgeInsets.only(
+                top: screenWidth * 0.02,
+                bottom: screenWidth * 0.02,
+              ),
+              height: screenWidth * 0.1,
             ),
           ),
         ],

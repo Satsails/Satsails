@@ -28,7 +28,6 @@ class LiquidExpensesDiagram extends ConsumerWidget {
     List<Widget> cards = [
       Column(
         children: [
-          SizedBox(height: screenHeight * 0.01), // 1% of screen height
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -54,7 +53,6 @@ class LiquidExpensesDiagram extends ConsumerWidget {
       ),
       Column(
         children: [
-          SizedBox(height: screenHeight * 0.01),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -79,7 +77,6 @@ class LiquidExpensesDiagram extends ConsumerWidget {
       ),
       Column(
         children: [
-          SizedBox(height: screenHeight * 0.01),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -104,7 +101,6 @@ class LiquidExpensesDiagram extends ConsumerWidget {
       ),
       Column(
         children: [
-          SizedBox(height: screenHeight * 0.01),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

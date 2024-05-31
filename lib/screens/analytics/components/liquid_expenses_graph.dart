@@ -66,7 +66,7 @@ class LineChartSample extends StatelessWidget {
         touchTooltipData: LineTouchTooltipData(
           tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
           tooltipMargin: 8,
-          tooltipPadding: EdgeInsets.all(8),
+          tooltipPadding: const EdgeInsets.all(8),
           fitInsideHorizontally: true,
           fitInsideVertically: true,
           tooltipRoundedRadius: 8,
@@ -85,12 +85,12 @@ class LineChartSample extends StatelessWidget {
               final num? currencyBalance = balanceInCurrency[day];
               return LineTooltipItem(
                 'Bitcoin: $balance\n$selectedCurrency: ${currencyBalance?.toStringAsFixed(2)}',
-                TextStyle(color: Colors.white),
+                const TextStyle(color: Colors.white),
               );
             }).toList();
           },
           tooltipMargin: 8,
-          tooltipPadding: EdgeInsets.all(8),
+          tooltipPadding: const EdgeInsets.all(8),
           fitInsideHorizontally: true,
           fitInsideVertically: true,
           tooltipRoundedRadius: 8,
@@ -112,17 +112,17 @@ class LineChartSample extends StatelessWidget {
           );
           String text;
           if (value >= 1000) {
-            text = (value / 1000).toInt().toString() + 'K';
+            text = '${(value / 1000).toInt()}K';
           } else {
             text = value.toInt().toString();
           }
           return Text(text, style: style);
         }),
       ),
-      topTitles: AxisTitles(
+      topTitles: const AxisTitles(
         sideTitles: SideTitles(showTitles: false),
       ),
-      rightTitles: AxisTitles(
+      rightTitles: const AxisTitles(
         sideTitles: SideTitles(showTitles: false),
       ),
     );
@@ -175,7 +175,7 @@ class LineChartSample extends StatelessWidget {
   }
 
   FlGridData _gridData() {
-    return FlGridData(show: false);
+    return const FlGridData(show: false);
   }
 
   FlBorderData _borderData() {
@@ -268,55 +268,50 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
     final currencyRate = ref.watch(selectedCurrencyProvider(selectedCurrency));
     final balanceInCurrency = calculateBalanceInCurrency(balanceData, currencyRate);
 
-    // final bitcoinBalanceByDayUnformatted = ref.watch(bitcoinBalanceInBtcByDayProvider);
+    final screenHeight = MediaQuery.of(context).size.height;
 
     final bool showFeeLine = widget.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC);
 
-    return Expanded(
-      child: Column(
-        children: <Widget>[
-          Container(
-            height: 190, // or any other fixed height
-            padding: const EdgeInsets.only(right: 16, left: 6, top: 34),
-            child: LineChartSample(
-              selectedDays: selectedDays,
-              feeData: feeData,
-              incomeData: incomeData,
-              spendingData: spendingData,
-              balanceData: !isShowingBalanceData ? balanceData : null,
-              balanceInCurrency: balanceInCurrency,
-              selectedCurrency: selectedCurrency,
-              showFeeLine: showFeeLine,
-            ),
+    return Column(
+      children: <Widget>[
+        Container(
+          height: screenHeight * 0.18,
+          padding: const EdgeInsets.only(right: 16, left: 6, top: 34),
+          child: LineChartSample(
+            selectedDays: selectedDays,
+            feeData: feeData,
+            incomeData: incomeData,
+            spendingData: spendingData,
+            balanceData: !isShowingBalanceData ? balanceData : null,
+            balanceInCurrency: balanceInCurrency,
+            selectedCurrency: selectedCurrency,
+            showFeeLine: showFeeLine,
           ),
-          Center(
-            child: TextButton(
-              child: Text(
-                !isShowingBalanceData ? 'Show Statistics over period' : 'Show Balance Over Time',
-                style: TextStyle(color: Colors.grey),
-              ),
-              onPressed: () {
-                setState(() {
-                  isShowingBalanceData = !isShowingBalanceData;
-                });
-              },
+        ),
+        Center(
+          child: TextButton(
+            child: Text(
+              !isShowingBalanceData ? 'Show Statistics over period' : 'Show Balance Over Time',
+              style: const TextStyle(color: Colors.grey),
             ),
+            onPressed: () {
+              setState(() {
+                isShowingBalanceData = !isShowingBalanceData;
+              });
+            },
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: !isShowingBalanceData
-                  ? [_buildLegend('Balance Over Time', Colors.orangeAccent)]
-                  : [
-                _buildLegend('Spending', Colors.blueAccent),
-                _buildLegend('Income', Colors.greenAccent),
-                if (showFeeLine) _buildLegend('Fee', Colors.orangeAccent),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: !isShowingBalanceData
+              ? [_buildLegend('Balance Over Time', Colors.orangeAccent)]
+              : [
+            _buildLegend('Spending', Colors.blueAccent),
+            _buildLegend('Income', Colors.greenAccent),
+            if (showFeeLine) _buildLegend('Fee', Colors.orangeAccent),
+          ],
+        ),
+      ],
     );
   }
 

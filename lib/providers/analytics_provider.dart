@@ -165,7 +165,7 @@ final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<int,
 
   for (var entry in balanceOverPeriod.entries) {
     final balanceDate = entry.key;
-    if (balanceDate.isAfter(start) && balanceDate.isBefore(end.add(Duration(days: 1)))) {
+    if (balanceDate.isAfter(start) && balanceDate.isBefore(end.add(const Duration(days: 1)))) {
       lastKnownBalance = entry.value;
       balancePerDay[balanceDate.day] = lastKnownBalance;
     }
@@ -231,12 +231,12 @@ final liquidFeePerDayProvider = StateProvider.autoDispose.family<Map<int, num>, 
   }
 
   for (Tx transaction in transactions) {
-    if (transaction.timestamp != 0 && transaction.timestamp != null) {
-      final DateTime date = DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000);
+    if (transaction.timestamp != 0) {
+      final DateTime date = DateTime.fromMillisecondsSinceEpoch(transaction.timestamp * 1000);
       final int day = date.day;
       final hasSentFromAsset = transaction.balances.any((element) => element.assetId == asset && element.value < 0);
       if (selectedDays.contains(day) && hasSentFromAsset) {
-        valueSpentPerDay[day] = valueSpentPerDay[day]! + transaction.fee!.abs();
+        valueSpentPerDay[day] = valueSpentPerDay[day]! + transaction.fee.abs();
       }
     }
   }
@@ -261,8 +261,8 @@ final liquidIncomePerDayProvider = StateProvider.autoDispose.family<Map<int, num
   }
 
   for (Tx transaction in transactions) {
-    if (transaction.timestamp != 0 && transaction.timestamp != null) {
-      final DateTime date = DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000);
+    if (transaction.timestamp != 0) {
+      final DateTime date = DateTime.fromMillisecondsSinceEpoch(transaction.timestamp * 1000);
       final int day = date.day;
       final hasReceivedAsset = transaction.balances.any((element) => element.assetId == asset && element.value > 0);
       final assetIsBtc = asset ==  AssetMapper.reverseMapTicker(AssetId.LBTC);
@@ -292,8 +292,8 @@ final liquidSpentPerDayProvider = StateProvider.autoDispose.family<Map<int, num>
   }
 
   for (Tx transaction in transactions) {
-    if (transaction.timestamp != 0 && transaction.timestamp != null) {
-      final DateTime date = DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000);
+    if (transaction.timestamp != 0) {
+      final DateTime date = DateTime.fromMillisecondsSinceEpoch(transaction.timestamp * 1000);
       final int day = date.day;
       final hasSentAsset = transaction.balances.any((element) => element.assetId == asset && element.value < 0);
       final assetIsBtc = asset ==  AssetMapper.reverseMapTicker(AssetId.LBTC);
@@ -326,8 +326,8 @@ final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Ma
   transactions.sort((a, b) => a.timestamp!.compareTo(b.timestamp!));
 
   for (Tx transaction in transactions) {
-    if (transaction.timestamp != 0 && transaction.timestamp != null) {
-      final DateTime date = DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000);
+    if (transaction.timestamp != 0) {
+      final DateTime date = DateTime.fromMillisecondsSinceEpoch(transaction.timestamp * 1000);
       final int day = date.day;
 
       final hasAsset = transaction.balances.any((element) => element.assetId == asset);

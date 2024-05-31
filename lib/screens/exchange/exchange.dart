@@ -6,7 +6,6 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/exchange/components/button_picker.dart';
 import 'package:Satsails/screens/exchange/components/liquid_swap_cards.dart';
 import 'package:Satsails/screens/exchange/components/peg.dart';
-import 'package:Satsails/screens/shared/offline_transaction_warning.dart';
 
 class Exchange extends ConsumerWidget {
   Exchange({super.key});

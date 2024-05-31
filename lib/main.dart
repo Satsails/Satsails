@@ -83,7 +83,7 @@ void main() async {
         final mediaQueryData = MediaQuery.of(context);
         final scale = mediaQueryData.textScaleFactor.clamp(1.0, 1.3);
         return MediaQuery(
-          data: mediaQueryData.copyWith(textScaleFactor: scale),
+          data: mediaQueryData.copyWith(textScaler: TextScaler.linear(scale)),
           child: child!,
         );
       },
