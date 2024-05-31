@@ -701,7 +701,25 @@ extension Localization on String {
       {
         'en': 'Search the blockchain',
         'pt': "Pesquisar na blockchain",
+      }+
+      {
+        'en': 'Show Balance',
+        'pt': "Mostrar Saldo",
+      }+
+      {
+        'en': 'Show Statistics over period',
+        'pt': "Mostrar Estatísticas ao longo do período",
+      }+
+      {
+        'en': '1w',
+        'pt': "1s",
+      }+
+      {
+        'en': 'Custom',
+        'pt': "Escolher",
       };
+
+
 
 
   String i18n(WidgetRef ref) {

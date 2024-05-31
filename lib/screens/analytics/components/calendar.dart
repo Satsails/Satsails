@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -147,9 +148,9 @@ class _CalendarState extends ConsumerState<Calendar> {
           FractionallySizedBox(
             widthFactor: 0.9,
             child: SegmentedButtonSlide(
-              entries: const [
+              entries: [
                 SegmentedButtonSlideEntry(
-                  label: "1w",
+                  label: "1w".i18n(ref),
                 ),
                 SegmentedButtonSlideEntry(
                   label: "1m",
@@ -158,7 +159,7 @@ class _CalendarState extends ConsumerState<Calendar> {
                   label: "6m",
                 ),
                 SegmentedButtonSlideEntry(
-                  label: "Custom",
+                  label: "Custom".i18n(ref),
                 ),
               ],
               selectedEntry: ref.watch(selectedButtonProvider),

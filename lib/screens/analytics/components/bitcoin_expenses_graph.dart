@@ -1,6 +1,7 @@
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -283,7 +284,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
         Center(
           child: TextButton(
             child: Text(
-              isShowingMainData ? 'Show Bitcoin Balance' : 'Show Statistics over period',
+              isShowingMainData ? 'Show Balance'.i18n(ref) : 'Show Statistics over period'.i18n(ref),
               style: const TextStyle(color: Colors.grey),
             ),
             onPressed: () {
