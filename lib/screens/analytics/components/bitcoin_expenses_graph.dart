@@ -82,7 +82,7 @@ class LineChartSample extends StatelessWidget {
               final num balance = spot.y;
               final num? currencyBalance = balanceInCurrency[day];
               return LineTooltipItem(
-                'Bitcoin: $balance\n$selectedCurrency: ${currencyBalance?.toStringAsFixed(2)}',
+                'Bitcoin: $balance\n$selectedCurrency: ${currencyBalance?.toStringAsFixed(2) ?? '0'}',
                 const TextStyle(color: Colors.white),
               );
             }).toList();

@@ -32,7 +32,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text("Bitcoin", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
-              const Icon(Icons.swipe, color: Colors.grey),
+              const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
           if (moreThanOneMonth || oneDay)
@@ -57,7 +57,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text("Real", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
-              const Icon(Icons.swipe, color: Colors.grey),
+              const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
           if (moreThanOneMonth || oneDay)
@@ -81,7 +81,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text("Dollar", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
-              const Icon(Icons.swipe, color: Colors.grey),
+              const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
           if (moreThanOneMonth || oneDay)
@@ -105,7 +105,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text("Euro", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
-              const Icon(Icons.swipe, color: Colors.grey),
+              const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
           if (moreThanOneMonth || oneDay)
@@ -125,11 +125,12 @@ class LiquidExpensesDiagram extends ConsumerWidget {
       ),
     ];
 
-    return Expanded(
+    return SizedBox(
+      height: screenHeight * 0.38,
       child: CardSwiper(
         scale: 0,
         padding: const EdgeInsets.all(0),
-        allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
+        allowedSwipeDirection: const AllowedSwipeDirection.symmetric(vertical: true),
         cardsCount: cards.length,
         initialIndex: 0,
         cardBuilder: (context, index, percentThresholdX, percentThresholdY) { return cards[index]; },

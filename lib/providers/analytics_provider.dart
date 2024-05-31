@@ -163,6 +163,10 @@ final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<int,
   final Map<int, num> balancePerDay = {};
   num lastKnownBalance = 0;
 
+  if (balanceOverPeriod.isEmpty || selectedDays.isEmpty) {
+    return balancePerDay; // Return empty map if there's no data
+  }
+
   for (var entry in balanceOverPeriod.entries) {
     final balanceDate = entry.key;
     if (balanceDate.isAfter(start) && balanceDate.isBefore(end.add(const Duration(days: 1)))) {
@@ -193,6 +197,7 @@ final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<int,
 
   return balancePerDay;
 });
+
 
 
 final bitcoinBalanceInFormatByDayProvider = StateProvider.autoDispose<Map<int, num>>((ref) {
