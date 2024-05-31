@@ -20,11 +20,27 @@ import 'package:Satsails/providers/sideswap_provider.dart';
 
 final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');
 
-class Peg extends ConsumerWidget {
-  const Peg({super.key});
+class Peg extends ConsumerStatefulWidget {
+  Peg({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _PegState createState() => _PegState();
+}
+
+class _PegState extends ConsumerState<Peg> {
+  final controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final initialAmount = ref.read(sendTxProvider).amount;
+    if (initialAmount > 0) {
+      controller.text = btcInDenominationFormatted(initialAmount.toDouble(), ref.read(settingsProvider).btcFormat);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final titleFontSize = MediaQuery.of(context).size.height * 0.03;
@@ -70,10 +86,17 @@ class Peg extends ConsumerWidget {
                   "Balance to Spend: ".i18n(ref),
                   style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
                 ),
-                Text(
-                  pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
-                  style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                  textAlign: TextAlign.center,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
+                      style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                    _buildBitcoinMaxButton(ref, dynamicPadding, titleFontSize, btcFormart, pegIn),
+                  //   add here the max depending on pegIn or pegOut
+                  ],
                 ),
                 SizedBox(height: dynamicSizedBox / 2),
                 ...cards, // Spread operator to insert all elements of the list
@@ -102,6 +125,43 @@ class Peg extends ConsumerWidget {
         )
       ],
     );}
+
+
+  Widget _buildBitcoinMaxButton(WidgetRef ref, double dynamicPadding, double dynamicFontSize, String btcFormart, bool pegIn) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        gradient: LinearGradient(
+          colors: pegIn ? [Colors.orange, Colors.deepOrange] : [Colors.blueAccent, Colors.deepPurple],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: () {
+            final bitcoin = ref.watch(balanceNotifierProvider).btcBalance;
+            final liquid = ref.watch(balanceNotifierProvider).liquidBalance;
+            controller.text = btcInDenominationFormatted(pegIn ? bitcoin.toDouble() : liquid.toDouble(), btcFormart);
+            ref.read(sendTxProvider.notifier).updateDrain(true);
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 2, vertical: dynamicPadding / 2),
+            child: Text(
+              'Max',
+              style: TextStyle(
+                fontSize: dynamicFontSize / 2,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
 
 Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context) {
@@ -381,6 +441,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                     keyboardType: TextInputType.number,
                     inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
                     style: const TextStyle(color: Colors.white),
+                    controller: controller,
                     textAlign: TextAlign.center,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
@@ -391,9 +452,11 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                       if (value.isEmpty) {
                         ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
                         ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                        ref.read(sendTxProvider.notifier).updateDrain(false);
                       }
                       ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
                       ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
                     },
                   );
                 },
@@ -470,6 +533,7 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                     (peg) {
                   return TextFormField(
                     keyboardType: TextInputType.number,
+                    controller: controller,
                     inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
                     style: const TextStyle(color: Colors.white),
                     textAlign: TextAlign.center,
@@ -482,9 +546,11 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
                       if (value.isEmpty) {
                         ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
                         ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                        ref.read(sendTxProvider.notifier).updateDrain(false);
                       }
                       ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
                       ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
                     },
                   );
                 },

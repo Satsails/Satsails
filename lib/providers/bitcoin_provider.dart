@@ -95,8 +95,13 @@ final sendBitcoinTransactionProvider = FutureProvider.autoDispose<void>((ref) as
   final feeRate = await ref.watch(getCustomFeeRateProvider.future);
   final sendTx = ref.watch(sendTxProvider.notifier);
   final transactionBuilder = TransactionBuilder(sendTx.state.amount, sendTx.state.address, feeRate);
-  final signedPsbt = await ref.watch(buildBitcoinTransactionProvider(transactionBuilder).future);
+  var psbt;
+  if (sendTx.state.drain) {
+    psbt = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilder).future);
+  } else {
+    psbt = await ref.watch(buildBitcoinTransactionProvider(transactionBuilder).future);
+  }
   await ref.watch(signBitcoinPsbtProvider(transactionBuilder).future);
-  await ref.watch(broadcastBitcoinTransactionProvider(signedPsbt).future);
+  await ref.watch(broadcastBitcoinTransactionProvider(psbt).future);
 });
 
