@@ -28,16 +28,7 @@ class Peg extends ConsumerStatefulWidget {
 }
 
 class _PegState extends ConsumerState<Peg> {
-  final controller = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    final initialAmount = ref.read(sendTxProvider).amount;
-    if (initialAmount > 0) {
-      controller.text = btcInDenominationFormatted(initialAmount.toDouble(), ref.read(settingsProvider).btcFormat);
-    }
-  }
+  final TextEditingController controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +50,7 @@ class _PegState extends ConsumerState<Peg> {
           ref.read(sendTxProvider.notifier).updateAddress('');
           ref.read(sendTxProvider.notifier).updateAmount(0);
           ref.read(sendBlocksProvider.notifier).state = 1;
+          controller.text = '';
         },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

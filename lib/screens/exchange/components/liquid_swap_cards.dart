@@ -27,16 +27,28 @@ final currentBalanceProvider = StateProvider.autoDispose<String>((ref) {
   }
 });
 
-class LiquidSwapCards extends ConsumerWidget {
+final tickerProvider = StateProvider.autoDispose<AssetId>((ref) => AssetId.BRL);
+
+class LiquidSwapCards extends ConsumerStatefulWidget {
   const LiquidSwapCards({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _LiquidSwapCardsState createState() => _LiquidSwapCardsState();
+}
+
+class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
+  final TextEditingController controller = TextEditingController();
+
+
+  @override
+  Widget build(BuildContext context) {
     final dynamicCardHeight = MediaQuery.of(context).size.height * 0.21;
     final currentBalance = ref.watch(currentBalanceProvider);
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
     final sendBitcoin = ref.watch(sendBitcoinProvider);
     final titleFontSize = MediaQuery.of(context).size.height * 0.03;
+    final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
+    final btcFormat = ref.read(settingsProvider).btcFormat;
 
 
     List<Column> cards = [
@@ -81,6 +93,8 @@ class LiquidSwapCards extends ConsumerWidget {
                   ref.read(currentBalanceProvider.notifier).state = ref.watch(liquidBalanceInFormatProvider(ref.read(settingsProvider).btcFormat));
                 }
                 ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(ticker);
+                ref.read(tickerProvider.notifier).state = ticker;
+                controller.text = '';
                 break;
               case 1:
                 ticker = AssetId.USD;
@@ -90,6 +104,8 @@ class LiquidSwapCards extends ConsumerWidget {
                   ref.read(currentBalanceProvider.notifier).state = ref.watch(liquidBalanceInFormatProvider(ref.read(settingsProvider).btcFormat));
                 }
                 ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(ticker);
+                ref.read(tickerProvider.notifier).state = ticker;
+                controller.text = '';
               case 2:
                 ticker = AssetId.EUR;
                 if (!sendBitcoin) {
@@ -98,6 +114,8 @@ class LiquidSwapCards extends ConsumerWidget {
                   ref.read(currentBalanceProvider.notifier).state = ref.watch(liquidBalanceInFormatProvider(ref.read(settingsProvider).btcFormat));
                 }
                 ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(ticker);
+                ref.read(tickerProvider.notifier).state = ticker;
+                controller.text = '';
               default:
                 ticker = AssetId.BRL;
                 if (!sendBitcoin) {
@@ -106,6 +124,8 @@ class LiquidSwapCards extends ConsumerWidget {
                   ref.read(currentBalanceProvider.notifier).state = ref.watch(liquidBalanceInFormatProvider(ref.read(settingsProvider).btcFormat));
                 }
                 ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(ticker);
+                ref.read(tickerProvider.notifier).state = ticker;
+                controller.text = '';
                 break;
             }
 
@@ -128,7 +148,14 @@ class LiquidSwapCards extends ConsumerWidget {
       children: [
         Column(
           children: [
-            Text("Balance to Spend: ".i18n(ref) + currentBalance, style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text("Balance to Spend: ".i18n(ref) + currentBalance, style: TextStyle(fontSize: titleFontSize, color: Colors.grey),),
+                // fix watching of the balance, not working
+                _buildMaxButton(ref, dynamicPadding, titleFontSize , btcFormat),
+              ],
+            ),
             ...swapCards,
           ],
         ),
@@ -139,6 +166,63 @@ class LiquidSwapCards extends ConsumerWidget {
           child: _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
         ),
       ],
+    );
+  }
+
+
+  Widget _buildMaxButton(WidgetRef ref, double dynamicPadding, double dynamicFontSize, String btcFormart) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        gradient: LinearGradient(
+          colors: [Colors.blueAccent, Colors.deepPurple],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: () {
+            final ticker = ref.watch(tickerProvider);
+            int balance;
+            switch (ticker) {
+              case AssetId.BRL:
+                balance = ref.read(balanceNotifierProvider).brlBalance;
+                controller.text = fiatInDenominationFormatted(balance);
+                break;
+              case AssetId.USD:
+                balance = ref.read(balanceNotifierProvider).usdBalance;
+                controller.text = fiatInDenominationFormatted(balance);
+                break;
+              case AssetId.EUR:
+                balance = ref.read(balanceNotifierProvider).eurBalance;
+                controller.text = fiatInDenominationFormatted(balance);
+                break;
+                case AssetId.LBTC:
+                balance = ref.read(balanceNotifierProvider).liquidBalance;
+                controller.text = btcInDenominationFormatted(balance.toDouble(), btcFormart, false);
+              default:
+                balance = ref.read(balanceNotifierProvider).brlBalance;
+                controller.text = fiatInDenominationFormatted(balance);
+                break;
+            }
+            ref.read(sendTxProvider.notifier).updateDrain(true);
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 2, vertical: dynamicPadding / 2),
+            child: Text(
+              'Max',
+              style: TextStyle(
+                fontSize: dynamicFontSize / 2,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -204,6 +288,7 @@ class LiquidSwapCards extends ConsumerWidget {
                     else
                       TextFormField(
                         keyboardType: TextInputType.number,
+                        controller: controller,
                         inputFormatters: isBitcoin? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()] : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()],
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
@@ -215,8 +300,10 @@ class LiquidSwapCards extends ConsumerWidget {
                         onChanged: (value) async {
                           if (value.isEmpty) {
                             ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                            ref.read(sendTxProvider.notifier).updateDrain(false);
                           }
                           ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                          ref.read(sendTxProvider.notifier).updateDrain(false);
                         },
                       ),
                   ],
