@@ -27,7 +27,14 @@ final currentBalanceProvider = StateProvider.autoDispose<String>((ref) {
   }
 });
 
-final tickerProvider = StateProvider.autoDispose<AssetId>((ref) => AssetId.BRL);
+final tickerProvider = StateProvider.autoDispose<AssetId>((ref) {
+  final sendBitcoin = ref.read(sendBitcoinProvider);
+  if (!sendBitcoin) {
+    return AssetId.BRL;
+  } else {
+    return AssetId.LBTC;
+  }
+});
 
 class LiquidSwapCards extends ConsumerStatefulWidget {
   const LiquidSwapCards({super.key});
@@ -39,7 +46,6 @@ class LiquidSwapCards extends ConsumerStatefulWidget {
 class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
   final TextEditingController controller = TextEditingController();
 
-
   @override
   Widget build(BuildContext context) {
     final dynamicCardHeight = MediaQuery.of(context).size.height * 0.21;
@@ -49,7 +55,6 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
     final titleFontSize = MediaQuery.of(context).size.height * 0.03;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final btcFormat = ref.read(settingsProvider).btcFormat;
-
 
     List<Column> cards = [
       buildCard('Real', 'BRL', Colors.greenAccent, Colors.green, ref, context, false),
@@ -66,6 +71,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
           ref.read(sendTxProvider.notifier).updateAmount(0);
           ref.read(sendBlocksProvider.notifier).state = 1;
           ref.refresh(currentBalanceProvider);
+          ref.refresh(tickerProvider);
         },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -87,50 +93,43 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
             switch (currentIndex) {
               case 0:
                 ticker = AssetId.BRL;
-                if (!sendBitcoin) {
-                  ref.read(currentBalanceProvider.notifier).state = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
-                } else {
-                  ref.read(currentBalanceProvider.notifier).state = ref.watch(liquidBalanceInFormatProvider(ref.read(settingsProvider).btcFormat));
-                }
-                ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(ticker);
-                ref.read(tickerProvider.notifier).state = ticker;
-                controller.text = '';
                 break;
               case 1:
                 ticker = AssetId.USD;
-                if (!sendBitcoin) {
-                  ref.read(currentBalanceProvider.notifier).state = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance);
-                } else {
-                  ref.read(currentBalanceProvider.notifier).state = ref.watch(liquidBalanceInFormatProvider(ref.read(settingsProvider).btcFormat));
-                }
-                ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(ticker);
-                ref.read(tickerProvider.notifier).state = ticker;
-                controller.text = '';
+                break;
               case 2:
                 ticker = AssetId.EUR;
-                if (!sendBitcoin) {
-                  ref.read(currentBalanceProvider.notifier).state = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance);
-                } else {
-                  ref.read(currentBalanceProvider.notifier).state = ref.watch(liquidBalanceInFormatProvider(ref.read(settingsProvider).btcFormat));
-                }
-                ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(ticker);
-                ref.read(tickerProvider.notifier).state = ticker;
-                controller.text = '';
+                break;
               default:
                 ticker = AssetId.BRL;
-                if (!sendBitcoin) {
-                  ref.read(currentBalanceProvider.notifier).state = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
-                } else {
-                  ref.read(currentBalanceProvider.notifier).state = ref.watch(liquidBalanceInFormatProvider(ref.read(settingsProvider).btcFormat));
-                }
-                ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(ticker);
-                ref.read(tickerProvider.notifier).state = ticker;
-                controller.text = '';
                 break;
             }
+            setState(() {
+              ref.read(tickerProvider.notifier).state = ticker;
+            });
 
-            String assetId = AssetMapper.reverseMapTicker(ticker);
-            ref.read(sendTxProvider.notifier).updateAssetId(assetId);
+            if (!sendBitcoin) {
+              switch (ticker) {
+                case AssetId.BRL:
+                  ref.read(currentBalanceProvider.notifier).state = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
+                  break;
+                case AssetId.USD:
+                  ref.read(currentBalanceProvider.notifier).state = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance);
+                  break;
+                case AssetId.EUR:
+                  ref.read(currentBalanceProvider.notifier).state = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance);
+                  break;
+                default:
+                  ref.read(currentBalanceProvider.notifier).state = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
+                  break;
+              }
+            } else {
+              ref.read(currentBalanceProvider.notifier).state = ref.watch(liquidBalanceInFormatProvider(ref.read(settingsProvider).btcFormat));
+            }
+
+            ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(ticker);
+            controller.text = '';
+            ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(ticker));
             return true;
           },
           cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
@@ -148,14 +147,22 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
       children: [
         Column(
           children: [
+            Text(
+              "Balance to Spend: ".i18n(ref),
+              style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text("Balance to Spend: ".i18n(ref) + currentBalance, style: TextStyle(fontSize: titleFontSize, color: Colors.grey),),
-                // fix watching of the balance, not working
-                _buildMaxButton(ref, dynamicPadding, titleFontSize , btcFormat),
+                Text(
+                  currentBalance,
+                  style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+                _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat),
               ],
             ),
+            // fix watching of the balance, not working
             ...swapCards,
           ],
         ),
@@ -169,8 +176,10 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
     );
   }
 
+  Widget _buildMaxButton(WidgetRef ref, double dynamicPadding, double dynamicFontSize, String btcFormat) {
+    final sendBitcoin = ref.watch(sendBitcoinProvider);
+    final ticker = sendBitcoin ? AssetId.LBTC : ref.watch(tickerProvider);
 
-  Widget _buildMaxButton(WidgetRef ref, double dynamicPadding, double dynamicFontSize, String btcFormart) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -185,30 +194,37 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
           onTap: () {
-            final ticker = ref.watch(tickerProvider);
-            int balance;
-            switch (ticker) {
-              case AssetId.BRL:
-                balance = ref.read(balanceNotifierProvider).brlBalance;
-                controller.text = fiatInDenominationFormatted(balance);
-                break;
-              case AssetId.USD:
-                balance = ref.read(balanceNotifierProvider).usdBalance;
-                controller.text = fiatInDenominationFormatted(balance);
-                break;
-              case AssetId.EUR:
-                balance = ref.read(balanceNotifierProvider).eurBalance;
-                controller.text = fiatInDenominationFormatted(balance);
-                break;
+            setState(() {
+              int balance;
+              switch (ticker) {
+                case AssetId.BRL:
+                  balance = ref.read(balanceNotifierProvider).brlBalance;
+                  controller.text = fiatInDenominationFormatted(balance);
+                  ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
+                  break;
+                case AssetId.USD:
+                  balance = ref.read(balanceNotifierProvider).usdBalance;
+                  controller.text = fiatInDenominationFormatted(balance);
+                  ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
+                  break;
+                case AssetId.EUR:
+                  balance = ref.read(balanceNotifierProvider).eurBalance;
+                  controller.text = fiatInDenominationFormatted(balance);
+                  ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
+                  break;
                 case AssetId.LBTC:
-                balance = ref.read(balanceNotifierProvider).liquidBalance;
-                controller.text = btcInDenominationFormatted(balance.toDouble(), btcFormart, false);
-              default:
-                balance = ref.read(balanceNotifierProvider).brlBalance;
-                controller.text = fiatInDenominationFormatted(balance);
-                break;
-            }
-            ref.read(sendTxProvider.notifier).updateDrain(true);
+                  balance = ref.read(balanceNotifierProvider).liquidBalance;
+                  controller.text = btcInDenominationFormatted(balance.toDouble(), btcFormat);
+                  ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
+                  break;
+                default:
+                  balance = ref.read(balanceNotifierProvider).brlBalance;
+                  controller.text = fiatInDenominationFormatted(balance);
+                  ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
+                  break;
+              }
+              ref.read(sendTxProvider.notifier).updateDrain(true);
+            });
           },
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 2, vertical: dynamicPadding / 2),
@@ -229,15 +245,16 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
   Column buildCard(String title, String unit, Color color1, Color color2, WidgetRef ref, BuildContext context, bool isBitcoin) {
     final dynamicMargin = MediaQuery.of(context).size.width * 0.04;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
-    final btcFormart = ref.read(settingsProvider).btcFormat;
+    final btcFormat = ref.read(settingsProvider).btcFormat;
     final sendBitcoin = ref.watch(sendBitcoinProvider);
 
     return Column(
       children: [
-        if (!isBitcoin) const Padding(
-          padding: EdgeInsets.only(top: 10),
-          child: Icon(Icons.swipe_vertical, color: Colors.grey),
-        ),
+        if (!isBitcoin)
+          const Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Icon(Icons.swipe_vertical, color: Colors.grey),
+          ),
         SizedBox(
           width: double.infinity,
           child: Card(
@@ -256,40 +273,40 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                 borderRadius: BorderRadius.circular(15.0),
               ),
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: dynamicPadding /2),
+                padding: EdgeInsets.symmetric(vertical: dynamicPadding / 2),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(title, style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
                     if (sendBitcoin && !isBitcoin || !sendBitcoin && isBitcoin)
                       Consumer(
-                          builder: (context, watch, child) {
-                            final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
-                            return sideswapPriceStreamAsyncValue.when(
-                              data: (value) {
-                                if (value.errorMsg != null) {
-                                  return Text(value.errorMsg!, style: const TextStyle(color: Colors.orange), textAlign: TextAlign.center);
-                                } else {
-                                  final valueToReceive = value.recvAmount!;
-                                  return Text('Value to receive: ${btcInDenominationFormatted(valueToReceive.toDouble(), btcFormart, !sendBitcoin)}', style: const TextStyle( color: Colors.white), textAlign: TextAlign.center);
-                                }
-                              },
-                              loading: () => Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Center(child: LoadingAnimationWidget.prograssiveDots(size: 15, color: Colors.white)),
-                              ),
-                              error: (error, stack) => Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text('Error: $error', style: const TextStyle( color: Colors.white), textAlign: TextAlign.center),
-                              ),
-                            );
-                          }
+                        builder: (context, watch, child) {
+                          final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
+                          return sideswapPriceStreamAsyncValue.when(
+                            data: (value) {
+                              if (value.errorMsg != null) {
+                                return Text(value.errorMsg!, style: const TextStyle(color: Colors.orange), textAlign: TextAlign.center);
+                              } else {
+                                final valueToReceive = value.recvAmount!;
+                                return Text('Value to receive: ${btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin)}', style: const TextStyle(color: Colors.white), textAlign: TextAlign.center);
+                              }
+                            },
+                            loading: () => Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Center(child: LoadingAnimationWidget.prograssiveDots(size: 15, color: Colors.white)),
+                            ),
+                            error: (error, stack) => Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text('Error: $error', style: const TextStyle(color: Colors.white), textAlign: TextAlign.center),
+                            ),
+                          );
+                        },
                       )
                     else
                       TextFormField(
                         keyboardType: TextInputType.number,
                         controller: controller,
-                        inputFormatters: isBitcoin? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()] : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()],
+                        inputFormatters: isBitcoin ? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()] : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()],
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -299,10 +316,10 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                         style: const TextStyle(color: Colors.white),
                         onChanged: (value) async {
                           if (value.isEmpty) {
-                            ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                            ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
                             ref.read(sendTxProvider.notifier).updateDrain(false);
                           }
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                          ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
                           ref.read(sendTxProvider.notifier).updateDrain(false);
                         },
                       ),
@@ -317,7 +334,6 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
   }
 
   Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: Align(
