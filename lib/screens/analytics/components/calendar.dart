@@ -173,8 +173,10 @@ class _CalendarState extends ConsumerState<Calendar> {
                     ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: now));
                     break;
                   case 1:
-                    startDate = DateTime(now.year, now.month - 1, now.day);
-                    ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: now));
+                    startDate = DateTime(now.year, now.month, 1);
+                    final endDate = DateTime(now.year, now.month + 1, 0).add(const Duration(hours: 23, minutes: 59, seconds: 59));
+                    ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: endDate));
+                    break;
                     break;
                   case 2:
                     startDate = DateTime(now.year, now.month - 6, now.day);

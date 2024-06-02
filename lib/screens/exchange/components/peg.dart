@@ -120,38 +120,55 @@ class _PegState extends ConsumerState<Peg> {
 
 
   Widget _buildBitcoinMaxButton(WidgetRef ref, double dynamicPadding, double dynamicFontSize, String btcFormart, bool pegIn) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        gradient: LinearGradient(
-          colors: pegIn ? [Colors.orange, Colors.deepOrange] : [Colors.blueAccent, Colors.deepPurple],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(10),
-          onTap: () {
-            final bitcoin = ref.watch(balanceNotifierProvider).btcBalance;
-            final liquid = ref.watch(balanceNotifierProvider).liquidBalance;
-            controller.text = btcInDenominationFormatted(pegIn ? bitcoin.toDouble() : liquid.toDouble(), btcFormart);
-            ref.read(sendTxProvider.notifier).updateDrain(true);
-          },
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 2, vertical: dynamicPadding / 2),
-            child: Text(
-              'Max',
-              style: TextStyle(
-                fontSize: dynamicFontSize / 2,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+    final sideSwapPeg = ref.watch(sideswapPegProvider);
+
+    return sideSwapPeg.maybeWhen(
+      data: (peg) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            gradient: LinearGradient(
+              colors: pegIn ? [Colors.orange, Colors.deepOrange] : [Colors.blueAccent, Colors.deepPurple],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: () {
+                final bitcoin = ref.watch(balanceNotifierProvider).btcBalance;
+                final liquid = ref.watch(balanceNotifierProvider).liquidBalance;
+                controller.text = btcInDenominationFormatted(pegIn ? bitcoin.toDouble() : liquid.toDouble(), btcFormart);
+                ref.read(sendTxProvider.notifier).updateDrain(true);
+                ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
+                ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 2, vertical: dynamicPadding / 2),
+                child: Text(
+                  'Max',
+                  style: TextStyle(
+                    fontSize: dynamicFontSize / 2,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
           ),
-        ),
+        );
+      },
+      loading: () => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: LoadingAnimationWidget.prograssiveDots(size:  dynamicFontSize / 2, color: Colors.grey),
       ),
+      error: (error, stack) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child:  Text(error.toString().i18n(ref), style: TextStyle(color: Colors.grey, fontSize:  dynamicFontSize / 2))
+      ),
+      orElse: () => Container(), // Add a default case to ensure a Widget is always returned
     );
   }
 
