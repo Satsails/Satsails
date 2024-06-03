@@ -316,23 +316,29 @@ final liquidSpentPerDayProvider = StateProvider.autoDispose.family<Map<DateTime,
   return valueSpentPerDay;
 });
 
-final liquidBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
+final liquidBalanceOverPeriod = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
   final transactions = ref.watch(transactionNotifierProvider).liquidTransactions;
   final Map<DateTime, num> balancePerDay = {};
 
   transactions.sort((a, b) => a.timestamp!.compareTo(b.timestamp!));
 
+  num cumulativeBalance = 0;
 
   for (Tx transaction in transactions) {
-    if (transaction.timestamp != 0) {
-      final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp * 1000));
-      final hasAsset = transaction.balances.any((element) => element.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC));
-      if (hasAsset) {
-        final sentValue = transaction.balances.firstWhere((element) => element.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC) && element.value < 0, orElse: () => Balance(assetId: AssetMapper.reverseMapTicker(AssetId.LBTC), value: 0)).value;
-        final receivedValue = transaction.balances.firstWhere((element) => element.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC) && element.value > 0, orElse: () => Balance(assetId: AssetMapper.reverseMapTicker(AssetId.LBTC), value: 0)).value;
-        final netAmount = receivedValue - sentValue;
-        balancePerDay[date] = netAmount;
-      }
+    if (transaction.timestamp == 0) {
+      continue;
+    }
+
+    final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000));
+    final hasSentAsset = transaction.balances.any((element) => element.assetId == asset && element.value < 0);
+    final hasReceivedAsset = transaction.balances.any((element) => element.assetId == asset && element.value > 0);
+    if (hasSentAsset || hasReceivedAsset) {
+      final sentValue = transaction.balances.firstWhere((element) => element.assetId == asset && element.value < 0, orElse: () => Balance(assetId: asset, value: 0)).value;
+      final receivedValue = transaction.balances.firstWhere((element) => element.assetId == asset && element.value > 0, orElse: () => Balance(assetId: asset, value: 0)).value;
+      final netAmount = receivedValue + sentValue;
+
+      cumulativeBalance += netAmount;
+      balancePerDay[date] = cumulativeBalance;
     }
   }
 
@@ -344,7 +350,7 @@ final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Ma
   final DateTime start = normalizeDate(DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.start * 1000));
   final DateTime end = normalizeDate(DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.end * 1000));
   final Map<DateTime, num> balancePerDay = {};
-  final balanceOverPeriod = ref.watch(liquidBalanceOverPeriod);
+  final balanceOverPeriod = ref.watch(liquidBalanceOverPeriod(asset));
 
   final selectedDays = ref.watch(selectedDaysDateArrayProvider);
 
@@ -377,7 +383,9 @@ final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Ma
     }
   }
 
-  return Map.fromEntries(balancePerDay.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)));
+  final orderedBalances = Map.fromEntries(balancePerDay.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)));
+
+  return orderedBalances;
 });
 
 final liquidBalancePerDayInBTCFormatProvider = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
