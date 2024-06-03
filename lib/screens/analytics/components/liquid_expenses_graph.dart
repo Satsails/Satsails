@@ -161,11 +161,11 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
     final feeData = ref.watch(liquidFeePerDayProvider(widget.assetId));
     final incomeData = ref.watch(liquidIncomePerDayProvider(widget.assetId));
     final spendingData = ref.watch(liquidSpentPerDayProvider(widget.assetId));
-    final balanceData = ref.watch(liquidBalanceOverPeriodByDayProvider(widget.assetId));
     final formattedBalanceData = ref.watch(liquidBalancePerDayInFormatProvider(widget.assetId));
+    final formattedBalanceDataInBtc = ref.watch(liquidBalancePerDayInBTCFormatProvider(widget.assetId));
     final selectedCurrency = ref.watch(settingsProvider).currency;
     final currencyRate = ref.watch(selectedCurrencyProvider(selectedCurrency));
-    final balanceInCurrency = calculateBalanceInCurrency(balanceData, currencyRate);
+    final balanceInCurrency = calculateBalanceInCurrency(formattedBalanceDataInBtc, currencyRate);
 
     final screenHeight = MediaQuery.of(context).size.height;
 
