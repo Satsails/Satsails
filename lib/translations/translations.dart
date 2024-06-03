@@ -721,7 +721,19 @@ extension Localization on String {
       {
         'en': 'Swaps',
         'pt': "Trocas",
+      }+
+      {
+        'en': 'Spending',
+        'pt': "Gastos",
+      }+
+      {
+        'en': 'Income',
+        'pt': 'Entradas'
       };
+
+
+
+
 
 
 

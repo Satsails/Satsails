@@ -22,7 +22,7 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
 
     return Column(
       children: [
-        if (moreThanOneMonth || ref.watch(oneDayProvider))
+        if (ref.watch(oneDayProvider))
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -49,7 +49,7 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
               ),
             ],
           ),
-        if (!moreThanOneMonth && !ref.watch(oneDayProvider))
+        if (!ref.watch(oneDayProvider))
           SizedBox(
             height: screenHeight * 0.30,
             child: const ExpensesGraph(),

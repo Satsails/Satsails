@@ -39,6 +39,7 @@ class _CalendarState extends ConsumerState<Calendar> {
       closeDialogOnCancelTapped: true,
       calendarViewMode: DatePickerMode.day,
       firstDayOfWeek: 1,
+      lastDate: today, // Prevent future dates
       weekdayLabelTextStyle: TextStyle(
         color: Colors.black87,
         fontWeight: FontWeight.bold,
@@ -169,14 +170,12 @@ class _CalendarState extends ConsumerState<Calendar> {
 
                 switch (selected) {
                   case 0:
-                    startDate = now.subtract(Duration(days: now.weekday - 1));
+                    startDate = now.subtract(Duration(days: 7));
                     ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: now));
                     break;
                   case 1:
-                    startDate = DateTime(now.year, now.month, 1);
-                    final endDate = DateTime(now.year, now.month + 1, 0).add(const Duration(hours: 23, minutes: 59, seconds: 59));
-                    ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: endDate));
-                    break;
+                    startDate = now.subtract(Duration(days: 30));
+                    ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: now));
                     break;
                   case 2:
                     startDate = DateTime(now.year, now.month - 6, now.day);
@@ -192,10 +191,16 @@ class _CalendarState extends ConsumerState<Calendar> {
                       dialogBackgroundColor: Colors.white,
                     );
                     if (values != null) {
-                      if (values.length == 1) {
-                        ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[0]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
-                      } else if (values.length == 2) {
-                        ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[1]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
+                      if (values.any((date) => date!.isAfter(today))) {
+                        // Remove future dates
+                        values.removeWhere((date) => date!.isAfter(today));
+                      }
+                      if (values.isNotEmpty) {
+                        if (values.length == 1) {
+                          ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[0]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
+                        } else if (values.length == 2) {
+                          ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[1]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
+                        }
                       }
                     }
                     break;

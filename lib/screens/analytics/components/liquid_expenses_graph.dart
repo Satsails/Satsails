@@ -3,17 +3,18 @@ import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class LineChartSample extends StatelessWidget {
-  final List<int> selectedDays;
-  final Map<int, num> feeData;
-  final Map<int, num> incomeData;
-  final Map<int, num> spendingData;
-  final Map<int, num>? balanceData;
-  final Map<int, num> balanceInCurrency;
+  final List<DateTime> selectedDays;
+  final Map<DateTime, num> feeData;
+  final Map<DateTime, num> incomeData;
+  final Map<DateTime, num> spendingData;
+  final Map<DateTime, num>? balanceData;
+  final Map<DateTime, num> balanceInCurrency;
   final String selectedCurrency;
   final bool showFeeLine;
 
@@ -31,217 +32,62 @@ class LineChartSample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LineChart(
-      _chartData(),
+    return SfCartesianChart(
+      primaryXAxis: DateTimeAxis(
+        intervalType: DateTimeIntervalType.days,
+        dateFormat: DateFormat('dd/MM'),
+        interval: selectedDays.length > 20 ? 5 : 1,
+      ),
+      primaryYAxis: NumericAxis(
+        numberFormat: NumberFormat.compact(),
+      ),
+      tooltipBehavior: TooltipBehavior(enable: true),
+      series: _chartSeries(),
     );
   }
 
-  LineChartData _chartData() {
-    final allValues = balanceData != null
-        ? balanceData!.values.toList()
-        : [...incomeData.values, ...spendingData.values, if (showFeeLine) ...feeData.values];
-    final double minY = allValues.isNotEmpty ? allValues.reduce((a, b) => a < b ? a : b).toDouble() : 0;
-    final double maxY = allValues.isNotEmpty ? allValues.reduce((a, b) => a > b ? a : b).toDouble() : 4;
-    final double midY = (minY + maxY) / 2;
+  List<LineSeries<MapEntry<DateTime, num>, DateTime>> _chartSeries() {
+    final seriesList = <LineSeries<MapEntry<DateTime, num>, DateTime>>[];
 
-    final double minX = selectedDays.isNotEmpty ? selectedDays.first.toDouble() : 0;
-    final double maxX = selectedDays.isNotEmpty ? selectedDays.last.toDouble() : 1;
-
-    return LineChartData(
-      lineTouchData: _lineTouchData(),
-      gridData: _gridData(),
-      titlesData: _titlesData(minY, midY, maxY, selectedDays.length),
-      borderData: _borderData(),
-      lineBarsData: balanceData != null ? [_balanceLine()] : _lineBarsData(),
-      minX: minX,
-      maxX: maxX,
-      minY: minY,
-      maxY: maxY,
-    );
-  }
-
-  LineTouchData _lineTouchData() {
-    if (balanceData == null || !showFeeLine) {
-      return LineTouchData(
-        handleBuiltInTouches: true,
-        touchTooltipData: LineTouchTooltipData(
-          tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
-          tooltipMargin: 8,
-          tooltipPadding: const EdgeInsets.all(8),
-          fitInsideHorizontally: true,
-          fitInsideVertically: true,
-          tooltipRoundedRadius: 8,
-        ),
-      );
+    if (balanceData != null) {
+      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
+        name: 'Balance',
+        dataSource: balanceData!.entries.toList(),
+        xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
+        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
+        color: Colors.orangeAccent,
+        markerSettings: MarkerSettings(isVisible: true),
+      ));
     } else {
-      return LineTouchData(
-        handleBuiltInTouches: true,
-        touchTooltipData: LineTouchTooltipData(
-          tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
-          getTooltipItems: (touchedSpots) {
-            return touchedSpots.map((touchedSpot) {
-              final FlSpot spot = touchedSpot;
-              final int day = spot.x.toInt();
-              final num balance = spot.y;
-              final num? currencyBalance = balanceInCurrency[day];
-              return LineTooltipItem(
-                'Bitcoin: $balance\n$selectedCurrency: ${currencyBalance?.toStringAsFixed(2)}',
-                const TextStyle(color: Colors.white),
-              );
-            }).toList();
-          },
-          tooltipMargin: 8,
-          tooltipPadding: const EdgeInsets.all(8),
-          fitInsideHorizontally: true,
-          fitInsideVertically: true,
-          tooltipRoundedRadius: 8,
-        ),
-      );
-    }
-  }
-
-  FlTitlesData _titlesData(double minY, double midY, double maxY, int days) {
-    return FlTitlesData(
-      bottomTitles: AxisTitles(
-        sideTitles: _bottomTitles(days),
-      ),
-      leftTitles: AxisTitles(
-        sideTitles: SideTitles(showTitles: false, getTitlesWidget: (value, meta) {
-          const style = TextStyle(
-            fontSize: 11,
-            color: Colors.grey,
-          );
-          String text;
-          if (value >= 1000) {
-            text = '${(value / 1000).toInt()}K';
-          } else {
-            text = value.toInt().toString();
-          }
-          return Text(text, style: style);
-        }),
-      ),
-      topTitles: const AxisTitles(
-        sideTitles: SideTitles(showTitles: false),
-      ),
-      rightTitles: const AxisTitles(
-        sideTitles: SideTitles(showTitles: false),
-      ),
-    );
-  }
-
-  List<LineChartBarData> _lineBarsData() {
-    final lines = [
-      _spendingLine(),
-      _incomeLine(),
-    ];
-    if (showFeeLine) {
-      lines.add(_feeLine());
-    }
-    return lines;
-  }
-
-  Widget _bottomTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      fontSize: 12,
-      color: Colors.grey,
-    );
-    String text = '';
-    if (value.toInt() >= selectedDays.first && value.toInt() <= selectedDays.last) {
-      text = selectedDays[(value - selectedDays.first).toInt()].toString();
+      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
+        name: 'Spending',
+        dataSource: spendingData.entries.toList(),
+        xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
+        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
+        color: Colors.blueAccent,
+        markerSettings: MarkerSettings(isVisible: true),
+      ));
+      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
+        name: 'Income',
+        dataSource: incomeData.entries.toList(),
+        xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
+        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
+        color: Colors.greenAccent,
+        markerSettings: MarkerSettings(isVisible: true),
+      ));
+      if (showFeeLine) {
+        seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
+          name: 'Fee',
+          dataSource: feeData.entries.toList(),
+          xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
+          yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
+          color: Colors.orangeAccent,
+          markerSettings: MarkerSettings(isVisible: true),
+        ));
+      }
     }
 
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 10,
-      child: Text(text, style: style),
-    );
-  }
-
-  SideTitles _bottomTitles(int days) {
-    if (days > 20) {
-      return SideTitles(
-        showTitles: true,
-        reservedSize: 32,
-        interval: 5,
-        getTitlesWidget: _bottomTitleWidgets,
-      );
-    } else {
-      return SideTitles(
-        showTitles: true,
-        reservedSize: 32,
-        interval: 1,
-        getTitlesWidget: _bottomTitleWidgets,
-      );
-    }
-  }
-
-  FlGridData _gridData() {
-    return const FlGridData(show: false);
-  }
-
-  FlBorderData _borderData() {
-    return FlBorderData(
-      show: false,
-    );
-  }
-
-  LineChartBarData _spendingLine() {
-    return LineChartBarData(
-      isCurved: true,
-      color: Colors.blueAccent,
-      barWidth: 8,
-      isStrokeCapRound: true,
-      dotData: const FlDotData(show: false),
-      belowBarData: BarAreaData(show: false),
-      spots: selectedDays
-          .map((day) => FlSpot(day.toDouble(), spendingData[day]?.toDouble() ?? 0))
-          .toList(),
-    );
-  }
-
-  LineChartBarData _incomeLine() {
-    return LineChartBarData(
-      isCurved: true,
-      color: Colors.greenAccent,
-      barWidth: 8,
-      isStrokeCapRound: true,
-      dotData: const FlDotData(show: false),
-      belowBarData: BarAreaData(
-        show: false,
-        color: Colors.green.withOpacity(0.3),
-      ),
-      spots: selectedDays
-          .map((day) => FlSpot(day.toDouble(), incomeData[day]?.toDouble() ?? 0))
-          .toList(),
-    );
-  }
-
-  LineChartBarData _feeLine() {
-    return LineChartBarData(
-      isCurved: true,
-      color: Colors.orangeAccent,
-      barWidth: 7,
-      isStrokeCapRound: false,
-      dotData: const FlDotData(show: false),
-      belowBarData: BarAreaData(show: false),
-      spots: selectedDays
-          .map((day) => FlSpot(day.toDouble(), feeData[day]?.toDouble() ?? 0))
-          .toList(),
-    );
-  }
-
-  LineChartBarData _balanceLine() {
-    return LineChartBarData(
-      isCurved: true,
-      color: Colors.orangeAccent,
-      barWidth: 8,
-      isStrokeCapRound: true,
-      dotData: const FlDotData(show: false),
-      belowBarData: BarAreaData(show: false),
-      spots: selectedDays
-          .map((day) => FlSpot(day.toDouble(), balanceData?[day]?.toDouble() ?? 0))
-          .toList(),
-    );
+    return seriesList;
   }
 }
 
@@ -330,8 +176,8 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
     );
   }
 
-  Map<int, num> calculateBalanceInCurrency(Map<int, num>? balanceByDay, num currencyRate) {
-    final Map<int, num> balanceInCurrency = {};
+  Map<DateTime, num> calculateBalanceInCurrency(Map<DateTime, num>? balanceByDay, num currencyRate) {
+    final Map<DateTime, num> balanceInCurrency = {};
     balanceByDay?.forEach((day, balance) {
       balanceInCurrency[day] = (balance * currencyRate).toDouble();
     });

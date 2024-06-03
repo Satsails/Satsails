@@ -35,7 +35,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
-          if (moreThanOneMonth || oneDay)
+          if (oneDay)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -44,7 +44,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
                 _buildCard('Fee'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
               ],
             ),
-          if (!moreThanOneMonth && !oneDay)
+          if (!oneDay)
             ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.LBTC)),
           Text(
             '${'Current Balance'.i18n(ref)}: $liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
@@ -60,7 +60,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
-          if (moreThanOneMonth || oneDay)
+          if (oneDay)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -68,7 +68,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
                 _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).brlReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
               ],
             ),
-          if (!moreThanOneMonth && !oneDay)
+          if (!oneDay)
             ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.BRL)),
           Text(
             '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.brlBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
@@ -84,7 +84,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
-          if (moreThanOneMonth || oneDay)
+          if (oneDay)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -92,7 +92,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
                 _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).usdReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
               ],
             ),
-          if (!moreThanOneMonth && !oneDay)
+          if (!oneDay)
             ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.USD)),
           Text(
             '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.usdBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
@@ -108,7 +108,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
-          if (moreThanOneMonth || oneDay)
+          if (oneDay)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -116,7 +116,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
                 _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).euroReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
               ],
             ),
-          if (!moreThanOneMonth && !oneDay)
+          if (!oneDay)
             ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.EUR)),
           Text(
             '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.eurBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
