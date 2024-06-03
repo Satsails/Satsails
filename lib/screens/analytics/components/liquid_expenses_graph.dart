@@ -22,6 +22,7 @@ class LiquidExpensesGraph extends StatelessWidget {
   final Map<DateTime, num> balanceInCurrency;
   final String selectedCurrency;
   final bool isShowingMainData;
+  final bool isBtc;
 
   const LiquidExpensesGraph({
     super.key,
@@ -32,6 +33,7 @@ class LiquidExpensesGraph extends StatelessWidget {
     required this.balanceInCurrency,
     required this.selectedCurrency,
     required this.isShowingMainData,
+    required this.isBtc,
   });
 
   @override
@@ -69,10 +71,15 @@ class LiquidExpensesGraph extends StatelessWidget {
           final DateTime date = trackballDetails.point!.x;
           final num? value = trackballDetails.point!.y;
           final String formattedDate = formatter.format(date);
-          final String bitcoinValue = value!.toStringAsFixed(value == value.roundToDouble() ? 0 : 8);
-          final String currencyValue = balanceInCurrency[date]?.toStringAsFixed(balanceInCurrency[date] == balanceInCurrency[date]!.roundToDouble() ? 0 : 2) ?? '0.00';
-          final displayString = '$formattedDate\nBitcoin: $bitcoinValue\n$selectedCurrency: $currencyValue';
-          final displayStringIfNotMainData = '$bitcoinValue';
+          final String valueString = value!.toStringAsFixed(value == value.roundToDouble() ? 0 : 8);
+
+          String displayString;
+          if (isBtc) {
+            final String currencyValue = balanceInCurrency[date]?.toStringAsFixed(balanceInCurrency[date] == balanceInCurrency[date]!.roundToDouble() ? 0 : 2) ?? '0.00';
+            displayString = '$formattedDate\nBitcoin: $valueString\n$selectedCurrency: $currencyValue';
+          } else {
+            displayString = '$formattedDate\n$valueString';
+          }
 
           return Container(
             padding: const EdgeInsets.all(8),
@@ -89,7 +96,7 @@ class LiquidExpensesGraph extends StatelessWidget {
               ],
             ),
             child: Text(
-              isShowingMainData ? displayString : displayStringIfNotMainData,
+              displayString,
               style: const TextStyle(color: Colors.grey),
             ),
           );
@@ -166,6 +173,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
     final selectedCurrency = ref.watch(settingsProvider).currency;
     final currencyRate = ref.watch(selectedCurrencyProvider(selectedCurrency));
     final balanceInCurrency = calculateBalanceInCurrency(formattedBalanceDataInBtc, currencyRate);
+    final isBtc = AssetMapper.reverseMapTicker(AssetId.LBTC) == widget.assetId;
 
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -174,15 +182,15 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
         Container(
           height: screenHeight * 0.18,
           padding: const EdgeInsets.only(right: 16, left: 6, top: 34),
-          child: LineChartSample(
+          child: LiquidExpensesGraph(
             selectedDays: selectedDays,
-            feeData: feeData,
-            incomeData: incomeData,
-            spendingData: spendingData,
+            sentData: spendingData,
+            receivedData: incomeData,
             mainData: !isShowingBalanceData ? formattedBalanceData : null,
             balanceInCurrency: balanceInCurrency,
             selectedCurrency: selectedCurrency,
             isShowingMainData: !isShowingBalanceData,
+            isBtc: isBtc,
           ),
         ),
         Center(
@@ -201,11 +209,11 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: !isShowingBalanceData
-              ? [_buildLegend('Balance Over Time', Colors.orangeAccent)]
+              ? [_buildLegend('Show balance over period'.i18n(ref), Colors.orangeAccent)]
               : [
-            _buildLegend('Spending', Colors.blueAccent),
-            _buildLegend('Income', Colors.greenAccent),
-            _buildLegend('Fee', Colors.orangeAccent),
+            _buildLegend('Spending'.i18n(ref), Colors.blueAccent),
+            _buildLegend('Income'.i18n(ref), Colors.greenAccent),
+            _buildLegend('Fee'.i18n(ref), Colors.orangeAccent),
           ],
         ),
       ],

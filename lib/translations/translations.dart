@@ -729,7 +729,13 @@ extension Localization on String {
       {
         'en': 'Income',
         'pt': 'Entradas'
+      }+
+      {
+        'en': 'Show balance over period',
+        'pt': 'Mostrar saldo ao longo do período'
       };
+
+
 
 
 

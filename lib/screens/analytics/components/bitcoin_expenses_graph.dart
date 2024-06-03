@@ -203,7 +203,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: !isShowingMainData
-              ? [_buildLegend('Show Balance'.i18n(ref), Colors.orangeAccent)]
+              ? [_buildLegend('Show balance over period'.i18n(ref), Colors.orangeAccent)]
               : [
             _buildLegend('Spending'.i18n(ref), Colors.blueAccent),
             _buildLegend('Income'.i18n(ref), Colors.greenAccent),

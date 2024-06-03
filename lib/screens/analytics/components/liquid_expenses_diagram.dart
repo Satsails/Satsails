@@ -22,7 +22,6 @@ class LiquidExpensesDiagram extends ConsumerWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(btcFormat));
     final balance = ref.watch(balanceNotifierProvider);
-    final moreThanOneMonth = ref.watch(moreThanOneMonthProvider);
     final oneDay = ref.watch(oneDayProvider);
 
     List<Widget> cards = [
