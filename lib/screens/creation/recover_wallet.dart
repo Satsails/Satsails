@@ -193,38 +193,42 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                     ),
                     itemCount: _totalWords,
                     itemBuilder: (context, index) {
-                      return Column(
-                        children: [
-                          TextField(
-                            controller: _controllers[index],
-                            focusNode: _focusNodes[index],
-                            decoration: InputDecoration(
-                              labelText: 'Word'.i18n(ref) + ' ${index + 1}',
-                              labelStyle: TextStyle(
-                                color: _selectedWordIndex == index ? Colors.orangeAccent : Colors.grey,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 4.0,
+                      return Padding(
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        child: Column(
+                          children: [
+                            TextField(
+                              controller: _controllers[index],
+                              focusNode: _focusNodes[index],
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                                labelText: 'Word'.i18n(ref) + ' ${index + 1}',
+                                labelStyle: TextStyle(
+                                  color: _selectedWordIndex == index ? Colors.orangeAccent : Colors.grey,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey,
+                                    width: 4.0,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  borderSide: BorderSide(
+                                    color: Colors.orangeAccent,
+                                    width: 4.0,
+                                  ),
                                 ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide(
-                                  color: Colors.orangeAccent,
-                                  width: 4.0,
-                                ),
-                              ),
+                              onTap: () {
+                                setState(() {
+                                  _selectedWordIndex = index;
+                                });
+                              },
                             ),
-                            onTap: () {
-                              setState(() {
-                                _selectedWordIndex = index;
-                              });
-                            },
-                          ),
-                        ],
+                          ],
+                        ),
                       );
                     },
                   ),

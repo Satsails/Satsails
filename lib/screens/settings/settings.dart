@@ -149,6 +149,7 @@ class Settings extends ConsumerWidget {
   }
 
   Widget _buildSeedSection(BuildContext context, WidgetRef ref) {
+    final walletBackedUp = ref.watch(settingsProvider).backup;
     return ListTile(
       leading: const Icon(Icons.currency_bitcoin, color: Colors.orangeAccent),
       title: Text('View Seed Words'.i18n(ref)),
@@ -156,7 +157,7 @@ class Settings extends ConsumerWidget {
       trailing: const Icon(Icons.arrow_forward_ios, color: Colors.orangeAccent),
       onTap: () {
         ref.read(sendToSeed.notifier).state = true;
-        Navigator.pushNamed(context, '/open_pin');
+        walletBackedUp ? Navigator.pushNamed(context, '/open_pin') : Navigator.pushNamed(context, '/seed_words');
       },
     );
   }

@@ -26,7 +26,7 @@ class BackupWarning extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pushNamed(context, '/backup_wallet');
+              Navigator.pushNamed(context, '/seed_words');
             },
             child: Text(
               'Backup your wallet'.i18n(ref),

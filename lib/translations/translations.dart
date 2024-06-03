@@ -768,7 +768,7 @@ extension Localization on String {
       }+
       {
         'en': 'Wallet successfully backed up!',
-        'pt': 'Carteira copiada com sucesso!'
+        'pt': 'Carteira guardada com sucesso!'
       }+
       {
         'en': 'Incorrect selections. Please try again.',
