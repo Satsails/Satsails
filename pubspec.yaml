@@ -61,6 +61,7 @@ dependencies:
   go_router: ^14.1.4
   segmented_button_slide: ^1.0.4
   syncfusion_flutter_charts: ^25.2.6
+  flutter_keyboard_visibility: ^5.0.0
 
 dev_dependencies:
   build_runner: ^2.4.9
@@ -75,6 +76,7 @@ flutter:
   assets:
     - lib/assets/logo.png
     - lib/assets/app_icon.png
+    - lib/assets/bip39_english.txt
 
 #compil incons to all envs
 flutter_launcher_icons:

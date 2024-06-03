@@ -35,6 +35,8 @@ import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'screens/settings/components/backup_wallet.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -120,6 +122,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     if (mnemonic == null || mnemonic.isEmpty) {
       navigatorKey.currentState?.pushNamedAndRemoveUntil('/', (route) => false);
     } else {
+      ref.read(sendToSeed.notifier).state = false;
       navigatorKey.currentState?.pushNamedAndRemoveUntil('/open_pin', (route) => false);
     }
   }
@@ -167,6 +170,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
                 '/confirm_liquid_payment': (context) => ConfirmLiquidPayment(),
                 '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
                 '/claim_boltz_transactions': (context) => ClaimBoltz(),
+                '/backup_wallet': (context) => BackupWallet(),
               },
             );
           }

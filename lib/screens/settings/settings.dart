@@ -6,6 +6,8 @@ import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+final sendToSeed = StateProvider<bool>((ref) => false);
+
 class Settings extends ConsumerWidget {
   const Settings({super.key});
 
@@ -16,6 +18,12 @@ class Settings extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text('Settings'.i18n(ref)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/home');
+          },
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -147,7 +155,8 @@ class Settings extends ConsumerWidget {
       subtitle: Text('Write them down and keep them safe!'.i18n(ref)),
       trailing: const Icon(Icons.arrow_forward_ios, color: Colors.orangeAccent),
       onTap: () {
-        Navigator.pushNamed(context, '/seed_words');
+        ref.read(sendToSeed.notifier).state = true;
+        Navigator.pushNamed(context, '/open_pin');
       },
     );
   }

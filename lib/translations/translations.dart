@@ -733,18 +733,47 @@ extension Localization on String {
       {
         'en': 'Show balance over period',
         'pt': 'Mostrar saldo ao longo do período'
+      }+
+      {
+        'en': 'words',
+        'pt': 'palavras'
+      }+
+      {
+        'en': 'Word',
+        'pt': 'Palavra'
+      }+
+      {
+        'en': 'Backup your wallet',
+        'pt': 'Faça backup de sua carteira'
+      }+
+      {
+        'en': 'Backup Wallet',
+        'pt': 'Backup da Carteira'
+      }+
+      {
+        'en': 'Seed Words',
+        'pt': 'Seed Words'
+      }+
+      {
+        'en': 'Select the correct word for each position:',
+        'pt': 'Selecione a palavra correta para cada posição:'
+      }+
+      {
+        'en': 'Word in position',
+        'pt': 'Palavra na posição'
+      }+
+      {
+        'en': 'Verify',
+        'pt': 'Verificar'
+      }+
+      {
+        'en': 'Wallet successfully backed up!',
+        'pt': 'Carteira copiada com sucesso!'
+      }+
+      {
+        'en': 'Incorrect selections. Please try again.',
+        'pt': 'Seleções incorretas. Por favor, tente novamente.'
       };
-
-
-
-
-
-
-
-
-
-
-
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;

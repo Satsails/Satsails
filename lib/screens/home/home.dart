@@ -1,4 +1,5 @@
 import 'package:Satsails/screens/creation/components/logo.dart';
+import 'package:Satsails/screens/shared/backup_warning.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
@@ -55,7 +56,7 @@ class Home extends ConsumerWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        // OfflineTransactionWarning(online: online),
+        const BackupWarning(),
         buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
         Flexible(
           child: SizedBox(
