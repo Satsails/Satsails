@@ -170,7 +170,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
                 '/confirm_liquid_payment': (context) => ConfirmLiquidPayment(),
                 '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
                 '/claim_boltz_transactions': (context) => ClaimBoltz(),
-                '/backup_wallet': (context) => BackupWallet(),
+                '/backup_wallet': (context) => const BackupWallet(),
               },
             );
           }

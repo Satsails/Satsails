@@ -183,7 +183,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [Colors.blueAccent, Colors.deepPurple],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

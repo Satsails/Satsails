@@ -170,11 +170,11 @@ class _CalendarState extends ConsumerState<Calendar> {
 
                 switch (selected) {
                   case 0:
-                    startDate = now.subtract(Duration(days: 7));
+                    startDate = now.subtract(const Duration(days: 7));
                     ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: now));
                     break;
                   case 1:
-                    startDate = now.subtract(Duration(days: 30));
+                    startDate = now.subtract(const Duration(days: 30));
                     ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: now));
                     break;
                   case 2:

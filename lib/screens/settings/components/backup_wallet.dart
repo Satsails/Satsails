@@ -91,7 +91,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
           children: [
             Text(
               'Select the correct word for each position:'.i18n(ref),
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Expanded(

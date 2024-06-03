@@ -8,7 +8,7 @@ import 'package:Satsails/models/datetime_range_model.dart';
 
 DateTimeSelect getCurrentMonthDateRange() {
   final DateTime now = DateTime.now();
-  final startDate = now.subtract(Duration(days: 30));
+  final startDate = now.subtract(const Duration(days: 30));
   return DateTimeSelect(
     start: startDate,
     end: now.add(const Duration(hours: 23, minutes: 59, seconds: 59)),
@@ -329,7 +329,7 @@ final liquidBalanceOverPeriod = StateProvider.autoDispose.family<Map<DateTime, n
       continue;
     }
 
-    final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000));
+    final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp * 1000));
     final hasSentAsset = transaction.balances.any((element) => element.assetId == asset && element.value < 0);
     final hasReceivedAsset = transaction.balances.any((element) => element.assetId == asset && element.value > 0);
     if (hasSentAsset || hasReceivedAsset) {

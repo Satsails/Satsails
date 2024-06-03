@@ -41,10 +41,10 @@ class Analytics extends ConsumerWidget {
     return Column(
       children: [
         const Center(child: ButtonPicker()),
-        if (transactionType == 'Bitcoin') const BitcoinExpensesDiagram(),
-        if (transactionType == 'Instant Bitcoin') const LiquidExpensesDiagram(),
         if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')
           const Calendar(),
+        if (transactionType == 'Bitcoin') const BitcoinExpensesDiagram(),
+        if (transactionType == 'Instant Bitcoin') const LiquidExpensesDiagram(),
         if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')
         const Expanded(child: BuildTransactions(showAllTransactions: false,)),
         if(transactionType == 'Swap') const Expanded(child: SwapsBuilder()),

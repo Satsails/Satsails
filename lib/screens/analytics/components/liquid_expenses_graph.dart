@@ -1,16 +1,10 @@
-import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
-import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
-import 'package:Satsails/screens/analytics/components/bitcoin_expenses_graph.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/models/expenses_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
 
@@ -84,7 +78,7 @@ class LiquidExpensesGraph extends StatelessWidget {
           } else if (isBtc && isShowingMainData) {
             displayString = '$formattedDate\n$valueString';
           } else {
-            displayString = '$valueString';
+            displayString = valueString;
           }
 
           return Container(
@@ -197,8 +191,8 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
     return Column(
       children: <Widget>[
         Container(
-          height: screenHeight * 0.18,
-          padding: const EdgeInsets.only(right: 16, left: 6, top: 34),
+          height: screenHeight * 0.25,
+          padding: const EdgeInsets.only(right: 16),
           child: LiquidExpensesGraph(
             selectedDays: selectedDays,
             sentData: spendingData,
@@ -243,7 +237,6 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
       children: [
         Container(
           width: 10,
-          height: 10,
           color: color,
         ),
         const SizedBox(width: 5),

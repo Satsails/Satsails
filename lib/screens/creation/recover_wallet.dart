@@ -168,7 +168,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                   items: [12, 24].map((value) {
                     return DropdownMenuItem<int>(
                       value: value,
-                      child: Text("$value" + 'words'.i18n(ref)),
+                      child: Text("$value${'words'.i18n(ref)}"),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -194,28 +194,28 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                     itemCount: _totalWords,
                     itemBuilder: (context, index) {
                       return Padding(
-                        padding: EdgeInsets.symmetric(vertical: 5),
+                        padding: const EdgeInsets.symmetric(vertical: 5),
                         child: Column(
                           children: [
                             TextField(
                               controller: _controllers[index],
                               focusNode: _focusNodes[index],
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                                labelText: 'Word'.i18n(ref) + ' ${index + 1}',
+                                contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                                labelText: '${'Word'.i18n(ref)} ${index + 1}',
                                 labelStyle: TextStyle(
                                   color: _selectedWordIndex == index ? Colors.orangeAccent : Colors.grey,
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: BorderSide(
+                                  borderSide: const BorderSide(
                                     color: Colors.grey,
                                     width: 4.0,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: BorderSide(
+                                  borderSide: const BorderSide(
                                     color: Colors.orangeAccent,
                                     width: 4.0,
                                   ),

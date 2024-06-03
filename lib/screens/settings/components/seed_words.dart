@@ -18,7 +18,7 @@ class SeedWords extends ConsumerWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Seed Words'),
+        title: const Text('Seed Words'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {

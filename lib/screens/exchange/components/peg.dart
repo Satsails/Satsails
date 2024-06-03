@@ -21,7 +21,7 @@ import 'package:Satsails/providers/sideswap_provider.dart';
 final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');
 
 class Peg extends ConsumerStatefulWidget {
-  Peg({super.key});
+  const Peg({super.key});
 
   @override
   _PegState createState() => _PegState();

@@ -67,7 +67,7 @@ class LineChartSample extends StatelessWidget {
           final String bitcoinValue = value!.toStringAsFixed(value == value.roundToDouble() ? 0 : 8);
           final String currencyValue = balanceInCurrency[date]?.toStringAsFixed(balanceInCurrency[date] == balanceInCurrency[date]!.roundToDouble() ? 0 : 2) ?? '0.00';
           final displayString = '$formattedDate\nBitcoin: $bitcoinValue\n$selectedCurrency: $currencyValue';
-          final displayStringIfNotMainData = '$bitcoinValue';
+          final displayStringIfNotMainData = bitcoinValue;
 
           return Container(
             padding: const EdgeInsets.all(8),
