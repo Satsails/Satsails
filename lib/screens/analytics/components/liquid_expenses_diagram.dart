@@ -27,6 +27,9 @@ class LiquidExpensesDiagram extends ConsumerWidget {
     List<Widget> cards = [
       Column(
         children: [
+          Text(
+            '${'Current Balance'.i18n(ref)}: $liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
+          ),
           if (oneDay)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -45,13 +48,13 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
-          Text(
-            '${'Current Balance'.i18n(ref)}: $liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
-          ),
         ],
       ),
       Column(
         children: [
+          Text(
+            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.brlBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
+          ),
           if (oneDay)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -69,13 +72,13 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
-          Text(
-            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.brlBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
-          ),
         ],
       ),
       Column(
         children: [
+          Text(
+            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.usdBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
+          ),
           if (oneDay)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -93,13 +96,13 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
-          Text(
-            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.usdBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
-          ),
         ],
       ),
       Column(
         children: [
+          Text(
+            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.eurBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
+          ),
           if (oneDay)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -116,9 +119,6 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               Text("Euro", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
               const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
-          ),
-          Text(
-            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.eurBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
           ),
         ],
       ),

@@ -773,7 +773,13 @@ extension Localization on String {
       {
         'en': 'Incorrect selections. Please try again.',
         'pt': 'Seleções incorretas. Por favor, tente novamente.'
+      }+
+      {
+        'en': 'Balance',
+        'pt': 'Saldo'
       };
+
+
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;

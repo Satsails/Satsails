@@ -22,6 +22,10 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
 
     return Column(
       children: [
+        Text(
+          '${'Current Balance'.i18n(ref)}: $btcBalanceInFormat $btcFormat',
+          style: TextStyle(fontSize: screenWidth / 20, color: Colors.grey),
+        ),
         if (ref.watch(oneDayProvider))
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -50,14 +54,7 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
             ],
           ),
         if (!ref.watch(oneDayProvider))
-          SizedBox(
-            height: screenHeight * 0.28,
-            child: const ExpensesGraph(),
-          ),
-        Text(
-          '${'Current Balance'.i18n(ref)}: $btcBalanceInFormat $btcFormat',
-          style: TextStyle(fontSize: screenWidth / 20, color: Colors.grey),
-        ),
+          const ExpensesGraph(),
       ],
     );
   }

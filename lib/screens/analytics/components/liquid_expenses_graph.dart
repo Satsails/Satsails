@@ -18,6 +18,7 @@ class LiquidExpensesGraph extends StatelessWidget {
   final List<DateTime> selectedDays;
   final Map<DateTime, num> sentData;
   final Map<DateTime, num> receivedData;
+  final Map<DateTime, num> feeData;
   final Map<DateTime, num>? mainData;
   final Map<DateTime, num> balanceInCurrency;
   final String selectedCurrency;
@@ -29,6 +30,7 @@ class LiquidExpensesGraph extends StatelessWidget {
     required this.selectedDays,
     required this.sentData,
     required this.receivedData,
+    required this.feeData,
     this.mainData,
     required this.balanceInCurrency,
     required this.selectedCurrency,
@@ -67,18 +69,22 @@ class LiquidExpensesGraph extends StatelessWidget {
           decimalPlaces: 8,
         ),
         builder: (BuildContext context, TrackballDetails trackballDetails) {
+          if (trackballDetails.point == null) return Container();
+
           final DateFormat formatter = DateFormat('dd/MM');
           final DateTime date = trackballDetails.point!.x;
           final num? value = trackballDetails.point!.y;
           final String formattedDate = formatter.format(date);
-          final String valueString = value!.toStringAsFixed(value == value.roundToDouble() ? 0 : 8);
+          final String valueString = value!.toString();
 
           String displayString;
-          if (isBtc) {
-            final String currencyValue = balanceInCurrency[date]?.toStringAsFixed(balanceInCurrency[date] == balanceInCurrency[date]!.roundToDouble() ? 0 : 2) ?? '0.00';
-            displayString = '$formattedDate\nBitcoin: $valueString\n$selectedCurrency: $currencyValue';
-          } else {
+          if (isBtc && isShowingMainData) {
+            final num balance = balanceInCurrency[date]!;
+            displayString = '$formattedDate\n$valueString\n${balance.toStringAsFixed(2)} $selectedCurrency';
+          } else if (isBtc && isShowingMainData) {
             displayString = '$formattedDate\n$valueString';
+          } else {
+            displayString = '$valueString';
           }
 
           return Container(
@@ -138,6 +144,17 @@ class LiquidExpensesGraph extends StatelessWidget {
         markerSettings: const MarkerSettings(isVisible: false),
         dashArray: _getDashArray(receivedData),
       ));
+      if (isBtc) {
+      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
+        name: 'Fee',
+        dataSource: feeData.entries.toList(),
+        xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
+        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
+        color: Colors.orangeAccent,
+        markerSettings: const MarkerSettings(isVisible: false),
+        dashArray: _getDashArray(feeData),
+      ));
+      }
     }
 
     return seriesList;
@@ -186,6 +203,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
             selectedDays: selectedDays,
             sentData: spendingData,
             receivedData: incomeData,
+            feeData: feeData,
             mainData: !isShowingBalanceData ? formattedBalanceData : null,
             balanceInCurrency: balanceInCurrency,
             selectedCurrency: selectedCurrency,
@@ -209,7 +227,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: !isShowingBalanceData
-              ? [_buildLegend('Show balance over period'.i18n(ref), Colors.orangeAccent)]
+              ? [_buildLegend('Balance'.i18n(ref), Colors.orangeAccent)]
               : [
             _buildLegend('Spending'.i18n(ref), Colors.blueAccent),
             _buildLegend('Income'.i18n(ref), Colors.greenAccent),
@@ -241,4 +259,11 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
     });
     return balanceInCurrency;
   }
+}
+
+int decimalPlacesBtcFormat(num value) {
+  if (value == value.roundToDouble()) return 0;
+  final String valueString = value.toString();
+  final int decimalPlaces = valueString.split('.').last.length;
+  return decimalPlaces;
 }

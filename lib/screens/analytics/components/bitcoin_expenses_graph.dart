@@ -71,7 +71,7 @@ class LineChartSample extends StatelessWidget {
 
           return Container(
             padding: const EdgeInsets.all(8),
-decoration: BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(5),
               boxShadow: [
@@ -96,7 +96,6 @@ decoration: BoxDecoration(
 
   List<LineSeries<MapEntry<DateTime, num>, DateTime>> _chartSeries() {
     final seriesList = <LineSeries<MapEntry<DateTime, num>, DateTime>>[];
-
 
     if (mainData != null && isShowingMainData) {
       seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
@@ -203,7 +202,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: !isShowingMainData
-              ? [_buildLegend('Show balance over period'.i18n(ref), Colors.orangeAccent)]
+              ? [_buildLegend('Balance'.i18n(ref), Colors.orangeAccent)]
               : [
             _buildLegend('Spending'.i18n(ref), Colors.blueAccent),
             _buildLegend('Income'.i18n(ref), Colors.greenAccent),
