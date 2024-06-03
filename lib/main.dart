@@ -140,7 +140,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
             final mnemonic = snapshot.data;
             final initialRoute = (mnemonic == null || mnemonic.isEmpty)
                 ? '/'
-                : '/analytics';
+                : '/open_pin';
 
             return MaterialApp(
               navigatorKey: navigatorKey,

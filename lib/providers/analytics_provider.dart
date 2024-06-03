@@ -316,32 +316,81 @@ final liquidSpentPerDayProvider = StateProvider.autoDispose.family<Map<DateTime,
   return valueSpentPerDay;
 });
 
-final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
-  final List<DateTime> selectedDays = ref.watch(selectedDaysDateArrayProvider);
+final liquidBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
   final transactions = ref.watch(transactionNotifierProvider).liquidTransactions;
-  final btcFormat = ref.watch(settingsProvider).btcFormat;
   final Map<DateTime, num> balancePerDay = {};
 
-  for (DateTime day in selectedDays) {
-    balancePerDay[normalizeDate(day)] = 0;
-  }
-
   transactions.sort((a, b) => a.timestamp!.compareTo(b.timestamp!));
+
 
   for (Tx transaction in transactions) {
     if (transaction.timestamp != 0) {
       final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp * 1000));
-
-      final hasAsset = transaction.balances.any((element) => element.assetId == asset);
-      if (selectedDays.contains(date) && hasAsset) {
-        final sentValue = transaction.balances.firstWhere((element) => element.assetId == asset && element.value < 0, orElse: () => Balance(assetId: asset, value: 0)).value;
-        final receivedValue = transaction.balances.firstWhere((element) => element.assetId == asset && element.value > 0, orElse: () => Balance(assetId: asset, value: 0)).value;
+      final hasAsset = transaction.balances.any((element) => element.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC));
+      if (hasAsset) {
+        final sentValue = transaction.balances.firstWhere((element) => element.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC) && element.value < 0, orElse: () => Balance(assetId: AssetMapper.reverseMapTicker(AssetId.LBTC), value: 0)).value;
+        final receivedValue = transaction.balances.firstWhere((element) => element.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC) && element.value > 0, orElse: () => Balance(assetId: AssetMapper.reverseMapTicker(AssetId.LBTC), value: 0)).value;
         final netAmount = receivedValue - sentValue;
-        final assetIsBtc = asset == AssetMapper.reverseMapTicker(AssetId.LBTC);
-        balancePerDay[date] = balancePerDay[date]! + btcInDenominationNum(netAmount, btcFormat, assetIsBtc);
+        balancePerDay[date] = netAmount;
       }
     }
   }
 
   return balancePerDay;
 });
+
+final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
+  final DateTimeSelect dateTimeSelect = ref.watch(dateTimeSelectProvider);
+  final DateTime start = normalizeDate(DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.start * 1000));
+  final DateTime end = normalizeDate(DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.end * 1000));
+  final Map<DateTime, num> balancePerDay = {};
+  final balanceOverPeriod = ref.watch(liquidBalanceOverPeriod);
+
+  final selectedDays = ref.watch(selectedDaysDateArrayProvider);
+
+  num lastKnownBalance = 0;
+
+  if (balanceOverPeriod.isEmpty || selectedDays.isEmpty) {
+    return balancePerDay;
+  }
+
+  for (var entry in balanceOverPeriod.entries) {
+    final balanceDate = entry.key;
+    if (balanceDate.isAfter(start) && balanceDate.isBefore(end.add(const Duration(days: 1)))) {
+      lastKnownBalance = entry.value;
+      balancePerDay[balanceDate] = lastKnownBalance;
+    }
+  }
+
+  for (DateTime day in selectedDays) {
+    final normalizedDay = normalizeDate(day);
+    if (!balancePerDay.containsKey(normalizedDay)) {
+      if (normalizedDay.isBefore(balanceOverPeriod.keys.first)) {
+        balancePerDay[normalizedDay] = balanceOverPeriod[balanceOverPeriod.keys.first]!;
+      } else if (normalizedDay.isAfter(balanceOverPeriod.keys.last)) {
+        balancePerDay[normalizedDay] = balanceOverPeriod[balanceOverPeriod.keys.last]!;
+      } else {
+        balancePerDay[normalizedDay] = lastKnownBalance;
+      }
+    } else {
+      lastKnownBalance = balancePerDay[normalizedDay]!;
+    }
+  }
+
+  return Map.fromEntries(balancePerDay.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)));
+});
+
+final liquidBalancePerDayInFormatProvider = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
+  final balanceByDay = ref.watch(liquidBalanceOverPeriodByDayProvider(asset));
+  final btcFormat = ref.watch(settingsProvider).btcFormat;
+  final isBtc = asset == AssetMapper.reverseMapTicker(AssetId.LBTC);
+
+  final Map<DateTime, num> balanceInFormatByDay = {};
+
+  for (DateTime day in balanceByDay.keys) {
+    balanceInFormatByDay[day] = btcInDenominationNum(balanceByDay[day]!, btcFormat, isBtc);
+  }
+
+  return balanceInFormatByDay;
+});
+

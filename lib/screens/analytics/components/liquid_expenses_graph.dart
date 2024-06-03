@@ -1,33 +1,37 @@
-import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
+import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
-import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/screens/analytics/components/bitcoin_expenses_graph.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/models/expenses_model.dart';
+import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:intl/intl.dart';
 
-class LineChartSample extends StatelessWidget {
+class LiquidExpensesGraph extends StatelessWidget {
   final List<DateTime> selectedDays;
-  final Map<DateTime, num> feeData;
-  final Map<DateTime, num> incomeData;
-  final Map<DateTime, num> spendingData;
-  final Map<DateTime, num>? balanceData;
+  final Map<DateTime, num> sentData;
+  final Map<DateTime, num> receivedData;
+  final Map<DateTime, num>? mainData;
   final Map<DateTime, num> balanceInCurrency;
   final String selectedCurrency;
-  final bool showFeeLine;
+  final bool isShowingMainData;
 
-  const LineChartSample({
+  const LiquidExpensesGraph({
     super.key,
     required this.selectedDays,
-    required this.feeData,
-    required this.incomeData,
-    required this.spendingData,
-    this.balanceData,
+    required this.sentData,
+    required this.receivedData,
+    this.mainData,
     required this.balanceInCurrency,
     required this.selectedCurrency,
-    required this.showFeeLine,
+    required this.isShowingMainData,
   });
 
   @override
@@ -37,11 +41,60 @@ class LineChartSample extends StatelessWidget {
         intervalType: DateTimeIntervalType.days,
         dateFormat: DateFormat('dd/MM'),
         interval: selectedDays.length > 20 ? 5 : 1,
+        majorGridLines: const MajorGridLines(width: 0),
+        minorGridLines: const MinorGridLines(width: 0),
       ),
       primaryYAxis: NumericAxis(
-        numberFormat: NumberFormat.compact(),
+        isVisible: true,
+        decimalPlaces: balanceInCurrency.values.isNotEmpty
+            ? decimalPlacesBtcFormat(balanceInCurrency.values.reduce((value, element) => value > element ? value : element))
+            : 0,
+        majorGridLines: const MajorGridLines(width: 0),
+        minorGridLines: const MinorGridLines(width: 0),
       ),
-      tooltipBehavior: TooltipBehavior(enable: true),
+      plotAreaBorderWidth: 0,
+      trackballBehavior: TrackballBehavior(
+        enable: true,
+        activationMode: ActivationMode.singleTap,
+        lineType: TrackballLineType.vertical,
+        tooltipSettings: const InteractiveTooltip(
+          enable: true,
+          color: Colors.orangeAccent,
+          textStyle: TextStyle(color: Colors.grey),
+          borderWidth: 0,
+          decimalPlaces: 8,
+        ),
+        builder: (BuildContext context, TrackballDetails trackballDetails) {
+          final DateFormat formatter = DateFormat('dd/MM');
+          final DateTime date = trackballDetails.point!.x;
+          final num? value = trackballDetails.point!.y;
+          final String formattedDate = formatter.format(date);
+          final String bitcoinValue = value!.toStringAsFixed(value == value.roundToDouble() ? 0 : 8);
+          final String currencyValue = balanceInCurrency[date]?.toStringAsFixed(balanceInCurrency[date] == balanceInCurrency[date]!.roundToDouble() ? 0 : 2) ?? '0.00';
+          final displayString = '$formattedDate\nBitcoin: $bitcoinValue\n$selectedCurrency: $currencyValue';
+          final displayStringIfNotMainData = '$bitcoinValue';
+
+          return Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 1,
+                  blurRadius: 2,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            child: Text(
+              isShowingMainData ? displayString : displayStringIfNotMainData,
+              style: const TextStyle(color: Colors.grey),
+            ),
+          );
+        },
+      ),
       series: _chartSeries(),
     );
   }
@@ -49,45 +102,44 @@ class LineChartSample extends StatelessWidget {
   List<LineSeries<MapEntry<DateTime, num>, DateTime>> _chartSeries() {
     final seriesList = <LineSeries<MapEntry<DateTime, num>, DateTime>>[];
 
-    if (balanceData != null) {
+    if (mainData != null && isShowingMainData) {
       seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
-        name: 'Balance',
-        dataSource: balanceData!.entries.toList(),
+        name: 'Main Data',
+        dataSource: mainData!.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
+        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
         color: Colors.orangeAccent,
-        markerSettings: MarkerSettings(isVisible: true),
+        markerSettings: const MarkerSettings(isVisible: false),
+        dashArray: _getDashArray(mainData!),
       ));
     } else {
       seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
-        name: 'Spending',
-        dataSource: spendingData.entries.toList(),
+        name: 'Sent',
+        dataSource: sentData.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
+        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
         color: Colors.blueAccent,
-        markerSettings: MarkerSettings(isVisible: true),
+        markerSettings: const MarkerSettings(isVisible: false),
+        dashArray: _getDashArray(sentData),
       ));
       seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
-        name: 'Income',
-        dataSource: incomeData.entries.toList(),
+        name: 'Received',
+        dataSource: receivedData.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
+        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
         color: Colors.greenAccent,
-        markerSettings: MarkerSettings(isVisible: true),
+        markerSettings: const MarkerSettings(isVisible: false),
+        dashArray: _getDashArray(receivedData),
       ));
-      if (showFeeLine) {
-        seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
-          name: 'Fee',
-          dataSource: feeData.entries.toList(),
-          xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-          yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
-          color: Colors.orangeAccent,
-          markerSettings: MarkerSettings(isVisible: true),
-        ));
-      }
     }
 
     return seriesList;
+  }
+
+  List<double> _getDashArray(Map<DateTime, num> data) {
+    final DateTime now = DateTime.now();
+    final List<double> dashArray = data.keys.any((date) => date.isAfter(now)) ? [5, 5] : [];
+    return dashArray;
   }
 }
 
@@ -110,14 +162,12 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
     final incomeData = ref.watch(liquidIncomePerDayProvider(widget.assetId));
     final spendingData = ref.watch(liquidSpentPerDayProvider(widget.assetId));
     final balanceData = ref.watch(liquidBalanceOverPeriodByDayProvider(widget.assetId));
-
+    final formattedBalanceData = ref.watch(liquidBalancePerDayInFormatProvider(widget.assetId));
     final selectedCurrency = ref.watch(settingsProvider).currency;
     final currencyRate = ref.watch(selectedCurrencyProvider(selectedCurrency));
     final balanceInCurrency = calculateBalanceInCurrency(balanceData, currencyRate);
 
     final screenHeight = MediaQuery.of(context).size.height;
-
-    final bool showFeeLine = widget.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC);
 
     return Column(
       children: <Widget>[
@@ -129,10 +179,10 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
             feeData: feeData,
             incomeData: incomeData,
             spendingData: spendingData,
-            balanceData: !isShowingBalanceData ? balanceData : null,
+            mainData: !isShowingBalanceData ? formattedBalanceData : null,
             balanceInCurrency: balanceInCurrency,
             selectedCurrency: selectedCurrency,
-            showFeeLine: showFeeLine,
+            isShowingMainData: !isShowingBalanceData,
           ),
         ),
         Center(
@@ -155,7 +205,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
               : [
             _buildLegend('Spending', Colors.blueAccent),
             _buildLegend('Income', Colors.greenAccent),
-            if (showFeeLine) _buildLegend('Fee', Colors.orangeAccent),
+            _buildLegend('Fee', Colors.orangeAccent),
           ],
         ),
       ],

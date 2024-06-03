@@ -51,7 +51,7 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
           ),
         if (!ref.watch(oneDayProvider))
           SizedBox(
-            height: screenHeight * 0.30,
+            height: screenHeight * 0.28,
             child: const ExpensesGraph(),
           ),
         Text(
