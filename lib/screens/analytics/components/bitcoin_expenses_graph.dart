@@ -94,11 +94,11 @@ class LineChartSample extends StatelessWidget {
     );
   }
 
-  List<LineSeries<MapEntry<DateTime, num>, DateTime>> _chartSeries() {
-    final seriesList = <LineSeries<MapEntry<DateTime, num>, DateTime>>[];
+  List<SplineSeries<MapEntry<DateTime, num>, DateTime>> _chartSeries() {
+    final seriesList = <SplineSeries<MapEntry<DateTime, num>, DateTime>>[];
 
     if (mainData != null && isShowingMainData) {
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Main Data',
         dataSource: mainData!.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
@@ -108,7 +108,7 @@ class LineChartSample extends StatelessWidget {
         dashArray: _getDashArray(mainData!),
       ));
     } else {
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Spending',
         dataSource: spendingData.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
@@ -117,7 +117,7 @@ class LineChartSample extends StatelessWidget {
         markerSettings: const MarkerSettings(isVisible: false),
         dashArray: _getDashArray(spendingData),
       ));
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Income',
         dataSource: incomeData.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
@@ -126,7 +126,7 @@ class LineChartSample extends StatelessWidget {
         markerSettings: const MarkerSettings(isVisible: false),
         dashArray: _getDashArray(incomeData),
       ));
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Fee',
         dataSource: feeData.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,

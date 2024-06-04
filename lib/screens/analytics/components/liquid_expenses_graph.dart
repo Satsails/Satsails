@@ -106,11 +106,11 @@ class LiquidExpensesGraph extends StatelessWidget {
     );
   }
 
-  List<LineSeries<MapEntry<DateTime, num>, DateTime>> _chartSeries() {
-    final seriesList = <LineSeries<MapEntry<DateTime, num>, DateTime>>[];
+  List<SplineSeries<MapEntry<DateTime, num>, DateTime>> _chartSeries() {
+    final seriesList = <SplineSeries<MapEntry<DateTime, num>, DateTime>>[];
 
     if (mainData != null && isShowingMainData) {
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Main Data',
         dataSource: mainData!.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
@@ -120,7 +120,7 @@ class LiquidExpensesGraph extends StatelessWidget {
         dashArray: _getDashArray(mainData!),
       ));
     } else {
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Sent',
         dataSource: sentData.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
@@ -129,7 +129,7 @@ class LiquidExpensesGraph extends StatelessWidget {
         markerSettings: const MarkerSettings(isVisible: false),
         dashArray: _getDashArray(sentData),
       ));
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Received',
         dataSource: receivedData.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
@@ -139,15 +139,15 @@ class LiquidExpensesGraph extends StatelessWidget {
         dashArray: _getDashArray(receivedData),
       ));
       if (isBtc) {
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
-        name: 'Fee',
-        dataSource: feeData.entries.toList(),
-        xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
-        color: Colors.orangeAccent,
-        markerSettings: const MarkerSettings(isVisible: false),
-        dashArray: _getDashArray(feeData),
-      ));
+        seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
+          name: 'Fee',
+          dataSource: feeData.entries.toList(),
+          xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
+          yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
+          color: Colors.orangeAccent,
+          markerSettings: const MarkerSettings(isVisible: false),
+          dashArray: _getDashArray(feeData),
+        ));
       }
     }
 
@@ -237,6 +237,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
       children: [
         Container(
           width: 10,
+          height: 10,
           color: color,
         ),
         const SizedBox(width: 5),
