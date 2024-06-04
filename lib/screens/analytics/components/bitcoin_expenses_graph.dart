@@ -105,7 +105,6 @@ class LineChartSample extends StatelessWidget {
         yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
         color: Colors.orangeAccent,
         markerSettings: const MarkerSettings(isVisible: false),
-        dashArray: _getDashArray(mainData!),
       ));
     } else {
       seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
@@ -115,7 +114,6 @@ class LineChartSample extends StatelessWidget {
         yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
         color: Colors.blueAccent,
         markerSettings: const MarkerSettings(isVisible: false),
-        dashArray: _getDashArray(spendingData),
       ));
       seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Income',
@@ -124,7 +122,6 @@ class LineChartSample extends StatelessWidget {
         yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
         color: Colors.greenAccent,
         markerSettings: const MarkerSettings(isVisible: false),
-        dashArray: _getDashArray(incomeData),
       ));
       seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Fee',
@@ -133,17 +130,10 @@ class LineChartSample extends StatelessWidget {
         yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
         color: Colors.orangeAccent,
         markerSettings: const MarkerSettings(isVisible: false),
-        dashArray: _getDashArray(feeData),
       ));
     }
 
     return seriesList;
-  }
-
-  List<double> _getDashArray(Map<DateTime, num> data) {
-    final DateTime now = DateTime.now();
-    final List<double> dashArray = data.keys.any((date) => date.isAfter(now)) ? [5, 5] : [];
-    return dashArray;
   }
 }
 

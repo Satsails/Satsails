@@ -1,4 +1,5 @@
 import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/words_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -99,6 +100,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
 
     if (await authModel.validateMnemonic(mnemonic)) {
       await authModel.setMnemonic(mnemonic);
+      await ref.read(settingsProvider.notifier).setBackup(true);
       Navigator.pushNamed(context, '/set_pin');
     } else {
       Fluttertoast.showToast(
