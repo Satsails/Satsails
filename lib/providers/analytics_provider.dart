@@ -135,15 +135,24 @@ final bitcoinBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((
   final transactions = ref.watch(transactionNotifierProvider).bitcoinTransactions;
   final Map<DateTime, num> balancePerDay = {};
 
-  transactions.sort((a, b) => a.confirmationTime!.timestamp.compareTo(b.confirmationTime!.timestamp));
+  transactions.sort((a, b) {
+    if (a.confirmationTime == null && b.confirmationTime == null) {
+      return 0;
+    } else if (a.confirmationTime == null) {
+      return -1;
+    } else if (b.confirmationTime == null) {
+      return 1;
+    } else {
+      return a.confirmationTime!.timestamp.compareTo(b.confirmationTime!.timestamp);
+    }
+  });
 
   num cumulativeBalance = 0;
 
   for (TransactionDetails transaction in transactions) {
-    if (transaction.confirmationTime == null) {
+    if (transaction.confirmationTime == null || transaction.confirmationTime!.timestamp == 0) {
       continue;
     }
-
 
     final DateTime date = transaction.confirmationTime == null || transaction.confirmationTime!.timestamp == 0
         ? normalizeDate(DateTime.now())
@@ -325,7 +334,17 @@ final liquidBalanceOverPeriod = StateProvider.autoDispose.family<Map<DateTime, n
   final transactions = ref.watch(transactionNotifierProvider).liquidTransactions;
   final Map<DateTime, num> balancePerDay = {};
 
-  transactions.sort((a, b) => a.timestamp!.compareTo(b.timestamp!));
+  transactions.sort((a, b) {
+    if (a.timestamp == null && b.timestamp == null) {
+      return 0;
+    } else if (a.timestamp == null) {
+      return -1;
+    } else if (b.timestamp == null) {
+      return 1;
+    } else {
+      return a.timestamp!.compareTo(b.timestamp!);
+    }
+  });
 
   num cumulativeBalance = 0;
 

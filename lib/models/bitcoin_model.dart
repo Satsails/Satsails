@@ -77,6 +77,7 @@ class BitcoinModel {
       final txBuilderResult = await txBuilder
           .addRecipient(script, transaction.amount)
           .feeRate(transaction.fee)
+          .enableRbf()
           .finish(config.wallet);
       return txBuilderResult;
     } on GenericException catch (e) {
@@ -93,7 +94,8 @@ class BitcoinModel {
       final txBuilder = TxBuilder();
       final address = await Address.fromString(s: transaction.outAddress, network: config.network);
       final script = await address.scriptPubkey();
-      final txBuilderResult = await txBuilder.drainWallet().feeRate(transaction.fee).drainTo(script).finish(config.wallet);
+
+      final txBuilderResult = await txBuilder.drainWallet().drainTo(script).feeRate(transaction.fee).enableRbf().finish(config.wallet);
       return txBuilderResult;
     } on GenericException catch (e) {
       throw e.message!;
@@ -118,6 +120,8 @@ class BitcoinModel {
       throw "Insufficient funds for a transaction this fast";
     } on OutputBelowDustLimitException catch (_) {
       throw 'Amount is too small';
+    } catch (e) {
+      throw e.toString();
     }
   }
 }

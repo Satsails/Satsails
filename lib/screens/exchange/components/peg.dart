@@ -87,7 +87,7 @@ class _PegState extends ConsumerState<Peg> {
                       textAlign: TextAlign.center,
                     ),
                     _buildBitcoinMaxButton(ref, dynamicPadding, titleFontSize, btcFormart, pegIn),
-                  //   add here the max depending on pegIn or pegOut
+                    //   add here the max depending on pegIn or pegOut
                   ],
                 ),
                 SizedBox(height: dynamicSizedBox / 2),
@@ -137,13 +137,23 @@ class _PegState extends ConsumerState<Peg> {
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(10),
-              onTap: () {
-                final bitcoin = ref.watch(balanceNotifierProvider).btcBalance;
-                final liquid = ref.watch(balanceNotifierProvider).liquidBalance;
-                controller.text = btcInDenominationFormatted(pegIn ? bitcoin.toDouble() : liquid.toDouble(), btcFormart);
-                ref.read(sendTxProvider.notifier).updateDrain(true);
-                ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
+              onTap: () async {
                 ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                if(pegIn){
+                  final bitcoin = ref.watch(balanceNotifierProvider).btcBalance;
+                  final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(ref.watch(sendTxProvider).amount).future).then((value) => value);
+                  final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future).then((value) => value);
+                  final fee = await transaction.$1.feeAmount().then((value) => value);
+                  final amountToSet = (bitcoin - fee!);
+                  ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), 'sats');
+                  ref.read(sendTxProvider.notifier).updateDrain(true);
+                  controller.text = btcInDenominationFormatted(amountToSet.toDouble(), btcFormart);
+                } else {
+                  final liquid = ref.watch(balanceNotifierProvider).liquidBalance;
+                  controller.text = btcInDenominationFormatted(liquid.toDouble(), btcFormart);
+                  ref.read(sendTxProvider.notifier).updateDrain(true);
+                  ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
+                }
               },
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 2, vertical: dynamicPadding / 2),
@@ -173,7 +183,7 @@ class _PegState extends ConsumerState<Peg> {
   }
 
 
-Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context) {
+  Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context) {
     final status = ref.watch(sideswapStatusProvider);
     final pegStatus = ref.watch(sideswapPegStatusProvider);
 
@@ -579,6 +589,6 @@ Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFont
     );
   }
 }
-  
-  
-  
+
+
+
