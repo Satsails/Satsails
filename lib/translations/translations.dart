@@ -777,7 +777,13 @@ extension Localization on String {
       {
         'en': 'Balance',
         'pt': 'Saldo'
+      }+
+      {
+        'en': 'Insufficient funds, or not enough liquid bitcoin to pay fees.',
+        'pt': 'Fundos insuficientes, ou não há liquid bitcoin suficiente para pagar as taxas.'
       };
+
+
 
 
 
