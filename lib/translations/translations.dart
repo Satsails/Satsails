@@ -701,7 +701,90 @@ extension Localization on String {
       {
         'en': 'Search the blockchain',
         'pt': "Pesquisar na blockchain",
+      }+
+      {
+        'en': 'Show Balance',
+        'pt': "Mostrar Saldo",
+      }+
+      {
+        'en': 'Show Statistics over period',
+        'pt': "Mostrar Estatísticas ao longo do período",
+      }+
+      {
+        'en': '1w',
+        'pt': "1s",
+      }+
+      {
+        'en': 'Custom',
+        'pt': "Escolher",
+      }+
+      {
+        'en': 'Swaps',
+        'pt': "Trocas",
+      }+
+      {
+        'en': 'Spending',
+        'pt': "Gastos",
+      }+
+      {
+        'en': 'Income',
+        'pt': 'Entradas'
+      }+
+      {
+        'en': 'Show balance over period',
+        'pt': 'Mostrar saldo ao longo do período'
+      }+
+      {
+        'en': 'words',
+        'pt': 'palavras'
+      }+
+      {
+        'en': 'Word',
+        'pt': 'Palavra'
+      }+
+      {
+        'en': 'Backup your wallet',
+        'pt': 'Faça backup de sua carteira'
+      }+
+      {
+        'en': 'Backup Wallet',
+        'pt': 'Backup da Carteira'
+      }+
+      {
+        'en': 'Seed Words',
+        'pt': 'Seed Words'
+      }+
+      {
+        'en': 'Select the correct word for each position:',
+        'pt': 'Selecione a palavra correta para cada posição:'
+      }+
+      {
+        'en': 'Word in position',
+        'pt': 'Palavra na posição'
+      }+
+      {
+        'en': 'Verify',
+        'pt': 'Verificar'
+      }+
+      {
+        'en': 'Wallet successfully backed up!',
+        'pt': 'Carteira guardada com sucesso!'
+      }+
+      {
+        'en': 'Incorrect selections. Please try again.',
+        'pt': 'Seleções incorretas. Por favor, tente novamente.'
+      }+
+      {
+        'en': 'Balance',
+        'pt': 'Saldo'
+      }+
+      {
+        'en': 'Insufficient funds, or not enough liquid bitcoin to pay fees.',
+        'pt': 'Fundos insuficientes, ou não há liquid bitcoin suficiente para pagar as taxas.'
       };
+
+
+
 
 
   String i18n(WidgetRef ref) {

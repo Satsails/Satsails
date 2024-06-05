@@ -280,8 +280,10 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                     onChanged: (value) async {
                       if (value.isEmpty) {
                         ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                        ref.read(sendTxProvider.notifier).updateDrain(false);
                       }
                       ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
                     },
                   ),
                 ),
@@ -297,7 +299,6 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
               SizedBox(height: dynamicSizedBox),
-              // commented until there is a drain wallet method
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),

@@ -1,5 +1,7 @@
 import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/screens/analytics/components/liquid_expenses_graph.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
@@ -8,11 +10,10 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/expenses_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
-class LiquidExpensesDiagram extends ConsumerWidget {
 
+class LiquidExpensesDiagram extends ConsumerWidget {
   const LiquidExpensesDiagram({super.key});
 
-  @override
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bitcoinTransactions = ref.watch(liquidTransactionsByDate);
@@ -21,105 +22,114 @@ class LiquidExpensesDiagram extends ConsumerWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(btcFormat));
     final balance = ref.watch(balanceNotifierProvider);
+    final oneDay = ref.watch(oneDayProvider);
 
-
-    List<Column> cards = [
-      Column(children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("Bitcoin", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
-            const Icon(Icons.swipe, color: Colors.grey),
-          ],
-        ),
-        Text(
-          '${'Current Balance'.i18n(ref)}: $liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
-        ),
-        SizedBox(height: screenHeight * 0.01), // 1% of screen height
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
-            _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
-            _buildCard('Fee'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
-          ],
-        ),
-      ],
+    List<Widget> cards = [
+      Column(
+        children: [
+          Text(
+            '${'Current Balance'.i18n(ref)}: $liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Bitcoin", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
+              const Icon(Icons.swipe_vertical, color: Colors.grey),
+            ],
+          ),
+          if (oneDay)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+                _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+                _buildCard('Fee'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+              ],
+            ),
+          if (!oneDay)
+            ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.LBTC)),
+        ],
       ),
       Column(
         children: [
+          Text(
+            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.brlBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text("Real", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
-              const Icon(Icons.swipe, color: Colors.grey),
+              const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
-          Text(
-            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.brlBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
-          ),
-          SizedBox(height: screenHeight * 0.01),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).brlSent / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
-              _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).brlReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
-            ],
-          ),
+          if (oneDay)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).brlSent / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+                _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).brlReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+              ],
+            ),
+          if (!oneDay)
+            ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.BRL)),
         ],
       ),
       Column(
         children: [
-           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("Dollar", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
-              const Icon(Icons.swipe, color: Colors.grey),
-            ],
-          ),
           Text(
             '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.usdBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
           ),
-           SizedBox(height: screenHeight * 0.01),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).usdSent / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
-              _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).usdReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+              Text("Dollar", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
+              const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
+          if (oneDay)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).usdSent / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+                _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).usdReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+              ],
+            ),
+          if (!oneDay)
+            ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.USD)),
         ],
       ),
       Column(
         children: [
-           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("Euro", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
-              const Icon(Icons.swipe, color: Colors.grey),
-            ],
-          ),
           Text(
             '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.eurBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey),
           ),
-            SizedBox(height: screenHeight * 0.01),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).euroSent / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
-              _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).euroReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+              Text("Euro", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
+              const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
+          if (oneDay)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).euroSent / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+                _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).euroReceived / 100000000, [Colors.blue, Colors.deepPurple], context, btcFormat, screenWidth, screenHeight),
+              ],
+            ),
+          if (!oneDay)
+            ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.EUR)),
         ],
       ),
     ];
 
     return SizedBox(
-      height: screenHeight / 4.5,
+      height: screenHeight * 0.42,
       child: CardSwiper(
-        scale: 0.1,
+        scale: 0,
         padding: const EdgeInsets.all(0),
-        allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
+        allowedSwipeDirection: const AllowedSwipeDirection.symmetric(vertical: true),
         cardsCount: cards.length,
         initialIndex: 0,
         cardBuilder: (context, index, percentThresholdX, percentThresholdY) { return cards[index]; },

@@ -86,7 +86,7 @@ class LiquidModel {
       return pset;
     } catch (e) {
       if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
-        throw "Insufficient funds";
+        throw "Insufficient funds, or not enough liquid bitcoin to pay fees.";
       }
       throw e.toString();
     }

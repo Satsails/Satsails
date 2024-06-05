@@ -127,8 +127,10 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                       onChanged: (value) async {
                         if (value.isEmpty) {
                           ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                          ref.read(sendTxProvider.notifier).updateDrain(false);
                         }
                         ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                        ref.read(sendTxProvider.notifier).updateDrain(false);
                       },
                     ),
                   ),
@@ -165,6 +167,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                           final amountToSet = (balance - fee!);
                           ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), 'sats');
                           controller.text = btcInDenominationFormatted(amountToSet.toDouble(), btcFormart);
+                          ref.read(sendTxProvider.notifier).updateDrain(true);
                         }
                         catch (e) {
                           Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);

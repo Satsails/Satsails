@@ -25,6 +25,12 @@ class SettingsModel extends StateNotifier<Settings> {
   void setOnline(bool onlineStatus) {
     state = state.copyWith(online: onlineStatus);
   }
+
+  Future<void> setBackup(bool backupStatus) async {
+    final box = await Hive.openBox('settings');
+    box.put('backup', backupStatus);
+    state = state.copyWith(backup: backupStatus);
+  }
 }
 
 class Settings {
@@ -32,12 +38,14 @@ class Settings {
   final String language;
   late final String btcFormat;
   late bool online;
+  final bool backup;
 
   Settings({
     required this.currency,
     required this.language,
     required String btcFormat,
-    required this.online
+    required this.online,
+    required this.backup
   }) : btcFormat = (['BTC', 'mBTC', 'bits', 'sats'].contains(btcFormat)) ? btcFormat : throw ArgumentError('Invalid btcFormat'),
         super();
 
@@ -45,13 +53,15 @@ class Settings {
     String? currency,
     String? language,
     String? btcFormat,
-    bool? online
+    bool? online,
+    bool? backup
   }) {
     return Settings(
       currency: currency ?? this.currency,
       language: language ?? this.language,
       btcFormat: btcFormat ?? this.btcFormat,
-      online: online ?? this.online
+      online: online ?? this.online,
+      backup: backup ?? this.backup
     );
   }
 }

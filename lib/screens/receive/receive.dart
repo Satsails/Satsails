@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/screens/shared/offline_transaction_warning.dart';
 import 'package:group_button/group_button.dart';
 
 final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
@@ -42,7 +41,7 @@ class Receive extends ConsumerWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            OfflineTransactionWarning(online: online),
+            // OfflineTransactionWarning(online: online),
             GroupButton(
               isRadio: true,
               controller: controller,

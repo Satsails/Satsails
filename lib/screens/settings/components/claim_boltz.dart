@@ -2,7 +2,6 @@ import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/screens/settings/components/boltz_button_picker.dart';
-import 'package:Satsails/screens/shared/offline_transaction_warning.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +30,7 @@ class ClaimBoltz extends ConsumerWidget {
         child: Column(
           children: [
             const BoltzButtonPicker(),
-            OfflineTransactionWarning(online: online),
+            // OfflineTransactionWarning(online: online),
             if(button == 'Complete Sending')  const Expanded(child: RefundSending()),
             if(button == 'Complete Receiving') const Expanded(child: ClaimReceiving()),
           ],

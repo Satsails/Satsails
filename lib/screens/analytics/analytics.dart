@@ -1,8 +1,6 @@
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/models/datetime_range_model.dart';
-import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/analytics/components/button_picker.dart';
 import 'package:Satsails/screens/analytics/components/calendar.dart';
@@ -11,8 +9,6 @@ import 'package:Satsails/screens/analytics/components/liquid_expenses_diagram.da
 import 'package:Satsails/screens/analytics/components/swaps_builder.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
 import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
-
-final date = StateProvider<DateTime>((ref) => DateTime.now());
 
 class Analytics extends ConsumerWidget {
   const Analytics({super.key});
@@ -41,36 +37,14 @@ class Analytics extends ConsumerWidget {
   }
 
   Widget _buildBody(context, ref) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final transactionType = ref.watch(selectedButtonProvider);
+    final transactionType = ref.watch(topSelectedButtonProvider);
     return Column(
       children: [
         const Center(child: ButtonPicker()),
+        if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')
+          const Calendar(),
         if (transactionType == 'Bitcoin') const BitcoinExpensesDiagram(),
         if (transactionType == 'Instant Bitcoin') const LiquidExpensesDiagram(),
-        if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const Calendar(),
-            ElevatedButton(
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all<Color>(Colors.deepOrangeAccent),
-                elevation: WidgetStateProperty.all<double>(4),
-                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-              onPressed: () {
-                ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(
-                    start: DateTime.utc(0), end: DateTime.now().add(const Duration(days: 1))));
-              },
-              child: Text('All Transactions'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.03)),
-            ),
-          ],
-        ),
         if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')
         const Expanded(child: BuildTransactions(showAllTransactions: false,)),
         if(transactionType == 'Swap') const Expanded(child: SwapsBuilder()),

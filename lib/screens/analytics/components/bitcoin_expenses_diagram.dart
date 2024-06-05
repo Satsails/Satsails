@@ -1,4 +1,6 @@
+import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/screens/analytics/components/bitcoin_expenses_graph.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +9,6 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 
 class BitcoinExpensesDiagram extends ConsumerWidget {
-
   const BitcoinExpensesDiagram({super.key});
 
   @override
@@ -16,19 +17,44 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormat));
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final moreThanOneMonth = ref.watch(moreThanOneMonthProvider);
 
     return Column(
       children: [
         Text(
-          '${'Current Balance'.i18n(ref)}: $btcBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth / 20, color: Colors.grey),
+          '${'Current Balance'.i18n(ref)}: $btcBalanceInFormat $btcFormat',
+          style: TextStyle(fontSize: screenWidth / 20, color: Colors.grey),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildCard('Sent'.i18n(ref),_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent, [Colors.orange, Colors.deepOrange], context, btcFormat),
-            _buildCard('Received'.i18n(ref),_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received, [Colors.orange, Colors.deepOrange], context, btcFormat),
-            _buildCard('Fee'.i18n(ref),_calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee, [Colors.orange, Colors.deepOrange], context, btcFormat),
-          ],),
+        if (ref.watch(oneDayProvider))
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildCard(
+                'Sent'.i18n(ref),
+                _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent,
+                [Colors.orange, Colors.deepOrange],
+                context,
+                btcFormat,
+              ),
+              _buildCard(
+                'Received'.i18n(ref),
+                _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received,
+                [Colors.orange, Colors.deepOrange],
+                context,
+                btcFormat,
+              ),
+              _buildCard(
+                'Fee'.i18n(ref),
+                _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee,
+                [Colors.orange, Colors.deepOrange],
+                context,
+                btcFormat,
+              ),
+            ],
+          ),
+        if (!ref.watch(oneDayProvider))
+          const ExpensesGraph(),
       ],
     );
   }
@@ -62,7 +88,7 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
               ),
               Text(
                 btcFormat == 'sats' ? value.toStringAsFixed(0) : value.toString(),
-                style: TextStyle(color: Colors.white, fontSize: dynamicWidth / 30)
+                style: TextStyle(color: Colors.white, fontSize: dynamicWidth / 30),
               ),
             ],
           ),

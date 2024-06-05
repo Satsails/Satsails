@@ -1,3 +1,4 @@
+import 'package:Satsails/screens/settings/settings.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,8 +16,8 @@ class OpenPin extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    WidgetsBinding.instance.addPostFrameCallback((_) =>
-        _checkBiometrics(context, ref));
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkBiometrics(context, ref));
+    final openSeed = ref.watch(sendToSeed);
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -25,7 +26,13 @@ class OpenPin extends ConsumerWidget {
         appBar: AppBar(
           title: Center(child: Text('Enter PIN'.i18n(ref))),
           backgroundColor: Colors.white,
-          automaticallyImplyLeading: false,
+          automaticallyImplyLeading: openSeed ? true : false,
+          leading: openSeed ? IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pushReplacementNamed(context, '/settings');
+            },
+          ) : null,
         ),
         body: Center(
           child: Padding(
@@ -71,8 +78,10 @@ class OpenPin extends ConsumerWidget {
   Future<void> _checkPin(BuildContext context, WidgetRef ref) async {
     final authModel = ref.read(authModelProvider);
     final pinText = await authModel.getPin();
+    final openSeed = ref.watch(sendToSeed);
+
     if (pinText == _pinController.text) {
-      Navigator.pushReplacementNamed(context, '/home');
+     openSeed ? Navigator.pushReplacementNamed(context, '/seed_words') : Navigator.pushReplacementNamed(context, '/home');
     } else {
       Fluttertoast.showToast(
           msg: 'Invalid PIN'.i18n(ref),
@@ -88,6 +97,7 @@ class OpenPin extends ConsumerWidget {
 
   Future<void> _checkBiometrics(BuildContext context, WidgetRef ref) async {
     bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
+    final openSeed = ref.watch(sendToSeed);
     if (canCheckBiometrics) {
       bool authenticated = await _localAuth.authenticate(
           localizedReason: 'Please authenticate to open the app'.i18n(ref),
@@ -97,7 +107,7 @@ class OpenPin extends ConsumerWidget {
           )
       );
       if (authenticated) {
-        Navigator.pushReplacementNamed(context, '/home');
+        openSeed ? Navigator.pushReplacementNamed(context, '/seed_words') : Navigator.pushReplacementNamed(context, '/home');
       }
     }
   }

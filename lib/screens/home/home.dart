@@ -1,7 +1,7 @@
 import 'package:Satsails/screens/creation/components/logo.dart';
+import 'package:Satsails/screens/shared/backup_warning.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
@@ -14,7 +14,6 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/build_balance_card.dart';
 import 'package:Satsails/screens/shared/circular_button.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
-import 'package:Satsails/screens/shared/offline_transaction_warning.dart';
 import 'package:Satsails/screens/shared/pie_chart.dart';
 import 'package:Satsails/translations/translations.dart';
 
@@ -52,12 +51,12 @@ class Home extends ConsumerWidget {
   Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final online = ref.watch(settingsProvider).online;
+    // final online = ref.watch(settingsProvider).online;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        OfflineTransactionWarning(online: online),
+        const BackupWarning(),
         buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
         Flexible(
           child: SizedBox(
@@ -121,7 +120,7 @@ class Home extends ConsumerWidget {
       automaticallyImplyLeading: false,
       leading: Row(
         children: [
-          Logo(widthFactor: 0.1, heightFactor: 0.1),
+          const Logo(widthFactor: 0.1, heightFactor: 0.1),
           SizedBox(width: screenWidth * 0.02), // 2% of screen width
           Text(
             'Satsails',

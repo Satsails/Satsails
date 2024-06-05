@@ -50,8 +50,8 @@ class CustomBottomNavigationBar extends ConsumerWidget {
         selectedItemColor: Colors.orangeAccent,
         elevation: 8.0,
         items: bottomNavBarItems,
-        unselectedFontSize: math.min(screenHeight * 0.02, maxFontSize), // 2% of screen height or maxFontSize, whichever is smaller
-        selectedFontSize: math.min(screenHeight * 0.02, maxFontSize), // 2% of screen height or maxFontSize, whichever is smaller
+        unselectedFontSize: math.min(screenHeight * 0.02, maxFontSize),
+        selectedFontSize: math.min(screenHeight * 0.02, maxFontSize),
       ),
     );
   }
