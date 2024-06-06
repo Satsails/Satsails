@@ -1,14 +1,17 @@
+import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/providers/address_receive_provider.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
+import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import '../../../providers/balance_provider.dart';
@@ -18,7 +21,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:interactive_slider/interactive_slider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-
 
 class ConfirmLiquidPayment extends HookConsumerWidget {
   ConfirmLiquidPayment({super.key});
@@ -278,18 +280,62 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                       hintText: showBitcoinRelatedWidgets.state ? '0' : '0.00',
                     ),
                     onChanged: (value) async {
-                      if (value.isEmpty) {
-                        ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
-                        ref.read(sendTxProvider.notifier).updateDrain(false);
+                      if (showBitcoinRelatedWidgets.state) {
+                        ref.read(inputAmountProvider.notifier).state = controller.text.isEmpty ? '0.0' : controller.text;
+                        if (value.isEmpty) {
+                          ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                          ref.read(sendTxProvider.notifier).updateDrain(false);
+                        }
+                        final amountInSats = calculateAmountInSatsToDisplay(
+                          value,
+                          ref.watch(inputCurrencyProvider),
+                          ref.watch(currencyNotifierProvider),
+                        );
+                        ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
+                      } else {
+                        ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
                       }
-                      ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
                       ref.read(sendTxProvider.notifier).updateDrain(false);
                     },
                   ),
                 ),
               ),
+              if (showBitcoinRelatedWidgets.state)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: DropdownButton(
+                    dropdownColor: Colors.white,
+                    value: ref.watch(inputCurrencyProvider),
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'BTC',
+                        child: Text('BTC'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'USD',
+                        child: Text('USD'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'EUR',
+                        child: Text('EUR'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'BRL',
+                        child: Text('BRL'),
+                      ),
+                      DropdownMenuItem(value: 'Sats', child: Text('Sats')),
+                      DropdownMenuItem(value: 'mBTC', child: Text('mBTC')),
+                      DropdownMenuItem(value: 'bits', child: Text('bits')),
+                    ],
+                    onChanged: (value) {
+                      ref.read(inputCurrencyProvider.notifier).state = value.toString();
+                      controller.text = '';
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
+                    },
+                  ),
+                ),
               SizedBox(height: dynamicSizedBox),
-              if(showBitcoinRelatedWidgets.state)
+              if (showBitcoinRelatedWidgets.state)
                 Text(
                   '~ ${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
                   style: TextStyle(
@@ -319,8 +365,10 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                           final pset = await ref.watch(liquidDrainWalletProvider.future);
                           final sendingBalance = pset.balances[0].value + pset.absoluteFees;
                           final controllerValue = sendingBalance.abs();
-                          controller.text = btcInDenominationFormatted(controllerValue.toDouble(), btcFormart);
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
+                          final selectedCurrency = ref.watch(inputCurrencyProvider);
+                          final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
+                          controller.text = amountToSetInSelectedCurrency;
+                          ref.read(sendTxProvider.notifier).updateAmountFromInput(controllerValue.toString(), 'sats');
                           ref.read(sendTxProvider.notifier).updateDrain(true);
                         } else {
                           await ref.watch(liquidDrainWalletProvider.future);
