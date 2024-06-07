@@ -231,13 +231,13 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              const Icon(Icons.swipe, color: Colors.grey),
+              const Icon(Icons.swipe_vertical, color: Colors.grey),
               SizedBox(
                 height: dynamicCardHeight,
                 child: CardSwiper(
                   scale: 0.1,
                   padding: const EdgeInsets.all(0),
-                  allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
+                  allowedSwipeDirection: const AllowedSwipeDirection.symmetric(vertical: true),
                   cardsCount: cards.length,
                   initialIndex: ref.watch(currentCardIndexProvider),
                   onSwipe: onSwipe,

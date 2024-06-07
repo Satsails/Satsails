@@ -23,7 +23,6 @@ class Receive extends ConsumerWidget {
 
     final selectedIndex = ref.watch(selectedButtonProvider);
     final controller = ref.watch(groupButtonControllerProvider);
-    final online = ref.watch(settingsProvider).online;
 
     return Scaffold(
       backgroundColor: Colors.white,

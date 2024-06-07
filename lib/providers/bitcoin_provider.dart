@@ -29,6 +29,13 @@ final bitcoinAddressProvider = FutureProvider.autoDispose<String>((ref) async {
   });
 });
 
+final bitcoinAddressInfoProvider = FutureProvider.autoDispose<AddressInfo>((ref) async {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    return bitcoinModel.getAddressInfo();
+  });
+});
+
 final getBitcoinTransactionsProvider = FutureProvider<List<TransactionDetails>>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);

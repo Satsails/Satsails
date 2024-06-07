@@ -39,6 +39,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           ref.read(updateTransactionsProvider);
           ref.read(settingsProvider.notifier).setOnline(true);
           await ref.read(claimAndDeleteAllBoltzProvider.future);
+          await ref.read(claimAndDeleteAllBitcoinBoltzProvider.future);
 
           break;
         } catch (e) {

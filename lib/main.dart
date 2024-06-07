@@ -56,7 +56,10 @@ void main() async {
   Hive.registerAdapter(PreImageAdapter());
   Hive.registerAdapter(LBtcSwapScriptV2StrAdapter());
   Hive.registerAdapter(ExtendedLbtcLnV2SwapAdapter());
-  Hive.registerAdapter(BoltzAdapter());
+  Hive.registerAdapter(LbtcBoltzAdapter());
+  Hive.registerAdapter(BtcBoltzAdapter());
+  Hive.registerAdapter(ExtendedBtcLnV2SwapAdapter());
+  Hive.registerAdapter(BtcSwapScriptV2StrAdapter());
   Hive.registerAdapter(SwapTypeAdapter());
   Hive.registerAdapter(ChainAdapter());
 
