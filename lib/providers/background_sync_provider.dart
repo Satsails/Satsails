@@ -13,6 +13,10 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
   final Ref ref;
 
   BackgroundSyncNotifier(this.ref) : super(null) {
+    _initializeSync();
+  }
+
+  void _initializeSync() {
     performSync();
     Timer.periodic(const Duration(seconds: 120), (timer) {
       performSync();
@@ -26,7 +30,7 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
     try {
       while (attempt < maxAttempts) {
         try {
-          ref.read(backgroundSyncInProgressProvider.notifier).state = true;
+          _setBackgroundSyncInProgress(true);
           final bitcoinBox = await Hive.openBox('bitcoin');
           final balanceModel = ref.read(balanceNotifierProvider.notifier);
           ref.read(syncBitcoinProvider);
@@ -51,15 +55,15 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
         }
       }
     } finally {
-      ref.read(backgroundSyncInProgressProvider.notifier).state = false;
+      _setBackgroundSyncInProgress(false);
     }
   }
 
   Future<void> updateLiquidBalances(balances) async {
     final balanceModel = ref.read(balanceNotifierProvider.notifier);
     final liquidBox = await Hive.openBox('liquid');
-    for (var balance in balances){
-      switch (AssetMapper.mapAsset(balance.assetId)){
+    for (var balance in balances) {
+      switch (AssetMapper.mapAsset(balance.assetId)) {
         case AssetId.USD:
           balance = balance.value;
           await liquidBox.put('usd', balance);
@@ -84,9 +88,15 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
       }
     }
   }
+
+  void _setBackgroundSyncInProgress(bool inProgress) {
+    Future.microtask(() {
+      ref.read(backgroundSyncInProgressProvider.notifier).state = inProgress;
+    });
+  }
 }
 
-final backgroundSyncNotifierProvider = StateProvider((ref) {
+final backgroundSyncNotifierProvider = Provider((ref) {
   final notifier = BackgroundSyncNotifier(ref);
   ref.onDispose(() {
     notifier.dispose();

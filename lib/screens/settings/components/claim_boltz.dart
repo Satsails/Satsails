@@ -210,20 +210,20 @@ Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext con
         Center(
           child: Column(
             children: [
-              const Text('Type', style: TextStyle(fontSize: 13)),
+              Text('Type'.i18n(ref), style: TextStyle(fontSize: 13)),
               Text(kind, style: const TextStyle(fontSize: 13)),
             ],
           ),
         ),
       ],
     ),
-    subtitle: Text('Network: ${isBitcoin ? 'Bitcoin' : 'Liquid'}', style: const TextStyle(fontSize: 13)),
+    subtitle: Center(child: Text('${isBitcoin ? 'Bitcoin' : 'Liquid'}', style: const TextStyle(fontSize: 13))),
     trailing: Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Column(
           children: [
-            const Text('Invoice', style: TextStyle(fontSize: 13)),
+            Text('Invoice'.i18n(ref), style: TextStyle(fontSize: 13)),
             Text('...${invoice.substring(invoice.length - 7)}', style: const TextStyle(fontSize: 13)),
           ],
         ),

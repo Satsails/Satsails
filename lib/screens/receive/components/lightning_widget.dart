@@ -23,6 +23,14 @@ class _LightningWidgetState extends ConsumerState<LightningWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Text(
+          'Receive in'.i18n(ref),
+          style: const TextStyle(
+            color: Colors.grey,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         DropdownButton<String>(
           dropdownColor: Colors.white,
           value: selectedCurrency,

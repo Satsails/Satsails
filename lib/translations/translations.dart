@@ -781,8 +781,15 @@ extension Localization on String {
       {
         'en': 'Insufficient funds, or not enough liquid bitcoin to pay fees.',
         'pt': 'Fundos insuficientes, ou não há liquid bitcoin suficiente para pagar as taxas.'
+      }+
+      {
+        'en': 'Version: Forward Unto Dawn',
+        'pt': 'Versão: Avante até o Amanhecer'
+      }+
+      {
+        'en': 'Receive in',
+        'pt': 'Receber em'
       };
-
 
 
 

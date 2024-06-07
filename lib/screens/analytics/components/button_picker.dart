@@ -42,10 +42,10 @@ class ButtonPicker extends ConsumerWidget {
       },
       buttons: ["Bitcoin", "Instant Bitcoin".i18n(ref), 'Swaps'.i18n(ref)],
       options: GroupButtonOptions(
-        unselectedTextStyle: TextStyle(fontSize: screenWidth * 0.04, color: Colors.black), // 3% of screen width
-        selectedTextStyle: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white), // 3% of screen width
+        unselectedTextStyle: TextStyle(fontSize: screenWidth * 0.035, color: Colors.black), // 3% of screen width
+        selectedTextStyle: TextStyle(fontSize: screenWidth * 0.035, color: Colors.white), // 3% of screen width
         selectedColor: Colors.deepOrange,
-        spacing: screenWidth * 0.01, // 1% of screen width
+        spacing: screenWidth * 0.005, // 1% of screen width
         mainGroupAlignment: MainGroupAlignment.center,
         crossGroupAlignment: CrossGroupAlignment.center,
         groupRunAlignment: GroupRunAlignment.center,
