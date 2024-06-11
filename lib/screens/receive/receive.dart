@@ -5,7 +5,6 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
-import 'package:Satsails/providers/settings_provider.dart';
 import 'package:group_button/group_button.dart';
 
 final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
@@ -97,7 +96,7 @@ class Receive extends ConsumerWidget {
             if (selectedIndex == "Liquid")
               const LiquidWidget(),
             if (selectedIndex == "Lightning")
-              LightningWidget(),
+              const LightningWidget(),
           ],
         ),
       ),

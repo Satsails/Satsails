@@ -5,7 +5,8 @@ import 'package:Satsails/providers/liquid_provider.dart';
 
 final isBitcoinInputProvider = StateProvider.autoDispose<bool>((ref) => true);
 final inputCurrencyProvider = StateProvider.autoDispose<String>((ref) => 'BTC');
-final inputAmountProvider = StateProvider<String>((ref) => '0.0');
+final inputAmountProvider = StateProvider.autoDispose<String>((ref) => '0.0');
+final shouldUpdateBoltzLiquidReceive = StateProvider.autoDispose<bool>((ref) => true);
 
 String calculateAmountToDisplay(String amount, String currency, currencyConverter) {
   switch (currency) {

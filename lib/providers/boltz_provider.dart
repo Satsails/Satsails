@@ -28,18 +28,6 @@ final boltzReceiveProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   return receive;
 });
 
-final claimBoltzTransactionProvider = FutureProvider.autoDispose<bool>((ref) async {
-  final receiveAddress = await ref.read(liquidAddressProvider.future);
-  final fees = await ref.read(boltzFeesProvider.future);
-  final boltzReceive = await ref.watch(boltzReceiveProvider.future);
-  final received = await boltzReceive.claimBoltzTransaction(receiveAddress: receiveAddress.confidential, fees: fees);
-  if (received) {
-    final box = await Hive.openBox('receiveBoltz');
-    await box.delete(boltzReceive.swap.id);
-  }
-  return received;
-});
-
 final claimSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<bool, String>((ref, id) async {
   final receiveAddress = await ref.read(liquidAddressProvider.future);
   final fees = await ref.read(boltzFeesProvider.future);
@@ -61,21 +49,6 @@ final deleteSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<v
   await payBox.delete(id);
 });
 
-final claimBoltzTransactionStreamProvider = StreamProvider.autoDispose<bool>((ref) async* {
-  while (true) {
-    try {
-      final result = await ref.read(claimBoltzTransactionProvider.future);
-      yield result;
-      if (result) {
-        break;
-      }
-    } catch (e) {
-      yield false;
-    } finally {
-      await Future.delayed(const Duration(seconds: 2));
-    }
-  }
-});
 
 final boltzPayProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   final fees = await ref.read(boltzFeesProvider.future);
@@ -165,17 +138,6 @@ final bitcoinBoltzReceiveProvider = FutureProvider.autoDispose<BtcBoltz>((ref) a
   return receive;
 });
 
-final claimBitcoinBoltzTransactionProvider = FutureProvider.autoDispose<bool>((ref) async {
-  final receiveAddress = await ref.read(bitcoinAddressProvider.future);
-  final fees = await ref.read(bitcoinBoltzFeesProvider.future);
-  final boltzReceive = await ref.watch(bitcoinBoltzReceiveProvider.future);
-  final received = await boltzReceive.claimBoltzTransaction(receiveAddress: receiveAddress, fees: fees);
-  if (received) {
-    final box = await Hive.openBox('bitcoinReceiveBoltz');
-    await box.delete(boltzReceive.swap.id);
-  }
-  return received;
-});
 
 final claimSingleBitcoinBoltzTransactionProvider = FutureProvider.autoDispose.family<bool, String>((ref, id) async {
   final receiveAddress = await ref.read(bitcoinAddressProvider.future);
@@ -196,22 +158,6 @@ final deleteSingleBitcoinBoltzTransactionProvider = FutureProvider.autoDispose.f
   final payBox = await Hive.openBox('bitcoinPayBoltz');
   await receiveBox.delete(id);
   await payBox.delete(id);
-});
-
-final claimBitcoinBoltzTransactionStreamProvider = StreamProvider.autoDispose<bool>((ref) async* {
-  while (true) {
-    try {
-      final result = await ref.read(claimBitcoinBoltzTransactionProvider.future);
-      yield result;
-      if (result) {
-        break;
-      }
-    } catch (e) {
-      yield false;
-    } finally {
-      await Future.delayed(const Duration(seconds: 2));
-    }
-  }
 });
 
 final bitcoinBoltzPayProvider = FutureProvider.autoDispose<BtcBoltz>((ref) async {

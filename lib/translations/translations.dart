@@ -789,6 +789,14 @@ extension Localization on String {
       {
         'en': 'Receive in',
         'pt': 'Receber em'
+      }+
+      {
+        'en': 'Claim transaction',
+        'pt': 'Reivindicar transação'
+      }+
+      {
+        'en': 'Getting estimated fees is not successful.',
+        'pt': 'Não foi possível obter as taxas estimadas.'
       };
 
 

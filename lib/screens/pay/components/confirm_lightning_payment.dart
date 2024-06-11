@@ -37,6 +37,9 @@ class ConfirmLightningPayment extends HookConsumerWidget {
     final sendAmount = ref.watch(sendTxProvider).btcBalanceInDenominationFormatted(btcFormart);
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormart));
 
+    // Local state for address
+    final addressState = useState(sendTxState.address);
+
     List<SizedBox> cards = [
       SizedBox(
         width: double.infinity,
@@ -152,13 +155,13 @@ class ConfirmLightningPayment extends HookConsumerWidget {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const Icon(Icons.swipe, color: Colors.grey),
+                    const Icon(Icons.swipe_vertical, color: Colors.grey),
                     SizedBox(
                       height: dynamicCardHeight,
                       child: CardSwiper(
                         scale: 0.1,
                         padding: const EdgeInsets.all(0),
-                        allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
+                        allowedSwipeDirection: const AllowedSwipeDirection.symmetric(vertical: true),
                         cardsCount: cards.length,
                         initialIndex: ref.watch(currentCardIndexProvider),
                         onSwipe: onSwipe,
@@ -176,7 +179,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                             child: Text(
-                              sendTxState.address,
+                              addressState.value,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -224,7 +227,6 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                 ),
               ),
             ),
-            // showBitcoinRelatedWidgets.state ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize, dynamicFontSize, dynamicSizedBox) : _liquidFeeSlider(ref, dynamicPadding, titleFontSize, dynamicFontSize, dynamicSizedBox),
             Padding(
               padding: const EdgeInsets.all(15.0),
               child: Center(
@@ -247,7 +249,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                       Navigator.pushNamed(context, '/home');
                     } catch (e) {
                       controller.failure();
-                      Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                      Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                       controller.reset();
                     }
                   },
@@ -261,6 +263,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
     );
   }
 }
+
 //
 // Widget _bitcoinFeeSlider(WidgetRef ref, double dynamicPadding, double titleFontSize, double dynamicFontSize, double dynamicSizedBox) {
 //   final sendTxState = ref.watch(sendTxProvider);

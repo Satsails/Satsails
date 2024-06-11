@@ -131,17 +131,20 @@ class LiquidModel {
 
   Future<double> getLiquidFees(int blocks) async {
     try {
-      Response response =
-      await get(Uri.parse('https://blockstream.info/liquid/api/fee-estimates'));
-      Map data = jsonDecode(response.body);
+      final response = await get(Uri.parse('https://blockstream.info/liquid/api/fee-estimates'));
 
       if (response.statusCode == 200) {
-        return data[blocks.toString()];
+        final data = jsonDecode(response.body);
+        if (data is Map && data.containsKey(blocks.toString())) {
+          return data[blocks.toString()];
+        } else {
+          throw Exception("Estimated fees for the specified blocks not found.");
+        }
       } else {
         throw Exception("Getting estimated fees is not successful.");
       }
-    } catch (_) {
-      rethrow;
+    } catch (e) {
+      throw Exception("Error: ${e.toString()}");
     }
   }
 }
