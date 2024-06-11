@@ -225,7 +225,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
               : [
             _buildLegend('Spending'.i18n(ref), Colors.blueAccent),
             _buildLegend('Income'.i18n(ref), Colors.greenAccent),
-            _buildLegend('Fee'.i18n(ref), Colors.orangeAccent),
+            if( isBtc) _buildLegend('Fee'.i18n(ref), Colors.orangeAccent),
           ],
         ),
       ],

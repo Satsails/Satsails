@@ -41,7 +41,9 @@ class Home extends ConsumerWidget {
           currentIndex: ref.watch(navigationProvider),
           context: context,
           onTap: (int index) {
-            ref.read(navigationProvider.notifier).state = index;
+            ref
+                .read(navigationProvider.notifier)
+                .state = index;
           },
         ),
       ],
@@ -49,25 +51,43 @@ class Home extends ConsumerWidget {
   }
 
   Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
     // final online = ref.watch(settingsProvider).online;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         const BackupWarning(),
-        buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
+        buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider',
+            'totalBalanceInFiatProvider'),
         Flexible(
           child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.24,
+            height: MediaQuery
+                .of(context)
+                .size
+                .height * 0.24,
             child: Consumer(builder: (context, watch, child) {
               final initializeBalance = ref.watch(initializeBalanceProvider);
-              final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
+              final percentageOfEachCurrency = ref.watch(
+                  percentageChangeProvider);
               return initializeBalance.when(
-                data: (balance) => balance.isEmpty ? emptyBalance(ref, context) : buildDiagram(context, percentageOfEachCurrency),
-                loading: () => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
-                error: (error, stack) => LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange),
+                data: (balance) =>
+                balance.isEmpty
+                    ? emptyBalance(ref, context)
+                    : buildDiagram(context, percentageOfEachCurrency),
+                loading: () =>
+                    LoadingAnimationWidget.threeArchedCircle(
+                        size: 200, color: Colors.orange),
+                error: (error, stack) =>
+                    LoadingAnimationWidget.threeArchedCircle(
+                        size: 200, color: Colors.orange),
               );
             }),
           ),
@@ -79,7 +99,8 @@ class Home extends ConsumerWidget {
           child: CustomButton(
             text: 'View Accounts'.i18n(ref),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const Accounts()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const Accounts()));
             },
           ),
         )
@@ -88,7 +109,10 @@ class Home extends ConsumerWidget {
   }
 
   Widget emptyBalance(WidgetRef ref, BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -99,7 +123,8 @@ class Home extends ConsumerWidget {
             color: Colors.grey,
           ),
         ),
-        Icon(Iconsax.security_safe_bold, size: screenHeight * 0.2, color: Colors.blueAccent),
+        Icon(Iconsax.security_safe_bold, size: screenHeight * 0.2,
+            color: Colors.blueAccent),
       ],
     );
   }
@@ -107,7 +132,10 @@ class Home extends ConsumerWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {
     final settings = ref.read(settingsProvider);
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
     final settingsNotifier = ref.read(settingsProvider.notifier);
 
     void toggleOnlineStatus() {
@@ -118,20 +146,24 @@ class Home extends ConsumerWidget {
     return AppBar(
       backgroundColor: Colors.transparent,
       automaticallyImplyLeading: false,
-      leading: Row(
+      title: Row(
         children: [
-          const Logo(widthFactor: 0.1, heightFactor: 0.1),
-          SizedBox(width: screenWidth * 0.02), // 2% of screen width
-          Text(
-            'Satsails',
-            style: GoogleFonts.fragmentMono(
-              fontSize: screenWidth * 0.06,
-              color: Colors.orangeAccent,
+          const Logo(widthFactor: 0.08, heightFactor: 0.08),
+          // Slightly larger size
+          SizedBox(width: screenWidth * 0.02),
+          // 2% of screen width
+          Expanded(
+            child: Text(
+              'Satsails',
+              style: GoogleFonts.fragmentMono(
+                fontSize: screenWidth * 0.055, // Slightly larger font size
+                color: Colors.orangeAccent,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
       ),
-      centerTitle: true,
       actions: [
         IconButton(
           icon: const Icon(Clarity.settings_line, color: Colors.black),
@@ -139,8 +171,10 @@ class Home extends ConsumerWidget {
             Navigator.pushNamed(context, '/settings');
           },
         ),
-
-        ref.watch(backgroundSyncInProgressProvider) ? LoadingAnimationWidget.bouncingBall(color: Colors.orange, size: 50) : IconButton(
+        ref.watch(backgroundSyncInProgressProvider)
+            ? LoadingAnimationWidget.bouncingBall(
+            color: Colors.orange, size: 40) // Slightly larger size
+            : IconButton(
           icon: Icon(
             Icons.sync,
             color: settings.online ? Colors.green : Colors.red,
@@ -153,3 +187,6 @@ class Home extends ConsumerWidget {
     );
   }
 }
+
+
+

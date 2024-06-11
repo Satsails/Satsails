@@ -260,7 +260,7 @@ final claimAndDeleteAllBitcoinBoltzProvider = FutureProvider.autoDispose<void>((
     final payBox = await Hive.openBox('bitcoinPayBoltz');
     final receive = await ref.read(receivedBitcoinBoltzProvider.future).then((value) => value);
     final pay = await ref.read(payedBitcoinBoltzProvider.future).then((value) => value);
-    final currentBitcoinTip = await getCurrentBlockHeight();
+    final currentBitcoinTip = await getCurrentBitcoinBlockHeight();
 
     for (var item in receive) {
       if (item.swapScript.locktime < currentBitcoinTip) {

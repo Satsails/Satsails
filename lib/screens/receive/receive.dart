@@ -1,6 +1,7 @@
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
 import 'package:Satsails/screens/receive/components/lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
@@ -28,7 +29,7 @@ class Receive extends ConsumerWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Receive', style: TextStyle(fontSize: screenHeight * 0.03)), // 3% of screen height
+        title: Text('Receive'.i18n(ref), style: TextStyle(fontSize: screenHeight * 0.03)), // 3% of screen height
         leading: IconButton(
           icon: Icon(Icons.arrow_back, size: screenHeight * 0.03), // 3% of screen height
           onPressed: () {
@@ -96,7 +97,7 @@ class Receive extends ConsumerWidget {
             if (selectedIndex == "Liquid")
               const LiquidWidget(),
             if (selectedIndex == "Lightning")
-              const LightningWidget(),
+              LightningWidget(),
           ],
         ),
       ),
