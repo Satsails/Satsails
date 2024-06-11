@@ -20,6 +20,11 @@ class BitcoinModel {
     return await address.address.asString();
   }
 
+  Future<AddressInfo> getAddressInfo() async {
+    final address = await config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
+    return address;
+  }
+
   Future<Input> getPsbtInput(LocalUtxo utxo, bool onlyWitnessUtxo) async {
     final input = await config.wallet.getPsbtInput(utxo: utxo, onlyWitnessUtxo: onlyWitnessUtxo);
     return input;

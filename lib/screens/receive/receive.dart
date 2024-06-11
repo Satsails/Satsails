@@ -1,10 +1,10 @@
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
 import 'package:Satsails/screens/receive/components/lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
-import 'package:Satsails/providers/settings_provider.dart';
 import 'package:group_button/group_button.dart';
 
 final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
@@ -23,13 +23,12 @@ class Receive extends ConsumerWidget {
 
     final selectedIndex = ref.watch(selectedButtonProvider);
     final controller = ref.watch(groupButtonControllerProvider);
-    final online = ref.watch(settingsProvider).online;
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Receive', style: TextStyle(fontSize: screenHeight * 0.03)), // 3% of screen height
+        title: Text('Receive'.i18n(ref), style: TextStyle(fontSize: screenHeight * 0.03)), // 3% of screen height
         leading: IconButton(
           icon: Icon(Icons.arrow_back, size: screenHeight * 0.03), // 3% of screen height
           onPressed: () {

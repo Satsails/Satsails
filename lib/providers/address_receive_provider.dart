@@ -5,7 +5,8 @@ import 'package:Satsails/providers/liquid_provider.dart';
 
 final isBitcoinInputProvider = StateProvider.autoDispose<bool>((ref) => true);
 final inputCurrencyProvider = StateProvider.autoDispose<String>((ref) => 'BTC');
-final inputAmountProvider = StateProvider<String>((ref) => '0.0');
+final inputAmountProvider = StateProvider.autoDispose<String>((ref) => '0.0');
+final shouldUpdateBoltzLiquidReceive = StateProvider.autoDispose<bool>((ref) => true);
 
 String calculateAmountToDisplay(String amount, String currency, currencyConverter) {
   switch (currency) {
@@ -29,6 +30,10 @@ String calculateAmountToDisplay(String amount, String currency, currencyConverte
 }
 
 int calculateAmountInSatsToDisplay(String amount, String currency, currencyConverter) {
+  if (amount == '' || amount == '0.0') {
+    return 0;
+  }
+
   switch (currency) {
     case 'BTC':
       return (double.parse(amount) * 100000000).toInt();
@@ -46,6 +51,27 @@ int calculateAmountInSatsToDisplay(String amount, String currency, currencyConve
       return (double.parse(amount) * 1000000).toInt();
     default:
       return (double.parse(amount) * 100000000).toInt();
+  }
+}
+
+String calculateAmountInSelectedCurrency(int sats, String currency, currencyConverter) {
+  switch (currency) {
+    case 'BTC':
+      return (sats / 100000000).toStringAsFixed(8);
+    case 'USD':
+      return (sats / 100000000 / currencyConverter.usdToBtc).toStringAsFixed(2);
+    case 'EUR':
+      return (sats / 100000000 / currencyConverter.eurToBtc).toStringAsFixed(2);
+    case 'BRL':
+      return (sats / 100000000 / currencyConverter.brlToBtc).toStringAsFixed(2);
+    case 'Sats':
+      return sats.toString();
+    case 'mBTC':
+      return (sats / 1000).toStringAsFixed(5);
+    case 'bits':
+      return (sats / 1000000).toStringAsFixed(5);
+    default:
+      return (sats / 100000000).toStringAsFixed(8);
   }
 }
 

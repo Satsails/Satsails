@@ -138,6 +138,7 @@ class _PegState extends ConsumerState<Peg> {
             child: InkWell(
               borderRadius: BorderRadius.circular(10),
               onTap: () async {
+                try {
                 ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
                 if(pegIn){
                   final bitcoin = ref.watch(balanceNotifierProvider).btcBalance;
@@ -153,6 +154,9 @@ class _PegState extends ConsumerState<Peg> {
                   controller.text = btcInDenominationFormatted(liquid.toDouble(), btcFormart);
                   ref.read(sendTxProvider.notifier).updateDrain(true);
                   ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
+                }
+                } catch (e) {
+                  Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                 }
               },
               child: Padding(
@@ -296,6 +300,7 @@ class _PegState extends ConsumerState<Peg> {
     final speed = ref.watch(bitcoinReceiveSpeedProvider).i18n(ref);
     return Column(
       children: [
+        _liquidFeeSlider(ref, dynamicPadding, titleFontSize),
         Padding(
           padding: const EdgeInsets.only(top: 8.0),
           child: Text(speed, style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.grey)),
@@ -329,6 +334,21 @@ class _PegState extends ConsumerState<Peg> {
     return InteractiveSlider(
       centerIcon: const Icon(Clarity.block_solid, color: Colors.black),
       foregroundColor: Colors.deepOrange,
+      unfocusedHeight: titleFontSize ,
+      focusedHeight: titleFontSize,
+      initialProgress: 15,
+      min: 5.0,
+      max: 1.0,
+      onChanged: (dynamic value){
+        ref.read(sendBlocksProvider.notifier).state = value;
+      },
+    );
+  }
+
+  Widget _liquidFeeSlider(WidgetRef ref, double dynamicPadding, double titleFontSize) {
+    return InteractiveSlider(
+      centerIcon: const Icon(Clarity.block_solid, color: Colors.black),
+      foregroundColor: Colors.blueAccent,
       unfocusedHeight: titleFontSize ,
       focusedHeight: titleFontSize,
       initialProgress: 15,
@@ -447,7 +467,7 @@ class _PegState extends ConsumerState<Peg> {
                         children: [
                           Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
                           Text("or".i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
-                          Text(valueInCurrency.toStringAsFixed(2), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                          Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
                         ],
                       ),
                   ],
@@ -541,7 +561,7 @@ class _PegState extends ConsumerState<Peg> {
                         children: [
                           Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
                           Text("or".i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
-                          Text(valueInCurrency.toStringAsFixed(2), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                          Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
                         ],
                       ),
                   ],

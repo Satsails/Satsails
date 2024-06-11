@@ -13,6 +13,8 @@ class AmountInput extends ConsumerWidget {
     final bitcoinInput = ref.watch(isBitcoinInputProvider);
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
     final TextEditingController controller = TextEditingController();
+    final inputAmount = ref.watch(inputAmountProvider);
+    controller.text = inputAmount == '0.0' ? '' : inputAmount;
 
     return Column(
       children: [

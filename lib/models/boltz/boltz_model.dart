@@ -9,7 +9,6 @@ class KeyPairAdapter extends TypeAdapter<KeyPair> {
 
   @override
   KeyPair read(BinaryReader reader) {
-    // Read the fields of the KeyPairImp from the reader and use them to create a KeyPairImp
     String secretKey = reader.readString();
     String publicKey = reader.readString();
     return KeyPair(secretKey: secretKey, publicKey: publicKey);
@@ -17,16 +16,14 @@ class KeyPairAdapter extends TypeAdapter<KeyPair> {
 
   @override
   void write(BinaryWriter writer, KeyPair obj) {
-    // Write the fields of the KeyPairImp to the writer
     writer.writeString(obj.secretKey);
     writer.writeString(obj.publicKey);
   }
 }
 
-
 class SwapTypeAdapter extends TypeAdapter<SwapType> {
   @override
-  final typeId = 17; // Choose an unused typeId
+  final typeId = 17;
 
   @override
   SwapType read(BinaryReader reader) {
@@ -55,7 +52,7 @@ class SwapTypeAdapter extends TypeAdapter<SwapType> {
 
 class ChainAdapter extends TypeAdapter<Chain> {
   @override
-  final typeId = 18; // Choose an unused typeId
+  final typeId = 18;
 
   @override
   Chain read(BinaryReader reader) {
@@ -94,11 +91,10 @@ class ChainAdapter extends TypeAdapter<Chain> {
 
 class PreImageAdapter extends TypeAdapter<PreImage> {
   @override
-  final typeId = 20; // Choose an unused typeId
+  final typeId = 20;
 
   @override
   PreImage read(BinaryReader reader) {
-    // Read the fields of the PreImage from the reader and use them to create a PreImage
     String value = reader.readString();
     String sha256 = reader.readString();
     String hash160 = reader.readString();
@@ -107,21 +103,18 @@ class PreImageAdapter extends TypeAdapter<PreImage> {
 
   @override
   void write(BinaryWriter writer, PreImage obj) {
-    // Write the fields of the PreImage to the writer
     writer.writeString(obj.value);
     writer.writeString(obj.sha256);
     writer.writeString(obj.hash160);
   }
 }
 
-
 class LBtcSwapScriptV2StrAdapter extends TypeAdapter<LBtcSwapScriptV2Str> {
   @override
-  final typeId = 21; // Choose an unused typeId
+  final typeId = 21;
 
   @override
   LBtcSwapScriptV2Str read(BinaryReader reader) {
-    // Read the fields of the LBtcSwapScriptV2Str from the reader and use them to create a LBtcSwapScriptV2Str
     SwapType swapType = SwapType.values[reader.readByte()];
     String? fundingAddrs = reader.readString();
     String hashlock = reader.readString();
@@ -142,7 +135,6 @@ class LBtcSwapScriptV2StrAdapter extends TypeAdapter<LBtcSwapScriptV2Str> {
 
   @override
   void write(BinaryWriter writer, LBtcSwapScriptV2Str obj) {
-    // Write the fields of the LBtcSwapScriptV2Str to the writer
     writer.writeByte(obj.swapType.index);
     writer.writeString(obj.fundingAddrs ?? '');
     writer.writeString(obj.hashlock);
@@ -196,11 +188,8 @@ class ExtendedLbtcLnV2Swap {
   });
 }
 
-
-
-
 @HiveType(typeId: 16)
-class Boltz {
+class LbtcBoltz {
   @HiveField(0)
   final ExtendedLbtcLnV2Swap swap;
   @HiveField(1)
@@ -210,49 +199,46 @@ class Boltz {
   @HiveField(3)
   final LBtcSwapScriptV2Str swapScript;
 
-  Boltz({
+  LbtcBoltz({
     required this.swap,
     required this.keys,
     required this.preimage,
     required this.swapScript,
   });
 
-  static Future<Boltz> createBoltzReceive({
+  static Future<LbtcBoltz> createBoltzReceive({
     required AllFees fees,
     required String mnemonic,
     required String address,
     required int amount,
     required int index,
   }) async {
-
-    if(amount == 0){
+    if (amount == 0) {
       throw 'Set an amount to create an invoice';
     }
 
-    if (fees.lbtcLimits.minimal > amount){
+    if (fees.lbtcLimits.minimal > amount) {
       throw 'Amount is below the minimal limit';
     }
-    if (fees.lbtcLimits.maximal < amount){
+    if (fees.lbtcLimits.maximal < amount) {
       throw 'Amount is above the maximal limit';
     }
 
     LbtcLnV2Swap result;
-    try{
+    try {
       result = await LbtcLnV2Swap.newReverse(
-          mnemonic: mnemonic,
-          index: index,
-          outAddress: address,
-          outAmount: amount,
-          network: Chain.liquid,
-          electrumUrl: 'blockstream.info:995',
-          boltzUrl: 'https://api.boltz.exchange/v2',
-          referralId: 'satsails',
+        mnemonic: mnemonic,
+        index: index,
+        outAddress: address,
+        outAmount: amount,
+        network: Chain.liquid,
+        electrumUrl: 'blockstream.info:995',
+        boltzUrl: 'https://api.boltz.exchange/v2',
+        referralId: 'satsails',
       );
     } catch (e) {
       throw 'Error creating swap';
     }
-
-
 
     final extendedSwap = ExtendedLbtcLnV2Swap(
       id: result.id,
@@ -269,7 +255,7 @@ class Boltz {
       boltzUrl: result.boltzUrl,
     );
 
-    return Boltz(
+    return LbtcBoltz(
       swap: extendedSwap,
       keys: result.keys,
       preimage: result.preimage,
@@ -281,16 +267,16 @@ class Boltz {
     required String receiveAddress,
     required AllFees fees,
   }) async {
-    try{
+    try {
       final claimToInvoice = await LbtcLnV2Swap.newInstance(
         id: swap.id,
         kind: swap.kind,
         network: swap.network,
         keys: keys,
         preimage: preimage,
+        outAmount: swap.outAmount,
         swapScript: swapScript,
         invoice: swap.invoice,
-        outAmount: swap.outAmount,
         outAddress: swap.scriptAddress,
         blindingKey: swap.blindingKey,
         electrumUrl: swap.electrumUrl,
@@ -304,23 +290,22 @@ class Boltz {
     }
   }
 
-  static Future<Boltz> createBoltzPay({
+  static Future<LbtcBoltz> createBoltzPay({
     required AllFees fees,
     required String mnemonic,
     required String invoice,
     required int amount,
     required int index,
   }) async {
-
-    if(amount == 0){
+    if (amount == 0) {
       throw 'Amount cannot be 0';
     }
 
-    if (fees.lbtcLimits.minimal >= amount){
+    if (fees.lbtcLimits.minimal >= amount) {
       throw 'Amount is below the minimal limit';
     }
 
-    if (fees.lbtcLimits.maximal <= amount){
+    if (fees.lbtcLimits.maximal <= amount) {
       throw 'Amount is above the maximal limit';
     }
 
@@ -328,13 +313,13 @@ class Boltz {
 
     try {
       result = await LbtcLnV2Swap.newSubmarine(
-          mnemonic: mnemonic,
-          index: index,
-          invoice: invoice,
-          network: Chain.liquid,
-          electrumUrl: 'blockstream.info:995',
-          boltzUrl: 'https://api.boltz.exchange/v2',
-          referralId: 'satsails',
+        mnemonic: mnemonic,
+        index: index,
+        invoice: invoice,
+        network: Chain.liquid,
+        electrumUrl: 'blockstream.info:995',
+        boltzUrl: 'https://api.boltz.exchange/v2',
+        referralId: 'satsails',
       );
     } catch (e) {
       throw 'Error creating swap';
@@ -355,7 +340,7 @@ class Boltz {
       boltzUrl: result.boltzUrl,
     );
 
-    return Boltz(
+    return LbtcBoltz(
       swap: extendedSwap,
       keys: result.keys,
       preimage: result.preimage,
@@ -368,8 +353,7 @@ class Boltz {
     required AllFees fees,
     required bool tryCooperate,
   }) async {
-
-    try{
+    try {
       final refund = await LbtcLnV2Swap.newInstance(
         id: swap.id,
         kind: swap.kind,
@@ -385,6 +369,261 @@ class Boltz {
         boltzUrl: swap.boltzUrl,
       );
       await refund.refund(outAddress: outAddress, absFee: fees.lbtcSubmarine.lockupFeesEstimate, tryCooperate: tryCooperate);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+}
+
+@HiveType(typeId: 24)
+class BtcSwapScriptV2StrAdapter extends TypeAdapter<BtcSwapScriptV2Str> {
+  @override
+  final typeId = 25;
+
+  @override
+  BtcSwapScriptV2Str read(BinaryReader reader) {
+    SwapType swapType = SwapType.values[reader.readByte()];
+    String fundingAddrs = reader.readString();
+    String hashlock = reader.readString();
+    String receiverPubkey = reader.readString();
+    int locktime = reader.readInt();
+    String senderPubkey = reader.readString();
+    return BtcSwapScriptV2Str(
+      swapType: swapType,
+      fundingAddrs: fundingAddrs?? '',
+      hashlock: hashlock,
+      receiverPubkey: receiverPubkey,
+      locktime: locktime,
+      senderPubkey: senderPubkey,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, BtcSwapScriptV2Str obj) {
+    writer.writeByte(obj.swapType.index);
+    writer.writeString(obj.fundingAddrs?? '',);
+    writer.writeString(obj.hashlock);
+    writer.writeString(obj.receiverPubkey);
+    writer.writeInt(obj.locktime);
+    writer.writeString(obj.senderPubkey);
+  }
+}
+
+@HiveType(typeId: 23)
+class ExtendedBtcLnV2Swap {
+  @HiveField(0)
+  final String id;
+  @HiveField(1)
+  final SwapType kind;
+  @HiveField(2)
+  final Chain network;
+  @HiveField(3)
+  final KeyPair keys;
+  @HiveField(4)
+  final PreImage preimage;
+  @HiveField(5)
+  final BtcSwapScriptV2Str swapScript;
+  @HiveField(6)
+  final String invoice;
+  @HiveField(7)
+  final int outAmount;
+  @HiveField(8)
+  final String scriptAddress;
+  @HiveField(9)
+  final String electrumUrl;
+  @HiveField(10)
+  final String boltzUrl;
+
+  ExtendedBtcLnV2Swap({
+    required this.id,
+    required this.kind,
+    required this.network,
+    required this.keys,
+    required this.preimage,
+    required this.swapScript,
+    required this.invoice,
+    required this.outAmount,
+    required this.scriptAddress,
+    required this.electrumUrl,
+    required this.boltzUrl,
+  });
+}
+
+@HiveType(typeId: 22)
+class BtcBoltz {
+  @HiveField(0)
+  final ExtendedBtcLnV2Swap swap;
+  @HiveField(1)
+  final KeyPair keys;
+  @HiveField(2)
+  final PreImage preimage;
+  @HiveField(3)
+  final BtcSwapScriptV2Str swapScript;
+
+  BtcBoltz({
+    required this.swap,
+    required this.keys,
+    required this.preimage,
+    required this.swapScript,
+  });
+
+  static Future<BtcBoltz> createBoltzReceive({
+    required AllFees fees,
+    required String mnemonic,
+    required String address,
+    required int amount,
+    required int index,
+  }) async {
+    if (amount == 0) {
+      throw 'Set an amount to create an invoice';
+    }
+
+    if (fees.btcLimits.minimal > amount) {
+      throw 'Amount is below the minimal limit';
+    }
+    if (fees.btcLimits.maximal < amount) {
+      throw 'Amount is above the maximal limit';
+    }
+
+    BtcLnV2Swap result;
+    try {
+      result = await BtcLnV2Swap.newReverse(
+        mnemonic: mnemonic,
+        index: index,
+        outAmount: amount,
+        outAddress: address,
+        network: Chain.bitcoin,
+        electrumUrl: 'electrum.blockstream.info:50002',
+        boltzUrl: 'https://api.boltz.exchange/v2',
+      );
+    } catch (e) {
+      throw 'Error creating swap';
+    }
+
+    final extendedSwap = ExtendedBtcLnV2Swap(
+      id: result.id,
+      kind: result.kind,
+      network: result.network,
+      keys: result.keys,
+      preimage: result.preimage,
+      swapScript: result.swapScript,
+      invoice: result.invoice,
+      outAmount: result.outAmount,
+      scriptAddress: result.scriptAddress,
+      electrumUrl: result.electrumUrl,
+      boltzUrl: result.boltzUrl,
+    );
+
+    return BtcBoltz(
+      swap: extendedSwap,
+      keys: result.keys,
+      preimage: result.preimage,
+      swapScript: result.swapScript,
+    );
+  }
+
+  Future<bool> claimBoltzTransaction({
+    required String receiveAddress,
+    required AllFees fees,
+  }) async {
+    try {
+      final claimToInvoice = await BtcLnV2Swap.newInstance(
+        id: swap.id,
+        kind: swap.kind,
+        network: swap.network,
+        keys: keys,
+        preimage: preimage,
+        swapScript: swapScript,
+        invoice: swap.invoice,
+        scriptAddress: swap.scriptAddress,
+        outAmount: swap.outAmount,
+        electrumUrl: swap.electrumUrl,
+        boltzUrl: swap.boltzUrl,
+      );
+      await claimToInvoice.claim(outAddress: receiveAddress, absFee: fees.btcReverse.claimFeesEstimate, tryCooperate: true);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  static Future<BtcBoltz> createBoltzPay({
+    required AllFees fees,
+    required String mnemonic,
+    required String invoice,
+    required int amount,
+    required int index,
+  }) async {
+    if (amount == 0) {
+      throw 'Amount cannot be 0';
+    }
+
+    if (fees.btcLimits.minimal >= amount) {
+      throw 'Amount is below the minimal limit';
+    }
+
+    if (fees.btcLimits.maximal <= amount) {
+      throw 'Amount is above the maximal limit';
+    }
+
+    BtcLnV2Swap result;
+
+    try {
+      result = await BtcLnV2Swap.newSubmarine(
+        mnemonic: mnemonic,
+        index: index,
+        invoice: invoice,
+        network: Chain.bitcoin,
+        electrumUrl: 'electrum.blockstream.info:50002',
+        boltzUrl: 'https://api.boltz.exchange/v2',
+      );
+    } catch (e) {
+      throw 'Error creating swap';
+    }
+
+    final extendedSwap = ExtendedBtcLnV2Swap(
+      id: result.id,
+      kind: result.kind,
+      network: result.network,
+      keys: result.keys,
+      preimage: result.preimage,
+      swapScript: result.swapScript,
+      invoice: result.invoice,
+      outAmount: result.outAmount,
+      scriptAddress: result.scriptAddress,
+      electrumUrl: result.electrumUrl,
+      boltzUrl: result.boltzUrl,
+    );
+
+    return BtcBoltz(
+      swap: extendedSwap,
+      keys: result.keys,
+      preimage: result.preimage,
+      swapScript: result.swapScript,
+    );
+  }
+
+  Future<bool> refund({
+    required String outAddress,
+    required AllFees fees,
+    required bool tryCooperate,
+  }) async {
+    try {
+      final refund = await BtcLnV2Swap.newInstance(
+        id: swap.id,
+        kind: swap.kind,
+        network: swap.network,
+        keys: keys,
+        preimage: preimage,
+        swapScript: swapScript,
+        invoice: swap.invoice,
+        outAmount: swap.outAmount,
+        scriptAddress: swap.scriptAddress,
+        electrumUrl: swap.electrumUrl,
+        boltzUrl: swap.boltzUrl,
+      );
+      await refund.refund(outAddress: outAddress, absFee: fees.btcSubmarine.lockupFeesEstimate, tryCooperate: tryCooperate);
       return true;
     } catch (e) {
       return false;

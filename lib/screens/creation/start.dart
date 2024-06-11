@@ -90,6 +90,16 @@ class Start extends ConsumerWidget {
                   ),
                 ),
               ),
+              Opacity(
+                opacity: 0.5,
+                child: Text(
+                    'Version: Forward Unto Dawn'.i18n(ref),
+                    style: GoogleFonts.fragmentMono(
+                      fontSize: screenWidth * 0.03,
+                      color: Colors.grey,
+                    )
+                ),
+              ),
             ],
           ),
         ),

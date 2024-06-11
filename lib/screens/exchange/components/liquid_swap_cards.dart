@@ -72,6 +72,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
           ref.read(sendBlocksProvider.notifier).state = 1;
           ref.refresh(currentBalanceProvider);
           ref.refresh(tickerProvider);
+          ref.read(sendTxProvider.notifier).updateDrain(false);
         },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -162,7 +163,6 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                 _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat),
               ],
             ),
-            // fix watching of the balance, not working
             ...swapCards,
           ],
         ),

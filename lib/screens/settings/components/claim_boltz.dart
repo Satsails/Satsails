@@ -15,10 +15,9 @@ class ClaimBoltz extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final online = ref.watch(settingsProvider).online;
     final button = ref.watch(selectedButtonProvider);
 
-    return  Scaffold(
+    return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -30,9 +29,8 @@ class ClaimBoltz extends ConsumerWidget {
         child: Column(
           children: [
             const BoltzButtonPicker(),
-            // OfflineTransactionWarning(online: online),
-            if(button == 'Complete Sending')  const Expanded(child: RefundSending()),
-            if(button == 'Complete Receiving') const Expanded(child: ClaimReceiving()),
+            if (button == 'Complete Sending') const Expanded(child: RefundSending()),
+            if (button == 'Complete Receiving') const Expanded(child: ClaimReceiving()),
           ],
         ),
       ),
@@ -45,20 +43,32 @@ class ClaimReceiving extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transactions = ref.watch(receivedBoltzProvider);
+    final transactionsLiquid = ref.watch(receivedBoltzProvider);
+    final transactionsBitcoin = ref.watch(receivedBitcoinBoltzProvider);
 
     return Container(
-      child: transactions.when(
-        data: (List<Boltz> boltz) {
-          if (boltz.isEmpty) {
-            return Center(child: Text('All lightning transactions were complete'.i18n(ref)));
-          }
-          return ListView.builder(
-            itemCount: boltz.length,
-            itemBuilder: (context, index) {
-              final tx = boltz[index];
-              return buildBoltzItem(tx, context, ref);
+      child: transactionsLiquid.when(
+        data: (List<LbtcBoltz> liquidTransactions) {
+          return transactionsBitcoin.when(
+            data: (List<BtcBoltz> bitcoinTransactions) {
+              if (liquidTransactions.isEmpty && bitcoinTransactions.isEmpty) {
+                return Center(child: Text('All lightning transactions were complete'.i18n(ref)));
+              }
+              return ListView.builder(
+                itemCount: liquidTransactions.length + bitcoinTransactions.length,
+                itemBuilder: (context, index) {
+                  if (index < liquidTransactions.length) {
+                    final tx = liquidTransactions[index];
+                    return buildBoltzItem(tx, null, context, ref, isBitcoin: false);
+                  } else {
+                    final tx = bitcoinTransactions[index - liquidTransactions.length];
+                    return buildBoltzItem(null, tx, context, ref, isBitcoin: true);
+                  }
+                },
+              );
             },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stackTrace) => Center(child: Text('Error: $error'.i18n(ref))),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -67,27 +77,38 @@ class ClaimReceiving extends ConsumerWidget {
     );
   }
 }
-
 
 class RefundSending extends ConsumerWidget {
   const RefundSending({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transactions = ref.watch(payedBoltzProvider);
+    final transactionsLiquid = ref.watch(payedBoltzProvider);
+    final transactionsBitcoin = ref.watch(payedBitcoinBoltzProvider);
 
     return Container(
-      child: transactions.when(
-        data: (List<Boltz> boltz) {
-          if (boltz.isEmpty) {
-            return Center(child: Text('All lightning transactions were complete'.i18n(ref)));
-          }
-          return ListView.builder(
-            itemCount: boltz.length,
-            itemBuilder: (context, index) {
-              final tx = boltz[index];
-              return buildBoltzItem(tx, context, ref);
+      child: transactionsLiquid.when(
+        data: (List<LbtcBoltz> liquidTransactions) {
+          return transactionsBitcoin.when(
+            data: (List<BtcBoltz> bitcoinTransactions) {
+              if (liquidTransactions.isEmpty && bitcoinTransactions.isEmpty) {
+                return Center(child: Text('All lightning transactions were complete'.i18n(ref)));
+              }
+              return ListView.builder(
+                itemCount: liquidTransactions.length + bitcoinTransactions.length,
+                itemBuilder: (context, index) {
+                  if (index < liquidTransactions.length) {
+                    final tx = liquidTransactions[index];
+                    return buildBoltzItem(tx, null, context, ref, isBitcoin: false);
+                  } else {
+                    final tx = bitcoinTransactions[index - liquidTransactions.length];
+                    return buildBoltzItem(null, tx, context, ref, isBitcoin: true);
+                  }
+                },
+              );
             },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stackTrace) => Center(child: Text('Error: $error'.i18n(ref))),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -97,14 +118,19 @@ class RefundSending extends ConsumerWidget {
   }
 }
 
-Widget buildBoltzItem(Boltz boltz, BuildContext context, WidgetRef ref) {
+Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext context, WidgetRef ref, {required bool isBitcoin}) {
   final btcFormat = ref.watch(settingsProvider).btcFormat;
+  final tx = isBitcoin ? bitcoinTx as BtcBoltz : liquidTx as LbtcBoltz;
+  final amount = isBitcoin ? bitcoinTx!.swap.outAmount : liquidTx!.swap.outAmount;
+  final invoice = isBitcoin ? bitcoinTx!.swap.invoice : liquidTx!.swap.invoice;
+  final kind = isBitcoin ? bitcoinTx!.swap.kind.name : liquidTx!.swap.kind.name;
+
   return ListTile(
     leading: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text("Amount".i18n(ref), style: const TextStyle(fontSize: 13)),
-        Text("${btcInDenominationFormatted(boltz.swap.outAmount.toDouble(), btcFormat)}$btcFormat", style: const TextStyle(fontSize: 13)),
+        Text("${btcInDenominationFormatted(amount.toDouble(), btcFormat)} $btcFormat", style: const TextStyle(fontSize: 13)),
       ],
     ),
     onTap: () {
@@ -119,23 +145,33 @@ Widget buildBoltzItem(Boltz boltz, BuildContext context, WidgetRef ref) {
                   Text('Pay to complete'.i18n(ref), style: const TextStyle(fontSize: 20)),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Center(child: buildQrCode(boltz.swap.invoice, context)),
+                    child: Center(child: buildQrCode(invoice, context)),
                   ),
                 ],
               ),
               ListTile(
                 leading: const Icon(Icons.money_off, color: Colors.orangeAccent),
-                title: boltz.swap.kind.name == 'reverse' ? Text('Claim'.i18n(ref)) : Text('Refund'.i18n(ref)),
+                title: kind == 'reverse' ? Text('Claim'.i18n(ref)) : Text('Refund'.i18n(ref)),
                 onTap: () async {
                   try {
-                    if(boltz.swap.kind.name == 'reverse') {
-                      await ref.read(claimSingleBoltzTransactionProvider(boltz.swap.id).future).then((value) => value);
+                    if (isBitcoin) {
+                      if (kind == 'reverse') {
+                        await ref.read(claimSingleBitcoinBoltzTransactionProvider((tx as BtcBoltz).swap.id).future).then((value) => value);
+                      } else {
+                        await ref.read(refundSingleBitcoinBoltzTransactionProvider((tx as BtcBoltz).swap.id).future).then((value) => value);
+                      }
+                      ref.refresh(receivedBitcoinBoltzProvider);
+                      ref.refresh(payedBitcoinBoltzProvider);
                     } else {
-                      await ref.read(refundSingleBoltzTransactionProvider(boltz.swap.id).future).then((value) => value);
+                      if (kind == 'reverse') {
+                        await ref.read(claimSingleBoltzTransactionProvider((tx as LbtcBoltz).swap.id).future).then((value) => value);
+                      } else {
+                        await ref.read(refundSingleBoltzTransactionProvider((tx as LbtcBoltz).swap.id).future).then((value) => value);
+                      }
+                      ref.refresh(receivedBoltzProvider);
+                      ref.refresh(payedBoltzProvider);
                     }
-                    ref.refresh(receivedBoltzProvider);
-                    ref.refresh(payedBoltzProvider);
-                    Fluttertoast.showToast(msg:"Claimed".i18n(ref) , toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                    Fluttertoast.showToast(msg: "Claimed".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                   } catch (e) {
                     Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                   }
@@ -147,10 +183,15 @@ Widget buildBoltzItem(Boltz boltz, BuildContext context, WidgetRef ref) {
                 title: Text('Delete'.i18n(ref)),
                 onTap: () async {
                   try {
-                    await ref.read(deleteSingleBoltzTransactionProvider(boltz.swap.id).future);
-                    await ref.read(deleteSingleBoltzTransactionProvider(boltz.swap.id).future);
-                    ref.refresh(receivedBoltzProvider);
-                    ref.refresh(payedBoltzProvider);
+                    if (isBitcoin) {
+                      await ref.read(deleteSingleBitcoinBoltzTransactionProvider((tx as BtcBoltz).swap.id).future);
+                      ref.refresh(receivedBitcoinBoltzProvider);
+                      ref.refresh(payedBitcoinBoltzProvider);
+                    } else {
+                      await ref.read(deleteSingleBoltzTransactionProvider((tx as LbtcBoltz).swap.id).future);
+                      ref.refresh(receivedBoltzProvider);
+                      ref.refresh(payedBoltzProvider);
+                    }
                     Fluttertoast.showToast(msg: "Deleted".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                   } catch (e) {
                     Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
@@ -169,20 +210,21 @@ Widget buildBoltzItem(Boltz boltz, BuildContext context, WidgetRef ref) {
         Center(
           child: Column(
             children: [
-              const Text('Type', style: TextStyle(fontSize: 13)),
-              Text(boltz.swap.kind.name, style: const TextStyle(fontSize: 13)),
+              Text('Type'.i18n(ref), style: TextStyle(fontSize: 13)),
+              Text(kind, style: const TextStyle(fontSize: 13)),
             ],
           ),
         ),
       ],
     ),
+    subtitle: Center(child: Text('${isBitcoin ? 'Bitcoin' : 'Liquid'}', style: const TextStyle(fontSize: 13))),
     trailing: Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Column(
           children: [
-            const Text('Invoice', style: TextStyle(fontSize: 13)),
-            Text('...${boltz.swap.invoice.substring(boltz.swap.invoice.length - 7)}', style: const TextStyle(fontSize: 13)),
+            Text('Invoice'.i18n(ref), style: TextStyle(fontSize: 13)),
+            Text('...${invoice.substring(invoice.length - 7)}', style: const TextStyle(fontSize: 13)),
           ],
         ),
       ],
