@@ -7,11 +7,9 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
-import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import '../../../providers/balance_provider.dart';
@@ -234,13 +232,13 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const Icon(Icons.swipe_vertical, color: Colors.grey),
+                    const Icon(Icons.swipe, color: Colors.grey),
                     SizedBox(
                       height: dynamicCardHeight,
                       child: CardSwiper(
                         scale: 0.1,
                         padding: const EdgeInsets.all(0),
-                        allowedSwipeDirection: const AllowedSwipeDirection.symmetric(vertical: true),
+                        allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
                         cardsCount: cards.length,
                         initialIndex: ref.watch(currentCardIndexProvider),
                         onSwipe: onSwipe,
@@ -334,6 +332,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                             ref.read(inputCurrencyProvider.notifier).state = value.toString();
                             controller.text = '';
                             ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
+                            ref.read(sendTxProvider.notifier).updateDrain(false);
                           },
                         ),
                       ),

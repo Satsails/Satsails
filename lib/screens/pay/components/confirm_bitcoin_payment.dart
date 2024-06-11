@@ -189,6 +189,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                           ref.read(inputCurrencyProvider.notifier).state = value.toString();
                           controller.text = '';
                           ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
+                          ref.read(sendTxProvider.notifier).updateDrain(false);
                         },
                       ),
                     ),
