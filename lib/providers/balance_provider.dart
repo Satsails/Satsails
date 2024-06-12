@@ -28,6 +28,7 @@ final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) asyn
     await ref.read(updateCurrencyProvider.future);
     ref.read(backgroundSyncNotifierProvider);
   }
+
   final balance = Balance(
     btcBalance: bitcoinBalance,
     liquidBalance: liquidBalance,

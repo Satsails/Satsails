@@ -87,7 +87,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
           child: Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Colors.greenAccent, Colors.green],
+                colors: [Color(0xFF009B3A), Color(0xFF009B3A)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -121,7 +121,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
           child: Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Colors.greenAccent,Color.fromARGB(255, 0, 128, 0)],
+                colors: [Color(0xFF008000),Color(0xFF008000)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -155,7 +155,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
           child: Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Colors.lightBlueAccent, Colors.cyan],
+                colors: [Color(0xFF003399), Color(0xFF003399)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

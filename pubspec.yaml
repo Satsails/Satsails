@@ -1,7 +1,7 @@
 name: Satsails
 description: "Sail your wealth to the cloud!"
 publish_to: 'none'
-version: 0.2.3+8
+version: 0.2.3+9
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
@@ -73,6 +73,10 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^3.0.1
 flutter:
+  fonts:
+    - family: lbtc_icon
+      fonts:
+        - asset: lib/assets/fonts/lbtc_icon.ttf
   uses-material-design: true
   assets:
     - lib/assets/logo.png
