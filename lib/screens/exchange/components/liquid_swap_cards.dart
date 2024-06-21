@@ -57,9 +57,9 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
     final btcFormat = ref.read(settingsProvider).btcFormat;
 
     List<Column> cards = [
-      buildCard('Real', 'BRL', Colors.greenAccent, Colors.green, ref, context, false),
-      buildCard('Dollar', 'USD', Colors.greenAccent, const Color.fromARGB(255, 0, 128, 0), ref, context, false),
-      buildCard('Euro', 'EUR', Colors.lightBlueAccent, Colors.cyan, ref, context, false),
+      buildCard('Real', 'BRL', Color(0xFF009B3A), Color(0xFF009B3A), ref, context, false),
+      buildCard('Dollar', 'USD',Color(0xFF008000),Color(0xFF008000), ref, context, false),
+      buildCard('Euro', 'EUR', Color(0xFF003399), Color(0xFF003399), ref, context, false),
     ];
 
     List<Widget> swapCards = [

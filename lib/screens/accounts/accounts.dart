@@ -1,3 +1,4 @@
+import 'package:Satsails/assets/lbtc_icon.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -97,7 +98,7 @@ class Accounts extends ConsumerWidget {
                     ),
                     child: Column(
                       children: [
-                        _buildListTile('Liquid', liquidBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, liquid, liquidInCurrency, currency, format, ref),
+                        _buildListTile('Liquid', liquidBalanceInFormat, const Icon(Lbtc_icon.lbtc_icon, color: Colors.white), context, liquid, liquidInCurrency, currency, format, ref),
                       ],
                     ),
                   ),
@@ -114,30 +115,73 @@ class Accounts extends ConsumerWidget {
               builder: (context, ref, _) {
                 final balance = ref.watch(balanceNotifierProvider);
                 final liquid = ref.watch(liquidAddressProvider.future);
-                return Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  elevation: 10,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Colors.green, Colors.greenAccent],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                return Column(
+                  children: [
+                    Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
                       ),
-                      borderRadius: BorderRadius.circular(15.0),
+                      elevation: 10,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF009B3A), Color(0xFF009B3A)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildListTile('Real', fiatInDenominationFormatted(balance.brlBalance), Flag(Flags.brazil), context, liquid, '', '', '', ref),
+                          ],
+                        ),
+                      ),
                     ),
-                    child: Column(
-                      children: [
-                        _buildListTile('Real', fiatInDenominationFormatted(balance.brlBalance), Flag(Flags.brazil), context, liquid, '', '', '', ref),
-                        _buildListTile('Dollar', fiatInDenominationFormatted(balance.usdBalance), Flag(Flags.united_states_of_america), context, liquid, '', '', '', ref),
-                        _buildListTile('Euro', fiatInDenominationFormatted(balance.eurBalance), Flag(Flags.european_union), context, liquid, '', '', '', ref),
-                      ],
+                    Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      elevation: 10,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF008000), Color(0xFF008000)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildListTile('Dollar', fiatInDenominationFormatted(balance.usdBalance), Flag(Flags.united_states_of_america), context, liquid, '', '', '', ref),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                    Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      elevation: 10,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF003399), Color(0xFF003399)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildListTile('Euro', fiatInDenominationFormatted(balance.eurBalance), Flag(Flags.european_union), context, liquid, '', '', '', ref),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 );
-
               },
             ),
           ],
@@ -145,7 +189,6 @@ class Accounts extends ConsumerWidget {
       ),
     );
   }
-
 
   Widget _buildListTile(String title, String trailing, icon, BuildContext context, bitcoin, String balance, String denomination, String format, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -218,8 +261,6 @@ class Accounts extends ConsumerWidget {
       ),
     );
   }
-
-
 
   void _receivePayment(BuildContext context, dynamic bitcoin, WidgetRef ref) {
     showModalBottomSheet(
