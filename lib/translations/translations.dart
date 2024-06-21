@@ -797,6 +797,10 @@ extension Localization on String {
       {
         'en': 'Getting estimated fees is not successful.',
         'pt': 'Não foi possível obter as taxas estimadas.'
+      }+
+      {
+        'en': 'Buy using telegram',
+        'pt': 'Compre usando telegram'
       };
 
 
