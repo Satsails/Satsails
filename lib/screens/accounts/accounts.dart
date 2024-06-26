@@ -407,7 +407,8 @@ class Accounts extends ConsumerWidget {
     );
   }
 
-  void _receiveInstantBitcoinPayment(BuildContext context, dynamic bitcoin, WidgetRef ref) {
+  void _receiveInstantBitcoinPayment(BuildContext context, dynamic bitcoin,
+      WidgetRef ref) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -418,7 +419,8 @@ class Accounts extends ConsumerWidget {
             children: [
               ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      Colors.deepOrangeAccent),
                   elevation: MaterialStateProperty.all<double>(4),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
@@ -429,11 +431,13 @@ class Accounts extends ConsumerWidget {
                 onPressed: () {
                   _receivePayment(context, bitcoin, ref);
                 },
-                child: Text('Liquid', style: const TextStyle(color: Colors.white)),
+                child: Text(
+                    'Liquid', style: const TextStyle(color: Colors.white)),
               ),
               ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      Colors.deepOrangeAccent),
                   elevation: MaterialStateProperty.all<double>(4),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
@@ -442,9 +446,10 @@ class Accounts extends ConsumerWidget {
                   ),
                 ),
                 onPressed: () {
-                  _receiveLightningPayment(context);
+                  _receiveLightningPayment(context, ref);
                 },
-                child: Text('Lightning', style: const TextStyle(color: Colors.white),
+                child: Text(
+                  'Lightning', style: const TextStyle(color: Colors.white),
                 ),
               ),
             ],
@@ -454,42 +459,26 @@ class Accounts extends ConsumerWidget {
     );
   }
 
-
-
-
-  void _receiveLightningPayment(BuildContext context) {
+  void _receiveLightningPayment(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      builder: (context) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.8,
+        minChildSize: 0.2,
+        maxChildSize: 0.9,
+        builder: (context, scrollController) {
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: SingleChildScrollView(
+              controller: scrollController,
+              padding: const EdgeInsets.all(16.0),
+              child: const LightningWidget(),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 5,
-                  margin: const EdgeInsets.only(bottom: 16.0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                const LightningWidget(),
-              ],
-            ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
