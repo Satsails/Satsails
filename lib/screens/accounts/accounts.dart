@@ -1,5 +1,6 @@
 import 'package:Satsails/assets/lbtc_icon.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/screens/receive/components/lightning_widget.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +20,10 @@ class Accounts extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -39,12 +43,21 @@ class Accounts extends ConsumerWidget {
             SizedBox(height: screenWidth * 0.02),
             Consumer(
               builder: (context, ref, _) {
-                final format = ref.watch(settingsProvider).btcFormat;
-                final currency = ref.watch(settingsProvider).currency;
+                final format = ref
+                    .watch(settingsProvider)
+                    .btcFormat;
+                final currency = ref
+                    .watch(settingsProvider)
+                    .currency;
                 final balanceProvider = ref.watch(balanceNotifierProvider);
-                final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(format));
+                final btcBalanceInFormat = ref.watch(
+                    btcBalanceInFormatProvider(format));
                 final bitcoinAddress = ref.watch(bitcoinAddressProvider.future);
-                final bitcoinInCurrency = ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, balanceProvider.btcBalance))).toStringAsFixed(2);
+                final bitcoinInCurrency = ref.watch(
+                    currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref
+                        .watch(settingsProvider)
+                        .currency, balanceProvider.btcBalance)))
+                    .toStringAsFixed(2);
                 return Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
@@ -61,7 +74,17 @@ class Accounts extends ConsumerWidget {
                     ),
                     child: Column(
                       children: [
-                        _buildListTile('Bitcoin', btcBalanceInFormat, const Icon(LineAwesome.bitcoin, color: Colors.white), context, bitcoinAddress, bitcoinInCurrency, currency, format, ref),
+                        _buildListTile(
+                            'Bitcoin',
+                            btcBalanceInFormat,
+                            const Icon(LineAwesome.bitcoin,
+                                color: Colors.white),
+                            context,
+                            bitcoinAddress,
+                            bitcoinInCurrency,
+                            currency,
+                            format,
+                            ref),
                       ],
                     ),
                   ),
@@ -76,12 +99,21 @@ class Accounts extends ConsumerWidget {
             SizedBox(height: screenWidth * 0.02),
             Consumer(
               builder: (context, ref, _) {
-                final format = ref.watch(settingsProvider).btcFormat;
-                final currency = ref.watch(settingsProvider).currency;
+                final format = ref
+                    .watch(settingsProvider)
+                    .btcFormat;
+                final currency = ref
+                    .watch(settingsProvider)
+                    .currency;
                 final balanceProvider = ref.watch(balanceNotifierProvider);
-                final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
+                final liquidBalanceInFormat = ref.watch(
+                    liquidBalanceInFormatProvider(format));
                 final liquid = ref.watch(liquidAddressProvider.future);
-                final liquidInCurrency = ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, balanceProvider.liquidBalance))).toStringAsFixed(2);
+                final liquidInCurrency = ref.watch(
+                    currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref
+                        .watch(settingsProvider)
+                        .currency, balanceProvider.liquidBalance)))
+                    .toStringAsFixed(2);
                 return Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
@@ -98,7 +130,17 @@ class Accounts extends ConsumerWidget {
                     ),
                     child: Column(
                       children: [
-                        _buildListTile('Liquid', liquidBalanceInFormat, const Icon(Lbtc_icon.lbtc_icon, color: Colors.white), context, liquid, liquidInCurrency, currency, format, ref),
+                        _buildListTile(
+                            'Instant Bitcoin'.i18n(ref),
+                            liquidBalanceInFormat,
+                            const Icon(Lbtc_icon.lbtc_icon,
+                                color: Colors.white),
+                            context,
+                            liquid,
+                            liquidInCurrency,
+                            currency,
+                            format,
+                            ref),
                       ],
                     ),
                   ),
@@ -133,7 +175,16 @@ class Accounts extends ConsumerWidget {
                         ),
                         child: Column(
                           children: [
-                            _buildListTile('Real', fiatInDenominationFormatted(balance.brlBalance), Flag(Flags.brazil), context, liquid, '', '', '', ref),
+                            _buildListTile(
+                                'Real',
+                                fiatInDenominationFormatted(balance.brlBalance),
+                                Flag(Flags.brazil),
+                                context,
+                                liquid,
+                                '',
+                                '',
+                                '',
+                                ref),
                           ],
                         ),
                       ),
@@ -154,7 +205,16 @@ class Accounts extends ConsumerWidget {
                         ),
                         child: Column(
                           children: [
-                            _buildListTile('Dollar', fiatInDenominationFormatted(balance.usdBalance), Flag(Flags.united_states_of_america), context, liquid, '', '', '', ref),
+                            _buildListTile(
+                                'Dollar',
+                                fiatInDenominationFormatted(balance.usdBalance),
+                                Flag(Flags.united_states_of_america),
+                                context,
+                                liquid,
+                                '',
+                                '',
+                                '',
+                                ref),
                           ],
                         ),
                       ),
@@ -175,7 +235,16 @@ class Accounts extends ConsumerWidget {
                         ),
                         child: Column(
                           children: [
-                            _buildListTile('Euro', fiatInDenominationFormatted(balance.eurBalance), Flag(Flags.european_union), context, liquid, '', '', '', ref),
+                            _buildListTile(
+                                'Euro',
+                                fiatInDenominationFormatted(balance.eurBalance),
+                                Flag(Flags.european_union),
+                                context,
+                                liquid,
+                                '',
+                                '',
+                                '',
+                                ref),
                           ],
                         ),
                       ),
@@ -190,8 +259,13 @@ class Accounts extends ConsumerWidget {
     );
   }
 
-  Widget _buildListTile(String title, String trailing, icon, BuildContext context, bitcoin, String balance, String denomination, String format, WidgetRef ref) {
-    final screenWidth = MediaQuery.of(context).size.width;
+  Widget _buildListTile(String title, String trailing, icon,
+      BuildContext context, bitcoin, String balance, String denomination,
+      String format, WidgetRef ref) {
+    final screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
@@ -201,31 +275,41 @@ class Accounts extends ConsumerWidget {
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white, fontWeight: FontWeight.bold), // 4% of screen width
+              style: TextStyle(fontSize: screenWidth * 0.04,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold), // 4% of screen width
             ),
             if (balance.isNotEmpty)
               Row(
                 children: [
                   Text(
                     balance,
-                    style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white), // 4% of screen width
+                    style: TextStyle(fontSize: screenWidth * 0.04,
+                        color: Colors.white), // 4% of screen width
                   ),
                   Text(
                     ' $denomination',
-                    style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white), // 4% of screen width
+                    style: TextStyle(fontSize: screenWidth * 0.04,
+                        color: Colors.white), // 4% of screen width
                   ),
                 ],
               ),
           ],
         ),
-        trailing: Text('$trailing $format', style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white)), // 4% of screen width
+        trailing: Text('$trailing $format', style: TextStyle(
+            fontSize: screenWidth * 0.04, color: Colors.white)),
+        // 4% of screen width
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               TextButton(
                 onPressed: () {
-                  _receivePayment(context, bitcoin, ref);
+                  if (title == 'Instant Bitcoin'.i18n(ref)) {
+                    _receiveInstantBitcoinPayment(context, bitcoin, ref);
+                  } else {
+                    _receivePayment(context, bitcoin, ref);
+                  }
                 },
                 child: const Icon(Icons.arrow_downward, color: Colors.white),
               ),
@@ -266,20 +350,26 @@ class Accounts extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        final screenSize = MediaQuery.of(context).size;
+        final screenSize = MediaQuery
+            .of(context)
+            .size;
         return FutureBuilder<dynamic>(
           future: bitcoin,
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: LoadingAnimationWidget.threeArchedCircle(size: 200, color: Colors.orange));
+              return Center(child: LoadingAnimationWidget.threeArchedCircle(
+                  size: 200, color: Colors.orange));
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (snapshot.hasData) {
-              final String address = snapshot.data is String ? snapshot.data : snapshot.data.confidential;
+              final String address = snapshot.data is String
+                  ? snapshot.data
+                  : snapshot.data.confidential;
               return Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(50.0)),
+                  borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(50.0)),
                 ),
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -289,10 +379,12 @@ class Accounts extends ConsumerWidget {
                       children: [
                         Center(
                           child: Padding(
-                            padding: EdgeInsets.only(top: screenSize.height * 0.02),
+                            padding: EdgeInsets.only(
+                                top: screenSize.height * 0.02),
                             child: Text(
                               'Receive'.i18n(ref),
-                              style: TextStyle(fontSize: screenSize.width * 0.06),
+                              style: TextStyle(
+                                  fontSize: screenSize.width * 0.06),
                             ),
                           ),
                         ),
@@ -310,6 +402,92 @@ class Accounts extends ConsumerWidget {
               return const Center(child: Text('No data'));
             }
           },
+        );
+      },
+    );
+  }
+
+  void _receiveInstantBitcoinPayment(BuildContext context, dynamic bitcoin, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
+                  elevation: MaterialStateProperty.all<double>(4),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  _receivePayment(context, bitcoin, ref);
+                },
+                child: Text('Liquid', style: const TextStyle(color: Colors.white)),
+              ),
+              ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
+                  elevation: MaterialStateProperty.all<double>(4),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  _receiveLightningPayment(context);
+                },
+                child: Text('Lightning', style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
+  void _receiveLightningPayment(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: 16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                const LightningWidget(),
+              ],
+            ),
+          ),
         );
       },
     );

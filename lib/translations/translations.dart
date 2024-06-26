@@ -801,7 +801,13 @@ extension Localization on String {
       {
         'en': 'Buy using telegram',
         'pt': 'Compre usando telegram'
+      }+
+      {
+        'en': 'Instant Bitcoin',
+        'pt': 'Bitcoin Instantâneo'
       };
+
+
 
 
 
