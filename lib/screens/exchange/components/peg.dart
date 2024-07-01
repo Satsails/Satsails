@@ -368,7 +368,7 @@ class _PegState extends ConsumerState<Peg> {
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Sending Transaction fee:' "$fee sats",
+                  "${'Sending Transaction fee:'.i18n(ref)}$fee sats",
                   style: TextStyle(fontSize:  titleFontSize / 2, fontWeight: FontWeight.bold, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),

@@ -119,12 +119,12 @@ extension Localization on String {
         'pt': 'Excluir Carteira',
       } +
       {
-        'en': 'Complete Receiving',
-        'pt': 'Completar Recebimento',
+        'en': 'Receiving',
+        'pt': 'Recebimento',
       } +
       {
-        'en': 'Complete Sending',
-        'pt': 'Completar Envio',
+        'en': 'Sending',
+        'pt': 'Envios',
       } +
       {
         'en': 'Seed Words',

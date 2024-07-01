@@ -257,22 +257,22 @@ class Settings extends ConsumerWidget {
                     Navigator.pop(context);
                   },
                 ),
-                ListTile(
-                  leading: const Text('mBTC'),
-                  title: const Text('mBTC'),
-                  onTap: () {
-                    settingsNotifier.setBtcFormat('mBTC');
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  leading: const Text('bits'),
-                  title: const Text('bits'),
-                  onTap: () {
-                    settingsNotifier.setBtcFormat('bits');
-                    Navigator.pop(context);
-                  },
-                ),
+                // ListTile(
+                //   leading: const Text('mBTC'),
+                //   title: const Text('mBTC'),
+                //   onTap: () {
+                //     settingsNotifier.setBtcFormat('mBTC');
+                //     Navigator.pop(context);
+                //   },
+                // ),
+                // ListTile(
+                //   leading: const Text('bits'),
+                //   title: const Text('bits'),
+                //   onTap: () {
+                //     settingsNotifier.setBtcFormat('bits');
+                //     Navigator.pop(context);
+                //   },
+                // ),
               ],
             );
           },

@@ -62,7 +62,6 @@ final boltzPayProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   await box.put(pay.swap.id, pay);
   sendTx.state = sendTx.state.copyWith(address: pay.swap.scriptAddress, amount: (pay.swap.outAmount).toInt());
   await ref.read(sendLiquidTransactionProvider.future).then((value) => value);
-  box.delete(pay.swap.id);
   return pay;
 });
 
@@ -93,9 +92,7 @@ final payedBoltzProvider = FutureProvider.autoDispose<List<LbtcBoltz>>((ref) asy
 final claimAndDeleteAllBoltzProvider = FutureProvider.autoDispose<void>((ref) async {
   try {
     final receiveBox = await Hive.openBox('receiveBoltz');
-    final payBox = await Hive.openBox('payBoltz');
     final receive = await ref.read(receivedBoltzProvider.future).then((value) => value);
-    final pay = await ref.read(payedBoltzProvider.future).then((value) => value);
     final currentLiquidTip = await getCurrentBlockHeight();
 
     for (var item in receive) {
@@ -103,14 +100,6 @@ final claimAndDeleteAllBoltzProvider = FutureProvider.autoDispose<void>((ref) as
         receiveBox.delete(item.swap.id);
       } else {
         await ref.read(claimSingleBoltzTransactionProvider(item.swap.id).future).then((value) => value);
-      }
-    }
-
-    for (var item in pay) {
-      if (item.swapScript.locktime < currentLiquidTip) {
-        payBox.delete(item.swap.id);
-      } else {
-        await ref.read(refundSingleBoltzTransactionProvider(item.swap.id).future).then((value) => value);
       }
     }
   } catch (_) {
@@ -172,7 +161,6 @@ final bitcoinBoltzPayProvider = FutureProvider.autoDispose<BtcBoltz>((ref) async
   await box.put(pay.swap.id, pay);
   sendTx.state = sendTx.state.copyWith(address: pay.swap.scriptAddress, amount: (pay.swap.outAmount).toInt());
   await ref.read(sendBitcoinTransactionProvider.future).then((value) => value);
-  box.delete(pay.swap.id);
   return pay;
 });
 
@@ -203,9 +191,7 @@ final payedBitcoinBoltzProvider = FutureProvider.autoDispose<List<BtcBoltz>>((re
 final claimAndDeleteAllBitcoinBoltzProvider = FutureProvider.autoDispose<void>((ref) async {
   try {
     final receiveBox = await Hive.openBox('bitcoinReceiveBoltz');
-    final payBox = await Hive.openBox('bitcoinPayBoltz');
     final receive = await ref.read(receivedBitcoinBoltzProvider.future).then((value) => value);
-    final pay = await ref.read(payedBitcoinBoltzProvider.future).then((value) => value);
     final currentBitcoinTip = await getCurrentBitcoinBlockHeight();
 
     for (var item in receive) {
@@ -213,14 +199,6 @@ final claimAndDeleteAllBitcoinBoltzProvider = FutureProvider.autoDispose<void>((
         receiveBox.delete(item.swap.id);
       } else {
         await ref.read(claimSingleBitcoinBoltzTransactionProvider(item.swap.id).future).then((value) => value);
-      }
-    }
-
-    for (var item in pay) {
-      if (item.swapScript.locktime < currentBitcoinTip) {
-        payBox.delete(item.swap.id);
-      } else {
-        await ref.read(refundSingleBitcoinBoltzTransactionProvider(item.swap.id).future).then((value) => value);
       }
     }
   } catch (_) {

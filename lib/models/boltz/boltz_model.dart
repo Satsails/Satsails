@@ -353,8 +353,9 @@ class LbtcBoltz {
     required AllFees fees,
     required bool tryCooperate,
   }) async {
+    LbtcLnV2Swap? refund;
     try {
-      final refund = await LbtcLnV2Swap.newInstance(
+      refund = await LbtcLnV2Swap.newInstance(
         id: swap.id,
         kind: swap.kind,
         network: swap.network,
@@ -368,11 +369,23 @@ class LbtcBoltz {
         electrumUrl: swap.electrumUrl,
         boltzUrl: swap.boltzUrl,
       );
-      await refund.refund(outAddress: outAddress, absFee: fees.lbtcSubmarine.lockupFeesEstimate, tryCooperate: tryCooperate);
+      await refund.refund(outAddress: outAddress,
+          absFee: fees.lbtcSubmarine.lockupFeesEstimate,
+          tryCooperate: tryCooperate);
       return true;
     } catch (e) {
-      return false;
+      try {
+        if (refund != null) {
+          await refund.refund(outAddress: outAddress,
+              absFee: fees.lbtcSubmarine.lockupFeesEstimate,
+              tryCooperate: false);
+          return true;
+        }
+      } catch (e) {
+        return false;
+      }
     }
+    return false;
   }
 }
 
@@ -609,8 +622,9 @@ class BtcBoltz {
     required AllFees fees,
     required bool tryCooperate,
   }) async {
+    BtcLnV2Swap? refund;
     try {
-      final refund = await BtcLnV2Swap.newInstance(
+      refund = await BtcLnV2Swap.newInstance(
         id: swap.id,
         kind: swap.kind,
         network: swap.network,
@@ -626,7 +640,15 @@ class BtcBoltz {
       await refund.refund(outAddress: outAddress, absFee: fees.btcSubmarine.lockupFeesEstimate, tryCooperate: tryCooperate);
       return true;
     } catch (e) {
-      return false;
+      try {
+        if (refund != null) {
+          await refund.refund(outAddress: outAddress, absFee: fees.btcSubmarine.lockupFeesEstimate, tryCooperate: false);
+          return true;
+        }
+      } catch (e) {
+        return false;
+      }
     }
+    return false;
   }
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
 
-final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Complete Receiving");
+final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Receiving");
 final groupButtonControllerProvider = Provider.autoDispose<GroupButtonController>((ref) {
   return GroupButtonController(selectedIndex: 0);
 });
@@ -22,16 +22,16 @@ class BoltzButtonPicker extends ConsumerWidget {
       onSelected: (index, isSelected, isLongPress) {
         switch (isSelected) {
           case 0:
-            ref.read(selectedButtonProvider.notifier).state = "Complete Receiving";
+            ref.read(selectedButtonProvider.notifier).state = "Receiving";
             break;
           case 1:
-            ref.read(selectedButtonProvider.notifier).state = "Complete Sending";
+            ref.read(selectedButtonProvider.notifier).state = "Sending";
             break;
           default:
-            ref.read(selectedButtonProvider.notifier).state = "Complete Receiving";
+            ref.read(selectedButtonProvider.notifier).state = "Receiving";
         }
       },
-      buttons: ["Complete Receiving".i18n(ref), 'Complete Sending'.i18n(ref)],
+      buttons: ["Receiving".i18n(ref), 'Sending'.i18n(ref)],
       options: GroupButtonOptions(
         unselectedTextStyle: TextStyle(
             fontSize: screenWidth * 0.035, color: Colors.black),

@@ -41,9 +41,11 @@ class LiquidSwapCards extends ConsumerStatefulWidget {
 
   @override
   _LiquidSwapCardsState createState() => _LiquidSwapCardsState();
+
 }
 
 class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
+
   final TextEditingController controller = TextEditingController();
 
   @override
@@ -57,13 +59,13 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
     final btcFormat = ref.read(settingsProvider).btcFormat;
 
     List<Column> cards = [
-      buildCard('Depix', 'BRL', Color(0xFF009B3A), Color(0xFF009B3A), ref, context, false),
-      buildCard('USDt', 'USD',Color(0xFF008000),Color(0xFF008000), ref, context, false),
-      buildCard('EURx', 'EUR', Color(0xFF003399), Color(0xFF003399), ref, context, false),
+      buildCard('Depix', 'BRL', Color(0xFF009B3A), Color(0xFF009B3A), ref, context, false, AssetId.BRL),
+      buildCard('USDt', 'USD',Color(0xFF008000),Color(0xFF008000), ref, context, false, AssetId.USD),
+      buildCard('EURx', 'EUR', Color(0xFF003399), Color(0xFF003399), ref, context, false, AssetId.EUR),
     ];
 
     List<Widget> swapCards = [
-      buildCard('Liquid Bitcoin', 'BTC', Colors.blueAccent, Colors.deepPurple, ref, context, true),
+      buildCard('Liquid Bitcoin', 'BTC', Colors.blueAccent, Colors.deepPurple, ref, context, true, AssetId.LBTC),
       GestureDetector(
         onTap: () {
           ref.read(sendBitcoinProvider.notifier).state = !sendBitcoin;
@@ -73,6 +75,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
           ref.refresh(currentBalanceProvider);
           ref.refresh(tickerProvider);
           ref.read(sendTxProvider.notifier).updateDrain(false);
+          controller.text = '';
         },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -131,6 +134,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
             ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(ticker);
             controller.text = '';
             ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(ticker));
+            ref.read(sendTxProvider.notifier).updateAmount(0);
             return true;
           },
           cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
@@ -200,26 +204,31 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                 case AssetId.BRL:
                   balance = ref.read(balanceNotifierProvider).brlBalance;
                   controller.text = fiatInDenominationFormatted(balance);
+                  ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(ticker));
                   ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
                   break;
                 case AssetId.USD:
                   balance = ref.read(balanceNotifierProvider).usdBalance;
                   controller.text = fiatInDenominationFormatted(balance);
+                  ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(ticker));
                   ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
                   break;
                 case AssetId.EUR:
                   balance = ref.read(balanceNotifierProvider).eurBalance;
                   controller.text = fiatInDenominationFormatted(balance);
+                  ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(ticker));
                   ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
                   break;
                 case AssetId.LBTC:
                   balance = ref.read(balanceNotifierProvider).liquidBalance;
                   controller.text = btcInDenominationFormatted(balance.toDouble(), btcFormat);
+                  ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(ticker));
                   ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
                   break;
                 default:
                   balance = ref.read(balanceNotifierProvider).brlBalance;
                   controller.text = fiatInDenominationFormatted(balance);
+                  ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(ticker));
                   ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
                   break;
               }
@@ -242,7 +251,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
     );
   }
 
-  Column buildCard(String title, String unit, Color color1, Color color2, WidgetRef ref, BuildContext context, bool isBitcoin) {
+  Column buildCard(String title, String unit, Color color1, Color color2, WidgetRef ref, BuildContext context, bool isBitcoin, AssetId assetId) {
     final dynamicMargin = MediaQuery.of(context).size.width * 0.04;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final btcFormat = ref.read(settingsProvider).btcFormat;
@@ -316,9 +325,11 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                         style: const TextStyle(color: Colors.white),
                         onChanged: (value) async {
                           if (value.isEmpty) {
+                            ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(assetId));
                             ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
                             ref.read(sendTxProvider.notifier).updateDrain(false);
                           }
+                          ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(assetId));
                           ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
                           ref.read(sendTxProvider.notifier).updateDrain(false);
                         },

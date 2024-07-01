@@ -29,8 +29,8 @@ class ClaimBoltz extends ConsumerWidget {
         child: Column(
           children: [
             const BoltzButtonPicker(),
-            if (button == 'Complete Sending') const Expanded(child: RefundSending()),
-            if (button == 'Complete Receiving') const Expanded(child: ClaimReceiving()),
+            if (button == 'Sending') const Expanded(child: RefundSending()),
+            if (button == 'Receiving') const Expanded(child: ClaimReceiving()),
           ],
         ),
       ),
@@ -140,15 +140,6 @@ Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext con
         builder: (context) {
           return Wrap(
             children: <Widget>[
-              Column(
-                children: [
-                  Text('Pay to complete'.i18n(ref), style: const TextStyle(fontSize: 20)),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(child: buildQrCode(invoice, context)),
-                  ),
-                ],
-              ),
               ListTile(
                 leading: const Icon(Icons.money_off, color: Colors.orangeAccent),
                 title: kind == 'reverse' ? Text('Claim'.i18n(ref)) : Text('Refund'.i18n(ref)),
