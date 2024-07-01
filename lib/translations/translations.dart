@@ -316,7 +316,7 @@ extension Localization on String {
       } +
       {
         'en': 'Liquid Balance',
-        'pt': 'Saldo Líquido',
+        'pt': 'Saldo Liquid',
       } +
       {
         'en': 'Depix Balance',
