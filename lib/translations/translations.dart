@@ -95,8 +95,8 @@ extension Localization on String {
         'pt': 'Converse conosco no Telegram!',
       } +
       {
-        'en': 'Unfinished Lightning Transactions',
-        'pt': 'Transações Lightning Inacabadas',
+        'en': 'Lightning Transactions',
+        'pt': 'Transações Lightning',
       } +
       {
         'en': 'View Seed Words',
