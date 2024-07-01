@@ -39,7 +39,7 @@ class Charge extends ConsumerWidget {
                 onPressed: _launchTelegram,
               ),
               PaymentMethodCard(
-                title: 'Add money with Euro'.i18n(ref),
+                title: 'Add money with EURx'.i18n(ref),
                 description: 'Coming Soon'.i18n(ref),
                 icon: Icons.euro,
                 screenWidth: screenWidth,

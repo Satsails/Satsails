@@ -79,8 +79,11 @@ flutter:
         - asset: lib/assets/fonts/lbtc_icon.ttf
   uses-material-design: true
   assets:
-    - lib/assets/logo.png
     - lib/assets/app_icon.png
+    - lib/assets/depix.png
+    - lib/assets/eurx.png
+    - lib/assets/l-btc.png
+    - lib/assets/tether.png
     - lib/assets/bip39_english.txt
 
 #compil incons to all envs

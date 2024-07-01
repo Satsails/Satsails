@@ -77,8 +77,7 @@ class Accounts extends ConsumerWidget {
                         _buildListTile(
                             'Bitcoin',
                             btcBalanceInFormat,
-                            const Icon(LineAwesome.bitcoin,
-                                color: Colors.white),
+                            const Icon(Icons.currency_bitcoin, color: Colors.white),
                             context,
                             bitcoinAddress,
                             bitcoinInCurrency,
@@ -176,9 +175,13 @@ class Accounts extends ConsumerWidget {
                         child: Column(
                           children: [
                             _buildListTile(
-                                'Real',
+                                'Depix',
                                 fiatInDenominationFormatted(balance.brlBalance),
-                                Flag(Flags.brazil),
+                                Image.asset(
+                                  'lib/assets/depix.png',
+                                  width: 30,
+                                  height: 30,
+                                ),
                                 context,
                                 liquid,
                                 '',
@@ -206,9 +209,13 @@ class Accounts extends ConsumerWidget {
                         child: Column(
                           children: [
                             _buildListTile(
-                                'Dollar',
+                                'USDt',
                                 fiatInDenominationFormatted(balance.usdBalance),
-                                Flag(Flags.united_states_of_america),
+                                Image.asset(
+                                  'lib/assets/tether.png',
+                                  width: 30,
+                                  height: 30,
+                                ),
                                 context,
                                 liquid,
                                 '',
@@ -236,9 +243,13 @@ class Accounts extends ConsumerWidget {
                         child: Column(
                           children: [
                             _buildListTile(
-                                'Euro',
+                                'EURx',
                                 fiatInDenominationFormatted(balance.eurBalance),
-                                Flag(Flags.european_union),
+                                Image.asset(
+                                  'lib/assets/eurx.png',
+                                  width: 30,
+                                  height: 30,
+                                ),
                                 context,
                                 liquid,
                                 '',

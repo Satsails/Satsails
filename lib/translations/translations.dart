@@ -319,16 +319,16 @@ extension Localization on String {
         'pt': 'Saldo Líquido',
       } +
       {
-        'en': 'Reais Balance',
-        'pt': 'Saldo Reais',
+        'en': 'Depix Balance',
+        'pt': 'Saldo Depix',
       } +
       {
-        'en': 'Dollar Balance',
+        'en': 'USDt Balance',
         'pt': 'Saldo Dólar',
       } +
       {
-        'en': 'Euro Balance',
-        'pt': 'Saldo Euro',
+        'en': 'EURx Balance',
+        'pt': 'Saldo EURx',
       } +
       {
         'en': 'Waiting for transaction...',
@@ -627,8 +627,8 @@ extension Localization on String {
         'pt': 'Saldo Atual',
       } +
       {
-        'en': 'Add money with Euro',
-        'pt': 'Adicionar dinheiro com Euro',
+        'en': 'Add money with EURx',
+        'pt': 'Adicionar dinheiro com EURx',
       } +
       {
         'en': 'Cannot exchange 0 amount',

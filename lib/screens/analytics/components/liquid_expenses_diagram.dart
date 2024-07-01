@@ -58,7 +58,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Real", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
+              Text("Depix", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
               const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
@@ -82,7 +82,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Dollar", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
+              Text("USDt", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
               const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
@@ -106,7 +106,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Euro", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
+              Text("EURx", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.grey)),
               const Icon(Icons.swipe_vertical, color: Colors.grey),
             ],
           ),
