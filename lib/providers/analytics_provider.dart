@@ -182,6 +182,12 @@ final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<Date
     return balancePerDay; // Return empty map if there's no data
   }
 
+  if (selectedDays.any((day) => day.isBefore(balanceOverPeriod.keys.first))) {
+    for (DateTime day in selectedDays.where((day) => day.isBefore(balanceOverPeriod.keys.first))) {
+      balancePerDay[normalizeDate(day)] = 0;
+    }
+  }
+
   for (var entry in balanceOverPeriod.entries) {
     final balanceDate = entry.key;
     if (balanceDate.isAfter(start) && balanceDate.isBefore(end.add(const Duration(days: 1)))) {
@@ -194,7 +200,7 @@ final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<Date
     final normalizedDay = normalizeDate(day);
     if (!balancePerDay.containsKey(normalizedDay)) {
       if (normalizedDay.isBefore(balanceOverPeriod.keys.first)) {
-        balancePerDay[normalizedDay] = balanceOverPeriod[balanceOverPeriod.keys.first]!;
+        balancePerDay[normalizedDay] = 0;
       } else if (normalizedDay.isAfter(balanceOverPeriod.keys.last)) {
         balancePerDay[normalizedDay] = balanceOverPeriod[balanceOverPeriod.keys.last]!;
       } else {
@@ -204,6 +210,7 @@ final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<Date
       lastKnownBalance = balancePerDay[normalizedDay]!;
     }
   }
+
   if (balancePerDay.keys.last.isBefore(selectedDays.last)) {
     for (DateTime day = balancePerDay.keys.last.add(const Duration(days: 1)); day.isBefore(selectedDays.last.add(const Duration(days: 1))); day = day.add(const Duration(days: 1))) {
       balancePerDay[day] = lastKnownBalance;
@@ -212,6 +219,8 @@ final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<Date
 
   return balancePerDay;
 });
+
+
 
 final bitcoinBalanceInFormatByDayProvider = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
   final balanceByDay = ref.watch(bitcoinBalanceOverPeriodByDayProvider);
@@ -384,6 +393,12 @@ final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Ma
     return balancePerDay;
   }
 
+  if (selectedDays.any((day) => day.isBefore(balanceOverPeriod.keys.first))) {
+    for (DateTime day in selectedDays.where((day) => day.isBefore(balanceOverPeriod.keys.first))) {
+      balancePerDay[normalizeDate(day)] = 0;
+    }
+  }
+
   for (var entry in balanceOverPeriod.entries) {
     final balanceDate = entry.key;
     if (balanceDate.isAfter(start) && balanceDate.isBefore(end.add(const Duration(days: 1)))) {
@@ -396,7 +411,7 @@ final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Ma
     final normalizedDay = normalizeDate(day);
     if (!balancePerDay.containsKey(normalizedDay)) {
       if (normalizedDay.isBefore(balanceOverPeriod.keys.first)) {
-        balancePerDay[normalizedDay] = balanceOverPeriod[balanceOverPeriod.keys.first]!;
+        balancePerDay[normalizedDay] = 0;
       } else if (normalizedDay.isAfter(balanceOverPeriod.keys.last)) {
         balancePerDay[normalizedDay] = balanceOverPeriod[balanceOverPeriod.keys.last]!;
       } else {
@@ -411,6 +426,7 @@ final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Ma
 
   return orderedBalances;
 });
+
 
 final liquidBalancePerDayInBTCFormatProvider = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
   final balanceByDay = ref.watch(liquidBalanceOverPeriodByDayProvider(asset));
