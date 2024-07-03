@@ -44,7 +44,9 @@ class Settings extends ConsumerWidget {
             _buildDivider(),
             _buildBtcUnitSection(ref, context),
             _buildDivider(),
-            _builDeleteWalletSection(context, ref),
+            _buildRegisteredIdSection(ref),
+            _buildDivider(),
+            _buildDeleteWalletSection(context, ref),
           ],
         ),
       ),
@@ -192,7 +194,7 @@ class Settings extends ConsumerWidget {
     );
   }
 
-  Widget _builDeleteWalletSection(BuildContext context, WidgetRef ref) {
+  Widget _buildDeleteWalletSection(BuildContext context, WidgetRef ref) {
     final authModel = ref.read(authModelProvider);
     return ListTile(
       leading: const Icon(Icons.delete, color: Colors.orangeAccent),
@@ -278,6 +280,16 @@ class Settings extends ConsumerWidget {
           },
         );
       },
+    );
+  }
+
+  Widget _buildRegisteredIdSection(WidgetRef ref) {
+    final id = ref.watch(settingsProvider).identificationBr;
+
+    return ListTile(
+      leading: const Icon(Icons.perm_identity, color: Colors.orangeAccent),
+      title: Text('Registered CPF'.i18n(ref)),
+      subtitle: id == '' ? Text('Not registered'.i18n(ref)) : Text(id),
     );
   }
 }
