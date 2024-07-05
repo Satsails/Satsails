@@ -1,6 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:hive/hive.dart';
+import 'package:random_string/random_string.dart';
 
 class AuthModel {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -37,9 +38,19 @@ class AuthModel {
     return storedPin != null && storedPin == incomingPin;
   }
 
+  Future<void> setPaymentCode() async {
+    String paymentCode = randomAlphaNumeric(10);
+    await _storage.write(key: 'pixPaymentCode', value: paymentCode);
+  }
+
+  Future <String> getPaymentCode() async {
+    return await _storage.read(key: 'pixPaymentCode') ?? '';
+  }
+
   Future<void> deleteAuthentication() async {
     await _storage.delete(key: 'mnemonic');
     await _storage.delete(key: 'pin');
+    await _storage.delete(key: 'pixPaymentCode');
     await Hive.deleteBoxFromDisk('bitcoin');
     await Hive.deleteBoxFromDisk('liquid');
     await Hive.deleteBoxFromDisk('settings');

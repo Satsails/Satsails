@@ -62,7 +62,7 @@ dependencies:
   segmented_button_slide: ^1.0.4
   syncfusion_flutter_charts: ^25.2.6
   flutter_keyboard_visibility: ^5.0.0
-  uuid: ^4.4.0
+  random_string: ^2.3.1
 
   intl: any
 dev_dependencies:

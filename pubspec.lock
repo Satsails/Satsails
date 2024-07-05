@@ -242,14 +242,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
-  cpf_cnpj_validator:
-    dependency: "direct main"
-    description:
-      name: cpf_cnpj_validator
-      sha256: "2d52caefe720f7428d8fd12b5dc3a9603e137ae4eafe032b8f1bd104d3656bfb"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
   crypto:
     dependency: transitive
     description:
@@ -1103,6 +1095,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.0"
+  random_string:
+    dependency: "direct main"
+    description:
+      name: random_string
+      sha256: "03b52435aae8cbdd1056cf91bfc5bf845e9706724dd35ae2e99fa14a1ef79d02"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.1"
   rational:
     dependency: transitive
     description:
@@ -1349,7 +1349,7 @@ packages:
     source: hosted
     version: "3.1.1"
   uuid:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: uuid
       sha256: "814e9e88f21a176ae1359149021870e87f7cddaf633ab678a5d2b0bff7fd1ba8"
