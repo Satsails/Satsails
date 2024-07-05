@@ -45,7 +45,6 @@ class Settings {
   late final String btcFormat;
   late bool online;
   final bool backup;
-  final String identificationBr;
 
   Settings({
     required this.currency,
@@ -53,7 +52,6 @@ class Settings {
     required String btcFormat,
     required this.online,
     required this.backup,
-    required String this.identificationBr,
   }) : btcFormat = (['BTC', 'mBTC', 'bits', 'sats'].contains(btcFormat)) ? btcFormat : throw ArgumentError('Invalid btcFormat'),
         super();
 
@@ -71,7 +69,6 @@ class Settings {
       btcFormat: btcFormat ?? this.btcFormat,
       online: online ?? this.online,
       backup: backup ?? this.backup,
-      identificationBr: identificationBr ?? this.identificationBr
     );
   }
 }

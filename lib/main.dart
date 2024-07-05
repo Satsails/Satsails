@@ -37,7 +37,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'screens/charge/components/pix.dart';
 import 'screens/settings/components/backup_wallet.dart';
-import 'screens/settings/components/identification.dart';
 
 
 void main() async {
@@ -177,7 +176,6 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
                 '/claim_boltz_transactions': (context) => ClaimBoltz(),
                 '/backup_wallet': (context) => const BackupWallet(),
                 '/pix': (context) => const Pix(),
-                '/identification': (context) => const Identification(),
               },
             );
           }

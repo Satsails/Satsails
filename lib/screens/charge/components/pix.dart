@@ -10,7 +10,6 @@ class Pix extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref){
-    final String cpfRegistered = ref.read(settingsProvider).identificationBr;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -58,7 +57,7 @@ class Pix extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                "Only send PIX from an account that has the CPF you registered ($cpfRegistered), otherwise we cannot process your transaction. If you made a mistake, please contact our support. on the settings tab via telegram.",
+                "Only send PIX from an account that has the CPF you registered, otherwise we cannot process your transaction. If you made a mistake, please contact our support. on the settings tab via telegram.",
                 style: TextStyle(fontSize: 14),
                 textAlign: TextAlign.center,
               ),

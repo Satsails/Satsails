@@ -27,9 +27,7 @@ class Charge extends ConsumerWidget {
                 description: 'Buy using telegram'.i18n(ref),
                 icon: Icons.qr_code,
                 screenWidth: screenWidth,
-                onPressed: () => ref.read(settingsProvider).identificationBr != ''
-                    ? Navigator.pushNamed(context, '/pix')
-                    : Navigator.pushNamed(context, '/identification'),
+                onPressed: () => Navigator.pushNamed(context, '/pix')
               ),
               PaymentMethodCard(
                 title: 'Add money with EURx'.i18n(ref),
