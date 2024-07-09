@@ -49,7 +49,6 @@ class SetPin extends ConsumerWidget {
                     if (formKey.currentState!.validate()) {
                       final authModel = ref.read(authModelProvider);
                       final mnemonic = await authModel.getMnemonic();
-                      await authModel.setPaymentCode();
                       if (mnemonic == null || mnemonic.isEmpty) {
                         await authModel.setMnemonic(await authModel.generateMnemonic());
                       }

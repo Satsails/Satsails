@@ -9,6 +9,7 @@ class Charge extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final hasOnboarded = ref.watch(settingsProvider).pixOnboarding;
 
     return Scaffold(
       appBar: AppBar(
@@ -27,7 +28,7 @@ class Charge extends ConsumerWidget {
                 description: 'Buy using telegram'.i18n(ref),
                 icon: Icons.qr_code,
                 screenWidth: screenWidth,
-                onPressed: () => Navigator.pushNamed(context, '/pix')
+                onPressed: () => hasOnboarded ? Navigator.of(context).pushNamed('/pix') : Navigator.of(context).pushNamed('/pix_onboarding'),
               ),
               PaymentMethodCard(
                 title: 'Add money with EURx'.i18n(ref),

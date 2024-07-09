@@ -11,8 +11,10 @@ final initialSettingsProvider = FutureProvider.autoDispose<Settings>((ref) async
       final language = box.get('language', defaultValue: languageIsPortuguese ? 'pt' : 'en');
       final btcFormat = box.get('btcFormat', defaultValue: 'BTC');
       final backup = box.get('backup', defaultValue: false);
+      final pixOnboarding = box.get('onboarding', defaultValue: false);
+      final pixPaymentCode = box.get('pixPaymentCode', defaultValue: '');
 
-      return Settings(currency: currency, language: language, btcFormat: btcFormat, online: true, backup: backup);
+      return Settings(currency: currency, language: language, btcFormat: btcFormat, online: true, backup: backup, pixOnboarding: pixOnboarding, pixPaymentCode: pixPaymentCode);
 });
 
 final settingsProvider = StateNotifierProvider.autoDispose<SettingsModel, Settings>((ref) {
@@ -21,7 +23,7 @@ final settingsProvider = StateNotifierProvider.autoDispose<SettingsModel, Settin
 
       return SettingsModel(initialSettings.when(
             data: (settings) => settings,
-            loading: () => Settings(currency: 'USD', language: languageIsPortuguese ? 'pt' : 'en', btcFormat: 'BTC', online: true, backup: false),
+            loading: () => Settings(currency: 'USD', language: languageIsPortuguese ? 'pt' : 'en', btcFormat: 'BTC', online: true, backup: false, pixOnboarding: false, pixPaymentCode: ''),
             error: (Object error, StackTrace stackTrace) {
                   throw error;
             },

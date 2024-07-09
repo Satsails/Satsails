@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
+import 'package:random_string/random_string.dart';
 
 class SettingsModel extends StateNotifier<Settings> {
   SettingsModel(super.state);
@@ -31,11 +32,16 @@ class SettingsModel extends StateNotifier<Settings> {
     box.put('backup', backupStatus);
     state = state.copyWith(backup: backupStatus);
   }
-  
-  Future<void> setidentificationBr(String newidentificationBr) async {
+
+  Future<void> setPixOnboarding(bool pixOnboardingStatus) async {
     final box = await Hive.openBox('settings');
-    box.put('identificationBr', newidentificationBr);
-    state = state.copyWith(identificationBr: newidentificationBr);
+    box.put('onboarding', pixOnboardingStatus);
+    state = state.copyWith(pixOnboarding: pixOnboardingStatus);
+  }
+  Future<void> setPixPaymentCode() async {
+    String paymentCode = randomAlphaNumeric(10);
+    final box = await Hive.openBox('settings');
+    box.put('pixPaymentCode', paymentCode);
   }
 }
 
@@ -45,6 +51,8 @@ class Settings {
   late final String btcFormat;
   late bool online;
   final bool backup;
+  final bool pixOnboarding;
+  final String pixPaymentCode;
 
   Settings({
     required this.currency,
@@ -52,6 +60,8 @@ class Settings {
     required String btcFormat,
     required this.online,
     required this.backup,
+    required this.pixOnboarding,
+    required this.pixPaymentCode,
   }) : btcFormat = (['BTC', 'mBTC', 'bits', 'sats'].contains(btcFormat)) ? btcFormat : throw ArgumentError('Invalid btcFormat'),
         super();
 
@@ -61,7 +71,8 @@ class Settings {
     String? btcFormat,
     bool? online,
     bool? backup,
-    String? identificationBr,
+    bool? pixOnboarding,
+    String? pixPaymentCode,
   }) {
     return Settings(
       currency: currency ?? this.currency,
@@ -69,6 +80,8 @@ class Settings {
       btcFormat: btcFormat ?? this.btcFormat,
       online: online ?? this.online,
       backup: backup ?? this.backup,
+      pixOnboarding: pixOnboarding ?? this.pixOnboarding,
+      pixPaymentCode: pixPaymentCode ?? this.pixPaymentCode,
     );
   }
 }

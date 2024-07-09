@@ -1,4 +1,4 @@
-import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +10,7 @@ class Pix extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final pixPaymentCodeFuture = ref.read(authModelProvider).getPaymentCode();
+    final pixPaymentCodeFuture = ref.read(settingsProvider).pixPaymentCode;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -58,23 +58,9 @@ class Pix extends ConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: FutureBuilder<String>(
-                future: pixPaymentCodeFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (snapshot.hasData) {
-                    return Text(
-                      "please add this code to your pix: ${snapshot.data}",
-                      style: const TextStyle(fontSize: 14),
-                      textAlign: TextAlign.center,
-                    );
-                  } else {
-                    return const Text('No payment code available');
-                  }
-                },
+              child: Text(
+                'Pix payment code: ' + pixPaymentCodeFuture.toString(),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ],
