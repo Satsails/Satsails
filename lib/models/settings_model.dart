@@ -38,10 +38,11 @@ class SettingsModel extends StateNotifier<Settings> {
     box.put('onboarding', pixOnboardingStatus);
     state = state.copyWith(pixOnboarding: pixOnboardingStatus);
   }
-  Future<void> setPixPaymentCode() async {
+  Future<String> setPixPaymentCode() async {
     String paymentCode = randomAlphaNumeric(10);
     final box = await Hive.openBox('settings');
     box.put('pixPaymentCode', paymentCode);
+    return paymentCode;
   }
 }
 
