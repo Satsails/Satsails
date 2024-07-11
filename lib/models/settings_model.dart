@@ -42,6 +42,7 @@ class SettingsModel extends StateNotifier<Settings> {
     String paymentCode = randomAlphaNumeric(10);
     final box = await Hive.openBox('settings');
     box.put('pixPaymentCode', paymentCode);
+    state = state.copyWith(pixPaymentCode: paymentCode);
     return paymentCode;
   }
 }

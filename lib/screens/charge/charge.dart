@@ -25,7 +25,7 @@ class Charge extends ConsumerWidget {
             children: [
               PaymentMethodCard(
                 title: 'Add Money with Pix'.i18n(ref),
-                description: 'Buy using telegram'.i18n(ref),
+                description: 'Send a pix and we will credit your wallet'.i18n(ref),
                 icon: Icons.qr_code,
                 screenWidth: screenWidth,
                 onPressed: () => hasOnboarded ? Navigator.of(context).pushNamed('/pix') : Navigator.of(context).pushNamed('/pix_onboarding'),
