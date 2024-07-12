@@ -99,8 +99,8 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'You can transfer up to ${_remainingLimit.toStringAsFixed(2)} BRL today'.i18n(ref),
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    'You can transfer up to ${_remainingLimit.toString()} BRL today'.i18n(ref),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
                   ),
                 ),
                 Padding(

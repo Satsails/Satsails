@@ -604,7 +604,7 @@ extension Localization on String {
       } +
       {
         'en': 'Set an amount to create a lightning invoice',
-        'pt': 'Defina um valor para criar uma fatura',
+        'pt': 'Defina um valor para criar uma fatura lightning',
       } +
       {
         'en': 'Amount is below the minimal limit',

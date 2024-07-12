@@ -4,7 +4,6 @@ import 'package:Satsails/screens/receive/components/lightning_widget.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
@@ -322,7 +321,12 @@ class Accounts extends ConsumerWidget {
                     _receivePayment(context, bitcoin, ref);
                   }
                 },
-                child: const Icon(Icons.arrow_downward, color: Colors.white),
+                child: Column(
+                  children: [
+                    const Text('Receive', style: TextStyle(color: Colors.white)),
+                    const Icon(Icons.arrow_downward, color: Colors.white),
+                  ],
+                ),
               ),
               TextButton(
                 onPressed: () {
@@ -348,7 +352,12 @@ class Accounts extends ConsumerWidget {
                     },
                   );
                 },
-                child: const Icon(Icons.arrow_upward, color: Colors.white),
+                child: Column(
+                  children: [
+                    const Text('Send', style: TextStyle(color: Colors.white)),
+                    const Icon(Icons.arrow_upward, color: Colors.white),
+                  ],
+                ),
               ),
             ],
           ),
