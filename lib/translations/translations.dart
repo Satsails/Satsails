@@ -335,8 +335,8 @@ extension Localization on String {
         'pt': 'Aguardando transação...',
       } +
       {
-        'en': 'Set an amount to create an invoice',
-        'pt': 'Defina um valor para criar uma fatura',
+        'en': 'Set an amount to create a lightning invoice',
+        'pt': 'Defina um valor para criar uma fatura lightning',
       } +
       {
         'en': 'Amount is above the maximal limit',
@@ -603,7 +603,7 @@ extension Localization on String {
         'pt': 'Reivindicar transações lightning',
       } +
       {
-        'en': 'Set an amount to create an invoice',
+        'en': 'Set an amount to create a lightning invoice',
         'pt': 'Defina um valor para criar uma fatura',
       } +
       {

@@ -15,6 +15,10 @@ class Charge extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text('Charge Wallet'.i18n(ref), style: TextStyle(fontSize: screenWidth * 0.05)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.of(context).pushNamed('/home'),
+        )
       ),
       backgroundColor: Colors.white,
       body: Center(

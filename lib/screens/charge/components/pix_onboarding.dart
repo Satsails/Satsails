@@ -32,7 +32,7 @@ class PixOnBoarding extends ConsumerWidget {
         ),
         PageViewModel(
           title: "Simply send us a pix with your unique code".i18n(ref),
-          body: "Send a pix with the code we will provide you as a message, and we will credit your wallet. We do it this way to maintain your privacy".i18n(ref),
+          body: "Send a pix with the to the key we provide you, and we will credit your wallet".i18n(ref),
           image: Center(
             child: Brand(Brands.pix, size: iconSize),
           ),
@@ -43,8 +43,8 @@ class PixOnBoarding extends ConsumerWidget {
           ),
         ),
         PageViewModel(
-          title: "Didn't get send the code or sent it wrong?".i18n(ref),
-          body: "Contact us via our support in settings with your cpf the date and the amount sent, so we can find your payment and credit your wallet".i18n(ref),
+          title: "Your wallet did not get credited?".i18n(ref),
+          body: "Contact us via our support in settings and we will help you".i18n(ref),
           image: Center(
             child: Icon(Clarity.error_solid, size: iconSize, color: Colors.red),
           ),
@@ -55,7 +55,7 @@ class PixOnBoarding extends ConsumerWidget {
           ),
         ),
         PageViewModel(
-          title: "You can not send more than 5000 BRL per day per cpf".i18n(ref),
+          title: "You can not send more than 5000 BRL per day".i18n(ref),
           body: "If you need to send more, contact us via our support in settings, and we will help you".i18n(ref),
           image: Center(
             child: Icon(Clarity.add_line, size: iconSize, color: Colors.orange),

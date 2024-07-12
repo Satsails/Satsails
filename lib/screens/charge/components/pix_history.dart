@@ -2,24 +2,79 @@ import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PixHistory extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pixHistory = ref.watch(getUserTransactionsProvider);
 
-    return pixHistory.when(
-        data: (history) => ListView.builder(
-          itemCount: history.length,
-          itemBuilder: (context, index) {
-            final pix = history[index];
-            return ListTile(
-              title: Text(pix),
+    return Expanded(
+      child: pixHistory.when(
+        data: (history) {
+          if (history.isEmpty) {
+            return Center(
+              child: Text('No Pix transactions'.i18n(ref)),
             );
-          },
+          }
+          return ListView.builder(
+            itemCount: history.length,
+            itemBuilder: (context, index) {
+              final pix = history[index];
+              final double dynamicMargin = 10.0;
+              final double dynamicRadius = 10.0;
+              return Container(
+                margin: EdgeInsets.all(dynamicMargin),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(dynamicRadius),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: InkWell(
+                  onTap: () async {
+                    if (pix.receipt != null) {
+                      if (await canLaunch(pix.receipt!)) {
+                        await launch(pix.receipt!);
+                      } else {
+                        throw 'Could not launch ${pix.receipt}';
+                      }
+                    }
+                  },
+                  child: ListTile(
+                    leading: Icon(Icons.person, color: Colors.orange),
+                    title: Text(pix.name),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Received: ${pix.sentAmount} BRL"),
+                        Text("Tap to view receipt"),
+                      ],
+                    ),
+                    trailing: Icon(Icons.receipt_long, color: Colors.green),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+        loading: () => Center(
+          child: LoadingAnimationWidget.threeArchedCircle(
+            size: MediaQuery.of(context).size.height * 0.1,
+            color: Colors.orange,
+          ),
         ),
-        loading: () => Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error'.i18n(ref))),
+        error: (error, stack) => Center(
+          child: Text('Error: $error'.i18n(ref)),
+        ),
+      ),
     );
   }
 }

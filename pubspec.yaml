@@ -63,6 +63,10 @@ dependencies:
   syncfusion_flutter_charts: ^25.2.6
   random_string: ^2.3.1
   introduction_screen: ^3.1.14
+  pix_flutter:
+    git:
+      url: https://github.com/JoaoLobo94/pix_flutter
+      ref: master
 
   intl: any
 dev_dependencies:
