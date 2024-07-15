@@ -49,16 +49,16 @@ class PixHistory extends ConsumerWidget {
                     }
                   },
                   child: ListTile(
-                    leading: Icon(Icons.person, color: Colors.orange),
+                    leading: const Icon(Icons.person, color: Colors.orange),
                     title: Text(pix.name),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text("Received: ${pix.sentAmount} BRL"),
-                        Text("Tap to view receipt"),
+                        const Text("Tap to view receipt"),
                       ],
                     ),
-                    trailing: Icon(Icons.receipt_long, color: Colors.green),
+                    trailing: const Icon(Icons.receipt_long, color: Colors.green),
                   ),
                 ),
               );
@@ -71,8 +71,11 @@ class PixHistory extends ConsumerWidget {
             color: Colors.orange,
           ),
         ),
-        error: (error, stack) => Center(
-          child: Text('Error: $error'.i18n(ref)),
+        error: (error, stack) => Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: const Center(
+            child: Text('An error as ocurred. Please check you internet connection or contact support'),
+          ),
         ),
       ),
     );

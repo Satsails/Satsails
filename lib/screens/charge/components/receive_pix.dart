@@ -38,7 +38,6 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       return;
     }
 
-    // Re-fetch the transferred amount
     final amountTransferred = await ref.read(getAmountTransferredProvider.future);
     final double transferredAmount = double.tryParse(amountTransferred) ?? 0.0;
     _remainingLimit = _dailyLimit - transferredAmount;
@@ -85,7 +84,10 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
           color: Colors.orange,
         ),
       ),
-      error: (error, stack) => Center(child: Text('Error: $error')),
+      error: (error, stack) => Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(child: Text('An error as ocurred. Please check you internet connection or contact support')),
+      ),
       data: (amountTransferred) {
         final double transferredAmount = double.tryParse(amountTransferred) ?? 0.0;
         _remainingLimit = _dailyLimit - transferredAmount;

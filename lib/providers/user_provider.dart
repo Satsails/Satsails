@@ -86,7 +86,7 @@ final getAmountTransferredProvider = FutureProvider.autoDispose<String>((ref) as
 class UserService {
   Future<String> createUserRequest(String paymentId, String liquidAddress) async {
     final response = await http.post(
-      Uri.parse('https://a69b-93-108-187-211.ngrok-free.app/users'),
+      Uri.parse('https://www.splitter.satsails.com/users'),
       body: jsonEncode({
         'user': {
           'payment_id': paymentId,
@@ -106,7 +106,7 @@ class UserService {
   }
 
   Future<List<Transfer>> getUserTransactions(String pixPaymentCode) async {
-    final uri = Uri.parse('https://a69b-93-108-187-211.ngrok-free.app/user_transfers')
+    final uri = Uri.parse('https://www.splitter.satsails.com/user_transfers')
         .replace(queryParameters: {
       'payment_id': pixPaymentCode,
     });
@@ -127,7 +127,7 @@ class UserService {
   }
 
   Future<String> getAmountTransferred(String pixPaymentCode) async {
-    final uri = Uri.parse('https://a69b-93-108-187-211.ngrok-free.app/amount_transfered_by_day')
+    final uri = Uri.parse('https://www.splitter.satsails.com/amount_transfered_by_day')
         .replace(queryParameters: {
       'payment_id': pixPaymentCode,
     });
