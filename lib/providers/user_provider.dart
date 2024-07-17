@@ -62,7 +62,7 @@ class Transfer {
       receivedTxid: json['received_txid'],
       sentTxid: json['sent_txid'],
       receipt: json['receipt'],
-      userId: json['user_id'] != null ? int.parse(json['user_id']) : null,
+      userId: json['user_id'] != null ? json['user_id'] : null,
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
     );
@@ -139,7 +139,7 @@ class UserService {
     );
 
     if (response.statusCode == 200) {
-      return response.body;
+      return jsonDecode(response.body);
     } else {
       throw Exception('Failed to get amount transferred');
     }

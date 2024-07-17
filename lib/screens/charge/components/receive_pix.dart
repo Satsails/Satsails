@@ -63,7 +63,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
         merchantName: 'PLEBANK.COM.BR SOLUCOES ',
         merchantCity: 'SP',
         txid: pixPaymentCode,
-        amount: amountToReceive.toStringAsFixed(2),
+        amount: amountInDouble.toStringAsFixed(2),
         isUniquePayment: true,
       ),
     );
