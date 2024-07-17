@@ -34,7 +34,13 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
     final double amountInDouble = double.tryParse(amount.replaceAll(',', '.')) ?? 0.0;
     if (amountInDouble < 3.0) {
-      Fluttertoast.showToast(msg: 'Minimum amount is 3 BRL'.i18n(ref));
+      Fluttertoast.showToast(msg: 'Minimum amount is 3 BRL'.i18n(ref), toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: MediaQuery.of(context).size.height * 0.02,
+      );
       return;
     }
 
@@ -43,7 +49,13 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     _remainingLimit = _dailyLimit - transferredAmount;
 
     if (amountInDouble > _remainingLimit) {
-      Fluttertoast.showToast(msg: 'You have reached the daily limit'.i18n(ref));
+      Fluttertoast.showToast(msg: 'You have reached the daily limit'.i18n(ref), toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: MediaQuery.of(context).size.height * 0.02,
+      );
       return;
     }
 

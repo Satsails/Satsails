@@ -11,8 +11,6 @@ import 'package:introduction_screen/introduction_screen.dart';
 class PixOnBoarding extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.read(settingsProvider.notifier).setPixOnboarding(false);
-
     final screenSize = MediaQuery.of(context).size;
     final iconSize = screenSize.width * 0.4;
 

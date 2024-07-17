@@ -25,13 +25,13 @@ class PixButtons extends ConsumerWidget {
             ref.read(topSelectedButtonProvider.notifier).state = "Pix Address";
             break;
           case 1:
-            ref.read(topSelectedButtonProvider.notifier).state = "Pix History";
+            ref.read(topSelectedButtonProvider.notifier).state = "Check Pix Transactions";
             break;
           default:
             ref.read(topSelectedButtonProvider.notifier).state = "Pix Address";
         }
       },
-      buttons: ["Pix Address", "Pix History".i18n(ref)],
+      buttons: ["Pix Address", "Check Pix Transactions".i18n(ref)],
       options: GroupButtonOptions(
         unselectedTextStyle: TextStyle(fontSize: screenWidth * 0.035, color: Colors.black),
         selectedTextStyle: TextStyle(fontSize: screenWidth * 0.035, color: Colors.white),
