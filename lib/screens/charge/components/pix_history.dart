@@ -55,6 +55,19 @@ class PixHistory extends ConsumerWidget {
                     children: [
                       Text("Received: ${pix.sentAmount} BRL"),
                       const Text("Tap to view receipt"),
+                      if (pix.sentTxid == null)
+                        Container(
+                          margin: EdgeInsets.only(top: 8.0),
+                          padding: EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: Colors.yellow,
+                            borderRadius: BorderRadius.circular(dynamicRadius),
+                          ),
+                          child: Text(
+                            "Transaction still pending, or maximum value of 5000 per CPF has been reached and depix will be transferred on next available day",
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
                     ],
                   ),
                   trailing: const Icon(Icons.receipt_long, color: Colors.green),
