@@ -10,7 +10,7 @@ enum AssetId {
       case AssetId.USD:
         return 'USDT';
       case AssetId.LBTC:
-        return 'L-BTC';
+        return 'BTC';
       case AssetId.EUR:
         return 'EURx';
       case AssetId.BRL:
