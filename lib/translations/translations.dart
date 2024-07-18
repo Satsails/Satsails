@@ -909,6 +909,14 @@ extension Localization on String {
       {
         'en': 'Done',
         'pt': 'Concluído'
+      } +
+      {
+        'en': 'Receive',
+        'pt': 'Receber'
+      } +
+      {
+        'en': 'Send',
+        'pt': 'Enviar'
       };
 
   String i18n(WidgetRef ref) {

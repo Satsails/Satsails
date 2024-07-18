@@ -25,6 +25,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
   double _amountToReceive = 0.0;
   double _dailyLimit = 5000.0;
   double _remainingLimit = 5000.0;
+  bool _isLoading = false;
 
   Future<void> _generateQRCode() async {
     final amount = _amountController.text;
@@ -34,7 +35,9 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
     final double amountInDouble = double.tryParse(amount.replaceAll(',', '.')) ?? 0.0;
     if (amountInDouble < 3.0) {
-      Fluttertoast.showToast(msg: 'Minimum amount is 3 BRL'.i18n(ref), toastLength: Toast.LENGTH_SHORT,
+      Fluttertoast.showToast(
+        msg: 'Minimum amount is 3 BRL'.i18n(ref),
+        toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.TOP,
         timeInSecForIosWeb: 1,
         backgroundColor: Colors.red,
@@ -44,18 +47,27 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       return;
     }
 
-    final amountTransferred = await ref.read(getAmountTransferredProvider.future);
+    setState(() {
+      _isLoading = true;
+    });
+
+    final amountTransferred = await ref.refresh(getAmountTransferredProvider.future);
     final double transferredAmount = double.tryParse(amountTransferred) ?? 0.0;
     _remainingLimit = _dailyLimit - transferredAmount;
 
     if (amountInDouble > _remainingLimit) {
-      Fluttertoast.showToast(msg: 'You have reached the daily limit'.i18n(ref), toastLength: Toast.LENGTH_SHORT,
+      Fluttertoast.showToast(
+        msg: 'You have reached the daily limit'.i18n(ref),
+        toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.TOP,
         timeInSecForIosWeb: 1,
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: MediaQuery.of(context).size.height * 0.02,
       );
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
 
@@ -82,6 +94,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
     setState(() {
       _pixQRCode = pixFlutter.getQRCode();
+      _isLoading = false;
     });
   }
 
@@ -98,7 +111,9 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       ),
       error: (error, stack) => Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(child: Text('An error as ocurred. Please check you internet connection or contact support'.i18n(ref))),
+        child: Center(
+          child: Text('An error has occurred. Please check your internet connection or contact support'.i18n(ref)),
+        ),
       ),
       data: (amountTransferred) {
         final double transferredAmount = double.tryParse(amountTransferred) ?? 0.0;
@@ -147,10 +162,20 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
-                CustomButton(
-                  text: 'Generate Pix code'.i18n(ref),
-                  onPressed: _generateQRCode,
-                ),
+                if (_isLoading)
+                  Center(
+                    child: LoadingAnimationWidget.threeArchedCircle(
+                      size: MediaQuery.of(context).size.height * 0.1,
+                      color: Colors.orange,
+                    ),
+                  )
+                else
+                  CustomButton(
+                    text: 'Generate Pix code'.i18n(ref),
+                    onPressed: () async {
+                      await _generateQRCode();
+                    },
+                  ),
                 const SizedBox(height: 20),
                 if (_pixQRCode.isNotEmpty) buildQrCode(_pixQRCode, context),
                 const SizedBox(height: 20),

@@ -8,13 +8,13 @@ enum AssetId {
   String get name {
     switch (this) {
       case AssetId.USD:
-        return 'USD';
+        return 'USDT';
       case AssetId.LBTC:
-        return 'BTC';
+        return 'L-BTC';
       case AssetId.EUR:
-        return 'EUR';
+        return 'EURx';
       case AssetId.BRL:
-        return 'BRL';
+        return 'Depix';
       default:
         return 'UNKNOWN';
     }

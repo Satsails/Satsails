@@ -323,7 +323,7 @@ class Accounts extends ConsumerWidget {
                 },
                 child: Column(
                   children: [
-                    const Text('Receive', style: TextStyle(color: Colors.white)),
+                    Text('Receive'.i18n(ref), style: TextStyle(color: Colors.white)),
                     const Icon(Icons.arrow_downward, color: Colors.white),
                   ],
                 ),
@@ -354,7 +354,7 @@ class Accounts extends ConsumerWidget {
                 },
                 child: Column(
                   children: [
-                    const Text('Send', style: TextStyle(color: Colors.white)),
+                    Text('Send'.i18n(ref), style: TextStyle(color: Colors.white)),
                     const Icon(Icons.arrow_upward, color: Colors.white),
                   ],
                 ),
