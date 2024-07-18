@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/settings_model.dart';
 import 'package:hive/hive.dart';
@@ -11,10 +10,8 @@ final initialSettingsProvider = FutureProvider.autoDispose<Settings>((ref) async
       final language = box.get('language', defaultValue: languageIsPortuguese ? 'pt' : 'en');
       final btcFormat = box.get('btcFormat', defaultValue: 'BTC');
       final backup = box.get('backup', defaultValue: false);
-      final pixOnboarding = box.get('onboarding', defaultValue: false);
-      final pixPaymentCode = box.get('pixPaymentCode', defaultValue: '');
 
-      return Settings(currency: currency, language: language, btcFormat: btcFormat, online: true, backup: backup, pixOnboarding: pixOnboarding, pixPaymentCode: pixPaymentCode);
+      return Settings(currency: currency, language: language, btcFormat: btcFormat, online: true, backup: backup);
 });
 
 final settingsProvider = StateNotifierProvider.autoDispose<SettingsModel, Settings>((ref) {
@@ -23,7 +20,7 @@ final settingsProvider = StateNotifierProvider.autoDispose<SettingsModel, Settin
 
       return SettingsModel(initialSettings.when(
             data: (settings) => settings,
-            loading: () => Settings(currency: 'USD', language: languageIsPortuguese ? 'pt' : 'en', btcFormat: 'BTC', online: true, backup: false, pixOnboarding: false, pixPaymentCode: ''),
+            loading: () => Settings(currency: 'USD', language: languageIsPortuguese ? 'pt' : 'en', btcFormat: 'BTC', online: true, backup: false),
             error: (Object error, StackTrace stackTrace) {
                   throw error;
             },

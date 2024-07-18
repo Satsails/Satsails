@@ -1,6 +1,7 @@
+import 'package:Satsails/models/user_model.dart';
+import 'package:Satsails/providers/pix_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
-import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -67,8 +68,8 @@ class PixOnBoarding extends ConsumerWidget {
       ],
       onDone: () async {
         try {
-          await ref.read(settingsProvider.notifier).setPixOnboarding(true);
-          final paymentId = await ref.read(settingsProvider.notifier).setPixPaymentCode();
+          await ref.read(pixProvider.notifier).setPixOnboarding(true);
+          final paymentId = await ref.read(pixProvider.notifier).setPixPaymentCode();
           final liquidAddress = await ref.read(liquidAddressProvider.future);
           UserArguments userArguments = UserArguments(paymentId: paymentId, liquidAddress: liquidAddress.confidential);
           final message = await ref.read(createUserProvider(userArguments).future);
@@ -81,9 +82,9 @@ class PixOnBoarding extends ConsumerWidget {
             textColor: Colors.white,
             fontSize: 16.0,
           );
-          Navigator.of(context).pushNamed('/pix');
+          Navigator.of(context).pushReplacementNamed('/pix');
         } catch (e) {
-          await ref.read(settingsProvider.notifier).setPixOnboarding(false);
+          await ref.read(pixProvider.notifier).setPixOnboarding(false);
           Fluttertoast.showToast(
             msg: 'There was an error saving your code. Please try again or contact support'.i18n(ref),
             toastLength: Toast.LENGTH_LONG,

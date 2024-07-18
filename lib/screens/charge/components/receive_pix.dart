@@ -1,4 +1,4 @@
-import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/pix_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
@@ -66,7 +66,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       _amountToReceive = amountToReceive;
     });
 
-    final pixPaymentCode = ref.read(settingsProvider).pixPaymentCode;
+    final pixPaymentCode = ref.read(pixProvider).pixPaymentCode;
 
     PixFlutter pixFlutter = PixFlutter(
       payload: Payload(
@@ -98,7 +98,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       ),
       error: (error, stack) => Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(child: Text('An error as ocurred. Please check you internet connection or contact support')),
+        child: Center(child: Text('An error as ocurred. Please check you internet connection or contact support'.i18n(ref))),
       ),
       data: (amountTransferred) {
         final double transferredAmount = double.tryParse(amountTransferred) ?? 0.0;
@@ -113,7 +113,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'You can transfer up to ${_remainingLimit.toString()} BRL today'.i18n(ref),
+                    'You can transfer up to'.i18n(ref) + ' $_dailyLimit BRL' + ' per day'.i18n(ref),
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
                   ),
                 ),
@@ -143,7 +143,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
-                      'You will receive: ${_amountToReceive.toStringAsFixed(2)} BRL'.i18n(ref),
+                      'You will receive: '.i18n(ref) + '${_amountToReceive.toStringAsFixed(2)} BRL',
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),

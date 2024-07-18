@@ -31,7 +31,7 @@ class PixButtons extends ConsumerWidget {
             ref.read(topSelectedButtonProvider.notifier).state = "Pix Address";
         }
       },
-      buttons: ["Pix Address", "Check Pix Transactions".i18n(ref)],
+      buttons: ["Pix Address".i18n(ref), "Check Pix Transactions".i18n(ref)],
       options: GroupButtonOptions(
         unselectedTextStyle: TextStyle(fontSize: screenWidth * 0.035, color: Colors.black),
         selectedTextStyle: TextStyle(fontSize: screenWidth * 0.035, color: Colors.white),

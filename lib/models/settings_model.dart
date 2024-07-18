@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'package:random_string/random_string.dart';
 
 class SettingsModel extends StateNotifier<Settings> {
   SettingsModel(super.state);
@@ -32,19 +31,6 @@ class SettingsModel extends StateNotifier<Settings> {
     box.put('backup', backupStatus);
     state = state.copyWith(backup: backupStatus);
   }
-
-  Future<void> setPixOnboarding(bool pixOnboardingStatus) async {
-    final box = await Hive.openBox('settings');
-    box.put('onboarding', pixOnboardingStatus);
-    state = state.copyWith(pixOnboarding: pixOnboardingStatus);
-  }
-  Future<String> setPixPaymentCode() async {
-    String paymentCode = randomAlphaNumeric(10);
-    final box = await Hive.openBox('settings');
-    box.put('pixPaymentCode', paymentCode);
-    state = state.copyWith(pixPaymentCode: paymentCode);
-    return paymentCode;
-  }
 }
 
 class Settings {
@@ -53,8 +39,7 @@ class Settings {
   late final String btcFormat;
   late bool online;
   final bool backup;
-  final bool pixOnboarding;
-  final String pixPaymentCode;
+
 
   Settings({
     required this.currency,
@@ -62,8 +47,6 @@ class Settings {
     required String btcFormat,
     required this.online,
     required this.backup,
-    required this.pixOnboarding,
-    required this.pixPaymentCode,
   }) : btcFormat = (['BTC', 'mBTC', 'bits', 'sats'].contains(btcFormat)) ? btcFormat : throw ArgumentError('Invalid btcFormat'),
         super();
 
@@ -82,8 +65,6 @@ class Settings {
       btcFormat: btcFormat ?? this.btcFormat,
       online: online ?? this.online,
       backup: backup ?? this.backup,
-      pixOnboarding: pixOnboarding ?? this.pixOnboarding,
-      pixPaymentCode: pixPaymentCode ?? this.pixPaymentCode,
     );
   }
 }

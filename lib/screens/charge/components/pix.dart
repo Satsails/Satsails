@@ -15,10 +15,6 @@ class Pix extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Pix'),
         backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pushNamed('/charge'),
-        ),
       ),
       body: Center(
         child: Column(

@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/pix_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -9,16 +10,12 @@ class Charge extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final hasOnboarded = ref.watch(settingsProvider).pixOnboarding;
+    final hasOnboarded = ref.watch(pixProvider).pixOnboarding;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text('Charge Wallet'.i18n(ref), style: TextStyle(fontSize: screenWidth * 0.05)),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pushNamed('/home'),
-        )
       ),
       backgroundColor: Colors.white,
       body: Center(

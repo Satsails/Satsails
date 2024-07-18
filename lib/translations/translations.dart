@@ -805,12 +805,111 @@ extension Localization on String {
       {
         'en': 'Instant Bitcoin',
         'pt': 'Bitcoin Instantâneo'
+      }+
+      {
+        'en': 'Send a pix and we will credit your wallet',
+        'pt': 'Envie um pix e creditaremos sua carteira'
+      }+
+      {
+        'en': 'Pix Address',
+        'pt': 'Endereço Pix'
+      }+
+      {
+        'en': 'Check Pix Transactions',
+        'pt': 'Verificar Transações Pix'
+      } +
+      {
+        'en': 'Minimum amount is 3 BRL',
+        'pt': 'O valor mínimo é de 3 BRL'
+      } +
+      {
+        'en': 'You have reached the daily limit',
+        'pt': 'Você atingiu o limite diário'
+      } +
+      {
+        'en': 'An error has occurred. Please check your internet connection or contact support',
+        'pt': 'Ocorreu um erro. Por favor, verifique sua conexão com a internet ou contate o suporte'
+      } +
+      {
+        'en': 'You can transfer up to',
+        'pt': 'Você pode transferir até '
+      } +
+      {
+        'en': ' per day',
+        'pt': ' por dia'
+      } +
+      {
+        'en': 'Insert an amount',
+        'pt': 'Insira um valor'
+      } +
+      {
+        'en': 'You will receive: ',
+        'pt': 'Você receberá: '
+      } +
+      {
+        'en': 'Generate Pix code',
+        'pt': 'Gerar código Pix'
+      } +
+      {
+        'en': 'No Pix transactions',
+        'pt': 'Nenhuma transação Pix'
+      } +
+      {
+        'en': 'Received: ',
+        'pt': 'Recebido: '
+      } +
+      {
+        'en': 'Tap to view receipt',
+        'pt': 'Toque para ver o recibo'
+      } +
+      {
+        'en': 'Transaction still pending, or maximum value of 5000 per CPF has been reached and depix will be transferred on next available day',
+        'pt': 'Transação ainda pendente, ou o valor máximo de 5000 por CPF foi atingido e o depix será transferido no próximo dia disponível'
+      } +
+      {
+        'en': 'Charge your wallet',
+        'pt': 'Carregue sua carteira'
+      } +
+      {
+        'en': 'Get Real stablecoins, and convert them to Bitcoin',
+        'pt': 'Obtenha stablecoins de Real e converta-os em Bitcoin'
+      } +
+      {
+        'en': 'Simply send us a pix with your unique code',
+        'pt': 'Simplesmente nos envie um pix com seu código único'
+      } +
+      {
+        'en': 'Send a pix with the to the key we provide you, and we will credit your wallet',
+        'pt': 'Envie um pix com a chave que fornecemos a você, e creditaremos sua carteira'
+      } +
+      {
+        'en': 'Your wallet did not get credited?',
+        'pt': 'Sua carteira não foi creditada?'
+      } +
+      {
+        'en': 'Contact us via our support in settings and we will help you',
+        'pt': 'Contate-nos através do nosso suporte nas configurações e nós ajudaremos você'
+      } +
+      {
+        'en': 'You can not send more than 5000 BRL per day',
+        'pt': 'Você não pode enviar mais de 5000 BRL por dia'
+      } +
+      {
+        'en': 'If you need to send more, contact us via our support in settings, and we will help you',
+        'pt': 'Se você precisar enviar mais, contate-nos através do nosso suporte nas configurações, e nós ajudaremos você'
+      } +
+      {
+        'en': 'There was an error saving your code. Please try again or contact support',
+        'pt': 'Houve um erro ao salvar seu código. Por favor, tente novamente ou contate o suporte'
+      } +
+      {
+        'en': 'Skip',
+        'pt': 'Pular'
+      } +
+      {
+        'en': 'Done',
+        'pt': 'Concluído'
       };
-
-
-
-
-
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;

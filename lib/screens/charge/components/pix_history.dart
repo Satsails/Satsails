@@ -53,8 +53,8 @@ class PixHistory extends ConsumerWidget {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Received: ${pix.sentAmount} BRL"),
-                      const Text("Tap to view receipt"),
+                      Text("Received: ".i18n(ref) + pix.receivedAmount.toStringAsFixed(2)),
+                      Text("Tap to view receipt".i18n(ref)),
                       if (pix.sentTxid == null)
                         Container(
                           margin: EdgeInsets.only(top: 8.0),
@@ -64,7 +64,7 @@ class PixHistory extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(dynamicRadius),
                           ),
                           child: Text(
-                            "Transaction still pending, or maximum value of 5000 per CPF has been reached and depix will be transferred on next available day",
+                            "Transaction still pending, or maximum value of 5000 per CPF has been reached and depix will be transferred on next available day".i18n(ref),
                             style: TextStyle(color: Colors.black),
                           ),
                         ),
@@ -85,8 +85,8 @@ class PixHistory extends ConsumerWidget {
       ),
       error: (error, stack) => Padding(
         padding: const EdgeInsets.all(16.0),
-        child: const Center(
-          child: Text('An error has occurred. Please check your internet connection or contact support'),
+        child: Center(
+          child: Text('An error has occurred. Please check your internet connection or contact support'.i18n(ref)),
         ),
       ),
     );
