@@ -917,6 +917,18 @@ extension Localization on String {
       {
         'en': 'Send',
         'pt': 'Enviar'
+      } +
+      {
+        'en': 'Error please contact support',
+        'pt': 'Erro, por favor, contate o suporte'
+      } +
+      {
+        'en': 'PIX received',
+        'pt': 'PIX recebido'
+      } +
+      {
+        'en': 'Pix received but transfer limit exceeded, you will receive the amount in 24h. If you wish to receive it sooner, please contact support',
+        'pt': 'Pix recebido, mas o limite de transferência foi excedido, você receberá o valor em 24h. Se desejar recebê-lo mais cedo, entre em contato com o suporte'
       };
 
   String i18n(WidgetRef ref) {

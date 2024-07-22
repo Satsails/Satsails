@@ -92,8 +92,8 @@ class Pay extends ConsumerWidget {
                     child: ElevatedButton.icon(
                       onPressed: () => _pasteFromClipboard(context, ref),
                       icon: const Icon(Icons.content_paste, color: Colors.white),
-                      label: const Text(
-                          'Paste', style: TextStyle(color: Colors.white)),
+                      label: Text(
+                          'Paste'.i18n(ref), style: TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.orangeAccent,
@@ -105,8 +105,8 @@ class Pay extends ConsumerWidget {
                     child: ElevatedButton.icon(
                       onPressed: _toggleFlash,
                       icon: const Icon(Icons.flash_on, color: Colors.white),
-                      label: const Text(
-                          'Flash', style: TextStyle(color: Colors.white)),
+                      label: Text(
+                          'Flash'.i18n(ref), style: TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.orangeAccent,

@@ -9,11 +9,10 @@ class UserArguments {
   UserArguments({required this.paymentId, required this.liquidAddress});
 }
 
-
 class UserService {
   Future<String> createUserRequest(String paymentId, String liquidAddress) async {
     final response = await http.post(
-      Uri.parse('https://splitter.satsails.com/users'),
+      Uri.parse('https://4f7b-177-143-252-140.ngrok-free.app/users'),
       body: jsonEncode({
         'user': {
           'payment_id': paymentId,
@@ -33,7 +32,7 @@ class UserService {
   }
 
   Future<List<Transfer>> getUserTransactions(String pixPaymentCode) async {
-    final uri = Uri.parse('https://splitter.satsails.com/user_transfers')
+    final uri = Uri.parse('https://4f7b-177-143-252-140.ngrok-free.app/user_transfers')
         .replace(queryParameters: {
       'payment_id': pixPaymentCode,
     });
@@ -54,7 +53,7 @@ class UserService {
   }
 
   Future<String> getAmountTransferred(String pixPaymentCode) async {
-    final uri = Uri.parse('https://splitter.satsails.com/amount_transfered_by_day')
+    final uri = Uri.parse('https://4f7b-177-143-252-140.ngrok-free.app/amount_transfered_by_day')
         .replace(queryParameters: {
       'payment_id': pixPaymentCode,
     });

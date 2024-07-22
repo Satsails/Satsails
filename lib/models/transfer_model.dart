@@ -17,7 +17,6 @@ class Transfer {
   final DateTime updatedAt;
   final double receivedAmount;
 
-
   Transfer({
     required this.id,
     required this.name,
@@ -40,23 +39,23 @@ class Transfer {
 
   factory Transfer.fromJson(Map<String, dynamic> json) {
     return Transfer(
-      id: json['id'],
-      name: json['name'],
-      transferId: json['transfer_id'],
-      cpf: json['cpf'],
-      sentAmount: double.parse(json['sent_amount']),
-      originalAmount: double.parse(json['original_amount']),
-      mintFees: double.parse(json['mint_fees']),
-      paymentId: json['payment_id'],
-      completedTransfer: json['completed_transfer'].toString().toLowerCase() == 'true',
-      processing: json['processing'].toString().toLowerCase() == 'true',
-      receivedTxid: json['received_txid'],
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      transferId: json['transfer_id'] ?? '',
+      cpf: json['cpf'] ?? '',
+      sentAmount: (json['sent_amount'] != null) ? double.parse(json['sent_amount']) : 0.0,
+      originalAmount: (json['original_amount'] != null) ? double.parse(json['original_amount']) : 0.0,
+      mintFees: (json['mint_fees'] != null) ? double.parse(json['mint_fees']) : 0.0,
+      paymentId: json['payment_id'] ?? '',
+      completedTransfer: json['completed_transfer']?.toString().toLowerCase() == 'true',
+      processing: json['processing']?.toString().toLowerCase() == 'true',
+      receivedTxid: json['received_txid'] ?? '',
       sentTxid: json['sent_txid'],
       receipt: json['receipt'],
-      userId: json['user_id'] != null ? json['user_id'] : null,
-      receivedAmount: double.parse(json['amount_received_by_user']),
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      userId: json['user_id'],
+      receivedAmount: (json['amount_received_by_user'] != null) ? double.parse(json['amount_received_by_user']) : 0.0,
+      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
     );
   }
 }
