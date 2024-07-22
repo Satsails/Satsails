@@ -88,9 +88,8 @@ void main() async {
       ),
       builder: (context, child) {
         final mediaQueryData = MediaQuery.of(context);
-        final scale = mediaQueryData.textScaleFactor.clamp(1.0, 1.3);
         return MediaQuery(
-          data: mediaQueryData.copyWith(textScaler: TextScaler.linear(scale)),
+          data: mediaQueryData.copyWith(textScaleFactor: 1.0),
           child: child!,
         );
       },
