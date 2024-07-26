@@ -30,7 +30,7 @@ class Settings extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _builBlockExplorerSection(context, ref),
+            _buildBlockExplorerSection(context, ref),
             _buildDivider(),
             _buildCurrencySection(ref, context),
             _buildDivider(),
@@ -44,14 +44,26 @@ class Settings extends ConsumerWidget {
             _buildDivider(),
             _buildBtcUnitSection(ref, context),
             _buildDivider(),
+            _buildAffiliatesRedirectionSection(context, ref),
+            _buildDivider(),
             _buildDeleteWalletSection(context, ref),
           ],
         ),
       ),
     );
   }
+  
+  Widget _buildAffiliatesRedirectionSection(BuildContext context, WidgetRef ref) {
+    return ListTile(
+      leading: const Icon(Icons.monetization_on, color: Colors.orangeAccent),
+      title: Text('Affiliates Section'.i18n(ref)),
+      onTap: () {
+        Navigator.pushNamed(context, '/start_affiliate');
+      },
+    );
+  }
 
-  Widget _builBlockExplorerSection(BuildContext context, WidgetRef ref) {
+  Widget _buildBlockExplorerSection(BuildContext context, WidgetRef ref) {
     return ListTile(
       leading: const Icon(Clarity.block_solid, color: Colors.orangeAccent),
       title: Text('Search the blockchain'.i18n(ref)),

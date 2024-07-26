@@ -11,7 +11,7 @@ final initialPixProvider = FutureProvider.autoDispose<Pix>((ref) async {
 });
 
 final pixProvider = StateNotifierProvider.autoDispose<PixModel, Pix>((ref) {
-  final initialPix = ref.watch(initialPixProvider);
+  final initialPix = ref.read(initialPixProvider);
 
   return PixModel(initialPix.when(
     data: (pix) => pix,

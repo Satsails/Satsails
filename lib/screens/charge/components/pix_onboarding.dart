@@ -1,7 +1,5 @@
-import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/pix_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -76,10 +74,11 @@ class PixOnBoarding extends ConsumerWidget {
             ref.read(loadingProvider.notifier).state = true;
             try {
               await ref.read(pixProvider.notifier).setPixOnboarding(true);
-              final paymentId = await ref.read(pixProvider.notifier).setPixPaymentCode();
-              final liquidAddress = await ref.read(liquidAddressProvider.future);
-              UserArguments userArguments = UserArguments(paymentId: paymentId, liquidAddress: liquidAddress.confidential);
-              final message = await ref.read(createUserProvider(userArguments).future);
+              var paymentId = ref.read(pixProvider).pixPaymentCode;
+              if (paymentId == "") {
+                paymentId = await ref.read(createUserProvider.future);
+              }
+              final message = 'Wallet unique id created successfully'.i18n(ref);
               Fluttertoast.showToast(
                 msg: message.i18n(ref),
                 toastLength: Toast.LENGTH_LONG,
@@ -89,6 +88,7 @@ class PixOnBoarding extends ConsumerWidget {
                 textColor: Colors.white,
                 fontSize: 16.0,
               );
+              await ref.read(pixProvider.notifier).setPixOnboarding(true);
               Navigator.of(context).pushReplacementNamed('/pix');
             } catch (e) {
               await ref.read(pixProvider.notifier).setPixOnboarding(false);

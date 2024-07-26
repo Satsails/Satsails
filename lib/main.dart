@@ -4,6 +4,7 @@ import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
 import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
+import 'package:Satsails/screens/settings/components/start_affiliate.dart';
 import 'package:Satsails/screens/settings/components/claim_boltz.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';
@@ -177,6 +178,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
                 '/backup_wallet': (context) => const BackupWallet(),
                 '/pix': (context) => const Pix(),
                 '/pix_onboarding': (context) => PixOnBoarding(),
+                '/start_affiliate': (context) => const StartAffiliate(),
               },
             );
           }
