@@ -53,12 +53,11 @@ class User {
 }
 
 class UserService {
-  Future<String> createUserRequest(String paymentId, String liquidAddress) async {
+  Future<String> createUserRequest(String liquidAddress) async {
     final response = await http.post(
       Uri.parse('https://c56c-186-215-8-237.ngrok-free.app/users'),
       body: jsonEncode({
         'user': {
-          'payment_id': paymentId,
           'liquid_address': liquidAddress,
         }
       }),
@@ -68,7 +67,7 @@ class UserService {
     );
 
     if (response.statusCode == 200) {
-      return 'Wallet unique id created successfully';
+      return jsonDecode(response.body)['payment_id'];
     } else {
       throw Exception('Failed to create user: ${response.body}');
     }

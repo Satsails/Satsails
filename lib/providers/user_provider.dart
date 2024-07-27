@@ -27,9 +27,10 @@ final userProvider = StateNotifierProvider.autoDispose<UserModel, User>((ref) {
 });
 
 final createUserProvider = FutureProvider.autoDispose<String>((ref) async {
-  final paymentId = await ref.read(pixProvider.notifier).setPixPaymentCode();
   final liquidAddress = await ref.read(liquidAddressProvider.future);
-  await UserService().createUserRequest(paymentId, liquidAddress.confidential);
+  final user = await UserService().createUserRequest(liquidAddress.confidential);
+  await ref.read(pixProvider.notifier).setPixPaymentCode(user);
+  final paymentId = ref.read(pixProvider).pixPaymentCode;
   return paymentId;
 });
 

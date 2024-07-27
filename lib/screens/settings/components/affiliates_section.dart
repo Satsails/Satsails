@@ -93,7 +93,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                         textColor: Colors.white,
                         fontSize: 16.0,
                       );
-                      // Navigator.pop(context);
+                      Navigator.pop(context);
                     } catch (e) {
                       Fluttertoast.showToast(
                         msg: e.toString().i18n(ref),
@@ -164,7 +164,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                         textColor: Colors.white,
                         fontSize: 16.0,
                       );
-                      // Navigator.pop(context);
+                      Navigator.pop(context);
                     } catch (e) {
                       Fluttertoast.showToast(
                         msg: e.toString().i18n(ref),
