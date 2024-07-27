@@ -33,11 +33,7 @@ class LineChartSample extends StatelessWidget {
   Widget build(BuildContext context) {
     return SfCartesianChart(
       primaryXAxis: DateTimeAxis(
-        intervalType: DateTimeIntervalType.days,
-        dateFormat: DateFormat('dd/MM'),
-        interval: selectedDays.length > 20 ? 5 : 1,
-        majorGridLines: const MajorGridLines(width: 0),
-        minorGridLines: const MinorGridLines(width: 0),
+        isVisible: true,
       ),
       primaryYAxis: NumericAxis(
         isVisible: true,
@@ -105,6 +101,7 @@ class LineChartSample extends StatelessWidget {
         yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
         color: Colors.orangeAccent,
         markerSettings: const MarkerSettings(isVisible: false),
+        animationDuration: 0,
       ));
     } else {
       seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
@@ -114,6 +111,7 @@ class LineChartSample extends StatelessWidget {
         yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
         color: Colors.blueAccent,
         markerSettings: const MarkerSettings(isVisible: false),
+        animationDuration: 0,
       ));
       seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Income',
@@ -122,6 +120,7 @@ class LineChartSample extends StatelessWidget {
         yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
         color: Colors.greenAccent,
         markerSettings: const MarkerSettings(isVisible: false),
+        animationDuration: 0,
       ));
       seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Fee',
@@ -130,6 +129,7 @@ class LineChartSample extends StatelessWidget {
         yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
         color: Colors.orangeAccent,
         markerSettings: const MarkerSettings(isVisible: false),
+        animationDuration: 0,
       ));
     }
 
