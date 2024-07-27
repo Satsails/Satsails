@@ -26,6 +26,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
   double _dailyLimit = 5000.0;
   double _remainingLimit = 5000.0;
   bool _isLoading = false;
+  String _feeDescription = 'Fee: 2% + 2 BRL';
 
   Future<void> _generateQRCode() async {
     final amount = _amountController.text;
@@ -71,7 +72,24 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       return;
     }
 
-    final double fee = amountInDouble * 0.02 + 2.0;
+    // Calcular a taxa com possíveis descontos
+    double fee = amountInDouble * 0.02 + 2.0;
+    _feeDescription = 'Fee: 2% + 2 BRL';
+
+    final hasAffiliateCode = ref.watch(userProvider).hasAffiliate;
+    final hasCreatedAffiliate = ref.watch(userProvider).hasCreatedAffiliate;
+
+    if (hasAffiliateCode) {
+      fee = amountInDouble * 0.015 + 2;
+      _feeDescription = 'Fee: 1.5% + 2 BRL (Affiliate Discount)';
+    } else if (hasCreatedAffiliate) {
+      final int numberOfAffiliateInstalls = await ref.watch(numberOfAffiliateInstallsProvider.future);
+      if (numberOfAffiliateInstalls > 1) {
+        fee = amountInDouble * 0.015 + 2;
+        _feeDescription = 'Fee: 1.5% + 2 BRL (Affiliate Discount)';
+      }
+    }
+
     final double amountToReceive = amountInDouble - fee;
 
     setState(() {
@@ -84,7 +102,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       payload: Payload(
         pixKey: _address,
         description: pixPaymentCode,
-        merchantName: 'PLEBANK.COM.BR SOLUCOES ',
+        merchantName: 'PLEBANK.COM.BR SOLUCOES',
         merchantCity: 'SP',
         txid: pixPaymentCode,
         amount: amountInDouble.toStringAsFixed(2),
@@ -188,9 +206,17 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                 if (_amountToReceive > 0)
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'You will receive: '.i18n(ref) + '${_amountToReceive.toStringAsFixed(2)} BRL',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    child: Column(
+                      children: [
+                        Text(
+                          'You will receive: '.i18n(ref) + '${_amountToReceive.toStringAsFixed(2)} BRL',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          _feeDescription,
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
                     ),
                   ),
                 if (_isLoading)

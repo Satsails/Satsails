@@ -55,7 +55,7 @@ class User {
 class UserService {
   Future<String> createUserRequest(String liquidAddress) async {
     final response = await http.post(
-      Uri.parse('https://c56c-186-215-8-237.ngrok-free.app/users'),
+      Uri.parse('https://splitter.satsails.com/users'),
       body: jsonEncode({
         'user': {
           'liquid_address': liquidAddress,
@@ -75,7 +75,7 @@ class UserService {
 
   Future<bool> addAffiliateCode(String paymentId, String affiliateCode) async {
     final response = await http.post(
-      Uri.parse('https://c56c-186-215-8-237.ngrok-free.app/add_affiliate'),
+      Uri.parse('https://splitter.satsails.com/add_affiliate'),
       body: jsonEncode({
         'user': {
           'payment_id': paymentId,
@@ -96,7 +96,7 @@ class UserService {
 
   Future<bool> createAffiliateCode(String paymentId, String affiliateCode) async {
     final response = await http.post(
-      Uri.parse('https://c56c-186-215-8-237.ngrok-free.app/affiliates'),
+      Uri.parse('https://splitter.satsails.com/affiliates'),
       body: jsonEncode({
         'affiliate': {
           'affiliate_owner': paymentId,
@@ -116,7 +116,7 @@ class UserService {
   }
 
   Future<List<Transfer>> getUserTransactions(String pixPaymentCode) async {
-    final uri = Uri.parse('https://c56c-186-215-8-237.ngrok-free.app/user_transfers')
+    final uri = Uri.parse('https://splitter.satsails.com/user_transfers')
         .replace(queryParameters: {
       'payment_id': pixPaymentCode,
     });
@@ -137,7 +137,7 @@ class UserService {
   }
 
   Future<String> getAmountTransferred(String pixPaymentCode) async {
-    final uri = Uri.parse('https://c56c-186-215-8-237.ngrok-free.app/amount_transfered_by_day')
+    final uri = Uri.parse('https://splitter.satsails.com/amount_transfered_by_day')
         .replace(queryParameters: {
       'payment_id': pixPaymentCode,
     });
@@ -156,7 +156,7 @@ class UserService {
   }
 
   Future<int> affiliateNumberOfUsers(String affiliateCode) async {
-    final uri = Uri.parse('https://c56c-186-215-8-237.ngrok-free.app/number_of_users')
+    final uri = Uri.parse('https://splitter.satsails.com/number_of_users')
         .replace(queryParameters: {
          'code': affiliateCode,
     });
@@ -175,7 +175,7 @@ class UserService {
   }
 
   Future<String> affiliateEarnings(String affiliateCode) async {
-    final uri = Uri.parse('https://c56c-186-215-8-237.ngrok-free.app/value_purchased_by_affiliate')
+    final uri = Uri.parse('https://splitter.satsails.com/value_purchased_by_affiliate')
         .replace(queryParameters: {
       'code': affiliateCode,
     });

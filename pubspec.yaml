@@ -67,7 +67,6 @@ dependencies:
     git:
       url: https://github.com/JoaoLobo94/pix_flutter
       ref: master
-
   intl: any
   pusher_channels_flutter: ^2.2.1
 dev_dependencies:
