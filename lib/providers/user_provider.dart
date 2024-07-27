@@ -60,7 +60,8 @@ final createAffiliateCodeProvider = FutureProvider.autoDispose.family<void, Stri
     paymentId = await ref.read(createUserProvider.future);
   }
   final setAffiliateCode = await ref.read(userProvider.notifier).setAffiliateCode(affiliateCode);
-  await UserService().createAffiliateCode(paymentId, setAffiliateCode);
+  final liquidAddress = await ref.read(liquidAddressProvider.future);
+  await UserService().createAffiliateCode(paymentId, setAffiliateCode, liquidAddress.confidential);
   ref.read(userProvider.notifier).setHasCreatedAffiliate(true);
 });
 

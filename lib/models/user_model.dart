@@ -94,13 +94,14 @@ class UserService {
     }
   }
 
-  Future<bool> createAffiliateCode(String paymentId, String affiliateCode) async {
+  Future<bool> createAffiliateCode(String paymentId, String affiliateCode, String liquidAddress) async {
     final response = await http.post(
       Uri.parse('https://splitter.satsails.com/affiliates'),
       body: jsonEncode({
         'affiliate': {
           'affiliate_owner': paymentId,
-          'code': affiliateCode
+          'code': affiliateCode,
+          'liquid_address': liquidAddress,
         }
       }),
       headers: {
