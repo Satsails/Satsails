@@ -28,6 +28,28 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
   bool _isLoading = false;
   String _feeDescription = 'Fee: 2% + 2 BRL';
 
+  double calculateFee(double amountInDouble, bool hasAffiliateCode, bool hasCreatedAffiliate, int numberOfAffiliateInstalls) {
+    if (hasAffiliateCode) {
+      return amountInDouble * 0.015 + 2;
+    } else if (hasCreatedAffiliate) {
+      if (numberOfAffiliateInstalls > 1) {
+        return amountInDouble * 0.015 + 2;
+      } else {
+        return amountInDouble * 0.02 + 2;
+      }
+    } else {
+      return amountInDouble * 0.02 + 2;
+    }
+  }
+
+  String getFeeDescription(bool hasAffiliateCode, bool hasCreatedAffiliate, int numberOfAffiliateInstalls) {
+    if (hasAffiliateCode || (hasCreatedAffiliate && numberOfAffiliateInstalls > 1)) {
+      return 'Fee: 1.5% + 2 BRL (Affiliate Discount)';
+    } else {
+      return 'Fee: 2% + 2 BRL';
+    }
+  }
+
   Future<void> _generateQRCode() async {
     final amount = _amountController.text;
     if (amount.isEmpty) {
@@ -68,33 +90,11 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       );
       setState(() {
         _isLoading = false;
+        _pixQRCode = '';
+        _amountController.clear();
       });
       return;
     }
-
-    // Calcular a taxa com possíveis descontos
-    double fee = amountInDouble * 0.02 + 2.0;
-    _feeDescription = 'Fee: 2% + 2 BRL';
-
-    final hasAffiliateCode = ref.watch(userProvider).hasAffiliate;
-    final hasCreatedAffiliate = ref.watch(userProvider).hasCreatedAffiliate;
-
-    if (hasAffiliateCode) {
-      fee = amountInDouble * 0.015 + 2;
-      _feeDescription = 'Fee: 1.5% + 2 BRL (Affiliate Discount)';
-    } else if (hasCreatedAffiliate) {
-      final int numberOfAffiliateInstalls = await ref.watch(numberOfAffiliateInstallsProvider.future);
-      if (numberOfAffiliateInstalls > 1) {
-        fee = amountInDouble * 0.015 + 2;
-        _feeDescription = 'Fee: 1.5% + 2 BRL (Affiliate Discount)';
-      }
-    }
-
-    final double amountToReceive = amountInDouble - fee;
-
-    setState(() {
-      _amountToReceive = amountToReceive;
-    });
 
     final pixPaymentCode = ref.read(pixProvider).pixPaymentCode;
 
@@ -121,6 +121,11 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     final txReceived = ref.watch(pixTransactionReceivedProvider);
     final amountTransferredAsyncValue = ref.watch(getAmountTransferredProvider);
 
+    final hasAffiliateCode = ref.watch(userProvider).hasAffiliate;
+    final hasCreatedAffiliate = ref.watch(userProvider).hasCreatedAffiliate;
+    double fee = 0;
+    double amountInDouble = 0;
+
     txReceived.whenData((data) {
       if (data != null && data.isNotEmpty) {
         final messageType = data['type'];
@@ -139,6 +144,9 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
             break;
         }
         _pixQRCode = '';
+        _feeDescription = '';
+        _amountToReceive = 0.0;
+        _amountController.clear();
         Fluttertoast.showToast(
           msg: messageText.i18n(ref),
           toastLength: Toast.LENGTH_SHORT,
@@ -167,6 +175,23 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       data: (amountTransferred) {
         final double transferredAmount = double.tryParse(amountTransferred) ?? 0.0;
         _remainingLimit = _dailyLimit - transferredAmount;
+
+        final amount = _amountController.text;
+        if (amount.isNotEmpty) {
+          amountInDouble = double.tryParse(amount.replaceAll(',', '.')) ?? 0.0;
+
+          final int numberOfAffiliateInstalls = ref.watch(numberOfAffiliateInstallsProvider).when(
+            data: (data) => data,
+            loading: () => 0,
+            error: (_, __) => 0,
+          );
+
+          fee = calculateFee(amountInDouble, hasAffiliateCode, hasCreatedAffiliate, numberOfAffiliateInstalls);
+          _feeDescription = getFeeDescription(hasAffiliateCode, hasCreatedAffiliate, numberOfAffiliateInstalls);
+        }
+
+        final double amountToReceive = amountInDouble - fee;
+        _amountToReceive = amountToReceive;
 
         return SingleChildScrollView(
           child: Center(

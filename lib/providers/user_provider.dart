@@ -44,14 +44,14 @@ final getAmountTransferredProvider = FutureProvider.autoDispose<String>((ref) as
   return await UserService().getAmountTransferred(paymentId);
 });
 
-final addAffiliateCodeProvider = FutureProvider.autoDispose<void>((ref) async {
+final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>((ref, affiliateCode) async {
   var paymentId = ref.read(pixProvider).pixPaymentCode;
   if (paymentId == "") {
     paymentId = await ref.read(createUserProvider.future);
   }
-  final affiliateCode = ref.read(userProvider).affiliateCode;
   await UserService().addAffiliateCode(paymentId, affiliateCode);
   ref.read(userProvider.notifier).setHasAffiliate(true);
+  ref.read(userProvider.notifier).setAffiliateCode(affiliateCode);
 });
 
 final createAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>((ref, affiliateCode) async {
@@ -59,10 +59,10 @@ final createAffiliateCodeProvider = FutureProvider.autoDispose.family<void, Stri
   if (paymentId == "") {
     paymentId = await ref.read(createUserProvider.future);
   }
-  final setAffiliateCode = await ref.read(userProvider.notifier).setAffiliateCode(affiliateCode);
   final liquidAddress = await ref.read(liquidAddressProvider.future);
-  await UserService().createAffiliateCode(paymentId, setAffiliateCode, liquidAddress.confidential);
+  await UserService().createAffiliateCode(paymentId, affiliateCode, liquidAddress.confidential);
   ref.read(userProvider.notifier).setHasCreatedAffiliate(true);
+  await ref.read(userProvider.notifier).setAffiliateCode(affiliateCode);
 });
 
 final numberOfAffiliateInstallsProvider = FutureProvider.autoDispose<int>((ref) async {

@@ -7,25 +7,22 @@ import 'dart:convert';
 class UserModel extends StateNotifier<User>{
   UserModel(super.state);
 
-  Future<String> setAffiliateCode(String affiliateCode) async {
+  Future<void> setAffiliateCode(String affiliateCode) async {
     final box = await Hive.openBox('user');
     box.put('affiliateCode', affiliateCode);
     state = state.copyWith(affiliateCode: affiliateCode);
-    return affiliateCode;
   }
 
-  Future<bool> setHasAffiliate(bool hasAffiliate) async {
+  Future<void> setHasAffiliate(bool hasAffiliate) async {
     final box = await Hive.openBox('user');
     box.put('hasAffiliate', hasAffiliate);
     state = state.copyWith(hasAffiliate: hasAffiliate);
-    return hasAffiliate;
   }
 
-  Future<bool> setHasCreatedAffiliate(bool hasCreatedAffiliate) async {
+  Future<void> setHasCreatedAffiliate(bool hasCreatedAffiliate) async {
     final box = await Hive.openBox('user');
     box.put('hasCreatedAffiliate', hasCreatedAffiliate);
     state = state.copyWith(hasCreatedAffiliate: hasCreatedAffiliate);
-    return hasCreatedAffiliate;
   }
 }
 
@@ -35,8 +32,8 @@ class User {
   final bool hasCreatedAffiliate;
   User({
     required this.affiliateCode,
-    this.hasAffiliate = false,
-    this.hasCreatedAffiliate = false,
+    required this.hasAffiliate,
+    required this.hasCreatedAffiliate,
   });
 
   User copyWith({

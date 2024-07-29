@@ -81,8 +81,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                   onPressed: () async {
                     String code = _controller.text;
                     try {
-                      ref.read(userProvider.notifier).setAffiliateCode(code);
-                      await ref.read(addAffiliateCodeProvider.future);
+                      await ref.read(addAffiliateCodeProvider(code).future);
 
                       Fluttertoast.showToast(
                         msg: 'Affiliate code saved successfully'.i18n(ref),
