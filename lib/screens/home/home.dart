@@ -25,7 +25,6 @@ class Home extends ConsumerWidget {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: Colors.white,
         appBar: _buildAppBar(context, ref),
         body: SafeArea(child: _buildBody(context, ref)),
       ),

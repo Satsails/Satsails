@@ -2,6 +2,7 @@ import 'package:Satsails/helpers/life_cycle_handler.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/theme_provider.dart';
 import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
 import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
 import 'package:Satsails/screens/settings/components/start_affiliate.dart';
@@ -29,7 +30,6 @@ import 'package:Satsails/screens/pay/pay.dart';
 import 'package:Satsails/screens/creation/recover_wallet.dart';
 import 'package:Satsails/screens/pay/components/confirm_bitcoin_payment.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
-import 'package:Satsails/screens/splash/splash.dart';
 import 'package:Satsails/screens/home/components/search_modal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
@@ -136,52 +136,50 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     Future<String?> mnemonicFuture = ref.read(authModelProvider).getMnemonic();
     final language = ref.watch(settingsProvider.notifier).state.language;
+    final theme = ref.watch(themeProvider);
 
     return FutureBuilder<String?>(
         future: mnemonicFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Splash();
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            final mnemonic = snapshot.data;
-            final initialRoute = (mnemonic == null || mnemonic.isEmpty)
-                ? '/'
-                : '/open_pin';
+          final mnemonic = snapshot.data;
+          final initialRoute = (mnemonic == null || mnemonic.isEmpty)
+              ? '/'
+              : '/open_pin';
 
-            return MaterialApp(
-              navigatorKey: navigatorKey,
-              locale: Locale(language),
-              initialRoute: initialRoute,
-              debugShowCheckedModeBanner: false,
-              routes: {
-                '/': (context) => const Start(),
-                '/seed_words': (context) => const SeedWords(),
-                '/open_pin': (context) => OpenPin(),
-                '/charge': (context) => const Charge(),
-                '/accounts': (context) => const Accounts(),
-                '/receive': (context) => Receive(),
-                '/settings': (context) => const Settings(),
-                '/analytics': (context) => const Analytics(),
-                '/set_pin': (context) => const SetPin(),
-                '/exchange': (context) => Exchange(),
-                '/apps': (context) => const Services(),
-                '/pay': (context) => Pay(),
-                '/home': (context) => const Home(),
-                '/recover_wallet': (context) => const RecoverWallet(),
-                '/search_modal': (context) => SearchModal(),
-                '/confirm_bitcoin_payment': (context) => ConfirmBitcoinPayment(),
-                '/confirm_liquid_payment': (context) => ConfirmLiquidPayment(),
-                '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
-                '/claim_boltz_transactions': (context) => ClaimBoltz(),
-                '/backup_wallet': (context) => const BackupWallet(),
-                '/pix': (context) => const Pix(),
-                '/pix_onboarding': (context) => PixOnBoarding(),
-                '/start_affiliate': (context) => const StartAffiliate(),
-              },
-            );
-          }
+          return MaterialApp(
+            navigatorKey: navigatorKey,
+            locale: Locale(language),
+            theme: theme.lightTheme,
+            darkTheme: theme.darkTheme,
+            themeMode: theme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            initialRoute: initialRoute,
+            debugShowCheckedModeBanner: false,
+            routes: {
+              '/': (context) => const Start(),
+              '/seed_words': (context) => const SeedWords(),
+              '/open_pin': (context) => OpenPin(),
+              '/charge': (context) => const Charge(),
+              '/accounts': (context) => const Accounts(),
+              '/receive': (context) => Receive(),
+              '/settings': (context) => const Settings(),
+              '/analytics': (context) => const Analytics(),
+              '/set_pin': (context) => const SetPin(),
+              '/exchange': (context) => Exchange(),
+              '/apps': (context) => const Services(),
+              '/pay': (context) => Pay(),
+              '/home': (context) => const Home(),
+              '/recover_wallet': (context) => const RecoverWallet(),
+              '/search_modal': (context) => SearchModal(),
+              '/confirm_bitcoin_payment': (context) => ConfirmBitcoinPayment(),
+              '/confirm_liquid_payment': (context) => ConfirmLiquidPayment(),
+              '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
+              '/claim_boltz_transactions': (context) => ClaimBoltz(),
+              '/backup_wallet': (context) => const BackupWallet(),
+              '/pix': (context) => const Pix(),
+              '/pix_onboarding': (context) => PixOnBoarding(),
+              '/start_affiliate': (context) => const StartAffiliate(),
+            },
+          );
         }
     );
   }
