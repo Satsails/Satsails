@@ -14,9 +14,9 @@ class Start extends ConsumerWidget {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Container(
-          color: Colors.white,
           child: Column(
             children: [
               SizedBox(
@@ -36,7 +36,7 @@ class Start extends ConsumerWidget {
                       style: GoogleFonts.fragmentMono(
                         fontSize: screenWidth * 0.1,
                         fontWeight: FontWeight.bold,
-                        color: Colors.orangeAccent,
+                        color: Theme.of(context).colorScheme.secondary, // Usar cor secundária do tema
                       ),
                     ),
                     SizedBox(height: screenHeight * 0.01),
@@ -46,7 +46,7 @@ class Start extends ConsumerWidget {
                           'Opt out of the system'.i18n(ref),
                           style: GoogleFonts.fragmentMono(
                             fontSize: screenWidth * 0.05,
-                            color: Colors.grey,
+                            // color: Theme.of(context).textTheme.bodyText2?.color, // Usar cor de texto do tema
                           )
                       ),
                     ),
@@ -57,7 +57,7 @@ class Start extends ConsumerWidget {
                           'Beta software, use at your own risk'.i18n(ref),
                           style: GoogleFonts.fragmentMono(
                             fontSize: screenWidth * 0.03,
-                            color: Colors.grey,
+                            // color: Theme.of(context).textTheme.bodyText2?.color, // Usar cor de texto do tema
                           )
                       ),
                     ),
@@ -96,7 +96,7 @@ class Start extends ConsumerWidget {
                     'Version: Forward Unto Dawn'.i18n(ref),
                     style: GoogleFonts.fragmentMono(
                       fontSize: screenWidth * 0.03,
-                      color: Colors.grey,
+                      // color: Theme.of(context).textTheme.bodyText2?.color,
                     )
                 ),
               ),

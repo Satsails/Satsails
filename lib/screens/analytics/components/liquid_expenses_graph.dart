@@ -36,11 +36,7 @@ class LiquidExpensesGraph extends StatelessWidget {
   Widget build(BuildContext context) {
     return SfCartesianChart(
       primaryXAxis: DateTimeAxis(
-        intervalType: DateTimeIntervalType.days,
-        dateFormat: DateFormat('dd/MM'),
-        interval: selectedDays.length > 20 ? 5 : 1,
-        majorGridLines: const MajorGridLines(width: 0),
-        minorGridLines: const MinorGridLines(width: 0),
+        isVisible: true,
       ),
       primaryYAxis: NumericAxis(
         isVisible: true,
@@ -118,6 +114,7 @@ class LiquidExpensesGraph extends StatelessWidget {
         color: Colors.orangeAccent,
         markerSettings: const MarkerSettings(isVisible: false),
         dashArray: _getDashArray(mainData!),
+        animationDuration: 0,
       ));
     } else {
       seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
@@ -128,6 +125,7 @@ class LiquidExpensesGraph extends StatelessWidget {
         color: Colors.blueAccent,
         markerSettings: const MarkerSettings(isVisible: false),
         dashArray: _getDashArray(sentData),
+        animationDuration: 0,
       ));
       seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Received',
@@ -137,6 +135,7 @@ class LiquidExpensesGraph extends StatelessWidget {
         color: Colors.greenAccent,
         markerSettings: const MarkerSettings(isVisible: false),
         dashArray: _getDashArray(receivedData),
+        animationDuration: 0,
       ));
       if (isBtc) {
         seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
@@ -147,6 +146,7 @@ class LiquidExpensesGraph extends StatelessWidget {
           color: Colors.orangeAccent,
           markerSettings: const MarkerSettings(isVisible: false),
           dashArray: _getDashArray(feeData),
+          animationDuration: 0,
         ));
       }
     }

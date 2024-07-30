@@ -1,7 +1,8 @@
+import 'package:Satsails/providers/pix_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class Charge extends ConsumerWidget {
   const Charge({super.key});
@@ -9,15 +10,7 @@ class Charge extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
-
-    void _launchTelegram() async {
-      const url = 'https://t.me/stack_fy_bot?start=EA96CED5';
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
-        throw 'Could not launch $url';
-      }
-    }
+    final hasOnboarded = ref.watch(pixProvider).pixOnboarding;
 
     return Scaffold(
       appBar: AppBar(
@@ -33,10 +26,10 @@ class Charge extends ConsumerWidget {
             children: [
               PaymentMethodCard(
                 title: 'Add Money with Pix'.i18n(ref),
-                description: 'Buy using telegram'.i18n(ref),
+                description: 'Send a pix and we will credit your wallet'.i18n(ref),
                 icon: Icons.qr_code,
                 screenWidth: screenWidth,
-                onPressed: _launchTelegram,
+                onPressed: () => hasOnboarded ? Navigator.of(context).pushNamed('/pix') : Navigator.of(context).pushNamed('/pix_onboarding'),
               ),
               PaymentMethodCard(
                 title: 'Add money with EURx'.i18n(ref),

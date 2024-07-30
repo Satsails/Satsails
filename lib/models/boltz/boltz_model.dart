@@ -214,7 +214,7 @@ class LbtcBoltz {
     required int index,
   }) async {
     if (amount == 0) {
-      throw 'Set an amount to create an invoice';
+      throw 'Set an amount to create a lightning invoice';
     }
 
     if (fees.lbtcLimits.minimal > amount) {
@@ -489,7 +489,7 @@ class BtcBoltz {
     required int index,
   }) async {
     if (amount == 0) {
-      throw 'Set an amount to create an invoice';
+      throw 'Set an amount to create a lightning invoice';
     }
 
     if (fees.btcLimits.minimal > amount) {
