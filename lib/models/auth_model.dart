@@ -40,6 +40,7 @@ class AuthModel {
   Future<void> deleteAuthentication() async {
     await _storage.delete(key: 'mnemonic');
     await _storage.delete(key: 'pin');
+    await _storage.delete(key: 'pixPaymentCode');
     await Hive.deleteBoxFromDisk('bitcoin');
     await Hive.deleteBoxFromDisk('liquid');
     await Hive.deleteBoxFromDisk('settings');
@@ -49,5 +50,7 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('payBoltz');
     await Hive.deleteBoxFromDisk('sideswapStatus');
     await Hive.deleteBoxFromDisk('sideswapSwapData');
+    await Hive.deleteBoxFromDisk('pix');
+    await Hive.deleteBoxFromDisk('user');
   }
 }

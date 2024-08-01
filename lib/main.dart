@@ -2,7 +2,9 @@ import 'package:Satsails/helpers/life_cycle_handler.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
 import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
+import 'package:Satsails/screens/settings/components/start_affiliate.dart';
 import 'package:Satsails/screens/settings/components/claim_boltz.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +37,7 @@ import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'screens/charge/components/pix.dart';
 import 'screens/settings/components/backup_wallet.dart';
 
 
@@ -86,9 +89,8 @@ void main() async {
       ),
       builder: (context, child) {
         final mediaQueryData = MediaQuery.of(context);
-        final scale = mediaQueryData.textScaleFactor.clamp(1.0, 1.3);
         return MediaQuery(
-          data: mediaQueryData.copyWith(textScaler: TextScaler.linear(scale)),
+          data: mediaQueryData.copyWith(textScaler: TextScaler.linear(1.0)),
           child: child!,
         );
       },
@@ -174,6 +176,9 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
                 '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
                 '/claim_boltz_transactions': (context) => ClaimBoltz(),
                 '/backup_wallet': (context) => const BackupWallet(),
+                '/pix': (context) => const Pix(),
+                '/pix_onboarding': (context) => PixOnBoarding(),
+                '/start_affiliate': (context) => const StartAffiliate(),
               },
             );
           }
