@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
+  final Color primaryColor;
+  final Color secondaryColor;
 
   const CustomButton({
     super.key,
     required this.text,
     required this.onPressed,
+    this.primaryColor = Colors.redAccent,
+    this.secondaryColor = Colors.orangeAccent,
   });
 
   @override
@@ -22,7 +26,7 @@ class CustomButton extends StatelessWidget {
         padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.all(screenWidth * 0.02)),
         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(0), // Set to 0 for rectangle
+            borderRadius: BorderRadius.circular(screenHeight * 0.05),
           ),
         ),
         backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
@@ -30,16 +34,16 @@ class CustomButton extends StatelessWidget {
       ),
       child: Ink(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Colors.redAccent, Colors.orangeAccent],
+          gradient: LinearGradient(
+            colors: [primaryColor, secondaryColor],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-          borderRadius: BorderRadius.circular(0), // Set to 0 for rectangle
+          borderRadius: BorderRadius.circular(screenHeight * 0.01),
         ),
         child: Container(
           alignment: Alignment.center,
-          constraints: BoxConstraints(maxWidth: screenWidth * 0.75, minHeight: screenHeight * 0.075),
+          constraints: BoxConstraints(maxWidth: screenWidth * 0.65, minHeight: screenHeight * 0.075),
           child: Text(
             text,
             style: TextStyle(fontSize: screenWidth * 0.045, color: Colors.white),

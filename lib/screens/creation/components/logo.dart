@@ -13,8 +13,8 @@ class Logo extends StatelessWidget {
 
     return Image.asset(
       'lib/assets/app_icon.png',
-      width: screenWidth * (widthFactor ?? 0.5), // Use provided widthFactor or default to 50%
-      height: screenHeight * (heightFactor ?? 0.3), // Use provided heightFactor or default to 30%
+      width: screenWidth * (widthFactor ?? 0.7),
+      height: screenHeight * (heightFactor ?? 0.5),
     );
   }
 }

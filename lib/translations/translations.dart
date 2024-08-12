@@ -929,6 +929,10 @@ extension Localization on String {
       {
         'en': 'Pix received but transfer limit exceeded, you will receive the amount in 24h. If you wish to receive it sooner, please contact support',
         'pt': 'Pix recebido, mas o limite de transferência foi excedido, você receberá o valor em 24h. Se desejar recebê-lo mais cedo, entre em contato com o suporte'
+      } +
+      {
+        'en': 'Become sovereign and freely opt out of the system.',
+        'pt': 'Seja soberano e opte por sair do sistema livremente.'
       };
 
   String i18n(WidgetRef ref) {

@@ -8,6 +8,14 @@ import './components/logo.dart';
 class Start extends ConsumerWidget {
   const Start({super.key});
 
+  Shader createGradientShader(Rect bounds) {
+    return LinearGradient(
+      colors: [Colors.redAccent, Colors.orangeAccent],
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+    ).createShader(bounds);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -33,34 +41,24 @@ class Start extends ConsumerWidget {
                   children: [
                     Text(
                       'Satsails',
-                      style: GoogleFonts.fragmentMono(
-                        fontSize: screenWidth * 0.1,
+                      style: TextStyle(
+                        foreground: Paint()
+                          ..shader = createGradientShader(
+                            Rect.fromLTWH(0.0, 0.0, screenWidth * 0.6, screenHeight * 0.1),
+                          ),
+                        fontSize: screenWidth * 0.15,
                         fontWeight: FontWeight.bold,
-                        color: Colors.orange, // Title text in orange
                       ),
                     ),
                     SizedBox(height: screenHeight * 0.01),
-                    Opacity(
-                      opacity: 0.5,
-                      child: Text(
-                          'Opt out of the system'.i18n(ref),
-                          style: GoogleFonts.fragmentMono(
-                            fontSize: screenWidth * 0.05,
-                            color: Colors.white, // Secondary text in white
-                          )
+                    Text(
+                        'Become sovereign and freely opt out of the system.'.i18n(ref),
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.04,
+                        color: Colors.white,
                       ),
                     ),
                     SizedBox(height: screenHeight * 0.01),
-                    Opacity(
-                      opacity: 0.5,
-                      child: Text(
-                          'Beta software, use at your own risk'.i18n(ref),
-                          style: GoogleFonts.fragmentMono(
-                            fontSize: screenWidth * 0.03,
-                            color: Colors.white, // Secondary text in white
-                          )
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -85,19 +83,11 @@ class Start extends ConsumerWidget {
                         onPressed: () {
                           Navigator.pushNamed(context, '/recover_wallet');
                         },
+                        primaryColor: Colors.black,
+                        secondaryColor: Colors.black
                       ),
                     ],
                   ),
-                ),
-              ),
-              Opacity(
-                opacity: 0.5,
-                child: Text(
-                    'Version: Forward Unto Dawn'.i18n(ref),
-                    style: GoogleFonts.fragmentMono(
-                      fontSize: screenWidth * 0.03,
-                      color: Colors.white, // Secondary text in white
-                    )
                 ),
               ),
             ],
