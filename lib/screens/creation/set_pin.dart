@@ -14,10 +14,16 @@ class SetPin extends ConsumerWidget {
     final formKey = GlobalKey<FormState>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text('Set PIN'.i18n(ref)),
+        backgroundColor: Colors.black,
+        title: Text('Set PIN'.i18n(ref), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Center(
         child: Form(
@@ -32,6 +38,10 @@ class SetPin extends ConsumerWidget {
                   length: 6,
                   obscureText: true,
                   keyboardType: TextInputType.number,
+                  textStyle: TextStyle(color: Colors.white),
+                  pinTheme: PinTheme(
+                    inactiveColor: Colors.white,
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty || value.length != 6) {
                       return '';

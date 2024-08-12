@@ -150,10 +150,16 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Recover Account'.i18n(ref)),
-        backgroundColor: Colors.white,
+        title: Text('Recover Account'.i18n(ref), style: const TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Stack(
         children: [
@@ -165,12 +171,17 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                   canvasColor: Colors.transparent,
                 ),
                 child: DropdownButton<int>(
-                  dropdownColor: Colors.white,
+                  dropdownColor: _totalWords == 12 ? Color(0xFF1A1A1A) : Color(0xFF2B2B2B),
                   value: _totalWords,
                   items: [12, 24].map((value) {
                     return DropdownMenuItem<int>(
                       value: value,
-                      child: Text("$value${'words'.i18n(ref)}"),
+                      child: Text(
+                        "$value${'words'.i18n(ref)}",
+                        style: TextStyle(
+                          color: _totalWords == value ? Color(0xFFFF9800) : Color(0xFFD98100),
+                        ),
+                      ),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -178,7 +189,17 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                       _totalWords = value!;
                     });
                   },
-                ),
+                  selectedItemBuilder: (BuildContext context) {
+                    return [12, 24].map((value) {
+                      return Text(
+                        "$value${'words'.i18n(ref)}",
+                        style: TextStyle(
+                          color: _totalWords == value ? Color(0xFFFF9800) : Color(0xFFD98100),
+                        ),
+                      );
+                    }).toList();
+                  },
+                )
               ),
               Expanded(
                 child: Padding(
@@ -202,16 +223,17 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                             TextField(
                               controller: _controllers[index],
                               focusNode: _focusNodes[index],
+                              style: const TextStyle(color: Colors.white),
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                 labelText: '${'Word'.i18n(ref)} ${index + 1}',
                                 labelStyle: TextStyle(
-                                  color: _selectedWordIndex == index ? Colors.orangeAccent : Colors.grey,
+                                  color: _selectedWordIndex == index ? Colors.orangeAccent : Colors.white,
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8.0),
                                   borderSide: const BorderSide(
-                                    color: Colors.grey,
+                                    color: Colors.white,
                                     width: 4.0,
                                   ),
                                 ),
