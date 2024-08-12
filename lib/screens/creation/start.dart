@@ -14,7 +14,7 @@ class Start extends ConsumerWidget {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Colors.black,
       body: SafeArea(
         child: Container(
           child: Column(
@@ -36,7 +36,7 @@ class Start extends ConsumerWidget {
                       style: GoogleFonts.fragmentMono(
                         fontSize: screenWidth * 0.1,
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.secondary, // Usar cor secundária do tema
+                        color: Colors.orange, // Title text in orange
                       ),
                     ),
                     SizedBox(height: screenHeight * 0.01),
@@ -46,7 +46,7 @@ class Start extends ConsumerWidget {
                           'Opt out of the system'.i18n(ref),
                           style: GoogleFonts.fragmentMono(
                             fontSize: screenWidth * 0.05,
-                            // color: Theme.of(context).textTheme.bodyText2?.color, // Usar cor de texto do tema
+                            color: Colors.white, // Secondary text in white
                           )
                       ),
                     ),
@@ -57,7 +57,7 @@ class Start extends ConsumerWidget {
                           'Beta software, use at your own risk'.i18n(ref),
                           style: GoogleFonts.fragmentMono(
                             fontSize: screenWidth * 0.03,
-                            // color: Theme.of(context).textTheme.bodyText2?.color, // Usar cor de texto do tema
+                            color: Colors.white, // Secondary text in white
                           )
                       ),
                     ),
@@ -96,7 +96,7 @@ class Start extends ConsumerWidget {
                     'Version: Forward Unto Dawn'.i18n(ref),
                     style: GoogleFonts.fragmentMono(
                       fontSize: screenWidth * 0.03,
-                      // color: Theme.of(context).textTheme.bodyText2?.color,
+                      color: Colors.white, // Secondary text in white
                     )
                 ),
               ),

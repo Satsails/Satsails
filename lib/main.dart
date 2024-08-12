@@ -2,7 +2,6 @@ import 'package:Satsails/helpers/life_cycle_handler.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/providers/theme_provider.dart';
 import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
 import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
 import 'package:Satsails/screens/settings/components/start_affiliate.dart';
@@ -136,7 +135,6 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     Future<String?> mnemonicFuture = ref.read(authModelProvider).getMnemonic();
     final language = ref.watch(settingsProvider.notifier).state.language;
-    final theme = ref.watch(themeProvider);
 
     return FutureBuilder<String?>(
         future: mnemonicFuture,
@@ -149,9 +147,6 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
           return MaterialApp(
             navigatorKey: navigatorKey,
             locale: Locale(language),
-            theme: theme.lightTheme,
-            darkTheme: theme.darkTheme,
-            themeMode: theme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             initialRoute: initialRoute,
             debugShowCheckedModeBanner: false,
             routes: {

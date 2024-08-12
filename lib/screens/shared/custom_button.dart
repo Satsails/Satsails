@@ -18,15 +18,15 @@ class CustomButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ButtonStyle(
-        elevation: WidgetStateProperty.all<double>(0.0),
-        padding: WidgetStateProperty.all<EdgeInsets>(EdgeInsets.all(screenWidth * 0.02)),
-        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+        elevation: MaterialStateProperty.all<double>(0.0),
+        padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.all(screenWidth * 0.02)),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(screenHeight * 0.05)
+            borderRadius: BorderRadius.circular(0), // Set to 0 for rectangle
           ),
         ),
-        backgroundColor: WidgetStateProperty.all<Color>(Colors.transparent),
-        shadowColor: WidgetStateProperty.all<Color>(Colors.transparent),
+        backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
+        shadowColor: MaterialStateProperty.all<Color>(Colors.transparent),
       ),
       child: Ink(
         decoration: BoxDecoration(
@@ -35,7 +35,7 @@ class CustomButton extends StatelessWidget {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-            borderRadius: BorderRadius.circular(screenHeight * 0.05)
+          borderRadius: BorderRadius.circular(0), // Set to 0 for rectangle
         ),
         child: Container(
           alignment: Alignment.center,
