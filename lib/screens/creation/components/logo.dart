@@ -12,7 +12,7 @@ class Logo extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Image.asset(
-      'lib/assets/app_icon.png',
+      'lib/assets/satsails.png',
       width: screenWidth * (widthFactor ?? 0.7),
       height: screenHeight * (heightFactor ?? 0.5),
     );
