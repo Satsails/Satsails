@@ -1,0 +1,38 @@
+{
+  "" : {
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/qr_code_scanner-master.dia",
+    "emit-module-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/qr_code_scanner-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/qr_code_scanner-master-emit-module.dia",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/qr_code_scanner-master.swiftdeps"
+  },
+  "/Users/joaolobo/.pub-cache/hosted/pub.dev/qr_code_scanner-1.0.1/ios/Classes/QRView.swift" : {
+    "const-values" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRView.swiftconstvalues",
+    "dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRView.d",
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRView.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRView.o",
+    "llvm-bc" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRView.bc",
+    "object" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRView.o",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRView.swiftdeps",
+    "swiftmodule" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRView~partial.swiftmodule"
+  },
+  "/Users/joaolobo/.pub-cache/hosted/pub.dev/qr_code_scanner-1.0.1/ios/Classes/QRViewFactory.swift" : {
+    "const-values" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRViewFactory.swiftconstvalues",
+    "dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRViewFactory.d",
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRViewFactory.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRViewFactory.o",
+    "llvm-bc" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRViewFactory.bc",
+    "object" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRViewFactory.o",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRViewFactory.swiftdeps",
+    "swiftmodule" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/QRViewFactory~partial.swiftmodule"
+  },
+  "/Users/joaolobo/.pub-cache/hosted/pub.dev/qr_code_scanner-1.0.1/ios/Classes/SwiftFlutterQrPlugin.swift" : {
+    "const-values" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/SwiftFlutterQrPlugin.swiftconstvalues",
+    "dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/SwiftFlutterQrPlugin.d",
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/SwiftFlutterQrPlugin.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/SwiftFlutterQrPlugin.o",
+    "llvm-bc" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/SwiftFlutterQrPlugin.bc",
+    "object" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/SwiftFlutterQrPlugin.o",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/SwiftFlutterQrPlugin.swiftdeps",
+    "swiftmodule" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/qr_code_scanner.build/Objects-normal/arm64/SwiftFlutterQrPlugin~partial.swiftmodule"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "" : {
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/url_launcher_ios-master.dia",
+    "emit-module-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/url_launcher_ios-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/url_launcher_ios-master-emit-module.dia",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/url_launcher_ios-master.swiftdeps"
+  },
+  "/Users/joaolobo/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.1/ios/url_launcher_ios/Sources/url_launcher_ios/Launcher.swift" : {
+    "const-values" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/Launcher.swiftconstvalues",
+    "dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/Launcher.d",
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/Launcher.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/Launcher.o",
+    "llvm-bc" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/Launcher.bc",
+    "object" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/Launcher.o",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/Launcher.swiftdeps",
+    "swiftmodule" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/Launcher~partial.swiftmodule"
+  },
+  "/Users/joaolobo/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.1/ios/url_launcher_ios/Sources/url_launcher_ios/messages.g.swift" : {
+    "const-values" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/messages.g.swiftconstvalues",
+    "dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/messages.g.d",
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/messages.g.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/messages.g.o",
+    "llvm-bc" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/messages.g.bc",
+    "object" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/messages.g.o",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/messages.g.swiftdeps",
+    "swiftmodule" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/messages.g~partial.swiftmodule"
+  },
+  "/Users/joaolobo/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.1/ios/url_launcher_ios/Sources/url_launcher_ios/URLLauncherPlugin.swift" : {
+    "const-values" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLauncherPlugin.swiftconstvalues",
+    "dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLauncherPlugin.d",
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLauncherPlugin.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLauncherPlugin.o",
+    "llvm-bc" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLauncherPlugin.bc",
+    "object" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLauncherPlugin.o",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLauncherPlugin.swiftdeps",
+    "swiftmodule" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLauncherPlugin~partial.swiftmodule"
+  },
+  "/Users/joaolobo/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.1/ios/url_launcher_ios/Sources/url_launcher_ios/URLLaunchSession.swift" : {
+    "const-values" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLaunchSession.swiftconstvalues",
+    "dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLaunchSession.d",
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLaunchSession.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLaunchSession.o",
+    "llvm-bc" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLaunchSession.bc",
+    "object" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLaunchSession.o",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLaunchSession.swiftdeps",
+    "swiftmodule" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/url_launcher_ios.build/Objects-normal/arm64/URLLaunchSession~partial.swiftmodule"
+  }
+}

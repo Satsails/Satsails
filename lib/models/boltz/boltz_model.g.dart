@@ -22,7 +22,7 @@ class ExtendedLbtcLnV2SwapAdapter extends TypeAdapter<ExtendedLbtcLnV2Swap> {
       network: fields[2] as Chain,
       keys: fields[3] as KeyPair,
       preimage: fields[4] as PreImage,
-      swapScript: fields[5] as LBtcSwapScriptV2Str,
+      swapScript: fields[5] as LBtcSwapScriptStr,
       invoice: fields[6] as String,
       outAmount: fields[7] as int,
       scriptAddress: fields[8] as String,
@@ -87,7 +87,7 @@ class LbtcBoltzAdapter extends TypeAdapter<LbtcBoltz> {
       swap: fields[0] as ExtendedLbtcLnV2Swap,
       keys: fields[1] as KeyPair,
       preimage: fields[2] as PreImage,
-      swapScript: fields[3] as LBtcSwapScriptV2Str,
+      swapScript: fields[3] as LBtcSwapScriptStr,
     );
   }
 
@@ -158,7 +158,7 @@ class ExtendedBtcLnV2SwapAdapter extends TypeAdapter<ExtendedBtcLnV2Swap> {
       network: fields[2] as Chain,
       keys: fields[3] as KeyPair,
       preimage: fields[4] as PreImage,
-      swapScript: fields[5] as BtcSwapScriptV2Str,
+      swapScript: fields[5] as BtcSwapScriptStr,
       invoice: fields[6] as String,
       outAmount: fields[7] as int,
       scriptAddress: fields[8] as String,
@@ -220,7 +220,7 @@ class BtcBoltzAdapter extends TypeAdapter<BtcBoltz> {
       swap: fields[0] as ExtendedBtcLnV2Swap,
       keys: fields[1] as KeyPair,
       preimage: fields[2] as PreImage,
-      swapScript: fields[3] as BtcSwapScriptV2Str,
+      swapScript: fields[3] as BtcSwapScriptStr,
     );
   }
 

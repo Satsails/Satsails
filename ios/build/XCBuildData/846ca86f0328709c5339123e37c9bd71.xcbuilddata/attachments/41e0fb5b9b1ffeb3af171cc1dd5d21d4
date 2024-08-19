@@ -1,0 +1,28 @@
+{
+  "" : {
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/flutter_secure_storage-master.dia",
+    "emit-module-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/flutter_secure_storage-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/flutter_secure_storage-master-emit-module.dia",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/flutter_secure_storage-master.swiftdeps"
+  },
+  "/Users/joaolobo/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.2/ios/Classes/FlutterSecureStorage.swift" : {
+    "const-values" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/FlutterSecureStorage.swiftconstvalues",
+    "dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/FlutterSecureStorage.d",
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/FlutterSecureStorage.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/FlutterSecureStorage.o",
+    "llvm-bc" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/FlutterSecureStorage.bc",
+    "object" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/FlutterSecureStorage.o",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/FlutterSecureStorage.swiftdeps",
+    "swiftmodule" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/FlutterSecureStorage~partial.swiftmodule"
+  },
+  "/Users/joaolobo/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.2/ios/Classes/SwiftFlutterSecureStoragePlugin.swift" : {
+    "const-values" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/SwiftFlutterSecureStoragePlugin.swiftconstvalues",
+    "dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/SwiftFlutterSecureStoragePlugin.d",
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/SwiftFlutterSecureStoragePlugin.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/SwiftFlutterSecureStoragePlugin.o",
+    "llvm-bc" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/SwiftFlutterSecureStoragePlugin.bc",
+    "object" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/SwiftFlutterSecureStoragePlugin.o",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/SwiftFlutterSecureStoragePlugin.swiftdeps",
+    "swiftmodule" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/flutter_secure_storage.build/Objects-normal/arm64/SwiftFlutterSecureStoragePlugin~partial.swiftmodule"
+  }
+}

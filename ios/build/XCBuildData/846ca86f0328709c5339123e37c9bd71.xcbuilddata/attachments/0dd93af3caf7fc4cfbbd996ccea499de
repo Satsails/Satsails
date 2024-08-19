@@ -1,0 +1,18 @@
+{
+  "" : {
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/boltz_dart.build/Objects-normal/arm64/boltz_dart-master.dia",
+    "emit-module-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/boltz_dart.build/Objects-normal/arm64/boltz_dart-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/boltz_dart.build/Objects-normal/arm64/boltz_dart-master-emit-module.dia",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/boltz_dart.build/Objects-normal/arm64/boltz_dart-master.swiftdeps"
+  },
+  "/Users/joaolobo/.pub-cache/git/boltz-dart-fdf49a18fb85e006a55b74d97be3ad6b6c504cb3/ios/Classes/EnforceBundling.swift" : {
+    "const-values" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/boltz_dart.build/Objects-normal/arm64/EnforceBundling.swiftconstvalues",
+    "dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/boltz_dart.build/Objects-normal/arm64/EnforceBundling.d",
+    "diagnostics" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/boltz_dart.build/Objects-normal/arm64/EnforceBundling.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/boltz_dart.build/Objects-normal/arm64/EnforceBundling.o",
+    "llvm-bc" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/boltz_dart.build/Objects-normal/arm64/EnforceBundling.bc",
+    "object" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/boltz_dart.build/Objects-normal/arm64/EnforceBundling.o",
+    "swift-dependencies" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/boltz_dart.build/Objects-normal/arm64/EnforceBundling.swiftdeps",
+    "swiftmodule" : "/Users/joaolobo/code/project/satsails/ios/build/Pods.build/Debug-iphoneos/boltz_dart.build/Objects-normal/arm64/EnforceBundling~partial.swiftmodule"
+  }
+}
