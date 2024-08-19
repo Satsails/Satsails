@@ -49,6 +49,7 @@ class Start extends ConsumerWidget {
                         fontSize: screenWidth * 0.04,
                         color: Colors.white,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
