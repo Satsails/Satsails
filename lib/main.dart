@@ -6,6 +6,7 @@ import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
 import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
 import 'package:Satsails/screens/settings/components/start_affiliate.dart';
 import 'package:Satsails/screens/settings/components/claim_boltz.dart';
+import 'package:Satsails/screens/spash/splash.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -139,12 +140,17 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     return FutureBuilder<String?>(
         future: mnemonicFuture,
         builder: (context, snapshot) {
-          final mnemonic = snapshot.data;
-          final initialRoute = (mnemonic == null || mnemonic.isEmpty)
-              ? '/'
-              : '/open_pin';
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Splash();
+      } else if (snapshot.hasError) {
+        return Text('Error: ${snapshot.error}');
+      } else {
+        final mnemonic = snapshot.data;
+        final initialRoute = (mnemonic == null || mnemonic.isEmpty)
+            ? '/'
+            : '/open_pin';
 
-          return MaterialApp(
+        return MaterialApp(
             navigatorKey: navigatorKey,
             locale: Locale(language),
             initialRoute: initialRoute,
@@ -176,6 +182,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
             },
           );
         }
+      },
     );
   }
 }

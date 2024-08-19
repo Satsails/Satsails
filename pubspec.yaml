@@ -63,6 +63,7 @@ dependencies:
   syncfusion_flutter_charts: ^25.2.6
   random_string: ^2.3.1
   introduction_screen: ^3.1.14
+  flutter_svg: ^2.0.10+1
   pix_flutter:
     git:
       url: https://github.com/JoaoLobo94/pix_flutter
@@ -86,6 +87,7 @@ flutter:
   assets:
     - lib/assets/app_icon.png
     - lib/assets/satsails.png
+    - lib/assets/satsails.svg
     - lib/assets/depix.png
     - lib/assets/eurx.png
     - lib/assets/l-btc.png

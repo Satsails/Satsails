@@ -24,18 +24,11 @@ class Start extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: Container(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 80.0, vertical: 146),
           child: Column(
             children: [
-              SizedBox(
-                height: screenHeight * 0.03,
-              ),
-              const Expanded(
-                flex: 1,
-                child: Center(
-                  child: Logo(),
-                ),
-              ),
+              Logo(),
               Center(
                 child: Column(
                   children: [
@@ -50,7 +43,6 @@ class Start extends ConsumerWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: screenHeight * 0.01),
                     Text(
                         'Become sovereign and freely opt out of the system.'.i18n(ref),
                       style: TextStyle(
@@ -58,37 +50,29 @@ class Start extends ConsumerWidget {
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(height: screenHeight * 0.01),
                   ],
                 ),
               ),
-              Expanded(
-                flex: 1,
-                child: Container(
-                  padding: EdgeInsets.all(screenWidth * 0.02), // 2% of screen width
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(height: screenHeight * 0.01), // 1% of screen height
-                      CustomButton(
-                        text: 'Register Account'.i18n(ref),
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/set_pin');
-                        },
-                      ),
-                      SizedBox(height: screenHeight * 0.01), // 1% of screen height
-                      CustomButton(
-                        text: 'Recover Account'.i18n(ref),
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/recover_wallet');
-                        },
-                        primaryColor: Colors.black,
-                        secondaryColor: Colors.black
-                      ),
-                    ],
+              SizedBox(height: 86),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CustomButton(
+                    text: 'Register Account'.i18n(ref),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/set_pin');
+                    },
                   ),
-                ),
+                  CustomButton(
+                    text: 'Recover Account'.i18n(ref),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/recover_wallet');
+                    },
+                    primaryColor: Colors.black,
+                    secondaryColor: Colors.black
+                  ),
+                ],
               ),
             ],
           ),
