@@ -9,7 +9,7 @@ class Start extends ConsumerWidget {
   const Start({super.key});
 
   Shader createGradientShader(Rect bounds) {
-    return LinearGradient(
+    return const LinearGradient(
       colors: [Colors.redAccent, Colors.orangeAccent],
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,
@@ -24,58 +24,58 @@ class Start extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 80.0, vertical: 146),
-          child: Column(
-            children: [
-              Logo(),
-              Center(
-                child: Column(
+        child: SizedBox(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.2, vertical: screenHeight * 0.15),
+            child: Column(
+              children: [
+                const Logo(),
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        'Satsails',
+                        style: TextStyle(
+                          foreground: Paint()
+                            ..shader = createGradientShader(
+                              Rect.fromLTWH(0.0, 0.0, screenWidth * 0.6, screenHeight * 0.1),
+                            ),
+                          fontSize: screenWidth * 0.15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                          'Become sovereign and freely opt out of the system.'.i18n(ref),
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.04,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: screenHeight * 0.1),
+                Column(
                   children: [
-                    Text(
-                      'Satsails',
-                      style: TextStyle(
-                        foreground: Paint()
-                          ..shader = createGradientShader(
-                            Rect.fromLTWH(0.0, 0.0, screenWidth * 0.6, screenHeight * 0.1),
-                          ),
-                        fontSize: screenWidth * 0.15,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    CustomButton(
+                      text: 'Register Account'.i18n(ref),
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/set_pin');
+                      },
                     ),
-                    Text(
-                        'Become sovereign and freely opt out of the system.'.i18n(ref),
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.04,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
+                    CustomButton(
+                      text: 'Recover Account'.i18n(ref),
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/recover_wallet');
+                      },
+                      primaryColor: Colors.black,
+                      secondaryColor: Colors.black
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 86),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CustomButton(
-                    text: 'Register Account'.i18n(ref),
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/set_pin');
-                    },
-                  ),
-                  CustomButton(
-                    text: 'Recover Account'.i18n(ref),
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/recover_wallet');
-                    },
-                    primaryColor: Colors.black,
-                    secondaryColor: Colors.black
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
