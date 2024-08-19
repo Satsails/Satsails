@@ -22,10 +22,10 @@ class OpenPin extends ConsumerWidget {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         appBar: AppBar(
           title: Center(child: Text('Enter PIN'.i18n(ref))),
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.black,
           automaticallyImplyLeading: openSeed ? true : false,
           leading: openSeed ? IconButton(
             icon: const Icon(Icons.arrow_back),
