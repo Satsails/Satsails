@@ -22,7 +22,7 @@ class CustomButton extends StatelessWidget {
       onPressed: onPressed,
       style: ButtonStyle(
         elevation: MaterialStateProperty.all<double>(0.0),
-        padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.all(screenWidth * 0.02)),
+        padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.all(screenWidth * 0.03)),
         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(4),

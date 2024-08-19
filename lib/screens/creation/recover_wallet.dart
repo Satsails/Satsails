@@ -170,96 +170,113 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                 data: Theme.of(context).copyWith(
                   canvasColor: Colors.transparent,
                 ),
-                child: DropdownButton<int>(
-                  dropdownColor: _totalWords == 12 ? Color(0xFF1A1A1A) : Color(0xFF2B2B2B),
-                  value: _totalWords,
-                  items: [12, 24].map((value) {
-                    return DropdownMenuItem<int>(
-                      value: value,
-                      child: Text(
-                        "$value${'words'.i18n(ref)}",
-                        style: TextStyle(
-                          color: _totalWords == value ? Color(0xFFFF9800) : Color(0xFFD98100),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenHeight * 0.15),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _totalWords == 12 ? Color(0xFF1A1A1A) : Color(0xFF2B2B2B),
+                      borderRadius: BorderRadius.circular(8.0), // Set the desired border radius
+                    ),
+                    child: DropdownButtonFormField<int>(
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(color: Colors.transparent),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(color: Colors.transparent),
                         ),
                       ),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _totalWords = value!;
-                    });
-                  },
-                  selectedItemBuilder: (BuildContext context) {
-                    return [12, 24].map((value) {
-                      return Text(
-                        "$value${'words'.i18n(ref)}",
-                        style: TextStyle(
-                          color: _totalWords == value ? Color(0xFFFF9800) : Color(0xFFD98100),
-                        ),
-                      );
-                    }).toList();
-                  },
-                )
+                      dropdownColor: _totalWords == 12 ? Color(0xFF1A1A1A) : Color(0xFF2B2B2B),
+                      value: _totalWords,
+                      items: [12, 24].map((value) {
+                        return DropdownMenuItem<int>(
+                          value: value,
+                          child: Text(
+                            "$value${'words'.i18n(ref)}",
+                            style: TextStyle(
+                              color: _totalWords == value ? Color(0xFFFF9800) : Color(0xFFD98100),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _totalWords = value!;
+                        });
+                      },
+                      selectedItemBuilder: (BuildContext context) {
+                        return [12, 24].map((value) {
+                          return Text(
+                            "$value${'words'.i18n(ref)}",
+                            style: TextStyle(
+                              color: _totalWords == value ? Color(0xFFFF9800) : Color(0xFFD98100),
+                            ),
+                          );
+                        }).toList();
+                      },
+                    ),
+                  ),
+                ),
               ),
+              SizedBox(height: screenHeight * 0.02),
               Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(
                     left: screenWidth * 0.05,
                     right: screenWidth * 0.05,
-                    top: screenHeight * 0.02,
+                    bottom: screenHeight * 0.02,
                   ),
                   child: GridView.builder(
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
-                      mainAxisSpacing: 5,
+                      mainAxisSpacing: 2,
                       crossAxisSpacing: 10,
                     ),
                     itemCount: _totalWords,
                     itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: Column(
-                          children: [
-                            TextField(
-                              controller: _controllers[index],
-                              focusNode: _focusNodes[index],
-                              style: const TextStyle(color: Colors.white),
-                              decoration: InputDecoration(
-                                contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                                labelText: '${'Word'.i18n(ref)} ${index + 1}',
-                                labelStyle: TextStyle(
-                                  color: _selectedWordIndex == index ? Colors.orangeAccent : Colors.white,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: const BorderSide(
-                                    color: Colors.white,
-                                    width: 4.0,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: const BorderSide(
-                                    color: Colors.orangeAccent,
-                                    width: 4.0,
-                                  ),
+                      return Column(
+                        children: [
+                          TextField(
+                            controller: _controllers[index],
+                            focusNode: _focusNodes[index],
+                            style: const TextStyle(color: Color(0xFF6D6D6D)),
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                              labelText: '${'Word'.i18n(ref)} ${index + 1}',
+                              labelStyle: TextStyle(
+                                color: _selectedWordIndex == index ? Colors.orangeAccent : Color(0xFF6D6D6D),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF6D6D6D),
+                                  width: 4.0,
                                 ),
                               ),
-                              onTap: () {
-                                setState(() {
-                                  _selectedWordIndex = index;
-                                });
-                              },
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                borderSide: const BorderSide(
+                                  color: Colors.orangeAccent,
+                                  width: 4.0,
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
+                            onTap: () {
+                              setState(() {
+                                _selectedWordIndex = index;
+                              });
+                            },
+                          ),
+                        ],
                       );
                     },
                   ),
                 ),
               ),
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.8,
+                width: MediaQuery.of(context).size.width * 0.65,
                 height: MediaQuery.of(context).size.height * 0.09,
                 child: CustomButton(
                   text: 'Recover Account'.i18n(ref),
