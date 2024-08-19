@@ -275,9 +275,8 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                   ),
                 ),
               ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.65,
-                height: MediaQuery.of(context).size.height * 0.09,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.15),
                 child: CustomButton(
                   text: 'Recover Account'.i18n(ref),
                   onPressed: () => _recoverAccount(context),

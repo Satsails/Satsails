@@ -33,48 +33,54 @@ class SetPin extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                PinCodeTextField(
-                  appContext: context,
-                  length: 6,
-                  obscureText: true,
-                  keyboardType: TextInputType.number,
-                  textStyle: TextStyle(color: Colors.white),
-                  pinTheme: PinTheme(
-                    inactiveColor: Colors.white,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: PinCodeTextField(
+                    appContext: context,
+                    length: 6,
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    textStyle: TextStyle(color: Colors.white),
+                    pinTheme: PinTheme(
+                      inactiveColor: Colors.white,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value.length != 6) {
+                        return '';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      ref.read(authModelProvider).setPin(value);
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty || value.length != 6) {
-                      return '';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    ref.read(authModelProvider).setPin(value);
-                  },
                 ),
                 const SizedBox(height: 10),
-                CustomButton(
-                  text: 'Set PIN'.i18n(ref),
-                  onPressed: () async {
-                    if (formKey.currentState!.validate()) {
-                      final authModel = ref.read(authModelProvider);
-                      final mnemonic = await authModel.getMnemonic();
-                      if (mnemonic == null || mnemonic.isEmpty) {
-                        await authModel.setMnemonic(await authModel.generateMnemonic());
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 106),
+                  child: CustomButton(
+                    text: 'Set PIN'.i18n(ref),
+                    onPressed: () async {
+                      if (formKey.currentState!.validate()) {
+                        final authModel = ref.read(authModelProvider);
+                        final mnemonic = await authModel.getMnemonic();
+                        if (mnemonic == null || mnemonic.isEmpty) {
+                          await authModel.setMnemonic(await authModel.generateMnemonic());
+                        }
+                        Navigator.pushReplacementNamed(context, '/home');
+                      } else {
+                        Fluttertoast.showToast(
+                          msg: 'Please enter a 6 digit PIN'.i18n(ref),
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.TOP,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
                       }
-                      Navigator.pushReplacementNamed(context, '/home');
-                    } else {
-                      Fluttertoast.showToast(
-                        msg: 'Please enter a 6 digit PIN'.i18n(ref),
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.TOP,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.red,
-                        textColor: Colors.white,
-                        fontSize: 16.0,
-                      );
-                    }
-                  },
+                    },
+                  ),
                 ),
               ],
             ),
