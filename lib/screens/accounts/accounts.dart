@@ -1,6 +1,8 @@
 import 'package:Satsails/assets/lbtc_icon.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/receive/components/lightning_widget.dart';
+import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,7 +29,15 @@ class Accounts extends ConsumerWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
         title: Text('Account Management'.i18n(ref)),
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: ref.watch(navigationProvider),
+        context: context,
+        onTap: (int index) {
+          ref.read(navigationProvider.notifier).state = index;
+        },
       ),
       body: Padding(
         padding: EdgeInsets.all(screenWidth * 0.05),

@@ -8,23 +8,21 @@ Widget buildLegendItem(Widget icon, String label, double percentage) {
     children: [
       icon,
       const SizedBox(width: 8),
-      Text('$label: ${percentage.toStringAsFixed(2)}%'),
+      Text('$label: ${percentage.toStringAsFixed(2)}%', style: const TextStyle(color: Colors.white)),
     ],
   );
 }
 
 Widget buildDiagram(BuildContext context, Percentage percentage) {
-  const double minPercentageForIcon = 1.0; // Set the minimum percentage threshold
-  const double radius = 10.0; // Thinner circle radius
+  const double minPercentageForIcon = 1.0;
+  const double radius = 10.0;
 
-  // Calculate total value
   double totalValue = percentage.btcPercentage +
       percentage.liquidPercentage +
       percentage.brlPercentage +
       percentage.eurPercentage +
       percentage.usdPercentage;
 
-  // Calculate percentages
   double btcPercentage = (percentage.btcPercentage / totalValue) * 100;
   double liquidPercentage = (percentage.liquidPercentage / totalValue) * 100;
   double brlPercentage = (percentage.brlPercentage / totalValue) * 100;
@@ -166,6 +164,7 @@ Widget buildDiagram(BuildContext context, Percentage percentage) {
       const SizedBox(width: 16),
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: buildLegend(),
       ),
     ],

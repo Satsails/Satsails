@@ -36,7 +36,6 @@ class Home extends ConsumerWidget {
     return Column(
       children: [
         Expanded(child: _buildMiddleSection(context, ref)),
-        buildActionButtons(context, ref),
         CustomBottomNavigationBar(
           currentIndex: ref.watch(navigationProvider),
           context: context,
@@ -59,6 +58,9 @@ class Home extends ConsumerWidget {
       children: [
         const BackupWarning(),
         buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
+        SizedBox(height: screenHeight * 0.02),
+        buildActionButtons(context, ref),
+        SizedBox(height: screenHeight * 0.03),
         Flexible(
           child: SizedBox(
             height: screenHeight * 0.24,
@@ -80,17 +82,6 @@ class Home extends ConsumerWidget {
             }),
           ),
         ),
-        SizedBox(height: screenHeight * 0.05),
-        SizedBox(
-          height: screenWidth * 0.17,
-          width: screenWidth * 0.6,
-          child: CustomButton(
-            text: 'View Accounts'.i18n(ref),
-            onPressed: () {
-              Navigator.push(context,MaterialPageRoute(builder: (context) => const Accounts()));
-            },
-          ),
-        )
       ],
     );
   }

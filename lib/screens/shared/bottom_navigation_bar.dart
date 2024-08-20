@@ -1,3 +1,4 @@
+import 'package:Satsails/screens/accounts/accounts.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
@@ -32,6 +33,10 @@ class CustomBottomNavigationBar extends ConsumerWidget {
         icon: Icon(AntDesign.bar_chart_outline, size: math.min(screenHeight * 0.03, 25.0)),
         label: 'Analytics'.i18n(ref),
       ),
+      BottomNavigationBarItem(
+        icon: Icon(AntDesign.wallet_outline, size: math.min(screenHeight * 0.03, 25.0)),
+        label: 'Wallets'.i18n(ref),
+      ),
     ];
 
     return Theme(
@@ -65,6 +70,9 @@ class CustomBottomNavigationBar extends ConsumerWidget {
         break;
       case 1:
         page = const Analytics();
+        break;
+      case 2:
+        page = const Accounts();
         break;
     }
 

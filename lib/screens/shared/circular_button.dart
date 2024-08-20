@@ -29,7 +29,7 @@ Widget buildCircularButton(BuildContext context, icon, String subtitle, VoidCall
               radius: 25,
               child: Icon(
                 icon,
-                color: Colors.orangeAccent,
+                color: Colors.white,
                 size: math.min(screenHeight * 0.04, maxIconSize), // 4% of screen height or maxIconSize, whichever is smaller
               ),
             ),
@@ -39,7 +39,7 @@ Widget buildCircularButton(BuildContext context, icon, String subtitle, VoidCall
       SizedBox(height: screenHeight * 0.01), // 1% of screen height
       Text(
         subtitle,
-        style: TextStyle(fontSize: math.min(screenHeight * 0.015, maxTextSize), color: Colors.black), // 1.5% of screen height or maxTextSize, whichever is smaller
+        style: TextStyle(fontSize: math.min(screenHeight * 0.015, maxTextSize), color: Colors.white), // 1.5% of screen height or maxTextSize, whichever is smaller
       ),
     ],
   );
@@ -55,16 +55,16 @@ Widget buildActionButtons(BuildContext context, WidgetRef ref) {
       children: [
         buildCircularButton(context, Clarity.add_line, 'Add Money'.i18n(ref), () {
           Navigator.pushNamed(context, '/charge');
-        }, Colors.white),
+        }, Colors.black),
         buildCircularButton(context, Clarity.two_way_arrows_line, 'Swaps'.i18n(ref), () {
           Navigator.pushNamed(context, '/exchange');
-        }, Colors.white),
+        }, Colors.black),
         buildCircularButton(context, Clarity.credit_card_line, 'Pay'.i18n(ref), () {
           Navigator.pushNamed(context, '/pay');
-        }, Colors.white),
+        }, Colors.black),
         buildCircularButton(context, TeenyIcons.arrow_down, 'Receive'.i18n(ref), () {
           Navigator.pushNamed(context, '/receive');
-        }, Colors.white),
+        }, Colors.black),
       ],
     ),
   );
