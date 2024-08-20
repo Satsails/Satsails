@@ -1,3 +1,0 @@
-#!/bin/sh
-"${PODS_ROOT}/Target Support Files/lwk_dart/lwk_dart-xcframeworks.sh"
-

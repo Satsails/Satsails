@@ -1,2 +1,0 @@
-#!/bin/sh
-sh "$PODS_TARGET_SRCROOT/../cargokit/build_pod.sh" ../rust bdk_flutter
