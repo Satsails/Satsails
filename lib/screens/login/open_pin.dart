@@ -45,6 +45,12 @@ class OpenPin extends ConsumerWidget {
                   length: 6,
                   obscureText: true,
                   keyboardType: TextInputType.number,
+                  textStyle: TextStyle(color: Colors.white),
+                  pinTheme: PinTheme(
+                    inactiveColor: Colors.white,
+                    selectedColor: Colors.red,
+                    activeColor: Colors.orange,
+                  ),
                   onChanged: (value) {
                     _pinController.text = value;
                   },
@@ -58,7 +64,10 @@ class OpenPin extends ConsumerWidget {
                   },
                 ),
                 const SizedBox(height: 20),
-                CustomButton(text: 'Unlock'.i18n(ref), onPressed: () => _checkPin(context, ref)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 106),
+                  child: CustomButton(text: 'Unlock'.i18n(ref), onPressed: () => _checkPin(context, ref)),
+                ),
                 const SizedBox(height: 20),
                 TextButton(
                   onPressed: () => _showConfirmationDialog(context, ref),

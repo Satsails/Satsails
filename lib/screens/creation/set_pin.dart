@@ -43,6 +43,8 @@ class SetPin extends ConsumerWidget {
                     textStyle: TextStyle(color: Colors.white),
                     pinTheme: PinTheme(
                       inactiveColor: Colors.white,
+                      selectedColor: Colors.red,
+                      activeColor: Colors.orange,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty || value.length != 6) {
