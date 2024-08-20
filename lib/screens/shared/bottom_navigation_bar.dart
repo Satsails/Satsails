@@ -40,13 +40,13 @@ class CustomBottomNavigationBar extends ConsumerWidget {
         highlightColor: Colors.transparent,
       ),
       child: BottomNavigationBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         currentIndex: currentIndex,
         onTap: (index) {
           _navigateToScreen(index, context);
           onTap(index);
         },
-        unselectedItemColor: Colors.black,
+        unselectedItemColor: Colors.white,
         selectedItemColor: Colors.orangeAccent,
         elevation: 8.0,
         items: bottomNavBarItems,

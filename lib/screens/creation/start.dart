@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import './components/logo.dart';
 
 class Start extends ConsumerWidget {

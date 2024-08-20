@@ -24,7 +24,7 @@ class OpenPin extends ConsumerWidget {
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
-          title: Center(child: Text('Enter PIN'.i18n(ref))),
+          title: Center(child: Text('Enter PIN'.i18n(ref), style: const TextStyle(color: Colors.white))),
           backgroundColor: Colors.black,
           automaticallyImplyLeading: openSeed ? true : false,
           leading: openSeed ? IconButton(
@@ -40,28 +40,31 @@ class OpenPin extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                PinCodeTextField(
-                  appContext: context,
-                  length: 6,
-                  obscureText: true,
-                  keyboardType: TextInputType.number,
-                  textStyle: TextStyle(color: Colors.white),
-                  pinTheme: PinTheme(
-                    inactiveColor: Colors.white,
-                    selectedColor: Colors.red,
-                    activeColor: Colors.orange,
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: PinCodeTextField(
+                    appContext: context,
+                    length: 6,
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    textStyle: TextStyle(color: Colors.white),
+                    pinTheme: PinTheme(
+                      inactiveColor: Colors.white,
+                      selectedColor: Colors.red,
+                      activeColor: Colors.orange,
+                    ),
+                    onChanged: (value) {
+                      _pinController.text = value;
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a PIN'.i18n(ref);
+                      } else if (value.length != 6) {
+                        return 'PIN must be exactly 6 digits'.i18n(ref);
+                      }
+                      return null;
+                    },
                   ),
-                  onChanged: (value) {
-                    _pinController.text = value;
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a PIN'.i18n(ref);
-                    } else if (value.length != 6) {
-                      return 'PIN must be exactly 6 digits'.i18n(ref);
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 20),
                 Padding(

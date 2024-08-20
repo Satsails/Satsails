@@ -7,7 +7,6 @@ import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/accounts/accounts.dart';
 import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -17,6 +16,7 @@ import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/pie_chart.dart';
 import 'package:Satsails/translations/translations.dart';
 
+
 class Home extends ConsumerWidget {
   const Home({super.key});
 
@@ -25,6 +25,7 @@ class Home extends ConsumerWidget {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
+        backgroundColor: Colors.black,
         appBar: _buildAppBar(context, ref),
         body: SafeArea(child: _buildBody(context, ref)),
       ),
@@ -50,32 +51,20 @@ class Home extends ConsumerWidget {
   }
 
   Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
-    final screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
-    // final online = ref.watch(settingsProvider).online;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         const BackupWarning(),
-        buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider',
-            'totalBalanceInFiatProvider'),
+        buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
         Flexible(
           child: SizedBox(
-            height: MediaQuery
-                .of(context)
-                .size
-                .height * 0.24,
+            height: screenHeight * 0.24,
             child: Consumer(builder: (context, watch, child) {
               final initializeBalance = ref.watch(initializeBalanceProvider);
-              final percentageOfEachCurrency = ref.watch(
-                  percentageChangeProvider);
+              final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
               return initializeBalance.when(
                 data: (balance) =>
                 balance.isEmpty
@@ -98,8 +87,7 @@ class Home extends ConsumerWidget {
           child: CustomButton(
             text: 'View Accounts'.i18n(ref),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Accounts()));
+              Navigator.push(context,MaterialPageRoute(builder: (context) => const Accounts()));
             },
           ),
         )
@@ -108,10 +96,7 @@ class Home extends ConsumerWidget {
   }
 
   Widget emptyBalance(WidgetRef ref, BuildContext context) {
-    final screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
+    final screenHeight = MediaQuery.of(context).size.height;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -131,10 +116,7 @@ class Home extends ConsumerWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {
     final settings = ref.read(settingsProvider);
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final screenWidth = MediaQuery.of(context).size.width;
     final settingsNotifier = ref.read(settingsProvider.notifier);
 
     void toggleOnlineStatus() {
@@ -143,22 +125,18 @@ class Home extends ConsumerWidget {
     }
 
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.black,
       automaticallyImplyLeading: false,
       title: Row(
         children: [
-          const Logo(widthFactor: 0.08, heightFactor: 0.08),
+          const Logo(widthFactor: 0.03, heightFactor: 0.03),
           // Slightly larger size
           SizedBox(width: screenWidth * 0.02),
           // 2% of screen width
-          Expanded(
-            child: Text(
-              'Satsails',
-              style: GoogleFonts.fragmentMono(
-                fontSize: screenWidth * 0.055, // Slightly larger font size
-                color: Colors.orangeAccent,
-              ),
-              overflow: TextOverflow.ellipsis,
+          const Text(
+            'Satsails',
+            style: TextStyle(
+              color: Colors.orange,
             ),
           ),
         ],

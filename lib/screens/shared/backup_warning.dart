@@ -22,7 +22,7 @@ class BackupWarning extends ConsumerWidget {
         children: <Widget>[
           const Icon(
             Icons.warning,
-            color: Colors.orange,
+            color: Colors.red,
           ),
           TextButton(
             onPressed: () {
@@ -31,7 +31,7 @@ class BackupWarning extends ConsumerWidget {
             child: Text(
               'Backup your wallet'.i18n(ref),
               style: TextStyle(
-                color: Colors.orange,
+                color: Colors.red,
                 fontSize: dynamicFontSize,
                 fontWeight: FontWeight.bold,
               ),
