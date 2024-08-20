@@ -143,7 +143,7 @@ class Home extends ConsumerWidget {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Clarity.settings_line, color: Colors.black),
+          icon: const Icon(Clarity.settings_line, color: Colors.white),
           onPressed: () {
             Navigator.pushNamed(context, '/settings');
           },
@@ -154,7 +154,7 @@ class Home extends ConsumerWidget {
             : IconButton(
           icon: Icon(
             Icons.sync,
-            color: settings.online ? Colors.green : Colors.red,
+            color: settings.online ? Colors.white : Colors.red,
           ),
           onPressed: () {
             toggleOnlineStatus();

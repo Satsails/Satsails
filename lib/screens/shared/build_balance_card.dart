@@ -1,10 +1,14 @@
 import 'package:Satsails/providers/coingecko_provider.dart';
+import 'package:Satsails/screens/shared/denominatino_change_modal_bottom_sheet.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+
+final selectedButtonProvider = StateProvider<String>((ref) => 'currency');
 
 Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProviderName, String balanceInFiatName) {
   final screenWidth = MediaQuery.of(context).size.width;
@@ -34,23 +38,40 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: cardPadding, horizontal: cardPadding / 2),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Total balance'.i18n(ref), style: TextStyle(fontSize: titleFontSize * 0.7, color: Colors.white), textAlign: TextAlign.center),
+                    Text('Total balance:'.i18n(ref), style: TextStyle(fontSize: titleFontSize * 0.7, color: Colors.white)),
                     _buildPricePercentageChangeTicker(context, ref)
                   ],
                 ),
               ),
-              _buildBalanceConsumer(ref, titleFontSize, balanceProviderName, 'btcFormat'),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: _buildBalanceConsumer(ref, titleFontSize, balanceProviderName, 'btcFormat')
+                ),
+              ),
               SizedBox(height: screenHeight * 0.01),
-              Text('or'.i18n(ref), style: const TextStyle(fontSize: 14, color: Colors.white), textAlign: TextAlign.center),
-              SizedBox(height: screenHeight * 0.01),
-              _buildBalanceConsumer(ref, subtitleFontSize, balanceInFiatName, 'currency'),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Align(
+                    alignment: Alignment.centerLeft,child: _buildBalanceConsumer(ref, subtitleFontSize, balanceInFiatName, 'currency')
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    _showDenominationChangeModalBottomSheet(context, ref);
+                  },
+                  child: Text('Change Denomination'.i18n(ref), style: TextStyle(color: Colors.white)),
+                ),
+              ),
             ],
           ),
         ),
@@ -58,6 +79,17 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
     ),
   );
 }
+
+void _showDenominationChangeModalBottomSheet(BuildContext context, WidgetRef ref) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.black,
+    builder: (BuildContext context) {
+      return DenominationChangeModalBottomSheet(settingsNotifier: ref.read(settingsProvider.notifier));
+    },
+  );
+}
+
 
 Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
   final coinGeckoData = ref.watch(coinGeckoDataProvider);
@@ -89,7 +121,7 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
         padding: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: BorderRadius.circular(20.0),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -158,7 +190,7 @@ Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName
   }
 
   return initializeBalance.when(
-    data: (_) => SizedBox(height: fontSize * 1.5, child: Text('$balance $settingsValue', style: TextStyle(fontSize: fontSize, color: Colors.white), textAlign: TextAlign.center)),
+    data: (_) => SizedBox(height: fontSize * 1.5, child: Text('$balance $settingsValue', style: TextStyle(fontSize: fontSize, color: Colors.white))),
     loading: () => SizedBox(height: fontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: fontSize, color: Colors.white)),
     error: (error, stack) => SizedBox(height: fontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: fontSize)))),
   );

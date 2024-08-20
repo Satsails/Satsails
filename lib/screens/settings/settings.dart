@@ -32,8 +32,6 @@ class Settings extends ConsumerWidget {
           children: [
             _buildBlockExplorerSection(context, ref),
             _buildDivider(),
-            _buildCurrencySection(ref, context),
-            _buildDivider(),
             _buildSupportSection(ref),
             _buildDivider(),
             _buildClaimBoltzTransactionsSection(context, ref),
@@ -41,8 +39,6 @@ class Settings extends ConsumerWidget {
             _buildSeedSection(context, ref),
             _buildDivider(),
             _buildLanguageSection(ref, context),
-            _buildDivider(),
-            _buildBtcUnitSection(ref, context),
             _buildDivider(),
             _buildAffiliatesRedirectionSection(context, ref),
             _buildDivider(),
@@ -70,53 +66,6 @@ class Settings extends ConsumerWidget {
       subtitle: const Text('mempool.com'),
       onTap: () {
         Navigator.pushNamed(context, '/search_modal');
-      },
-    );
-  }
-
-  Widget _buildCurrencySection(WidgetRef ref, BuildContext context) {
-    final settings = ref.watch(settingsProvider);
-    final settingsNotifier = ref.read(settingsProvider.notifier);
-
-    return ListTile(
-      leading: const Icon(Iconsax.dollar_circle_outline, color: Colors.orangeAccent),
-      title: Text('Currency'.i18n(ref)),
-      subtitle: Text(settings.currency),
-      onTap: () {
-        showModalBottomSheet(
-          context: context,
-          builder: (BuildContext context) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                ListTile(
-                  leading: Flag(Flags.brazil),
-                  title: const Text('BRL'),
-                  onTap: () {
-                    settingsNotifier.setCurrency('BRL');
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  leading: Flag(Flags.united_states_of_america),
-                  title: const Text('USD'),
-                  onTap: () {
-                    settingsNotifier.setCurrency('USD');
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  leading: Flag(Flags.european_union),
-                  title: const Text('EUR'),
-                  onTap: () {
-                    settingsNotifier.setCurrency('EUR');
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            );
-          },
-        );
       },
     );
   }
@@ -230,61 +179,6 @@ class Settings extends ConsumerWidget {
                     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                   },
                 ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildBtcUnitSection(WidgetRef ref, BuildContext context) {
-    final settings = ref.watch(settingsProvider);
-    final settingsNotifier = ref.read(settingsProvider.notifier);
-
-    return ListTile(
-      leading: const Icon(Icons.add_chart, color: Colors.orangeAccent),
-      title: Text('Bitcoin Unit'.i18n(ref)),
-      subtitle: Text(settings.btcFormat),
-      onTap: () {
-        showModalBottomSheet(
-          context: context,
-          builder: (BuildContext context) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                ListTile(
-                  leading: const Text('₿'),
-                  title: const Text('BTC'),
-                  onTap: () {
-                    settingsNotifier.setBtcFormat('BTC');
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  leading: const Text('sats ₿'),
-                  title: const Text('Satoshi'),
-                  onTap: () {
-                    settingsNotifier.setBtcFormat('sats');
-                    Navigator.pop(context);
-                  },
-                ),
-                // ListTile(
-                //   leading: const Text('mBTC'),
-                //   title: const Text('mBTC'),
-                //   onTap: () {
-                //     settingsNotifier.setBtcFormat('mBTC');
-                //     Navigator.pop(context);
-                //   },
-                // ),
-                // ListTile(
-                //   leading: const Text('bits'),
-                //   title: const Text('bits'),
-                //   onTap: () {
-                //     settingsNotifier.setBtcFormat('bits');
-                //     Navigator.pop(context);
-                //   },
-                // ),
               ],
             );
           },
