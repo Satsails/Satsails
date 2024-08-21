@@ -26,7 +26,7 @@ class CoingeckoModel {
     try {
       final marketData = await api.coins.getCoinMarketChart(
         id: 'bitcoin',
-        vsCurrency: data.currency,
+        vsCurrency: data.currency.toLowerCase(),
         days: data.days,
       );
       return marketData.data;

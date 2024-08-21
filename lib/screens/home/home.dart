@@ -94,11 +94,11 @@ class Home extends ConsumerWidget {
       indicatorColor: Colors.orangeAccent,
       indicatorBackgroundColor: Colors.grey,
       children: [
-        BitcoinPriceHistoryGraph(),
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: buildDiagram(context, percentageOfEachCurrency),
         ),
+        BitcoinPriceHistoryGraph(),
       ],
     );
   }

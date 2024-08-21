@@ -1,5 +1,6 @@
 import 'package:Satsails/models/coingecko_model.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:coingecko_api/data/market_chart_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,7 +21,7 @@ class LineChartSample extends StatelessWidget {
   Widget build(BuildContext context) {
     return SfCartesianChart(
       primaryXAxis: const DateTimeAxis(
-        isVisible: false,
+        isVisible: true,
         majorGridLines: MajorGridLines(width: 0),
         minorGridLines: MinorGridLines(width: 0),
         axisLine: AxisLine(width: 0),
@@ -35,8 +36,8 @@ class LineChartSample extends StatelessWidget {
       ),
       plotAreaBorderWidth: 0,
       trackballBehavior: TrackballBehavior(
-        enable: true,
-        activationMode: ActivationMode.singleTap,
+        enable: false,
+        activationMode: ActivationMode.longPress,
         lineType: TrackballLineType.none, // Disable vertical lines
         tooltipSettings: const InteractiveTooltip(
           enable: true,
@@ -77,67 +78,61 @@ class LineChartSample extends StatelessWidget {
   }
 }
 
-class BitcoinPriceHistoryGraph extends ConsumerStatefulWidget {
+class BitcoinPriceHistoryGraph extends ConsumerWidget {
   const BitcoinPriceHistoryGraph({super.key});
 
   @override
-  _BitcoinPriceHistoryGraphState createState() => _BitcoinPriceHistoryGraphState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final marketData = ref.watch(coinGeckoBitcoinMarketDataProvider);
 
-class _BitcoinPriceHistoryGraphState extends ConsumerState<BitcoinPriceHistoryGraph> {
-  int selectedDateRange = 7;
-
-  @override
-  Widget build(BuildContext context) {
-    MarketData marketData = MarketData(
-      days: selectedDateRange,
-      currency: 'usd',
-    );
-    final data = ref.watch(coinGeckoBitcoinMarketDataProvider(marketData));
-
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return marketData.when(
+      data: (data) {
+        return Column(
           children: [
-            TextButton(
-              onPressed: () => _updateDateRange(7),
-              child: const Text('7D', style: TextStyle(color: Colors.white)),
-            ),
-            const SizedBox(width: 10),
-            TextButton(
-              onPressed: () => _updateDateRange(30),
-              child: const Text('30D', style: TextStyle(color: Colors.white)),
-            ),
-            const SizedBox(width: 10),
-            TextButton(
-              onPressed: () => _updateDateRange(90),
-              child: const Text('90D', style: TextStyle(color: Colors.white)),
-            ),
-            const SizedBox(width: 10),
-            TextButton(
-              onPressed: () => _updateDateRange(365),
-              child: const Text('1Y', style: TextStyle(color: Colors.white)),
+            _buildDateRangeButtons(ref),
+            Expanded(
+              child: LineChartSample(marketData: data),
             ),
           ],
-        ),
-        data.when(
-          data: (marketData) {
-            return LineChartSample(marketData: marketData);
-          },
-          loading: () => LoadingAnimationWidget.threeArchedCircle(size: 100, color: Colors.orange),
-          error: (error, stack) => SvgPicture.asset(
-            'lib/assets/GraficoAnalise.svg',
-          ),
-        ),
+        );
+      },
+      loading: () {
+        return Center(
+          child: LoadingAnimationWidget.threeArchedCircle(size: 100, color: Colors.orange),
+        );
+      },
+      error: (error, stack) {
+        return Center(
+          child: Text('Error: $error'),
+        );
+      },
+    );
+  }
+
+  Widget _buildDateRangeButtons(WidgetRef ref) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildDateRangeButton(ref, 7, '7'),
+        _buildDateRangeButton(ref, 30, '30'),
+        _buildDateRangeButton(ref, 90, '90'),
+        _buildDateRangeButton(ref, 365, '1Y'),
       ],
     );
   }
 
-  void _updateDateRange(int range) {
-    setState(() {
-      selectedDateRange = range;
-    });
+  Widget _buildDateRangeButton(WidgetRef ref, int range, String text) {
+    final selectedDateRange = ref.watch(selectedDateRangeProvider);
+
+    return TextButton(
+      onPressed: () => ref.read(selectedDateRangeProvider.notifier).state = range,
+      child: Text(
+        text,
+        style: TextStyle(
+          color: selectedDateRange == range ? Colors.orangeAccent : Colors.white,
+        ),
+      ),
+    );
   }
 }
 
