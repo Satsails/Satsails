@@ -68,16 +68,13 @@ class Home extends ConsumerWidget {
               final initializeBalance = ref.watch(initializeBalanceProvider);
               final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
               return initializeBalance.when(
-                data: (balance) =>
-                balance.isEmpty
-                    ? emptyBalance(ref, context)
-                    : buildDiagram(context, percentageOfEachCurrency),
+                data: (balance) => walletWidget(ref, context, balance, percentageOfEachCurrency)
                 loading: () =>
                     LoadingAnimationWidget.threeArchedCircle(
-                        size: 200, color: Colors.orange),
+                        size: 100, color: Colors.orange),
                 error: (error, stack) =>
                     LoadingAnimationWidget.threeArchedCircle(
-                        size: 200, color: Colors.orange),
+                        size: 100, color: Colors.orange),
               );
             }),
           ),
@@ -86,7 +83,8 @@ class Home extends ConsumerWidget {
     );
   }
 
-  Widget emptyBalance(WidgetRef ref, BuildContext context) {
+  Widget walletWidget(WidgetRef ref, BuildContext context, balance, percentageOfEachCurrency) {
+    final diagram =  buildDiagram(context, percentageOfEachCurrency);
     final screenHeight = MediaQuery.of(context).size.height;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
