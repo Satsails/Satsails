@@ -92,7 +92,7 @@ void _showDenominationChangeModalBottomSheet(BuildContext context, WidgetRef ref
 
 
 Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
-  final coinGeckoData = ref.watch(coinGeckoDataProvider);
+  final coinGeckoData = ref.watch(coinGeckoBitcoinChange);
   final screenHeight = MediaQuery.of(context).size.height;
   final titleFontSize = screenHeight * 0.03;
 

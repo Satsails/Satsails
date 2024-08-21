@@ -50,19 +50,19 @@ Widget buildDiagram(BuildContext context, Percentage percentage) {
       if (brlPercentage > minPercentageForIcon)
         buildLegendItem(
           Image.asset('lib/assets/depix.png', width: 25, height: 25),
-          'BRL',
+          'Depix',
           brlPercentage,
         ),
       if (eurPercentage > minPercentageForIcon)
         buildLegendItem(
           Image.asset('lib/assets/eurx.png', width: 25, height: 25),
-          'EUR',
+          'EURx',
           eurPercentage,
         ),
       if (usdPercentage > minPercentageForIcon)
         buildLegendItem(
           Image.asset('lib/assets/tether.png', width: 25, height: 25),
-          'USD',
+          'USDT',
           usdPercentage,
         ),
     ];

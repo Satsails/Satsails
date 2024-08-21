@@ -1,12 +1,15 @@
 import 'package:Satsails/screens/creation/components/logo.dart';
+import 'package:Satsails/screens/home/components/bitcoin_price_history_graph.dart';
 import 'package:Satsails/screens/shared/backup_warning.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/accounts/accounts.dart';
 import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -50,7 +53,6 @@ class Home extends ConsumerWidget {
   }
 
   Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Column(
@@ -58,23 +60,25 @@ class Home extends ConsumerWidget {
       children: [
         const BackupWarning(),
         buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
-        SizedBox(height: screenHeight * 0.02),
+        SizedBox(height: screenHeight * 0.01),
         buildActionButtons(context, ref),
-        SizedBox(height: screenHeight * 0.03),
+        SizedBox(height: screenHeight * 0.01),
         Flexible(
-          child: SizedBox(
-            height: screenHeight * 0.24,
+          child: Container(
+            height: double.infinity,
             child: Consumer(builder: (context, watch, child) {
               final initializeBalance = ref.watch(initializeBalanceProvider);
               final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
               return initializeBalance.when(
-                data: (balance) => walletWidget(ref, context, balance, percentageOfEachCurrency)
-                loading: () =>
-                    LoadingAnimationWidget.threeArchedCircle(
-                        size: 100, color: Colors.orange),
-                error: (error, stack) =>
-                    LoadingAnimationWidget.threeArchedCircle(
-                        size: 100, color: Colors.orange),
+                  data: (balance) => balance.isEmpty
+                      ? BitcoinPriceHistoryGraph()
+                      : walletWidget(ref, context, percentageOfEachCurrency),
+                  loading: () =>Center(child: LoadingAnimationWidget.threeArchedCircle(size: 100, color: Colors.orange)),
+              error: (error, stack) =>
+              Center(
+                child: LoadingAnimationWidget.threeArchedCircle(
+                size: 100, color: Colors.orange),
+              ),
               );
             }),
           ),
@@ -83,24 +87,22 @@ class Home extends ConsumerWidget {
     );
   }
 
-  Widget walletWidget(WidgetRef ref, BuildContext context, balance, percentageOfEachCurrency) {
-    final diagram =  buildDiagram(context, percentageOfEachCurrency);
-    final screenHeight = MediaQuery.of(context).size.height;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+  Widget walletWidget(WidgetRef ref, BuildContext context, percentageOfEachCurrency) {
+
+    return ImageSlideshow(
+      initialPage: 0,
+      indicatorColor: Colors.orangeAccent,
+      indicatorBackgroundColor: Colors.grey,
       children: [
-        Text(
-          'Your wallet is empty'.i18n(ref),
-          style: const TextStyle(
-            fontSize: 20,
-            color: Colors.grey,
-          ),
+        BitcoinPriceHistoryGraph(),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: buildDiagram(context, percentageOfEachCurrency),
         ),
-        Icon(Iconsax.security_safe_bold, size: screenHeight * 0.2,
-            color: Colors.blueAccent),
       ],
     );
   }
+
 
 
   PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {

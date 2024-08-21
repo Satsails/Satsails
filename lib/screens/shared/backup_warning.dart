@@ -11,35 +11,31 @@ class BackupWarning extends ConsumerWidget {
     final screenSize = MediaQuery.of(context).size;
     final backupWarning = ref.watch(settingsProvider).backup;
 
-    final dynamicPadding = screenSize.width * 0.03;
     final dynamicFontSize = screenSize.width * 0.04;
 
     return !backupWarning
-        ? Padding(
-      padding: EdgeInsets.all(dynamicPadding),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          const Icon(
-            Icons.warning,
-            color: Colors.red,
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/seed_words');
-            },
-            child: Text(
-              'Backup your wallet'.i18n(ref),
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: dynamicFontSize,
-                fontWeight: FontWeight.bold,
+        ? Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Icon(
+              Icons.warning,
+              color: Colors.red,
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/seed_words');
+              },
+              child: Text(
+                'Backup your wallet'.i18n(ref),
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: dynamicFontSize,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    )
+          ],
+        )
         : Container();
   }
 }
