@@ -41,28 +41,29 @@ class ButtonPicker extends ConsumerWidget {
             ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
         }
       },
-      buttons: ["Bitcoin Layer Swap".i18n(ref), 'Swap'.i18n(ref)],
+      buttons: ["BTC ⇄ Liquid".i18n(ref), 'Liquid ⇄ Stable'.i18n(ref)],
       options: GroupButtonOptions(
         unselectedTextStyle: TextStyle(
-            fontSize: screenWidth * 0.04, color: Colors.black), // 4% of screen width
+            fontSize: screenWidth * 0.04, color: Colors.orange), // 4% of screen width
         selectedTextStyle: TextStyle(
-            fontSize: screenWidth * 0.04, color: Colors.white), // 4% of screen width
-        selectedColor: Colors.deepOrange,
+            fontSize: screenWidth * 0.04, color: Colors.black), // 4% of screen width
+        selectedColor: Colors.orange,
         mainGroupAlignment: MainGroupAlignment.center,
         crossGroupAlignment: CrossGroupAlignment.center,
         groupRunAlignment: GroupRunAlignment.center,
-        unselectedColor: Colors.white,
+        unselectedColor: Colors.black,
         groupingType: GroupingType.row,
         alignment: Alignment.center,
         elevation: 0,
         textPadding: EdgeInsets.zero,
+        unselectedBorderColor: Colors.orange,
         selectedShadow: <BoxShadow>[
           const BoxShadow(color: Colors.transparent)
         ],
         unselectedShadow: <BoxShadow>[
           const BoxShadow(color: Colors.transparent)
         ],
-        borderRadius: BorderRadius.circular(screenWidth * 0.075), // 7.5% of screen width
+        borderRadius: BorderRadius.circular(screenWidth * 0.01), // 7.5% of screen width
       ),
     );
   }

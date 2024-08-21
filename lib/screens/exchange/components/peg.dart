@@ -32,7 +32,6 @@ class _PegState extends ConsumerState<Peg> {
 
   @override
   Widget build(BuildContext context) {
-    final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final titleFontSize = MediaQuery.of(context).size.height * 0.03;
     final pegIn = ref.watch(pegInProvider);
@@ -41,31 +40,6 @@ class _PegState extends ConsumerState<Peg> {
     final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(btcFormart));
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
     final status = ref.watch(sideswapStatusProvider);
-
-    List<Widget> cards = [
-      _buildBitcoinCard(ref, dynamicPadding, titleFontSize, pegIn),
-      GestureDetector(
-        onTap: () {
-          ref.read(pegInProvider.notifier).state = !pegIn;
-          ref.read(sendTxProvider.notifier).updateAddress('');
-          ref.read(sendTxProvider.notifier).updateAmount(0);
-          ref.read(sendBlocksProvider.notifier).state = 1;
-          controller.text = '';
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("Switch".i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey)),
-            Icon(EvaIcons.swap, size: titleFontSize, color: Colors.grey),
-          ],
-        ),
-      ),
-      _buildLiquidCard(ref, dynamicPadding, titleFontSize, pegIn),
-    ];
-
-    if (!pegIn) {
-      cards = cards.reversed.toList();
-    }
 
     return Column(
       children: [
@@ -76,32 +50,63 @@ class _PegState extends ConsumerState<Peg> {
               children: [
                 Text(
                   "Balance to Spend: ".i18n(ref),
-                  style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+                  style: TextStyle(fontSize: dynamicFontSize, color: Colors.white),
                 ),
-                Row(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Text(
                       pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
-                      style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                      style: TextStyle(fontSize: titleFontSize, color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
                     _buildBitcoinMaxButton(ref, dynamicPadding, titleFontSize, btcFormart, pegIn),
                     //   add here the max depending on pegIn or pegOut
                   ],
                 ),
-                SizedBox(height: dynamicSizedBox / 2),
-                ...cards, // Spread operator to insert all elements of the list
+                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                Stack(
+                  alignment: Alignment.center,
+                  clipBehavior: Clip.none, // Allow overflow
+                  children: [
+                    Column(
+                      mainAxisSize: MainAxisSize.min, // Minimize the column size
+                      children: [
+                        _buildBitcoinCard(ref, dynamicPadding, titleFontSize, pegIn),
+                        _buildLiquidCard(ref, dynamicPadding, titleFontSize, pegIn),
+                      ],
+                    ),
+                    Positioned(
+                      bottom: -titleFontSize * 1.5,
+                      top: -titleFontSize * 1.5,
+                      child: GestureDetector(
+                        onTap: () {
+                          ref.read(pegInProvider.notifier).state = !pegIn;
+                          ref.read(sendTxProvider.notifier).updateAddress('');
+                          ref.read(sendTxProvider.notifier).updateAmount(0);
+                          ref.read(sendBlocksProvider.notifier).state = 1;
+                          controller.text = '';
+                        },
+                        child: CircleAvatar(
+                          radius: titleFontSize,
+                          backgroundColor: Colors.orange,
+                          child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                 Text(
                   '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
-                  style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                  style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white),
                   textAlign: TextAlign.center,
                 ),
                 pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
                 if (!pegIn)
                   Text(
                     '${'Bitcoin Network fee:'.i18n(ref)} ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats',
-                    style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                    style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
                 pegIn ? _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize) : _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
@@ -116,7 +121,8 @@ class _PegState extends ConsumerState<Peg> {
               : _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context),
         )
       ],
-    );}
+    );
+  }
 
 
   Widget _buildBitcoinMaxButton(WidgetRef ref, double dynamicPadding, double dynamicFontSize, String btcFormart, bool pegIn) {
@@ -127,11 +133,7 @@ class _PegState extends ConsumerState<Peg> {
         return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            gradient: LinearGradient(
-              colors: pegIn ? [Colors.orange, Colors.deepOrange] : [Colors.blueAccent, Colors.deepPurple],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Colors.white
           ),
           child: Material(
             color: Colors.transparent,
@@ -165,8 +167,7 @@ class _PegState extends ConsumerState<Peg> {
                   'Max',
                   style: TextStyle(
                     fontSize: dynamicFontSize / 2,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -176,11 +177,11 @@ class _PegState extends ConsumerState<Peg> {
       },
       loading: () => Padding(
         padding: const EdgeInsets.all(8.0),
-        child: LoadingAnimationWidget.prograssiveDots(size:  dynamicFontSize / 2, color: Colors.grey),
+        child: LoadingAnimationWidget.prograssiveDots(size:  dynamicFontSize / 2, color: Colors.white),
       ),
       error: (error, stack) => Padding(
           padding: const EdgeInsets.all(8.0),
-          child:  Text(error.toString().i18n(ref), style: TextStyle(color: Colors.grey, fontSize:  dynamicFontSize / 2))
+          child:  Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  dynamicFontSize / 2))
       ),
       orElse: () => Container(), // Add a default case to ensure a Widget is always returned
     );
@@ -200,8 +201,8 @@ class _PegState extends ConsumerState<Peg> {
             child: ActionSlider.standard(
                 sliderBehavior: SliderBehavior.stretch,
                 width: double.infinity,
-                backgroundColor: Colors.white,
-                toggleColor: Colors.blueAccent,
+                backgroundColor: Colors.black,
+                toggleColor: Colors.orange,
                 action: (controller) async {
                   controller.loading();
                   await Future.delayed(const Duration(seconds: 3));
@@ -225,18 +226,18 @@ class _PegState extends ConsumerState<Peg> {
                     controller.reset();
                   }
                 },
-                child:Text('Swap'.i18n(ref))
+                child:Text('Swap'.i18n(ref), style: TextStyle(color: Colors.white), textAlign: TextAlign.center)
             ),
           ),
         );
       },
       loading: () => Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Center(child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize * 2, color: Colors.grey)),
+        child: Center(child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize * 2, color: Colors.white)),
       ),
       error: (error, stack) => Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize))
+          child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize))
       ),
     );
   }
@@ -254,8 +255,8 @@ class _PegState extends ConsumerState<Peg> {
             child: ActionSlider.standard(
                 sliderBehavior: SliderBehavior.stretch,
                 width: double.infinity,
-                backgroundColor: Colors.white,
-                toggleColor: Colors.deepOrangeAccent,
+                backgroundColor: Colors.black,
+                toggleColor: Colors.orange,
                 action: (controller) async {
                   controller.loading();
                   await Future.delayed(const Duration(seconds: 3));
@@ -279,18 +280,18 @@ class _PegState extends ConsumerState<Peg> {
                     controller.reset();
                   }
                 },
-                child: Text('Swap'.i18n(ref))
+                child: Text('Swap'.i18n(ref), style: TextStyle(color: Colors.white), textAlign: TextAlign.center)
             ),
           ),
         );
       },
       loading: () => Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Center(child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize * 2, color: Colors.grey)),
+        child: Center(child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize * 2, color: Colors.white)),
       ),
       error: (error, stack) => Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(error.toString().i18n(ref), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize / 2))
+          child: Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
       ),
     );
   }
@@ -303,7 +304,7 @@ class _PegState extends ConsumerState<Peg> {
         _liquidFeeSlider(ref, dynamicPadding, titleFontSize),
         Padding(
           padding: const EdgeInsets.only(top: 8.0),
-          child: Text(speed, style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.grey)),
+          child: Text(speed, style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white)),
         ),
         DropdownButton<dynamic>(
           hint: Text("How fast would you like to receive your bitcoin".i18n(ref), style: TextStyle(fontSize:  titleFontSize / 2)),
@@ -314,7 +315,7 @@ class _PegState extends ConsumerState<Peg> {
               child: Center(
                 child: Text(
                   "${value["blocks"]} blocks - ${value["value"]} sats/vbyte",
-                  style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.grey),
+                  style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white),
                 ),
               ),
             );
@@ -346,17 +347,22 @@ class _PegState extends ConsumerState<Peg> {
   }
 
   Widget _liquidFeeSlider(WidgetRef ref, double dynamicPadding, double titleFontSize) {
-    return InteractiveSlider(
-      centerIcon: const Icon(Clarity.block_solid, color: Colors.black),
-      foregroundColor: Colors.blueAccent,
-      unfocusedHeight: titleFontSize ,
-      focusedHeight: titleFontSize,
-      initialProgress: 15,
-      min: 5.0,
-      max: 1.0,
-      onChanged: (dynamic value){
-        ref.read(sendBlocksProvider.notifier).state = value;
-      },
+    return Column(
+      children: [
+        Text("Fee", style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white)),
+        InteractiveSlider(
+          centerIcon: const Icon(Clarity.block_solid, color: Colors.black),
+          foregroundColor: Colors.blueAccent,
+          unfocusedHeight: titleFontSize ,
+          focusedHeight: titleFontSize,
+          initialProgress: 15,
+          min: 5.0,
+          max: 1.0,
+          onChanged: (dynamic value){
+            ref.read(sendBlocksProvider.notifier).state = value;
+          },
+        ),
+      ],
     );
   }
 
@@ -369,20 +375,20 @@ class _PegState extends ConsumerState<Peg> {
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   "${'Sending Transaction fee:'.i18n(ref)}$fee sats",
-                  style: TextStyle(fontSize:  titleFontSize / 2, fontWeight: FontWeight.bold, color: Colors.grey),
+                  style: TextStyle(fontSize:  titleFontSize / 2, fontWeight: FontWeight.bold, color: Colors.white),
                   textAlign: TextAlign.center,
                 ),
               );
             },
             loading: () => Padding(
               padding: const EdgeInsets.all(8.0),
-              child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize / 2, color: Colors.grey),
+              child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize / 2, color: Colors.white),
             ),
             error: (error, stack) => Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextButton(
                   onPressed: () { ref.refresh(feeProvider); },
-                  child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize / 2))
+                  child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
               ),
             ),
           ),
@@ -399,20 +405,20 @@ class _PegState extends ConsumerState<Peg> {
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   "${'Sending Transaction fee:'.i18n(ref)}$fee sats",
-                  style: TextStyle(fontSize:  titleFontSize / 2, fontWeight: FontWeight.bold, color: Colors.grey),
+                  style: TextStyle(fontSize:  titleFontSize / 2, fontWeight: FontWeight.bold, color: Colors.white),
                   textAlign: TextAlign.center,
                 ),
               );
             },
             loading: () => Padding(
               padding: const EdgeInsets.all(8.0),
-              child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize / 2, color: Colors.grey),
+              child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize / 2, color: Colors.white),
             ),
             error: (error, stack) => Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextButton(
                   onPressed: () { ref.refresh(liquidFeeProvider); },
-                  child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.grey, fontSize:  titleFontSize / 2))
+                  child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
               ),
             ),
           ),
@@ -439,15 +445,11 @@ class _PegState extends ConsumerState<Peg> {
           borderRadius: BorderRadius.circular(15.0),
         ),
         elevation: 10,
-        margin: EdgeInsets.all(dynamicPadding),
         child: Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Colors.orange, Colors.deepOrange],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
             borderRadius: BorderRadius.circular(15.0),
+            border: Border.all(color: Colors.grey, width: 1),
+            color: Colors.black
           ),
           child: Column(
             children: [
@@ -533,15 +535,11 @@ class _PegState extends ConsumerState<Peg> {
           borderRadius: BorderRadius.circular(15.0),
         ),
         elevation: 10,
-        margin: EdgeInsets.all(dynamicPadding),
         child: Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Colors.blueAccent, Colors.deepPurple],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Colors.black,
             borderRadius: BorderRadius.circular(15.0),
+            border: Border.all(color: Colors.grey, width: 1),
           ),
           child: Column(
             children: [
