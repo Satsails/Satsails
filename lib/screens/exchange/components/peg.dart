@@ -315,7 +315,7 @@ class _PegState extends ConsumerState<Peg> {
   Widget _bitcoinFeeSlider(WidgetRef ref, double dynamicPadding, double titleFontSize) {
     return InteractiveSlider(
       centerIcon: const Icon(Clarity.block_solid, color: Colors.black),
-      foregroundColor: Colors.deepOrange,
+      foregroundColor: Colors.deepPurpleAccent,
       unfocusedHeight: titleFontSize ,
       focusedHeight: titleFontSize,
       initialProgress: 15,

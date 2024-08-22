@@ -53,14 +53,14 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Align(
                     alignment: Alignment.centerLeft,
-                    child: _buildBalanceConsumer(ref, titleFontSize, balanceProviderName, 'btcFormat')
+                    child: _buildBalanceConsumer(ref, titleFontSize, balanceProviderName, 'btcFormat', FontWeight.bold)
                 ),
               ),
               SizedBox(height: screenHeight * 0.01),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Align(
-                    alignment: Alignment.centerLeft,child: _buildBalanceConsumer(ref, subtitleFontSize, balanceInFiatName, 'currency')
+                    alignment: Alignment.centerLeft,child: _buildBalanceConsumer(ref, subtitleFontSize, balanceInFiatName, 'currency', FontWeight.normal)
                 ),
               ),
               Align(
@@ -163,7 +163,7 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
   );
 }
 
-Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName, String settingsName) {
+Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName, String settingsName, FontWeight font) {
   final settings = ref.watch(settingsProvider);
   final initializeBalance = ref.watch(initializeBalanceProvider);
   String balance;
@@ -192,7 +192,7 @@ Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName
   }
 
   return initializeBalance.when(
-    data: (_) => SizedBox(height: fontSize * 1.5, child: Text('$balance $settingsValue', style: TextStyle(fontSize: fontSize, color: Colors.black))),
+    data: (_) => SizedBox(height: fontSize * 1.5, child: Text('$balance $settingsValue', style: TextStyle(fontSize: fontSize, color: Colors.black, fontWeight: font))),
     loading: () => SizedBox(height: fontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: fontSize, color: Colors.black)),
     error: (error, stack) => SizedBox(height: fontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.black, fontSize: fontSize)))),
   );
