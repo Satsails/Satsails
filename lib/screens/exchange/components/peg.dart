@@ -414,11 +414,7 @@ class _PegState extends ConsumerState<Peg> {
   Widget _buildBitcoinCard (WidgetRef ref, double dynamicPadding, double titleFontSize, bool pegIn) {
     final sideSwapStatus = ref.watch(sideswapStatusProvider);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
-    final currency = ref.read(settingsProvider).currency;
-    final currencyRate = ref.read(selectedCurrencyProvider(currency));
     final valueToReceive = ref.watch(sendTxProvider).amount * ( 1- sideSwapStatus.serverFeePercentPegIn / 100) - ref.watch(pegOutBitcoinCostProvider);
-    final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
-    final valueInCurrency = double.parse(formattedValueInBtc) * currencyRate;
     final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormart);
     final sideSwapPeg = ref.watch(sideswapPegProvider);
 
@@ -452,8 +448,6 @@ class _PegState extends ConsumerState<Peg> {
                       Column(
                         children: [
                           Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
-                          Text("or".i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
-                          Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
                         ],
                       ),
                   ],
@@ -505,12 +499,8 @@ class _PegState extends ConsumerState<Peg> {
     final sideSwapStatus = ref.watch(sideswapStatusProvider);
     final valueToReceive = ref.watch(sendTxProvider).amount * ( 1- sideSwapStatus.serverFeePercentPegOut / 100);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
-    final currency = ref.read(settingsProvider).currency;
-    final currencyRate = ref.read(selectedCurrencyProvider(currency));
     final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormart);
     final sideSwapPeg = ref.watch(sideswapPegProvider);
-    final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
-    final valueInCurrency = double.parse(formattedValueInBtc) * currencyRate;
 
     return SizedBox(
       width: double.infinity,
@@ -542,8 +532,6 @@ class _PegState extends ConsumerState<Peg> {
                       Column(
                         children: [
                           Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
-                          Text("or".i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
-                          Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
                         ],
                       ),
                   ],
