@@ -44,7 +44,7 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Total balance:'.i18n(ref), style: TextStyle(fontSize: titleFontSize * 0.7, color: Colors.white)),
+                    Text('Total balance:'.i18n(ref), style: TextStyle(fontSize: titleFontSize * 0.7, color: Colors.black)),
                     _buildPricePercentageChangeTicker(context, ref)
                   ],
                 ),
@@ -69,7 +69,7 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
                   onPressed: () {
                     _showDenominationChangeModalBottomSheet(context, ref);
                   },
-                  child: Text('Change Denomination'.i18n(ref), style: TextStyle(color: Colors.white)),
+                  child: Text('Change Denomination'.i18n(ref), style: TextStyle(color: Colors.black)),
                 ),
               ),
             ],
@@ -107,16 +107,16 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
         if (displayText == '-0.00%' || displayText == '0.00%') {
           displayText = '0%';
           icon = null;
-          color = Colors.green;
+          color = Color(0xFF00752B);
         } else if (data > 0) {
           icon = Icons.arrow_upward;
-          color = Colors.green;
+          color = Color(0xFF00752B);
         } else if (data < 0) {
           icon = Icons.arrow_downward;
           color = Colors.red;
         } else {
           icon = null;
-          color = Colors.green;
+          color = Color(0xFF00752B);
         }
 
         return Container(
@@ -129,11 +129,11 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (icon != null) Icon(icon, size: titleFontSize * 0.7, color: Colors.white),
+              if (icon != null) Icon(icon, size: titleFontSize * 0.5, color: Colors.black),
               SizedBox(width: icon != null ? 5.0 : 0), // Add space between icon and text if icon is present
               Text(
                 displayText,
-                style: TextStyle(fontSize: titleFontSize * 0.7, color: Colors.white),
+                style: TextStyle(fontSize: titleFontSize * 0.5, color: Colors.black),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -141,9 +141,7 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
         );
       },
       loading: () {
-        return Center(
-          child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize * 0.7, color: Colors.white),
-        );
+        return LoadingAnimationWidget.prograssiveDots(size: titleFontSize * 0.5, color: Colors.black);
       },
       error: (error, stack) {
         return Container(
@@ -156,7 +154,7 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
           child: Center(
             child: Text(
               'Error',
-              style: TextStyle(color: Colors.white, fontSize: titleFontSize * 0.7),
+              style: TextStyle(color: Colors.black, fontSize: titleFontSize * 0.5),
             ),
           ),
         );
@@ -194,8 +192,8 @@ Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName
   }
 
   return initializeBalance.when(
-    data: (_) => SizedBox(height: fontSize * 1.5, child: Text('$balance $settingsValue', style: TextStyle(fontSize: fontSize, color: Colors.white))),
-    loading: () => SizedBox(height: fontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: fontSize, color: Colors.white)),
-    error: (error, stack) => SizedBox(height: fontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: fontSize)))),
+    data: (_) => SizedBox(height: fontSize * 1.5, child: Text('$balance $settingsValue', style: TextStyle(fontSize: fontSize, color: Colors.black))),
+    loading: () => SizedBox(height: fontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: fontSize, color: Colors.black)),
+    error: (error, stack) => SizedBox(height: fontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.black, fontSize: fontSize)))),
   );
 }

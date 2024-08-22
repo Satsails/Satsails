@@ -32,6 +32,7 @@ class _PegState extends ConsumerState<Peg> {
 
   @override
   Widget build(BuildContext context) {
+    final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final titleFontSize = MediaQuery.of(context).size.height * 0.03;
     final pegIn = ref.watch(pegInProvider);
@@ -39,64 +40,62 @@ class _PegState extends ConsumerState<Peg> {
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormart));
     final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(btcFormart));
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
-    final status = ref.watch(sideswapStatusProvider);
+
+    List<Widget> cards = [
+      _buildBitcoinCard(ref, dynamicPadding, titleFontSize, pegIn),
+      GestureDetector(
+        onTap: () {
+          ref.read(pegInProvider.notifier).state = !pegIn;
+          ref.read(sendTxProvider.notifier).updateAddress('');
+          ref.read(sendTxProvider.notifier).updateAmount(0);
+          ref.read(sendBlocksProvider.notifier).state = 1;
+          controller.text = '';
+        },
+        child: CircleAvatar(
+          radius: titleFontSize / 1.5,
+          backgroundColor: Colors.orange,
+          child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.black),
+        ),
+      ),
+      _buildLiquidCard(ref, dynamicPadding, titleFontSize, pegIn),
+    ];
+
+    if (!pegIn) {
+      cards = cards.reversed.toList();
+    }
 
     return Column(
       children: [
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(
+              "Balance to Spend: ".i18n(ref),
+              style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+            ),
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                  "Balance to Spend: ".i18n(ref),
-                  style: TextStyle(fontSize: dynamicFontSize, color: Colors.white),
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
-                      style: TextStyle(fontSize: titleFontSize, color: Colors.white),
-                      textAlign: TextAlign.center,
-                    ),
-                    _buildBitcoinMaxButton(ref, dynamicPadding, titleFontSize, btcFormart, pegIn),
-                    //   add here the max depending on pegIn or pegOut
-                  ],
-                ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                _buildBitcoinCard(ref, dynamicPadding, titleFontSize, pegIn),
-                GestureDetector(
-                  onTap: () {
-                    ref.read(pegInProvider.notifier).state = !pegIn;
-                    ref.read(sendTxProvider.notifier).updateAddress('');
-                    ref.read(sendTxProvider.notifier).updateAmount(0);
-                    ref.read(sendBlocksProvider.notifier).state = 1;
-                    controller.text = '';
-                  },
-                  child: CircleAvatar(
-                    radius: titleFontSize / 1.5,
-                    backgroundColor: Colors.orange,
-                    child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.black),
-                  ),
-                ),
-                _buildLiquidCard(ref, dynamicPadding, titleFontSize, pegIn),
-                Text(
-                  '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
-                  style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white),
+                  pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
+                  style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
-                pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
-                if (!pegIn)
-                  Text(
-                    '${'Bitcoin Network fee:'.i18n(ref)} ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats',
-                    style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white),
-                    textAlign: TextAlign.center,
-                  ),
-                pegIn ? _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize) : _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
+                _buildBitcoinMaxButton(ref, dynamicPadding, titleFontSize, btcFormart, pegIn),
+                //   add here the max depending on pegIn or pegOut
               ],
             ),
-          ),
+            SizedBox(height: dynamicSizedBox * 2),
+            ...cards, // Spread operator to insert all elements of the list
+            pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
+            if (!pegIn)
+              Text(
+                '${'Bitcoin Network fee:'.i18n(ref)} ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats',
+                style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            pegIn ? _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize) : _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
+          ],
         ),
         Align(
           alignment: Alignment.bottomCenter,
@@ -105,9 +104,7 @@ class _PegState extends ConsumerState<Peg> {
               : _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context),
         )
       ],
-    );
-  }
-
+    );}
 
   Widget _buildBitcoinMaxButton(WidgetRef ref, double dynamicPadding, double dynamicFontSize, String btcFormart, bool pegIn) {
     final sideSwapPeg = ref.watch(sideswapPegProvider);
@@ -116,8 +113,8 @@ class _PegState extends ConsumerState<Peg> {
       data: (peg) {
         return Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.white
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white
           ),
           child: Material(
             color: Colors.transparent,
@@ -125,28 +122,28 @@ class _PegState extends ConsumerState<Peg> {
               borderRadius: BorderRadius.circular(10),
               onTap: () async {
                 try {
-                ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                if(pegIn){
-                  final bitcoin = ref.watch(balanceNotifierProvider).btcBalance;
-                  final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(ref.watch(sendTxProvider).amount).future).then((value) => value);
-                  final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future).then((value) => value);
-                  final fee = await transaction.$1.feeAmount().then((value) => value);
-                  final amountToSet = (bitcoin - fee!);
-                  ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), 'sats');
-                  ref.read(sendTxProvider.notifier).updateDrain(true);
-                  controller.text = btcInDenominationFormatted(amountToSet.toDouble(), btcFormart);
-                } else {
-                  final liquid = ref.watch(balanceNotifierProvider).liquidBalance;
-                  controller.text = btcInDenominationFormatted(liquid.toDouble(), btcFormart);
-                  ref.read(sendTxProvider.notifier).updateDrain(true);
-                  ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
-                }
+                  ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                  if(pegIn){
+                    final bitcoin = ref.watch(balanceNotifierProvider).btcBalance;
+                    final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(ref.watch(sendTxProvider).amount).future).then((value) => value);
+                    final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future).then((value) => value);
+                    final fee = await transaction.$1.feeAmount().then((value) => value);
+                    final amountToSet = (bitcoin - fee!);
+                    ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), 'sats');
+                    ref.read(sendTxProvider.notifier).updateDrain(true);
+                    controller.text = btcInDenominationFormatted(amountToSet.toDouble(), btcFormart);
+                  } else {
+                    final liquid = ref.watch(balanceNotifierProvider).liquidBalance;
+                    controller.text = btcInDenominationFormatted(liquid.toDouble(), btcFormart);
+                    ref.read(sendTxProvider.notifier).updateDrain(true);
+                    ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
+                  }
                 } catch (e) {
                   Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                 }
               },
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 2, vertical: dynamicPadding / 2),
+                padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 1, vertical: dynamicPadding / 2.5),
                 child: Text(
                   'Max',
                   style: TextStyle(
@@ -333,10 +330,11 @@ class _PegState extends ConsumerState<Peg> {
   Widget _liquidFeeSlider(WidgetRef ref, double dynamicPadding, double titleFontSize) {
     return Column(
       children: [
-        Text("Fee", style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white)),
+        SizedBox(height: dynamicPadding / 2),
+        Text("Choose Fee:".i18n(ref), style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white)),
         InteractiveSlider(
-          centerIcon: const Icon(Clarity.block_solid, color: Colors.black),
-          foregroundColor: Colors.blueAccent,
+          padding: EdgeInsets.only(bottom: dynamicPadding / 2),
+          foregroundColor: Colors.black,
           unfocusedHeight: titleFontSize ,
           focusedHeight: titleFontSize,
           initialProgress: 15,
@@ -346,6 +344,7 @@ class _PegState extends ConsumerState<Peg> {
             ref.read(sendBlocksProvider.notifier).state = value;
           },
         ),
+        // Slider(value: ref.watch(sendBlocksProvider).toDouble(), onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = value, min: 1, max: 15, divisions: 14, label: ref.watch(sendBlocksProvider).toInt().toString()),
       ],
     );
   }
@@ -411,170 +410,167 @@ class _PegState extends ConsumerState<Peg> {
 
   }
 
-  Widget _buildBitcoinCard (WidgetRef ref, double dynamicPadding, double titleFontSize, bool pegIn) {
+  Widget _buildBitcoinCard(WidgetRef ref, double dynamicPadding, double titleFontSize, bool pegIn) {
     final sideSwapStatus = ref.watch(sideswapStatusProvider);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
-    final valueToReceive = ref.watch(sendTxProvider).amount * ( 1- sideSwapStatus.serverFeePercentPegIn / 100) - ref.watch(pegOutBitcoinCostProvider);
+    final currency = ref.read(settingsProvider).currency;
+    final currencyRate = ref.read(selectedCurrencyProvider(currency));
+    final valueToReceive = ref.watch(sendTxProvider).amount * (1 - sideSwapStatus.serverFeePercentPegIn / 100) - ref.watch(pegOutBitcoinCostProvider);
+    final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
+    final valueInCurrency = double.parse(formattedValueInBtc) * currencyRate;
     final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormart);
     final sideSwapPeg = ref.watch(sideswapPegProvider);
+    final status = ref.watch(sideswapStatusProvider);
 
-    return SizedBox(
-      width: double.infinity,
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        elevation: 10,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15.0),
-            border: Border.all(color: Colors.grey, width: 1),
-            color: Colors.black
-          ),
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
-                child: Text('Bitcoin', style: TextStyle(fontSize: titleFontSize / 1.5, color: Colors.white), textAlign: TextAlign.center),
-              ),
-              if (!pegIn) Padding(
-                padding: EdgeInsets.only(bottom: dynamicPadding / 2 , top: dynamicPadding / 3),
-                child: Column(
-                  children: [
-                    Text("Receive".i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
-                    if (double.parse(formattedValueToReceive) <= 0)
-                      Text("0", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center)
-                    else
-                      Column(
-                        children: [
-                          Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
-                        ],
-                      ),
-                  ],
-                ),
-              )
-              else
-                sideSwapPeg.when(data:
-                    (peg) {
-                  return TextFormField(
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
-                    style: const TextStyle(color: Colors.white),
-                    controller: controller,
-                    textAlign: TextAlign.center,
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      hintText: '0',
-                      hintStyle: TextStyle(color: Colors.white),
+    return Container(
+      width: MediaQuery.of(ref.context).size.width * 0.7,
+      height: MediaQuery.of(ref.context).size.height * 0.2,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(15.0),
+        border: Border.all(color: Colors.grey, width: 1),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Bitcoin', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
+          if (!pegIn)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: dynamicPadding / 4),
+              child: Column(
+                children: [
+                  Text("Receive".i18n(ref), style: TextStyle(fontSize: titleFontSize / 1.5, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
+                  if (double.parse(formattedValueToReceive) <= 0)
+                    Text("0", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)
+                  else
+                    Column(
+                      children: [
+                        Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                        Text("or".i18n(ref), style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                        Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                      ],
                     ),
-                    onChanged: (value) async {
-                      if (value.isEmpty) {
-                        ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
-                        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                        ref.read(sendTxProvider.notifier).updateDrain(false);
-                      }
-                      ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                  Text(
+                    '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
+                    style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            )
+          else
+            sideSwapPeg.when(
+              data: (peg) {
+                return TextFormField(
+                  keyboardType: TextInputType.number,
+                  controller: controller,
+                  inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
+                  style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: '0',
+                    hintStyle: TextStyle(color: Colors.white, fontSize: titleFontSize),
+                  ),
+                  onChanged: (value) async {
+                    if (value.isEmpty) {
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
                       ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
                       ref.read(sendTxProvider.notifier).updateDrain(false);
-                    },
-                  );
-                },
-                  loading: () => Padding(
-                    padding: EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
-                    child: LoadingAnimationWidget.prograssiveDots(size: 18, color: Colors.white),
-                  ),
-                  error: (error, stack) => Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
-                  ),
-                ),
-            ],
-          ),
-        ),
+                    }
+                    ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                    ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                    ref.read(sendTxProvider.notifier).updateDrain(false);
+                  },
+                );
+              },
+              loading: () => Center(child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
+              error: (error, stack) => Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: titleFontSize / 2)),
+            ),
+        ],
       ),
     );
   }
 
-  Widget _buildLiquidCard (WidgetRef ref, double dynamicPadding, double titleFontSize, bool pegIn) {
+
+  Widget _buildLiquidCard(WidgetRef ref, double dynamicPadding, double titleFontSize, bool pegIn) {
     final sideSwapStatus = ref.watch(sideswapStatusProvider);
-    final valueToReceive = ref.watch(sendTxProvider).amount * ( 1- sideSwapStatus.serverFeePercentPegOut / 100);
+    final valueToReceive = ref.watch(sendTxProvider).amount * (1 - sideSwapStatus.serverFeePercentPegOut / 100);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
+    final currency = ref.read(settingsProvider).currency;
+    final currencyRate = ref.read(selectedCurrencyProvider(currency));
     final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormart);
     final sideSwapPeg = ref.watch(sideswapPegProvider);
+    final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
+    final valueInCurrency = double.parse(formattedValueInBtc) * currencyRate;
+    final status = ref.watch(sideswapStatusProvider);
 
-    return SizedBox(
-      width: double.infinity,
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        elevation: 10,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(15.0),
-            border: Border.all(color: Colors.grey, width: 1),
-          ),
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
-                child: const Text('Liquid Bitcoin', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
-              ),
-              if (pegIn) Padding(
-                padding: EdgeInsets.only(bottom: dynamicPadding / 2, top: dynamicPadding / 3),
-                child:Column(
-                  children: [
-                    Text("Receive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
-                    if (double.parse(formattedValueToReceive) <= 0)
-                      Text("0", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center)
-                    else
-                      Column(
-                        children: [
-                          Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
-                        ],
-                      ),
-                  ],
-                ),
-              )
-              else
-                sideSwapPeg.when(data:
-                    (peg) {
-                  return TextFormField(
-                    keyboardType: TextInputType.number,
-                    controller: controller,
-                    inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
-                    style: const TextStyle(color: Colors.white),
-                    textAlign: TextAlign.center,
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      hintText: '0',
-                      hintStyle: TextStyle(color: Colors.white),
+    return Container(
+      width: MediaQuery.of(ref.context).size.width * 0.7,
+      height: MediaQuery.of(ref.context).size.height * 0.2,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(15.0),
+        border: Border.all(color: Colors.grey, width: 1),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Liquid', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
+          if (pegIn)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: dynamicPadding / 4),
+              child: Column(
+                children: [
+                  Text("Receive".i18n(ref), style: TextStyle(fontSize: titleFontSize / 1.5, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
+                  if (double.parse(formattedValueToReceive) <= 0)
+                    Text("0", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)
+                  else
+                    Column(
+                      children: [
+                        Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                        Text("or".i18n(ref), style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                        Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                      ],
                     ),
-                    onChanged: (value) async {
-                      if (value.isEmpty) {
-                        ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
-                        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                        ref.read(sendTxProvider.notifier).updateDrain(false);
-                      }
-                      ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                  Text(
+                    '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
+                    style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            )
+          else
+            sideSwapPeg.when(
+              data: (peg) {
+                return TextFormField(
+                  keyboardType: TextInputType.number,
+                  controller: controller,
+                  inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
+                  style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: '0',
+                    hintStyle: TextStyle(color: Colors.white, fontSize: titleFontSize),
+                  ),
+                  onChanged: (value) async {
+                    if (value.isEmpty) {
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
                       ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
                       ref.read(sendTxProvider.notifier).updateDrain(false);
-                    },
-                  );
-                },
-                  loading: () => Padding(
-                    padding: EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
-                    child: LoadingAnimationWidget.prograssiveDots(size: 18, color: Colors.white),
-                  ),
-                  error: (error, stack) => Padding(
-                      padding:EdgeInsets.only(bottom: dynamicPadding, top: dynamicPadding / 3),
-                      child: Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
-                  ),
-                ),
-            ],
-          ),
-        ),
+                    }
+                    ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                    ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                    ref.read(sendTxProvider.notifier).updateDrain(false);
+                  },
+                );
+              },
+              loading: () => Center(child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
+              error: (error, stack) => Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: titleFontSize / 2)),
+            ),
+        ],
       ),
     );
   }
