@@ -113,9 +113,10 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildDateRangeButton(ref, 7, '7'),
-        _buildDateRangeButton(ref, 30, '30'),
-        _buildDateRangeButton(ref, 90, '90'),
+        _buildDateRangeButton(ref, 1, '1D'),
+        _buildDateRangeButton(ref, 7, '7D'),
+        _buildDateRangeButton(ref, 30, '1M'),
+        _buildDateRangeButton(ref, 90, '3M'),
         _buildDateRangeButton(ref, 365, '1Y'),
       ],
     );

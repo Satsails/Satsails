@@ -65,38 +65,22 @@ class _PegState extends ConsumerState<Peg> {
                   ],
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                Stack(
-                  alignment: Alignment.center,
-                  clipBehavior: Clip.none, // Allow overflow
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min, // Minimize the column size
-                      children: [
-                        _buildBitcoinCard(ref, dynamicPadding, titleFontSize, pegIn),
-                        _buildLiquidCard(ref, dynamicPadding, titleFontSize, pegIn),
-                      ],
-                    ),
-                    Positioned(
-                      bottom: -titleFontSize * 1.5,
-                      top: -titleFontSize * 1.5,
-                      child: GestureDetector(
-                        onTap: () {
-                          ref.read(pegInProvider.notifier).state = !pegIn;
-                          ref.read(sendTxProvider.notifier).updateAddress('');
-                          ref.read(sendTxProvider.notifier).updateAmount(0);
-                          ref.read(sendBlocksProvider.notifier).state = 1;
-                          controller.text = '';
-                        },
-                        child: CircleAvatar(
-                          radius: titleFontSize,
-                          backgroundColor: Colors.orange,
-                          child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
+                _buildBitcoinCard(ref, dynamicPadding, titleFontSize, pegIn),
+                GestureDetector(
+                  onTap: () {
+                    ref.read(pegInProvider.notifier).state = !pegIn;
+                    ref.read(sendTxProvider.notifier).updateAddress('');
+                    ref.read(sendTxProvider.notifier).updateAmount(0);
+                    ref.read(sendBlocksProvider.notifier).state = 1;
+                    controller.text = '';
+                  },
+                  child: CircleAvatar(
+                    radius: titleFontSize / 1.5,
+                    backgroundColor: Colors.orange,
+                    child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.black),
+                  ),
                 ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                _buildLiquidCard(ref, dynamicPadding, titleFontSize, pegIn),
                 Text(
                   '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
                   style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white),

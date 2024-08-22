@@ -7,17 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
-import 'package:Satsails/screens/accounts/accounts.dart';
 import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
-import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/build_balance_card.dart';
 import 'package:Satsails/screens/shared/circular_button.dart';
-import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/pie_chart.dart';
-import 'package:Satsails/translations/translations.dart';
 
 
 class Home extends ConsumerWidget {

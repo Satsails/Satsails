@@ -90,76 +90,80 @@ void _showDenominationChangeModalBottomSheet(BuildContext context, WidgetRef ref
   );
 }
 
-
 Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
   final coinGeckoData = ref.watch(coinGeckoBitcoinChange);
   final screenHeight = MediaQuery.of(context).size.height;
   final titleFontSize = screenHeight * 0.03;
+  final containerHeight = titleFontSize * 1.5; // Define a fixed height for the container
 
-  return coinGeckoData.when(
-    data: (data) {
-      IconData? icon;
-      Color color;
-      String displayText = '${data.abs().toStringAsFixed(2)}%';
+  return SizedBox(
+    height: containerHeight,
+    child: coinGeckoData.when(
+      data: (data) {
+        IconData? icon;
+        Color color;
+        String displayText = '${data.abs().toStringAsFixed(2)}%';
 
-      if (displayText == '-0.00%' || displayText == '0.00%') {
-        displayText = '0%';
-        icon = null;
-        color = Colors.green;
-      } else if (data > 0) {
-        icon = Icons.arrow_upward;
-        color = Colors.green;
-      } else if (data < 0) {
-        icon = Icons.arrow_downward;
-        color = Colors.red;
-      } else {
-        icon = null;
-        color = Colors.green;
-      }
+        if (displayText == '-0.00%' || displayText == '0.00%') {
+          displayText = '0%';
+          icon = null;
+          color = Colors.green;
+        } else if (data > 0) {
+          icon = Icons.arrow_upward;
+          color = Colors.green;
+        } else if (data < 0) {
+          icon = Icons.arrow_downward;
+          color = Colors.red;
+        } else {
+          icon = null;
+          color = Colors.green;
+        }
 
-      return Container(
-        padding: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (icon != null) Icon(icon, size: titleFontSize * 0.7, color: Colors.white),
-            SizedBox(width: icon != null ? 5.0 : 0), // Add space between icon and text if icon is present
-            Text(
-              displayText,
-              style: TextStyle(fontSize: titleFontSize * 0.7, color: Colors.white),
-              textAlign: TextAlign.center,
+        return Container(
+          padding: EdgeInsets.all(5.0),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (icon != null) Icon(icon, size: titleFontSize * 0.7, color: Colors.white),
+              SizedBox(width: icon != null ? 5.0 : 0), // Add space between icon and text if icon is present
+              Text(
+                displayText,
+                style: TextStyle(fontSize: titleFontSize * 0.7, color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () {
+        return Center(
+          child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize * 0.7, color: Colors.white),
+        );
+      },
+      error: (error, stack) {
+        return Container(
+          height: containerHeight,
+          padding: EdgeInsets.all(5.0),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: Center(
+            child: Text(
+              'Error',
+              style: TextStyle(color: Colors.white, fontSize: titleFontSize * 0.7),
             ),
-          ],
-        ),
-      );
-    },
-    loading: () {
-      return Center(
-        child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize * 0.7, color: Colors.white),
-      );
-    },
-    error: (error, stack) {
-      return Container(
-        padding: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-          color: Colors.red,
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Text(
-          'Error',
-          style: TextStyle(color: Colors.white, fontSize: titleFontSize * 0.7),
-        ),
-      );
-    },
+          ),
+        );
+      },
+    ),
   );
 }
-
-
 
 Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName, String settingsName) {
   final settings = ref.watch(settingsProvider);
