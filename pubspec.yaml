@@ -89,6 +89,7 @@ flutter:
 #compil incons to all envs
 flutter_launcher_icons:
   android: true
+  ios: true
   image_path: "lib/assets/app_icon.png"
 flutter_native_splash:
     color: "#FFFFFF"

@@ -15,8 +15,7 @@ PODS:
   - local_auth_darwin (0.0.1):
     - Flutter
     - FlutterMacOS
-  - lwk_dart (0.1.5):
-    - Flutter
+  - lwk_dart (0.1.5)
   - MTBBarcodeScanner (5.0.11)
   - path_provider_foundation (0.0.1):
     - Flutter
@@ -92,7 +91,7 @@ SPEC CHECKSUMS:
   flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
   fluttertoast: e9a18c7be5413da53898f660530c56f35edfba9c
   local_auth_darwin: 66e40372f1c29f383a314c738c7446e2f7fdadc3
-  lwk_dart: 6bea1ed36854b30ed42c286a9b7a71a158935734
+  lwk_dart: 898084320a2ce8ea206010c0dc3e3eead1b2c881
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
@@ -101,6 +100,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   webview_flutter_wkwebview: 2a23822e9039b7b1bc52e5add778e5d89ad488d1
 
-PODFILE CHECKSUM: 2f8d333ded6a2ae95221b60ab22b92340a3f0fd5
+PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
 
 COCOAPODS: 1.14.3
