@@ -1,8 +1,7 @@
 PODS:
   - bdk_flutter (0.31.2-dev.2):
     - Flutter
-  - boltz_dart (0.1.6):
-    - Flutter
+  - boltz_dart (0.1.6)
   - Flutter (1.0.0)
   - flutter_keyboard_visibility (0.0.1):
     - Flutter
@@ -86,7 +85,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   bdk_flutter: af166bdb3f24fa9bac1de94772973f76302cb1c1
-  boltz_dart: 6c0f63b330776a01b6f4aa0a2bdc89cb9d575257
+  boltz_dart: 7ebb80d3776711efacb5823a3d9a9bb1221bac95
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   flutter_native_splash: edf599c81f74d093a4daf8e17bd7a018854bc778

@@ -94,7 +94,7 @@ packages:
     description:
       path: "."
       ref: trunk
-      resolved-ref: "6ed16a17be4733bda7729942a50eb81bd5aedf48"
+      resolved-ref: "8d760322d00856d161757e854fe104e7611be503"
       url: "https://github.com/SatoshiPortal/boltz-dart"
     source: git
     version: "0.1.6"
