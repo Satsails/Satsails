@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:interactive_slider/interactive_slider.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
@@ -87,7 +86,8 @@ class _PegState extends ConsumerState<Peg> {
             ),
             SizedBox(height: dynamicSizedBox * 2),
             ...cards, // Spread operator to insert all elements of the list
-            pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
+            pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _bitcoinFeeSuggestionsModal(ref, dynamicPadding, titleFontSize),
+            SizedBox(height: dynamicSizedBox * 2),
             if (!pegIn)
               Text(
                 '${'Bitcoin Network fee:'.i18n(ref)} ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats',
@@ -207,7 +207,7 @@ class _PegState extends ConsumerState<Peg> {
                     controller.reset();
                   }
                 },
-                child:Text('Swap'.i18n(ref), style: TextStyle(color: Colors.white), textAlign: TextAlign.center)
+                child:Text('Slide to Swap'.i18n(ref), style: TextStyle(color: Colors.white), textAlign: TextAlign.center)
             ),
           ),
         );
@@ -261,7 +261,7 @@ class _PegState extends ConsumerState<Peg> {
                     controller.reset();
                   }
                 },
-                child: Text('Swap'.i18n(ref), style: TextStyle(color: Colors.white), textAlign: TextAlign.center)
+                child: Text('Slide to Swap'.i18n(ref), style: TextStyle(color: Colors.white), textAlign: TextAlign.center)
             ),
           ),
         );
@@ -277,53 +277,124 @@ class _PegState extends ConsumerState<Peg> {
     );
   }
 
-  Widget _pickBitcoinFeeSuggestions(WidgetRef ref, double dynamicPadding, double titleFontSize) {
-    final status = ref.watch(sideswapStatusProvider).bitcoinFeeRates ?? [];
-    final speed = ref.watch(bitcoinReceiveSpeedProvider).i18n(ref);
+  Widget _bitcoinFeeSuggestionsModal(WidgetRef ref, double dynamicPadding, double titleFontSize) {
     return Column(
       children: [
         _liquidFeeSlider(ref, dynamicPadding, titleFontSize),
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(speed, style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white)),
-        ),
-        DropdownButton<dynamic>(
-          hint: Text("How fast would you like to receive your bitcoin".i18n(ref), style: TextStyle(fontSize:  titleFontSize / 2)),
-          dropdownColor: Colors.white,
-          items: status.map((dynamic value) {
-            return DropdownMenuItem<dynamic>(
-              value: value,
-              child: Center(
-                child: Text(
-                  "${value["blocks"]} blocks - ${value["value"]} sats/vbyte",
-                  style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white),
-                ),
-              ),
+        GestureDetector(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Center(
+                  child: SingleChildScrollView(
+                    child: AlertDialog(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.warning, // Using warning as exclamation mark icon
+                              color: Colors.white,
+                              size: 48.0,
+                            ),
+                          ),
+                          SizedBox(height: 16.0),
+                          _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             );
-          }).toList(),
-          onChanged: (dynamic newValue) {
-            if (newValue != null) {
-              ref.read(bitcoinReceiveSpeedProvider.notifier).state = "${newValue["value"]} sats/vbyte";
-              ref.read(pegOutBlocksProvider.notifier).state = newValue["blocks"];
-            }
           },
+          child: Container(
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: Colors.orange,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.warning, // Using warning as exclamation mark icon
+              color: Colors.black,
+              size: 24.0,
+            ),
+          ),
         ),
       ],
     );
   }
 
+  Widget _pickBitcoinFeeSuggestions(WidgetRef ref, double dynamicPadding, double titleFontSize) {
+    final status = ref.watch(sideswapStatusProvider).bitcoinFeeRates ?? [];
+    final speed = ref.watch(bitcoinReceiveSpeedProvider).i18n(ref);
+    final _selectedBlocks = ref.watch(pegOutBlocksProvider);
+
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 2),
+          child: DropdownButton<dynamic>(
+            hint: Text(
+              "How fast would you like to receive your bitcoin".i18n(ref),
+              style: TextStyle(fontSize: titleFontSize / 2, color: Colors.orange),
+            ),
+            dropdownColor: _selectedBlocks == 12 ? Color(0xFF1A1A1A) : Color(0xFF2B2B2B),
+            items: status.map((dynamic value) {
+              return DropdownMenuItem<dynamic>(
+                value: value,
+                child: Center(
+                  child: Text(
+                    "${value["blocks"]} blocks - ${value["value"]} sats/vbyte",
+                    style: TextStyle(
+                      fontSize: titleFontSize / 2,
+                      color: _selectedBlocks == value["blocks"]
+                          ? Color(0xFFFF9800)
+                          : Color(0xFFD98100),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+            onChanged: (dynamic newValue) {
+              if (newValue != null) {
+                ref.read(bitcoinReceiveSpeedProvider.notifier).state = "${newValue["value"]} sats/vbyte";
+                ref.read(pegOutBlocksProvider.notifier).state = newValue["blocks"];
+              }
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(
+            speed,
+            style: TextStyle(fontSize: titleFontSize / 2, color: Colors.black),
+          ),
+        ),
+      ],
+    );
+  }
+
+
   Widget _bitcoinFeeSlider(WidgetRef ref, double dynamicPadding, double titleFontSize) {
-    return InteractiveSlider(
-      centerIcon: const Icon(Clarity.block_solid, color: Colors.black),
-      foregroundColor: Colors.deepPurpleAccent,
-      unfocusedHeight: titleFontSize ,
-      focusedHeight: titleFontSize,
-      initialProgress: 15,
-      min: 5.0,
-      max: 1.0,
-      onChanged: (dynamic value){
-        ref.read(sendBlocksProvider.notifier).state = value;
-      },
+    return Slider(
+      value: ref.watch(sendBlocksProvider).toDouble(),
+      onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = value,
+      min: 1,
+      max: 15,
+      divisions: 14,
+      label: ref.watch(sendBlocksProvider).toInt().toString(),
+      activeColor: Colors.orange,
     );
   }
 
@@ -332,19 +403,7 @@ class _PegState extends ConsumerState<Peg> {
       children: [
         SizedBox(height: dynamicPadding / 2),
         Text("Choose Fee:".i18n(ref), style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white)),
-        InteractiveSlider(
-          padding: EdgeInsets.only(bottom: dynamicPadding / 2),
-          foregroundColor: Colors.black,
-          unfocusedHeight: titleFontSize ,
-          focusedHeight: titleFontSize,
-          initialProgress: 15,
-          min: 5.0,
-          max: 1.0,
-          onChanged: (dynamic value){
-            ref.read(sendBlocksProvider.notifier).state = value;
-          },
-        ),
-        // Slider(value: ref.watch(sendBlocksProvider).toDouble(), onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = value, min: 1, max: 15, divisions: 14, label: ref.watch(sendBlocksProvider).toInt().toString()),
+        Slider(value: ref.watch(sendBlocksProvider).toDouble(), onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = value, min: 1, max: 15, divisions: 14, label: ref.watch(sendBlocksProvider).toInt().toString(), activeColor: Colors.orange),
       ],
     );
   }
@@ -445,7 +504,7 @@ class _PegState extends ConsumerState<Peg> {
                   else
                     Column(
                       children: [
-                        Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                        Text("$formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
                         Text("or".i18n(ref), style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
                         Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
                       ],
@@ -528,7 +587,7 @@ class _PegState extends ConsumerState<Peg> {
                   else
                     Column(
                       children: [
-                        Text(" ~ $formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                        Text("$formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
                         Text("or".i18n(ref), style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
                         Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
                       ],
