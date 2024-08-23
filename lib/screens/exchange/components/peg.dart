@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:action_slider/action_slider.dart';
@@ -29,7 +31,6 @@ class Peg extends ConsumerStatefulWidget {
 class _PegState extends ConsumerState<Peg> {
   final TextEditingController controller = TextEditingController();
 
-  @override
   Widget build(BuildContext context) {
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
@@ -42,20 +43,7 @@ class _PegState extends ConsumerState<Peg> {
 
     List<Widget> cards = [
       _buildBitcoinCard(ref, dynamicPadding, titleFontSize, pegIn),
-      GestureDetector(
-        onTap: () {
-          ref.read(pegInProvider.notifier).state = !pegIn;
-          ref.read(sendTxProvider.notifier).updateAddress('');
-          ref.read(sendTxProvider.notifier).updateAmount(0);
-          ref.read(sendBlocksProvider.notifier).state = 1;
-          controller.text = '';
-        },
-        child: CircleAvatar(
-          radius: titleFontSize / 1.5,
-          backgroundColor: Colors.orange,
-          child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.black),
-        ),
-      ),
+      SizedBox(height: 10),
       _buildLiquidCard(ref, dynamicPadding, titleFontSize, pegIn),
     ];
 
@@ -85,15 +73,34 @@ class _PegState extends ConsumerState<Peg> {
               ],
             ),
             SizedBox(height: dynamicSizedBox * 2),
-            ...cards, // Spread operator to insert all elements of the list
+            Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
+                Column(
+                  children: cards,
+                ),
+                Positioned(
+                  top: titleFontSize / 2,
+                  bottom: titleFontSize / 2,
+                  child: GestureDetector(
+                    onTap: () {
+                      ref.read(pegInProvider.notifier).state = !pegIn;
+                      ref.read(sendTxProvider.notifier).updateAddress('');
+                      ref.read(sendTxProvider.notifier).updateAmount(0);
+                      ref.read(sendBlocksProvider.notifier).state = 1;
+                      controller.text = '';
+                    },
+                    child: CircleAvatar(
+                      radius: titleFontSize,
+                      backgroundColor: Colors.orange,
+                      child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.black),
+                    ),
+                  ),
+                ),
+              ],
+            ),
             pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _bitcoinFeeSuggestionsModal(ref, dynamicPadding, titleFontSize),
-            SizedBox(height: dynamicSizedBox * 2),
-            if (!pegIn)
-              Text(
-                '${'Bitcoin Network fee:'.i18n(ref)} ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats',
-                style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
             pegIn ? _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize) : _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
           ],
         ),
@@ -104,7 +111,9 @@ class _PegState extends ConsumerState<Peg> {
               : _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context),
         )
       ],
-    );}
+    );
+  }
+
 
   Widget _buildBitcoinMaxButton(WidgetRef ref, double dynamicPadding, double dynamicFontSize, String btcFormart, bool pegIn) {
     final sideSwapPeg = ref.watch(sideswapPegProvider);
@@ -278,6 +287,7 @@ class _PegState extends ConsumerState<Peg> {
   }
 
   Widget _bitcoinFeeSuggestionsModal(WidgetRef ref, double dynamicPadding, double titleFontSize) {
+
     return Column(
       children: [
         _liquidFeeSlider(ref, dynamicPadding, titleFontSize),
@@ -297,7 +307,7 @@ class _PegState extends ConsumerState<Peg> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            padding: EdgeInsets.all(16.0),
+                            padding: EdgeInsets.all(8.0),
                             decoration: BoxDecoration(
                               color: Colors.orange,
                               shape: BoxShape.circle,
@@ -310,6 +320,11 @@ class _PegState extends ConsumerState<Peg> {
                           ),
                           SizedBox(height: 16.0),
                           _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
+                          Text(
+                            '${'Bitcoin Network fee:'.i18n(ref)} ${ref.watch(pegOutBitcoinCostProvider).toStringAsFixed(0)} sats',
+                            style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                            textAlign: TextAlign.center,
+                          ),
                         ],
                       ),
                     ),
@@ -337,7 +352,6 @@ class _PegState extends ConsumerState<Peg> {
 
   Widget _pickBitcoinFeeSuggestions(WidgetRef ref, double dynamicPadding, double titleFontSize) {
     final status = ref.watch(sideswapStatusProvider).bitcoinFeeRates ?? [];
-    final speed = ref.watch(bitcoinReceiveSpeedProvider).i18n(ref);
     final _selectedBlocks = ref.watch(pegOutBlocksProvider);
 
     return Column(
@@ -374,27 +388,26 @@ class _PegState extends ConsumerState<Peg> {
             },
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(
-            speed,
-            style: TextStyle(fontSize: titleFontSize / 2, color: Colors.black),
-          ),
-        ),
       ],
     );
   }
 
 
   Widget _bitcoinFeeSlider(WidgetRef ref, double dynamicPadding, double titleFontSize) {
-    return Slider(
-      value: ref.watch(sendBlocksProvider).toDouble(),
-      onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = value,
-      min: 1,
-      max: 15,
-      divisions: 14,
-      label: ref.watch(sendBlocksProvider).toInt().toString(),
-      activeColor: Colors.orange,
+    return Column(
+      children: [
+        SizedBox(height: dynamicPadding / 2),
+        Text("Choose your fee:".i18n(ref), style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white)),
+        Slider(
+          value: 16 - ref.watch(sendBlocksProvider).toDouble(),
+          onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = 16 - value,
+          min: 1,
+          max: 15,
+          divisions: 14,
+          label: ref.watch(sendBlocksProvider).toInt().toString(),
+          activeColor: Colors.orange,
+        )
+      ],
     );
   }
 
@@ -402,8 +415,16 @@ class _PegState extends ConsumerState<Peg> {
     return Column(
       children: [
         SizedBox(height: dynamicPadding / 2),
-        Text("Choose Fee:".i18n(ref), style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white)),
-        Slider(value: ref.watch(sendBlocksProvider).toDouble(), onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = value, min: 1, max: 15, divisions: 14, label: ref.watch(sendBlocksProvider).toInt().toString(), activeColor: Colors.orange),
+        Text("Choose your fee:".i18n(ref), style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white)),
+        Slider(
+          value: 16 - ref.watch(sendBlocksProvider).toDouble(),
+          onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = 16 - value,
+          min: 1,
+          max: 15,
+          divisions: 14,
+          label: ref.watch(sendBlocksProvider).toInt().toString(),
+          activeColor: Colors.orange,
+        )
       ],
     );
   }
@@ -414,7 +435,7 @@ class _PegState extends ConsumerState<Peg> {
           ref.watch(feeProvider).when(
             data: (int fee) {
               return Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(bottom: 8.0),
                 child: Text(
                   "${'Sending Transaction fee:'.i18n(ref)}$fee sats",
                   style: TextStyle(fontSize:  titleFontSize / 2, fontWeight: FontWeight.bold, color: Colors.white),
@@ -423,14 +444,14 @@ class _PegState extends ConsumerState<Peg> {
               );
             },
             loading: () => Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(bottom: 8.0),
               child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize / 2, color: Colors.white),
             ),
             error: (error, stack) => Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(bottom: 8.0),
               child: TextButton(
                   onPressed: () { ref.refresh(feeProvider); },
-                  child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
+                  child: Text(ref.watch(sendTxProvider).amount == 0 ? 'Enter a value to send'.i18n(ref) : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
               ),
             ),
           ),
@@ -444,7 +465,7 @@ class _PegState extends ConsumerState<Peg> {
           ref.watch(liquidFeeProvider).when(
             data: (int fee) {
               return Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(bottom: 8.0),
                 child: Text(
                   "${'Sending Transaction fee:'.i18n(ref)}$fee sats",
                   style: TextStyle(fontSize:  titleFontSize / 2, fontWeight: FontWeight.bold, color: Colors.white),
@@ -453,14 +474,14 @@ class _PegState extends ConsumerState<Peg> {
               );
             },
             loading: () => Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(bottom: 8.0),
               child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize / 2, color: Colors.white),
             ),
             error: (error, stack) => Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(bottom: 8.0),
               child: TextButton(
                   onPressed: () { ref.refresh(liquidFeeProvider); },
-                  child: Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
+                  child: Text(ref.watch(sendTxProvider).amount == 0 ? 'Enter a value to send'.i18n(ref) : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
               ),
             ),
           ),
@@ -480,6 +501,7 @@ class _PegState extends ConsumerState<Peg> {
     final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormart);
     final sideSwapPeg = ref.watch(sideswapPegProvider);
     final status = ref.watch(sideswapStatusProvider);
+    final valueToSendInCurrency = ref.watch(sendTxProvider).amount / 100000000 * currencyRate;
 
     return Container(
       width: MediaQuery.of(ref.context).size.width * 0.7,
@@ -497,55 +519,64 @@ class _PegState extends ConsumerState<Peg> {
             Padding(
               padding: EdgeInsets.symmetric(vertical: dynamicPadding / 4),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Receive".i18n(ref), style: TextStyle(fontSize: titleFontSize / 1.5, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
                   if (double.parse(formattedValueToReceive) <= 0)
                     Text("0", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)
                   else
                     Column(
                       children: [
                         Text("$formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
-                        Text("or".i18n(ref), style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
                         Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                        SizedBox(height: dynamicPadding / 2),
+                        Text(
+                          '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
+                          style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
                       ],
                     ),
-                  Text(
-                    '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
-                    style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
-                    textAlign: TextAlign.center,
-                  ),
                 ],
               ),
             )
           else
             sideSwapPeg.when(
               data: (peg) {
-                return TextFormField(
-                  keyboardType: TextInputType.number,
-                  controller: controller,
-                  inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
-                  style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: '0',
-                    hintStyle: TextStyle(color: Colors.white, fontSize: titleFontSize),
-                  ),
-                  onChanged: (value) async {
-                    if (value.isEmpty) {
-                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
-                      ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                      ref.read(sendTxProvider.notifier).updateDrain(false);
-                    }
-                    ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
-                    ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                    ref.read(sendTxProvider.notifier).updateDrain(false);
-                  },
+                return Column(
+                  children: [
+                    TextFormField(
+                      keyboardType: TextInputType.number,
+                      controller: controller,
+                      inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
+                      style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: '0',
+                        hintStyle: TextStyle(color: Colors.white, fontSize: titleFontSize),
+                      ),
+                      onChanged: (value) async {
+                        if (value.isEmpty) {
+                          ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                          ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                          ref.read(sendTxProvider.notifier).updateDrain(false);
+                        }
+                        ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                        ref.read(sendTxProvider.notifier).updateDrain(false);
+                      },
+                    ),
+                  ],
                 );
               },
               loading: () => Center(child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
               error: (error, stack) => Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: titleFontSize / 2)),
             ),
+          Text(
+            controller.text.isEmpty || !pegIn ? '' : valueToSendInCurrency.toStringAsFixed(2) + ' $currency',
+            style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -563,6 +594,7 @@ class _PegState extends ConsumerState<Peg> {
     final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
     final valueInCurrency = double.parse(formattedValueInBtc) * currencyRate;
     final status = ref.watch(sideswapStatusProvider);
+    final valueToSendInCurrency = ref.watch(sendTxProvider).amount / 100000000 * currencyRate;
 
     return Container(
       width: MediaQuery.of(ref.context).size.width * 0.7,
@@ -580,50 +612,59 @@ class _PegState extends ConsumerState<Peg> {
             Padding(
               padding: EdgeInsets.symmetric(vertical: dynamicPadding / 4),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Receive".i18n(ref), style: TextStyle(fontSize: titleFontSize / 1.5, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
                   if (double.parse(formattedValueToReceive) <= 0)
                     Text("0", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)
                   else
                     Column(
                       children: [
                         Text("$formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
-                        Text("or".i18n(ref), style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
                         Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                        SizedBox(height: dynamicPadding / 2),
+                        Text(
+                          '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
+                          style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
                       ],
                     ),
-                  Text(
-                    '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
-                    style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
-                    textAlign: TextAlign.center,
-                  ),
                 ],
               ),
             )
           else
             sideSwapPeg.when(
               data: (peg) {
-                return TextFormField(
-                  keyboardType: TextInputType.number,
-                  controller: controller,
-                  inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
-                  style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: '0',
-                    hintStyle: TextStyle(color: Colors.white, fontSize: titleFontSize),
-                  ),
-                  onChanged: (value) async {
-                    if (value.isEmpty) {
-                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
-                      ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                      ref.read(sendTxProvider.notifier).updateDrain(false);
-                    }
-                    ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
-                    ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                    ref.read(sendTxProvider.notifier).updateDrain(false);
-                  },
+                return Column(
+                  children: [
+                    TextFormField(
+                      keyboardType: TextInputType.number,
+                      controller: controller,
+                      inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
+                      style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: '0',
+                        hintStyle: TextStyle(color: Colors.white, fontSize: titleFontSize),
+                      ),
+                      onChanged: (value) async {
+                        if (value.isEmpty) {
+                          ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                          ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                          ref.read(sendTxProvider.notifier).updateDrain(false);
+                        }
+                        ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                        ref.read(sendTxProvider.notifier).updateDrain(false);
+                      },
+                    ),
+                    Text(
+                      controller.text.isEmpty ? '' : valueToSendInCurrency.toStringAsFixed(2) + ' $currency',
+                      style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 );
               },
               loading: () => Center(child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
