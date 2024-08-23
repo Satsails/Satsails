@@ -66,23 +66,25 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
 
     List<Widget> swapCards = [
       buildCard('Liquid Bitcoin', 'BTC', Colors.blueAccent, Colors.deepPurple, ref, context, true, AssetId.LBTC),
-      GestureDetector(
-        onTap: () {
-          ref.read(sendBitcoinProvider.notifier).state = !sendBitcoin;
-          ref.read(sendTxProvider.notifier).updateAddress('');
-          ref.read(sendTxProvider.notifier).updateAmount(0);
-          ref.read(sendBlocksProvider.notifier).state = 1;
-          ref.refresh(currentBalanceProvider);
-          ref.refresh(tickerProvider);
-          ref.read(sendTxProvider.notifier).updateDrain(false);
-          controller.text = '';
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("Switch".i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey)),
-            Icon(EvaIcons.swap, size: titleFontSize, color: Colors.grey),
-          ],
+      Positioned(
+        top: titleFontSize / 2,
+        bottom: titleFontSize / 2,
+        child: GestureDetector(
+          onTap: () {
+            ref.read(sendBitcoinProvider.notifier).state = !sendBitcoin;
+            ref.read(sendTxProvider.notifier).updateAddress('');
+            ref.read(sendTxProvider.notifier).updateAmount(0);
+            ref.read(sendBlocksProvider.notifier).state = 1;
+            ref.refresh(currentBalanceProvider);
+            ref.refresh(tickerProvider);
+            ref.read(sendTxProvider.notifier).updateDrain(false);
+            controller.text = '';
+          },
+          child: CircleAvatar(
+            radius: titleFontSize,
+            backgroundColor: Colors.orange,
+            child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.black),
+          ),
         ),
       ),
       SizedBox(
@@ -138,7 +140,10 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
             return true;
           },
           cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
-            return cards[index];
+            return Align(
+              alignment: Alignment.center,
+              child: cards[index],
+            );
           },
         ),
       ),
@@ -148,36 +153,29 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
       swapCards = swapCards.reversed.toList();
     }
 
-    return Stack(
-      children: [
-        Column(
-          children: [
-            Text(
-              "Balance to Spend: ".i18n(ref),
-              style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                  currentBalance,
-                  style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                  textAlign: TextAlign.center,
-                ),
-                _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat),
-              ],
-            ),
-            ...swapCards,
-          ],
-        ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
-        ),
-      ],
-    );
+    return
+      Column(
+        children: [
+          Text(
+            "Balance to Spend: ".i18n(ref),
+            style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                currentBalance,
+                style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat),
+            ],
+          ),
+          SizedBox(height: dynamicPadding),
+          ...swapCards,
+          _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
+        ],
+      );
   }
 
   Widget _buildMaxButton(WidgetRef ref, double dynamicPadding, double dynamicFontSize, String btcFormat) {
@@ -187,11 +185,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        gradient: const LinearGradient(
-          colors: [Colors.blueAccent, Colors.deepPurple],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white, // Applied the same background color
       ),
       child: Material(
         color: Colors.transparent,
@@ -236,13 +230,12 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
             });
           },
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 2, vertical: dynamicPadding / 2),
+            padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 1, vertical: dynamicPadding / 2.5), // Adjusted padding to match the other button
             child: Text(
               'Max',
               style: TextStyle(
                 fontSize: dynamicFontSize / 2,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black, // Applied the same text color
               ),
             ),
           ),
@@ -251,92 +244,82 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
     );
   }
 
+
   Column buildCard(String title, String unit, Color color1, Color color2, WidgetRef ref, BuildContext context, bool isBitcoin, AssetId assetId) {
-    final dynamicMargin = MediaQuery.of(context).size.width * 0.04;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final btcFormat = ref.read(settingsProvider).btcFormat;
     final sendBitcoin = ref.watch(sendBitcoinProvider);
 
     return Column(
       children: [
-        if (!isBitcoin)
-          const Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: Icon(Icons.swipe_vertical, color: Colors.grey),
+        Container(
+          width: MediaQuery.of(context).size.width * 0.7,
+          height: MediaQuery.of(context).size.height * 0.2,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(15.0),
+            border: Border.all(color: Colors.grey, width: 1),
           ),
-        SizedBox(
-          width: double.infinity,
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            elevation: 10,
-            margin: EdgeInsets.all(dynamicMargin),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [color1, color2],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: dynamicPadding / 2),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(title, style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center),
-                    if (sendBitcoin && !isBitcoin || !sendBitcoin && isBitcoin)
-                      Consumer(
-                        builder: (context, watch, child) {
-                          final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
-                          return sideswapPriceStreamAsyncValue.when(
-                            data: (value) {
-                              if (value.errorMsg != null) {
-                                return Text(value.errorMsg!, style: const TextStyle(color: Colors.orange), textAlign: TextAlign.center);
-                              } else {
-                                final valueToReceive = value.recvAmount!;
-                                return Text('Value to receive: ${btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin)}', style: const TextStyle(color: Colors.white), textAlign: TextAlign.center);
-                              }
-                            },
-                            loading: () => Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Center(child: LoadingAnimationWidget.prograssiveDots(size: 15, color: Colors.white)),
-                            ),
-                            error: (error, stack) => Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text('Error: $error', style: const TextStyle(color: Colors.white), textAlign: TextAlign.center),
-                            ),
-                          );
-                        },
-                      )
-                    else
-                      TextFormField(
-                        keyboardType: TextInputType.number,
-                        controller: controller,
-                        inputFormatters: isBitcoin ? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()] : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()],
-                        textAlign: TextAlign.center,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: isBitcoin ? '0' : '0.00',
-                          hintStyle: const TextStyle(color: Colors.white),
-                        ),
-                        style: const TextStyle(color: Colors.white),
-                        onChanged: (value) async {
-                          if (value.isEmpty) {
-                            ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(assetId));
-                            ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
-                            ref.read(sendTxProvider.notifier).updateDrain(false);
+
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: dynamicPadding / 2),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (!isBitcoin)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 10),
+                    child: Icon(Icons.swipe_vertical, color: Colors.grey),
+                  ),
+                Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center), // Matching text style
+                if (sendBitcoin && !isBitcoin || !sendBitcoin && isBitcoin)
+                  Consumer(
+                    builder: (context, watch, child) {
+                      final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
+                      return sideswapPriceStreamAsyncValue.when(
+                        data: (value) {
+                          if (value.errorMsg != null) {
+                            return Text(value.errorMsg!, style: const TextStyle(color: Colors.orange), textAlign: TextAlign.center);
+                          } else {
+                            final valueToReceive = value.recvAmount!;
+                            return Text('Value to receive: ${btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin)}', style: const TextStyle(color: Colors.white), textAlign: TextAlign.center);
                           }
-                          ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(assetId));
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
-                          ref.read(sendTxProvider.notifier).updateDrain(false);
                         },
-                      ),
-                  ],
-                ),
-              ),
+                        loading: () => Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: controller.text.isEmpty ?Text("0", style: const TextStyle(color: Colors.white), textAlign: TextAlign.center) : const Text('Loading...', style: TextStyle(color: Colors.white), textAlign: TextAlign.center),
+                        ),
+                        error: (error, stack) => Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Error: $error', style: const TextStyle(color: Colors.white), textAlign: TextAlign.center),
+                        ),
+                      );
+                    },
+                  )
+                else
+                  TextFormField(
+                    keyboardType: TextInputType.number,
+                    controller: controller,
+                    inputFormatters: isBitcoin ? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()] : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()],
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: isBitcoin ? '0' : '0.00',
+                      hintStyle: const TextStyle(color: Colors.white), // Matching hint text style
+                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold), // Matching input text style
+                    onChanged: (value) async {
+                      if (value.isEmpty) {
+                        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(assetId));
+                        ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                        ref.read(sendTxProvider.notifier).updateDrain(false);
+                      }
+                      ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(assetId));
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                    },
+                  ),
+              ],
             ),
           ),
         ),
