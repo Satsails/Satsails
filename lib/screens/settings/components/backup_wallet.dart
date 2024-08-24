@@ -1,9 +1,9 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -80,18 +80,31 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text('Backup Wallet'.i18n(ref)),
+        backgroundColor: Colors.black,
+        title: Text(
+          'Backup Wallet'.i18n(ref),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/settings');
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Select the correct word for each position:'.i18n(ref),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             const SizedBox(height: 16),
             Expanded(
@@ -106,12 +119,12 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
                       children: [
                         Text(
                           '${'Word in position'.i18n(ref)} ${wordIndex + 1}:',
-                          style: const TextStyle(fontSize: 16),
+                          style: const TextStyle(fontSize: 16, color: Colors.white),
                         ),
                         Column(
                           children: quizOptions[wordIndex]!.map((option) {
                             return RadioListTile<String>(
-                              title: Text(option),
+                              title: Text(option, style: const TextStyle(color: Colors.white)),
                               value: option,
                               groupValue: userSelections[wordIndex],
                               onChanged: (value) {
