@@ -490,28 +490,24 @@ class _PegState extends ConsumerState<Peg> {
         children: [
           const Text('Bitcoin', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
           if (!pegIn)
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: dynamicPadding / 4),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (double.parse(formattedValueToReceive) <= 0)
-                    Text("0", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)
-                  else
-                    Column(
-                      children: [
-                        Text("$formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
-                        Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
-                        SizedBox(height: dynamicPadding / 2),
-                        Text(
-                          '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
-                          style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                ],
-              ),
+            Column(
+              children: [
+                if (double.parse(formattedValueToReceive) <= 0)
+                  Text("0", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)
+                else
+                  Column(
+                    children: [
+                      Text("$formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                      Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                      SizedBox(height: dynamicPadding / 2),
+                      Text(
+                        '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
+                        style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+              ],
             )
           else
             sideSwapPeg.when(
@@ -583,28 +579,25 @@ class _PegState extends ConsumerState<Peg> {
         children: [
           const Text('Liquid', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
           if (pegIn)
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: dynamicPadding / 4),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (double.parse(formattedValueToReceive) <= 0)
-                    Text("0", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)
-                  else
-                    Column(
-                      children: [
-                        Text("$formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
-                        Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey), textAlign: TextAlign.center),
-                        SizedBox(height: dynamicPadding / 2),
-                        Text(
-                          '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
-                          style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                ],
-              ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (double.parse(formattedValueToReceive) <= 0)
+                  Text("0", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center)
+                else
+                  Column(
+                    children: [
+                      Text("$formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                      Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey), textAlign: TextAlign.center),
+                      SizedBox(height: dynamicPadding / 2),
+                      Text(
+                        '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
+                        style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+              ],
             )
           else
             sideSwapPeg.when(
