@@ -285,10 +285,11 @@ class Accounts extends ConsumerWidget {
   Widget _buildListTile(String title, String trailing, icon,
       BuildContext context, bitcoin, String balance, String denomination,
       String format, WidgetRef ref) {
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Check if the title is 'Bitcoin' to set initiallyExpanded to true
+    bool isBitcoin = title == 'Bitcoin';
+
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
@@ -298,7 +299,8 @@ class Accounts extends ConsumerWidget {
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: screenWidth * 0.05,
+              style: TextStyle(
+                  fontSize: screenWidth * 0.05,
                   color: Colors.white,
                   fontWeight: FontWeight.bold),
             ),
@@ -309,12 +311,14 @@ class Accounts extends ConsumerWidget {
                   children: [
                     Text(
                       balance,
-                      style: TextStyle(fontSize: screenWidth * 0.04,
+                      style: TextStyle(
+                          fontSize: screenWidth * 0.04,
                           color: Colors.white),
                     ),
                     Text(
                       ' $denomination',
-                      style: TextStyle(fontSize: screenWidth * 0.04,
+                      style: TextStyle(
+                          fontSize: screenWidth * 0.04,
                           color: Colors.white),
                     ),
                   ],
@@ -322,11 +326,14 @@ class Accounts extends ConsumerWidget {
               ),
           ],
         ),
-        trailing: Text('$trailing $format', style: TextStyle(
-            fontSize: screenWidth * 0.05, color: Colors.white)),
+        trailing: Text('$trailing $format',
+            style: TextStyle(
+                fontSize: screenWidth * 0.05, color: Colors.white)),
+        initiallyExpanded: isBitcoin, // Set this to true for the Bitcoin card
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.only(top: screenWidth * 0.04, left: screenWidth * 0.1, right: screenWidth * 0.1),
+            padding: EdgeInsets.only(
+                top: screenWidth * 0.04, left: screenWidth * 0.1, right: screenWidth * 0.1),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -343,7 +350,8 @@ class Accounts extends ConsumerWidget {
                       const Icon(Icons.arrow_downward, color: Colors.white),
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
-                        child: Text('Receive'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                        child: Text('Receive'.i18n(ref),
+                            style: const TextStyle(color: Colors.white)),
                       ),
                     ],
                   ),
@@ -378,7 +386,8 @@ class Accounts extends ConsumerWidget {
                       const Icon(Icons.arrow_upward, color: Colors.white),
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
-                        child: Text('Send'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                        child: Text('Send'.i18n(ref),
+                            style: const TextStyle(color: Colors.white)),
                       ),
                     ],
                   ),

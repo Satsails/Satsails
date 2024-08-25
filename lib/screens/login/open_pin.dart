@@ -125,35 +125,88 @@ class OpenPin extends ConsumerWidget {
   }
 
   Future<void> _showConfirmationDialog(BuildContext context, WidgetRef ref) async {
-    return showDialog<void>(
+    showDialog(
       context: context,
-      barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Reset PIN'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text('This will delete all your data and reset your PIN.'.i18n(ref)),
-                const Text('Do you want to proceed?'),
-              ],
-            ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
           ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Cancel'.i18n(ref)),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text('Yes'.i18n(ref)),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _forgotPin(context, ref);
-              },
-            ),
-          ],
+          contentPadding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 24.0),
+          backgroundColor: Colors.white,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 40,
+                backgroundColor: Colors.red,
+                child: const Icon(Icons.warning, size: 40, color: Colors.white),
+              ),
+              const SizedBox(height: 16.0),
+              Text(
+                'Delete Account?'.i18n(ref),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8.0),
+              Text(
+                'All information will be permanently deleted.'.i18n(ref),
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                    ),
+                    child: Text(
+                      'Cancel'.i18n(ref),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                    ),
+                    child: Text(
+                      'Delete'.i18n(ref),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    onPressed: () async {
+                      _forgotPin(context, ref);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
         );
       },
     );
