@@ -26,11 +26,12 @@ class Accounts extends ConsumerWidget {
         .size
         .width;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         automaticallyImplyLeading: false,
-        title: Text('Account Management'.i18n(ref)),
+        title: Text('Account Management'.i18n(ref), style: TextStyle(
+            fontSize: screenWidth * 0.06, color: Colors.white)),
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: ref.watch(navigationProvider),
@@ -39,241 +40,243 @@ class Accounts extends ConsumerWidget {
           ref.read(navigationProvider.notifier).state = index;
         },
       ),
-      body: Padding(
-        padding: EdgeInsets.all(screenWidth * 0.05),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: screenWidth * 0.02),
-            Text(
-              'Secure Bitcoin'.i18n(ref),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: screenWidth * 0.02),
-            Consumer(
-              builder: (context, ref, _) {
-                final format = ref
-                    .watch(settingsProvider)
-                    .btcFormat;
-                final currency = ref
-                    .watch(settingsProvider)
-                    .currency;
-                final balanceProvider = ref.watch(balanceNotifierProvider);
-                final btcBalanceInFormat = ref.watch(
-                    btcBalanceInFormatProvider(format));
-                final bitcoinAddress = ref.watch(bitcoinAddressProvider.future);
-                final bitcoinInCurrency = ref.watch(
-                    currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref
-                        .watch(settingsProvider)
-                        .currency, balanceProvider.btcBalance)))
-                    .toStringAsFixed(2);
-                return Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  elevation: 10,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Colors.orange, Colors.deepOrange],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(screenWidth * 0.05),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: screenWidth * 0.02),
+              Text(
+                'Secure Bitcoin'.i18n(ref),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              SizedBox(height: screenWidth * 0.02),
+              Consumer(
+                builder: (context, ref, _) {
+                  final format = ref
+                      .watch(settingsProvider)
+                      .btcFormat;
+                  final currency = ref
+                      .watch(settingsProvider)
+                      .currency;
+                  final balanceProvider = ref.watch(balanceNotifierProvider);
+                  final btcBalanceInFormat = ref.watch(
+                      btcBalanceInFormatProvider(format));
+                  final bitcoinAddress = ref.watch(bitcoinAddressProvider.future);
+                  final bitcoinInCurrency = ref.watch(
+                      currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref
+                          .watch(settingsProvider)
+                          .currency, balanceProvider.btcBalance)))
+                      .toStringAsFixed(2);
+                  return Card(
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
-                    child: Column(
-                      children: [
-                        _buildListTile(
-                            'Bitcoin',
-                            btcBalanceInFormat,
-                            const Icon(Icons.currency_bitcoin, color: Colors.white),
-                            context,
-                            bitcoinAddress,
-                            bitcoinInCurrency,
-                            currency,
-                            format,
-                            ref),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-            SizedBox(height: screenWidth * 0.02),
-            Text(
-              'Instant Payments'.i18n(ref),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: screenWidth * 0.02),
-            Consumer(
-              builder: (context, ref, _) {
-                final format = ref
-                    .watch(settingsProvider)
-                    .btcFormat;
-                final currency = ref
-                    .watch(settingsProvider)
-                    .currency;
-                final balanceProvider = ref.watch(balanceNotifierProvider);
-                final liquidBalanceInFormat = ref.watch(
-                    liquidBalanceInFormatProvider(format));
-                final liquid = ref.watch(liquidAddressProvider.future);
-                final liquidInCurrency = ref.watch(
-                    currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref
-                        .watch(settingsProvider)
-                        .currency, balanceProvider.liquidBalance)))
-                    .toStringAsFixed(2);
-                return Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  elevation: 10,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Colors.blue, Colors.deepPurple],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                    elevation: 10,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFF9800), Color(0xFFFF9800)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(15.0),
                       ),
+                      child: Column(
+                        children: [
+                          _buildListTile(
+                              'Bitcoin',
+                              btcBalanceInFormat,
+                              const Icon(Icons.currency_bitcoin, color: Colors.white),
+                              context,
+                              bitcoinAddress,
+                              bitcoinInCurrency,
+                              currency,
+                              format,
+                              ref),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: screenWidth * 0.02),
+              Text(
+                'Instant Payments'.i18n(ref),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              SizedBox(height: screenWidth * 0.02),
+              Consumer(
+                builder: (context, ref, _) {
+                  final format = ref
+                      .watch(settingsProvider)
+                      .btcFormat;
+                  final currency = ref
+                      .watch(settingsProvider)
+                      .currency;
+                  final balanceProvider = ref.watch(balanceNotifierProvider);
+                  final liquidBalanceInFormat = ref.watch(
+                      liquidBalanceInFormatProvider(format));
+                  final liquid = ref.watch(liquidAddressProvider.future);
+                  final liquidInCurrency = ref.watch(
+                      currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref
+                          .watch(settingsProvider)
+                          .currency, balanceProvider.liquidBalance)))
+                      .toStringAsFixed(2);
+                  return Card(
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
-                    child: Column(
-                      children: [
-                        _buildListTile(
-                            'Instant Bitcoin'.i18n(ref),
-                            liquidBalanceInFormat,
-                            const Icon(Lbtc_icon.lbtc_icon,
-                                color: Colors.white),
-                            context,
-                            liquid,
-                            liquidInCurrency,
-                            currency,
-                            format,
-                            ref),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-            SizedBox(height: screenWidth * 0.02),
-            Text(
-              'Assets'.i18n(ref),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: screenWidth * 0.02),
-            Consumer(
-              builder: (context, ref, _) {
-                final balance = ref.watch(balanceNotifierProvider);
-                final liquid = ref.watch(liquidAddressProvider.future);
-                return Column(
-                  children: [
-                    Card(
-                      shape: RoundedRectangleBorder(
+                    elevation: 10,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF288BEC), Color(0xFF288BEC)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         borderRadius: BorderRadius.circular(15.0),
                       ),
-                      elevation: 10,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF009B3A), Color(0xFF009B3A)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: Column(
-                          children: [
-                            _buildListTile(
-                                'Depix',
-                                fiatInDenominationFormatted(balance.brlBalance),
-                                Image.asset(
-                                  'lib/assets/depix.png',
-                                  width: 30,
-                                  height: 30,
-                                ),
-                                context,
-                                liquid,
-                                '',
-                                '',
-                                '',
-                                ref),
-                          ],
-                        ),
+                      child: Column(
+                        children: [
+                          _buildListTile(
+                              'Liquid'.i18n(ref),
+                              liquidBalanceInFormat,
+                              const Icon(Lbtc_icon.lbtc_icon,
+                                  color: Colors.white),
+                              context,
+                              liquid,
+                              liquidInCurrency,
+                              currency,
+                              format,
+                              ref),
+                        ],
                       ),
                     ),
-                    Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      elevation: 10,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF008000), Color(0xFF008000)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
+                  );
+                },
+              ),
+              SizedBox(height: screenWidth * 0.02),
+              Text(
+                'Assets'.i18n(ref),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              SizedBox(height: screenWidth * 0.02),
+              Consumer(
+                builder: (context, ref, _) {
+                  final balance = ref.watch(balanceNotifierProvider);
+                  final liquid = ref.watch(liquidAddressProvider.future);
+                  return Column(
+                    children: [
+                      Card(
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15.0),
                         ),
-                        child: Column(
-                          children: [
-                            _buildListTile(
-                                'USDt',
-                                fiatInDenominationFormatted(balance.usdBalance),
-                                Image.asset(
-                                  'lib/assets/tether.png',
-                                  width: 30,
-                                  height: 30,
-                                ),
-                                context,
-                                liquid,
-                                '',
-                                '',
-                                '',
-                                ref),
-                          ],
+                        elevation: 10,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF009B3A), Color(0xFF009B3A)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          child: Column(
+                            children: [
+                              _buildListTile(
+                                  'Depix',
+                                  fiatInDenominationFormatted(balance.brlBalance),
+                                  Image.asset(
+                                    'lib/assets/depix.png',
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                  context,
+                                  liquid,
+                                  '',
+                                  '',
+                                  '',
+                                  ref),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      elevation: 10,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF003399), Color(0xFF003399)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
+                      Card(
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15.0),
                         ),
-                        child: Column(
-                          children: [
-                            _buildListTile(
-                                'EURx',
-                                fiatInDenominationFormatted(balance.eurBalance),
-                                Image.asset(
-                                  'lib/assets/eurx.png',
-                                  width: 30,
-                                  height: 30,
-                                ),
-                                context,
-                                liquid,
-                                '',
-                                '',
-                                '',
-                                ref),
-                          ],
+                        elevation: 10,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF008000), Color(0xFF008000)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          child: Column(
+                            children: [
+                              _buildListTile(
+                                  'USDt',
+                                  fiatInDenominationFormatted(balance.usdBalance),
+                                  Image.asset(
+                                    'lib/assets/tether.png',
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                  context,
+                                  liquid,
+                                  '',
+                                  '',
+                                  '',
+                                  ref),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
+                      Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        elevation: 10,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF003399), Color(0xFF003399)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          child: Column(
+                            children: [
+                              _buildListTile(
+                                  'EURx',
+                                  fiatInDenominationFormatted(balance.eurBalance),
+                                  Image.asset(
+                                    'lib/assets/eurx.png',
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                  context,
+                                  liquid,
+                                  '',
+                                  '',
+                                  '',
+                                  ref),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -295,81 +298,93 @@ class Accounts extends ConsumerWidget {
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: screenWidth * 0.04,
+              style: TextStyle(fontSize: screenWidth * 0.05,
                   color: Colors.white,
-                  fontWeight: FontWeight.bold), // 4% of screen width
+                  fontWeight: FontWeight.bold),
             ),
             if (balance.isNotEmpty)
-              Row(
-                children: [
-                  Text(
-                    balance,
-                    style: TextStyle(fontSize: screenWidth * 0.04,
-                        color: Colors.white), // 4% of screen width
-                  ),
-                  Text(
-                    ' $denomination',
-                    style: TextStyle(fontSize: screenWidth * 0.04,
-                        color: Colors.white), // 4% of screen width
-                  ),
-                ],
+              Padding(
+                padding: EdgeInsets.only(top: screenWidth * 0.02),
+                child: Row(
+                  children: [
+                    Text(
+                      balance,
+                      style: TextStyle(fontSize: screenWidth * 0.04,
+                          color: Colors.white),
+                    ),
+                    Text(
+                      ' $denomination',
+                      style: TextStyle(fontSize: screenWidth * 0.04,
+                          color: Colors.white),
+                    ),
+                  ],
+                ),
               ),
           ],
         ),
         trailing: Text('$trailing $format', style: TextStyle(
-            fontSize: screenWidth * 0.04, color: Colors.white)),
-        // 4% of screen width
+            fontSize: screenWidth * 0.05, color: Colors.white)),
         children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              TextButton(
-                onPressed: () {
-                  if (title == 'Instant Bitcoin'.i18n(ref)) {
-                    _receiveInstantBitcoinPayment(context, bitcoin, ref);
-                  } else {
-                    _receivePayment(context, bitcoin, ref);
-                  }
-                },
-                child: Column(
-                  children: [
-                    Text('Receive'.i18n(ref), style: TextStyle(color: Colors.white)),
-                    const Icon(Icons.arrow_downward, color: Colors.white),
-                  ],
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20.0),
-                        topRight: Radius.circular(20.0),
+          Padding(
+            padding: EdgeInsets.only(top: screenWidth * 0.04, left: screenWidth * 0.1, right: screenWidth * 0.1),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    if (title == 'Liquid'.i18n(ref)) {
+                      _receiveInstantBitcoinPayment(context, bitcoin, ref);
+                    } else {
+                      _receivePayment(context, bitcoin, ref);
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      const Icon(Icons.arrow_downward, color: Colors.white),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text('Receive'.i18n(ref), style: const TextStyle(color: Colors.white)),
                       ),
-                    ),
-                    builder: (BuildContext context) {
-                      return ClipRRect(
-                        borderRadius: const BorderRadius.only(
+                    ],
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      backgroundColor: Colors.black,
+                      context: context,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(20.0),
                           topRight: Radius.circular(20.0),
                         ),
-                        child: QRViewWidget(
-                          qrKey: GlobalKey(debugLabel: 'QR'),
-                          ref: ref,
-                        ),
-                      );
-                    },
-                  );
-                },
-                child: Column(
-                  children: [
-                    Text('Send'.i18n(ref), style: TextStyle(color: Colors.white)),
-                    const Icon(Icons.arrow_upward, color: Colors.white),
-                  ],
+                      ),
+                      builder: (BuildContext context) {
+                        return ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20.0),
+                            topRight: Radius.circular(20.0),
+                          ),
+                          child: QRViewWidget(
+                            qrKey: GlobalKey(debugLabel: 'QR'),
+                            ref: ref,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      const Icon(Icons.arrow_upward, color: Colors.white),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text('Send'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -378,6 +393,7 @@ class Accounts extends ConsumerWidget {
 
   void _receivePayment(BuildContext context, dynamic bitcoin, WidgetRef ref) {
     showModalBottomSheet(
+      backgroundColor: Colors.black,
       context: context,
       builder: (BuildContext context) {
         final screenSize = MediaQuery
@@ -397,7 +413,7 @@ class Accounts extends ConsumerWidget {
                   : snapshot.data.confidential;
               return Container(
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.black,
                   borderRadius: BorderRadius.vertical(
                       top: Radius.circular(50.0)),
                 ),
@@ -414,7 +430,7 @@ class Accounts extends ConsumerWidget {
                             child: Text(
                               'Receive'.i18n(ref),
                               style: TextStyle(
-                                  fontSize: screenSize.width * 0.06),
+                                  fontSize: screenSize.width * 0.06, color: Colors.white),
                             ),
                           ),
                         ),
@@ -441,9 +457,10 @@ class Accounts extends ConsumerWidget {
       WidgetRef ref) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.black,
       builder: (BuildContext context) {
         return Container(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -461,8 +478,8 @@ class Accounts extends ConsumerWidget {
                 onPressed: () {
                   _receivePayment(context, bitcoin, ref);
                 },
-                child: Text(
-                    'Liquid', style: const TextStyle(color: Colors.white)),
+                child: const Text(
+                    'Liquid', style: TextStyle(color: Colors.white)),
               ),
               ElevatedButton(
                 style: ButtonStyle(
@@ -478,8 +495,8 @@ class Accounts extends ConsumerWidget {
                 onPressed: () {
                   _receiveLightningPayment(context, ref);
                 },
-                child: Text(
-                  'Lightning', style: const TextStyle(color: Colors.white),
+                child: const Text(
+                  'Lightning', style: TextStyle(color: Colors.white),
                 ),
               ),
             ],
@@ -491,6 +508,7 @@ class Accounts extends ConsumerWidget {
 
   void _receiveLightningPayment(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
+      backgroundColor: Colors.black,
       context: context,
       isScrollControlled: true,
       builder: (context) => DraggableScrollableSheet(
