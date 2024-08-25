@@ -13,6 +13,7 @@ class SeedWords extends ConsumerWidget {
     final authModel = ref.read(authModelProvider);
     final mnemonicFuture = authModel.getMnemonic();
     final backupDone = ref.watch(settingsProvider).backup;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -42,7 +43,7 @@ class SeedWords extends ConsumerWidget {
           } else {
             List<String> words = snapshot.data!.split(' ');
             return Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(screenWidth * 0.05),
               child: Column(
                 children: [
                   Expanded(
@@ -58,13 +59,13 @@ class SeedWords extends ConsumerWidget {
                         return Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.white, width: 1.5),
+                            border: Border.all(color: Colors.white, width: 1),
                           ),
                           alignment: Alignment.center,
                           child: Text(
                             '${index + 1}. ${words[index]}',
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.04,
                               color: Colors.white,
                             ),
                           ),
@@ -74,7 +75,7 @@ class SeedWords extends ConsumerWidget {
                   ),
                   if (!backupDone)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.2),
                       child: CustomButton(
                         text: 'Backup Wallet'.i18n(ref),
                         onPressed: () {
