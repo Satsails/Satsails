@@ -17,7 +17,7 @@ class Pay extends ConsumerWidget {
 
   Future<void> _pasteFromClipboard(BuildContext context, WidgetRef ref) async {
     final data = await Clipboard.getData('text/plain');
-    if (data != null){
+    if (data != null) {
       try {
         await ref.refresh(setAddressAndAmountProvider(data.text ?? '').future);
         switch (ref.read(sendTxProvider.notifier).state.type) {
@@ -41,8 +41,7 @@ class Pay extends ConsumerWidget {
               fontSize: 16.0,
             );
         }
-      }
-      catch (e) {
+      } catch (e) {
         Fluttertoast.showToast(
           msg: e.toString().i18n(ref),
           toastLength: Toast.LENGTH_SHORT,
@@ -63,7 +62,7 @@ class Pay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: Stack(
         children: <Widget>[
           QRViewWidget(
@@ -89,27 +88,47 @@ class Pay extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Flexible(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _pasteFromClipboard(context, ref),
-                      icon: const Icon(Icons.content_paste, color: Colors.white),
-                      label: Text(
-                          'Paste'.i18n(ref), style: TextStyle(color: Colors.white)),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.orangeAccent,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      height: MediaQuery.of(context).size.height * 0.06,
+                      child: ElevatedButton(
+                        onPressed: () => _pasteFromClipboard(context, ref),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orangeAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        child: Text(
+                          'Paste'.i18n(ref),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: MediaQuery.of(context).size.height * 0.015,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Flexible(
-                    child: ElevatedButton.icon(
-                      onPressed: _toggleFlash,
-                      icon: const Icon(Icons.flash_on, color: Colors.white),
-                      label: Text(
-                          'Flash'.i18n(ref), style: TextStyle(color: Colors.white)),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.orangeAccent,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      height: MediaQuery.of(context).size.height * 0.06,
+                      child: ElevatedButton(
+                        onPressed: _toggleFlash,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orangeAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        child: Text(
+                          'Flash'.i18n(ref),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: MediaQuery.of(context).size.height * 0.015,
+                          ),
+                        ),
                       ),
                     ),
                   ),

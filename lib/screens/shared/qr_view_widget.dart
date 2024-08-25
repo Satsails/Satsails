@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:Satsails/models/address_model.dart';
@@ -111,21 +112,28 @@ class _QRViewWidgetState extends State<QRViewWidget> {
       );
     } else {
       return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-        ),
-        body: Container(
-          color: Colors.white,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                CustomButton(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SvgPicture.asset(
+                'lib/assets/frame.svg',
+                width: MediaQuery.of(context).size.width * 0.5,
+                height: MediaQuery.of(context).size.width * 0.5,
+                color: Colors.orange,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1, vertical: MediaQuery.of(context).size.width * 0.05),
+                child: CustomButton(
                   text: 'Request camera permission'.i18n(widget.ref),
                   onPressed: () => _requestCameraPermission(),
+                  primaryColor: Colors.orange,
+                  secondaryColor: Colors.orange,
+                  textColor: Colors.black,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );

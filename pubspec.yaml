@@ -91,6 +91,7 @@ flutter:
     - lib/assets/satsails.png
     - lib/assets/GraficoAnalise.svg
     - lib/assets/satsails.svg
+    - lib/assets/frame.svg
     - lib/assets/depix.png
     - lib/assets/eurx.png
     - lib/assets/l-btc.png
