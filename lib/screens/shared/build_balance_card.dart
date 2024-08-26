@@ -25,7 +25,7 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
         borderRadius: BorderRadius.circular(15.0),
       ),
       elevation: 10,
-      margin: EdgeInsets.all(cardMargin),
+      margin: EdgeInsets.symmetric(horizontal: cardMargin),
       child: Container(
         decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -36,7 +36,7 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
           borderRadius: BorderRadius.circular(15.0),
         ),
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: cardPadding, horizontal: cardPadding / 2),
+          padding: EdgeInsets.symmetric(vertical:  MediaQuery.of(context).size.height < 800 ? cardPadding / 2 : cardPadding, horizontal: cardPadding / 2),
           child: Column(
             children: [
               Padding(

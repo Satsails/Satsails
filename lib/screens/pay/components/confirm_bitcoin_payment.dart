@@ -94,11 +94,11 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                                     ],
                                   ),
                                   loading: () => SizedBox(
-                                    height: titleFontSize * 1.5,
+                                    height: titleFontSize,
                                     child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.black),
                                   ),
                                   error: (error, stack) => SizedBox(
-                                    height: titleFontSize * 1.5,
+                                    height: titleFontSize,
                                     child: TextButton(
                                       onPressed: () {
                                         ref.refresh(initializeBalanceProvider);
@@ -113,21 +113,24 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                         ),
                       ),
                     ),
-                    Center(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5.0),
-                          border: Border.all(color: Colors.grey, width: 1),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(dynamicPadding / 2),
-                          child: Text(
-                            sendTxState.address,
-                            style: TextStyle(
-                              fontSize: titleFontSize / 1.5,
-                              color: Colors.white,
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: dynamicPadding),
+                      child: Center(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5.0),
+                            border: Border.all(color: Colors.grey, width: 1),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(dynamicPadding / 2),
+                            child: Text(
+                              sendTxState.address,
+                              style: TextStyle(
+                                fontSize: titleFontSize / 1.5,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),
