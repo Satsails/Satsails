@@ -135,8 +135,7 @@ class LiquidCards extends StatelessWidget {
                           title.i18n(ref),
                           style: TextStyle(
                               fontSize: titleFontSize / 1.5,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold),
+                              color: Colors.black,),
                           textAlign: TextAlign.center),
                       initializeBalance.when(
                         data: (_) => Column(

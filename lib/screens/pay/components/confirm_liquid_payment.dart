@@ -1,25 +1,21 @@
-import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
+import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/screens/pay/components/liquid_cards.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import '../../../providers/balance_provider.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:interactive_slider/interactive_slider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 
 class ConfirmLiquidPayment extends HookConsumerWidget {
   ConfirmLiquidPayment({super.key});
@@ -117,6 +113,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: showBitcoinRelatedWidgets.state ? '0' : '0.00',
+                            hintStyle: TextStyle(color: Colors.white),
                           ),
                           onChanged: (value) async {
                             if (showBitcoinRelatedWidgets.state) {
@@ -139,70 +136,69 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                         ),
                       ),
                     ),
-                    if (showBitcoinRelatedWidgets.state)
+                    if (showBitcoinRelatedWidgets.state) ...[
                       Text(
                         '~ ${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
                         style: TextStyle(
-                          fontSize: dynamicFontSize,
+                          fontSize: dynamicFontSize / 1.5,
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                    if (showBitcoinRelatedWidgets.state)
                       SizedBox(height: dynamicSizedBox),
-                    if (showBitcoinRelatedWidgets.state)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          hint: Text(
-                            "Select Currency",
-                            style: TextStyle(fontSize: dynamicFontSize / 2.7, color: Colors.white),  // Adjusted hint style
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            hint: Text(
+                              "Select Currency",
+                              style: TextStyle(fontSize: dynamicFontSize / 2.7, color: Colors.white),  // Adjusted hint style
+                            ),
+                            dropdownColor: const Color(0xFF2B2B2B),
+                            value: ref.watch(inputCurrencyProvider),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'BTC',
+                                child: Center(
+                                  child: Text('BTC', style: TextStyle(color: Color(0xFFD98100))),
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: 'USD',
+                                child: Center(
+                                  child: Text('USD', style: TextStyle(color: Color(0xFFD98100))),
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: 'EUR',
+                                child: Center(
+                                  child: Text('EUR', style: TextStyle(color: Color(0xFFD98100))),
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: 'BRL',
+                                child: Center(
+                                  child: Text('BRL', style: TextStyle(color: Color(0xFFD98100))),
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: 'Sats',
+                                child: Center(
+                                  child: Text('Sats', style: TextStyle(color: Color(0xFFD98100))),  // Adjusted text style
+                                ),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              ref.read(inputCurrencyProvider.notifier).state = value.toString();
+                              controller.text = '';
+                              ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
+                              ref.read(sendTxProvider.notifier).updateDrain(false);
+                            },
                           ),
-                          dropdownColor: const Color(0xFF2B2B2B),
-                          value: ref.watch(inputCurrencyProvider),
-                          items: const [
-                            DropdownMenuItem(
-                              value: 'BTC',
-                              child: Center(
-                                child: Text('BTC', style: TextStyle(color: Color(0xFFD98100))),
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: 'USD',
-                              child: Center(
-                                child: Text('USD', style: TextStyle(color: Color(0xFFD98100))),
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: 'EUR',
-                              child: Center(
-                                child: Text('EUR', style: TextStyle(color: Color(0xFFD98100))),
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: 'BRL',
-                              child: Center(
-                                child: Text('BRL', style: TextStyle(color: Color(0xFFD98100))),
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: 'Sats',
-                              child: Center(
-                                child: Text('Sats', style: TextStyle(color: Color(0xFFD98100))),  // Adjusted text style
-                              ),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            ref.read(inputCurrencyProvider.notifier).state = value.toString();
-                            controller.text = '';
-                            ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
-                            ref.read(sendTxProvider.notifier).updateDrain(false);
-                          },
                         ),
                       ),
-                    ),
-
+                    ],
                     SizedBox(height: dynamicSizedBox),
                     Container(
                       decoration: BoxDecoration(
@@ -271,15 +267,15 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                     ),
                     SizedBox(height: dynamicSizedBox),
                     ref.watch(liquidFeeValueInCurrencyProvider).when(
-                        data: (double feeValue) {
-                          return Text(
-                            '${feeValue.toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
-                            style: TextStyle(fontSize: dynamicFontSize / 1.5, fontWeight: FontWeight.bold, color: Colors.white),
-                            textAlign: TextAlign.center,
-                          );
-                        },
-                        loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize / 1.5, color: Colors.black),
-                        error: (error, stack) => Text('', style: TextStyle(color: Colors.black, fontSize: dynamicFontSize / 1.5)),
+                      data: (double feeValue) {
+                        return Text(
+                          '${feeValue.toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
+                          style: TextStyle(fontSize: dynamicFontSize / 1.5, fontWeight: FontWeight.bold, color: Colors.white),
+                          textAlign: TextAlign.center,
+                        );
+                      },
+                      loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize / 1.5, color: Colors.black),
+                      error: (error, stack) => Text('', style: TextStyle(color: Colors.black, fontSize: dynamicFontSize / 1.5)),
                     ),
                   ],
                 ),
