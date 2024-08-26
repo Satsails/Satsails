@@ -31,7 +31,7 @@ class CustomButton extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(4),
         ),
-        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1, vertical: screenHeight * 0.015),
+        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.015),
         alignment: Alignment.center,
         child: Text(
           text,
