@@ -96,7 +96,7 @@ class Pay extends ConsumerWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
               ),
-              backgroundColor: const Color(0xFFE0F7FA),
+              backgroundColor: Colors.white,
               // Light teal background
               contentPadding: const EdgeInsets.symmetric(
                   vertical: 20.0, horizontal: 24.0),

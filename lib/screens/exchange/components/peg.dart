@@ -391,14 +391,14 @@ class _PegState extends ConsumerState<Peg> {
         SizedBox(height: dynamicPadding / 2),
         Text("Choose your fee:".i18n(ref), style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white)),
         Slider(
-          value: 16 - ref.watch(sendBlocksProvider).toDouble(),
-          onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = 16 - value,
+          value: 6 - ref.watch(sendBlocksProvider).toDouble(),
+          onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = 6 - value,
           min: 1,
-          max: 15,
-          divisions: 14,
+          max: 5,
+          divisions: 4,
           label: ref.watch(sendBlocksProvider).toInt().toString(),
           activeColor: Colors.orange,
-        )
+        ),
       ],
     );
   }
