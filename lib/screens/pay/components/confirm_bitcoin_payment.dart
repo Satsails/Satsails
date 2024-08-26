@@ -3,7 +3,6 @@ import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:interactive_slider/interactive_slider.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
@@ -82,7 +81,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                             borderRadius: BorderRadius.circular(25.0),
                           ),
                           child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: dynamicPadding * 2, horizontal: dynamicPadding / 2),
+                            padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height < 800 ? dynamicPadding : dynamicPadding * 2, horizontal: dynamicPadding * 2),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -90,11 +89,8 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                                 initializeBalance.when(
                                   data: (_) => Column(
                                     children: [
-                                      SizedBox(
-                                        height: titleFontSize * 1.5,
-                                        child: Text('$btcBalanceInFormat $btcFormart', style: TextStyle(fontSize: titleFontSize, color: Colors.black, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-                                      ),
-                                      Text('$balanceInSelectedCurrency $currency', style: TextStyle(fontSize: titleFontSize / 1.5, color: Colors.black), textAlign: TextAlign.center),
+                                      Text('$btcBalanceInFormat $btcFormart', style: TextStyle(fontSize: titleFontSize, color: Colors.black, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                                      Text('$balanceInSelectedCurrency $currency', style: TextStyle(fontSize: titleFontSize, color: Colors.black), textAlign: TextAlign.center),
                                     ],
                                   ),
                                   loading: () => SizedBox(
@@ -124,11 +120,11 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                           border: Border.all(color: Colors.grey, width: 1),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(dynamicPadding / 2),
                           child: Text(
                             sendTxState.address,
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: TextStyle(
+                              fontSize: titleFontSize / 1.5,
                               color: Colors.white,
                             ),
                             textAlign: TextAlign.center,
@@ -137,7 +133,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 10.0),
+                      padding: EdgeInsets.only(top: dynamicPadding / 2),
                       child: FocusScope(
                         child: TextFormField(
                           controller: controller,
@@ -171,59 +167,61 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                     Text(
                       '${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
                       style: TextStyle(
-                        fontSize: dynamicFontSize / 2,
+                        fontSize: dynamicFontSize / 1.5,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: DropdownButton<String>(
-                        hint: Text(
-                          "Select Currency",
-                          style: TextStyle(fontSize: dynamicFontSize / 2, color: Colors.orange),  // Adjusted hint style
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          hint: Text(
+                            "Select Currency",
+                            style: TextStyle(fontSize: dynamicFontSize / 2.7, color: Colors.white),  // Adjusted hint style
+                          ),
+                          dropdownColor: const Color(0xFF2B2B2B),
+                          value: ref.watch(inputCurrencyProvider),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'BTC',
+                              child: Center(
+                                child: Text('BTC', style: TextStyle(color: Color(0xFFD98100))),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: 'USD',
+                              child: Center(
+                                child: Text('USD', style: TextStyle(color: Color(0xFFD98100))),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: 'EUR',
+                              child: Center(
+                                child: Text('EUR', style: TextStyle(color: Color(0xFFD98100))),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: 'BRL',
+                              child: Center(
+                                child: Text('BRL', style: TextStyle(color: Color(0xFFD98100))),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Sats',
+                              child: Center(
+                                child: Text('Sats', style: TextStyle(color: Color(0xFFD98100))),  // Adjusted text style
+                              ),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            ref.read(inputCurrencyProvider.notifier).state = value.toString();
+                            controller.text = '';
+                            ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
+                            ref.read(sendTxProvider.notifier).updateDrain(false);
+                          },
                         ),
-                        dropdownColor: const Color(0xFF2B2B2B),
-                        value: ref.watch(inputCurrencyProvider),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'BTC',
-                            child: Center(
-                              child: Text('BTC', style: TextStyle(color: Color(0xFFD98100))),
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: 'USD',
-                            child: Center(
-                              child: Text('USD', style: TextStyle(color: Color(0xFFD98100))),
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: 'EUR',
-                            child: Center(
-                              child: Text('EUR', style: TextStyle(color: Color(0xFFD98100))),
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: 'BRL',
-                            child: Center(
-                              child: Text('BRL', style: TextStyle(color: Color(0xFFD98100))),
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Sats',
-                            child: Center(
-                              child: Text('Sats', style: TextStyle(color: Color(0xFFD98100))),  // Adjusted text style
-                            ),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          ref.read(inputCurrencyProvider.notifier).state = value.toString();
-                          controller.text = '';
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
-                          ref.read(sendTxProvider.notifier).updateDrain(false);
-                        },
                       ),
                     ),
                     SizedBox(height: dynamicSizedBox),
@@ -284,7 +282,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                       activeColor: Colors.orange,
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(10.0),
+                      padding: EdgeInsets.all(dynamicPadding / 2),
                       child: Text(
                         "${"Transaction in ".i18n(ref)}${getTimeFrame(ref.watch(sendBlocksProvider).toInt(), ref)}",
                         style: TextStyle(
@@ -297,30 +295,18 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                     SizedBox(height: dynamicSizedBox),
                     ref.watch(feeProvider).when(
                       data: (int fee) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              '${'Fee:'.i18n(ref)} $fee sats',
-                              style: TextStyle(fontSize: dynamicFontSize / 1.5, fontWeight: FontWeight.bold, color: Colors.white),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
+                        return Text(
+                          '${'Fee:'.i18n(ref)} $fee sats',
+                          style: TextStyle(fontSize: dynamicFontSize / 1.5, fontWeight: FontWeight.bold, color: Colors.white),
+                          textAlign: TextAlign.center,
                         );
                       },
-                      loading: () => Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize / 1.5 , color: Colors.white),
-                      ),
-                      error: (error, stack) => Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextButton(
-                          onPressed: () {
-                            ref.refresh(feeProvider);
-                          },
-                          child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: dynamicFontSize / 1.5)),
-                        ),
+                      loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize / 1.5 , color: Colors.white),
+                      error: (error, stack) => TextButton(
+                        onPressed: () {
+                          ref.refresh(feeProvider);
+                        },
+                        child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: dynamicFontSize / 1.5)),
                       ),
                     ),
                     ref.watch(feeValueInCurrencyProvider).when(
@@ -328,7 +314,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                         return Text(
                           '${feeValue.toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
                           style: TextStyle(
-                            fontSize: dynamicFontSize / 2,
+                            fontSize: dynamicFontSize / 1.5,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
@@ -336,7 +322,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                         );
                       },
                       loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize / 1.5, color: Colors.white),
-                      error: (error, stack) => const Text(''),
+                      error: (error, stack) => Text('', style: TextStyle(color: Colors.white, fontSize: dynamicFontSize / 1.5)),
                     ),
                   ],
                 ),
