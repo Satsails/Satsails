@@ -59,14 +59,14 @@ class LiquidCards extends StatelessWidget {
           return _buildCard(
             context,
             index,
-            liquidBalanceInSelectedCurrency,  // Pass the calculated value here
+            liquidBalanceInSelectedCurrency.toStringAsFixed(2),  // Pass the calculated value as a string with 2 decimal places
           );
         },
       ),
     );
   }
 
-  Widget _buildCard(BuildContext context, int index, double liquidBalanceInSelectedCurrency) {
+  Widget _buildCard(BuildContext context, int index, String liquidBalanceInSelectedCurrency) {
     String title;
     String balanceText;
     List<Color> gradientColors;
@@ -76,28 +76,28 @@ class LiquidCards extends StatelessWidget {
       case 0:
         title = 'Liquid Balance';
         balanceText = '$liquidBalanceInFormat $liquidFormart';
-        gradientColors = [Color(0xFF288BEC), Color(0xFF288BEC)];
+        gradientColors = const [Color(0xFF288BEC), Color(0xFF288BEC)];
         isLiquid = true;  // Mark this card as Liquid
         break;
       case 1:
         title = 'Depix Balance';
         balanceText = '${fiatInDenominationFormatted(balance.brlBalance)} BRL';
-        gradientColors = [Color(0xFF009B3A), Color(0xFF009B3A)];
+        gradientColors = const [Color(0xFF009B3A), Color(0xFF009B3A)];
         break;
       case 2:
         title = 'USDt Balance';
         balanceText = '${fiatInDenominationFormatted(balance.usdBalance)} USD';
-        gradientColors = [Color(0xFF008000), Color(0xFF008000)];
+        gradientColors = const [Color(0xFF008000), Color(0xFF008000)];
         break;
       case 3:
         title = 'EURx Balance';
         balanceText = '${fiatInDenominationFormatted(balance.eurBalance)} EUR';
-        gradientColors = [Color(0xFF003399), Color(0xFF003399)];
+        gradientColors = const [Color(0xFF003399), Color(0xFF003399)];
         break;
       default:
         title = 'Liquid Balance';
         balanceText = '$liquidBalanceInFormat $liquidFormart';
-        gradientColors = [Color(0xFF288BEC), Color(0xFF288BEC)];
+        gradientColors = const [Color(0xFF288BEC), Color(0xFF288BEC)];
         isLiquid = true;  // Default to Liquid
         break;
     }
@@ -134,8 +134,8 @@ class LiquidCards extends StatelessWidget {
                       Text(
                           title.i18n(ref),
                           style: TextStyle(
-                              fontSize: titleFontSize / 1.5,
-                              color: Colors.black,),
+                            fontSize: titleFontSize / 1.5,
+                            color: Colors.black,),
                           textAlign: TextAlign.center),
                       initializeBalance.when(
                         data: (_) => Column(
@@ -155,6 +155,8 @@ class LiquidCards extends StatelessWidget {
                                     color: Colors.black),
                                 textAlign: TextAlign.center,
                               ),
+                            if (!isLiquid)
+                              const SizedBox(),  // Display an empty container if not Liquid
                           ],
                         ),
                         loading: () => LoadingAnimationWidget.prograssiveDots(
