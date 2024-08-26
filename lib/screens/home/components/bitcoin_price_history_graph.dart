@@ -4,17 +4,21 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:coingecko_api/data/market_chart_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
+
+final interactiveModeProvider = StateProvider<bool>((ref) => false);
 
 class LineChartSample extends StatelessWidget {
   final List<MarketChartData> marketData;
+  final bool isInteractive;
 
   const LineChartSample({
     super.key,
     required this.marketData,
+    required this.isInteractive,
   });
 
   @override
@@ -36,9 +40,9 @@ class LineChartSample extends StatelessWidget {
       ),
       plotAreaBorderWidth: 0,
       trackballBehavior: TrackballBehavior(
-        enable: false,
-        activationMode: ActivationMode.longPress,
-        lineType: TrackballLineType.none, // Disable vertical lines
+        enable: isInteractive,
+        activationMode: ActivationMode.singleTap,
+        lineType: TrackballLineType.none,
         tooltipSettings: const InteractiveTooltip(
           enable: true,
           color: Colors.orangeAccent,
@@ -84,6 +88,7 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final marketData = ref.watch(coinGeckoBitcoinMarketDataProvider);
+    final isInteractiveMode = ref.watch(interactiveModeProvider);
 
     return marketData.when(
       data: (data) {
@@ -91,7 +96,7 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
           children: [
             _buildDateRangeButtons(ref),
             Expanded(
-              child: LineChartSample(marketData: data),
+              child: LineChartSample(marketData: data, isInteractive: isInteractiveMode),
             ),
           ],
         );
@@ -110,6 +115,8 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
   }
 
   Widget _buildDateRangeButtons(WidgetRef ref) {
+    final isInteractiveMode = ref.watch(interactiveModeProvider);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -118,6 +125,27 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
         _buildDateRangeButton(ref, 30, '1M'),
         _buildDateRangeButton(ref, 90, '3M'),
         _buildDateRangeButton(ref, 365, '1Y'),
+        const SizedBox(width: 10),
+        Column(
+          children: [
+            Switch(
+              value: isInteractiveMode,
+              onChanged: (bool value) {
+                ref.read(interactiveModeProvider.notifier).state = value;
+              },
+              activeColor: Colors.orangeAccent,
+              inactiveThumbColor: Colors.grey,
+              inactiveTrackColor: Colors.grey[700],
+            ),
+            Text(
+              'Interactive Mode',
+              style: TextStyle(
+                color: isInteractiveMode ? Colors.orangeAccent : Colors.white,
+                fontSize: 9,
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
