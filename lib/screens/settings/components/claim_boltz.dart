@@ -18,11 +18,17 @@ class ClaimBoltz extends ConsumerWidget {
     final button = ref.watch(selectedButtonProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text('Complete lightning transactions'.i18n(ref), style: const TextStyle(color: Colors.black, fontSize: 15)),
+        backgroundColor: Colors.black,
+        title: Text('Lightning transactions'.i18n(ref), style: const TextStyle(color: Colors.white, fontSize: 15)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -52,7 +58,7 @@ class ClaimReceiving extends ConsumerWidget {
           return transactionsBitcoin.when(
             data: (List<BtcBoltz> bitcoinTransactions) {
               if (liquidTransactions.isEmpty && bitcoinTransactions.isEmpty) {
-                return Center(child: Text('All lightning transactions were complete'.i18n(ref)));
+                return Center(child: Text('All lightning transactions were complete'.i18n(ref), style: const TextStyle(color: Colors.white)));
               }
               return ListView.builder(
                 itemCount: liquidTransactions.length + bitcoinTransactions.length,
@@ -68,11 +74,11 @@ class ClaimReceiving extends ConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stackTrace) => Center(child: Text('Error: $error'.i18n(ref))),
+            error: (error, stackTrace) => Center(child: Text('Error: $error'.i18n(ref), style: const TextStyle(color: Colors.white))),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text('Error: $error'.i18n(ref))),
+        error: (error, stackTrace) => Center(child: Text('Error: $error'.i18n(ref), style: const TextStyle(color: Colors.white))),
       ),
     );
   }
@@ -92,7 +98,7 @@ class RefundSending extends ConsumerWidget {
           return transactionsBitcoin.when(
             data: (List<BtcBoltz> bitcoinTransactions) {
               if (liquidTransactions.isEmpty && bitcoinTransactions.isEmpty) {
-                return Center(child: Text('All lightning transactions were complete'.i18n(ref)));
+                return Center(child: Text('All lightning transactions were complete'.i18n(ref), style: const TextStyle(color: Colors.white)));
               }
               return ListView.builder(
                 itemCount: liquidTransactions.length + bitcoinTransactions.length,
@@ -108,11 +114,11 @@ class RefundSending extends ConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stackTrace) => Center(child: Text('Error: $error'.i18n(ref))),
+            error: (error, stackTrace) => Center(child: Text('Error: $error'.i18n(ref), style: const TextStyle(color: Colors.white))),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text('Error: $error'.i18n(ref))),
+        error: (error, stackTrace) => Center(child: Text('Error: $error'.i18n(ref), style: const TextStyle(color: Colors.white))),
       ),
     );
   }
@@ -129,20 +135,20 @@ Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext con
     leading: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text("Amount".i18n(ref), style: const TextStyle(fontSize: 13)),
-        Text("${btcInDenominationFormatted(amount.toDouble(), btcFormat)} $btcFormat", style: const TextStyle(fontSize: 13)),
+        Text("Amount".i18n(ref), style: const TextStyle(fontSize: 13, color: Colors.orange)),
+        Text("${btcInDenominationFormatted(amount.toDouble(), btcFormat)} $btcFormat", style: const TextStyle(fontSize: 13, color: Colors.white)),
       ],
     ),
     onTap: () {
       showModalBottomSheet(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         context: context,
         builder: (context) {
           return Wrap(
             children: <Widget>[
               ListTile(
                 leading: const Icon(Icons.money_off, color: Colors.orangeAccent),
-                title: kind == 'reverse' ? Text('Claim'.i18n(ref)) : Text('Refund'.i18n(ref)),
+                title: kind == 'reverse' ? Text('Claim'.i18n(ref), style: const TextStyle(color: Colors.white)) : Text('Refund'.i18n(ref), style: const TextStyle(color: Colors.white)),
                 onTap: () async {
                   try {
                     if (isBitcoin) {
@@ -199,23 +205,24 @@ Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext con
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Center(
-          child: Column(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Type'.i18n(ref), style: TextStyle(fontSize: 13)),
-              Text(kind, style: const TextStyle(fontSize: 13)),
+              Text('Type: '.i18n(ref), style: TextStyle(fontSize: 13, color: Colors.orange)),
+              Text(kind, style: const TextStyle(fontSize: 13, color: Colors.orange)),
             ],
           ),
         ),
       ],
     ),
-    subtitle: Center(child: Text('${isBitcoin ? 'Bitcoin' : 'Liquid'}', style: const TextStyle(fontSize: 13))),
+    subtitle: Center(child: Text('${isBitcoin ? 'Bitcoin' : 'Liquid'}', style: const TextStyle(fontSize: 13, color: Colors.white))),
     trailing: Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Column(
           children: [
-            Text('Invoice'.i18n(ref), style: TextStyle(fontSize: 13)),
-            Text('...${invoice.substring(invoice.length - 7)}', style: const TextStyle(fontSize: 13)),
+            Text('Invoice'.i18n(ref), style: TextStyle(fontSize: 13, color: Colors.orange)),
+            Text('...${invoice.substring(invoice.length - 7)}', style: const TextStyle(fontSize: 13, color: Colors.white)),
           ],
         ),
       ],
