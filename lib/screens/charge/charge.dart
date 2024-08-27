@@ -14,10 +14,14 @@ class Charge extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text('Charge Wallet'.i18n(ref), style: TextStyle(fontSize: screenWidth * 0.05)),
+        backgroundColor: Colors.black, // black app bar
+        title: Text('Charge Wallet'.i18n(ref), style: TextStyle(color: Colors.white)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF0D0D0D), // dark background color for the entire screen
       body: Center(
         child: Padding(
           padding: EdgeInsets.all(screenWidth * 0.04), // 4% of screen width
@@ -31,6 +35,7 @@ class Charge extends ConsumerWidget {
                 screenWidth: screenWidth,
                 onPressed: () => hasOnboarded ? Navigator.of(context).pushNamed('/pix') : Navigator.of(context).pushNamed('/pix_onboarding'),
               ),
+              const SizedBox(height: 16.0),
               PaymentMethodCard(
                 title: 'Add money with EURx'.i18n(ref),
                 description: 'Coming Soon'.i18n(ref),
@@ -53,7 +58,8 @@ class PaymentMethodCard extends StatelessWidget {
   final double screenWidth;
   final VoidCallback? onPressed;
 
-  const PaymentMethodCard({super.key,
+  const PaymentMethodCard({
+    super.key,
     required this.title,
     required this.description,
     required this.icon,
@@ -64,29 +70,40 @@ class PaymentMethodCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onPressed, // Handle tap action
+      onTap: onPressed,
       child: Card(
-        elevation: 4.0,
-        color: Colors.white,
+        color: Colors.black, // black card background
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0), // rounded corners
+          side: const BorderSide(color: Colors.white, width: 1), // white border
+        ),
+        elevation: 0, // no shadow
         child: Padding(
-          padding: EdgeInsets.all(screenWidth * 0.05), // 5% of screen width
+          padding: EdgeInsets.symmetric(vertical: screenWidth * 0.05, horizontal: screenWidth * 0.04), // balanced padding
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Icon(icon, color: Colors.orangeAccent, size: screenWidth * 0.06), // 6% of screen width
-                  const SizedBox(width: 8.0),
+                  Icon(icon, color: Colors.orangeAccent, size: screenWidth * 0.06), // icon size adjustment
+                  const SizedBox(width: 12.0),
                   Text(
                     title,
-                    style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold), // 4.5% of screen width
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.045,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white, // white text color
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12.0),
+              const SizedBox(height: 8.0),
               Text(
                 description,
-                style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.grey), // 4% of screen width
+                style: TextStyle(
+                  fontSize: screenWidth * 0.04,
+                  color: const Color(0xFFB0B0B0), // lighter grey for the description text
+                ),
               ),
             ],
           ),
