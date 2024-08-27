@@ -241,7 +241,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                           TextField(
                             controller: _controllers[index],
                             focusNode: _focusNodes[index],
-                            style: const TextStyle(color: Color(0xFF6D6D6D)),
+                            style: const TextStyle(color: Colors.white),
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                               labelText: '${'Word'.i18n(ref)} ${index + 1}',
@@ -276,7 +276,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.15),
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.15, vertical: screenHeight * 0.02),
                 child: CustomButton(
                   text: 'Recover Account'.i18n(ref),
                   onPressed: () => _recoverAccount(context),

@@ -8,7 +8,7 @@ Widget buildLegendItem(Widget icon, String label, double percentage) {
     children: [
       icon,
       const SizedBox(width: 8),
-      Text('$label: ${percentage.toStringAsFixed(2)}%', style: const TextStyle(color: Colors.white)),
+      Text('$label: ${percentage.toStringAsFixed(0)}%', style: const TextStyle(color: Colors.white)),
     ],
   );
 }
@@ -95,7 +95,7 @@ Widget buildDiagram(BuildContext context, Percentage percentage) {
                   const Icon(Icons.currency_bitcoin, color: Colors.white),
                 ),
                 gradient: LinearGradient(
-                  colors: [Colors.orange, Colors.deepOrange],
+                  colors: [Colors.orange, Colors.orange],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -109,7 +109,7 @@ Widget buildDiagram(BuildContext context, Percentage percentage) {
                   const Icon(Lbtc_icon.lbtc_icon, color: Colors.white),
                 ),
                 gradient: LinearGradient(
-                  colors: [Colors.blue, Colors.deepPurple],
+                  colors: [Color(0xFF288BECe), Color(0xFF288BECe)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),

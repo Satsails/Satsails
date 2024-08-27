@@ -40,27 +40,30 @@ class ButtonPicker extends ConsumerWidget {
             ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
         }
       },
-      buttons: ["Bitcoin", "Instant Bitcoin".i18n(ref), 'Swaps'.i18n(ref)],
+      buttons: ["Bitcoin", "Instant".i18n(ref), 'Swaps'.i18n(ref)],
       options: GroupButtonOptions(
-        unselectedTextStyle: TextStyle(fontSize: screenWidth * 0.035, color: Colors.black), // 3% of screen width
-        selectedTextStyle: TextStyle(fontSize: screenWidth * 0.035, color: Colors.white), // 3% of screen width
-        selectedColor: Colors.deepOrange,
-        spacing: screenWidth * 0.005, // 1% of screen width
+        unselectedTextStyle: TextStyle(
+            fontSize: screenWidth * 0.035, color: Colors.orange),
+        selectedTextStyle: TextStyle(
+            fontSize: screenWidth * 0.035, color: Colors.black),
+        selectedColor: Colors.orange,
         mainGroupAlignment: MainGroupAlignment.center,
+        buttonWidth: screenWidth * 0.25,
         crossGroupAlignment: CrossGroupAlignment.center,
         groupRunAlignment: GroupRunAlignment.center,
-        unselectedColor: Colors.white,
-        groupingType: GroupingType.wrap,
+        unselectedColor: Colors.black,
+        groupingType: GroupingType.row,
         alignment: Alignment.center,
         elevation: 0,
         textPadding: EdgeInsets.zero,
+        unselectedBorderColor: Colors.orange,
         selectedShadow: <BoxShadow>[
           const BoxShadow(color: Colors.transparent)
         ],
         unselectedShadow: <BoxShadow>[
           const BoxShadow(color: Colors.transparent)
         ],
-        borderRadius: BorderRadius.circular(screenWidth * 0.075), // 7.5% of screen width
+        borderRadius: BorderRadius.circular(screenWidth * 0.01),
       ),
     );
   }

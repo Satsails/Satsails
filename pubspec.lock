@@ -61,10 +61,10 @@ packages:
     dependency: "direct main"
     description:
       name: bdk_flutter
-      sha256: c912a10a473fc8d378a6fd56f9eeb46f0cacaabee6c51c61a5e4566dadc674a6
+      sha256: db008fee905c040eae908484c11fd8ae167d6686158890b2e166bc8d82f8727d
       url: "https://pub.dev"
     source: hosted
-    version: "0.31.2-dev.1"
+    version: "0.31.2-dev.2"
   bech32:
     dependency: transitive
     description:

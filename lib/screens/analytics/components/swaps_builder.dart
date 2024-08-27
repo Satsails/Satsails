@@ -25,7 +25,7 @@ class SwapsBuilder extends ConsumerWidget {
           data: (fiatSwaps) {
             final combinedSwaps = [...swaps, ...fiatSwaps];
             if (combinedSwaps.isEmpty) {
-              return Center(child: Text('No swaps found'.i18n(ref), style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey))); // 5% of screen width
+              return Center(child: Text('No swaps found'.i18n(ref), style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white)));
             }
             return ListView.builder(
               itemCount: combinedSwaps.length,

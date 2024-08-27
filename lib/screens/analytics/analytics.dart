@@ -18,11 +18,11 @@ class Analytics extends ConsumerWidget {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         appBar: AppBar(
-          title: Center(child: Text('Analytics'.i18n(ref))),
+          title: Center(child: Text('Analytics'.i18n(ref), style: const TextStyle(color: Colors.white))),
           automaticallyImplyLeading: false,
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.black,
         ),
         body: _buildBody(context, ref),
         bottomNavigationBar: CustomBottomNavigationBar(
@@ -46,7 +46,7 @@ class Analytics extends ConsumerWidget {
         if (transactionType == 'Bitcoin') const BitcoinExpensesDiagram(),
         if (transactionType == 'Instant Bitcoin') const LiquidExpensesDiagram(),
         if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')
-        const Expanded(child: BuildTransactions(showAllTransactions: false,)),
+        // const Expanded(child: BuildTransactions(showAllTransactions: false,)),
         if(transactionType == 'Swap') const Expanded(child: SwapsBuilder()),
       ],
     );

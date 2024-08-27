@@ -51,7 +51,7 @@ class LineChartSample extends StatelessWidget {
         tooltipSettings: const InteractiveTooltip(
           enable: true,
           color: Colors.orangeAccent,
-          textStyle: TextStyle(color: Colors.grey),
+          textStyle: TextStyle(color: Colors.white),
           borderWidth: 0,
           decimalPlaces: 8,
         ),
@@ -72,7 +72,7 @@ class LineChartSample extends StatelessWidget {
               borderRadius: BorderRadius.circular(5),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
+                  color: Colors.white.withOpacity(0.5),
                   spreadRadius: 1,
                   blurRadius: 2,
                   offset: const Offset(0, 1),
@@ -81,7 +81,7 @@ class LineChartSample extends StatelessWidget {
             ),
             child: Text(
               isShowingMainData ? displayString : displayStringIfNotMainData,
-              style: const TextStyle(color: Colors.grey),
+              style: const TextStyle(color: Colors.white),
             ),
           );
         },
@@ -158,29 +158,23 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
     final selectedCurrency = ref.watch(settingsProvider).currency;
     final currencyRate = ref.watch(selectedCurrencyProvider(selectedCurrency));
 
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Column(
       children: <Widget>[
-        Container(
-          height: screenHeight * 0.2,
-          padding: const EdgeInsets.only(right: 16),
-          child: LineChartSample(
-            selectedDays: selectedDays,
-            feeData: feeData,
-            incomeData: incomeData,
-            spendingData: spendingData,
-            mainData: !isShowingMainData ? bitcoinBalanceByDay : null,
-            balanceInCurrency: calculateBalanceInCurrency(bitcoinBalanceByDayUnformatted, currencyRate),
-            selectedCurrency: selectedCurrency,
-            isShowingMainData: !isShowingMainData,
-          ),
+        LineChartSample(
+          selectedDays: selectedDays,
+          feeData: feeData,
+          incomeData: incomeData,
+          spendingData: spendingData,
+          mainData: !isShowingMainData ? bitcoinBalanceByDay : null,
+          balanceInCurrency: calculateBalanceInCurrency(bitcoinBalanceByDayUnformatted, currencyRate),
+          selectedCurrency: selectedCurrency,
+          isShowingMainData: !isShowingMainData,
         ),
         Center(
           child: TextButton(
             child: Text(
               !isShowingMainData ? 'Show Statistics over period'.i18n(ref) : 'Show Balance'.i18n(ref),
-              style: const TextStyle(color: Colors.grey),
+              style: const TextStyle(color: Colors.white),
             ),
             onPressed: () {
               setState(() {
