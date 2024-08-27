@@ -22,7 +22,7 @@ class ClaimBoltz extends ConsumerWidget {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Text('Lightning transactions'.i18n(ref), style: const TextStyle(color: Colors.white, fontSize: 15)),
+        title: Text('Lightning transactions'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: MediaQuery.of(context).size.width < 400 ? 16 : 20)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
@@ -131,101 +131,111 @@ Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext con
   final invoice = isBitcoin ? bitcoinTx!.swap.invoice : liquidTx!.swap.invoice;
   final kind = isBitcoin ? bitcoinTx!.swap.kind.name : liquidTx!.swap.kind.name;
 
-  return ListTile(
-    leading: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text("Amount".i18n(ref), style: const TextStyle(fontSize: 13, color: Colors.orange)),
-        Text("${btcInDenominationFormatted(amount.toDouble(), btcFormat)} $btcFormat", style: const TextStyle(fontSize: 13, color: Colors.white)),
-      ],
-    ),
-    onTap: () {
-      showModalBottomSheet(
-        backgroundColor: Colors.black,
-        context: context,
-        builder: (context) {
-          return Wrap(
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.money_off, color: Colors.orangeAccent),
-                title: kind == 'reverse' ? Text('Claim'.i18n(ref), style: const TextStyle(color: Colors.white)) : Text('Refund'.i18n(ref), style: const TextStyle(color: Colors.white)),
-                onTap: () async {
-                  try {
-                    if (isBitcoin) {
-                      if (kind == 'reverse') {
-                        await ref.read(claimSingleBitcoinBoltzTransactionProvider((tx as BtcBoltz).swap.id).future).then((value) => value);
-                      } else {
-                        await ref.read(refundSingleBitcoinBoltzTransactionProvider((tx as BtcBoltz).swap.id).future).then((value) => value);
-                      }
-                      ref.refresh(receivedBitcoinBoltzProvider);
-                      ref.refresh(payedBitcoinBoltzProvider);
-                    } else {
-                      if (kind == 'reverse') {
-                        await ref.read(claimSingleBoltzTransactionProvider((tx as LbtcBoltz).swap.id).future).then((value) => value);
-                      } else {
-                        await ref.read(refundSingleBoltzTransactionProvider((tx as LbtcBoltz).swap.id).future).then((value) => value);
-                      }
-                      ref.refresh(receivedBoltzProvider);
-                      ref.refresh(payedBoltzProvider);
-                    }
-                    Fluttertoast.showToast(msg: "Claimed".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
-                  } catch (e) {
-                    Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
-                  }
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: Text('Delete'.i18n(ref)),
-                onTap: () async {
-                  try {
-                    if (isBitcoin) {
-                      await ref.read(deleteSingleBitcoinBoltzTransactionProvider((tx as BtcBoltz).swap.id).future);
-                      ref.refresh(receivedBitcoinBoltzProvider);
-                      ref.refresh(payedBitcoinBoltzProvider);
-                    } else {
-                      await ref.read(deleteSingleBoltzTransactionProvider((tx as LbtcBoltz).swap.id).future);
-                      ref.refresh(receivedBoltzProvider);
-                      ref.refresh(payedBoltzProvider);
-                    }
-                    Fluttertoast.showToast(msg: "Deleted".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
-                  } catch (e) {
-                    Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
-                  }
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          );
-        },
-      );
-    },
-    title: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Type: '.i18n(ref), style: TextStyle(fontSize: 13, color: Colors.orange)),
-              Text(kind, style: const TextStyle(fontSize: 13, color: Colors.orange)),
-            ],
-          ),
-        ),
-      ],
-    ),
-    subtitle: Center(child: Text('${isBitcoin ? 'Bitcoin' : 'Liquid'}', style: const TextStyle(fontSize: 13, color: Colors.white))),
-    trailing: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Column(
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal:8.0),
+    child: Card(
+      color: const Color(0xFF2E2E2E),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5.0),
+      ),
+      elevation: 2.0, // Add a shadow
+      child: ListTile(
+        leading: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Invoice'.i18n(ref), style: TextStyle(fontSize: 13, color: Colors.orange)),
-            Text('...${invoice.substring(invoice.length - 7)}', style: const TextStyle(fontSize: 13, color: Colors.white)),
+            Text("Amount".i18n(ref), style: const TextStyle(fontSize: 13, color: Colors.orange)),
+            Text("${btcInDenominationFormatted(amount.toDouble(), btcFormat)} $btcFormat", style: const TextStyle(fontSize: 13, color: Colors.white)),
           ],
         ),
-      ],
+        onTap: () {
+          showModalBottomSheet(
+            backgroundColor: Colors.black,
+            context: context,
+            builder: (context) {
+              return Wrap(
+                children: <Widget>[
+                  ListTile(
+                    leading: const Icon(Icons.money_off, color: Colors.orangeAccent),
+                    title: kind == 'reverse' ? Text('Claim'.i18n(ref), style: const TextStyle(color: Colors.white)) : Text('Refund'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                    onTap: () async {
+                      try {
+                        if (isBitcoin) {
+                          if (kind == 'reverse') {
+                            await ref.read(claimSingleBitcoinBoltzTransactionProvider((tx as BtcBoltz).swap.id).future).then((value) => value);
+                          } else {
+                            await ref.read(refundSingleBitcoinBoltzTransactionProvider((tx as BtcBoltz).swap.id).future).then((value) => value);
+                          }
+                          ref.refresh(receivedBitcoinBoltzProvider);
+                          ref.refresh(payedBitcoinBoltzProvider);
+                        } else {
+                          if (kind == 'reverse') {
+                            await ref.read(claimSingleBoltzTransactionProvider((tx as LbtcBoltz).swap.id).future).then((value) => value);
+                          } else {
+                            await ref.read(refundSingleBoltzTransactionProvider((tx as LbtcBoltz).swap.id).future).then((value) => value);
+                          }
+                          ref.refresh(receivedBoltzProvider);
+                          ref.refresh(payedBoltzProvider);
+                        }
+                        Fluttertoast.showToast(msg: "Claimed".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                      } catch (e) {
+                        Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                      }
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.delete, color: Colors.red),
+                    title: Text('Delete'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                    onTap: () async {
+                      try {
+                        if (isBitcoin) {
+                          await ref.read(deleteSingleBitcoinBoltzTransactionProvider((tx as BtcBoltz).swap.id).future);
+                          ref.refresh(receivedBitcoinBoltzProvider);
+                          ref.refresh(payedBitcoinBoltzProvider);
+                        } else {
+                          await ref.read(deleteSingleBoltzTransactionProvider((tx as LbtcBoltz).swap.id).future);
+                          ref.refresh(receivedBoltzProvider);
+                          ref.refresh(payedBoltzProvider);
+                        }
+                        Fluttertoast.showToast(msg: "Deleted".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                      } catch (e) {
+                        Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                      }
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Type: '.i18n(ref), style: TextStyle(fontSize: 13, color: Colors.orange)),
+                  Text(kind, style: const TextStyle(fontSize: 13, color: Colors.orange)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        subtitle: Center(child: Text('${isBitcoin ? 'Bitcoin' : 'Liquid'}', style: const TextStyle(fontSize: 13, color: Colors.white))),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Column(
+              children: [
+                Text('Invoice'.i18n(ref), style: TextStyle(fontSize: 13, color: Colors.orange)),
+                Text('...${invoice.substring(invoice.length - 7)}', style: const TextStyle(fontSize: 13, color: Colors.white)),
+              ],
+            ),
+          ],
+        ),
+      ),
     ),
   );
 }

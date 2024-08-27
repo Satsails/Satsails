@@ -44,9 +44,9 @@ class ButtonPicker extends ConsumerWidget {
       buttons: ["BTC ⇄ Liquid".i18n(ref), 'Liquid ⇄ Stable'.i18n(ref)],
       options: GroupButtonOptions(
         unselectedTextStyle: TextStyle(
-            fontSize: screenWidth * 0.04, color: Colors.orange), // 4% of screen width
+            fontSize: screenWidth * 0.04, color: Colors.orange),
         selectedTextStyle: TextStyle(
-            fontSize: screenWidth * 0.04, color: Colors.black), // 4% of screen width
+            fontSize: screenWidth * 0.04, color: Colors.black),
         selectedColor: Colors.orange,
         mainGroupAlignment: MainGroupAlignment.center,
         crossGroupAlignment: CrossGroupAlignment.center,
@@ -63,7 +63,7 @@ class ButtonPicker extends ConsumerWidget {
         unselectedShadow: <BoxShadow>[
           const BoxShadow(color: Colors.transparent)
         ],
-        borderRadius: BorderRadius.circular(screenWidth * 0.01), // 7.5% of screen width
+        borderRadius: BorderRadius.circular(screenWidth * 0.01),
       ),
     );
   }

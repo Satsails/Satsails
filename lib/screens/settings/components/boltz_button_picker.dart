@@ -34,26 +34,26 @@ class BoltzButtonPicker extends ConsumerWidget {
       buttons: ["Receiving".i18n(ref), 'Sending'.i18n(ref)],
       options: GroupButtonOptions(
         unselectedTextStyle: TextStyle(
-            fontSize: screenWidth * 0.035, color: Colors.black),
+            fontSize: screenWidth * 0.04, color: Colors.orange),
         selectedTextStyle: TextStyle(
-            fontSize: screenWidth * 0.035, color: Colors.white),
-        selectedColor: Colors.deepOrange,
+            fontSize: screenWidth * 0.04, color: Colors.black),
+        selectedColor: Colors.orange,
         mainGroupAlignment: MainGroupAlignment.center,
-        spacing: screenWidth * 0.005, // 0.5% of screen width
         crossGroupAlignment: CrossGroupAlignment.center,
         groupRunAlignment: GroupRunAlignment.center,
-        unselectedColor: Colors.white,
+        unselectedColor: Colors.black,
         groupingType: GroupingType.row,
         alignment: Alignment.center,
         elevation: 0,
         textPadding: EdgeInsets.zero,
+        unselectedBorderColor: Colors.orange,
         selectedShadow: <BoxShadow>[
           const BoxShadow(color: Colors.transparent)
         ],
         unselectedShadow: <BoxShadow>[
           const BoxShadow(color: Colors.transparent)
         ],
-        borderRadius: BorderRadius.circular(screenWidth * 0.075),
+        borderRadius: BorderRadius.circular(screenWidth * 0.01),
       ),
     );
   }
