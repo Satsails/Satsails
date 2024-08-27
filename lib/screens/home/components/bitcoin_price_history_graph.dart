@@ -55,10 +55,10 @@ class LineChartSample extends StatelessWidget {
           final DateTime date = trackballDetails.point!.x;
           final num? value = trackballDetails.point!.y;
           final String formattedDate = formatter.format(date);
-          final String bitcoinValue = value!.toStringAsFixed(value == value.roundToDouble() ? 0 : 8);
+          final String bitcoinValue = value!.toStringAsFixed(value == value.roundToDouble() ? 0 : 2);
 
           return Text(
-            '$formattedDate\nBitcoin: $bitcoinValue',
+            '$formattedDate\n $bitcoinValue',
             style: const TextStyle(color: Colors.white),
           );
         },
@@ -138,7 +138,7 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
                 'Interactive Mode',
                 style: TextStyle(
                   color: isInteractiveMode ? Colors.orangeAccent : Colors.white,
-                  fontSize: 8,
+                  fontSize: 9,
                 ),
               ),
             ),

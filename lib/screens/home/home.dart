@@ -88,6 +88,7 @@ class Home extends ConsumerWidget {
     return ImageSlideshow(
       initialPage: 0,
       indicatorColor: Colors.orangeAccent,
+      indicatorBottomPadding: 0,
       indicatorBackgroundColor: Colors.grey,
       children: [
         Padding(
