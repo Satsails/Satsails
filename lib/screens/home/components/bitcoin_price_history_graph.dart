@@ -123,9 +123,7 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
         _buildDateRangeButton(ref, 1, '1D'),
         _buildDateRangeButton(ref, 7, '7D'),
         _buildDateRangeButton(ref, 30, '1M'),
-        _buildDateRangeButton(ref, 90, '3M'),
         _buildDateRangeButton(ref, 365, '1Y'),
-        const SizedBox(width: 10),
         Column(
           children: [
             Switch(

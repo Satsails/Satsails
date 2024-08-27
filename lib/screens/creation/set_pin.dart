@@ -34,7 +34,7 @@ class SetPin extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: PinCodeTextField(
                     appContext: context,
                     length: 6,

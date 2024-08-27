@@ -41,7 +41,7 @@ class OpenPin extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: PinCodeTextField(
                     appContext: context,
                     length: 6,

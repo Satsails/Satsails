@@ -14,7 +14,7 @@ Widget buildQrCode(String address, BuildContext context) {
         child: QrImageView(
           data: address,
           version: QrVersions.auto,
-          size: MediaQuery.of(context).size.width * 0.6,
+          size: MediaQuery.of(context).size.width * 0.5,
           eyeStyle: const QrEyeStyle(
             eyeShape: QrEyeShape.square,
             color: Colors.orange,
