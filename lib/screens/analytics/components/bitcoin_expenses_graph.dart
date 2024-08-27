@@ -34,6 +34,10 @@ class LineChartSample extends StatelessWidget {
     return SfCartesianChart(
       primaryXAxis: DateTimeAxis(
         isVisible: true,
+        labelStyle: TextStyle(color: Colors.white),
+        majorGridLines: MajorGridLines(width: 0),
+        minorGridLines: MinorGridLines(width: 0),
+        axisLine: AxisLine(width: 0),
       ),
       primaryYAxis: NumericAxis(
         isVisible: true,
@@ -42,6 +46,7 @@ class LineChartSample extends StatelessWidget {
             : 0, // Default value when balanceInCurrency.values is empty
         majorGridLines: const MajorGridLines(width: 0),
         minorGridLines: const MinorGridLines(width: 0),
+        labelStyle: TextStyle(color: Colors.white),
       ),
       plotAreaBorderWidth: 0,
       trackballBehavior: TrackballBehavior(
@@ -70,18 +75,10 @@ class LineChartSample extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(5),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.white.withOpacity(0.5),
-                  spreadRadius: 1,
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                ),
-              ],
             ),
             child: Text(
               isShowingMainData ? displayString : displayStringIfNotMainData,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.black),
             ),
           );
         },
@@ -160,16 +157,6 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
 
     return Column(
       children: <Widget>[
-        LineChartSample(
-          selectedDays: selectedDays,
-          feeData: feeData,
-          incomeData: incomeData,
-          spendingData: spendingData,
-          mainData: !isShowingMainData ? bitcoinBalanceByDay : null,
-          balanceInCurrency: calculateBalanceInCurrency(bitcoinBalanceByDayUnformatted, currencyRate),
-          selectedCurrency: selectedCurrency,
-          isShowingMainData: !isShowingMainData,
-        ),
         Center(
           child: TextButton(
             child: Text(
@@ -181,6 +168,18 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
                 isShowingMainData = !isShowingMainData;
               });
             },
+          ),
+        ),
+        Expanded(  // This makes the LineChartSample expand to take up available space
+          child: LineChartSample(
+            selectedDays: selectedDays,
+            feeData: feeData,
+            incomeData: incomeData,
+            spendingData: spendingData,
+            mainData: !isShowingMainData ? bitcoinBalanceByDay : null,
+            balanceInCurrency: calculateBalanceInCurrency(bitcoinBalanceByDayUnformatted, currencyRate),
+            selectedCurrency: selectedCurrency,
+            isShowingMainData: !isShowingMainData,
           ),
         ),
         Row(
@@ -206,7 +205,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
           color: color,
         ),
         const SizedBox(width: 5),
-        Text(label),
+        Text(label, style: const TextStyle(color: Colors.white)),
       ],
     );
   }

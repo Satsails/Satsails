@@ -51,7 +51,7 @@ class LineChartSample extends StatelessWidget {
           decimalPlaces: 8,
         ),
         builder: (BuildContext context, TrackballDetails trackballDetails) {
-          final DateFormat formatter = DateFormat('dd/MM');
+          final DateFormat formatter = DateFormat('dd/MM/yyyy');
           final DateTime date = trackballDetails.point!.x;
           final num? value = trackballDetails.point!.y;
           final String formattedDate = formatter.format(date);

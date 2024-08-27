@@ -1,4 +1,5 @@
 import 'package:Satsails/screens/analytics/components/button_picker.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +21,21 @@ class BuildTransactions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02, horizontal: screenWidth * 0.2),
+      child: CustomButton(
+        onPressed: () => _showTransactionModal(context, ref),
+        text: 'See all Transactions'.i18n(ref),
+        primaryColor: Colors.transparent,
+        secondaryColor: Colors.transparent,
+        textColor: Colors.white,
+      ),
+    );
+  }
+
+  void _showTransactionModal(BuildContext context, WidgetRef ref) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     final List bitcoinTransactions;
     final List liquidTransactions;
@@ -30,50 +46,66 @@ class BuildTransactions extends ConsumerWidget {
     allTx.addAll(bitcoinTransactions);
     allTx.addAll(liquidTransactions);
 
-    return Container(
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        color: Colors.white,
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Makes the modal sheet full screen if needed
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: SizedBox(
-        width: screenWidth, // use screenWidth here
-        height: screenHeight - kToolbarHeight, // use screenHeight here
-        child: LiquidPullToRefresh(
-          onRefresh: () async {
-            ref.read(backgroundSyncNotifierProvider).performSync();
-          },
-          color: Colors.orangeAccent,
-          showChildOpacityTransition: false,
-          child: ListView.builder(
-            itemCount: txLength(bitcoinTransactions, liquidTransactions, ref),
-            itemBuilder: (BuildContext context, int index) {
-              switch (transationType) {
-                case 'Bitcoin':
-                  if (index < bitcoinTransactions.length) {
-                    return _buildTransactionItem(bitcoinTransactions[index], context, ref);
-                  } else if (bitcoinTransactions.isEmpty) {
-                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey))); // use screenHeight here
-                  }
-                case 'Liquid':
-                  if (index < liquidTransactions.length) {
-                    return _buildTransactionItem(liquidTransactions[index], context, ref);
-                  } else if (liquidTransactions.isEmpty) {
-                    return Center(child: Text('Pull up to refresh'.i18n(ref).i18n(ref), style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey))); // use screenHeight here
-                  }
-                default:
-                  if (index < allTx.length) {
-                    return _buildTransactionItem(allTx[index], context, ref);
-                  } else {
-                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey))); // use screenHeight here
-                  }
-              }
-              return null;
-            },
+      builder: (BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            color: Color.fromARGB(255, 29, 29, 29),
           ),
-        ),
-      ),
+          child: SizedBox(
+            width: screenWidth,
+            height: screenHeight * 0.75, // Use 75% of screen height for the modal sheet
+            child: LiquidPullToRefresh(
+              onRefresh: () async {
+                ref.read(backgroundSyncNotifierProvider).performSync();
+              },
+              color: Colors.orange,
+              showChildOpacityTransition: false,
+              child: ListView.builder(
+                itemCount: txLength(bitcoinTransactions, liquidTransactions, ref),
+                itemBuilder: (BuildContext context, int index) {
+                  switch (transationType) {
+                    case 'Bitcoin':
+                      if (index < bitcoinTransactions.length) {
+                        return _buildTransactionItem(bitcoinTransactions[index], context, ref);
+                      } else if (bitcoinTransactions.isEmpty) {
+                        return Center(
+                            child: Text('Pull up to refresh'.i18n(ref),
+                                style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey)));
+                      }
+                    case 'Liquid':
+                      if (index < liquidTransactions.length) {
+                        return _buildTransactionItem(liquidTransactions[index], context, ref);
+                      } else if (liquidTransactions.isEmpty) {
+                        return Center(
+                            child: Text('Pull up to refresh'.i18n(ref),
+                                style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey)));
+                      }
+                    default:
+                      if (index < allTx.length) {
+                        return _buildTransactionItem(allTx[index], context, ref);
+                      } else {
+                        return Center(
+                            child: Text('Pull up to refresh'.i18n(ref),
+                                style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey)));
+                      }
+                  }
+                  return null;
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
+
 
   int txLength(List<dynamic> bitcoinTransactions, List<dynamic> liquidTransactions, ref) {
     final transationType = ref.watch(transactionTypeShowProvider);
@@ -107,16 +139,8 @@ class BuildTransactions extends ConsumerWidget {
       return Container(
         margin: EdgeInsets.all(dynamicMargin),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.black,
           borderRadius: BorderRadius.circular(dynamicRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: const Offset(0, 3),
-            ),
-          ],
         ),
         child: _buildBitcoinTransactionItem(transaction, context, ref),
       );
@@ -124,16 +148,8 @@ class BuildTransactions extends ConsumerWidget {
       return Container(
         margin: EdgeInsets.all(dynamicMargin),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.black,
           borderRadius: BorderRadius.circular(dynamicRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: const Offset(0, 3),
-            ),
-          ],
         ),
         child: _buildLiquidTransactionItem(transaction, context, ref),
       );
@@ -160,20 +176,20 @@ class BuildTransactions extends ConsumerWidget {
             leading: Column(
               children: [
                 _transactionTypeIcon(transaction),
-                Text(_transactionAmountInFiat(transaction, ref), style: TextStyle(fontSize: dynamicFontSize)),
+                Text(_transactionAmountInFiat(transaction, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
               ],
             ),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(_transactionTypeString(transaction, ref), style: TextStyle(fontSize: dynamicFontSize)),
-                Text(_transactionAmount(transaction, ref), style: TextStyle(fontSize: dynamicFontSize)),
+                Text(_transactionTypeString(transaction, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
+                Text(_transactionAmount(transaction, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
               ],
             ),
             // subtitle: Text("Fee: ${_transactionFee(transaction, ref)}", style: TextStyle(fontSize: dynamicFontSize)),
-            subtitle: Text(timestampToDateTime(transaction.confirmationTime?.timestamp), style: TextStyle(fontSize: dynamicFontSize)),
+            subtitle: Text(timestampToDateTime(transaction.confirmationTime?.timestamp), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
             trailing: _confirmationStatus(transaction, ref) == 'Confirmed'.i18n(ref)
-                ? const Icon(Icons.check_circle, color: Colors.green)
+                ? const Icon(Icons.check_circle_outlined, color: Colors.green)
                 : const Icon(Icons.access_alarm_outlined, color: Colors.red),
           ),
         ),
@@ -206,7 +222,7 @@ class BuildTransactions extends ConsumerWidget {
                 // subtitle: Text("Fee: ${_transactionValueLiquid(transaction.fee, ref)}",style: TextStyle(fontSize: dynamicFontSize)),
                 subtitle: Text(timestampToDateTime(transaction.timestamp),style: TextStyle(fontSize: dynamicFontSize)),
                 trailing: transaction.outputs.isNotEmpty && transaction.outputs[0].height != null || transaction.inputs.isNotEmpty && transaction.inputs[0].height != null
-                    ? const Icon(Icons.check_circle, color: Colors.green)
+                    ? const Icon(Icons.check_circle_outlined, color: Colors.green)
                     : const Icon(Icons.access_alarm_outlined, color: Colors.red),
                 children: transaction.balances.map((balance) {
                   return GestureDetector(
