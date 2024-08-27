@@ -23,7 +23,6 @@ class SeedWords extends ConsumerWidget {
           'Seed Words'.i18n(ref),
           style: const TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(

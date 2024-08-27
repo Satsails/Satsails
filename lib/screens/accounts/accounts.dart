@@ -30,8 +30,7 @@ class Accounts extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         automaticallyImplyLeading: false,
-        title: Text('Account Management'.i18n(ref), style: TextStyle(
-            fontSize: screenWidth * 0.06, color: Colors.white)),
+        title: Center(child: Text('Account Management'.i18n(ref), style: TextStyle(color: Colors.white))),
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: ref.watch(navigationProvider),

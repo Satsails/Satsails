@@ -28,7 +28,7 @@ class OpenPin extends ConsumerWidget {
           backgroundColor: Colors.black,
           automaticallyImplyLeading: openSeed ? true : false,
           leading: openSeed ? IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
               Navigator.pushReplacementNamed(context, '/settings');
             },

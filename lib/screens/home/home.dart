@@ -67,7 +67,7 @@ class Home extends ConsumerWidget {
               final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
               return initializeBalance.when(
                   data: (balance) => balance.isEmpty
-                      ? BitcoinPriceHistoryGraph()
+                      ? const BitcoinPriceHistoryGraph()
                       : walletWidget(ref, context, percentageOfEachCurrency),
                   loading: () =>Center(child: LoadingAnimationWidget.threeArchedCircle(size: 100, color: Colors.orange)),
               error: (error, stack) =>
@@ -94,7 +94,7 @@ class Home extends ConsumerWidget {
           padding: const EdgeInsets.all(16.0),
           child: buildDiagram(context, percentageOfEachCurrency),
         ),
-        BitcoinPriceHistoryGraph(),
+        const BitcoinPriceHistoryGraph(),
       ],
     );
   }

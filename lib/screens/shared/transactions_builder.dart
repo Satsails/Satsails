@@ -25,7 +25,7 @@ class BuildTransactions extends ConsumerWidget {
       padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02, horizontal: screenWidth * 0.2),
       child: CustomButton(
         onPressed: () => _showTransactionModal(context, ref),
-        text: 'See all Transactions'.i18n(ref),
+        text: 'See Full History'.i18n(ref),
         primaryColor: Colors.transparent,
         secondaryColor: Colors.transparent,
         textColor: Colors.white,
@@ -215,12 +215,12 @@ class BuildTransactions extends ConsumerWidget {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(liquidTransactionType(transaction, ref), style: TextStyle(fontSize: dynamicFontSize)),
-                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: TextStyle(fontSize: dynamicFontSize)) : Text('Multiple'.i18n(ref), style: TextStyle(fontSize: dynamicFontSize)),
+                    Text(liquidTransactionType(transaction, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
+                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)) : Text('Multiple'.i18n(ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
                   ],
                 ),
                 // subtitle: Text("Fee: ${_transactionValueLiquid(transaction.fee, ref)}",style: TextStyle(fontSize: dynamicFontSize)),
-                subtitle: Text(timestampToDateTime(transaction.timestamp),style: TextStyle(fontSize: dynamicFontSize)),
+                subtitle: Text(timestampToDateTime(transaction.timestamp),style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
                 trailing: transaction.outputs.isNotEmpty && transaction.outputs[0].height != null || transaction.inputs.isNotEmpty && transaction.inputs[0].height != null
                     ? const Icon(Icons.check_circle_outlined, color: Colors.green)
                     : const Icon(Icons.access_alarm_outlined, color: Colors.red),
@@ -235,12 +235,12 @@ class BuildTransactions extends ConsumerWidget {
                       trailing: Column(
                         children: [
                           _subTransactionIcon(balance.value),
-                          Text(_liquidTransactionAmountInFiat(balance, ref), style: TextStyle(fontSize: dynamicFontSize)),
+                          Text(_liquidTransactionAmountInFiat(balance, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
                         ],
                       ),
-                      title: Text(AssetMapper.mapAsset(balance.assetId).name, style: TextStyle(fontSize: dynamicFontSize)),
+                      title: Text(AssetMapper.mapAsset(balance.assetId).name, style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
                       subtitle: Text(_valueOfLiquidSubTransaction(
-                          AssetMapper.mapAsset(balance.assetId), balance.value, ref), style: TextStyle(fontSize: dynamicFontSize)),
+                          AssetMapper.mapAsset(balance.assetId), balance.value, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
                     ),
                   );
                 }).toList(),

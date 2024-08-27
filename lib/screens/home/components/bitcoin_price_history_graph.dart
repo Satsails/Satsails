@@ -126,24 +126,25 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
         _buildDateRangeButton(ref, 365, '1Y'),
         Column(
           children: [
-            Switch(
-              value: isInteractiveMode,
-              onChanged: (bool value) {
-                ref.read(interactiveModeProvider.notifier).state = value;
+            TextButton(
+              onPressed: () {
+                ref.read(interactiveModeProvider.notifier).state = !isInteractiveMode;
               },
-              activeColor: Colors.orangeAccent,
-              inactiveThumbColor: Colors.grey,
-              inactiveTrackColor: Colors.grey[700],
-            ),
-            Text(
-              'Interactive Mode',
-              style: TextStyle(
-                color: isInteractiveMode ? Colors.orangeAccent : Colors.white,
-                fontSize: 9,
+              style: TextButton.styleFrom(
+                foregroundColor: isInteractiveMode ? Colors.orangeAccent : Colors.grey,
+              ),
+              child:
+              Text(
+                'Interactive Mode',
+                style: TextStyle(
+                  color: isInteractiveMode ? Colors.orangeAccent : Colors.white,
+                  fontSize: 8,
+                ),
               ),
             ),
           ],
-        ),
+        )
+
       ],
     );
   }

@@ -87,11 +87,11 @@ class LineChartSample extends StatelessWidget {
     );
   }
 
-  List<SplineSeries<MapEntry<DateTime, num>, DateTime>> _chartSeries() {
-    final seriesList = <SplineSeries<MapEntry<DateTime, num>, DateTime>>[];
+  List<LineSeries<MapEntry<DateTime, num>, DateTime>> _chartSeries() {
+    final seriesList = <LineSeries<MapEntry<DateTime, num>, DateTime>>[];
 
     if (mainData != null && isShowingMainData) {
-      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Main Data',
         dataSource: mainData!.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
@@ -101,7 +101,7 @@ class LineChartSample extends StatelessWidget {
         animationDuration: 0,
       ));
     } else {
-      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Spending',
         dataSource: spendingData.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
@@ -110,7 +110,7 @@ class LineChartSample extends StatelessWidget {
         markerSettings: const MarkerSettings(isVisible: false),
         animationDuration: 0,
       ));
-      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Income',
         dataSource: incomeData.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
@@ -119,7 +119,7 @@ class LineChartSample extends StatelessWidget {
         markerSettings: const MarkerSettings(isVisible: false),
         animationDuration: 0,
       ));
-      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Fee',
         dataSource: feeData.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
@@ -133,6 +133,7 @@ class LineChartSample extends StatelessWidget {
     return seriesList;
   }
 }
+
 
 class ExpensesGraph extends ConsumerStatefulWidget {
   const ExpensesGraph({super.key});
@@ -170,6 +171,16 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
             },
           ),
         ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: !isShowingMainData
+              ? [_buildLegend('Balance'.i18n(ref), Colors.orangeAccent)]
+              : [
+            _buildLegend('Spending'.i18n(ref), Colors.blueAccent),
+            _buildLegend('Income'.i18n(ref), Colors.greenAccent),
+            _buildLegend('Fee'.i18n(ref), Colors.orangeAccent),
+          ],
+        ),
         Expanded(  // This makes the LineChartSample expand to take up available space
           child: LineChartSample(
             selectedDays: selectedDays,
@@ -181,16 +192,6 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
             selectedCurrency: selectedCurrency,
             isShowingMainData: !isShowingMainData,
           ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: !isShowingMainData
-              ? [_buildLegend('Balance'.i18n(ref), Colors.orangeAccent)]
-              : [
-            _buildLegend('Spending'.i18n(ref), Colors.blueAccent),
-            _buildLegend('Income'.i18n(ref), Colors.greenAccent),
-            _buildLegend('Fee'.i18n(ref), Colors.orangeAccent),
-          ],
         ),
       ],
     );

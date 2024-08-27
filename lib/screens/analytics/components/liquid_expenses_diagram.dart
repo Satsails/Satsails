@@ -4,7 +4,7 @@ import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/screens/analytics/components/liquid_expenses_graph.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/expenses_model.dart';
@@ -25,30 +25,32 @@ class LiquidExpensesDiagram extends ConsumerWidget {
     final oneDay = ref.watch(oneDayProvider);
 
     List<Widget> cards = [
-      Column(
-        children: [
-          Text(
-            '${'Current Balance'.i18n(ref)}: $liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("Bitcoin", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.white)),
-              const Icon(Icons.swipe_vertical, color: Colors.white),
-            ],
-          ),
-          if (oneDay)
+      Expanded(
+        child: Column(
+          children: [
+            Text(
+              '${'Current Balance'.i18n(ref)}: $liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white),
+            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
-                _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
-                _buildCard('Fee'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee,[Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                Text("Bitcoin", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.white)),
+                const Icon(Icons.swipe, color: Colors.white),
               ],
             ),
-          if (!oneDay)
-            ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.LBTC)),
-        ],
+            if (oneDay)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                  _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                  _buildCard('Fee'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee,[Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                ],
+              ),
+            if (!oneDay)
+              Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.LBTC))),
+          ],
+        ),
       ),
       Column(
         children: [
@@ -59,7 +61,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text("Depix", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.white)),
-              const Icon(Icons.swipe_vertical, color: Colors.white),
+              const Icon(Icons.swipe, color: Colors.white),
             ],
           ),
           if (oneDay)
@@ -71,7 +73,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               ],
             ),
           if (!oneDay)
-            ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.BRL)),
+            Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.BRL))),
         ],
       ),
       Column(
@@ -83,7 +85,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text("USDt", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.white)),
-              const Icon(Icons.swipe_vertical, color: Colors.white),
+              const Icon(Icons.swipe, color: Colors.white),
             ],
           ),
           if (oneDay)
@@ -95,7 +97,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               ],
             ),
           if (!oneDay)
-            ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.USD)),
+            Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.USD))),
         ],
       ),
       Column(
@@ -107,7 +109,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text("EURx", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.white)),
-              const Icon(Icons.swipe_vertical, color: Colors.white),
+              const Icon(Icons.swipe, color: Colors.white),
             ],
           ),
           if (oneDay)
@@ -119,20 +121,18 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               ],
             ),
           if (!oneDay)
-            ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.EUR)),
+            Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.EUR))),
         ],
       ),
     ];
 
-    return SizedBox(
-      height: screenHeight * 0.42,
-      child: CardSwiper(
-        scale: 0,
-        padding: const EdgeInsets.all(0),
-        allowedSwipeDirection: const AllowedSwipeDirection.symmetric(vertical: true),
-        cardsCount: cards.length,
-        initialIndex: 0,
-        cardBuilder: (context, index, percentThresholdX, percentThresholdY) { return cards[index]; },
+    return Expanded(
+      child: ImageSlideshow(
+        initialPage: 0,
+        indicatorBottomPadding: 0,
+        indicatorColor: Colors.orangeAccent,
+        indicatorBackgroundColor: Colors.grey,
+        children: cards,
       ),
     );
   }

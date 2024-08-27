@@ -166,12 +166,15 @@ final bitcoinBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((
   return balancePerDay;
 });
 
-
-
 final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
+  // Set a historical range of 5 years before the selected start date.
   final DateTimeSelect dateTimeSelect = ref.watch(dateTimeSelectProvider);
+  final DateTime historicalStart = normalizeDate(
+    DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.start * 1000).subtract(const Duration(days: 365 * 5)),
+  );
   final DateTime start = normalizeDate(DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.start * 1000));
   final DateTime end = normalizeDate(DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.end * 1000));
+
   final balanceOverPeriod = ref.watch(bitcoinBalanceOverPeriod);
   final selectedDays = ref.watch(selectedDaysDateArrayProvider);
 
@@ -179,48 +182,31 @@ final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<Date
   num lastKnownBalance = 0;
 
   if (balanceOverPeriod.isEmpty || selectedDays.isEmpty) {
-    return balancePerDay; // Return empty map if there's no data
+    return balancePerDay; // Return an empty map if there's no data.
   }
 
-  if (selectedDays.any((day) => day.isBefore(balanceOverPeriod.keys.first))) {
-    for (DateTime day in selectedDays.where((day) => day.isBefore(balanceOverPeriod.keys.first))) {
-      balancePerDay[normalizeDate(day)] = 0;
-    }
-  }
-
-  for (var entry in balanceOverPeriod.entries) {
-    final balanceDate = entry.key;
-    if (balanceDate.isAfter(start) && balanceDate.isBefore(end.add(const Duration(days: 1)))) {
-      lastKnownBalance = entry.value;
-      balancePerDay[balanceDate] = lastKnownBalance;
-    }
-  }
-
+  // Only process balances for the days present in selectedDays
   for (DateTime day in selectedDays) {
     final normalizedDay = normalizeDate(day);
-    if (!balancePerDay.containsKey(normalizedDay)) {
-      if (normalizedDay.isBefore(balanceOverPeriod.keys.first)) {
-        balancePerDay[normalizedDay] = 0;
-      } else if (normalizedDay.isAfter(balanceOverPeriod.keys.last)) {
-        balancePerDay[normalizedDay] = balanceOverPeriod[balanceOverPeriod.keys.last]!;
-      } else {
-        balancePerDay[normalizedDay] = lastKnownBalance;
-      }
-    } else {
-      lastKnownBalance = balancePerDay[normalizedDay]!;
-    }
-  }
 
-  if (balancePerDay.keys.last.isBefore(selectedDays.last)) {
-    for (DateTime day = balancePerDay.keys.last.add(const Duration(days: 1)); day.isBefore(selectedDays.last.add(const Duration(days: 1))); day = day.add(const Duration(days: 1))) {
-      balancePerDay[day] = lastKnownBalance;
+    if (normalizedDay.isBefore(balanceOverPeriod.keys.first)) {
+      // If the day is before the first transaction, the balance is 0.
+      balancePerDay[normalizedDay] = 0;
+    } else if (balanceOverPeriod.containsKey(normalizedDay)) {
+      // If there is an exact match in balanceOverPeriod, use that balance.
+      lastKnownBalance = balanceOverPeriod[normalizedDay]!;
+      balancePerDay[normalizedDay] = lastKnownBalance;
+    } else if (normalizedDay.isAfter(balanceOverPeriod.keys.last)) {
+      // If the day is after the last known transaction, use the last known balance.
+      balancePerDay[normalizedDay] = lastKnownBalance;
+    } else {
+      // If the day falls between known transactions, continue the last known balance.
+      balancePerDay[normalizedDay] = lastKnownBalance;
     }
   }
 
   return balancePerDay;
 });
-
-
 
 final bitcoinBalanceInFormatByDayProvider = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
   final balanceByDay = ref.watch(bitcoinBalanceOverPeriodByDayProvider);

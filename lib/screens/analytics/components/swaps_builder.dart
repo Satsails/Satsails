@@ -41,29 +41,21 @@ class SwapsBuilder extends ConsumerWidget {
               },
             );
           },
-          loading: () => LoadingAnimationWidget.threeArchedCircle(size: screenWidth * 0.5, color: Colors.white), // 50% of screen width
-          error: (error, stackTrace) => Center(child: Text('Error: $error', style: TextStyle(fontSize: screenWidth * 0.05))), // 5% of screen width
+          loading: () => LoadingAnimationWidget.threeArchedCircle(size: screenWidth * 0.5, color: Colors.white),
+          error: (error, stackTrace) => Center(child: Text('Error: $error', style: TextStyle(fontSize: screenWidth * 0.05))),
         );
       },
-      loading: () => LoadingAnimationWidget.threeArchedCircle(size: screenWidth * 0.5, color: Colors.white), // 50% of screen width
-      error: (error, stackTrace) => Center(child: Text('Error: $error', style: TextStyle(fontSize: screenWidth * 0.05))), // 5% of screen width
+      loading: () => LoadingAnimationWidget.threeArchedCircle(size: screenWidth * 0.5, color: Colors.white),
+      error: (error, stackTrace) => Center(child: Text('Error: $error', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white))),
     );
   }
 
   Widget _buildFiatTransactionItem(SideswapCompletedSwap swap, BuildContext context, WidgetRef ref, double screenWidth) {
     return Container(
-      margin: EdgeInsets.all(screenWidth * 0.02), // 2% of screen width
+      margin: EdgeInsets.all(screenWidth * 0.02),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(screenWidth * 0.0375), // 3.75% of screen width
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: screenWidth * 0.0125, // 1.25% of screen width
-            blurRadius: screenWidth * 0.0175, // 1.75% of screen width
-            offset: const Offset(0, 3),
-          ),
-        ],
+        color: Color.fromARGB(255, 29, 29, 29),
+        borderRadius: BorderRadius.circular(screenWidth * 0.0375),
       ),
       child: _buildFiatSwapTransactionItem(swap, context, ref, screenWidth),
     );
@@ -74,34 +66,39 @@ class SwapsBuilder extends ConsumerWidget {
       children: [
         ListTile(
           leading: const Icon(Icons.swap_calls_rounded, color: Colors.orange),
-          title: Column(
-            children: [
-              Center(child: Text("Fiat Swap".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.0375, fontWeight: FontWeight.bold))), // 3.75% of screen width
-            ],
+          title: Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Text("Fiat Swap".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.0375, fontWeight: FontWeight.bold, color: Colors.white)),
           ),
           subtitle: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Column(
                 children: [
-                  Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.sendAsset)), style: TextStyle(fontSize: screenWidth * 0.04)), // 4% of screen width
+                  Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.sendAsset)), style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white, fontWeight: FontWeight.bold)),
                   Text(
                       _assetNameFromTicker(AssetMapper.mapAsset(swap.sendAsset)) == 'BTC'
                           ? ref.watch(conversionProvider(swap.sendAmount.toInt()))
                           : (swap.sendAmount / 100000000).toStringAsFixed(2),
-                      style: TextStyle(fontSize: screenWidth * 0.04) // 4% of screen width
+                      style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
                   ),
                 ],
               ),
-              const Icon(Icons.arrow_forward, color: Colors.orange),
+              SizedBox(width: screenWidth * 0.1),
               Column(
                 children: [
-                  Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)), style: TextStyle(fontSize: screenWidth * 0.04)), // 4% of screen width
+                  const Icon(Icons.arrow_forward, color: Colors.orange, size: 30),
+                  Text("More Details".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.02, color: Colors.white)),
+                ],
+              ),
+              Column(
+                children: [
+                  Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)), style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white, fontWeight: FontWeight.bold)),
                   Text(
                       _assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)) == 'BTC'
                           ? ref.watch(conversionProvider((swap.recvAmount).toInt()))
                           : (swap.recvAmount / 100000000).toStringAsFixed(2),
-                      style: TextStyle(fontSize: screenWidth * 0.04) // 4% of screen width
+                      style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
                   ),
                 ],
               ),
@@ -134,18 +131,10 @@ class SwapsBuilder extends ConsumerWidget {
 
   Widget _buildTransactionItem(SideswapPegStatus swap, BuildContext context, WidgetRef ref, double screenWidth) {
     return Container(
-      margin: EdgeInsets.all(screenWidth * 0.02), // 2% of screen width
+      margin: EdgeInsets.all(screenWidth * 0.02),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(screenWidth * 0.0375), // 3.75% of screen width
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: screenWidth * 0.0125, // 1.25% of screen width
-            blurRadius: screenWidth * 0.0175, // 1.75% of screen width
-            offset: const Offset(0, 3),
-          ),
-        ],
+        color: Color.fromARGB(255, 29, 29, 29),
+        borderRadius: BorderRadius.circular(screenWidth * 0.0375),
       ),
       child: _buildSwapTransactionItem(swap, context, ref, screenWidth),
     );
@@ -155,14 +144,50 @@ class SwapsBuilder extends ConsumerWidget {
     return Column(
       children: [
         ListTile(
-          leading: const Icon(Icons.swap_horizontal_circle, color: Colors.orange),
-          title: Center(child: Text(_timestampToDateTime(swap.createdAt!), style: TextStyle(fontSize: screenWidth * 0.0375, fontWeight: FontWeight.bold))), // 3.75% of screen width
+          leading: const Icon(Icons.swap_horizontal_circle_outlined, color: Colors.orange),
+          title: Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Column(
+                children: [
+                  Text(
+                    'Layer Swap'.i18n(ref),
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.0375,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    _timestampToDateTime(swap.createdAt!),
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.025,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           subtitle: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              swap.pegIn! ? const Text("Bitcoin", style: TextStyle(fontSize: 16)) : const Text("Liquid Bitcoin", style: TextStyle(fontSize: 16)),
-              const Icon(Icons.arrow_forward, color: Colors.orange),
-              swap.pegIn! ? const Text("Liquid", style: TextStyle(fontSize: 16)) : const Text("Bitcoin", style: TextStyle(fontSize: 16)),
+              Text(
+                swap.pegIn! ? "Bitcoin" : "Liquid Bitcoin",
+                style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
+              ),
+              SizedBox(width: screenWidth * 0.1),
+              Column(
+                children: [
+                  const Icon(Icons.arrow_forward, color: Colors.orange, size: 30),
+                  Text("More Details".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.02, color: Colors.white)),
+                ],
+              ),
+              Text(
+                swap.pegIn! ? "Liquid Bitcoin" : "Bitcoin",
+                style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
+              ),
             ],
           ),
           onTap: () {
@@ -174,6 +199,7 @@ class SwapsBuilder extends ConsumerWidget {
       ],
     );
   }
+
 
   void _showDetailsPage(BuildContext context, SideswapPegStatus swap) {
     Navigator.push(
