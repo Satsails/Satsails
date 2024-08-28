@@ -58,4 +58,24 @@ class Transfer {
       updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
     );
   }
+
+  Transfer.empty() : this(
+    id: 0,
+    name: '',
+    transferId: '',
+    cpf: '',
+    sentAmount: 0.0,
+    originalAmount: 0.0,
+    mintFees: 0.0,
+    paymentId: '',
+    completedTransfer: false,
+    processing: false,
+    receivedTxid: '',
+    sentTxid: '',
+    receipt: '',
+    userId: 0,
+    createdAt: DateTime.now(),
+    updatedAt: DateTime.now(),
+    receivedAmount: 0.0,
+  );
 }

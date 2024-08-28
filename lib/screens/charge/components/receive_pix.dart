@@ -169,7 +169,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       error: (error, stack) => Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: Text('An error has occurred. Please check your internet connection or contact support'.i18n(ref)),
+          child: Text('An error has occurred. Please check your internet connection or contact support'.i18n(ref), style: TextStyle(color: Colors.red)),
         ),
       ),
       data: (amountTransferred) {
@@ -201,9 +201,16 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                 const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'You can transfer up to'.i18n(ref) + ' $_remainingLimit BRL' + ' per day'.i18n(ref),
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.warning_amber, color: Colors.red),
+                      SizedBox(width: 1),
+                      Text(
+                        'You can transfer up to'.i18n(ref) + ' $_remainingLimit BRL' + ' per day'.i18n(ref),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                      ),
+                    ],
                   ),
                 ),
                 Padding(
@@ -216,15 +223,16 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       CommaTextInputFormatter(),
                     ],
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.03),
+                    style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.03, color: Colors.white),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey, width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.orange, width: 2.0),
+                        borderSide: BorderSide(color: Colors.grey, width: 2.0),
                       ),
-                      hintText: 'Insert an amount'.i18n(ref),
+                      labelText: 'Insert an amount'.i18n(ref),
+                      labelStyle: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.grey),
                     ),
                   ),
                 ),
@@ -235,11 +243,11 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       children: [
                         Text(
                           'You will receive: '.i18n(ref) + '${_amountToReceive.toStringAsFixed(2)} BRL',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.orange),
                         ),
                         Text(
                           _feeDescription,
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                          style: TextStyle(fontSize: 12, color: Colors.orange),
                         ),
                       ],
                     ),
@@ -252,11 +260,17 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     ),
                   )
                 else
-                  CustomButton(
-                    text: 'Generate Pix code'.i18n(ref),
-                    onPressed: () async {
-                      await _generateQRCode();
-                    },
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
+                    child: CustomButton(
+                      text: 'Generate Pix code'.i18n(ref),
+                      primaryColor: Colors.orange,
+                      secondaryColor: Colors.orange,
+                      textColor: Colors.black,
+                      onPressed: () async {
+                        await _generateQRCode();
+                      },
+                    ),
                   ),
                 const SizedBox(height: 20),
                 if (_pixQRCode.isNotEmpty) buildQrCode(_pixQRCode, context),

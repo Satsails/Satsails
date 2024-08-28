@@ -1,9 +1,9 @@
+import 'package:Satsails/providers/pix_transaction_details_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class PixHistory extends ConsumerWidget {
   @override
@@ -14,7 +14,7 @@ class PixHistory extends ConsumerWidget {
       data: (history) {
         if (history.isEmpty) {
           return Center(
-            child: Text('No Pix transactions'.i18n(ref)),
+            child: Text('No Pix transactions'.i18n(ref), style: TextStyle(color: Colors.white)),
           );
         }
         return ListView.builder(
@@ -26,41 +26,27 @@ class PixHistory extends ConsumerWidget {
             return Container(
               margin: EdgeInsets.all(dynamicMargin),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Color.fromARGB(255, 29, 29, 29),
                 borderRadius: BorderRadius.circular(dynamicRadius),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
               ),
               child: InkWell(
-                onTap: () async {
-                  if (pix.receipt != null) {
-                    if (await canLaunch(pix.receipt!)) {
-                      await launch(pix.receipt!);
-                    } else {
-                      throw 'Could not launch ${pix.receipt}';
-                    }
-                  }
+                onTap: ()  {
+                  ref.read(singleTransactionDetailsProvider.notifier).setTransaction(pix);
+                  Navigator.of(context).pushNamed('/pix_transaction_details');
                 },
                 child: ListTile(
-                  leading: const Icon(Icons.person, color: Colors.orange),
-                  title: Text(pix.name),
+                  leading: const Icon(Icons.arrow_downward_rounded, color: Colors.green),
+                  title: Text(pix.name, style: TextStyle(color: Colors.white)),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Received: ".i18n(ref) + pix.receivedAmount.toStringAsFixed(2)),
-                      Text("Tap to view receipt".i18n(ref)),
+                      Text("Received: ".i18n(ref) + pix.receivedAmount.toStringAsFixed(2), style: TextStyle(color: Colors.green)),
                       if (pix.sentTxid == null)
                         Container(
                           margin: EdgeInsets.only(top: 8.0),
                           padding: EdgeInsets.all(8.0),
                           decoration: BoxDecoration(
-                            color: Colors.yellow,
+                            color: Colors.orange,
                             borderRadius: BorderRadius.circular(dynamicRadius),
                           ),
                           child: Text(
@@ -70,7 +56,7 @@ class PixHistory extends ConsumerWidget {
                         ),
                     ],
                   ),
-                  trailing: const Icon(Icons.receipt_long, color: Colors.green),
+                  trailing: const Icon(Icons.receipt_long, color: Colors.green, size: 30),
                 ),
               ),
             );
@@ -86,7 +72,7 @@ class PixHistory extends ConsumerWidget {
       error: (error, stack) => Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: Text('An error has occurred. Please check your internet connection or contact support'.i18n(ref)),
+          child: Text('An error has occurred. Please check your internet connection or contact support'.i18n(ref), style: TextStyle(color: Colors.red)),
         ),
       ),
     );

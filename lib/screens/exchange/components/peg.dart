@@ -328,7 +328,7 @@ class _PegState extends ConsumerState<Peg> {
                 );
               },
               child: Container(
-                padding: EdgeInsets.all(dynamicPadding / 2),
+                padding: EdgeInsets.all(dynamicPadding / 2.3),
                 decoration: const BoxDecoration(
                   color: Colors.orange,
                   shape: BoxShape.circle,
@@ -336,7 +336,7 @@ class _PegState extends ConsumerState<Peg> {
                 child: const Icon(
                   Icons.warning, // Using warning as exclamation mark icon
                   color: Colors.black,
-                  size: 24.0,
+                  size: 20.0,
                 ),
               ),
             ),
@@ -355,7 +355,7 @@ class _PegState extends ConsumerState<Peg> {
       child: DropdownButton<dynamic>(
         hint: Text(
           "How fast would you like to receive your bitcoin".i18n(ref),
-          style: TextStyle(fontSize: titleFontSize / 2, color: Colors.orange),
+          style: TextStyle(fontSize: titleFontSize / 2.3, color: Colors.orange),
         ),
         dropdownColor: _selectedBlocks == 12 ? const Color(0xFF1A1A1A) : const Color(0xFF2B2B2B),
         items: status.map((dynamic value) {

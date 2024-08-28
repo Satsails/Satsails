@@ -11,10 +11,14 @@ class Pix extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedButton = ref.watch(topSelectedButtonProvider);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Pix'),
-        backgroundColor: Colors.white,
+        title: const Text('Pix', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: Center(
         child: Column(
