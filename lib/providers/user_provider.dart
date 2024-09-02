@@ -7,7 +7,7 @@ import 'package:hive/hive.dart';
 
 final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-final initializeUserProvider = FutureProvider.autoDispose<User>((ref) async {
+final initializeUserProvider = FutureProvider<User>((ref) async {
   final box = await Hive.openBox('user');
   final affiliateCode = box.get('affiliateCode', defaultValue: '');
   final hasInsertedAffiliate = box.get('hasInsertedAffiliate', defaultValue: false);
@@ -19,17 +19,25 @@ final initializeUserProvider = FutureProvider.autoDispose<User>((ref) async {
   return User(affiliateCode: affiliateCode, hasInsertedAffiliate: hasInsertedAffiliate, hasCreatedAffiliate: hasCreatedAffiliate, recoveryCode: recoveryCode, paymentId: paymentId, onboarded: onboarded);
 });
 
-final userProvider = StateNotifierProvider.autoDispose<UserModel, User>((ref) {
+final userProvider = StateNotifierProvider<UserModel, User>((ref) {
   final initialUser = ref.watch(initializeUserProvider);
 
   return UserModel(initialUser.when(
     data: (user) => user,
-    loading: () => User(affiliateCode: '', hasInsertedAffiliate: false, hasCreatedAffiliate: false, recoveryCode: '', paymentId: '', onboarded: false),
+    loading: () => User(
+      affiliateCode: '',
+      hasInsertedAffiliate: false,
+      hasCreatedAffiliate: false,
+      recoveryCode: '',
+      paymentId: '',
+      onboarded: false,
+    ),
     error: (Object error, StackTrace stackTrace) {
       throw error;
     },
   ));
 });
+
 
 final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
   final liquidAddress = await ref.read(liquidAddressProvider.future);
