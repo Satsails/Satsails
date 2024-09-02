@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CustomElevatedButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String text;
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final double fontSize;
   final Color backgroundColor;
   final Color textColor;
@@ -14,7 +14,7 @@ class CustomElevatedButton extends StatelessWidget {
     Key? key,
     required this.onPressed,
     required this.text,
-    required this.controller,
+    this.controller,
     this.fontSize = 16.0,
     this.backgroundColor = const Color(0xFFFFA726),
     this.textColor = Colors.black,
@@ -28,14 +28,14 @@ class CustomElevatedButton extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     return ElevatedButton(
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all<Color>(backgroundColor),
-        elevation: WidgetStateProperty.all<double>(elevation),
-        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+        backgroundColor: MaterialStateProperty.all<Color>(backgroundColor),
+        elevation: MaterialStateProperty.all<double>(elevation),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
         ),
-        padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
+        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
           EdgeInsets.symmetric(
             vertical: height * 0.015,
             horizontal: width * 0.15,

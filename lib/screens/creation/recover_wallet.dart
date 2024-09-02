@@ -242,6 +242,9 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                             controller: _controllers[index],
                             focusNode: _focusNodes[index],
                             style: const TextStyle(color: Colors.white),
+                            autocorrect: false, // Disable autocorrect
+                            enableSuggestions: false, // Disable suggestions
+                            keyboardType: TextInputType.visiblePassword, // Helps prevent suggestions
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                               labelText: '${'Word'.i18n(ref)} ${index + 1}',
@@ -268,7 +271,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                                 _selectedWordIndex = index;
                               });
                             },
-                          ),
+                          )
                         ],
                       );
                     },

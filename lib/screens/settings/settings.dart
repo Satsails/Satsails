@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/delete_wallet_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class Settings extends ConsumerWidget {
             _buildDivider(),
             _buildLanguageSection(ref, context),
             _buildDivider(),
-            _buildAffiliatesRedirectionSection(context, ref),
+            _buildUserSection(context, ref),
             _buildDivider(),
             DeleteWalletSection(ref: ref),
           ],
@@ -49,13 +50,17 @@ class Settings extends ConsumerWidget {
     );
   }
   
-  Widget _buildAffiliatesRedirectionSection(BuildContext context, WidgetRef ref) {
+  Widget _buildUserSection(BuildContext context, WidgetRef ref) {
     return ListTile(
-      leading: const Icon(Icons.monetization_on, color: Colors.white),
-      title: Text('Affiliates Section'.i18n(ref), style: const TextStyle(color: Colors.white)),
-      subtitle: Text('Start earning money'.i18n(ref), style: TextStyle(color: Colors.grey)),
+      leading: const Icon(Icons.supervised_user_circle_sharp, color: Colors.white),
+      title: Text('User Section'.i18n(ref), style: const TextStyle(color: Colors.white)),
+      subtitle: Text('Manage your anonymous account'.i18n(ref), style: TextStyle(color: Colors.grey)),
       onTap: () {
-        Navigator.pushNamed(context, '/start_affiliate');
+        if (ref.watch(userProvider).paymentId == '') {
+          Navigator.pushNamed(context, '/user_creation');
+        } else {
+          Navigator.pushNamed(context, '/user_view');
+        }
       },
     );
   }

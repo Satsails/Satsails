@@ -6,7 +6,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pix_flutter/pix_flutter.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
-import 'package:Satsails/providers/pix_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
@@ -28,8 +27,8 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
   bool _isLoading = false;
   String _feeDescription = 'Fee: 2% + 2 BRL';
 
-  double calculateFee(double amountInDouble, bool hasAffiliateCode, bool hasCreatedAffiliate, int numberOfAffiliateInstalls) {
-    if (hasAffiliateCode) {
+  double calculateFee(double amountInDouble, bool hasInsertedAffiliateCode, bool hasCreatedAffiliate, int numberOfAffiliateInstalls) {
+    if (hasInsertedAffiliateCode) {
       return amountInDouble * 0.015 + 2;
     } else if (hasCreatedAffiliate) {
       if (numberOfAffiliateInstalls > 1) {
@@ -42,8 +41,8 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     }
   }
 
-  String getFeeDescription(bool hasAffiliateCode, bool hasCreatedAffiliate, int numberOfAffiliateInstalls) {
-    if (hasAffiliateCode || (hasCreatedAffiliate && numberOfAffiliateInstalls > 1)) {
+  String getFeeDescription(bool hasInsertedAffiliateCode, bool hasCreatedAffiliate, int numberOfAffiliateInstalls) {
+    if (hasInsertedAffiliateCode || (hasCreatedAffiliate && numberOfAffiliateInstalls > 1)) {
       return 'Fee: 1.5% + 2 BRL (Affiliate Discount)';
     } else {
       return 'Fee: 2% + 2 BRL';
@@ -96,7 +95,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       return;
     }
 
-    final pixPaymentCode = ref.read(pixProvider).pixPaymentCode;
+    final pixPaymentCode = ref.read(userProvider).paymentId;
 
     PixFlutter pixFlutter = PixFlutter(
       payload: Payload(
@@ -121,7 +120,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     final txReceived = ref.watch(pixTransactionReceivedProvider);
     final amountTransferredAsyncValue = ref.watch(getAmountTransferredProvider);
 
-    final hasAffiliateCode = ref.watch(userProvider).hasAffiliate;
+    final hasInsertedAffiliateCode = ref.watch(userProvider).hasInsertedAffiliate;
     final hasCreatedAffiliate = ref.watch(userProvider).hasCreatedAffiliate;
     double fee = 0;
     double amountInDouble = 0;
@@ -186,8 +185,8 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
             error: (_, __) => 0,
           );
 
-          fee = calculateFee(amountInDouble, hasAffiliateCode, hasCreatedAffiliate, numberOfAffiliateInstalls);
-          _feeDescription = getFeeDescription(hasAffiliateCode, hasCreatedAffiliate, numberOfAffiliateInstalls);
+          fee = calculateFee(amountInDouble, hasInsertedAffiliateCode, hasCreatedAffiliate, numberOfAffiliateInstalls);
+          _feeDescription = getFeeDescription(hasInsertedAffiliateCode, hasCreatedAffiliate, numberOfAffiliateInstalls);
         }
 
         final double amountToReceive = amountInDouble - fee;

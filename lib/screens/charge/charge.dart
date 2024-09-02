@@ -1,8 +1,9 @@
-import 'package:Satsails/providers/pix_provider.dart';
-import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final onBoardingInProgressProvider = StateProvider<bool>((ref) => false);
 
 class Charge extends ConsumerWidget {
   const Charge({super.key});
@@ -10,7 +11,8 @@ class Charge extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final hasOnboarded = ref.watch(pixProvider).pixOnboarding;
+    final hasOnboarded = ref.watch(userProvider).onboarded ?? false;
+    final paymentId = ref.watch(userProvider).paymentId ?? '';
 
     return Scaffold(
       appBar: AppBar(
@@ -33,7 +35,7 @@ class Charge extends ConsumerWidget {
                 description: 'Send a pix and we will credit your wallet'.i18n(ref),
                 icon: Icons.qr_code,
                 screenWidth: screenWidth,
-                onPressed: () => hasOnboarded ? Navigator.of(context).pushNamed('/pix') : Navigator.of(context).pushNamed('/pix_onboarding'),
+                onPressed: () => _handleOnPress(ref, context, hasOnboarded, paymentId),
               ),
               const SizedBox(height: 16.0),
               PaymentMethodCard(
@@ -48,6 +50,19 @@ class Charge extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  void _handleOnPress(WidgetRef ref, BuildContext context, bool hasOnboarded, String paymentId) {
+    if (paymentId == '') {
+      ref.read(onBoardingInProgressProvider.notifier).state = true;
+      Navigator.of(context).pushNamed('/user_creation');
+    } else {
+      if (hasOnboarded) {
+        Navigator.of(context).pushNamed('/pix');
+      } else {
+        Navigator.of(context).pushNamed('/pix_onboarding');
+      }
+    }
   }
 }
 

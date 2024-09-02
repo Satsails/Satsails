@@ -1,9 +1,8 @@
-import 'package:Satsails/providers/pix_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
+import 'package:Satsails/screens/charge/charge.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -163,37 +162,10 @@ class PixOnBoarding extends ConsumerWidget {
               ],
               onDone: () async {
                 ref.read(loadingProvider.notifier).state = true;
-                try {
-                  await ref.read(pixProvider.notifier).setPixOnboarding(true);
-                  var paymentId = ref.read(pixProvider).pixPaymentCode;
-                  if (paymentId == "") {
-                    paymentId = await ref.read(createUserProvider.future);
-                  }
-                  Fluttertoast.showToast(
-                    msg: 'Wallet unique id created successfully'.i18n(ref),
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.TOP,
-                    timeInSecForIosWeb: 1,
-                    backgroundColor: Colors.green,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
-                  await ref.read(pixProvider.notifier).setPixOnboarding(true);
-                  Navigator.of(context).pushReplacementNamed('/pix');
-                } catch (e) {
-                  await ref.read(pixProvider.notifier).setPixOnboarding(false);
-                  Fluttertoast.showToast(
-                    msg: 'There was an error saving your code. Please try again or contact support'.i18n(ref),
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.TOP,
-                    timeInSecForIosWeb: 1,
-                    backgroundColor: Colors.red,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
-                } finally {
-                  ref.read(loadingProvider.notifier).state = false;
-                }
+                ref.read(onBoardingInProgressProvider.notifier).state = false;
+                await ref.read(userProvider.notifier).serOnboarded(true);
+                Navigator.of(context).pushReplacementNamed('/pix');
+                ref.read(loadingProvider.notifier).state = false;
               },
               showSkipButton: true,
               skip: Text('Skip'.i18n(ref), style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),

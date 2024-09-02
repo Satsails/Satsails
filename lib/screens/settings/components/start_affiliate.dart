@@ -10,10 +10,10 @@ class StartAffiliate extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hasAffiliateCode = ref.watch(userProvider).hasAffiliate;
+    final hasInsertedAffiliateCode = ref.watch(userProvider).hasInsertedAffiliate;
     final hasCreatedAffiliate = ref.watch(userProvider).hasCreatedAffiliate;
 
-    if (hasAffiliateCode) {
+    if (hasInsertedAffiliateCode) {
       return const InsertedAffiliateWidget();
     } else if (hasCreatedAffiliate) {
       return const CreatedAffiliateWidget();

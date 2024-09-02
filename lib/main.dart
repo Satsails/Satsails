@@ -8,6 +8,8 @@ import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
 import 'package:Satsails/screens/settings/components/start_affiliate.dart';
 import 'package:Satsails/screens/settings/components/claim_boltz.dart';
 import 'package:Satsails/screens/spash/splash.dart';
+import 'package:Satsails/screens/user/user_section.dart';
+import 'package:Satsails/screens/user/user_view.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -181,6 +183,8 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
               '/pix_onboarding': (context) => PixOnBoarding(),
               '/start_affiliate': (context) => const StartAffiliate(),
               '/pix_transaction_details': (context) => PixTransactionDetails(),
+              '/user_creation': (context) => UserCreation(),
+              '/user_view': (context) => UserView(),
             },
           );
         }
