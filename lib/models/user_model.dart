@@ -5,7 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-final FlutterSecureStorage _storage = const FlutterSecureStorage();
+const FlutterSecureStorage _storage = FlutterSecureStorage();
 
 class UserModel extends StateNotifier<User>{
   UserModel(super.state);
@@ -42,10 +42,7 @@ class UserModel extends StateNotifier<User>{
 
   Future<void> setRecoveryCode(String recoveryCode) async {
     await _storage.write(key: 'recoveryCode', value: recoveryCode);
-  }
-
-  Future<String?> getRecoveryCode() async {
-    return await _storage.read(key: 'recoveryCode');
+    state = state.copyWith(recoveryCode: recoveryCode);
   }
 }
 
@@ -98,7 +95,7 @@ class User {
 class UserService {
   Future<User> createUserRequest(String liquidAddress) async {
     final response = await http.post(
-      Uri.parse('https://8e75-93-108-187-211.ngrok-free.app/users'),
+      Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/users'),
       body: jsonEncode({
         'user': {
           'liquid_address': liquidAddress,
@@ -118,7 +115,7 @@ class UserService {
 
   Future<bool> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
     final response = await http.post(
-      Uri.parse('https://8e75-93-108-187-211.ngrok-free.app/add_affiliate'),
+      Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/add_affiliate'),
       body: jsonEncode({
         'user': {
           'payment_id': paymentId,
@@ -140,7 +137,7 @@ class UserService {
 
   Future<bool> createAffiliateCode(String paymentId, String affiliateCode, String liquidAddress, String auth) async {
     final response = await http.post(
-      Uri.parse('https://8e75-93-108-187-211.ngrok-free.app/affiliates'),
+      Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/affiliates'),
       body: jsonEncode({
         'affiliate': {
           'affiliate_owner': paymentId,
@@ -162,7 +159,7 @@ class UserService {
   }
 
   Future<List<Transfer>> getUserTransactions(String pixPaymentCode, String auth) async {
-    final uri = Uri.parse('https://8e75-93-108-187-211.ngrok-free.app/user_transfers')
+    final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/user_transfers')
         .replace(queryParameters: {
       'payment_id': pixPaymentCode,
     });
@@ -184,7 +181,7 @@ class UserService {
   }
 
   Future<String> getAmountTransferred(String pixPaymentCode, String auth) async {
-    final uri = Uri.parse('https://8e75-93-108-187-211.ngrok-free.app/amount_transfered_by_day')
+    final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/amount_transfered_by_day')
         .replace(queryParameters: {
       'payment_id': pixPaymentCode,
     });
@@ -204,7 +201,7 @@ class UserService {
   }
 
   Future<int> affiliateNumberOfUsers(String affiliateCode, String auth) async {
-    final uri = Uri.parse('https://8e75-93-108-187-211.ngrok-free.app/number_of_users')
+    final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/number_of_users')
         .replace(queryParameters: {
          'code': affiliateCode,
     });
@@ -224,7 +221,7 @@ class UserService {
   }
 
   Future<String> affiliateEarnings(String affiliateCode, String auth) async {
-    final uri = Uri.parse('https://8e75-93-108-187-211.ngrok-free.app/value_purchased_by_affiliate')
+    final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/value_purchased_by_affiliate')
         .replace(queryParameters: {
       'code': affiliateCode,
     });

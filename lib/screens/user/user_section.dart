@@ -55,9 +55,9 @@ class UserCreation extends ConsumerWidget {
             SizedBox(height: 40),
             CustomElevatedButton(
               text: 'Create annonymous account',
-              onPressed: () {
+              onPressed: () async {
                 try {
-                  ref.read(createUserProvider.future);
+                  await ref.watch(createUserProvider.future);
                   Fluttertoast.showToast(
                     msg: 'Annymous account created successfully!'.i18n(ref),
                     toastLength: Toast.LENGTH_LONG,

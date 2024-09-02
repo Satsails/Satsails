@@ -20,7 +20,7 @@ class Charge extends ConsumerWidget {
         title: Text('Charge Wallet'.i18n(ref), style: TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
         ),
       ),
       backgroundColor: const Color(0xFF0D0D0D), // dark background color for the entire screen
