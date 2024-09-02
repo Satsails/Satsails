@@ -2,7 +2,10 @@ import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
+
+final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
 final initializeUserProvider = FutureProvider.autoDispose<User>((ref) async {
   final box = await Hive.openBox('user');
@@ -10,9 +13,10 @@ final initializeUserProvider = FutureProvider.autoDispose<User>((ref) async {
   final hasInsertedAffiliate = box.get('hasInsertedAffiliate', defaultValue: false);
   final hasCreatedAffiliate = box.get('hasCreatedAffiliate', defaultValue: false);
   final paymentId = box.get('paymentId', defaultValue: '');
+  final recoveryCode = await _storage.read(key: 'recoveryCode') ?? '';
   final onboarded = box.get('onboarding', defaultValue: false);
 
-  return User(affiliateCode: affiliateCode, hasInsertedAffiliate: hasInsertedAffiliate, hasCreatedAffiliate: hasCreatedAffiliate, recoveryCode: '', paymentId: paymentId, onboarded: onboarded);
+  return User(affiliateCode: affiliateCode, hasInsertedAffiliate: hasInsertedAffiliate, hasCreatedAffiliate: hasCreatedAffiliate, recoveryCode: recoveryCode, paymentId: paymentId, onboarded: onboarded);
 });
 
 final userProvider = StateNotifierProvider.autoDispose<UserModel, User>((ref) {

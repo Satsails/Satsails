@@ -5,8 +5,9 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
 class UserModel extends StateNotifier<User>{
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
   UserModel(super.state);
 
   Future<void> setAffiliateCode(String affiliateCode) async {
