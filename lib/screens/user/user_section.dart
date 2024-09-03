@@ -59,7 +59,7 @@ class UserCreation extends ConsumerWidget {
                 try {
                   await ref.watch(createUserProvider.future);
                   Fluttertoast.showToast(
-                    msg: 'Annymous account created successfully!'.i18n(ref),
+                    msg: 'Anonymous account created successfully!'.i18n(ref),
                     toastLength: Toast.LENGTH_LONG,
                     gravity: ToastGravity.TOP,
                     timeInSecForIosWeb: 1,
@@ -90,7 +90,65 @@ class UserCreation extends ConsumerWidget {
             CustomElevatedButton(
               text: 'Recover account',
               onPressed: () {
-                // Add your onPressed code here!
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true, // This allows the bottom sheet to resize when the keyboard is opened
+                  backgroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  builder: (context) {
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom, // Adjust padding when the keyboard is visible
+                        left: 20,
+                        right: 20,
+                        top: 20,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            'Recover Account',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 20),
+                          TextField(
+                            style: TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              labelText: 'Enter recovery code',
+                              labelStyle: TextStyle(color: Colors.grey),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.blueAccent),
+                              ),
+                            ),
+                            onSubmitted: (value) {
+                              Navigator.pop(context); // Close the bottom sheet after submission
+                            },
+                          ),
+                          SizedBox(height: 20),
+                          CustomElevatedButton(
+                            text: 'Recover',
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
               },
             ),
           ],
