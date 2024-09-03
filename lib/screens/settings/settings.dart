@@ -14,6 +14,7 @@ class Settings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final paymentId = ref.watch(userProvider).paymentId;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -41,7 +42,7 @@ class Settings extends ConsumerWidget {
             _buildDivider(),
             _buildLanguageSection(ref, context),
             _buildDivider(),
-            _buildUserSection(context, ref),
+            _buildUserSection(context, ref, paymentId),
             _buildDivider(),
             DeleteWalletSection(ref: ref),
           ],
@@ -50,13 +51,13 @@ class Settings extends ConsumerWidget {
     );
   }
   
-  Widget _buildUserSection(BuildContext context, WidgetRef ref) {
+  Widget _buildUserSection(BuildContext context, WidgetRef ref, String paymentId) {
     return ListTile(
       leading: const Icon(Icons.supervised_user_circle_sharp, color: Colors.white),
       title: Text('User Section'.i18n(ref), style: const TextStyle(color: Colors.white)),
       subtitle: Text('Manage your anonymous account'.i18n(ref), style: TextStyle(color: Colors.grey)),
       onTap: () {
-        if (ref.watch(userProvider).paymentId == '') {
+        if (paymentId == '') {
           Navigator.pushNamed(context, '/user_creation');
         } else {
           Navigator.pushNamed(context, '/user_view');

@@ -1,5 +1,5 @@
 import 'package:Satsails/providers/user_provider.dart';
-import 'package:Satsails/screens/settings/components/affiliates_section.dart';
+import 'package:Satsails/screens/user/affiliates_section.dart';
 import 'package:Satsails/screens/settings/components/created_affiliate_dashboard.dart';
 import 'package:Satsails/screens/settings/components/inserted_affiliate.dart';
 import 'package:flutter/material.dart';

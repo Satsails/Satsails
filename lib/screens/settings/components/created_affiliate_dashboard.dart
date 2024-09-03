@@ -13,10 +13,16 @@ class CreatedAffiliateWidget extends ConsumerWidget {
     final earnings = ref.watch(affiliateEarningsProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Created Affiliate Code'),
-        backgroundColor: Colors.white,
+        title: const Text('Created Affiliate Code', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

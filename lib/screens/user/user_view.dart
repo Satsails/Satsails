@@ -39,10 +39,6 @@ class _UserViewState extends ConsumerState<UserView> {
               const SizedBox(height: 16.0),
               _buildAffiliateCodeRow(user.affiliateCode?.isNotEmpty == true ? user.affiliateCode! : 'N/A'),
               const SizedBox(height: 16.0),
-              _buildUserDetailRow('Inserted Affiliate', user.hasInsertedAffiliate ? 'Yes' : 'No'),
-              const SizedBox(height: 16.0),
-              _buildUserDetailRow('Created Affiliate', user.hasCreatedAffiliate ? 'Yes' : 'No'),
-              const SizedBox(height: 16.0),
               _buildRecoveryCodeRow(user.recoveryCode),
               const SizedBox(height: 24.0),
               Text(
@@ -53,8 +49,7 @@ class _UserViewState extends ConsumerState<UserView> {
               const SizedBox(height: 16.0),
               CustomElevatedButton(
                 onPressed: () {
-                  // Navigate to affiliate section
-                  Navigator.of(context).pushNamed('/affiliate');
+                  Navigator.of(context).pushNamed('/start_affiliate');
                 },
                 text: "Go to Affiliate Section",
                 backgroundColor: Colors.orange,
@@ -66,137 +61,117 @@ class _UserViewState extends ConsumerState<UserView> {
     );
   }
 
-  Widget _buildUserDetailRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(color: Colors.grey, fontSize: 16),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            textAlign: TextAlign.right,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildPaymentIdRow(String paymentId) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Payment ID',
-          style: TextStyle(color: Colors.grey, fontSize: 16),
-        ),
-        Expanded(
-          child: Text(
-            paymentId,
-            textAlign: TextAlign.right,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+    return GestureDetector(
+      onTap: () {
+        Clipboard.setData(ClipboardData(text: paymentId));
+        Fluttertoast.showToast(
+          msg: 'Payment ID copied to clipboard',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: MediaQuery.of(context).size.height * 0.01,
+        );
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'Payment ID',
+            style: TextStyle(color: Colors.grey, fontSize: 16),
           ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.copy, color: Colors.white),
-          onPressed: () {
-            Clipboard.setData(ClipboardData(text: paymentId));
-            Fluttertoast.showToast(
-              msg: 'Payment ID copied to clipboard',
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.TOP,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: MediaQuery.of(context).size.height * 0.01,
-            );
-          },
-        ),
-      ],
+          Expanded(
+            child: Text(
+              paymentId,
+              textAlign: TextAlign.right,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildAffiliateCodeRow(String affiliateCode) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Affiliate Code',
-          style: TextStyle(color: Colors.grey, fontSize: 16),
-        ),
-        Expanded(
-          child: Text(
-            affiliateCode,
-            textAlign: TextAlign.right,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+    return GestureDetector(
+      onTap: () {
+        if (affiliateCode != 'N/A') {
+          Clipboard.setData(ClipboardData(text: affiliateCode));
+          Fluttertoast.showToast(
+            msg: 'Affiliate Code copied to clipboard',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: MediaQuery.of(context).size.height * 0.01,
+          );
+        }
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'Affiliate Code',
+            style: TextStyle(color: Colors.grey, fontSize: 16),
           ),
-        ),
-        if (affiliateCode != 'N/A')
-          IconButton(
-            icon: const Icon(Icons.copy, color: Colors.white),
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: affiliateCode));
-              Fluttertoast.showToast(
-                msg: 'Affiliate Code copied to clipboard',
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.TOP,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.green,
-                textColor: Colors.white,
-                fontSize: MediaQuery.of(context).size.height * 0.01,
-              );
-            },
+          Expanded(
+            child: Text(
+              affiliateCode,
+              textAlign: TextAlign.right,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
           ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildRecoveryCodeRow(String recoveryCode) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Recovery Code',
-          style: TextStyle(color: Colors.grey, fontSize: 16),
-        ),
-        Expanded(
-          child: Text(
-            _isRecoveryCodeHidden ? '************' : recoveryCode,
-            textAlign: TextAlign.right,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+    return GestureDetector(
+      onTap: () {
+        if (!_isRecoveryCodeHidden) {
+          Clipboard.setData(ClipboardData(text: recoveryCode));
+          Fluttertoast.showToast(
+            msg: 'Recovery code copied to clipboard',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: MediaQuery.of(context).size.height * 0.01,
+          );
+        }
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'Recovery Code',
+            style: TextStyle(color: Colors.grey, fontSize: 16),
           ),
-        ),
-        IconButton(
-          icon: Icon(
-            _isRecoveryCodeHidden ? Icons.visibility : Icons.visibility_off,
-            color: Colors.white,
+          Expanded(
+            child: Text(
+              _isRecoveryCodeHidden ? '************' : recoveryCode,
+              textAlign: TextAlign.right,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
           ),
-          onPressed: () {
-            setState(() {
-              _isRecoveryCodeHidden = !_isRecoveryCodeHidden;
-            });
-          },
-        ),
-        if (!_isRecoveryCodeHidden)
           IconButton(
-            icon: const Icon(Icons.copy, color: Colors.white),
+            icon: Icon(
+              _isRecoveryCodeHidden ? Icons.visibility : Icons.visibility_off,
+              color: Colors.white,
+            ),
             onPressed: () {
-              Clipboard.setData(ClipboardData(text: recoveryCode));
-              Fluttertoast.showToast(
-                msg: 'Recovery code copied to clipboard',
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.TOP,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.green,
-                textColor: Colors.white,
-                fontSize: MediaQuery.of(context).size.height * 0.01,
-              );
+              setState(() {
+                _isRecoveryCodeHidden = !_isRecoveryCodeHidden;
+              });
             },
           ),
-      ],
+        ],
+      ),
     );
   }
 }

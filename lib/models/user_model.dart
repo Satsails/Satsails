@@ -1,4 +1,5 @@
 import 'package:Satsails/models/transfer_model.dart';
+import 'package:Satsails/validations/address_validation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
@@ -91,6 +92,15 @@ class User {
   }
 }
 
+class Affiliate {
+  final String code;
+  final String liquidAddress;
+
+  Affiliate({
+    required this.code,
+    required this.liquidAddress,
+  });
+}
 
 class UserService {
   static Future<User> createUserRequest(String liquidAddress) async {
@@ -136,6 +146,11 @@ class UserService {
   }
 
   static Future<bool> createAffiliateCode(String paymentId, String affiliateCode, String liquidAddress, String auth) async {
+    try {
+      await isValidLiquidAddress(liquidAddress);
+    } catch (e) {
+      throw e;
+    }
     final response = await http.post(
       Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/affiliates'),
       body: jsonEncode({

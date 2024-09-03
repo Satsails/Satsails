@@ -23,7 +23,7 @@ class Charge extends ConsumerWidget {
           onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
         ),
       ),
-      backgroundColor: const Color(0xFF0D0D0D), // dark background color for the entire screen
+      backgroundColor: Colors.black,
       body: Center(
         child: Padding(
           padding: EdgeInsets.all(screenWidth * 0.04), // 4% of screen width

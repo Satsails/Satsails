@@ -10,10 +10,16 @@ class InsertedAffiliateWidget extends ConsumerWidget {
     final affiliateCode = ref.watch(userProvider).affiliateCode;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Inserted Affiliate Code'),
-        backgroundColor: Colors.white,
+        title: const Text('Inserted Affiliate Code', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -26,15 +32,16 @@ class InsertedAffiliateWidget extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 20),
               Text(
-                affiliateCode ?? 'No code found',
+                affiliateCode ?? 'No code found, please contact support.',
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent,
+                  color: Colors.red,
                 ),
               ),
             ],

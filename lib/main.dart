@@ -5,7 +5,7 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
 import 'package:Satsails/screens/charge/components/pix_transaction_details.dart';
 import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
-import 'package:Satsails/screens/settings/components/start_affiliate.dart';
+import 'package:Satsails/screens/user/start_affiliate.dart';
 import 'package:Satsails/screens/settings/components/claim_boltz.dart';
 import 'package:Satsails/screens/spash/splash.dart';
 import 'package:Satsails/screens/user/user_section.dart';
