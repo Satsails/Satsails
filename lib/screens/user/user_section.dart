@@ -11,6 +11,8 @@ class UserCreation extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = TextEditingController();
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -92,7 +94,7 @@ class UserCreation extends ConsumerWidget {
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
-                  isScrollControlled: true, // This allows the bottom sheet to resize when the keyboard is opened
+                  isScrollControlled: true,
                   backgroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.vertical(
@@ -123,6 +125,7 @@ class UserCreation extends ConsumerWidget {
                           SizedBox(height: 20),
                           TextField(
                             style: TextStyle(color: Colors.white),
+                            controller: controller,
                             decoration: InputDecoration(
                               labelText: 'Enter recovery code',
                               labelStyle: TextStyle(color: Colors.grey),
@@ -133,15 +136,35 @@ class UserCreation extends ConsumerWidget {
                                 borderSide: BorderSide(color: Colors.blueAccent),
                               ),
                             ),
-                            onSubmitted: (value) {
-                              Navigator.pop(context); // Close the bottom sheet after submission
-                            },
                           ),
                           SizedBox(height: 20),
                           CustomElevatedButton(
                             text: 'Recover',
-                            onPressed: () {
-                              Navigator.pop(context);
+                            onPressed: () async {
+                              try {
+                                await ref.read(userProvider.notifier).setRecoveryCode(controller.text);
+                                await ref.read(setUserProvider.future);
+                                Navigator.pushReplacementNamed(context, '/user_view');
+                                Fluttertoast.showToast(
+                                  msg: 'Account recovered successfully!'.i18n(ref),
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.TOP,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.green,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0,
+                                );
+                              } catch (e) {
+                                Fluttertoast.showToast(
+                                  msg: 'The code you have inserted is not correct'.i18n(ref),
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.TOP,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0,
+                                );
+                              }
                             },
                           ),
                         ],

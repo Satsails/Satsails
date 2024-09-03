@@ -58,13 +58,13 @@ class Start extends ConsumerWidget {
                 Column(
                   children: [
                     CustomButton(
-                      text: 'Register Account'.i18n(ref),
+                      text: 'Create wallet'.i18n(ref),
                       onPressed: () {
                         Navigator.pushNamed(context, '/set_pin');
                       },
                     ),
                     CustomButton(
-                      text: 'Recover Account'.i18n(ref),
+                      text: 'Recover wallet'.i18n(ref),
                       onPressed: () {
                         Navigator.pushNamed(context, '/recover_wallet');
                       },
