@@ -1,14 +1,15 @@
+import 'dart:convert';
+import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/validations/address_validation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 
-class UserModel extends StateNotifier<User>{
+class UserModel extends StateNotifier<User> {
   UserModel(super.state);
 
   Future<void> setAffiliateCode(String affiliateCode) async {
@@ -92,203 +93,235 @@ class User {
   }
 }
 
-class Affiliate {
-  final String code;
-  final String liquidAddress;
-
-  Affiliate({
-    required this.code,
-    required this.liquidAddress,
-  });
-}
-
 class UserService {
-  static Future<User> createUserRequest(String liquidAddress) async {
-    final response = await http.post(
-      Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/users'),
-      body: jsonEncode({
-        'user': {
-          'liquid_address': liquidAddress,
-        }
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 201) {
-      return User.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to create user: ${response.body}');
-    }
-  }
-
-  static Future<bool> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
-    final response = await http.post(
-      Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/add_affiliate'),
-      body: jsonEncode({
-        'user': {
-          'payment_id': paymentId,
-          'affiliate_code': affiliateCode,
-        }
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': auth,
-      },
-    );
-
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      throw jsonDecode(response.body)['error'];
-    }
-  }
-
-  static Future<bool> createAffiliateCode(String paymentId, String affiliateCode, String liquidAddress, String auth) async {
+  static Future<Result<User>> createUserRequest(String liquidAddress) async {
     try {
-      await isValidLiquidAddress(liquidAddress);
+      final response = await http.post(
+        Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/users'),
+        body: jsonEncode({
+          'user': {
+            'liquid_address': liquidAddress,
+          }
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 201) {
+        return Result(data: User.fromJson(jsonDecode(response.body)));
+      } else {
+        return Result(error: 'Failed to create user: ${response.body}');
+      }
     } catch (e) {
-      throw e;
+      return Result(error: 'An error occurred: $e');
     }
-    final response = await http.post(
-      Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/affiliates'),
-      body: jsonEncode({
-        'affiliate': {
-          'affiliate_owner': paymentId,
-          'code': affiliateCode,
-          'liquid_address': liquidAddress,
+  }
+
+  static Future<Result<bool>> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/add_affiliate'),
+        body: jsonEncode({
+          'user': {
+            'payment_id': paymentId,
+            'affiliate_code': affiliateCode,
+          }
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: true);
+      } else {
+        String errorMsg = jsonDecode(response.body)['error'] ?? 'Failed to add affiliate code';
+        return Result(error: errorMsg);
+      }
+    } catch (e) {
+      return Result(error: 'An error occurred: $e');
+    }
+  }
+
+  static Future<Result<bool>> createAffiliateCode(String paymentId, String affiliateCode, String liquidAddress, String auth) async {
+    bool isValid = await isValidLiquidAddress(liquidAddress);
+    if (isValid) {
+      try {
+        final response = await http.post(
+          Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/affiliates'),
+          body: jsonEncode({
+            'affiliate': {
+              'affiliate_owner': paymentId,
+              'code': affiliateCode,
+              'liquid_address': liquidAddress,
+            }
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': auth,
+          },
+        );
+
+        if (response.statusCode == 201) {
+          return Result(data: true);
+        } else {
+          String errorMsg = jsonDecode(response.body)['code'] ?? 'Failed to create affiliate code';
+          return Result(error: errorMsg);
         }
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': auth,
-      },
-    );
-
-    if (response.statusCode == 201) {
-      return true;
+      } catch (e) {
+        return Result(error: 'An error occurred: $e');
+      }
     } else {
-      throw (jsonDecode(response.body)['code']);
+      return Result(error: 'Invalid liquid address');
     }
   }
 
-  static Future<List<Transfer>> getUserTransactions(String pixPaymentCode, String auth) async {
-    final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/user_transfers')
-        .replace(queryParameters: {
-      'payment_id': pixPaymentCode,
-    });
-    final response = await http.get(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': auth,
-      },
-    );
+  static Future<Result<List<Transfer>>> getUserTransactions(String pixPaymentCode, String auth) async {
+    try {
+      final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/user_transfers')
+          .replace(queryParameters: {
+        'payment_id': pixPaymentCode,
+      });
 
-    if (response.statusCode == 200) {
-      List<dynamic> jsonResponse = jsonDecode(response.body);
-      List<Transfer> transfers = jsonResponse.map((item) => Transfer.fromJson(item as Map<String, dynamic>)).toList();
-      return transfers;
-    } else {
-      throw Exception('Failed to get user transactions: ${response.body}');
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = jsonDecode(response.body);
+        List<Transfer> transfers = jsonResponse.map((item) => Transfer.fromJson(item as Map<String, dynamic>)).toList();
+        return Result(data: transfers);
+      } else {
+        return Result(error: 'Failed to get user transactions: ${response.body}');
+      }
+    } catch (e) {
+      return Result(error: 'An error occurred: $e');
     }
   }
 
-  static Future<String> getAmountTransferred(String pixPaymentCode, String auth) async {
-    final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/amount_transfered_by_day')
-        .replace(queryParameters: {
-      'payment_id': pixPaymentCode,
-    });
-    final response = await http.get(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': auth,
-      },
-    );
+  static Future<Result<String>> getAmountTransferred(String pixPaymentCode, String auth) async {
+    try {
+      final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/amount_transfered_by_day')
+          .replace(queryParameters: {
+        'payment_id': pixPaymentCode,
+      });
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to get amount transferred');
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: jsonDecode(response.body));
+      } else {
+        return Result(error: 'Failed to get amount transferred');
+      }
+    } catch (e) {
+      return Result(error: 'An error occurred: $e');
     }
   }
 
-  static Future<int> affiliateNumberOfUsers(String affiliateCode, String auth) async {
-    final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/number_of_users')
-        .replace(queryParameters: {
-         'code': affiliateCode,
-    });
-    final response = await http.get(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': auth,
-      },
-    );
+  static Future<Result<int>> affiliateNumberOfUsers(String affiliateCode, String auth) async {
+    try {
+      final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/number_of_users')
+          .replace(queryParameters: {
+        'code': affiliateCode,
+      });
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to get number of users');
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: jsonDecode(response.body));
+      } else {
+        return Result(error: 'Failed to get number of users');
+      }
+    } catch (e) {
+      return Result(error: 'An error occurred: $e');
     }
   }
 
- static Future<String> affiliateEarnings(String affiliateCode, String auth) async {
-    final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/value_purchased_by_affiliate')
-        .replace(queryParameters: {
-      'code': affiliateCode,
-    });
-    final response = await http.get(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': auth,
-      },
-    );
+  static Future<Result<String>> affiliateEarnings(String affiliateCode, String auth) async {
+    try {
+      final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/value_purchased_by_affiliate')
+          .replace(queryParameters: {
+        'code': affiliateCode,
+      });
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to get amount generated by affiliate');
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: jsonDecode(response.body));
+      } else {
+        return Result(error: 'Failed to get amount generated by affiliate');
+      }
+    } catch (e) {
+      return Result(error: 'An error occurred: $e');
     }
   }
 
-  static Future<String> updateLiquidAddress(String liquidAddress, String auth) async {
-    final response = await http.patch(
-      Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/update_liquid_address'),
-      body: jsonEncode({
-        'user': {
-          'liquid_address': liquidAddress,
-        }
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': auth,
-      },
-    );
+  static Future<Result<String>> updateLiquidAddress(String liquidAddress, String auth) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/update_liquid_address'),
+        body: jsonEncode({
+          'user': {
+            'liquid_address': liquidAddress,
+          }
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
 
-    if (response.statusCode == 200) {
-      return 'OK';
-    } else {
-      throw Exception('Failed to update liquid address');
+      if (response.statusCode == 200) {
+        return Result(data: 'OK');
+      } else {
+        return Result(error: 'Failed to update liquid address');
+      }
+    } catch (e) {
+      return Result(error: 'An error occurred: $e');
     }
   }
 
-  static Future<User> showUser(String auth) async {
-    final response = await http.get(
-      Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/show_user'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': auth,
-      },
-    );
+  static Future<Result<User>> showUser(String auth) async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/show_user'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
 
-    if (response.statusCode == 200) {
-      return User.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to show user');
+      if (response.statusCode == 200) {
+        return Result(data: User.fromJson(jsonDecode(response.body)));
+      } else {
+        return Result(error: 'Failed to show user');
+      }
+    } catch (e) {
+      return Result(error: 'An error occurred: $e');
     }
   }
 }

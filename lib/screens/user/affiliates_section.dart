@@ -1,3 +1,4 @@
+import 'package:Satsails/models/affiliate_model.dart';
 import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
@@ -200,7 +201,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                     labelText: 'Liquid Address',
                     labelStyle: TextStyle(color: Colors.black),  // Dark label color
                     border: OutlineInputBorder(),
-                    fillColor: Colors.white,  // Background color for input
+                    fillColor: Colors.orange,  // Background color for input
                     filled: true,  // Fill the background color
                   ),
                   style: const TextStyle(color: Colors.black),  // Dark text color
@@ -212,7 +213,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                     labelText: 'Affiliate Code',
                     labelStyle: TextStyle(color: Colors.black),  // Dark label color
                     border: OutlineInputBorder(),
-                    fillColor: Colors.black,  // Background color for input
+                    fillColor: Colors.orange,  // Background color for input
                     filled: true,  // Fill the background color
                   ),
                   style: const TextStyle(color: Colors.black),  // Dark text color
@@ -221,7 +222,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                 CustomElevatedButton(
                   text: 'Submit',
                   textColor: Colors.white,
-                  backgroundColor: Colors.orange,
+                  backgroundColor: Colors.black,
                   onPressed: () async {
                     Affiliate affiliate = Affiliate(
                       code: _affiliateController.text,
