@@ -10,13 +10,6 @@ const FlutterSecureStorage _storage = FlutterSecureStorage();
 
 class UserModel extends StateNotifier<User> {
   UserModel(super.state);
-
-  Future<void> setAffiliateCode(String affiliateCode) async {
-    final box = await Hive.openBox('user');
-    box.put('affiliateCode', affiliateCode);
-    state = state.copyWith(affiliateCode: affiliateCode);
-  }
-
   Future<void> sethasInsertedAffiliate(bool hasInsertedAffiliate) async {
     final box = await Hive.openBox('user');
     box.put('hasInsertedAffiliate', hasInsertedAffiliate);

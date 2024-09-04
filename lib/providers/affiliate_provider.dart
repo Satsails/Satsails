@@ -30,7 +30,7 @@ final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>
 
   if (result.isSuccess && result.data == true) {
     await ref.read(userProvider.notifier).sethasInsertedAffiliate(true);
-    await ref.read(userProvider.notifier).setAffiliateCode(affiliateCode);
+    await ref.read(affiliateProvider.notifier).setAffiliateCode(affiliateCode);
   } else {
     throw result.error!;
   }
@@ -43,7 +43,7 @@ final createAffiliateCodeProvider = FutureProvider.autoDispose.family<void, Affi
 
   if (result.isSuccess && result.data == true) {
     await ref.read(userProvider.notifier).setHasCreatedAffiliate(true);
-    await ref.read(userProvider.notifier).setAffiliateCode(affiliate.code);
+    await ref.read(affiliateProvider.notifier).setAffiliateCode(affiliate.code);
   } else {
     throw result.error!;
   }
@@ -76,7 +76,7 @@ final getTotalValuePurchasedByAffiliateUsersProvider = FutureProvider.autoDispos
 
 final getAllTransfersFromAffiliateUsersProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
   final auth = ref.read(userProvider).recoveryCode;
-  final affiliateCode = ref.read(affiliateProvider).code ?? '';
+  final affiliateCode = ref.read(affiliateProvider).code;
   final result = await AffiliateService.getAllTransfersFromAffiliateUsers(affiliateCode, auth);
 
   if (result.isSuccess && result.data != null) {
@@ -87,7 +87,7 @@ final getAllTransfersFromAffiliateUsersProvider = FutureProvider.autoDispose<Lis
 });
 
 final numberOfAffiliateInstallsProvider = FutureProvider.autoDispose<int>((ref) async {
-  final affiliateCode = ref.watch(affiliateProvider).code ?? '';
+  final affiliateCode = ref.watch(affiliateProvider).code;
   final auth = ref.read(userProvider).recoveryCode;
   final numberOfUsers = await AffiliateService.affiliateNumberOfUsers(affiliateCode, auth);
 

@@ -53,5 +53,6 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('sideswapSwapData');
     await Hive.deleteBoxFromDisk('pix');
     await Hive.deleteBoxFromDisk('user');
+    await Hive.deleteBoxFromDisk('affiliate');
   }
 }

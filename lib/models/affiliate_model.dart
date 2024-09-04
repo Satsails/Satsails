@@ -99,11 +99,11 @@ class AffiliateService {
         if (response.statusCode == 201) {
           return Result(data: true);
         } else {
-          String errorMsg = jsonDecode(response.body)['code'] ?? 'Failed to create affiliate code';
+          final errorMsg = jsonDecode(response.body)['code'].first ?? 'Failed to create affiliate code';
           return Result(error: errorMsg);
         }
       } catch (e) {
-        return Result(error: 'An error occurred: $e');
+        return Result(error: jsonDecode(e.toString())['code'] ?? 'An error occurred: $e');
       }
     } else {
       return Result(error: 'Invalid liquid address');
