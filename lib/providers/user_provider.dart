@@ -1,4 +1,3 @@
-import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/models/affiliate_model.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/models/user_model.dart';
@@ -11,7 +10,6 @@ final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
 final initializeUserProvider = FutureProvider<User>((ref) async {
   final box = await Hive.openBox('user');
-  final affiliateCode = box.get('affiliateCode', defaultValue: '');
   final hasInsertedAffiliate = box.get('hasInsertedAffiliate', defaultValue: false);
   final hasCreatedAffiliate = box.get('hasCreatedAffiliate', defaultValue: false);
   final paymentId = box.get('paymentId', defaultValue: '');
@@ -19,7 +17,6 @@ final initializeUserProvider = FutureProvider<User>((ref) async {
   final onboarded = box.get('onboarding', defaultValue: false);
 
   return User(
-    affiliateCode: affiliateCode,
     hasInsertedAffiliate: hasInsertedAffiliate,
     hasCreatedAffiliate: hasCreatedAffiliate,
     recoveryCode: recoveryCode,
@@ -34,7 +31,6 @@ final userProvider = StateNotifierProvider<UserModel, User>((ref) {
   return UserModel(initialUser.when(
     data: (user) => user,
     loading: () => User(
-      affiliateCode: '',
       hasInsertedAffiliate: false,
       hasCreatedAffiliate: false,
       recoveryCode: '',
@@ -84,55 +80,6 @@ final getAmountTransferredProvider = FutureProvider.autoDispose<String>((ref) as
   }
 });
 
-final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>((ref, affiliateCode) async {
-  var paymentId = ref.read(userProvider).paymentId;
-  final auth = ref.read(userProvider).recoveryCode;
-  final result = await UserService.addAffiliateCode(paymentId, affiliateCode, auth);
-
-  if (result.isSuccess && result.data == true) {
-    await ref.read(userProvider.notifier).sethasInsertedAffiliate(true);
-    await ref.read(userProvider.notifier).setAffiliateCode(affiliateCode);
-  } else {
-    throw result.error!;
-  }
-});
-
-final createAffiliateCodeProvider = FutureProvider.autoDispose.family<void, Affiliate>((ref, affiliate) async {
-  var paymentId = ref.read(userProvider).paymentId;
-  final auth = ref.read(userProvider).recoveryCode;
-  final result = await UserService.createAffiliateCode(paymentId, affiliate.code, affiliate.liquidAddress, auth);
-
-  if (result.isSuccess && result.data == true) {
-    await ref.read(userProvider.notifier).setHasCreatedAffiliate(true);
-    await ref.read(userProvider.notifier).setAffiliateCode(affiliate.code);
-  } else {
-    throw result.error!;
-  }
-});
-
-final numberOfAffiliateInstallsProvider = FutureProvider.autoDispose<int>((ref) async {
-  final affiliateCode = ref.watch(userProvider).affiliateCode ?? '';
-  final auth = ref.read(userProvider).recoveryCode;
-  final numberOfUsers = await UserService.affiliateNumberOfUsers(affiliateCode, auth);
-
-  if (numberOfUsers.isSuccess && numberOfUsers.data != null) {
-    return numberOfUsers.data!;
-  } else {
-    throw numberOfUsers.error!;
-  }
-});
-
-final affiliateEarningsProvider = FutureProvider.autoDispose<String>((ref) async {
-  final affiliateCode = ref.watch(userProvider).affiliateCode ?? '';
-  final auth = ref.read(userProvider).recoveryCode;
-  final result = await UserService.affiliateEarnings(affiliateCode, auth);
-
-  if (result.isSuccess && result.data != null) {
-    return result.data!;
-  } else {
-    throw result.error!;
-  }
-});
 
 final updateLiquidAddressProvider = FutureProvider.autoDispose<String>((ref) async {
   final liquidAddress = await ref.read(liquidAddressProvider.future);
@@ -155,7 +102,6 @@ final setUserProvider = FutureProvider.autoDispose<void>((ref) async {
     final user = userResult.data!;
     await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
     await ref.read(userProvider.notifier).setRecoveryCode(user.recoveryCode);
-    await ref.read(userProvider.notifier).setAffiliateCode(user.affiliateCode ?? '');
   } else {
     throw userResult.error!;
   }

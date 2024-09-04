@@ -1,8 +1,6 @@
 import 'package:Satsails/models/affiliate_model.dart';
-import 'package:Satsails/models/user_model.dart';
-import 'package:Satsails/providers/user_provider.dart';
+import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
-import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

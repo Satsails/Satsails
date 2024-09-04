@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/models/transfer_model.dart';
-import 'package:Satsails/validations/address_validation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
@@ -49,7 +48,6 @@ class UserModel extends StateNotifier<User> {
 }
 
 class User {
-  final String? affiliateCode;
   final bool hasInsertedAffiliate;
   final bool hasCreatedAffiliate;
   final String recoveryCode;
@@ -57,7 +55,6 @@ class User {
   final bool? onboarded;
 
   User({
-    this.affiliateCode,
     this.hasInsertedAffiliate = false,
     this.hasCreatedAffiliate = false,
     required this.recoveryCode,
@@ -74,7 +71,6 @@ class User {
     bool? onboarded,
   }) {
     return User(
-      affiliateCode: affiliateCode ?? this.affiliateCode,
       hasInsertedAffiliate: hasInsertedAffiliate ?? this.hasInsertedAffiliate,
       hasCreatedAffiliate: hasCreatedAffiliate ?? this.hasCreatedAffiliate,
       recoveryCode: recoveryCode ?? this.recoveryCode,
@@ -97,7 +93,7 @@ class UserService {
   static Future<Result<User>> createUserRequest(String liquidAddress) async {
     try {
       final response = await http.post(
-        Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/users'),
+        Uri.parse('https://e80a-109-50-157-141.ngrok-free.app/users'),
         body: jsonEncode({
           'user': {
             'liquid_address': liquidAddress,
@@ -118,69 +114,10 @@ class UserService {
     }
   }
 
-  static Future<Result<bool>> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
-    try {
-      final response = await http.post(
-        Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/add_affiliate'),
-        body: jsonEncode({
-          'user': {
-            'payment_id': paymentId,
-            'affiliate_code': affiliateCode,
-          }
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: true);
-      } else {
-        String errorMsg = jsonDecode(response.body)['error'] ?? 'Failed to add affiliate code';
-        return Result(error: errorMsg);
-      }
-    } catch (e) {
-      return Result(error: 'An error occurred: $e');
-    }
-  }
-
-  static Future<Result<bool>> createAffiliateCode(String paymentId, String affiliateCode, String liquidAddress, String auth) async {
-    bool isValid = await isValidLiquidAddress(liquidAddress);
-    if (isValid) {
-      try {
-        final response = await http.post(
-          Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/affiliates'),
-          body: jsonEncode({
-            'affiliate': {
-              'affiliate_owner': paymentId,
-              'code': affiliateCode,
-              'liquid_address': liquidAddress,
-            }
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': auth,
-          },
-        );
-
-        if (response.statusCode == 201) {
-          return Result(data: true);
-        } else {
-          String errorMsg = jsonDecode(response.body)['code'] ?? 'Failed to create affiliate code';
-          return Result(error: errorMsg);
-        }
-      } catch (e) {
-        return Result(error: 'An error occurred: $e');
-      }
-    } else {
-      return Result(error: 'Invalid liquid address');
-    }
-  }
 
   static Future<Result<List<Transfer>>> getUserTransactions(String pixPaymentCode, String auth) async {
     try {
-      final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/user_transfers')
+      final uri = Uri.parse('https://e80a-109-50-157-141.ngrok-free.app/user_transfers')
           .replace(queryParameters: {
         'payment_id': pixPaymentCode,
       });
@@ -207,7 +144,7 @@ class UserService {
 
   static Future<Result<String>> getAmountTransferred(String pixPaymentCode, String auth) async {
     try {
-      final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/amount_transfered_by_day')
+      final uri = Uri.parse('https://e80a-109-50-157-141.ngrok-free.app/amount_transfered_by_day')
           .replace(queryParameters: {
         'payment_id': pixPaymentCode,
       });
@@ -230,60 +167,10 @@ class UserService {
     }
   }
 
-  static Future<Result<int>> affiliateNumberOfUsers(String affiliateCode, String auth) async {
-    try {
-      final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/number_of_users')
-          .replace(queryParameters: {
-        'code': affiliateCode,
-      });
-
-      final response = await http.get(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: jsonDecode(response.body));
-      } else {
-        return Result(error: 'Failed to get number of users');
-      }
-    } catch (e) {
-      return Result(error: 'An error occurred: $e');
-    }
-  }
-
-  static Future<Result<String>> affiliateEarnings(String affiliateCode, String auth) async {
-    try {
-      final uri = Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/value_purchased_by_affiliate')
-          .replace(queryParameters: {
-        'code': affiliateCode,
-      });
-
-      final response = await http.get(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: jsonDecode(response.body));
-      } else {
-        return Result(error: 'Failed to get amount generated by affiliate');
-      }
-    } catch (e) {
-      return Result(error: 'An error occurred: $e');
-    }
-  }
-
   static Future<Result<String>> updateLiquidAddress(String liquidAddress, String auth) async {
     try {
       final response = await http.patch(
-        Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/update_liquid_address'),
+        Uri.parse('https://e80a-109-50-157-141.ngrok-free.app/update_liquid_address'),
         body: jsonEncode({
           'user': {
             'liquid_address': liquidAddress,
@@ -308,7 +195,7 @@ class UserService {
   static Future<Result<User>> showUser(String auth) async {
     try {
       final response = await http.get(
-        Uri.parse('https://897b-2001-8a0-e374-d300-f12f-78c-d09b-4bf4.ngrok-free.app/show_user'),
+        Uri.parse('https://e80a-109-50-157-141.ngrok-free.app/show_user'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
@@ -324,4 +211,7 @@ class UserService {
       return Result(error: 'An error occurred: $e');
     }
   }
+
 }
+
+

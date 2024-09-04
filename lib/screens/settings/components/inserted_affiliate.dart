@@ -1,13 +1,13 @@
+import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/providers/user_provider.dart';
 
 class InsertedAffiliateWidget extends ConsumerWidget {
   const InsertedAffiliateWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final affiliateCode = ref.watch(userProvider).affiliateCode;
+    final affiliateCode = ref.watch(affiliateProvider).code;
 
     return Scaffold(
       backgroundColor: Colors.black,

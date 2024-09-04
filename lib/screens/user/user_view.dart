@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class _UserViewState extends ConsumerState<UserView> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider);
+    final affiliate = ref.watch(affiliateProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -37,7 +39,7 @@ class _UserViewState extends ConsumerState<UserView> {
             children: [
               _buildPaymentIdRow(user.paymentId),
               const SizedBox(height: 16.0),
-              _buildAffiliateCodeRow(user.affiliateCode?.isNotEmpty == true ? user.affiliateCode! : 'N/A'),
+              _buildAffiliateCodeRow(affiliate.code.isNotEmpty == true ? affiliate.code : 'N/A'),
               const SizedBox(height: 16.0),
               _buildRecoveryCodeRow(user.recoveryCode),
               const SizedBox(height: 24.0),
