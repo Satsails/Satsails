@@ -1,6 +1,7 @@
 import 'package:Satsails/models/affiliate_model.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/models/user_model.dart';
+import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -12,6 +13,7 @@ final initializeUserProvider = FutureProvider<User>((ref) async {
   final box = await Hive.openBox('user');
   final hasInsertedAffiliate = box.get('hasInsertedAffiliate', defaultValue: false);
   final hasCreatedAffiliate = box.get('hasCreatedAffiliate', defaultValue: false);
+  final depixLiquidAddress = box.get('depixLiquidAddress', defaultValue: '');
   final paymentId = box.get('paymentId', defaultValue: '');
   final recoveryCode = await _storage.read(key: 'recoveryCode') ?? '';
   final onboarded = box.get('onboarding', defaultValue: false);
@@ -19,6 +21,7 @@ final initializeUserProvider = FutureProvider<User>((ref) async {
   return User(
     hasInsertedAffiliate: hasInsertedAffiliate,
     hasCreatedAffiliate: hasCreatedAffiliate,
+    depixLiquidAddress: depixLiquidAddress,
     recoveryCode: recoveryCode,
     paymentId: paymentId,
     onboarded: onboarded,
@@ -32,6 +35,7 @@ final userProvider = StateNotifierProvider<UserModel, User>((ref) {
     data: (user) => user,
     loading: () => User(
       hasInsertedAffiliate: false,
+      depixLiquidAddress: '',
       hasCreatedAffiliate: false,
       recoveryCode: '',
       paymentId: '',
@@ -51,6 +55,7 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
     final user = result.data!;
     await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
     await ref.read(userProvider.notifier).setRecoveryCode(user.recoveryCode);
+    await ref.read(userProvider.notifier).setDepixLiquidAddress(user.depixLiquidAddress);
   } else {
     throw result.error!;
   }
@@ -102,6 +107,14 @@ final setUserProvider = FutureProvider.autoDispose<void>((ref) async {
     final user = userResult.data!;
     await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
     await ref.read(userProvider.notifier).setRecoveryCode(user.recoveryCode);
+    await ref.read(userProvider.notifier).setDepixLiquidAddress(user.depixLiquidAddress);
+    await ref.read(affiliateProvider.notifier).setAffiliateCode(user.affiliateCode ?? '');
+    if (user.hasCreatedAffiliate) {
+      await ref.read(userProvider.notifier).setHasCreatedAffiliate(true);
+      await ref.read(affiliateProvider.notifier).setLiquidAddress(user.affiliateLiquidAddress ?? '');
+    } else if (user.hasInsertedAffiliate) {
+      await ref.read(userProvider.notifier).setHasInsertedAffiliate(user.hasInsertedAffiliate);
+    }
   } else {
     throw userResult.error!;
   }

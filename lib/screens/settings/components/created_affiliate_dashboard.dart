@@ -77,7 +77,7 @@ class CreatedAffiliateWidget extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      affiliateData.code ?? 'N/A',
+                      affiliateData.code,
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 22,

@@ -10,7 +10,7 @@ const FlutterSecureStorage _storage = FlutterSecureStorage();
 
 class UserModel extends StateNotifier<User> {
   UserModel(super.state);
-  Future<void> sethasInsertedAffiliate(bool hasInsertedAffiliate) async {
+  Future<void> setHasInsertedAffiliate(bool hasInsertedAffiliate) async {
     final box = await Hive.openBox('user');
     box.put('hasInsertedAffiliate', hasInsertedAffiliate);
     state = state.copyWith(hasInsertedAffiliate: hasInsertedAffiliate);
@@ -38,21 +38,33 @@ class UserModel extends StateNotifier<User> {
     await _storage.write(key: 'recoveryCode', value: recoveryCode);
     state = state.copyWith(recoveryCode: recoveryCode);
   }
+
+  Future<void> setDepixLiquidAddress(String liquidAddress) async {
+    final box = await Hive.openBox('user');
+    box.put('depixLiquidAddress', liquidAddress);
+    state = state.copyWith(depixLiquidAddress: liquidAddress);
+  }
 }
 
 class User {
   final bool hasInsertedAffiliate;
   final bool hasCreatedAffiliate;
   final String recoveryCode;
+  final String depixLiquidAddress;
   final String paymentId;
   final bool? onboarded;
+  final String? affiliateCode;
+  final String? affiliateLiquidAddress;
 
   User({
     this.hasInsertedAffiliate = false,
     this.hasCreatedAffiliate = false,
     required this.recoveryCode,
+    required this.depixLiquidAddress,
     required this.paymentId,
     this.onboarded,
+    this.affiliateCode,
+    this.affiliateLiquidAddress,
   });
 
   User copyWith({
@@ -62,12 +74,14 @@ class User {
     String? recoveryCode,
     String? paymentId,
     bool? onboarded,
+    String? depixLiquidAddress,
   }) {
     return User(
       hasInsertedAffiliate: hasInsertedAffiliate ?? this.hasInsertedAffiliate,
       hasCreatedAffiliate: hasCreatedAffiliate ?? this.hasCreatedAffiliate,
       recoveryCode: recoveryCode ?? this.recoveryCode,
       paymentId: paymentId ?? this.paymentId,
+      depixLiquidAddress: depixLiquidAddress ?? this.depixLiquidAddress,
       onboarded: onboarded ?? this.onboarded,
     );
   }
@@ -76,8 +90,11 @@ class User {
     return User(
       recoveryCode: json['user']['authentication_token'],
       paymentId: json['user']['payment_id'],
-      hasInsertedAffiliate: json['hasInsertedAffiliate'] ?? false,
-      hasCreatedAffiliate: json['hasCreatedAffiliate'] ?? false,
+      depixLiquidAddress: json['user']['liquid_address'],
+      affiliateCode: json['associated_affiliate'] ?? '',
+      hasCreatedAffiliate: json['has_created_affiliate'] ?? false,
+      affiliateLiquidAddress: json['affiliate_liquid_address'] ?? '',
+      hasInsertedAffiliate: json['has_inserted_affiliate'] ?? false,
     );
   }
 }

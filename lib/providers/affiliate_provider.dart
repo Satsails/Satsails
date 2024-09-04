@@ -29,7 +29,7 @@ final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>
   final result = await AffiliateService.addAffiliateCode(paymentId, affiliateCode, auth);
 
   if (result.isSuccess && result.data == true) {
-    await ref.read(userProvider.notifier).sethasInsertedAffiliate(true);
+    await ref.read(userProvider.notifier).setHasInsertedAffiliate(true);
     await ref.read(affiliateProvider.notifier).setAffiliateCode(affiliateCode);
   } else {
     throw result.error!;
@@ -44,6 +44,7 @@ final createAffiliateCodeProvider = FutureProvider.autoDispose.family<void, Affi
   if (result.isSuccess && result.data == true) {
     await ref.read(userProvider.notifier).setHasCreatedAffiliate(true);
     await ref.read(affiliateProvider.notifier).setAffiliateCode(affiliate.code);
+    await ref.read(affiliateProvider.notifier).setLiquidAddress(affiliate.liquidAddress);
   } else {
     throw result.error!;
   }
