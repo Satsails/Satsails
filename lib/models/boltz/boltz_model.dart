@@ -232,7 +232,7 @@ class LbtcBoltz {
         outAddress: address,
         outAmount: amount,
         network: Chain.liquid,
-        electrumUrl: 'blockstream.info:995',
+        electrumUrl: 'les.bullbitcoin.com:995',
         boltzUrl: 'https://api.boltz.exchange/v2',
         referralId: 'satsails',
       );
@@ -317,7 +317,7 @@ class LbtcBoltz {
         index: index,
         invoice: invoice,
         network: Chain.liquid,
-        electrumUrl: 'blockstream.info:995',
+        electrumUrl: 'les.bullbitcoin.com:995',
         boltzUrl: 'https://api.boltz.exchange/v2',
         referralId: 'satsails',
       );

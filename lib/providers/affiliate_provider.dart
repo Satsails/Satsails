@@ -1,4 +1,5 @@
 import 'package:Satsails/models/affiliate_model.dart';
+import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -75,7 +76,7 @@ final getTotalValuePurchasedByAffiliateUsersProvider = FutureProvider.autoDispos
   }
 });
 
-final getAllTransfersFromAffiliateUsersProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
+final getAllTransfersFromAffiliateUsersProvider = FutureProvider.autoDispose<List<ParsedTransfer>>((ref) async {
   final auth = ref.read(userProvider).recoveryCode;
   final affiliateCode = ref.read(affiliateProvider).code;
   final result = await AffiliateService.getAllTransfersFromAffiliateUsers(affiliateCode, auth);

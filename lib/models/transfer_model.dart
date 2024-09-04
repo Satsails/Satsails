@@ -79,3 +79,21 @@ class Transfer {
     receivedAmount: 0.0,
   );
 }
+
+class ParsedTransfer {
+  final String timestamp;
+  final String amount_payed_to_affiliate;
+
+  ParsedTransfer({
+    required this.timestamp,
+    required this.amount_payed_to_affiliate,
+  });
+
+  factory ParsedTransfer.fromJson(Map<String, dynamic> json) {
+    return ParsedTransfer(
+      timestamp: json['timestamp'],
+      amount_payed_to_affiliate: json['amount_payed_to_affiliate'],
+    );
+  }
+}
+

@@ -50,7 +50,7 @@ class PixHistory extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(dynamicRadius),
                           ),
                           child: Text(
-                            "Transaction still pending, or maximum value of 5000 per CPF has been reached and depix will be transferred on next available day".i18n(ref),
+                            "Transaction still pending".i18n(ref),
                             style: TextStyle(color: Colors.black),
                           ),
                         ),

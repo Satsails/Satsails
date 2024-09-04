@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:Satsails/handlers/response_handlers.dart';
+import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/validations/address_validation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -49,11 +50,12 @@ class Affiliate {
 }
 
 
+
 class AffiliateService {
   static Future<Result<bool>> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
     try {
       final response = await http.post(
-        Uri.parse('https://e80a-109-50-157-141.ngrok-free.app/add_affiliate'),
+        Uri.parse('https://b532-109-50-157-141.ngrok-free.app/add_affiliate'),
         body: jsonEncode({
           'user': {
             'payment_id': paymentId,
@@ -82,7 +84,7 @@ class AffiliateService {
     if (isValid) {
       try {
         final response = await http.post(
-          Uri.parse('https://e80a-109-50-157-141.ngrok-free.app/affiliates'),
+          Uri.parse('https://b532-109-50-157-141.ngrok-free.app/affiliates'),
           body: jsonEncode({
             'affiliate': {
               'affiliate_owner': paymentId,
@@ -112,7 +114,7 @@ class AffiliateService {
 
   static Future<Result<int>> affiliateNumberOfUsers(String affiliateCode, String auth) async {
     try {
-      final uri = Uri.parse('https://e80a-109-50-157-141.ngrok-free.app/number_of_users')
+      final uri = Uri.parse('https://b532-109-50-157-141.ngrok-free.app/number_of_users')
           .replace(queryParameters: {
         'code': affiliateCode,
       });
@@ -137,7 +139,7 @@ class AffiliateService {
 
   static Future<Result<String>> affiliateEarnings(String affiliateCode, String auth) async {
     try {
-      final uri = Uri.parse('https://e80a-109-50-157-141.ngrok-free.app/value_earned_by_affiliate')
+      final uri = Uri.parse('https://b532-109-50-157-141.ngrok-free.app/value_earned_by_affiliate')
           .replace(queryParameters: {
         'code': affiliateCode,
       });
@@ -162,7 +164,7 @@ class AffiliateService {
 
   static Future<Result<String>> affiliateUsersSpend(String affiliateCode, String auth) async {
     try {
-      final uri = Uri.parse('https://e80a-109-50-157-141.ngrok-free.app/total_value_purchased_by_clients')
+      final uri = Uri.parse('https://b532-109-50-157-141.ngrok-free.app/total_value_purchased_by_clients')
           .replace(queryParameters: {
         'code': affiliateCode,
       });
@@ -184,10 +186,10 @@ class AffiliateService {
       return Result(error: 'An error occurred: $e');
     }
   }
-  static Future<Result<List<dynamic>>> getAllTransfersFromAffiliateUsers(String affiliateCode, String auth) async {
+  static Future<Result<List<ParsedTransfer>>> getAllTransfersFromAffiliateUsers(String affiliateCode, String auth) async {
     try {
       final response = await http.get(
-        Uri.parse('https://e80a-109-50-157-141.ngrok-free.app/all_transfers')
+        Uri.parse('https://b532-109-50-157-141.ngrok-free.app/all_transfers')
             .replace(queryParameters: {
           'code': affiliateCode,
         }),
@@ -198,7 +200,8 @@ class AffiliateService {
       );
 
       if (response.statusCode == 200) {
-        return Result(data: jsonDecode(response.body));
+        List<dynamic> transfers = jsonDecode(response.body);
+        return Result(data: transfers.map((transfer) => ParsedTransfer.fromJson(transfer)).toList());
       } else {
         return Result(error: 'Failed to get all transfers');
       }

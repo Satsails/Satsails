@@ -9,7 +9,7 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 
 final initializeLiquidProvider = FutureProvider<Liquid>((ref) {
   return ref.watch(liquidConfigProvider.future).then((config) {
-    return Liquid(liquid: config, electrumUrl: 'blockstream.info:995');
+    return Liquid(liquid: config, electrumUrl: 'les.bullbitcoin.com:995');
   });
 });
 

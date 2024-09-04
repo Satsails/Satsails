@@ -1,9 +1,10 @@
+import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/providers/affiliate_provider.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/providers/user_provider.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:syncfusion_flutter_charts/charts.dart'; // Import for Syncfusion charts
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class CreatedAffiliateWidget extends ConsumerWidget {
   const CreatedAffiliateWidget({super.key});
@@ -11,7 +12,6 @@ class CreatedAffiliateWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final affiliateData = ref.watch(affiliateProvider);
-    final user = ref.watch(userProvider);
     final numberOfInstall = ref.watch(numberOfAffiliateInstallsProvider);
     final earnings = ref.watch(affiliateEarningsProvider);
     final totalValuePurchased = ref.watch(getTotalValuePurchasedByAffiliateUsersProvider);
@@ -20,7 +20,7 @@ class CreatedAffiliateWidget extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Account', style: TextStyle(color: Colors.white)),
+        title: const Text('Affiliate Section', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -29,166 +29,181 @@ class CreatedAffiliateWidget extends ConsumerWidget {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              totalValuePurchased.when(
-                data: (totalValue) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildTierIcon(context, 'Bronze', Icons.vpn_key, double.parse(totalValue), 1000.0),
-                      _buildTierIcon(context, 'Silver', Icons.military_tech, double.parse(totalValue), 2000.0),
-                      _buildTierIcon(context, 'Gold', Icons.emoji_events, double.parse(totalValue), 5000.0),
-                      _buildTierIcon(context, 'Diamond', Icons.diamond, double.parse(totalValue), 10000.0),
-                    ],
-                  );
-                },
-                loading: () => LoadingAnimationWidget.threeArchedCircle(
-                  size: MediaQuery.of(context).size.height * 0.1,
-                  color: Colors.orange,
-                ),
-                error: (error, stackTrace) {
-                  return Text(
-                    'Error: $error',
-                    style: const TextStyle(color: Colors.red),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.orange.shade300, Colors.orange.shade700],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                totalValuePurchased.when(
+                  data: (totalValue) {
+                    final totalValueDecimal = Decimal.parse(totalValue.toString());
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildTierIcon(context, 'Bronze', Icons.vpn_key, totalValueDecimal, Decimal.parse('0')),
+                        _buildTierIcon(context, 'Silver', Icons.military_tech, totalValueDecimal, Decimal.parse('2500')),
+                        _buildTierIcon(context, 'Gold', Icons.emoji_events, totalValueDecimal, Decimal.parse('5000')),
+                        _buildTierIcon(context, 'Diamond', Icons.diamond, totalValueDecimal, Decimal.parse('20000')),
+                      ],
+                    );
+                  },
+                  loading: () => LoadingAnimationWidget.threeArchedCircle(
+                    size: MediaQuery.of(context).size.height * 0.1,
+                    color: Colors.orange,
                   ),
-                  borderRadius: BorderRadius.circular(12.0),
+                  error: (error, stackTrace) {
+                    return Text(
+                      'Error: $error',
+                      style: const TextStyle(color: Colors.red),
+                    );
+                  },
                 ),
-                child: Column(
-                  children: [
-                    const Text(
-                      'Your Affiliate Code',
-                      style: TextStyle(color: Colors.black, fontSize: 16),
+                const SizedBox(height: 20),
+                // Affiliate Code Section - Full-width card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.orange.shade300, Colors.orange.shade700],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      affiliateData.code,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Linked to: ${affiliateData.liquidAddress.isEmpty ? 'N/A' : affiliateData.liquidAddress.substring(0, 10) + '...'}',
-                      style: const TextStyle(color: Colors.black, fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              earnings.when(
-                data: (data) {
-                  return Column(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Earnings',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        'Your Affiliate Code',
+                        style: TextStyle(color: Colors.black, fontSize: 16),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '$data DPIX',
+                        affiliateData.code,
                         style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
+                          color: Colors.black,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      allTransfers.when(
-                        data: (transfersData) {
-                          return _buildSyncfusionChart(transfersData);
-                        },
-                        loading: () => LoadingAnimationWidget.threeArchedCircle(
-                          size: MediaQuery.of(context).size.height * 0.1,
-                          color: Colors.orange,
-                        ),
-                        error: (error, stackTrace) {
-                          return Text(
-                            'Error: $error',
-                            style: const TextStyle(color: Colors.red),
-                          );
-                        },
-                      ),
-                    ],
-                  );
-                },
-                loading: () => LoadingAnimationWidget.threeArchedCircle(
-                  size: MediaQuery.of(context).size.height * 0.1,
-                  color: Colors.orange,
-                ),
-                error: (error, stackTrace) {
-                  return Text(
-                    'Error: $error',
-                    style: const TextStyle(color: Colors.red),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              numberOfInstall.when(
-                data: (installs) {
-                  return Column(
-                    children: [
-                      const Text(
-                        'Number of Installations',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                       const SizedBox(height: 8),
+                      // Only show the beginning and end of liquid address
                       Text(
-                        installs.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        _formatLiquidAddress(affiliateData.liquidAddress),
+                        style: const TextStyle(color: Colors.black, fontSize: 14),
                       ),
                     ],
-                  );
-                },
-                loading: () => LoadingAnimationWidget.threeArchedCircle(
-                  size: MediaQuery.of(context).size.height * 0.1,
-                  color: Colors.orange,
+                  ),
                 ),
-                error: (error, stackTrace) {
-                  return Text(
-                    'Error: $error',
-                    style: const TextStyle(color: Colors.red),
-                  );
-                },
-              ),
-            ],
+                const SizedBox(height: 20),
+                earnings.when(
+                  data: (data) {
+                    final earningsDecimal = Decimal.parse(data.toString());
+                    return Column(
+                      children: [
+                        const Text(
+                          'Earnings',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '$earningsDecimal DPIX',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    );
+                  },
+                  loading: () => LoadingAnimationWidget.threeArchedCircle(
+                    size: MediaQuery.of(context).size.height * 0.1,
+                    color: Colors.orange,
+                  ),
+                  error: (error, stackTrace) {
+                    return Text(
+                      'Error: $error',
+                      style: const TextStyle(color: Colors.red),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                numberOfInstall.when(
+                  data: (installs) {
+                    return Column(
+                      children: [
+                        const Text(
+                          'Number of Installations',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          installs.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                  loading: () => LoadingAnimationWidget.threeArchedCircle(
+                    size: MediaQuery.of(context).size.height * 0.1,
+                    color: Colors.orange,
+                  ),
+                  error: (error, stackTrace) {
+                    return Text(
+                      'Error: $error',
+                      style: const TextStyle(color: Colors.red),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                allTransfers.when(
+                  data: (transfersData) {
+                    return _buildSyncfusionChart(transfersData);
+                  },
+                  loading: () => LoadingAnimationWidget.threeArchedCircle(
+                    size: MediaQuery.of(context).size.height * 0.1,
+                    color: Colors.orange,
+                  ),
+                  error: (error, stackTrace) {
+                    return Text(
+                      'Error: $error',
+                      style: const TextStyle(color: Colors.red),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildTierIcon(BuildContext context, String label, IconData icon, double totalValue, double threshold) {
+  // Helper function to format the liquid address
+  String _formatLiquidAddress(String address) {
+    if (address.isEmpty) return 'N/A';
+    final start = address.substring(0, 6);
+    final end = address.substring(address.length - 6);
+    return '$start...$end';
+  }
+
+  Widget _buildTierIcon(BuildContext context, String label, IconData icon, Decimal totalValue, Decimal threshold) {
     final isUnlocked = totalValue >= threshold;
     final iconColor = isUnlocked ? Colors.orange : Colors.grey;
 
     return GestureDetector(
-      onTap: isUnlocked
-          ? () {
-        _showTierInfoModal(context, label, totalValue, threshold);
-      }
-          : null,
+      onTap: () {
+        _showTierInfoModal(context, label, totalValue, threshold, isUnlocked);
+      },
       child: Column(
         children: [
           CircleAvatar(
@@ -206,10 +221,12 @@ class CreatedAffiliateWidget extends ConsumerWidget {
     );
   }
 
-  void _showTierInfoModal(BuildContext context, String label, double totalValue, double threshold) {
-    String feeInfo = totalValue >= 20000
+  void _showTierInfoModal(BuildContext context, String label, Decimal totalValue, Decimal threshold, bool isUnlocked) {
+    String feeInfo = isUnlocked
+        ? (totalValue >= Decimal.parse('20000')
         ? "Current fee is 1% per affiliate in perpetuity."
-        : "Current fee is 0.2% per affiliate in perpetuity until you reach 20K in value transacted, then it goes to 1%.";
+        : "Current fee is 0.2% per affiliate in perpetuity until you reach 20K in value transacted, then it goes to 1%.")
+        : "You have not unlocked the $label tier yet. Unlock it by reaching ${threshold.toString()} in value transacted.";
 
     showModalBottomSheet(
       context: context,
@@ -229,7 +246,7 @@ class CreatedAffiliateWidget extends ConsumerWidget {
               const Icon(Icons.info, size: 50, color: Colors.black),
               const SizedBox(height: 16),
               Text(
-                'You are $label!',
+                isUnlocked ? 'You are $label!' : 'Tier Locked',
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -238,7 +255,9 @@ class CreatedAffiliateWidget extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'With $totalValue DPIX, you have reached the $label tier.',
+                isUnlocked
+                    ? 'With $totalValue DPIX, you have reached the $label tier.'
+                    : 'You need ${threshold.toString()} DPIX to unlock the $label tier.',
                 style: const TextStyle(fontSize: 16, color: Colors.black),
                 textAlign: TextAlign.center,
               ),
@@ -265,29 +284,63 @@ class CreatedAffiliateWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildSyncfusionChart(List<dynamic> transfersData) {
+  Widget _buildSyncfusionChart(List<ParsedTransfer> transfersData) {
     List<ChartData> chartData = transfersData
-        .map((entry) => ChartData(double.parse(entry.key), entry.value.toDouble()))
+        .map((transfer) {
+      final timestamp = DateTime.parse(transfer.timestamp);
+      final amount = double.parse(transfer.amount_payed_to_affiliate);
+      return ChartData(
+        timestamp,  // DateTime here
+        amount,
+      );
+    })
         .toList();
 
-    return SizedBox(
-      height: 200,
-      child: SfCartesianChart(
-        primaryXAxis: CategoryAxis(),
-        series: <LineSeries<ChartData, double>>[
-          LineSeries<ChartData, double>(
-            dataSource: chartData,
-            xValueMapper: (ChartData data, _) => data.x,
-            yValueMapper: (ChartData data, _) => data.y,
-          ),
-        ],
+    if (transfersData.isEmpty) {
+      return Container();
+    }
+
+    return SfCartesianChart(
+      backgroundColor: Colors.transparent,
+      title: ChartTitle(
+        text: 'Your Earnings Over Time',
+        textStyle: const TextStyle(color: Colors.white, fontSize: 16),
       ),
+      primaryXAxis: DateTimeAxis( // Use DateTimeAxis for proper date display
+        isVisible: true,
+        majorGridLines: MajorGridLines(width: 0),
+        axisLine: AxisLine(width: 0),
+        labelStyle: const TextStyle(color: Colors.white),
+      ),
+      primaryYAxis: NumericAxis(
+        isVisible: true,
+        majorGridLines: MajorGridLines(width: 0),
+        axisLine: AxisLine(width: 0),
+        labelStyle: const TextStyle(color: Colors.white),
+      ),
+      trackballBehavior: TrackballBehavior(
+        enable: true,
+        tooltipSettings: const InteractiveTooltip(
+          enable: true,
+          color: Colors.orangeAccent,
+          textStyle: TextStyle(color: Colors.white),
+        ),
+      ),
+      series: <LineSeries<ChartData, DateTime>>[ // Use DateTime for xValueMapper
+        LineSeries<ChartData, DateTime>(
+          dataSource: chartData,
+          xValueMapper: (ChartData sales, _) => sales.x,  // DateTime here
+          yValueMapper: (ChartData sales, _) => sales.y,
+          color: Colors.orange,
+          name: 'Affiliate Earnings',
+        ),
+      ],
     );
   }
 }
 
 class ChartData {
-  final double x;
+  final DateTime x;  // Change this to DateTime
   final double y;
 
   ChartData(this.x, this.y);
