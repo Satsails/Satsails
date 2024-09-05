@@ -41,24 +41,47 @@ class _UserViewState extends ConsumerState<UserView> {
             children: [
               _buildPaymentIdRow(user.paymentId, width, height),
               SizedBox(height: height * 0.02),
-              _buildCreatedAffiliateRow(affiliate.createdAffiliateCode.isNotEmpty == true ? affiliate.createdAffiliateCode : 'N/A'),
+              _buildCreatedAffiliateRow(affiliate.createdAffiliateCode.isNotEmpty == true ? affiliate.createdAffiliateCode : 'N/A', width, height),
               SizedBox(height: height * 0.02),
-              _buildInsertedAffiliateRow(affiliate.insertedAffiliateCode.isNotEmpty == true ? affiliate.insertedAffiliateCode : 'N/A'),
+              _buildInsertedAffiliateRow(affiliate.insertedAffiliateCode.isNotEmpty == true ? affiliate.insertedAffiliateCode : 'N/A', width, height),
               SizedBox(height: height * 0.02),
-              _buildRecoveryCodeRow(user.recoveryCode),
-              SizedBox(height: height * 0.02),
-               Text(
+              _buildRecoveryCodeSection(user.recoveryCode, width, height),
+              SizedBox(height: height * 0.03),
+              Text(
                 'Hint: Please store your recovery code somewhere safe. There is no other way to recover your account if you lose this code.',
                 style: TextStyle(color: Colors.redAccent, fontSize: width * 0.03),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16.0),
-              CustomElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/start_affiliate');
-                },
-                text: "Go to Affiliate Section",
-                backgroundColor: Colors.orange,
+              Container(
+                padding: EdgeInsets.symmetric(vertical: height * 0.03),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white54),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'Affiliate Portal',
+                      style: TextStyle(color: Colors.white, fontSize: width * 0.045, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: height * 0.01),
+                    Text(
+                      'Track your performance and access exclusive resources.',
+                      style: TextStyle(color: Colors.white70, fontSize: width * 0.035),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: height * 0.02),
+                    CustomElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed('/start_affiliate');
+                      },
+                      text: "Go to Affiliate Portal",
+                      backgroundColor: Colors.orange,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -78,29 +101,27 @@ class _UserViewState extends ConsumerState<UserView> {
           timeInSecForIosWeb: 1,
           backgroundColor: Colors.green,
           textColor: Colors.white,
-          fontSize: MediaQuery.of(context).size.height * 0.01,
+          fontSize: height * 0.02,
         );
       },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Payment ID',
             style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
           ),
-          Expanded(
-            child: Text(
-              paymentId,
-              textAlign: TextAlign.right,
-              style: TextStyle(color: Colors.white, fontSize: width * 0.04),
-            ),
+          SizedBox(height: height * 0.01),
+          Text(
+            paymentId,
+            style: TextStyle(color: Colors.white, fontSize: width * 0.05, fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCreatedAffiliateRow(String affiliateCode) {
+  Widget _buildCreatedAffiliateRow(String affiliateCode, double width, double height) {
     return GestureDetector(
       onTap: () {
         if (affiliateCode != 'N/A') {
@@ -112,30 +133,32 @@ class _UserViewState extends ConsumerState<UserView> {
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.green,
             textColor: Colors.white,
-            fontSize: MediaQuery.of(context).size.height * 0.01,
+            fontSize: height * 0.02,
           );
         }
       },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Created Affiliate Code',
-            style: TextStyle(color: Colors.grey, fontSize: MediaQuery.of(context).size.width * 0.04),
+            style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
           ),
-          Expanded(
-            child: Text(
-              affiliateCode,
-              textAlign: TextAlign.right,
-              style: TextStyle(color: Colors.white, fontSize: MediaQuery.of(context).size.width * 0.04),
-            ),
+          SizedBox(height: height * 0.01),
+          Text(
+            affiliateCode,
+            style: TextStyle(color: Colors.white, fontSize: width * 0.05, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            'This code is for sharing',
+            style: TextStyle(color: Colors.white54, fontSize: width * 0.03),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInsertedAffiliateRow(String affiliateCode) {
+  Widget _buildInsertedAffiliateRow(String affiliateCode, double width, double height) {
     return GestureDetector(
       onTap: () {
         if (affiliateCode != 'N/A') {
@@ -147,30 +170,28 @@ class _UserViewState extends ConsumerState<UserView> {
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.green,
             textColor: Colors.white,
-            fontSize: MediaQuery.of(context).size.height * 0.01,
+            fontSize: height * 0.02,
           );
         }
       },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Inserted Affiliate Code',
-            style: TextStyle(color: Colors.grey, fontSize: MediaQuery.of(context).size.width * 0.04),
+            style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
           ),
-          Expanded(
-            child: Text(
-              affiliateCode,
-              textAlign: TextAlign.right,
-              style: TextStyle(color: Colors.white, fontSize: MediaQuery.of(context).size.width * 0.04),
-            ),
+          SizedBox(height: height * 0.01),
+          Text(
+            affiliateCode,
+            style: TextStyle(color: Colors.white, fontSize: width * 0.05, fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildRecoveryCodeRow(String recoveryCode) {
+  Widget _buildRecoveryCodeSection(String recoveryCode, double width, double height) {
     return GestureDetector(
       onTap: () {
         if (!_isRecoveryCodeHidden) {
@@ -182,38 +203,41 @@ class _UserViewState extends ConsumerState<UserView> {
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.green,
             textColor: Colors.white,
-            fontSize: MediaQuery.of(context).size.height * 0.01,
+            fontSize: height * 0.02,
           );
         }
       },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Recovery Code',
-            style: TextStyle(color: Colors.grey, fontSize: MediaQuery.of(context).size.width * 0.04),
+            style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
           ),
-          Expanded(
-            child: Text(
-              _isRecoveryCodeHidden ? '************' : recoveryCode,
-              textAlign: TextAlign.right,
-              style: TextStyle(color: Colors.white, fontSize: MediaQuery.of(context).size.width * 0.04),
-            ),
-          ),
-          IconButton(
-            icon: Icon(
-              _isRecoveryCodeHidden ? Icons.visibility : Icons.visibility_off,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              setState(() {
-                _isRecoveryCodeHidden = !_isRecoveryCodeHidden;
-              });
-            },
+          SizedBox(height: height * 0.01),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _isRecoveryCodeHidden ? '************' : recoveryCode,
+                  style: TextStyle(color: Colors.white, fontSize: width * 0.05, fontWeight: FontWeight.bold),
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  _isRecoveryCodeHidden ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isRecoveryCodeHidden = !_isRecoveryCodeHidden;
+                  });
+                },
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 }
-
