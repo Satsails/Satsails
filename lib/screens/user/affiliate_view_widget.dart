@@ -21,15 +21,23 @@ class AffiliateViewWidget extends ConsumerWidget {
     final hasCreatedAffiliate = user.hasCreatedAffiliate;
     final numberOfInstall = ref.watch(numberOfAffiliateInstallsProvider);
     final earnings = ref.watch(affiliateEarningsProvider);
-    final totalValuePurchased = ref.watch(getTotalValuePurchasedByAffiliateUsersProvider);
+    final totalValuePurchased = ref.watch(
+        getTotalValuePurchasedByAffiliateUsersProvider);
     final allTransfers = ref.watch(getAllTransfersFromAffiliateUsersProvider);
-    final height = MediaQuery.of(context).size.height;
-    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery
+        .of(context)
+        .size
+        .height;
+    final width = MediaQuery
+        .of(context)
+        .size
+        .width;
 
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Affiliate Section', style: TextStyle(color: Colors.white)),
+        title: const Text(
+            'Affiliate Section', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -50,23 +58,56 @@ class AffiliateViewWidget extends ConsumerWidget {
                     children: [
                       totalValuePurchased.when(
                         data: (totalValue) {
-                          final totalValueDecimal = Decimal.parse(totalValue.toString());
+                          final totalValueDecimal = Decimal.parse(totalValue
+                              .toString());
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              _buildTierIcon(context, 'Bronze', Icons.vpn_key, totalValueDecimal, Decimal.parse('0'), width, height),
-                              _buildTierIcon(context, 'Silver', Icons.military_tech, totalValueDecimal, Decimal.parse('2500'), width, height),
-                              _buildTierIcon(context, 'Gold', Icons.emoji_events, totalValueDecimal, Decimal.parse('5000'), width, height),
-                              _buildTierIcon(context, 'Diamond', Icons.diamond, totalValueDecimal, Decimal.parse('20000'), width, height),
+                              _buildTierIcon(
+                                  context,
+                                  'Bronze',
+                                  Icons.vpn_key,
+                                  totalValueDecimal,
+                                  Decimal.parse('0'),
+                                  width,
+                                  height),
+                              _buildTierIcon(
+                                  context,
+                                  'Silver',
+                                  Icons.military_tech,
+                                  totalValueDecimal,
+                                  Decimal.parse('2500'),
+                                  width,
+                                  height),
+                              _buildTierIcon(
+                                  context,
+                                  'Gold',
+                                  Icons.emoji_events,
+                                  totalValueDecimal,
+                                  Decimal.parse('5000'),
+                                  width,
+                                  height),
+                              _buildTierIcon(
+                                  context,
+                                  'Diamond',
+                                  Icons.diamond,
+                                  totalValueDecimal,
+                                  Decimal.parse('20000'),
+                                  width,
+                                  height),
                             ],
                           );
                         },
-                        loading: () => Center(
-                          child: LoadingAnimationWidget.threeArchedCircle(
-                            size: MediaQuery.of(context).size.height * 0.1,
-                            color: Colors.orange,
-                          ),
-                        ),
+                        loading: () =>
+                            Center(
+                              child: LoadingAnimationWidget.threeArchedCircle(
+                                size: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .height * 0.1,
+                                color: Colors.orange,
+                              ),
+                            ),
                         error: (error, stackTrace) {
                           return Center(
                             child: Text(
@@ -79,10 +120,13 @@ class AffiliateViewWidget extends ConsumerWidget {
                       SizedBox(height: height * 0.01),
                       Container(
                         width: double.infinity,
-                        padding: EdgeInsets.symmetric(horizontal: width * 0.05, vertical: height * 0.03),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: width * 0.05, vertical: height * 0.03),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Colors.orange.shade300, Colors.orange.shade700],
+                            colors: [Colors.orange.shade300, Colors.orange
+                                .shade700
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -93,7 +137,8 @@ class AffiliateViewWidget extends ConsumerWidget {
                           children: [
                             Text(
                               'Your Affiliate Code to Share',
-                              style: TextStyle(color: Colors.black, fontSize: width * 0.03),
+                              style: TextStyle(
+                                  color: Colors.black, fontSize: width * 0.03),
                             ),
                             SizedBox(height: height * 0.01),
                             Text(
@@ -109,12 +154,15 @@ class AffiliateViewWidget extends ConsumerWidget {
                               children: [
                                 Text(
                                   'Registered:',
-                                  style: TextStyle(color: Colors.black, fontSize: width * 0.03),
+                                  style: TextStyle(color: Colors.black,
+                                      fontSize: width * 0.03),
                                 ),
                                 const SizedBox(width: 2),
                                 Text(
-                                  _formatLiquidAddress(affiliateData.createdAffiliateLiquidAddress),
-                                  style: TextStyle(color: Colors.black, fontSize: width * 0.03),
+                                  _formatLiquidAddress(affiliateData
+                                      .createdAffiliateLiquidAddress),
+                                  style: TextStyle(color: Colors.black,
+                                      fontSize: width * 0.03),
                                 ),
                               ],
                             ),
@@ -124,12 +172,14 @@ class AffiliateViewWidget extends ConsumerWidget {
                       SizedBox(height: height * 0.01),
                       earnings.when(
                         data: (data) {
-                          final earningsDecimal = Decimal.parse(data.toString());
+                          final earningsDecimal = Decimal.parse(data
+                              .toString());
                           return Column(
                             children: [
                               Text(
                                 'Total Earnings',
-                                style: TextStyle(color: Colors.white, fontSize: width * 0.04),
+                                style: TextStyle(color: Colors.white,
+                                    fontSize: width * 0.04),
                               ),
                               SizedBox(height: height * 0.01),
                               Text(
@@ -143,12 +193,16 @@ class AffiliateViewWidget extends ConsumerWidget {
                             ],
                           );
                         },
-                        loading: () => Center(
-                          child: LoadingAnimationWidget.threeArchedCircle(
-                            size: MediaQuery.of(context).size.height * 0.1,
-                            color: Colors.orange,
-                          ),
-                        ),
+                        loading: () =>
+                            Center(
+                              child: LoadingAnimationWidget.threeArchedCircle(
+                                size: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .height * 0.1,
+                                color: Colors.orange,
+                              ),
+                            ),
                         error: (error, stackTrace) {
                           return Center(
                             child: Text(
@@ -160,14 +214,19 @@ class AffiliateViewWidget extends ConsumerWidget {
                       ),
                       allTransfers.when(
                         data: (transfersData) {
-                          return _buildSyncfusionChart(transfersData, width, height);
+                          return _buildSyncfusionChart(
+                              transfersData, width, height);
                         },
-                        loading: () => Center(
-                          child: LoadingAnimationWidget.threeArchedCircle(
-                            size: MediaQuery.of(context).size.height * 0.1,
-                            color: Colors.orange,
-                          ),
-                        ),
+                        loading: () =>
+                            Center(
+                              child: LoadingAnimationWidget.threeArchedCircle(
+                                size: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .height * 0.1,
+                                color: Colors.orange,
+                              ),
+                            ),
                         error: (error, stackTrace) {
                           return Center(
                             child: Text(
@@ -184,7 +243,8 @@ class AffiliateViewWidget extends ConsumerWidget {
                             children: [
                               Text(
                                 'Number of Installations',
-                                style: TextStyle(color: Colors.white, fontSize: width * 0.04),
+                                style: TextStyle(color: Colors.white,
+                                    fontSize: width * 0.04),
                               ),
                               SizedBox(height: height * 0.02),
                               Text(
@@ -198,12 +258,16 @@ class AffiliateViewWidget extends ConsumerWidget {
                             ],
                           );
                         },
-                        loading: () => Center(
-                          child: LoadingAnimationWidget.threeArchedCircle(
-                            size: MediaQuery.of(context).size.height * 0.1,
-                            color: Colors.orange,
-                          ),
-                        ),
+                        loading: () =>
+                            Center(
+                              child: LoadingAnimationWidget.threeArchedCircle(
+                                size: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .height * 0.1,
+                                color: Colors.orange,
+                              ),
+                            ),
                         error: (error, stackTrace) {
                           return Center(
                             child: Text(
@@ -215,52 +279,60 @@ class AffiliateViewWidget extends ConsumerWidget {
                       ),
                     ],
                   )
-                else if (!hasCreatedAffiliate && hasInsertedAffiliate)
-                  Column(
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(horizontal: width * 0.05, vertical: height * 0.04),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.orange.shade300, Colors.orange.shade700],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                else
+                  if (!hasCreatedAffiliate && hasInsertedAffiliate)
+                    Column(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: width * 0.05,
+                              vertical: height * 0.04),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.orange.shade300,
+                                Colors.orange.shade700
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12.0),
                           ),
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              'You were referred by',
-                              style: TextStyle(color: Colors.black, fontSize: width * 0.03),
-                            ),
-                            SizedBox(height: height * 0.01),
-                            Text(
-                              affiliateData.insertedAffiliateCode,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: width * 0.06,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                'You were referred by',
+                                style: TextStyle(color: Colors.black,
+                                    fontSize: width * 0.03),
                               ),
-                            ),
-                          ],
+                              SizedBox(height: height * 0.01),
+                              Text(
+                                affiliateData.insertedAffiliateCode,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: width * 0.06,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      SizedBox(height: height * 0.05),
-                      const Text(
-                        'Would you like to become an affiliate?',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                      SizedBox(height: height * 0.02),
-                      CustomElevatedButton(
-                        text: 'Create Affiliate Code',
-                        onPressed: () {
-                          _showCreateBottomModal(context, 'Create Affiliate Code', ref);
-                        },
-                      ),
-                    ],
-                  ),
+                        SizedBox(height: height * 0.05),
+                        const Text(
+                          'Would you like to become an affiliate?',
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
+                        SizedBox(height: height * 0.02),
+                        CustomElevatedButton(
+                          text: 'Create Affiliate Code',
+                          onPressed: () {
+                            _showCreateBottomModal(
+                                context, 'Create Affiliate Code', ref);
+                          },
+                        ),
+                      ],
+                    ),
               ],
             ),
           ),
@@ -276,13 +348,21 @@ class AffiliateViewWidget extends ConsumerWidget {
     return '$start...$end';
   }
 
-  Widget _buildTierIcon(BuildContext context, String label, IconData icon, Decimal totalValue, Decimal threshold, width, height) {
+  Widget _buildTierIcon(BuildContext context, String label, IconData icon,
+      Decimal totalValue, Decimal threshold, width, height) {
     final isUnlocked = totalValue >= threshold;
     final iconColor = isUnlocked ? Colors.orange : Colors.grey;
 
     return GestureDetector(
       onTap: () {
-        _showTierInfoModal(context, label, totalValue, threshold, isUnlocked, width, height);
+        _showTierInfoModal(
+            context,
+            label,
+            totalValue,
+            threshold,
+            isUnlocked,
+            width,
+            height);
       },
       child: Column(
         children: [
@@ -301,18 +381,22 @@ class AffiliateViewWidget extends ConsumerWidget {
     );
   }
 
-  void _showCreateBottomModal(BuildContext context, String title, WidgetRef ref) {
+  void _showCreateBottomModal(BuildContext context, String title,
+      WidgetRef ref) {
     final TextEditingController _affiliateController = TextEditingController();
     final TextEditingController _liquidAddressController = TextEditingController();
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.orange,  // Set the modal background to orange
+      backgroundColor: Colors.orange, // Set the modal background to orange
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
+            bottom: MediaQuery
+                .of(context)
+                .viewInsets
+                .bottom,
             top: 16.0,
             left: 16.0,
             right: 16.0,
@@ -324,34 +408,49 @@ class AffiliateViewWidget extends ConsumerWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.06,
+                    fontSize: MediaQuery
+                        .of(context)
+                        .size
+                        .width * 0.06,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,  // Dark text color
+                    color: Colors.black, // Dark text color
                   ),
                 ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                SizedBox(height: MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.02),
                 TextField(
                   controller: _liquidAddressController,
                   decoration: const InputDecoration(
                     labelText: 'Liquid Address',
-                    labelStyle: TextStyle(color: Colors.black),  // Dark label color
+                    labelStyle: TextStyle(color: Colors.black),
+                    // Dark label color
                     border: OutlineInputBorder(),
-                    fillColor: Colors.orange,  // Background color for input
-                    filled: true,  // Fill the background color
+                    fillColor: Colors.orange,
+                    // Background color for input
+                    filled: true, // Fill the background color
                   ),
-                  style: const TextStyle(color: Colors.black),  // Dark text color
+                  style: const TextStyle(
+                      color: Colors.black), // Dark text color
                 ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                SizedBox(height: MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.02),
                 TextField(
                   controller: _affiliateController,
                   decoration: const InputDecoration(
                     labelText: 'Affiliate Code',
-                    labelStyle: TextStyle(color: Colors.black),  // Dark label color
+                    labelStyle: TextStyle(color: Colors.black),
+                    // Dark label color
                     border: OutlineInputBorder(),
-                    fillColor: Colors.orange,  // Background color for input
-                    filled: true,  // Fill the background color
+                    fillColor: Colors.orange,
+                    // Background color for input
+                    filled: true, // Fill the background color
                   ),
-                  style: const TextStyle(color: Colors.black),  // Dark text color
+                  style: const TextStyle(
+                      color: Colors.black), // Dark text color
                 ),
                 const SizedBox(height: 20),
                 Padding(
@@ -361,14 +460,21 @@ class AffiliateViewWidget extends ConsumerWidget {
                     textColor: Colors.white,
                     backgroundColor: Colors.black,
                     onPressed: () async {
-                      final hasInserted = ref.watch(affiliateProvider).insertedAffiliateCode.isNotEmpty;
+                      final hasInserted = ref
+                          .watch(affiliateProvider)
+                          .insertedAffiliateCode
+                          .isNotEmpty;
                       Affiliate affiliate = Affiliate(
                         createdAffiliateCode: _affiliateController.text,
-                        createdAffiliateLiquidAddress: _liquidAddressController.text,
-                        insertedAffiliateCode: hasInserted ? ref.watch(affiliateProvider).insertedAffiliateCode : _affiliateController.text,
+                        createdAffiliateLiquidAddress: _liquidAddressController
+                            .text,
+                        insertedAffiliateCode: hasInserted ? ref
+                            .watch(affiliateProvider)
+                            .insertedAffiliateCode : _affiliateController.text,
                       );
                       try {
-                        await ref.read(createAffiliateCodeProvider(affiliate).future);
+                        await ref.read(createAffiliateCodeProvider(affiliate)
+                            .future);
                         Fluttertoast.showToast(
                           msg: 'Affiliate code created successfully',
                           toastLength: Toast.LENGTH_LONG,
@@ -401,17 +507,17 @@ class AffiliateViewWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildSyncfusionChart(List<ParsedTransfer> transfersData, width, height) {
+  Widget _buildSyncfusionChart(List<ParsedTransfer> transfersData, width,
+      height) {
     List<ChartData> chartData = transfersData
         .map((transfer) {
       final timestamp = DateTime.parse(transfer.timestamp);
       final amount = double.parse(transfer.amount_payed_to_affiliate);
       return ChartData(
-        timestamp,  // DateTime here
+        timestamp, // DateTime here
         amount,
       );
-    })
-        .toList();
+    }).toList();
 
     return SfCartesianChart(
       backgroundColor: Colors.transparent,
@@ -419,17 +525,17 @@ class AffiliateViewWidget extends ConsumerWidget {
         text: 'Your Earnings Over Time',
         textStyle: TextStyle(color: Colors.white, fontSize: width * 0.04),
       ),
-      primaryXAxis: const DateTimeAxis(
+      primaryXAxis: DateTimeAxis(
         isVisible: true,
-        majorGridLines: MajorGridLines(width: 0),
-        axisLine: AxisLine(width: 0),
-        labelStyle: TextStyle(color: Colors.white),
+        axisLine: const AxisLine(width: 0), // Remove the axis line
+        majorGridLines: const MajorGridLines(width: 0), // Remove grid lines
+        labelStyle: const TextStyle(color: Colors.white),
       ),
-      primaryYAxis: const NumericAxis(
+      primaryYAxis: NumericAxis(
         isVisible: true,
-        majorGridLines: MajorGridLines(width: 0),
-        axisLine: AxisLine(width: 0),
-        labelStyle: TextStyle(color: Colors.white),
+        axisLine: const AxisLine(width: 0), // Remove the axis line
+        majorGridLines: const MajorGridLines(width: 0), // Remove grid lines
+        labelStyle: const TextStyle(color: Colors.white),
       ),
       trackballBehavior: TrackballBehavior(
         enable: true,
@@ -442,7 +548,8 @@ class AffiliateViewWidget extends ConsumerWidget {
       series: <LineSeries<ChartData, DateTime>>[
         LineSeries<ChartData, DateTime>(
           dataSource: chartData,
-          xValueMapper: (ChartData sales, _) => sales.x,  // DateTime here
+          xValueMapper: (ChartData sales, _) => sales.x,
+          // DateTime here
           yValueMapper: (ChartData sales, _) => sales.y,
           color: Colors.orange,
           name: 'Affiliate Earnings',
@@ -451,6 +558,7 @@ class AffiliateViewWidget extends ConsumerWidget {
     );
   }
 }
+
 
 void _showTierInfoModal(BuildContext context, String label, Decimal totalValue, Decimal threshold, bool isUnlocked, width, height) {
   String feeInfo = isUnlocked

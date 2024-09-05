@@ -8,7 +8,7 @@ import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
 import 'package:Satsails/screens/user/start_affiliate.dart';
 import 'package:Satsails/screens/settings/components/claim_boltz.dart';
 import 'package:Satsails/screens/spash/splash.dart';
-import 'package:Satsails/screens/user/user_section.dart';
+import 'package:Satsails/screens/user/user_creation.dart';
 import 'package:Satsails/screens/user/user_view.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';

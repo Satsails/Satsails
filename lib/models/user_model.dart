@@ -97,11 +97,11 @@ class User {
 
   factory User.fromShowUserJson(Map<String, dynamic> json) {
     return User(
-      recoveryCode: json['authentication_token'],
-      paymentId: json['payment_id'],
-      depixLiquidAddress: json['liquid_address'],
-      createdAffiliateCode: json['created_affiliate']['affiliate_code'] ?? '',
-      insertedAffiliateCode: json['inserted_affiliate']['affiliate_code'] ?? '',
+      recoveryCode: json['user']['authentication_token'],
+      paymentId: json['user']['payment_id'],
+      depixLiquidAddress: json['user']['liquid_address'],
+      createdAffiliateCode: json['created_affiliate']['code'] ?? '',
+      insertedAffiliateCode: json['inserted_affiliate']['code'] ?? '',
       hasCreatedAffiliate: json['has_created_affiliate'] ?? false,
       createdAffiliateLiquidAddress: json['created_affiliate']['liquid_address'] ?? '',
       hasInsertedAffiliate: json['has_inserted_affiliate'] ?? false,
