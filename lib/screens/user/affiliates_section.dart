@@ -11,75 +11,78 @@ class AffiliatesSectionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,  // This makes the body extend behind the AppBar
-      appBar: AppBar(
-        title: const Text('Affiliate', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.transparent,  // Make the AppBar transparent
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+    return WillPopScope(
+      onWillPop: () async => false,
+      child:Scaffold(
+        extendBodyBehindAppBar: true,  // This makes the body extend behind the AppBar
+        appBar: AppBar(
+          title: const Text('Affiliate', style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.transparent,  // Make the AppBar transparent
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
         ),
-      ),
-      body: Stack(
-        children: [
-          // Background image
-          Positioned.fill(
-            child: Image.asset(
-              'lib/assets/affiliates.png',  // Replace with your image path
-              fit: BoxFit.cover,
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.5),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Connect with other users and earn sats!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Enter your affiliate code or create a new code to receive benefits.',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 40),
-                  CustomElevatedButton(
-                    text: 'Insert Affiliate Code',
-                    textColor: Colors.black,
-                    onPressed: () {
-                      _showInsertBottomModal(context, 'Insert Affiliate Code', ref);
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  CustomElevatedButton(
-                    text: 'Create Affiliate Code',
-                    textColor: Colors.black,
-                    onPressed: () {
-                      _showCreateBottomModal(context, 'Create Affiliate Code', ref);
-                    },
-                  ),
-                ],
+        body: Stack(
+          children: [
+            // Background image
+            Positioned.fill(
+              child: Image.asset(
+                'lib/assets/affiliates.png',  // Replace with your image path
+                fit: BoxFit.cover,
               ),
             ),
-          ),
-        ],
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Connect with other users and earn sats!',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Enter your affiliate code or create a new code to receive benefits.',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 40),
+                    CustomElevatedButton(
+                      text: 'Insert Affiliate Code',
+                      textColor: Colors.black,
+                      onPressed: () {
+                        _showInsertBottomModal(context, 'Insert Affiliate Code', ref);
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    CustomElevatedButton(
+                      text: 'Create Affiliate Code',
+                      textColor: Colors.black,
+                      onPressed: () {
+                        _showCreateBottomModal(context, 'Create Affiliate Code', ref);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

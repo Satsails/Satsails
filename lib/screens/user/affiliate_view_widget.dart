@@ -22,79 +22,81 @@ class AffiliateViewWidget extends ConsumerWidget {
     final numberOfInstall = ref.watch(numberOfAffiliateInstallsProvider);
     final earnings = ref.watch(affiliateEarningsProvider);
     final totalValuePurchased = ref.watch(getTotalValuePurchasedByAffiliateUsersProvider);
-    final allTransfers = ref.watch(getAllTransfersFromAffiliateUsersProvider);
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text('Affiliate Section', style: TextStyle(color: Colors.white)),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child:Scaffold(
         backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(width * 0.05),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (hasCreatedAffiliate) ...[
-                  totalValuePurchased.when(
-                    data: (totalValue) {
-                      final totalValueDecimal = Decimal.parse(totalValue.toString());
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildTierIcon(context, 'Bronze', Icons.vpn_key, totalValueDecimal, Decimal.parse('0'), width, height),
-                          _buildTierIcon(context, 'Silver', Icons.military_tech, totalValueDecimal, Decimal.parse('2500'), width, height),
-                          _buildTierIcon(context, 'Gold', Icons.emoji_events, totalValueDecimal, Decimal.parse('5000'), width, height),
-                          _buildTierIcon(context, 'Diamond', Icons.diamond, totalValueDecimal, Decimal.parse('20000'), width, height),
-                        ],
-                      );
-                    },
-                    loading: () => _loadingWidget(context, height),
-                    error: (error, stackTrace) => _errorWidget(error),
-                  ),
-                  SizedBox(height: height * 0.01),
-                  _buildAffiliateInfo(affiliateData, width, height),
-                  SizedBox(height: height * 0.01),
-                  earnings.when(
-                    data: (data) => _buildEarningsInfo(Decimal.parse(data.toString()), width, height),
-                    loading: () => _loadingWidget(context, height),
-                    error: (error, stackTrace) => _errorWidget(error),
-                  ),
-                  SizedBox(height: height * 0.02),
-                  CustomElevatedButton(
-                    text: "Show Earnings Over Time",
-                    onPressed: () => _showGraphBottomModal(context, ref),
-                  ),
-                  SizedBox(height: height * 0.02),
-                  numberOfInstall.when(
-                    data: (installs) => _buildInstallationsInfo(installs, width, height),
-                    loading: () => _loadingWidget(context, height),
-                    error: (error, stackTrace) => _errorWidget(error),
-                  ),
-                ] else if (!hasCreatedAffiliate && hasInsertedAffiliate) ...[
-                  _buildInsertedAffiliateSection(affiliateData, width, height),
-                  const SizedBox(height: 20),
-                  const Text('Would you like to become an affiliate?', style: TextStyle(color: Colors.white, fontSize: 18)),
-                  const SizedBox(height: 10),
-                  CustomElevatedButton(
-                    text: 'Create Affiliate Code',
-                    onPressed: () => _showCreateBottomModal(context, 'Create Affiliate Code', ref),
-                  ),
-                ]
-              ],
-            ),
+        appBar: AppBar(
+          title: const Text('Affiliate Section', style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.black,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
-        ],
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(width * 0.05),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (hasCreatedAffiliate) ...[
+                    totalValuePurchased.when(
+                      data: (totalValue) {
+                        final totalValueDecimal = Decimal.parse(totalValue.toString());
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildTierIcon(context, 'Bronze', Icons.vpn_key, totalValueDecimal, Decimal.parse('0'), width, height),
+                            _buildTierIcon(context, 'Silver', Icons.military_tech, totalValueDecimal, Decimal.parse('2500'), width, height),
+                            _buildTierIcon(context, 'Gold', Icons.emoji_events, totalValueDecimal, Decimal.parse('5000'), width, height),
+                            _buildTierIcon(context, 'Diamond', Icons.diamond, totalValueDecimal, Decimal.parse('20000'), width, height),
+                          ],
+                        );
+                      },
+                      loading: () => _loadingWidget(context, height),
+                      error: (error, stackTrace) => _errorWidget(error),
+                    ),
+                    SizedBox(height: height * 0.01),
+                    _buildAffiliateInfo(affiliateData, width, height),
+                    SizedBox(height: height * 0.01),
+                    earnings.when(
+                      data: (data) => _buildEarningsInfo(Decimal.parse(data.toString()), width, height),
+                      loading: () => _loadingWidget(context, height),
+                      error: (error, stackTrace) => _errorWidget(error),
+                    ),
+                    SizedBox(height: height * 0.02),
+                    numberOfInstall.when(
+                      data: (installs) => _buildInstallationsInfo(installs, width, height),
+                      loading: () => _loadingWidget(context, height),
+                      error: (error, stackTrace) => _errorWidget(error),
+                    ),
+                    SizedBox(height: height * 0.02),
+                    CustomElevatedButton(
+                      text: "Show Earnings Over Time",
+                      onPressed: () => _showGraphBottomModal(context, ref),
+                    ),
+                  ] else if (!hasCreatedAffiliate && hasInsertedAffiliate) ...[
+                    _buildInsertedAffiliateSection(affiliateData, width, height),
+                    const SizedBox(height: 20),
+                    const Text('Would you like to become an affiliate?', style: TextStyle(color: Colors.white, fontSize: 18)),
+                    const SizedBox(height: 10),
+                    CustomElevatedButton(
+                      text: 'Create Affiliate Code',
+                      onPressed: () => _showCreateBottomModal(context, 'Create Affiliate Code', ref),
+                    ),
+                  ]
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -342,7 +344,7 @@ class AffiliateViewWidget extends ConsumerWidget {
               SizedBox(height: height * 0.02),
               Text(isUnlocked ? 'You are $label!' : 'Tier Locked', style: TextStyle(fontSize: width * 0.06, fontWeight: FontWeight.bold, color: Colors.black)),
               SizedBox(height: height * 0.02),
-              Text(isUnlocked ? 'With $totalValue DPIX, you have reached the $label tier.' : 'You need ${threshold.toString()} DPIX to unlock the $label tier.', style: const TextStyle(fontSize: 16, color: Colors.black), textAlign: TextAlign.center),
+              Text(isUnlocked ? 'With $totalValue DEPIX, you have reached the $label tier.' : 'You need ${threshold.toString()} DEPIX to unlock the $label tier.', style: const TextStyle(fontSize: 16, color: Colors.black), textAlign: TextAlign.center),
               SizedBox(height: height * 0.02),
               Text(feeInfo, style: TextStyle(fontSize: width * 0.03, color: Colors.black), textAlign: TextAlign.center),
               SizedBox(height: height * 0.02),
