@@ -67,7 +67,7 @@ final affiliateEarningsProvider = FutureProvider.autoDispose<String>((ref) async
 
 final getTotalValuePurchasedByAffiliateUsersProvider = FutureProvider.autoDispose<String>((ref) async {
   final auth = ref.read(userProvider).recoveryCode;
-  final affiliateCode = ref.read(affiliateProvider).createdAffiliateLiquidAddress;
+  final affiliateCode = ref.read(affiliateProvider).createdAffiliateCode;
   final result = await AffiliateService.affiliateUsersSpend(affiliateCode, auth);
 
   if (result.isSuccess && result.data != null) {
