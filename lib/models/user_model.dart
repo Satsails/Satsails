@@ -130,7 +130,7 @@ class UserService {
         return Result(error: 'Failed to create user: ${response.body}');
       }
     } catch (e) {
-      return Result(error: 'An error occurred: $e');
+      return Result(error: 'An error occurred, please try again'); 
     }
   }
 
@@ -158,7 +158,7 @@ class UserService {
         return Result(error: 'Failed to get user transactions: ${response.body}');
       }
     } catch (e) {
-      return Result(error: 'An error occurred: $e');
+      return Result(error: 'An error occurred, please try again'); 
     }
   }
 
@@ -183,7 +183,7 @@ class UserService {
         return Result(error: 'Failed to get amount transferred');
       }
     } catch (e) {
-      return Result(error: 'An error occurred: $e');
+      return Result(error: 'An error occurred, please try again'); 
     }
   }
 
@@ -208,7 +208,7 @@ class UserService {
         return Result(error: 'Failed to update liquid address');
       }
     } catch (e) {
-      return Result(error: 'An error occurred: $e');
+      return Result(error: 'An error occurred, please try again'); 
     }
   }
 
@@ -228,7 +228,7 @@ class UserService {
         return Result(error: 'Failed to show user');
       }
     } catch (e) {
-      return Result(error: 'An error occurred: $e');
+      return Result(error: 'An error occurred, please try again'); 
     }
   }
 

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 final sendToSeed = StateProvider<bool>((ref) => false);
 
@@ -34,7 +33,7 @@ class Settings extends ConsumerWidget {
           children: [
             _buildBlockExplorerSection(context, ref),
             _buildDivider(),
-            _buildSupportSection(ref),
+            _buildSupportSection(ref, context),
             _buildDivider(),
             _buildClaimBoltzTransactionsSection(context, ref),
             _buildDivider(),
@@ -131,15 +130,13 @@ class Settings extends ConsumerWidget {
     );
   }
 
-  Widget _buildSupportSection(WidgetRef ref) {
-    final Uri url = Uri.parse('https://t.me/deepcodevalue');
-
+  Widget _buildSupportSection(WidgetRef ref, BuildContext context) {
     return ListTile(
       leading: const Icon(LineAwesome.telegram, color: Colors.white),
       title:  Text('Help & Support & Bug reporting'.i18n(ref), style: const TextStyle(color: Colors.white)),
-      subtitle: Text('Chat with us on Telegram!'.i18n(ref), style: const TextStyle(color: Colors.grey)),
+      subtitle: Text('Chat with us about anything'.i18n(ref), style: const TextStyle(color: Colors.grey)),
       onTap: () {
-        launchUrl(url);
+        Navigator.pushNamed(context, '/support');
       },
     );
   }

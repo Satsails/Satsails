@@ -250,6 +250,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+  crisp_chat:
+    dependency: "direct main"
+    description:
+      name: crisp_chat
+      sha256: fdf8957b217401b98fa2418885e05298b0c3d4e1ec9d427f54f1161073967b5e
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.4"
   cross_file:
     dependency: transitive
     description:
@@ -1361,18 +1369,18 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_android
-      sha256: ceb2625f0c24ade6ef6778d1de0b2e44f2db71fded235eb52295247feba8c5cf
+      sha256: f0c73347dfcfa5b3db8bc06e1502668265d39c08f310c29bff4e28eea9699f79
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.3"
+    version: "6.3.9"
   url_launcher_ios:
     dependency: transitive
     description:
       name: url_launcher_ios
-      sha256: "7068716403343f6ba4969b4173cbf3b84fc768042124bc2c011e5d782b24fe89"
+      sha256: e43b677296fadce447e987a2f519dcf5f6d1e527dc35d01ffab4fff5b8a7063e
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.0"
+    version: "6.3.1"
   url_launcher_linux:
     dependency: transitive
     description:

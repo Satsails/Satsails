@@ -5,19 +5,24 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+
+final loadingProvider = StateProvider.autoDispose<bool>((ref) => false);
 
 class AffiliatesSectionWidget extends ConsumerWidget {
   const AffiliatesSectionWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isLoading = ref.watch(loadingProvider); // Watch loading state
+
     return WillPopScope(
       onWillPop: () async => false,
-      child:Scaffold(
-        extendBodyBehindAppBar: true,  // This makes the body extend behind the AppBar
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           title: const Text('Affiliate', style: TextStyle(color: Colors.white)),
-          backgroundColor: Colors.transparent,  // Make the AppBar transparent
+          backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -31,7 +36,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
             // Background image
             Positioned.fill(
               child: Image.asset(
-                'lib/assets/affiliates.png',  // Replace with your image path
+                'lib/assets/affiliates.png',
                 fit: BoxFit.cover,
               ),
             ),
@@ -81,6 +86,14 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                 ),
               ),
             ),
+            if (isLoading) // Show CircularProgressIndicator when loading is true
+              Align(
+                alignment: Alignment.topCenter,
+                child: LoadingAnimationWidget.threeArchedCircle(
+                  color: Colors.orange,
+                  size: 50,
+                ),
+              )
           ],
         ),
       ),
@@ -93,7 +106,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.orange,  // Set the modal background to orange
+      backgroundColor: Colors.orange,
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
@@ -111,7 +124,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,  // Dark text color
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -119,12 +132,12 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                   controller: _controller,
                   decoration: const InputDecoration(
                     labelText: 'Affiliate Code',
-                    labelStyle: TextStyle(color: Colors.black),  // Dark label color
+                    labelStyle: TextStyle(color: Colors.black),
                     border: OutlineInputBorder(),
-                    fillColor: Colors.orange,  // Background color for input
-                    filled: true,  // Fill the background color
+                    fillColor: Colors.orange,
+                    filled: true,
                   ),
-                  style: const TextStyle(color: Colors.black),  // Dark text color
+                  style: const TextStyle(color: Colors.black),
                 ),
                 const SizedBox(height: 20),
                 Padding(
@@ -134,10 +147,10 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                     textColor: Colors.white,
                     backgroundColor: Colors.black,
                     onPressed: () async {
+                      ref.read(loadingProvider.notifier).state = true;
                       String code = _controller.text;
                       try {
                         await ref.read(addAffiliateCodeProvider(code).future);
-
                         Fluttertoast.showToast(
                           msg: 'Affiliate code saved successfully'.i18n(ref),
                           toastLength: Toast.LENGTH_LONG,
@@ -147,8 +160,10 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                           textColor: Colors.white,
                           fontSize: 16.0,
                         );
+                        ref.read(loadingProvider.notifier).state = false;
                         Navigator.pop(context);
                       } catch (e) {
+                        ref.read(loadingProvider.notifier).state = false;
                         Fluttertoast.showToast(
                           msg: e.toString().i18n(ref),
                           toastLength: Toast.LENGTH_LONG,
@@ -177,7 +192,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.orange,  // Set the modal background to orange
+      backgroundColor: Colors.orange,
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
@@ -195,7 +210,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,  // Dark text color
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -203,24 +218,24 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                   controller: _liquidAddressController,
                   decoration: const InputDecoration(
                     labelText: 'Liquid Address',
-                    labelStyle: TextStyle(color: Colors.black),  // Dark label color
+                    labelStyle: TextStyle(color: Colors.black),
                     border: OutlineInputBorder(),
-                    fillColor: Colors.orange,  // Background color for input
-                    filled: true,  // Fill the background color
+                    fillColor: Colors.orange,
+                    filled: true,
                   ),
-                  style: const TextStyle(color: Colors.black),  // Dark text color
+                  style: const TextStyle(color: Colors.black),
                 ),
                 const SizedBox(height: 20),
                 TextField(
                   controller: _affiliateController,
                   decoration: const InputDecoration(
                     labelText: 'Affiliate Code',
-                    labelStyle: TextStyle(color: Colors.black),  // Dark label color
+                    labelStyle: TextStyle(color: Colors.black),
                     border: OutlineInputBorder(),
-                    fillColor: Colors.orange,  // Background color for input
-                    filled: true,  // Fill the background color
+                    fillColor: Colors.orange,
+                    filled: true,
                   ),
-                  style: const TextStyle(color: Colors.black),  // Dark text color
+                  style: const TextStyle(color: Colors.black),
                 ),
                 const SizedBox(height: 20),
                 Padding(
@@ -230,6 +245,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                     textColor: Colors.white,
                     backgroundColor: Colors.black,
                     onPressed: () async {
+                      ref.read(loadingProvider.notifier).state = true;
                       final hasInserted = ref.watch(affiliateProvider).insertedAffiliateCode.isNotEmpty;
                       Affiliate affiliate = Affiliate(
                         createdAffiliateCode: _affiliateController.text,
@@ -247,8 +263,10 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                           textColor: Colors.white,
                           fontSize: 16.0,
                         );
+                        ref.read(loadingProvider.notifier).state = false;
                         Navigator.pop(context);
                       } catch (e) {
+                        ref.read(loadingProvider.notifier).state = false;
                         Fluttertoast.showToast(
                           msg: e.toString().i18n(ref),
                           toastLength: Toast.LENGTH_LONG,

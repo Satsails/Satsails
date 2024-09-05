@@ -58,7 +58,7 @@ final createAffiliateCodeProvider = FutureProvider.autoDispose.family<void, Affi
 
 final affiliateEarningsProvider = FutureProvider.autoDispose<String>((ref) async {
   final affiliateCode = ref.watch(affiliateProvider).createdAffiliateCode;
-  final auth = ref.read(userProvider).recoveryCode;
+  final auth = ref.watch(userProvider).recoveryCode;
   final result = await AffiliateService.affiliateEarnings(affiliateCode, auth);
 
   if (result.isSuccess && result.data != null) {
@@ -70,8 +70,8 @@ final affiliateEarningsProvider = FutureProvider.autoDispose<String>((ref) async
 
 
 final getTotalValuePurchasedByAffiliateUsersProvider = FutureProvider.autoDispose<String>((ref) async {
-  final auth = ref.read(userProvider).recoveryCode;
-  final affiliateCode = ref.read(affiliateProvider).createdAffiliateCode;
+  final auth = ref.watch(userProvider).recoveryCode;
+  final affiliateCode = ref.watch(affiliateProvider).createdAffiliateCode;
   final result = await AffiliateService.affiliateUsersSpend(affiliateCode, auth);
 
   if (result.isSuccess && result.data != null) {
@@ -82,8 +82,8 @@ final getTotalValuePurchasedByAffiliateUsersProvider = FutureProvider.autoDispos
 });
 
 final getAllTransfersFromAffiliateUsersProvider = FutureProvider.autoDispose<List<ParsedTransfer>>((ref) async {
-  final auth = ref.read(userProvider).recoveryCode;
-  final affiliateCode = ref.read(affiliateProvider).createdAffiliateCode;
+  final auth = ref.watch(userProvider).recoveryCode;
+  final affiliateCode = ref.watch(affiliateProvider).createdAffiliateCode;
   final result = await AffiliateService.getAllTransfersFromAffiliateUsers(affiliateCode, auth);
 
   if (result.isSuccess && result.data != null) {
@@ -95,7 +95,7 @@ final getAllTransfersFromAffiliateUsersProvider = FutureProvider.autoDispose<Lis
 
 final numberOfAffiliateInstallsProvider = FutureProvider.autoDispose<int>((ref) async {
   final affiliateCode = ref.watch(affiliateProvider).createdAffiliateCode;
-  final auth = ref.read(userProvider).recoveryCode;
+  final auth = ref.watch(userProvider).recoveryCode;
   final numberOfUsers = await AffiliateService.affiliateNumberOfUsers(affiliateCode, auth);
 
   if (numberOfUsers.isSuccess && numberOfUsers.data != null) {

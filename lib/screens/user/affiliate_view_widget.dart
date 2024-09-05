@@ -10,6 +10,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+final loadingProvider = StateProvider.autoDispose<bool>((ref) => false);
+
 class AffiliateViewWidget extends ConsumerWidget {
   const AffiliateViewWidget({super.key});
 
@@ -21,6 +23,7 @@ class AffiliateViewWidget extends ConsumerWidget {
     final hasCreatedAffiliate = user.hasCreatedAffiliate;
     final numberOfInstall = ref.watch(numberOfAffiliateInstallsProvider);
     final earnings = ref.watch(affiliateEarningsProvider);
+    final allTransfers = ref.watch(getAllTransfersFromAffiliateUsersProvider);
     final totalValuePurchased = ref.watch(getTotalValuePurchasedByAffiliateUsersProvider);
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
@@ -80,13 +83,21 @@ class AffiliateViewWidget extends ConsumerWidget {
                     SizedBox(height: height * 0.02),
                     CustomElevatedButton(
                       text: "Show Earnings Over Time",
-                      onPressed: () => _showGraphBottomModal(context, ref),
+                      onPressed: () => _showGraphBottomModal(context, ref, allTransfers),
                     ),
                   ] else if (!hasCreatedAffiliate && hasInsertedAffiliate) ...[
                     _buildInsertedAffiliateSection(affiliateData, width, height),
                     const SizedBox(height: 20),
                     const Text('Would you like to become an affiliate?', style: TextStyle(color: Colors.white, fontSize: 18)),
                     const SizedBox(height: 10),
+                    if (ref.watch(loadingProvider.notifier).state)
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: LoadingAnimationWidget.threeArchedCircle(
+                          color: Colors.orange,
+                          size: 50,
+                        ),
+                      ),
                     CustomElevatedButton(
                       text: 'Create Affiliate Code',
                       onPressed: () => _showCreateBottomModal(context, 'Create Affiliate Code', ref),
@@ -180,13 +191,12 @@ class AffiliateViewWidget extends ConsumerWidget {
     );
   }
 
-  void _showGraphBottomModal(BuildContext context, WidgetRef ref) {
-    final allTransfers = ref.watch(getAllTransfersFromAffiliateUsersProvider);
+  void _showGraphBottomModal(BuildContext context, WidgetRef ref, AsyncValue<List<ParsedTransfer>> allTransfers) {
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.black, // Set the modal background to black
+      backgroundColor: Colors.black,
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
@@ -198,10 +208,24 @@ class AffiliateViewWidget extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Earnings Over Time', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                'Earnings Over Time',
+                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 10),
               allTransfers.when(
-                data: (transfersData) => _buildSyncfusionChart(transfersData, MediaQuery.of(context).size.width, MediaQuery.of(context).size.height),
+                data: (transfersData) {
+                  if (transfersData.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No earnings data available',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    );
+                  } else {
+                    return _buildSyncfusionChart(transfersData, MediaQuery.of(context).size.width, MediaQuery.of(context).size.height);
+                  }
+                },
                 loading: () => _loadingWidget(context, MediaQuery.of(context).size.height * 0.1),
                 error: (error, stackTrace) => _errorWidget(error),
               ),
@@ -211,6 +235,7 @@ class AffiliateViewWidget extends ConsumerWidget {
       },
     );
   }
+
 
   Widget _buildSyncfusionChart(List<ParsedTransfer> transfersData, double width, double height) {
     List<ChartData> chartData = transfersData.map((transfer) {
@@ -261,13 +286,13 @@ class AffiliateViewWidget extends ConsumerWidget {
   }
 
   void _showCreateBottomModal(BuildContext context, String title, WidgetRef ref) {
-    final TextEditingController _affiliateController = TextEditingController();
-    final TextEditingController _liquidAddressController = TextEditingController();
+    final TextEditingController affiliateController = TextEditingController();
+    final TextEditingController liquidAddressController = TextEditingController();
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.orange, // Set the modal background to orange
+      backgroundColor: Colors.orange,
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
@@ -283,13 +308,13 @@ class AffiliateViewWidget extends ConsumerWidget {
                 Text(title, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06, fontWeight: FontWeight.bold, color: Colors.black)),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                 TextField(
-                  controller: _liquidAddressController,
+                  controller: liquidAddressController,
                   decoration: const InputDecoration(labelText: 'Liquid Address', labelStyle: TextStyle(color: Colors.black), border: OutlineInputBorder(), fillColor: Colors.orange, filled: true),
                   style: const TextStyle(color: Colors.black),
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                 TextField(
-                  controller: _affiliateController,
+                  controller: affiliateController,
                   decoration: const InputDecoration(labelText: 'Affiliate Code', labelStyle: TextStyle(color: Colors.black), border: OutlineInputBorder(), fillColor: Colors.orange, filled: true),
                   style: const TextStyle(color: Colors.black),
                 ),
@@ -303,15 +328,18 @@ class AffiliateViewWidget extends ConsumerWidget {
                     onPressed: () async {
                       final hasInserted = ref.watch(affiliateProvider).insertedAffiliateCode.isNotEmpty;
                       Affiliate affiliate = Affiliate(
-                        createdAffiliateCode: _affiliateController.text,
-                        createdAffiliateLiquidAddress: _liquidAddressController.text,
-                        insertedAffiliateCode: hasInserted ? ref.watch(affiliateProvider).insertedAffiliateCode : _affiliateController.text,
+                        createdAffiliateCode: affiliateController.text,
+                        createdAffiliateLiquidAddress: liquidAddressController.text,
+                        insertedAffiliateCode: hasInserted ? ref.watch(affiliateProvider).insertedAffiliateCode : affiliateController.text,
                       );
                       try {
+                        ref.read(loadingProvider.notifier).state = true;
                         await ref.read(createAffiliateCodeProvider(affiliate).future);
                         Fluttertoast.showToast(msg: 'Affiliate code created successfully', toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                         Navigator.pop(context);
+                        ref.read(loadingProvider.notifier).state = false;
                       } catch (e) {
+                        ref.read(loadingProvider.notifier).state = false;
                         Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                       }
                     },
