@@ -41,12 +41,16 @@ final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>
 final createAffiliateCodeProvider = FutureProvider.autoDispose.family<void, Affiliate>((ref, affiliate) async {
   var paymentId = ref.read(userProvider).paymentId;
   final auth = ref.read(userProvider).recoveryCode;
+  final insertedAffiliateCode = ref.read(affiliateProvider).insertedAffiliateCode;
   final result = await AffiliateService.createAffiliateCode(paymentId, affiliate.createdAffiliateCode, affiliate.createdAffiliateLiquidAddress, auth);
 
   if (result.isSuccess && result.data == true) {
     await ref.read(userProvider.notifier).setHasCreatedAffiliate(true);
     await ref.read(affiliateProvider.notifier).setCreatedAffiliateCode(affiliate.createdAffiliateCode);
     await ref.read(affiliateProvider.notifier).setLiquidAddress(affiliate.createdAffiliateLiquidAddress);
+    if (insertedAffiliateCode.isEmpty) {
+      await ref.read(affiliateProvider.notifier).setInsertedAffiliateCode(affiliate.createdAffiliateCode);
+    }
   } else {
     throw result.error!;
   }

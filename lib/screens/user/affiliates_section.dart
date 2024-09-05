@@ -124,37 +124,40 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                   style: const TextStyle(color: Colors.black),  // Dark text color
                 ),
                 const SizedBox(height: 20),
-                CustomElevatedButton(
-                  text: 'Submit',
-                  textColor: Colors.white,
-                  backgroundColor: Colors.black,
-                  onPressed: () async {
-                    String code = _controller.text;
-                    try {
-                      await ref.read(addAffiliateCodeProvider(code).future);
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: CustomElevatedButton(
+                    text: 'Submit',
+                    textColor: Colors.white,
+                    backgroundColor: Colors.black,
+                    onPressed: () async {
+                      String code = _controller.text;
+                      try {
+                        await ref.read(addAffiliateCodeProvider(code).future);
 
-                      Fluttertoast.showToast(
-                        msg: 'Affiliate code saved successfully'.i18n(ref),
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.TOP,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.green,
-                        textColor: Colors.white,
-                        fontSize: 16.0,
-                      );
-                      Navigator.pop(context);
-                    } catch (e) {
-                      Fluttertoast.showToast(
-                        msg: e.toString().i18n(ref),
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.TOP,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.red,
-                        textColor: Colors.white,
-                        fontSize: 16.0,
-                      );
-                    }
-                  },
+                        Fluttertoast.showToast(
+                          msg: 'Affiliate code saved successfully'.i18n(ref),
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.TOP,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.green,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+                        Navigator.pop(context);
+                      } catch (e) {
+                        Fluttertoast.showToast(
+                          msg: e.toString().i18n(ref),
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.TOP,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+                      }
+                    },
+                  ),
                 ),
               ],
             ),
@@ -217,41 +220,44 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                   style: const TextStyle(color: Colors.black),  // Dark text color
                 ),
                 const SizedBox(height: 20),
-                CustomElevatedButton(
-                  text: 'Submit',
-                  textColor: Colors.white,
-                  backgroundColor: Colors.black,
-                  onPressed: () async {
-                    final hasInserted = ref.watch(affiliateProvider).insertedAffiliateCode.isNotEmpty;
-                    Affiliate affiliate = Affiliate(
-                      createdAffiliateCode: _affiliateController.text,
-                      createdAffiliateLiquidAddress: _liquidAddressController.text,
-                      insertedAffiliateCode: hasInserted ? ref.watch(affiliateProvider).insertedAffiliateCode : '',
-                    );
-                    try {
-                      await ref.read(createAffiliateCodeProvider(affiliate).future);
-                      Fluttertoast.showToast(
-                        msg: 'Affiliate code created successfully'.i18n(ref),
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.TOP,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.green,
-                        textColor: Colors.white,
-                        fontSize: 16.0,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: CustomElevatedButton(
+                    text: 'Submit',
+                    textColor: Colors.white,
+                    backgroundColor: Colors.black,
+                    onPressed: () async {
+                      final hasInserted = ref.watch(affiliateProvider).insertedAffiliateCode.isNotEmpty;
+                      Affiliate affiliate = Affiliate(
+                        createdAffiliateCode: _affiliateController.text,
+                        createdAffiliateLiquidAddress: _liquidAddressController.text,
+                        insertedAffiliateCode: hasInserted ? ref.watch(affiliateProvider).insertedAffiliateCode : '',
                       );
-                      Navigator.pop(context);
-                    } catch (e) {
-                      Fluttertoast.showToast(
-                        msg: e.toString().i18n(ref),
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.TOP,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.red,
-                        textColor: Colors.white,
-                        fontSize: 16.0,
-                      );
-                    }
-                  },
+                      try {
+                        await ref.read(createAffiliateCodeProvider(affiliate).future);
+                        Fluttertoast.showToast(
+                          msg: 'Affiliate code created successfully'.i18n(ref),
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.TOP,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.green,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+                        Navigator.pop(context);
+                      } catch (e) {
+                        Fluttertoast.showToast(
+                          msg: e.toString().i18n(ref),
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.TOP,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+                      }
+                    },
+                  ),
                 ),
               ],
             ),

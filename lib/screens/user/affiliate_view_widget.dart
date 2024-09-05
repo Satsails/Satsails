@@ -76,10 +76,10 @@ class AffiliateViewWidget extends ConsumerWidget {
                           );
                         },
                       ),
-                      SizedBox(height: height * 0.05),
+                      SizedBox(height: height * 0.01),
                       Container(
                         width: double.infinity,
-                        padding: EdgeInsets.symmetric(horizontal: width * 0.05, vertical: height * 0.04),
+                        padding: EdgeInsets.symmetric(horizontal: width * 0.05, vertical: height * 0.03),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [Colors.orange.shade300, Colors.orange.shade700],
@@ -92,7 +92,7 @@ class AffiliateViewWidget extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              'Your Affiliate Code',
+                              'Your Affiliate Code to Share',
                               style: TextStyle(color: Colors.black, fontSize: width * 0.03),
                             ),
                             SizedBox(height: height * 0.01),
@@ -121,14 +121,14 @@ class AffiliateViewWidget extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      SizedBox(height: height * 0.05),
+                      SizedBox(height: height * 0.01),
                       earnings.when(
                         data: (data) {
                           final earningsDecimal = Decimal.parse(data.toString());
                           return Column(
                             children: [
                               Text(
-                                'Earnings',
+                                'Total Earnings',
                                 style: TextStyle(color: Colors.white, fontSize: width * 0.04),
                               ),
                               SizedBox(height: height * 0.01),
@@ -142,6 +142,25 @@ class AffiliateViewWidget extends ConsumerWidget {
                               ),
                             ],
                           );
+                        },
+                        loading: () => Center(
+                          child: LoadingAnimationWidget.threeArchedCircle(
+                            size: MediaQuery.of(context).size.height * 0.1,
+                            color: Colors.orange,
+                          ),
+                        ),
+                        error: (error, stackTrace) {
+                          return Center(
+                            child: Text(
+                              'There was an error, please contact support: $error',
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          );
+                        },
+                      ),
+                      allTransfers.when(
+                        data: (transfersData) {
+                          return _buildSyncfusionChart(transfersData, width, height);
                         },
                         loading: () => Center(
                           child: LoadingAnimationWidget.threeArchedCircle(
@@ -178,26 +197,6 @@ class AffiliateViewWidget extends ConsumerWidget {
                               ),
                             ],
                           );
-                        },
-                        loading: () => Center(
-                          child: LoadingAnimationWidget.threeArchedCircle(
-                            size: MediaQuery.of(context).size.height * 0.1,
-                            color: Colors.orange,
-                          ),
-                        ),
-                        error: (error, stackTrace) {
-                          return Center(
-                            child: Text(
-                              'There was an error, please contact support: $error',
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      allTransfers.when(
-                        data: (transfersData) {
-                          return _buildSyncfusionChart(transfersData, width, height);
                         },
                         loading: () => Center(
                           child: LoadingAnimationWidget.threeArchedCircle(
@@ -356,7 +355,7 @@ class AffiliateViewWidget extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 Padding(
-                  padding: EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.only(bottom: 10),
                   child: CustomElevatedButton(
                     text: 'Submit',
                     textColor: Colors.white,
@@ -366,7 +365,7 @@ class AffiliateViewWidget extends ConsumerWidget {
                       Affiliate affiliate = Affiliate(
                         createdAffiliateCode: _affiliateController.text,
                         createdAffiliateLiquidAddress: _liquidAddressController.text,
-                        insertedAffiliateCode: hasInserted ? ref.watch(affiliateProvider).insertedAffiliateCode : '',
+                        insertedAffiliateCode: hasInserted ? ref.watch(affiliateProvider).insertedAffiliateCode : _affiliateController.text,
                       );
                       try {
                         await ref.read(createAffiliateCodeProvider(affiliate).future);
@@ -420,17 +419,17 @@ class AffiliateViewWidget extends ConsumerWidget {
         text: 'Your Earnings Over Time',
         textStyle: TextStyle(color: Colors.white, fontSize: width * 0.04),
       ),
-      primaryXAxis: DateTimeAxis( // Use DateTimeAxis for proper date display
+      primaryXAxis: const DateTimeAxis(
         isVisible: true,
         majorGridLines: MajorGridLines(width: 0),
         axisLine: AxisLine(width: 0),
-        labelStyle: const TextStyle(color: Colors.white),
+        labelStyle: TextStyle(color: Colors.white),
       ),
-      primaryYAxis: NumericAxis(
+      primaryYAxis: const NumericAxis(
         isVisible: true,
         majorGridLines: MajorGridLines(width: 0),
         axisLine: AxisLine(width: 0),
-        labelStyle: const TextStyle(color: Colors.white),
+        labelStyle: TextStyle(color: Colors.white),
       ),
       trackballBehavior: TrackballBehavior(
         enable: true,
