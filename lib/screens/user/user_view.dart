@@ -141,17 +141,13 @@ class _UserViewState extends ConsumerState<UserView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Created Affiliate Code',
+            'Affiliate code for sharing',
             style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
           ),
           SizedBox(height: height * 0.01),
           Text(
             affiliateCode,
             style: TextStyle(color: Colors.white, fontSize: width * 0.05, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            'This code is for sharing',
-            style: TextStyle(color: Colors.white54, fontSize: width * 0.03),
           ),
         ],
       ),
@@ -178,7 +174,7 @@ class _UserViewState extends ConsumerState<UserView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Inserted Affiliate Code',
+            'Referred by',
             style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
           ),
           SizedBox(height: height * 0.01),
