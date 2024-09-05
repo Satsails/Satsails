@@ -7,7 +7,7 @@ class InsertedAffiliateWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final affiliateCode = ref.watch(affiliateProvider).code;
+    final affiliateCode = ref.watch(affiliateProvider).insertedAffiliateCode;
 
     return Scaffold(
       backgroundColor: Colors.black,

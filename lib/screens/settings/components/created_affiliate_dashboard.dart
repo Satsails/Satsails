@@ -16,6 +16,8 @@ class CreatedAffiliateWidget extends ConsumerWidget {
     final earnings = ref.watch(affiliateEarningsProvider);
     final totalValuePurchased = ref.watch(getTotalValuePurchasedByAffiliateUsersProvider);
     final allTransfers = ref.watch(getAllTransfersFromAffiliateUsersProvider);
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -32,7 +34,7 @@ class CreatedAffiliateWidget extends ConsumerWidget {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all( width * 0.05),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -42,29 +44,32 @@ class CreatedAffiliateWidget extends ConsumerWidget {
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        _buildTierIcon(context, 'Bronze', Icons.vpn_key, totalValueDecimal, Decimal.parse('0')),
-                        _buildTierIcon(context, 'Silver', Icons.military_tech, totalValueDecimal, Decimal.parse('2500')),
-                        _buildTierIcon(context, 'Gold', Icons.emoji_events, totalValueDecimal, Decimal.parse('5000')),
-                        _buildTierIcon(context, 'Diamond', Icons.diamond, totalValueDecimal, Decimal.parse('20000')),
+                        _buildTierIcon(context, 'Bronze', Icons.vpn_key, totalValueDecimal, Decimal.parse('0'), width, height),
+                        _buildTierIcon(context, 'Silver', Icons.military_tech, totalValueDecimal, Decimal.parse('2500'), width, height),
+                        _buildTierIcon(context, 'Gold', Icons.emoji_events, totalValueDecimal, Decimal.parse('5000'), width, height),
+                        _buildTierIcon(context, 'Diamond', Icons.diamond, totalValueDecimal, Decimal.parse('20000'), width, height),
                       ],
                     );
                   },
-                  loading: () => LoadingAnimationWidget.threeArchedCircle(
-                    size: MediaQuery.of(context).size.height * 0.1,
-                    color: Colors.orange,
+                  loading: () => Center(
+                    child: LoadingAnimationWidget.threeArchedCircle(
+                      size: MediaQuery.of(context).size.height * 0.1,
+                      color: Colors.orange,
+                    ),
                   ),
                   error: (error, stackTrace) {
-                    return Text(
-                      'Error: $error',
-                      style: const TextStyle(color: Colors.red),
+                    return Center(
+                      child: Text(
+                        'There was an error, please contact support: $error',
+                        style: const TextStyle(color: Colors.red),
+                      ),
                     );
                   },
                 ),
-                const SizedBox(height: 20),
-                // Affiliate Code Section - Full-width card
+                SizedBox(height: height * 0.05),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16.0),
+                  padding: EdgeInsets.symmetric(horizontal: width * 0.05, vertical: height * 0.04),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [Colors.orange.shade300, Colors.orange.shade700],
@@ -74,109 +79,128 @@ class CreatedAffiliateWidget extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Your Affiliate Code',
-                        style: TextStyle(color: Colors.black, fontSize: 16),
-                      ),
-                      const SizedBox(height: 8),
                       Text(
-                        affiliateData.code,
-                        style: const TextStyle(
+                        'Your Affiliate Code',
+                        style: TextStyle(color: Colors.black, fontSize: width * 0.03),
+                      ),
+                      SizedBox(height: height * 0.01),
+                      Text(
+                        affiliateData.createdAffiliateCode,
+                        style: TextStyle(
                           color: Colors.black,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                          fontSize: width * 0.06,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      // Only show the beginning and end of liquid address
-                      Text(
-                        _formatLiquidAddress(affiliateData.liquidAddress),
-                        style: const TextStyle(color: Colors.black, fontSize: 14),
+                      SizedBox(height: height * 0.01),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Registered:',
+                            style: TextStyle(color: Colors.black, fontSize: width * 0.03),
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            _formatLiquidAddress(affiliateData.createdAffiliateLiquidAddress),
+                            style: TextStyle(color: Colors.black, fontSize: width * 0.03),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: height * 0.05),
                 earnings.when(
                   data: (data) {
                     final earningsDecimal = Decimal.parse(data.toString());
                     return Column(
                       children: [
-                        const Text(
-                          'Earnings',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                        const SizedBox(height: 8),
                         Text(
-                          '$earningsDecimal DPIX',
-                          style: const TextStyle(
+                          'Earnings',
+                          style: TextStyle(color: Colors.white, fontSize: width * 0.04),
+                        ),
+                        SizedBox(height: height * 0.01),
+                        Text(
+                          '$earningsDecimal DEPIX',
+                          style: TextStyle(
                             color: Colors.white,
-                            fontSize: 28,
+                            fontSize: width * 0.06,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 20),
                       ],
                     );
                   },
-                  loading: () => LoadingAnimationWidget.threeArchedCircle(
-                    size: MediaQuery.of(context).size.height * 0.1,
-                    color: Colors.orange,
+                  loading: () => Center(
+                    child: LoadingAnimationWidget.threeArchedCircle(
+                      size: MediaQuery.of(context).size.height * 0.1,
+                      color: Colors.orange,
+                    ),
                   ),
                   error: (error, stackTrace) {
-                    return Text(
-                      'Error: $error',
-                      style: const TextStyle(color: Colors.red),
+                    return Center(
+                      child: Text(
+                        'There was an error, please contact support: $error',
+                        style: const TextStyle(color: Colors.red),
+                      ),
                     );
                   },
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: height * 0.02),
                 numberOfInstall.when(
                   data: (installs) {
                     return Column(
                       children: [
-                        const Text(
+                        Text(
                           'Number of Installations',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          style: TextStyle(color: Colors.white, fontSize: width * 0.04),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: height * 0.02),
                         Text(
                           installs.toString(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
-                            fontSize: 28,
+                            fontSize: width * 0.06,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
                     );
                   },
-                  loading: () => LoadingAnimationWidget.threeArchedCircle(
-                    size: MediaQuery.of(context).size.height * 0.1,
-                    color: Colors.orange,
+                  loading: () => Center(
+                    child: LoadingAnimationWidget.threeArchedCircle(
+                      size: MediaQuery.of(context).size.height * 0.1,
+                      color: Colors.orange,
+                    ),
                   ),
                   error: (error, stackTrace) {
-                    return Text(
-                      'Error: $error',
-                      style: const TextStyle(color: Colors.red),
+                    return Center(
+                      child: Text(
+                        'There was an error, please contact support: $error',
+                        style: const TextStyle(color: Colors.red),
+                      ),
                     );
                   },
                 ),
                 const SizedBox(height: 20),
                 allTransfers.when(
                   data: (transfersData) {
-                    return _buildSyncfusionChart(transfersData);
+                    return _buildSyncfusionChart(transfersData, width, height);
                   },
-                  loading: () => LoadingAnimationWidget.threeArchedCircle(
-                    size: MediaQuery.of(context).size.height * 0.1,
-                    color: Colors.orange,
+                  loading: () => Center(
+                    child: LoadingAnimationWidget.threeArchedCircle(
+                      size: MediaQuery.of(context).size.height * 0.1,
+                      color: Colors.orange,
+                    ),
                   ),
                   error: (error, stackTrace) {
-                    return Text(
-                      'Error: $error',
-                      style: const TextStyle(color: Colors.red),
+                    return Center(
+                      child: Text(
+                        'There was an error, please contact support: $error',
+                        style: const TextStyle(color: Colors.red),
+                      ),
                     );
                   },
                 ),
@@ -188,7 +212,6 @@ class CreatedAffiliateWidget extends ConsumerWidget {
     );
   }
 
-  // Helper function to format the liquid address
   String _formatLiquidAddress(String address) {
     if (address.isEmpty) return 'N/A';
     final start = address.substring(0, 6);
@@ -196,32 +219,32 @@ class CreatedAffiliateWidget extends ConsumerWidget {
     return '$start...$end';
   }
 
-  Widget _buildTierIcon(BuildContext context, String label, IconData icon, Decimal totalValue, Decimal threshold) {
+  Widget _buildTierIcon(BuildContext context, String label, IconData icon, Decimal totalValue, Decimal threshold, width, height) {
     final isUnlocked = totalValue >= threshold;
     final iconColor = isUnlocked ? Colors.orange : Colors.grey;
 
     return GestureDetector(
       onTap: () {
-        _showTierInfoModal(context, label, totalValue, threshold, isUnlocked);
+        _showTierInfoModal(context, label, totalValue, threshold, isUnlocked, width, height);
       },
       child: Column(
         children: [
           CircleAvatar(
             radius: 30,
             backgroundColor: iconColor,
-            child: Icon(icon, color: Colors.black, size: 30),
+            child: Icon(icon, color: Colors.black, size: width * 0.06),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: height * 0.01),
           Text(
             label,
-            style: TextStyle(color: iconColor, fontSize: 14),
+            style: TextStyle(color: iconColor, fontSize: width * 0.03),
           ),
         ],
       ),
     );
   }
 
-  void _showTierInfoModal(BuildContext context, String label, Decimal totalValue, Decimal threshold, bool isUnlocked) {
+  void _showTierInfoModal(BuildContext context, String label, Decimal totalValue, Decimal threshold, bool isUnlocked, width, height) {
     String feeInfo = isUnlocked
         ? (totalValue >= Decimal.parse('20000')
         ? "Current fee is 1% per affiliate in perpetuity."
@@ -235,7 +258,7 @@ class CreatedAffiliateWidget extends ConsumerWidget {
       ),
       builder: (context) {
         return Container(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(width * 0.05),
           decoration: const BoxDecoration(
             color: Colors.orange,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -243,17 +266,17 @@ class CreatedAffiliateWidget extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.info, size: 50, color: Colors.black),
-              const SizedBox(height: 16),
+              Icon(Icons.info, size: width * 0.1, color: Colors.black),
+              SizedBox(height: height * 0.02),
               Text(
                 isUnlocked ? 'You are $label!' : 'Tier Locked',
-                style: const TextStyle(
-                  fontSize: 22,
+                style: TextStyle(
+                  fontSize: width * 0.06,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: height * 0.02),
               Text(
                 isUnlocked
                     ? 'With $totalValue DPIX, you have reached the $label tier.'
@@ -261,20 +284,20 @@ class CreatedAffiliateWidget extends ConsumerWidget {
                 style: const TextStyle(fontSize: 16, color: Colors.black),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: height * 0.02),
               Text(
                 feeInfo,
-                style: const TextStyle(fontSize: 14, color: Colors.black),
+                style: TextStyle(fontSize: width * 0.03, color: Colors.black),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: height * 0.02),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text(
+                child: Text(
                   'Close',
-                  style: TextStyle(color: Colors.black, fontSize: 16),
+                  style: TextStyle(color: Colors.black, fontSize: width * 0.04),
                 ),
               ),
             ],
@@ -284,7 +307,7 @@ class CreatedAffiliateWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildSyncfusionChart(List<ParsedTransfer> transfersData) {
+  Widget _buildSyncfusionChart(List<ParsedTransfer> transfersData, width, height) {
     List<ChartData> chartData = transfersData
         .map((transfer) {
       final timestamp = DateTime.parse(transfer.timestamp);
@@ -296,15 +319,11 @@ class CreatedAffiliateWidget extends ConsumerWidget {
     })
         .toList();
 
-    if (transfersData.isEmpty) {
-      return Container();
-    }
-
     return SfCartesianChart(
       backgroundColor: Colors.transparent,
       title: ChartTitle(
         text: 'Your Earnings Over Time',
-        textStyle: const TextStyle(color: Colors.white, fontSize: 16),
+        textStyle: TextStyle(color: Colors.white, fontSize: width * 0.04),
       ),
       primaryXAxis: DateTimeAxis( // Use DateTimeAxis for proper date display
         isVisible: true,
@@ -326,7 +345,7 @@ class CreatedAffiliateWidget extends ConsumerWidget {
           textStyle: TextStyle(color: Colors.white),
         ),
       ),
-      series: <LineSeries<ChartData, DateTime>>[ // Use DateTime for xValueMapper
+      series: <LineSeries<ChartData, DateTime>>[
         LineSeries<ChartData, DateTime>(
           dataSource: chartData,
           xValueMapper: (ChartData sales, _) => sales.x,  // DateTime here
@@ -340,7 +359,7 @@ class CreatedAffiliateWidget extends ConsumerWidget {
 }
 
 class ChartData {
-  final DateTime x;  // Change this to DateTime
+  final DateTime x;
   final double y;
 
   ChartData(this.x, this.y);

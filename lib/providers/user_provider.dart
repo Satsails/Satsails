@@ -108,13 +108,11 @@ final setUserProvider = FutureProvider.autoDispose<void>((ref) async {
     await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
     await ref.read(userProvider.notifier).setRecoveryCode(user.recoveryCode);
     await ref.read(userProvider.notifier).setDepixLiquidAddress(user.depixLiquidAddress);
-    await ref.read(affiliateProvider.notifier).setAffiliateCode(user.affiliateCode ?? '');
-    if (user.hasCreatedAffiliate) {
-      await ref.read(userProvider.notifier).setHasCreatedAffiliate(true);
-      await ref.read(affiliateProvider.notifier).setLiquidAddress(user.affiliateLiquidAddress ?? '');
-    } else if (user.hasInsertedAffiliate) {
-      await ref.read(userProvider.notifier).setHasInsertedAffiliate(user.hasInsertedAffiliate);
-    }
+    await ref.read(affiliateProvider.notifier).setCreatedAffiliateCode(user.createdAffiliateCode ?? '');
+    await ref.read(affiliateProvider.notifier).setLiquidAddress(user.createdAffiliateLiquidAddress ?? '');
+    await ref.read(affiliateProvider.notifier).setInsertedAffiliateCode(user.insertedAffiliateCode ?? '');
+    await ref.read(userProvider.notifier).setHasCreatedAffiliate(user.hasCreatedAffiliate);
+    await ref.read(userProvider.notifier).setHasInsertedAffiliate(user.hasInsertedAffiliate);
   } else {
     throw userResult.error!;
   }

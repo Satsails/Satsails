@@ -222,9 +222,11 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                   textColor: Colors.white,
                   backgroundColor: Colors.black,
                   onPressed: () async {
+                    final hasInserted = ref.watch(affiliateProvider).insertedAffiliateCode.isNotEmpty;
                     Affiliate affiliate = Affiliate(
-                      code: _affiliateController.text,
-                      liquidAddress: _liquidAddressController.text,
+                      createdAffiliateCode: _affiliateController.text,
+                      createdAffiliateLiquidAddress: _liquidAddressController.text,
+                      insertedAffiliateCode: hasInserted ? ref.watch(affiliateProvider).insertedAffiliateCode : '',
                     );
                     try {
                       await ref.read(createAffiliateCodeProvider(affiliate).future);

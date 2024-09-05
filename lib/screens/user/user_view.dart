@@ -39,7 +39,9 @@ class _UserViewState extends ConsumerState<UserView> {
             children: [
               _buildPaymentIdRow(user.paymentId),
               const SizedBox(height: 16.0),
-              _buildAffiliateCodeRow(affiliate.code.isNotEmpty == true ? affiliate.code : 'N/A'),
+              _buildAffiliateCodeRow(affiliate.createdAffiliateLiquidAddress.isNotEmpty == true ? affiliate.createdAffiliateLiquidAddress : 'N/A'),
+              const SizedBox(height: 16.0),
+              _buildAffiliateCodeRow(affiliate.insertedAffiliateCode.isNotEmpty == true ? affiliate.insertedAffiliateCode : 'N/A'),
               const SizedBox(height: 16.0),
               _buildRecoveryCodeRow(user.recoveryCode),
               const SizedBox(height: 24.0),

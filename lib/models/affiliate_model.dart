@@ -9,42 +9,53 @@ import 'package:http/http.dart' as http;
 class AffiliateModel extends StateNotifier<Affiliate> {
   AffiliateModel(super.state);
 
-  Future<void> setAffiliateCode(String affiliateCode) async {
+  Future<void> setInsertedAffiliateCode(String insertedAffiliateCode) async {
     final box = await Hive.openBox('affiliate');
-    box.put('affiliateCode', affiliateCode);
-    state = state.copyWith(code: affiliateCode);
+    box.put('insertedAffiliateCode', insertedAffiliateCode);
+    state = state.copyWith(insertedAffiliateCode: insertedAffiliateCode);
   }
 
-  Future<void> setLiquidAddress(String liquidAddress) async {
+  Future<void> setCreatedAffiliateCode(String createdAffiliateCode) async {
     final box = await Hive.openBox('affiliate');
-    box.put('liquidAddress', liquidAddress);
-    state = state.copyWith(liquidAddress: liquidAddress);
+    box.put('createdAffiliateCode', createdAffiliateCode);
+    state = state.copyWith(createdAffiliateCode: createdAffiliateCode);
+  }
+
+  Future<void> setLiquidAddress(String createdAffiliateLiquidAddress) async {
+    final box = await Hive.openBox('affiliate');
+    box.put('liquidAddress', createdAffiliateLiquidAddress);
+    state = state.copyWith(createdAffiliateLiquidAddress: createdAffiliateLiquidAddress);
   }
 }
 
 class Affiliate {
-  final String code;
-  final String liquidAddress;
+  final String insertedAffiliateCode;
+  final String createdAffiliateCode;
+  final String createdAffiliateLiquidAddress;
 
   Affiliate({
-    required this.code,
-    required this.liquidAddress,
+    required this.insertedAffiliateCode,
+    required this.createdAffiliateCode,
+    required this.createdAffiliateLiquidAddress,
   });
 
   Affiliate copyWith({
-    String? code,
-    String? liquidAddress,
+    String? insertedAffiliateCode,
+    String? createdAffiliateCode,
+    String? createdAffiliateLiquidAddress,
   }) {
     return Affiliate(
-      code: code ?? this.code,
-      liquidAddress: liquidAddress ?? this.liquidAddress,
+      insertedAffiliateCode: insertedAffiliateCode ?? this.insertedAffiliateCode,
+      createdAffiliateCode: createdAffiliateCode ?? this.createdAffiliateCode,
+      createdAffiliateLiquidAddress: createdAffiliateLiquidAddress ?? this.createdAffiliateLiquidAddress,
     );
   }
 
   factory Affiliate.fromJson(Map<String, dynamic> json) {
     return Affiliate(
-      code: json['code'],
-      liquidAddress: json['liquidAddress'],
+      insertedAffiliateCode: json['inserted_affiliate_code'],
+      createdAffiliateCode: json['created_affiliate_code'],
+      createdAffiliateLiquidAddress: json['liquid_address'],
     );
   }
 }

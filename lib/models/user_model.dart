@@ -53,8 +53,9 @@ class User {
   final String depixLiquidAddress;
   final String paymentId;
   final bool? onboarded;
-  final String? affiliateCode;
-  final String? affiliateLiquidAddress;
+  final String? createdAffiliateLiquidAddress;
+  final String? insertedAffiliateCode;
+  final String? createdAffiliateCode;
 
   User({
     this.hasInsertedAffiliate = false,
@@ -63,12 +64,12 @@ class User {
     required this.depixLiquidAddress,
     required this.paymentId,
     this.onboarded,
-    this.affiliateCode,
-    this.affiliateLiquidAddress,
+    this.createdAffiliateLiquidAddress = '',
+    this.insertedAffiliateCode = '',
+    this.createdAffiliateCode = '',
   });
 
   User copyWith({
-    String? affiliateCode,
     bool? hasInsertedAffiliate,
     bool? hasCreatedAffiliate,
     String? recoveryCode,
@@ -91,9 +92,10 @@ class User {
       recoveryCode: json['user']['authentication_token'],
       paymentId: json['user']['payment_id'],
       depixLiquidAddress: json['user']['liquid_address'],
-      affiliateCode: json['associated_affiliate'] ?? '',
+      createdAffiliateCode: json['created_affiliate']['affiliate_code'] ?? '',
+      insertedAffiliateCode: json['inserted_affiliate']['affiliate_code'] ?? '',
       hasCreatedAffiliate: json['has_created_affiliate'] ?? false,
-      affiliateLiquidAddress: json['affiliate_liquid_address'] ?? '',
+      createdAffiliateLiquidAddress: json['created_affiliate']['liquid_address'] ?? '',
       hasInsertedAffiliate: json['has_inserted_affiliate'] ?? false,
     );
   }
