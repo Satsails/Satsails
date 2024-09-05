@@ -1,6 +1,6 @@
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/user/affiliates_section.dart';
-import 'package:Satsails/screens/user/created_affiliate_dashboard.dart';
+import 'package:Satsails/screens/user/affiliate_view_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
