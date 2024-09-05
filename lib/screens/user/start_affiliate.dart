@@ -1,7 +1,6 @@
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/user/affiliates_section.dart';
-import 'package:Satsails/screens/settings/components/created_affiliate_dashboard.dart';
-import 'package:Satsails/screens/settings/components/inserted_affiliate.dart';
+import 'package:Satsails/screens/user/created_affiliate_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,13 +9,11 @@ class StartAffiliate extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hasInsertedAffiliateCode = ref.watch(userProvider).hasInsertedAffiliate;
     final hasCreatedAffiliate = ref.watch(userProvider).hasCreatedAffiliate;
+    final hasInsertedAffiliate = ref.watch(userProvider).hasInsertedAffiliate;
 
-    if (hasInsertedAffiliateCode) {
-      return const InsertedAffiliateWidget();
-    } else if (hasCreatedAffiliate) {
-      return const CreatedAffiliateWidget();
+    if (hasCreatedAffiliate || hasInsertedAffiliate) {
+      return const AffiliateViewWidget();
     } else {
       return const AffiliatesSectionWidget();
     }

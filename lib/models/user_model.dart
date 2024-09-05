@@ -92,6 +92,14 @@ class User {
       recoveryCode: json['user']['authentication_token'],
       paymentId: json['user']['payment_id'],
       depixLiquidAddress: json['user']['liquid_address'],
+    );
+  }
+
+  factory User.fromShowUserJson(Map<String, dynamic> json) {
+    return User(
+      recoveryCode: json['authentication_token'],
+      paymentId: json['payment_id'],
+      depixLiquidAddress: json['liquid_address'],
       createdAffiliateCode: json['created_affiliate']['affiliate_code'] ?? '',
       insertedAffiliateCode: json['inserted_affiliate']['affiliate_code'] ?? '',
       hasCreatedAffiliate: json['has_created_affiliate'] ?? false,
@@ -215,7 +223,7 @@ class UserService {
       );
 
       if (response.statusCode == 200) {
-        return Result(data: User.fromJson(jsonDecode(response.body)));
+        return Result(data: User.fromShowUserJson(jsonDecode(response.body)));
       } else {
         return Result(error: 'Failed to show user');
       }
