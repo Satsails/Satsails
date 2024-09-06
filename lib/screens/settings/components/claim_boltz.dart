@@ -213,7 +213,7 @@ Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext con
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Center(
-              child: Row(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('Type: '.i18n(ref), style: TextStyle(fontSize: 13, color: Colors.orange)),

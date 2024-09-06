@@ -507,7 +507,7 @@ class BtcBoltz {
         outAmount: amount,
         outAddress: address,
         network: Chain.bitcoin,
-        electrumUrl: 'electrum.blockstream.info:50002',
+        electrumUrl: 'wes.bullbitcoin.com:50002',
         boltzUrl: 'https://api.boltz.exchange/v2',
       );
     } catch (e) {
@@ -588,7 +588,7 @@ class BtcBoltz {
         index: index,
         invoice: invoice,
         network: Chain.bitcoin,
-        electrumUrl: 'electrum.blockstream.info:50002',
+        electrumUrl: 'wes.bullbitcoin.com:50002',
         boltzUrl: 'https://api.boltz.exchange/v2',
       );
     } catch (e) {

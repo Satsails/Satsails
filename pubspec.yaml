@@ -42,6 +42,7 @@ dependencies:
   group_button: ^5.3.4
   liquid_pull_to_refresh: ^3.0.1
   bolt11_decoder: ^1.0.2
+  crypto: ^3.0.5
   action_slider: ^0.7.0
   hooks_riverpod: ^2.5.1
   fluttertoast: ^8.2.5
