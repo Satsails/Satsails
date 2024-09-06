@@ -66,7 +66,7 @@ class AffiliateService {
   static Future<Result<bool>> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
     try {
       final response = await http.post(
-        Uri.parse('https://b532-109-50-157-141.ngrok-free.app/add_affiliate'),
+        Uri.parse('https://3836-93-108-187-211.ngrok-free.app/users/add_affiliate'),
         body: jsonEncode({
           'user': {
             'payment_id': paymentId,
@@ -95,7 +95,7 @@ class AffiliateService {
     if (isValid) {
       try {
         final response = await http.post(
-          Uri.parse('https://b532-109-50-157-141.ngrok-free.app/affiliates'),
+          Uri.parse('https://3836-93-108-187-211.ngrok-free.app/affiliates'),
           body: jsonEncode({
             'affiliate': {
               'affiliate_owner': paymentId,
@@ -125,7 +125,7 @@ class AffiliateService {
 
   static Future<Result<int>> affiliateNumberOfUsers(String affiliateCode, String auth) async {
     try {
-      final uri = Uri.parse('https://b532-109-50-157-141.ngrok-free.app/number_of_users')
+      final uri = Uri.parse('https://3836-93-108-187-211.ngrok-free.app/affiliates/number_of_users')
           .replace(queryParameters: {
         'code': affiliateCode,
       });
@@ -150,7 +150,7 @@ class AffiliateService {
 
   static Future<Result<String>> affiliateEarnings(String affiliateCode, String auth) async {
     try {
-      final uri = Uri.parse('https://b532-109-50-157-141.ngrok-free.app/value_earned_by_affiliate')
+      final uri = Uri.parse('https://3836-93-108-187-211.ngrok-free.app/affiliates/value_earned_by_affiliate')
           .replace(queryParameters: {
         'code': affiliateCode,
       });
@@ -175,7 +175,7 @@ class AffiliateService {
 
   static Future<Result<String>> affiliateUsersSpend(String affiliateCode, String auth) async {
     try {
-      final uri = Uri.parse('https://b532-109-50-157-141.ngrok-free.app/total_value_purchased_by_clients')
+      final uri = Uri.parse('https://3836-93-108-187-211.ngrok-free.app/affiliates/total_value_purchased_by_clients')
           .replace(queryParameters: {
         'code': affiliateCode,
       });
@@ -200,7 +200,7 @@ class AffiliateService {
   static Future<Result<List<ParsedTransfer>>> getAllTransfersFromAffiliateUsers(String affiliateCode, String auth) async {
     try {
       final response = await http.get(
-        Uri.parse('https://b532-109-50-157-141.ngrok-free.app/all_transfers')
+        Uri.parse('https://3836-93-108-187-211.ngrok-free.app/affiliates/all_transfers')
             .replace(queryParameters: {
           'code': affiliateCode,
         }),
