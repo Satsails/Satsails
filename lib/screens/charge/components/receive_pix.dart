@@ -208,7 +208,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       SizedBox(width: 1),
                       Text(
                         'You can transfer up to'.i18n(ref) + ' $_remainingLimit BRL' + ' per day'.i18n(ref),
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                        style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.red),
                       ),
                     ],
                   ),

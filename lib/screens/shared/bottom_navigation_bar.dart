@@ -1,4 +1,5 @@
 import 'package:Satsails/screens/accounts/accounts.dart';
+import 'package:Satsails/screens/services/services.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
@@ -34,30 +35,29 @@ class CustomBottomNavigationBar extends ConsumerWidget {
         label: 'Analytics'.i18n(ref),
       ),
       BottomNavigationBarItem(
+        icon: Icon(AntDesign.bulb_outline, size: math.min(screenHeight * 0.03, 25.0)),
+        label: 'services'.i18n(ref),
+      ),
+      BottomNavigationBarItem(
         icon: Icon(AntDesign.wallet_outline, size: math.min(screenHeight * 0.03, 25.0)),
         label: 'Wallets'.i18n(ref),
       ),
     ];
 
-    return Theme(
-      data: Theme.of(context).copyWith(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-      ),
-      child: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        currentIndex: currentIndex,
-        onTap: (index) {
-          _navigateToScreen(index, context);
-          onTap(index);
-        },
-        unselectedItemColor: Colors.white,
-        selectedItemColor: Colors.orangeAccent,
-        elevation: 8.0,
-        items: bottomNavBarItems,
-        unselectedFontSize: math.min(screenHeight * 0.02, maxFontSize),
-        selectedFontSize: math.min(screenHeight * 0.02, maxFontSize),
-      ),
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.black,
+      currentIndex: currentIndex,
+      onTap: (index) {
+        _navigateToScreen(index, context);
+        onTap(index);
+      },
+      unselectedItemColor: Colors.white,
+      selectedItemColor: Colors.orangeAccent,
+      elevation: 8.0,
+      items: bottomNavBarItems,
+      unselectedFontSize: math.min(screenHeight * 0.02, maxFontSize),
+      selectedFontSize: math.min(screenHeight * 0.02, maxFontSize),
     );
   }
 
@@ -72,6 +72,9 @@ class CustomBottomNavigationBar extends ConsumerWidget {
         page = const Analytics();
         break;
       case 2:
+        page = const Services();
+        break;
+      case 3:
         page = const Accounts();
         break;
     }
