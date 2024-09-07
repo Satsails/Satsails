@@ -48,12 +48,6 @@ class SendTxModel extends StateNotifier<SendTx> {
       case 'BTC':
         amount = (double.parse(value) * 100000000).toInt();
         break;
-      case 'mBTC':
-        amount = (double.parse(value) * 100000).toInt();
-        break;
-      case 'bits':
-        amount = (double.parse(value) * 100).toInt();
-        break;
       default:
         amount = 0;
     }
@@ -106,12 +100,6 @@ class SendTx {
         return balance;
       case 'BTC':
         balance = (amount / 100000000);
-        return balance;
-      case 'mBTC':
-        balance = (amount / 100000000) * 1000;
-        return balance;
-      case 'bits':
-        balance = (amount / 100000000) * 1000000;
         return balance;
       default:
         return 0;

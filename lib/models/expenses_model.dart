@@ -22,16 +22,6 @@ class BitcoinExpenses {
         receivedConverted = received / 100000000.0;
         feeConverted = fee / 100000000.0;
         break;
-      case 'mBTC':
-        sentConverted = sent / 100000.0;
-        receivedConverted = received / 100000.0;
-        feeConverted = fee / 100000.0;
-        break;
-      case 'bits':
-        sentConverted = sent / 100.0;
-        receivedConverted = received / 100.0;
-        feeConverted = fee / 100.0;
-        break;
       default:
         throw Exception('Invalid denomination');
     }
@@ -100,17 +90,6 @@ class LiquidExpenses {
         bitcoinSentConverted = bitcoinSent / 100000000.0;
         bitcoinReceivedConverted = bitcoinReceived / 100000000.0;
         feeConverted = fee / 100000000.0;
-        break;
-      case 'mBTC':
-        bitcoinSentConverted = bitcoinSent / 100000.0;
-        bitcoinReceivedConverted = bitcoinReceived / 100000.0;
-        feeConverted = fee / 100000.0;
-
-        break;
-      case 'bits':
-        bitcoinSentConverted = bitcoinSent / 100.0;
-        bitcoinReceivedConverted = bitcoinReceived / 100.0;
-        feeConverted = fee / 100.0;
         break;
       default:
         throw Exception('Invalid denomination');

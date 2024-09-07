@@ -20,10 +20,6 @@ String calculateAmountToDisplay(String amount, String currency, currencyConverte
       return (double.parse(amount) * currencyConverter.brlToBtc).toStringAsFixed(8);
     case 'Sats':
       return (double.parse(amount) / 100000000).toStringAsFixed(8);
-    case 'mBTC':
-      return (double.parse(amount) / 1000).toStringAsFixed(8);
-    case 'bits':
-      return (double.parse(amount) / 1000000).toStringAsFixed(8);
     default:
       return amount;
   }
@@ -45,10 +41,6 @@ int calculateAmountInSatsToDisplay(String amount, String currency, currencyConve
       return (double.parse(amount) * currencyConverter.brlToBtc * 100000000).toInt();
     case 'Sats':
       return (double.parse(amount)).toInt();
-    case 'mBTC':
-      return (double.parse(amount) * 1000).toInt();
-    case 'bits':
-      return (double.parse(amount) * 1000000).toInt();
     default:
       return (double.parse(amount) * 100000000).toInt();
   }
@@ -66,10 +58,6 @@ String calculateAmountInSelectedCurrency(int sats, String currency, currencyConv
       return (sats / 100000000 / currencyConverter.brlToBtc).toStringAsFixed(2);
     case 'Sats':
       return sats.toString();
-    case 'mBTC':
-      return (sats / 1000).toStringAsFixed(5);
-    case 'bits':
-      return (sats / 1000000).toStringAsFixed(5);
     default:
       return (sats / 100000000).toStringAsFixed(8);
   }

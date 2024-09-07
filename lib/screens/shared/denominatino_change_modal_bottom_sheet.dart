@@ -150,7 +150,7 @@ class _DenominationChangeModalBottomSheetState extends State<DenominationChangeM
           },
         ),
         ListTile(
-          leading: const Text('sats ₿', style: TextStyle(color: Colors.white, fontSize: 24)),
+          leading: const Text('sats', style: TextStyle(color: Colors.white, fontSize: 24)),
           title: const Text('Satoshi', style: TextStyle(color: Colors.white)),
           onTap: () {
             settingsNotifier.setBtcFormat('sats');
