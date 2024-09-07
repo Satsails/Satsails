@@ -207,7 +207,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       Icon(Icons.warning_amber, color: Colors.red),
                       SizedBox(width: 1),
                       Text(
-                        'You can transfer up to'.i18n(ref) + ' $_remainingLimit BRL' + ' per day'.i18n(ref),
+                        'You can transfer up to'.i18n(ref) + ' ${formatLimit(_remainingLimit)} BRL' + ' per day'.i18n(ref),
                         style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.red),
                       ),
                     ],
@@ -284,3 +284,12 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     );
   }
 }
+
+String formatLimit(double value) {
+  if (value == value.floor()) {
+    return value.toInt().toString(); // If it's a whole number, display it as an integer
+  } else {
+    return value.toStringAsFixed(2); // Otherwise, show with two decimal places
+  }
+}
+

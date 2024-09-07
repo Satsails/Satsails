@@ -67,10 +67,6 @@ class Balance {
         return totalBtcBalance();
       case 'BTC':
         return totalBtcBalance() / 100000000;
-      case 'mBTC':
-        return totalBtcBalance() / 100000;
-      case 'bits':
-        return totalBtcBalance() / 1000000;
       default:
         return 0;
     }
@@ -85,12 +81,6 @@ class Balance {
       case 'BTC':
         balance = liquidBalance / 100000000;
         return balance.toStringAsFixed(8);
-      case 'mBTC':
-        balance = (liquidBalance / 100000000) * 1000;
-        return balance.toStringAsFixed(5);
-      case 'bits':
-        balance = (liquidBalance / 100000000) * 1000000;
-        return balance.toStringAsFixed(2);
       default:
         return "0";
     }
@@ -106,12 +96,6 @@ class Balance {
       case 'BTC':
         balance = btcBalance / 100000000;
         return balance.toStringAsFixed(8);
-      case 'mBTC':
-        balance = (btcBalance / 100000000) * 1000;
-        return balance.toStringAsFixed(5);
-      case 'bits':
-        balance = (btcBalance / 100000000) * 1000000;
-        return balance.toStringAsFixed(2);
       default:
         return "0";
     }
