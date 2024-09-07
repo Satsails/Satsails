@@ -5,7 +5,18 @@ import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 
 final isBitcoinInputProvider = StateProvider.autoDispose<bool>((ref) => true);
-final inputCurrencyProvider = StateProvider.autoDispose<String>((ref) => ref.watch(settingsProvider.notifier).state.btcFormat);
+final defaultDropdownValueProvider = StateProvider.autoDispose<String>((ref) {
+  final format = ref.watch(settingsProvider).btcFormat;
+  switch (format) {
+    case 'BTC':
+      return 'BTC';
+    case 'sats':
+      return 'Sats';
+    default:
+      return 'BTC';
+  }
+});
+final inputCurrencyProvider = StateProvider.autoDispose<String>((ref) => ref.watch(defaultDropdownValueProvider));
 final inputAmountProvider = StateProvider.autoDispose<String>((ref) => '0.0');
 final shouldUpdateBoltzLiquidReceive = StateProvider.autoDispose<bool>((ref) => true);
 
