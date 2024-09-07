@@ -1,5 +1,6 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
@@ -208,6 +209,7 @@ class LiquidCards extends StatelessWidget {
     String assetId = AssetMapper.reverseMapTicker(ticker);
     ref.read(sendTxProvider.notifier).updateAssetId(assetId);
     ref.read(sendTxProvider.notifier).updateAmount(0);
+    ref.read(inputCurrencyProvider.notifier).state = 'BTC';
     controller.text = '';
     return true;
   }

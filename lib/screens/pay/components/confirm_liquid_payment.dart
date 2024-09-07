@@ -6,6 +6,7 @@ import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/screens/pay/components/liquid_cards.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
@@ -107,7 +108,11 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                         child: TextFormField(
                           controller: controller,
                           keyboardType: TextInputType.number,
-                          inputFormatters: showBitcoinRelatedWidgets.state ? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()] : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()],
+                          inputFormatters:ref.watch(inputCurrencyProvider) == 'Sats'
+                              ? [FilteringTextInputFormatter.digitsOnly]
+                              : (showBitcoinRelatedWidgets.state
+                              ? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()]
+                              : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()]),
                           style: TextStyle(fontSize: dynamicFontSize * 3, color: Colors.white),
                           textAlign: TextAlign.center,
                           decoration: InputDecoration(
@@ -138,7 +143,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                     ),
                     if (showBitcoinRelatedWidgets.state) ...[
                       Text(
-                        '~ ${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
+                        '${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
                         style: TextStyle(
                           fontSize: dynamicFontSize / 1.5,
                           color: Colors.white,

@@ -1,3 +1,4 @@
+import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/pix_transaction_provider.dart';
 import 'package:flutter/material.dart';
@@ -284,12 +285,3 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     );
   }
 }
-
-String formatLimit(double value) {
-  if (value == value.floor()) {
-    return value.toInt().toString(); // If it's a whole number, display it as an integer
-  } else {
-    return value.toStringAsFixed(2); // Otherwise, show with two decimal places
-  }
-}
-

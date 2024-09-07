@@ -3,6 +3,7 @@ import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
@@ -141,7 +142,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                         child: TextFormField(
                           controller: controller,
                           keyboardType: TextInputType.number,
-                          inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
+                          inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats' ? [FilteringTextInputFormatter.digitsOnly] : [DecimalTextInputFormatter(decimalRange: 8),CommaTextInputFormatter(),],
                           style: TextStyle(fontSize: dynamicFontSize * 3, color: Colors.white),
                           textAlign: TextAlign.center,
                           decoration: const InputDecoration(
@@ -164,6 +165,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                             ref.read(sendTxProvider.notifier).updateDrain(false);
                           },
                         ),
+
                       ),
                     ),
                     SizedBox(height: dynamicSizedBox),
