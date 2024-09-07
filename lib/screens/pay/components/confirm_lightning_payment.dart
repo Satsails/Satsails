@@ -37,7 +37,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
 
 
     useEffect(() {
-      controller.text = sendAmount == 0 ? '' : sendAmount.toString();
+      controller.text = sendAmount == 0 ? '' : (btcFormart == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString());
       return null;
     }, []);
 

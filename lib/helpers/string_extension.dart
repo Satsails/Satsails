@@ -7,8 +7,8 @@ extension StringExtension on String {
 
 String formatLimit(double value) {
   if (value == value.floor()) {
-    return value.toInt().toString(); // If it's a whole number, display it as an integer
+    return value.toInt().toString();
   } else {
-    return value.toStringAsFixed(2); // Otherwise, show with two decimal places
+    return value.toStringAsFixed(2);
   }
 }

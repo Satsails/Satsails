@@ -35,7 +35,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
 
     useEffect(() {
-      Future.microtask(() => controller.text = sendAmount == 0 ? '' : sendAmount.toString());
+      Future.microtask(() => controller.text = sendAmount == 0 ? '' : (btcFormart == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString()));
       return null;
     }, []);
 

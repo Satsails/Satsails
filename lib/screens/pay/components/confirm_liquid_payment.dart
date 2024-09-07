@@ -40,7 +40,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
     final sendAmount = ref.watch(sendTxProvider).btcBalanceInDenominationFormatted(btcFormart);
 
     useEffect(() {
-      controller.text = sendAmount == 0 ? '' : sendAmount.toString();
+      controller.text = sendAmount == 0 ? '' : (btcFormart == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString());
       return null;
     }, [showBitcoinRelatedWidgets.state]);
 
