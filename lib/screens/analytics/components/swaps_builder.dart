@@ -82,7 +82,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
         items: <String>['All', 'Fiat Swaps', 'Layer Swaps'].map((String value) {
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(value, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04, color: Colors.white)),
+            child: Text(value, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04, color: Colors.orange)),
           );
         }).toList(),
         onChanged: (String? newValue) {
@@ -123,6 +123,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
   }
 
   Widget _buildFiatTransactionItem(SideswapCompletedSwap swap, BuildContext context, WidgetRef ref, double screenWidth) {
+
     return Container(
       margin: EdgeInsets.all(screenWidth * 0.02),
       decoration: BoxDecoration(
@@ -135,37 +136,49 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
             leading: const Icon(Icons.swap_calls_rounded, color: Colors.orange),
             title: Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: Text("Fiat Swap".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.0375, fontWeight: FontWeight.bold, color: Colors.white)),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  children: [
+                    Text("Fiat Swap".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.0375, fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text(_timestampToDateTime(swap.timestamp), style: TextStyle(fontSize: screenWidth * 0.025, color: Colors.white)),
+                  ],
+                ),
+              ),
             ),
-            subtitle: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            subtitle: Column(
               children: [
-                Column(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.sendAsset)), style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white, fontWeight: FontWeight.bold)),
-                    Text(
-                      _assetNameFromTicker(AssetMapper.mapAsset(swap.sendAsset)) == 'LBTC'
-                          ? ref.watch(conversionProvider(swap.sendAmount.toInt()))
-                          : (swap.sendAmount / 100000000).toStringAsFixed(2),
-                      style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
+                    Column(
+                      children: [
+                        Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.sendAsset)), style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white, fontWeight: FontWeight.bold)),
+                        Text(
+                          _assetNameFromTicker(AssetMapper.mapAsset(swap.sendAsset)) == 'LBTC'
+                              ? ref.watch(conversionProvider(swap.sendAmount.toInt()))
+                              : (swap.sendAmount / 100000000).toStringAsFixed(2),
+                          style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                SizedBox(width: screenWidth * 0.1),
-                Column(
-                  children: [
-                    const Icon(Icons.arrow_forward, color: Colors.orange, size: 30),
-                    Text("More Details".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.02, color: Colors.white)),
-                  ],
-                ),
-                Column(
-                  children: [
-                    Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)), style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white, fontWeight: FontWeight.bold)),
-                    Text(
-                      _assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)) == 'BTC'
-                          ? ref.watch(conversionProvider((swap.recvAmount).toInt()))
-                          : (swap.recvAmount / 100000000).toStringAsFixed(2),
-                      style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
+                    SizedBox(width: screenWidth * 0.1),
+                    Column(
+                      children: [
+                        const Icon(Icons.arrow_forward, color: Colors.orange, size: 30),
+                        Text("More Details".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.02, color: Colors.white)),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)), style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white, fontWeight: FontWeight.bold)),
+                        Text(
+                          _assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)) == 'BTC'
+                              ? ref.watch(conversionProvider((swap.recvAmount).toInt()))
+                              : (swap.recvAmount / 100000000).toStringAsFixed(2),
+                          style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
+                        ),
+                      ],
                     ),
                   ],
                 ),

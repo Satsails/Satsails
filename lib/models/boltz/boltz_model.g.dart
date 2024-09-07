@@ -88,13 +88,14 @@ class LbtcBoltzAdapter extends TypeAdapter<LbtcBoltz> {
       keys: fields[1] as KeyPair,
       preimage: fields[2] as PreImage,
       swapScript: fields[3] as LBtcSwapScriptV2Str,
+      timestamp: fields[4] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, LbtcBoltz obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.swap)
       ..writeByte(1)
@@ -102,7 +103,9 @@ class LbtcBoltzAdapter extends TypeAdapter<LbtcBoltz> {
       ..writeByte(2)
       ..write(obj.preimage)
       ..writeByte(3)
-      ..write(obj.swapScript);
+      ..write(obj.swapScript)
+      ..writeByte(4)
+      ..write(obj.timestamp);
   }
 
   @override
@@ -221,13 +224,14 @@ class BtcBoltzAdapter extends TypeAdapter<BtcBoltz> {
       keys: fields[1] as KeyPair,
       preimage: fields[2] as PreImage,
       swapScript: fields[3] as BtcSwapScriptV2Str,
+      timestamp: fields[4] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, BtcBoltz obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.swap)
       ..writeByte(1)
@@ -235,7 +239,9 @@ class BtcBoltzAdapter extends TypeAdapter<BtcBoltz> {
       ..writeByte(2)
       ..write(obj.preimage)
       ..writeByte(3)
-      ..write(obj.swapScript);
+      ..write(obj.swapScript)
+      ..writeByte(4)
+      ..write(obj.timestamp);
   }
 
   @override

@@ -198,12 +198,15 @@ class LbtcBoltz {
   final PreImage preimage;
   @HiveField(3)
   final LBtcSwapScriptV2Str swapScript;
+  @HiveField(4)
+  final int timestamp; // Add timestamp field
 
   LbtcBoltz({
     required this.swap,
     required this.keys,
     required this.preimage,
     required this.swapScript,
+    required this.timestamp, // Add timestamp to constructor
   });
 
   static Future<LbtcBoltz> createBoltzReceive({
@@ -260,6 +263,7 @@ class LbtcBoltz {
       keys: result.keys,
       preimage: result.preimage,
       swapScript: result.swapScript,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
     );
   }
 
@@ -345,6 +349,7 @@ class LbtcBoltz {
       keys: result.keys,
       preimage: result.preimage,
       swapScript: result.swapScript,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
     );
   }
 
@@ -473,12 +478,15 @@ class BtcBoltz {
   final PreImage preimage;
   @HiveField(3)
   final BtcSwapScriptV2Str swapScript;
+  @HiveField(4)
+  final int timestamp;
 
   BtcBoltz({
     required this.swap,
     required this.keys,
     required this.preimage,
     required this.swapScript,
+    required this.timestamp,
   });
 
   static Future<BtcBoltz> createBoltzReceive({
@@ -533,6 +541,7 @@ class BtcBoltz {
       keys: result.keys,
       preimage: result.preimage,
       swapScript: result.swapScript,
+      timestamp: DateTime.now().millisecondsSinceEpoch, // Store the current timestamp
     );
   }
 
@@ -614,6 +623,7 @@ class BtcBoltz {
       keys: result.keys,
       preimage: result.preimage,
       swapScript: result.swapScript,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
     );
   }
 

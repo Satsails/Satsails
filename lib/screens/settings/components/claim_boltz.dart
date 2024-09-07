@@ -130,9 +130,10 @@ Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext con
   final amount = isBitcoin ? bitcoinTx!.swap.outAmount : liquidTx!.swap.outAmount;
   final invoice = isBitcoin ? bitcoinTx!.swap.invoice : liquidTx!.swap.invoice;
   final kind = isBitcoin ? bitcoinTx!.swap.kind.name : liquidTx!.swap.kind.name;
+  final timestamp = isBitcoin ? bitcoinTx!.timestamp : liquidTx!.timestamp;  // Assuming the timestamp is present
 
   return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal:8.0),
+    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
     child: Card(
       color: const Color(0xFF2E2E2E),
       shape: RoundedRectangleBorder(
@@ -143,6 +144,7 @@ Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext con
         leading: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(_timestampToDateTime(timestamp), style: TextStyle(fontSize: MediaQuery.of(context).size.width < 400 ? 10 : 13, color: Colors.white)),
             Text("Amount".i18n(ref), style: const TextStyle(fontSize: 13, color: Colors.orange)),
             Text("${btcInDenominationFormatted(amount.toDouble(), btcFormat)} $btcFormat", style: const TextStyle(fontSize: 13, color: Colors.white)),
           ],
@@ -216,20 +218,20 @@ Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext con
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Type: '.i18n(ref), style: TextStyle(fontSize: 13, color: Colors.orange)),
+                  Text('Type: '.i18n(ref), style: const TextStyle(fontSize: 13, color: Colors.orange)),
                   Text(kind, style: const TextStyle(fontSize: 13, color: Colors.orange)),
                 ],
               ),
             ),
           ],
         ),
-        subtitle: Center(child: Text('${isBitcoin ? 'Bitcoin' : 'Liquid'}', style: const TextStyle(fontSize: 13, color: Colors.white))),
+        subtitle: Text('${isBitcoin ? 'Bitcoin' : 'Liquid'}', style: const TextStyle(fontSize: 13, color: Colors.white)),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Column(
               children: [
-                Text('Invoice'.i18n(ref), style: TextStyle(fontSize: 13, color: Colors.orange)),
+                Text('Invoice'.i18n(ref), style: const TextStyle(fontSize: 13, color: Colors.orange)),
                 Text('...${invoice.substring(invoice.length - 7)}', style: const TextStyle(fontSize: 13, color: Colors.white)),
               ],
             ),
@@ -239,3 +241,9 @@ Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext con
     ),
   );
 }
+
+String _timestampToDateTime(int timestamp) {
+  final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+  return "${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
+}
+
