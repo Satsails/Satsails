@@ -23,20 +23,17 @@ class ButtonPicker extends ConsumerWidget {
       onSelected: (index, isSelected, isLongPress) {
         switch (isSelected) {
           case 0:
-            ref.read(sendTxProvider.notifier).updateAddress('');
-            ref.read(sendTxProvider.notifier).updateAmount(0);
+            ref.read(sendTxProvider.notifier).resetToDefault();
             ref.read(sendBlocksProvider.notifier).state = 1;
             ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
             break;
           case 1:
-            ref.read(sendTxProvider.notifier).updateAddress('');
-            ref.read(sendTxProvider.notifier).updateAmount(0);
+            ref.read(sendTxProvider.notifier).resetToDefault();
             ref.read(sendBlocksProvider.notifier).state = 1;
             ref.read(selectedButtonProvider.notifier).state = "Swap";
             break;
           default:
-            ref.read(sendTxProvider.notifier).updateAddress('');
-            ref.read(sendTxProvider.notifier).updateAmount(0);
+            ref.read(sendTxProvider.notifier).resetToDefault();
             ref.read(sendBlocksProvider.notifier).state = 1;
             ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
         }

@@ -1,3 +1,4 @@
+import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'dart:async';
@@ -101,7 +102,7 @@ class SideswapStartExchange {
         return SideswapPsetToSign.fromJson(responseData, orderId);
       } else {
         response.body.contains("UTXO amount") ? throw Exception('Balance insufficient.') :
-        throw Exception('Failed: ${response.body}');
+        throw 'Swap failed, please contact support';
       }
   }
 
@@ -136,9 +137,10 @@ class SideswapStartExchange {
         recvAsset: recvAsset,
         recvAmount: recvAmount,
         orderId: orderId,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
       );
     } else {
-      throw Exception('Failed: ${response.body}');
+      throw 'Swap failed, please contact support';
     }
   }
 }
@@ -157,6 +159,8 @@ class SideswapCompletedSwap {
   final num recvAmount;
   @HiveField(5)
   final String orderId;
+  @HiveField(6)
+  final int timestamp;
 
   SideswapCompletedSwap({
     required this.txid,
@@ -165,6 +169,7 @@ class SideswapCompletedSwap {
     required this.recvAsset,
     required this.recvAmount,
     required this.orderId,
+    required this.timestamp,
   });
 }
 

@@ -14,7 +14,6 @@ class Exchange extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
-    final online = ref.watch(settingsProvider).online;
     final button = ref.watch(selectedButtonProvider);
 
     return PopScope(

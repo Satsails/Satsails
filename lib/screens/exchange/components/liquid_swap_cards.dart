@@ -354,33 +354,36 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
   }
 
   Widget _liquidSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: ActionSlider.standard(
-        sliderBehavior: SliderBehavior.stretch,
-        width: double.infinity,
-        backgroundColor: Colors.black,
-        toggleColor: Colors.orange,
-        action: (controller) async {
-          controller.loading();
-          await Future.delayed(const Duration(seconds: 3));
-          try {
-            await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
-            controller.success();
-            Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
-            ref.read(sendTxProvider.notifier).updateAddress('');
-            ref.read(sendTxProvider.notifier).updateAmount(0);
-            ref.read(sendBlocksProvider.notifier).state = 1;
-            ref.read(backgroundSyncNotifierProvider).performSync();
+    return Padding(
+      padding: EdgeInsets.only(bottom: dynamicPadding / 2),
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: ActionSlider.standard(
+          sliderBehavior: SliderBehavior.stretch,
+          width: double.infinity,
+          backgroundColor: Colors.black,
+          toggleColor: Colors.orange,
+          action: (controller) async {
+            controller.loading();
             await Future.delayed(const Duration(seconds: 3));
-            Navigator.pushReplacementNamed(context, '/home');
-          } catch (e) {
-            controller.failure();
-            Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
-            controller.reset();
-          }
-        },
-        child: Text('Slide to Swap'.i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white)),
+            try {
+              await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
+              controller.success();
+              Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+              ref.read(sendTxProvider.notifier).updateAddress('');
+              ref.read(sendTxProvider.notifier).updateAmount(0);
+              ref.read(sendBlocksProvider.notifier).state = 1;
+              ref.read(backgroundSyncNotifierProvider).performSync();
+              await Future.delayed(const Duration(seconds: 3));
+              Navigator.pushReplacementNamed(context, '/home');
+            } catch (e) {
+              controller.failure();
+              Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+              controller.reset();
+            }
+          },
+          child: Text('Slide to Swap'.i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white)),
+        ),
       ),
     );
   }
