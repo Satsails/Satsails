@@ -516,7 +516,7 @@ class Accounts extends ConsumerWidget {
 
   void _receiveLightningPayment(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.transparent,
       context: context,
       isScrollControlled: true,
       builder: (context) => DraggableScrollableSheet(
@@ -526,7 +526,7 @@ class Accounts extends ConsumerWidget {
         maxChildSize: 0.9,
         builder: (context, scrollController) {
           return Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: Colors.black,
             body: SingleChildScrollView(
               controller: scrollController,
               padding: const EdgeInsets.all(16.0),

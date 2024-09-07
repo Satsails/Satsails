@@ -74,18 +74,18 @@ class LightningCards extends StatelessWidget {
 
     switch (index) {
       case 0:
-        title = 'Liquid Balance';
+        title = 'Send with Liquid Balance';
         balanceText = '$liquidBalanceInFormat $liquidFormart';
         gradientColors = const [Color(0xFF288BEC), Color(0xFF288BEC)];
         break;
       case 1:
-        title = 'Bitcoin Balance';
+        title = 'Send with Bitcoin Balance';
         balanceText = '$btcBalanceInFormat $btcFormart';
         gradientColors = const [Colors.orange, Colors.orange];
         isLiquid = false;
         break;
       default:
-        title = 'Liquid Balance';
+        title = 'Send with Liquid Balance';
         balanceText = '$liquidBalanceInFormat $liquidFormart';
         gradientColors = const [Color(0xFF288BEC), Color(0xFF288BEC)];
         break;

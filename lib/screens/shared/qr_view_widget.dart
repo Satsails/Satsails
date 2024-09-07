@@ -132,6 +132,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
         }
       }
       catch (e) {
+        controller.pauseCamera();
         showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -168,6 +169,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
                     icon: const Icon(Icons.close, color: Colors.black54),
                     onPressed: () {
                       Navigator.of(context).pop();
+                      controller.resumeCamera();
                     },
                   ),
                 ],

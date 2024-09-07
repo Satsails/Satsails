@@ -106,7 +106,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                       child: FocusScope(
                         child: TextFormField(
                           controller: controller,
-                          readOnly: controller.text.isNotEmpty,
+                          readOnly: true,
                           keyboardType: TextInputType.number,
                           inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
                           style: TextStyle(fontSize: dynamicFontSize * 3, color: Colors.white),
