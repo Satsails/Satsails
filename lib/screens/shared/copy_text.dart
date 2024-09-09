@@ -2,8 +2,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:share_plus/share_plus.dart'; // Add the share package
+import 'package:share_plus/share_plus.dart';
 
 Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [double fontSize = 16.0]) {
   final height = MediaQuery.of(context).size.height;
@@ -49,7 +48,7 @@ Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [do
                 },
                 icon: Icon(Icons.share, color: Colors.white.withOpacity(0.7)),
                 label: Text(
-                  'Share',
+                  'Share'.i18n(ref),
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
                     fontSize: 16.0,
@@ -62,7 +61,7 @@ Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [do
                 },
                 icon: Icon(Icons.copy, color: Colors.white.withOpacity(0.7)),
                 label: Text(
-                  'Copy',
+                  'Copy'.i18n(ref),
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
                     fontSize: width * 0.04,

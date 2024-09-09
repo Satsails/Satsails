@@ -146,7 +146,7 @@ class PixOnBoarding extends ConsumerWidget {
                       ),
                       SizedBox(height: screenSize.height * 0.05),
                       Text(
-                        "Daily transaction limit: R\$ 5000. Need to send more? Contact our support.".i18n(ref),
+                        "Daily transaction limit: BRL 5000. Need to send more? Contact our support.".i18n(ref),
                         style: TextStyle(
                           fontSize: screenSize.width * 0.04,
                           color: Colors.white,

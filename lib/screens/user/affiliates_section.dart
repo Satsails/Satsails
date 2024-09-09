@@ -21,7 +21,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
       child: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
-          title: const Text('Affiliate', style: TextStyle(color: Colors.white)),
+          title: Text('Affiliate'.i18n(ref), style: TextStyle(color: Colors.white)),
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
@@ -51,8 +51,8 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Connect with other users and earn sats!',
+                    Text(
+                      'Connect with other users and earn sats!'.i18n(ref),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 28,
@@ -61,25 +61,25 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      'Enter your affiliate code or create a new code to receive benefits.',
+                    Text(
+                      'Enter your affiliate code or create a new code to receive benefits.'.i18n(ref),
                       style: TextStyle(color: Colors.white, fontSize: 18),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 40),
                     CustomElevatedButton(
-                      text: 'Insert Affiliate Code',
+                      text: 'Insert Affiliate Code'.i18n(ref),
                       textColor: Colors.black,
                       onPressed: () {
-                        _showInsertBottomModal(context, 'Insert Affiliate Code', ref);
+                        _showInsertBottomModal(context, 'Insert Affiliate Code'.i18n(ref), ref);
                       },
                     ),
                     const SizedBox(height: 20),
                     CustomElevatedButton(
-                      text: 'Create Affiliate Code',
+                      text: 'Create Affiliate Code'.i18n(ref),
                       textColor: Colors.black,
                       onPressed: () {
-                        _showCreateBottomModal(context, 'Create Affiliate Code', ref);
+                        _showCreateBottomModal(context, 'Create Affiliate Code'.i18n(ref), ref);
                       },
                     ),
                   ],
@@ -130,8 +130,8 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                 const SizedBox(height: 20),
                 TextField(
                   controller: _controller,
-                  decoration: const InputDecoration(
-                    labelText: 'Affiliate Code',
+                  decoration: InputDecoration(
+                    labelText: 'Affiliate Code'.i18n(ref),
                     labelStyle: TextStyle(color: Colors.black),
                     border: OutlineInputBorder(),
                     fillColor: Colors.orange,
@@ -143,7 +143,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: CustomElevatedButton(
-                    text: 'Submit',
+                    text: 'Submit'.i18n(ref),
                     textColor: Colors.white,
                     backgroundColor: Colors.black,
                     onPressed: () async {
@@ -216,8 +216,8 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                 const SizedBox(height: 20),
                 TextField(
                   controller: _liquidAddressController,
-                  decoration: const InputDecoration(
-                    labelText: 'Liquid Address',
+                  decoration: InputDecoration(
+                    labelText: 'Liquid Address'.i18n(ref),
                     labelStyle: TextStyle(color: Colors.black),
                     border: OutlineInputBorder(),
                     fillColor: Colors.orange,
@@ -228,8 +228,8 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                 const SizedBox(height: 20),
                 TextField(
                   controller: _affiliateController,
-                  decoration: const InputDecoration(
-                    labelText: 'Affiliate Code',
+                  decoration: InputDecoration(
+                    labelText: 'Affiliate Code'.i18n(ref),
                     labelStyle: TextStyle(color: Colors.black),
                     border: OutlineInputBorder(),
                     fillColor: Colors.orange,
@@ -241,7 +241,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: CustomElevatedButton(
-                    text: 'Submit',
+                    text: 'Submit'.i18n(ref),
                     textColor: Colors.white,
                     backgroundColor: Colors.black,
                     onPressed: () async {

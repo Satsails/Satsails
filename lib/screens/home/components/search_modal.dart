@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -46,7 +47,7 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(29, 31, 49, 1.0),
         title: Text(
-          'Search the blockchain',
+          'Search the blockchain'.i18n(ref),
           style: TextStyle(color: Colors.white),
         ),
         leading: IconButton(

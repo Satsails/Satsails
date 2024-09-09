@@ -214,7 +214,7 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
               ref,
               icon: Icons.waterfall_chart,
               title: 'Liquidation Zone',
-              url: 'https://bitcoincounterflow.com/satsails/pt/zona-de-liquidacao-iframe',
+              url: 'https://bitcoincounterflow.com/satsails/liquidation-heatmap-iframe/',
             ),
           ],
         ),

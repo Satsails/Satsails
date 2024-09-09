@@ -283,10 +283,6 @@ extension Localization on String {
         'pt': 'Múltiplas',
       } +
       {
-        'en': 'Received',
-        'pt': 'Recebido',
-      } +
-      {
         'en': 'Sent',
         'pt': 'Enviado',
       } +
@@ -752,7 +748,7 @@ extension Localization on String {
       }+
       {
         'en': 'Seed Words',
-        'pt': 'Seed Words'
+        'pt': 'Seed'
       }+
       {
         'en': 'Select the correct word for each position:',
@@ -835,8 +831,8 @@ extension Localization on String {
         'pt': 'Você pode transferir até '
       } +
       {
-        'en': ' per day',
-        'pt': ' por dia'
+        'en': ' today',
+        'pt': ' hoje'
       } +
       {
         'en': 'Insert an amount',
@@ -1091,11 +1087,379 @@ extension Localization on String {
         'pt': 'Transferido Esta Semana:',
       }+
       {
-        'en': 'History',
-        'pt': 'Histórico',
+        'en': 'history',
+        'pt': 'histórico',
+      }+
+      {
+        'en': 'Transaction still pending',
+        'pt': 'Transação ainda pendente',
+      }+
+      {
+        'en': 'An error has occurred. Please check your internet connection or contact support',
+        'pt': 'Ocorreu um erro. Por favor, verifique sua conexão com a internet ou contate o suporte',
+      }+
+      {
+        'en': 'Transaction Details',
+        'pt': 'Detalhes da Transação',
+      } +
+      {
+        'en': 'About the transaction',
+        'pt': 'Sobre a transação',
+      } +
+      {
+        'en': 'Date',
+        'pt': 'Data',
+      } +
+      {
+        'en': 'Pending',
+        'pt': 'Pendente',
+      } +
+      {
+        'en': 'Origin',
+        'pt': 'Origem',
+      } +
+      {
+        'en': 'Name',
+        'pt': 'Nome',
+      } +
+      {
+        'en': 'Completed',
+        'pt': 'Concluída',
+      } +
+      {
+        'en': 'Download document',
+        'pt': 'Baixar documento',
+      }+     {
+    'en': 'Chat with us about anything',
+    'pt': 'Converse conosco sobre qualquer coisa',
+  } +
+      {
+        'en': 'Claim your Boltz transactions',
+        'pt': 'Reivindique suas transações Boltz',
+      } +
+      {
+        'en': 'User Section',
+        'pt': 'Seção do Usuário',
+      } +
+      {
+        'en': 'Manage your anonymous account',
+        'pt': 'Gerencie sua conta anônima',
+      } +
+      {
+        'en': 'Instant',
+        'pt': 'Instantâneo',
+      } +
+      {
+        'en': 'See Full History',
+        'pt': 'Ver Histórico Completo',
+      } +
+      {
+        'en': 'Open support chat',
+        'pt': 'Abrir chat de suporte',
+      } +
+      {
+        'en': 'Reset Chat Session',
+        'pt': 'Reset da Sessão de Chat',
+      } +
+      {
+        'en': 'Support',
+        'pt': 'Suporte',
+      } +
+      {
+        'en': 'Lightning transactions',
+        'pt': 'Transações Lightning',
+      }+{
+    'en': 'User Details',
+    'pt': 'Detalhes do Usuário',
+  } +
+      {
+        'en': 'Payment ID',
+        'pt': 'ID de Pagamento',
+      } +
+      {
+        'en': 'Affiliate code for sharing',
+        'pt': 'Código de afiliado para compartilhar',
+      } +
+      {
+        'en': 'Referred by',
+        'pt': 'Indicado por',
+      } +
+      {
+        'en': 'Recovery Code',
+        'pt': 'Código de Recuperação',
+      } +
+      {
+        'en': 'Hint: Please store your recovery code somewhere safe. There is no other way to recover your account if you lose this code.',
+        'pt': 'Dica: Guarde seu código de recuperação em um local seguro. Não há outra maneira de recuperar sua conta se você perder este código.',
+      } +
+      {
+        'en': 'Affiliate Portal',
+        'pt': 'Portal de Afiliados',
+      } +
+      {
+        'en': 'Track your performance and access exclusive resources.',
+        'pt': 'Acompanhe seu desempenho e acesse recursos exclusivos.',
+      } +
+      {
+        'en': 'Go to Affiliate Portal',
+        'pt': 'Ir para o Portal de Afiliados',
+      } +
+      {
+        'en': 'Welcome,',
+        'pt': 'Bem-vindo,',
+      } +
+      {
+        'en': 'This section is completely anonymous and does not require any personal information.',
+        'pt': 'Esta seção é completamente anônima e não requer nenhuma informação pessoal.',
+      } +
+      {
+        'en': 'Create anonymous account',
+        'pt': 'Criar conta anônima',
+      }+     {
+    'en': 'Anonymous account created successfully!',
+    'pt': 'Conta anônima criada com sucesso!',
+  } +
+      {
+        'en': 'Add funds to your wallet. Convert stablecoins to Bitcoin quickly and easily.',
+        'pt': 'Adicione fundos à sua carteira. Converta stablecoins em Bitcoin de forma rápida e fácil.',
+      } +
+      {
+        'en': 'Get your PIX key',
+        'pt': 'Obtenha sua chave PIX',
+      } +
+      {
+        'en': 'Receive an exclusive Pix key to add funds. This key is unique for each transaction.',
+        'pt': 'Receba uma chave Pix exclusiva para adicionar fundos. Esta chave é única para cada transação.',
+      } +
+      {
+        'en': 'Send us a PIX',
+        'pt': 'Envie-nos um PIX',
+      } +
+      {
+        'en': 'Make a Pix payment using the provided exclusive key. Your funds will be credited to your wallet.',
+        'pt': 'Faça um pagamento Pix usando a chave exclusiva fornecida. Seus fundos serão creditados em sua carteira.',
+      } +
+      {
+        'en': 'Daily limit',
+        'pt': 'Limite diário',
+      } +
+      {
+        'en': 'Daily transaction limit: BRL 5000. Need to send more? Contact our support.',
+        'pt': 'Limite diário de transações: BRL 5000. Precisa enviar mais? Entre em contato com nosso suporte.',
+      } +
+      {
+        'en': 'Enter recovery code',
+        'pt': 'Digite o código de recuperação',
+      } +
+      {
+        'en': 'Recover',
+        'pt': 'Recuperar',
+      } +{
+    'en': 'Affiliate not found',
+    'pt': 'Afiliado não encontrado',
+  } +
+      {
+        'en': 'Invalid liquid address',
+        'pt': 'Endereço Liquid inválido',
+      } +
+      {
+        'en': 'The code you have inserted is not correct',
+        'pt': 'O código que você inseriu está incorreto',
+      } +
+      {
+        'en': 'The affiliate code can have a maximum of 8 characters, no spaces or special characters',
+        'pt': 'O código de afiliado pode ter no máximo 8 caracteres, sem espaços ou caracteres especiais',
+      } +
+      {
+        'en': 'The affiliate code you inserted already exists',
+        'pt': 'O código de afiliado que você inseriu já existe',
+      } +
+      {
+        'en': 'Affiliate',
+        'pt': 'Afiliado',
+      } +
+      {
+        'en': 'Connect with other users and earn sats!',
+        'pt': 'Conecte-se com outros usuários e ganhe sats!',
+      } +
+      {
+        'en': 'Enter your affiliate code or create a new code to receive benefits.',
+        'pt': 'Insira seu código de afiliado ou crie um novo código para receber benefícios.',
+      } +
+      {
+        'en': 'Insert Affiliate Code',
+        'pt': 'Inserir Código de Afiliado',
+      } +
+      {
+        'en': 'Create Affiliate Code',
+        'pt': 'Criar Código de Afiliado',
+      } +
+      {
+        'en': 'Recovery code copied to clipboard',
+        'pt': 'Código de recuperação copiado para a área de transferência',
+      } +
+      {
+        'en': 'Share',
+        'pt': 'Compartilhar',
+      } +
+      {
+        'en': 'Copy',
+        'pt': 'Copiar',
+      } +
+      {
+        'en': 'Affiliate code created successfully',
+        'pt': 'Código de afiliado criado com sucesso',
+      } +
+      {
+        'en': 'Enter a value to send',
+        'pt': 'Insira um valor para enviar',
+      } +
+      {
+        'en': 'Slide to Swap',
+        'pt': 'Deslize para Trocar',
+      } +{
+    'en': 'Affiliate Section',
+    'pt': 'Seção de Afiliados',
+  } +
+      {
+        'en': 'Bronze',
+        'pt': 'Bronze',
+      } +
+      {
+        'en': 'Silver',
+        'pt': 'Prata',
+      } +
+      {
+        'en': 'Gold',
+        'pt': 'Ouro',
+      } +
+      {
+        'en': 'Diamond',
+        'pt': 'Diamante',
+      } +
+      {
+        'en': 'Your Affiliate Code to Share',
+        'pt': 'Seu Código de Afiliado para Compartilhar',
+      } +
+      {
+        'en': 'Registered:',
+        'pt': 'Registrado:',
+      } +
+      {
+        'en': 'Total Earnings',
+        'pt': 'Ganhos Totais',
+      } +
+      {
+        'en': 'Number of Installations',
+        'pt': 'Número de Instalações',
+      } +
+      {
+        'en': 'Show Earnings Over Time',
+        'pt': 'Mostrar Ganhos',
+      } +
+      {
+        'en': 'Would you like to become an affiliate?',
+        'pt': 'Gostaria de se tornar um afiliado?',
+      } +
+      {
+        'en': 'Create Affiliate Code',
+        'pt': 'Criar Código de Afiliado',
+      } +
+      {
+        'en': 'Submit',
+        'pt': 'Enviar',
+      } +
+      {
+        'en': 'Affiliate code created successfully',
+        'pt': 'Código de afiliado criado com sucesso',
+      } +
+      {
+        'en': 'An error has occurred. Please check your internet connection or contact support',
+        'pt': 'Ocorreu um erro. Verifique sua conexão com a internet ou entre em contato com o suporte',
+      } +
+      {
+        'en': 'Earnings Over Time',
+        'pt': 'Ganhos ao Longo do Tempo',
+      } +
+      {
+        'en': 'No earnings data available',
+        'pt': 'Nenhum dado de ganhos disponível',
+      } +
+      {
+        'en': 'Affiliate Earnings',
+        'pt': 'Ganhos de Afiliado',
+      } +
+      {
+        'en': 'Liquid Address',
+        'pt': 'Endereço Liquid',
+      } +
+      {
+        'en': 'Affiliate Code',
+        'pt': 'Código de Afiliado',
+      } +
+      {
+        'en': 'You were referred by',
+        'pt': 'Você foi indicado por',
+      } +
+      {
+        'en': 'Inserted Affiliate Code copied to clipboard',
+        'pt': 'Código de Afiliado inserido copiado para a área de transferência',
+      } +
+      {
+        'en': 'Created Affiliate Code copied to clipboard',
+        'pt': 'Código de Afiliado criado copiado para a área de transferência',
+      }+      {
+    'en': 'You are Bronze!',
+    'pt': 'Você é Bronze!',
+  } +
+      {
+        'en': 'You are Silver!',
+        'pt': 'Você é Prata!',
+      } +
+      {
+        'en': 'You are Gold!',
+        'pt': 'Você é Ouro!',
+      } +
+      {
+        'en': 'You are Diamond!',
+        'pt': 'Você é Diamante!',
+      } +
+      {
+        'en': 'Tier Locked',
+        'pt': 'Nível Bloqueado',
+      } +
+      {
+        'en': 'With 5000 DEPIX, you have reached the Gold tier.',
+        'pt': 'Com 5000 DEPIX, você atingiu o nível Ouro.',
+      } +
+      {
+        'en': 'With 20000 DEPIX, you have reached the Diamond tier.',
+        'pt': 'Com 20000 DEPIX, você atingiu o nível Diamante.',
+      } +
+      {
+        'en': 'You need 5000 DEPIX to unlock the Gold tier.',
+        'pt': 'Você precisa de 5000 DEPIX para desbloquear o nível Ouro.',
+      } +
+      {
+        'en': 'You need 20000 DEPIX to unlock the Diamond tier.',
+        'pt': 'Você precisa de 20000 DEPIX para desbloquear o nível Diamante.',
+      } +
+      {
+        'en': 'Current fee is 1% per affiliate in perpetuity.',
+        'pt': 'Taxa atual é de 1% por afiliado perpetuamente.',
+      } +
+      {
+        'en': 'Current fee is 0.2% per affiliate in perpetuity until you reach 20K in value transacted, then it goes to 1%.',
+        'pt': 'A taxa atual é de 0,2% por afiliado perpetuamente até que você atinja 20K em valor transacionado, então passa para 1%.',
+      } +
+      {
+        'en': 'You have not unlocked the Gold tier yet. Unlock it by reaching 5000 in value transacted.',
+        'pt': 'Você ainda não desbloqueou o nível Ouro. Desbloqueie-o ao atingir 5000 em valor transacionado.',
+      } +
+      {
+        'en': 'You have not unlocked the Diamond tier yet. Unlock it by reaching 20000 in value transacted.',
+        'pt': 'Você ainda não desbloqueou o nível Diamante. Desbloqueie-o ao atingir 20000 em valor transacionado.',
       };
-
-
 
 
   String i18n(WidgetRef ref) {

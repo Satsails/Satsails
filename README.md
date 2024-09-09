@@ -1,3 +1,7 @@
+Here’s the updated section in proper markdown format:
+
+---
+
 # About Satsails
 
 Satsails is a self-custodial Bitcoin and Liquid Network platform that offers non-custodial atomic swaps across Bitcoin, Lightning, and Liquid. The philosophy of Satsails is to become a platform for everything and anything Bitcoin. Many more features are coming soon!
@@ -12,6 +16,10 @@ As part of our operations, we collect a **unique identifier** and register it on
 
 This is the only data we ever collect.
 
+### PIX Metadata
+
+When using PIX for payments, the metadata includes the **CPF** and the **name** of the person. This information is stored alongside the **transaction ID (txid)**. We know that a certain CPF with a certain name bought a specific amount of **Depix**, and we store the **address** and **txid** where the currency was sent. Although, liquid network makes these transactions private, we store this information for customer support and compliance purposes. We do not know anything about the transactions made with the currency after it leaves our platform.
+
 ## Core Dependencies
 
 - [BDK](https://github.com/bitcoindevkit/bdk)
@@ -23,6 +31,10 @@ This is the only data we ever collect.
 
 ## Acknowledgements
 
-- Special thanks to Renato 38 and Alan Schramm and Paula for the motivation and support to create this project.
-- Thanks to the entire Bull Bitcoin team for the libraries they created and the support they provide.
-- A special thanks to Ishi for the great help and quick responses to our questions.
+- Special thanks to **Renato 38**, **Alan Schramm**, and **Paula** for the motivation and support to create this project.
+- Thanks to the entire **Bull Bitcoin** team for the libraries they created and the support they provide.
+- A special thanks to **Ishi** for the great help and quick responses to our questions.
+
+---
+
+This addition describes the collection and storage of CPF, name, and transaction ID when using PIX.
