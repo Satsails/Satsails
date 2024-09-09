@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class Splash extends StatelessWidget {
@@ -7,21 +8,18 @@ class Splash extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    final dynamicImageSize = screenHeight * 0.2; // 20% of screen height
     final dynamicAnimationSize = screenHeight * 0.05; // 5% of screen height
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image.asset(
-              'lib/assets/app_icon.png',
-              width: dynamicImageSize,
-              height: dynamicImageSize,
+            SvgPicture.asset(
+              'lib/assets/satsails.svg',
+              width: 187.0,
+              height: 187.0,
             ),
             SizedBox(height: screenHeight * 0.03), // 3% of screen height
             LoadingAnimationWidget.threeArchedCircle(size: dynamicAnimationSize, color: Colors.orange),

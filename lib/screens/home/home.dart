@@ -1,21 +1,20 @@
 import 'package:Satsails/screens/creation/components/logo.dart';
+import 'package:Satsails/screens/home/components/bitcoin_price_history_graph.dart';
 import 'package:Satsails/screens/shared/backup_warning.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
-import 'package:Satsails/screens/accounts/accounts.dart';
 import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/build_balance_card.dart';
 import 'package:Satsails/screens/shared/circular_button.dart';
-import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/pie_chart.dart';
-import 'package:Satsails/translations/translations.dart';
+
 
 class Home extends ConsumerWidget {
   const Home({super.key});
@@ -25,7 +24,7 @@ class Home extends ConsumerWidget {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         appBar: _buildAppBar(context, ref),
         body: SafeArea(child: _buildBody(context, ref)),
       ),
@@ -36,7 +35,6 @@ class Home extends ConsumerWidget {
     return Column(
       children: [
         Expanded(child: _buildMiddleSection(context, ref)),
-        buildActionButtons(context, ref),
         CustomBottomNavigationBar(
           currentIndex: ref.watch(navigationProvider),
           context: context,
@@ -51,91 +49,62 @@ class Home extends ConsumerWidget {
   }
 
   Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
-    final screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
-    // final online = ref.watch(settingsProvider).online;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         const BackupWarning(),
-        buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider',
-            'totalBalanceInFiatProvider'),
+        buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
+        SizedBox(height: screenHeight * 0.01),
+        buildActionButtons(context, ref),
+        SizedBox(height: screenHeight * 0.01),
         Flexible(
-          child: SizedBox(
-            height: MediaQuery
-                .of(context)
-                .size
-                .height * 0.24,
+          child: Container(
+            height: double.infinity,
             child: Consumer(builder: (context, watch, child) {
               final initializeBalance = ref.watch(initializeBalanceProvider);
-              final percentageOfEachCurrency = ref.watch(
-                  percentageChangeProvider);
+              final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
               return initializeBalance.when(
-                data: (balance) =>
-                balance.isEmpty
-                    ? emptyBalance(ref, context)
-                    : buildDiagram(context, percentageOfEachCurrency),
-                loading: () =>
-                    LoadingAnimationWidget.threeArchedCircle(
-                        size: 200, color: Colors.orange),
-                error: (error, stack) =>
-                    LoadingAnimationWidget.threeArchedCircle(
-                        size: 200, color: Colors.orange),
+                  data: (balance) => balance.isEmpty
+                      ? const BitcoinPriceHistoryGraph()
+                      : walletWidget(ref, context, percentageOfEachCurrency),
+                  loading: () =>Center(child: LoadingAnimationWidget.threeArchedCircle(size: 100, color: Colors.orange)),
+              error: (error, stack) =>
+              Center(
+                child: LoadingAnimationWidget.threeArchedCircle(
+                size: 100, color: Colors.orange),
+              ),
               );
             }),
           ),
         ),
-        SizedBox(height: screenHeight * 0.05),
-        SizedBox(
-          height: screenWidth * 0.17,
-          width: screenWidth * 0.6,
-          child: CustomButton(
-            text: 'View Accounts'.i18n(ref),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Accounts()));
-            },
-          ),
-        )
       ],
     );
   }
 
-  Widget emptyBalance(WidgetRef ref, BuildContext context) {
-    final screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+  Widget walletWidget(WidgetRef ref, BuildContext context, percentageOfEachCurrency) {
+
+    return ImageSlideshow(
+      initialPage: 0,
+      indicatorColor: Colors.orangeAccent,
+      indicatorBottomPadding: 0,
+      indicatorBackgroundColor: Colors.grey,
       children: [
-        Text(
-          'Your wallet is empty'.i18n(ref),
-          style: const TextStyle(
-            fontSize: 20,
-            color: Colors.grey,
-          ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: buildDiagram(context, percentageOfEachCurrency),
         ),
-        Icon(Iconsax.security_safe_bold, size: screenHeight * 0.2,
-            color: Colors.blueAccent),
+        const BitcoinPriceHistoryGraph(),
       ],
     );
   }
+
 
 
   PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {
     final settings = ref.read(settingsProvider);
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final screenWidth = MediaQuery.of(context).size.width;
     final settingsNotifier = ref.read(settingsProvider.notifier);
 
     void toggleOnlineStatus() {
@@ -144,29 +113,25 @@ class Home extends ConsumerWidget {
     }
 
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.black,
       automaticallyImplyLeading: false,
       title: Row(
         children: [
-          const Logo(widthFactor: 0.08, heightFactor: 0.08),
+          const Logo(widthFactor: 0.03, heightFactor: 0.03),
           // Slightly larger size
           SizedBox(width: screenWidth * 0.02),
           // 2% of screen width
-          Expanded(
-            child: Text(
-              'Satsails',
-              style: GoogleFonts.fragmentMono(
-                fontSize: screenWidth * 0.055, // Slightly larger font size
-                color: Colors.orangeAccent,
-              ),
-              overflow: TextOverflow.ellipsis,
+          const Text(
+            'Satsails',
+            style: TextStyle(
+              color: Colors.orange,
             ),
           ),
         ],
       ),
       actions: [
         IconButton(
-          icon: const Icon(Clarity.settings_line, color: Colors.black),
+          icon: const Icon(Clarity.settings_line, color: Colors.white),
           onPressed: () {
             Navigator.pushNamed(context, '/settings');
           },
@@ -177,7 +142,7 @@ class Home extends ConsumerWidget {
             : IconButton(
           icon: Icon(
             Icons.sync,
-            color: settings.online ? Colors.green : Colors.red,
+            color: settings.online ? Colors.white : Colors.red,
           ),
           onPressed: () {
             toggleOnlineStatus();

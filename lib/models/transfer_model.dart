@@ -58,4 +58,42 @@ class Transfer {
       updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
     );
   }
+
+  Transfer.empty() : this(
+    id: 0,
+    name: '',
+    transferId: '',
+    cpf: '',
+    sentAmount: 0.0,
+    originalAmount: 0.0,
+    mintFees: 0.0,
+    paymentId: '',
+    completedTransfer: false,
+    processing: false,
+    receivedTxid: '',
+    sentTxid: '',
+    receipt: '',
+    userId: 0,
+    createdAt: DateTime.now(),
+    updatedAt: DateTime.now(),
+    receivedAmount: 0.0,
+  );
 }
+
+class ParsedTransfer {
+  final String timestamp;
+  final String amount_payed_to_affiliate;
+
+  ParsedTransfer({
+    required this.timestamp,
+    required this.amount_payed_to_affiliate,
+  });
+
+  factory ParsedTransfer.fromJson(Map<String, dynamic> json) {
+    return ParsedTransfer(
+      timestamp: json['timestamp'],
+      amount_payed_to_affiliate: json['amount_payed_to_affiliate'],
+    );
+  }
+}
+

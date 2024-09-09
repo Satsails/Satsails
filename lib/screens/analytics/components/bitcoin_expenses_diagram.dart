@@ -17,45 +17,48 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormat));
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final moreThanOneMonth = ref.watch(moreThanOneMonthProvider);
 
-    return Column(
-      children: [
-        Text(
-          '${'Current Balance'.i18n(ref)}: $btcBalanceInFormat $btcFormat',
-          style: TextStyle(fontSize: screenWidth / 20, color: Colors.grey),
-        ),
-        if (ref.watch(oneDayProvider))
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildCard(
-                'Sent'.i18n(ref),
-                _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent,
-                [Colors.orange, Colors.deepOrange],
-                context,
-                btcFormat,
-              ),
-              _buildCard(
-                'Received'.i18n(ref),
-                _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received,
-                [Colors.orange, Colors.deepOrange],
-                context,
-                btcFormat,
-              ),
-              _buildCard(
-                'Fee'.i18n(ref),
-                _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee,
-                [Colors.orange, Colors.deepOrange],
-                context,
-                btcFormat,
-              ),
-            ],
+    return Expanded(
+      child: Column(
+        children: [
+          Text('Current Balance'.i18n(ref), style: TextStyle(fontSize: screenWidth / 20, color: Colors.white)),
+          Text(
+            '$btcBalanceInFormat $btcFormat',
+            style: TextStyle(fontSize: screenWidth / 20, color: Colors.white),
           ),
-        if (!ref.watch(oneDayProvider))
-          const ExpensesGraph(),
-      ],
+          if (ref.watch(oneDayProvider))
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildCard(
+                  'Sent'.i18n(ref),
+                  _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent,
+                  [Colors.orange, Colors.orange],
+                  context,
+                  btcFormat,
+                ),
+                _buildCard(
+                  'Received'.i18n(ref),
+                  _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received,
+                  [Colors.orange, Colors.orange],
+                  context,
+                  btcFormat,
+                ),
+                _buildCard(
+                  'Fee'.i18n(ref),
+                  _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee,
+                  [Colors.orange, Colors.orange],
+                  context,
+                  btcFormat,
+                ),
+              ],
+            ),
+          if (!ref.watch(oneDayProvider))
+            Expanded(  // Ensure ExpensesGraph expands to take all available space
+              child: const ExpensesGraph(),
+            ),
+        ],
+      ),
     );
   }
 
@@ -84,11 +87,11 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
             children: [
               Text(
                 title,
-                style: TextStyle(color: Colors.white, fontSize: dynamicWidth / 30, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.black, fontSize: dynamicWidth / 23, fontWeight: FontWeight.bold),
               ),
               Text(
                 btcFormat == 'sats' ? value.toStringAsFixed(0) : value.toString(),
-                style: TextStyle(color: Colors.white, fontSize: dynamicWidth / 30),
+                style: TextStyle(color: Colors.black, fontSize: dynamicWidth / 25),
               ),
             ],
           ),

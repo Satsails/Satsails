@@ -20,10 +20,16 @@ class PegDetails extends ConsumerWidget {
     final btcFormat = ref.watch(settingsProvider).btcFormat;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Details'.i18n(ref), style: TextStyle(color: Colors.black, fontSize: screenWidth * 0.05)), // 5% of screen width
-        backgroundColor: Colors.white,
+        title: Text('Details'.i18n(ref), style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: status.when(
         data: (status) {
@@ -43,13 +49,13 @@ class PegDetails extends ConsumerWidget {
                       _buildTxStatusTile(e, ref, screenWidth),
                     ],
                   );
-                }).toList() ?? [Text('No transactions found. Check back later.'.i18n(ref), style: TextStyle(fontSize: screenWidth * 0.05))]), // 5% of screen width
+                }).toList() ?? [Text('No transactions found. Check back later.'.i18n(ref), style: TextStyle(fontSize: screenWidth * 0.05))]),
               ],
             ),
           );
         },
-        loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: screenWidth * 0.5, color: Colors.orange)), // 50% of screen width
-        error: (error, stackTrace) => Center(child: Text('Error: $error Contact the developer (in the settings) about this', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.red))), // 5% of screen width
+        loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: screenWidth * 0.5, color: Colors.orange)),
+        error: (error, stackTrace) => Center(child: Text('Error: $error Contact the developer (in the settings) about this', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.red))),
       ),
     );
   }
@@ -57,8 +63,8 @@ class PegDetails extends ConsumerWidget {
   ListTile _buildListTile(String title, String subtitle, IconData icon, double screenWidth) {
     return ListTile(
       leading: Icon(icon, color: Colors.orangeAccent),
-      title: Text(title, style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold)), // 5% of screen width
-      subtitle: Text(subtitle, style: TextStyle(fontSize: screenWidth * 0.04)), // 4% of screen width
+      title: Text(title, style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.white)),
+      subtitle: Text(subtitle, style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white)),
       onTap: () {
         Clipboard.setData(ClipboardData(text: subtitle));
       },
@@ -72,9 +78,9 @@ class PegDetails extends ConsumerWidget {
       case 'Detected':
         return ListTile(
           leading: const Icon(Icons.search, color: Colors.black),
-          title: Text("Confirmations".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold)), // 5% of screen width
-          subtitle: Text("${status.detectedConfs} ${"Detected".i18n(ref)}", style: TextStyle(fontSize: screenWidth * 0.04)), // 4% of screen width
-          trailing: Text("${status.totalConfs} ${"Needed".i18n(ref)}", style: TextStyle(fontSize: screenWidth * 0.04)), // 4% of screen width
+          title: Text("Confirmations".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.white)),
+          subtitle: Text("${status.detectedConfs} ${"Detected".i18n(ref)}", style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white)),
+          trailing: Text("${status.totalConfs} ${"Needed".i18n(ref)}", style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white)),
         );
       case 'Processing':
         return _buildListTile("Status", "Processing".i18n(ref), Icons.hourglass_empty, screenWidth);

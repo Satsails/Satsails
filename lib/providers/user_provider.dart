@@ -1,76 +1,119 @@
+import 'package:Satsails/models/affiliate_model.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/models/user_model.dart';
+import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
-import 'package:Satsails/providers/pix_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 
-final initializeUserProvider = FutureProvider.autoDispose<User>((ref) async {
-  final box = await Hive.openBox('user');
-  final affiliateCode = box.get('affiliateCode', defaultValue: '');
-  final hasAffiliate = box.get('hasAffiliate', defaultValue: false);
-  final hasCreatedAffiliate = box.get('hasCreatedAffiliate', defaultValue: false);
+final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  return User(affiliateCode: affiliateCode, hasAffiliate: hasAffiliate, hasCreatedAffiliate: hasCreatedAffiliate);
+final initializeUserProvider = FutureProvider<User>((ref) async {
+  final box = await Hive.openBox('user');
+  final hasInsertedAffiliate = box.get('hasInsertedAffiliate', defaultValue: false);
+  final hasCreatedAffiliate = box.get('hasCreatedAffiliate', defaultValue: false);
+  final depixLiquidAddress = box.get('depixLiquidAddress', defaultValue: '');
+  final paymentId = box.get('paymentId', defaultValue: '');
+  final recoveryCode = await _storage.read(key: 'recoveryCode') ?? '';
+  final onboarded = box.get('onboarding', defaultValue: false);
+
+  return User(
+    hasInsertedAffiliate: hasInsertedAffiliate,
+    hasCreatedAffiliate: hasCreatedAffiliate,
+    depixLiquidAddress: depixLiquidAddress,
+    recoveryCode: recoveryCode,
+    paymentId: paymentId,
+    onboarded: onboarded,
+  );
 });
 
-final userProvider = StateNotifierProvider.autoDispose<UserModel, User>((ref) {
+final userProvider = StateNotifierProvider<UserModel, User>((ref) {
   final initialUser = ref.watch(initializeUserProvider);
 
   return UserModel(initialUser.when(
     data: (user) => user,
-    loading: () => User(affiliateCode: '', hasAffiliate: false, hasCreatedAffiliate: false),
+    loading: () => User(
+      hasInsertedAffiliate: false,
+      depixLiquidAddress: '',
+      hasCreatedAffiliate: false,
+      recoveryCode: '',
+      paymentId: '',
+      onboarded: false,
+    ),
     error: (Object error, StackTrace stackTrace) {
       throw error;
     },
   ));
 });
 
-final createUserProvider = FutureProvider.autoDispose<String>((ref) async {
+final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
   final liquidAddress = await ref.read(liquidAddressProvider.future);
-  final user = await UserService().createUserRequest(liquidAddress.confidential);
-  await ref.read(pixProvider.notifier).setPixPaymentCode(user);
-  final paymentId = ref.read(pixProvider).pixPaymentCode;
-  return paymentId;
+  final result = await UserService.createUserRequest(liquidAddress.confidential);
+
+  if (result.isSuccess && result.data != null) {
+    final user = result.data!;
+    await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
+    await ref.read(userProvider.notifier).setRecoveryCode(user.recoveryCode);
+    await ref.read(userProvider.notifier).setDepixLiquidAddress(user.depixLiquidAddress);
+  } else {
+    throw result.error!;
+  }
 });
 
 final getUserTransactionsProvider = FutureProvider.autoDispose<List<Transfer>>((ref) async {
-  final paymentId = ref.read(pixProvider).pixPaymentCode;
-  return await UserService().getUserTransactions(paymentId);
+  final paymentId = ref.read(userProvider).paymentId;
+  final auth = ref.read(userProvider).recoveryCode;
+  final transactions = await UserService.getUserTransactions(paymentId, auth);
+
+  if (transactions.isSuccess && transactions.data != null) {
+    return transactions.data!;
+  } else {
+    throw transactions.error!;
+  }
 });
 
 final getAmountTransferredProvider = FutureProvider.autoDispose<String>((ref) async {
-  final paymentId = ref.read(pixProvider).pixPaymentCode;
-  return await UserService().getAmountTransferred(paymentId);
+  final paymentId = ref.read(userProvider).paymentId;
+  final auth = ref.read(userProvider).recoveryCode;
+  final amountTransferred = await UserService.getAmountTransferred(paymentId, auth);
+
+  if (amountTransferred.isSuccess && amountTransferred.data != null) {
+    return amountTransferred.data!;
+  } else {
+    throw amountTransferred.error!;
+  }
 });
 
-final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>((ref, affiliateCode) async {
-  var paymentId = ref.read(pixProvider).pixPaymentCode;
-  if (paymentId == "") {
-    paymentId = await ref.read(createUserProvider.future);
-  }
-  await UserService().addAffiliateCode(paymentId, affiliateCode);
-  ref.read(userProvider.notifier).setHasAffiliate(true);
-  ref.read(userProvider.notifier).setAffiliateCode(affiliateCode);
-});
 
-final createAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>((ref, affiliateCode) async {
-  var paymentId = ref.read(pixProvider).pixPaymentCode;
-  if (paymentId == "") {
-    paymentId = await ref.read(createUserProvider.future);
-  }
+final updateLiquidAddressProvider = FutureProvider.autoDispose<String>((ref) async {
   final liquidAddress = await ref.read(liquidAddressProvider.future);
-  await UserService().createAffiliateCode(paymentId, affiliateCode, liquidAddress.confidential);
-  ref.read(userProvider.notifier).setHasCreatedAffiliate(true);
-  await ref.read(userProvider.notifier).setAffiliateCode(affiliateCode);
+  final auth = ref.read(userProvider).recoveryCode;
+  final result = await UserService.updateLiquidAddress(liquidAddress.confidential, auth);
+
+  if (result.isSuccess && result.data != null) {
+    return result.data!;
+  } else {
+    throw result.error!;
+  }
 });
 
-final numberOfAffiliateInstallsProvider = FutureProvider.autoDispose<int>((ref) async {
-  final affiliateCode = ref.watch(userProvider).affiliateCode;
-  return await UserService().affiliateNumberOfUsers(affiliateCode);
-});
+final setUserProvider = FutureProvider.autoDispose<void>((ref) async {
+  await ref.read(updateLiquidAddressProvider.future);
+  final auth = ref.read(userProvider).recoveryCode;
+  final userResult = await UserService.showUser(auth);
 
-final affiliateEarningsProvider = FutureProvider.autoDispose<String>((ref) async {
-  final affiliateCode = ref.watch(userProvider).affiliateCode;
-  return await UserService().affiliateEarnings(affiliateCode);
+  if (userResult.isSuccess && userResult.data != null) {
+    final user = userResult.data!;
+    await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
+    await ref.read(userProvider.notifier).setRecoveryCode(user.recoveryCode);
+    await ref.read(userProvider.notifier).setDepixLiquidAddress(user.depixLiquidAddress);
+    await ref.read(affiliateProvider.notifier).setCreatedAffiliateCode(user.createdAffiliateCode ?? '');
+    await ref.read(affiliateProvider.notifier).setLiquidAddress(user.createdAffiliateLiquidAddress ?? '');
+    await ref.read(affiliateProvider.notifier).setInsertedAffiliateCode(user.insertedAffiliateCode ?? '');
+    await ref.read(userProvider.notifier).setHasCreatedAffiliate(user.hasCreatedAffiliate);
+    await ref.read(userProvider.notifier).setHasInsertedAffiliate(user.hasInsertedAffiliate);
+  } else {
+    throw userResult.error!;
+  }
 });

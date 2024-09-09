@@ -8,7 +8,6 @@ import 'package:segmented_button_slide/segmented_button_slide.dart';
 
 final today = DateUtils.dateOnly(DateTime.now());
 
-// Define the selectedButtonProvider to manage the selected segment
 final selectedButtonProvider = StateProvider.autoDispose<int>((ref) => 1);
 
 class Calendar extends ConsumerStatefulWidget {
@@ -26,7 +25,7 @@ class _CalendarState extends ConsumerState<Calendar> {
 
   Widget _buildCalendarDialogButton(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
-    const dayTextStyle = TextStyle(color: Colors.black, fontWeight: FontWeight.w700);
+    const dayTextStyle = TextStyle(color: Colors.white, fontWeight: FontWeight.w700);
     final anniversaryTextStyle = TextStyle(
       color: Colors.red[400],
       fontWeight: FontWeight.w700,
@@ -35,24 +34,29 @@ class _CalendarState extends ConsumerState<Calendar> {
     final config = CalendarDatePicker2WithActionButtonsConfig(
       dayTextStyle: dayTextStyle,
       calendarType: CalendarDatePicker2Type.range,
-      selectedDayHighlightColor: Colors.orangeAccent,
+      selectedDayHighlightColor: Colors.orange,
       closeDialogOnCancelTapped: true,
       calendarViewMode: DatePickerMode.day,
       firstDayOfWeek: 1,
       lastDate: today, // Prevent future dates
+      lastMonthIcon: const Icon(Icons.arrow_back, color: Colors.white),
+      nextMonthIcon: const Icon(Icons.arrow_forward, color: Colors.white),
       weekdayLabelTextStyle: TextStyle(
-        color: Colors.black87,
-        fontWeight: FontWeight.bold,
-        fontSize: screenWidth * 0.03, // 3% of screen width
+        color: Colors.white,
+        fontSize: screenWidth * 0.03,
       ),
       controlsTextStyle: TextStyle(
-        color: Colors.black,
-        fontSize: screenWidth * 0.03, // 3% of screen width
-        fontWeight: FontWeight.bold,
+        color: Colors.white,
+        fontSize: screenWidth * 0.03,
       ),
       centerAlignModePicker: true,
       customModePickerIcon: const SizedBox(),
       selectedDayTextStyle: dayTextStyle.copyWith(color: Colors.white, fontSize: screenWidth * 0.03),
+
+      yearTextStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+      ),
       dayTextStylePredicate: ({required date}) {
         TextStyle? textStyle;
         if (DateUtils.isSameDay(date, DateTime(2021, 1, 25))) {
@@ -130,7 +134,7 @@ class _CalendarState extends ConsumerState<Calendar> {
                         margin: EdgeInsets.only(left: screenWidth * 0.01),
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.redAccent,
+                          color: Colors.orange,
                         ),
                       ),
                   ],
@@ -160,7 +164,7 @@ class _CalendarState extends ConsumerState<Calendar> {
                   label: "6m",
                 ),
                 SegmentedButtonSlideEntry(
-                  label: "Custom".i18n(ref),
+                  icon: Icons.calendar_today_outlined,
                 ),
               ],
               selectedEntry: ref.watch(selectedButtonProvider),
@@ -188,7 +192,7 @@ class _CalendarState extends ConsumerState<Calendar> {
                       config: config,
                       dialogSize: Size(screenWidth * 0.8, screenWidth),
                       borderRadius: BorderRadius.circular(screenWidth * 0.03),
-                      dialogBackgroundColor: Colors.white,
+                      dialogBackgroundColor: Colors.black,
                     );
                     if (values != null) {
                       if (values.any((date) => date!.isAfter(today))) {
@@ -208,24 +212,17 @@ class _CalendarState extends ConsumerState<Calendar> {
                 ref.read(selectedButtonProvider.notifier).state = selected;
               },
               colors: SegmentedButtonSlideColors(
-                barColor: Colors.grey.withOpacity(0.08),
+                barColor: Color(0xFF333333),
                 backgroundSelectedColor: Colors.orangeAccent,
-                foregroundSelectedColor: Colors.white,
-                foregroundUnselectedColor: Colors.black,
+                foregroundSelectedColor: Colors.black,
+                foregroundUnselectedColor: Colors.white,
                 hoverColor: Colors.orangeAccent.withOpacity(0.2),
               ),
-              slideShadow: [
-                BoxShadow(
-                  color: Colors.orangeAccent.withOpacity(0.5),
-                  blurRadius: 5,
-                  spreadRadius: 1,
-                ),
-              ],
               margin: EdgeInsets.only(
                 top: screenWidth * 0.02,
                 bottom: screenWidth * 0.02,
               ),
-              height: screenWidth * 0.1,
+              height: screenWidth * 0.08,
             ),
           ),
         ],

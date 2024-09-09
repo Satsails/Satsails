@@ -1,10 +1,22 @@
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 
 final isBitcoinInputProvider = StateProvider.autoDispose<bool>((ref) => true);
-final inputCurrencyProvider = StateProvider.autoDispose<String>((ref) => 'BTC');
+final defaultDropdownValueProvider = StateProvider.autoDispose<String>((ref) {
+  final format = ref.watch(settingsProvider).btcFormat;
+  switch (format) {
+    case 'BTC':
+      return 'BTC';
+    case 'sats':
+      return 'Sats';
+    default:
+      return 'BTC';
+  }
+});
+final inputCurrencyProvider = StateProvider.autoDispose<String>((ref) => ref.watch(defaultDropdownValueProvider));
 final inputAmountProvider = StateProvider.autoDispose<String>((ref) => '0.0');
 final shouldUpdateBoltzLiquidReceive = StateProvider.autoDispose<bool>((ref) => true);
 
@@ -20,10 +32,6 @@ String calculateAmountToDisplay(String amount, String currency, currencyConverte
       return (double.parse(amount) * currencyConverter.brlToBtc).toStringAsFixed(8);
     case 'Sats':
       return (double.parse(amount) / 100000000).toStringAsFixed(8);
-    case 'mBTC':
-      return (double.parse(amount) / 1000).toStringAsFixed(8);
-    case 'bits':
-      return (double.parse(amount) / 1000000).toStringAsFixed(8);
     default:
       return amount;
   }
@@ -45,10 +53,6 @@ int calculateAmountInSatsToDisplay(String amount, String currency, currencyConve
       return (double.parse(amount) * currencyConverter.brlToBtc * 100000000).toInt();
     case 'Sats':
       return (double.parse(amount)).toInt();
-    case 'mBTC':
-      return (double.parse(amount) * 1000).toInt();
-    case 'bits':
-      return (double.parse(amount) * 1000000).toInt();
     default:
       return (double.parse(amount) * 100000000).toInt();
   }
@@ -66,10 +70,6 @@ String calculateAmountInSelectedCurrency(int sats, String currency, currencyConv
       return (sats / 100000000 / currencyConverter.brlToBtc).toStringAsFixed(2);
     case 'Sats':
       return sats.toString();
-    case 'mBTC':
-      return (sats / 1000).toStringAsFixed(5);
-    case 'bits':
-      return (sats / 1000000).toStringAsFixed(5);
     default:
       return (sats / 100000000).toStringAsFixed(8);
   }

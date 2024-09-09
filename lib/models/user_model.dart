@@ -1,22 +1,19 @@
+import 'dart:convert';
+import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
-class UserModel extends StateNotifier<User>{
+const FlutterSecureStorage _storage = FlutterSecureStorage();
+
+class UserModel extends StateNotifier<User> {
   UserModel(super.state);
-
-  Future<void> setAffiliateCode(String affiliateCode) async {
+  Future<void> setHasInsertedAffiliate(bool hasInsertedAffiliate) async {
     final box = await Hive.openBox('user');
-    box.put('affiliateCode', affiliateCode);
-    state = state.copyWith(affiliateCode: affiliateCode);
-  }
-
-  Future<void> setHasAffiliate(bool hasAffiliate) async {
-    final box = await Hive.openBox('user');
-    box.put('hasAffiliate', hasAffiliate);
-    state = state.copyWith(hasAffiliate: hasAffiliate);
+    box.put('hasInsertedAffiliate', hasInsertedAffiliate);
+    state = state.copyWith(hasInsertedAffiliate: hasInsertedAffiliate);
   }
 
   Future<void> setHasCreatedAffiliate(bool hasCreatedAffiliate) async {
@@ -24,170 +21,217 @@ class UserModel extends StateNotifier<User>{
     box.put('hasCreatedAffiliate', hasCreatedAffiliate);
     state = state.copyWith(hasCreatedAffiliate: hasCreatedAffiliate);
   }
+
+  Future<void> setPaymentId(String paymentCode) async {
+    final box = await Hive.openBox('user');
+    box.put('paymentId', paymentCode);
+    state = state.copyWith(paymentId: paymentCode);
+  }
+
+  Future<void> serOnboarded(bool onboardingStatus) async {
+    final box = await Hive.openBox('user');
+    box.put('onboarding', onboardingStatus);
+    state = state.copyWith(onboarded: onboardingStatus);
+  }
+
+  Future<void> setRecoveryCode(String recoveryCode) async {
+    await _storage.write(key: 'recoveryCode', value: recoveryCode);
+    state = state.copyWith(recoveryCode: recoveryCode);
+  }
+
+  Future<void> setDepixLiquidAddress(String liquidAddress) async {
+    final box = await Hive.openBox('user');
+    box.put('depixLiquidAddress', liquidAddress);
+    state = state.copyWith(depixLiquidAddress: liquidAddress);
+  }
 }
 
 class User {
-  final String affiliateCode;
-  final bool hasAffiliate;
+  final bool hasInsertedAffiliate;
   final bool hasCreatedAffiliate;
+  final String recoveryCode;
+  final String depixLiquidAddress;
+  final String paymentId;
+  final bool? onboarded;
+  final String? createdAffiliateLiquidAddress;
+  final String? insertedAffiliateCode;
+  final String? createdAffiliateCode;
+
   User({
-    required this.affiliateCode,
-    required this.hasAffiliate,
-    required this.hasCreatedAffiliate,
+    this.hasInsertedAffiliate = false,
+    this.hasCreatedAffiliate = false,
+    required this.recoveryCode,
+    required this.depixLiquidAddress,
+    required this.paymentId,
+    this.onboarded,
+    this.createdAffiliateLiquidAddress = '',
+    this.insertedAffiliateCode = '',
+    this.createdAffiliateCode = '',
   });
 
   User copyWith({
-    String? affiliateCode,
-    bool? hasAffiliate,
+    bool? hasInsertedAffiliate,
     bool? hasCreatedAffiliate,
+    String? recoveryCode,
+    String? paymentId,
+    bool? onboarded,
+    String? depixLiquidAddress,
   }) {
     return User(
-      affiliateCode: affiliateCode ?? this.affiliateCode,
-      hasAffiliate: hasAffiliate ?? this.hasAffiliate,
+      hasInsertedAffiliate: hasInsertedAffiliate ?? this.hasInsertedAffiliate,
       hasCreatedAffiliate: hasCreatedAffiliate ?? this.hasCreatedAffiliate,
+      recoveryCode: recoveryCode ?? this.recoveryCode,
+      paymentId: paymentId ?? this.paymentId,
+      depixLiquidAddress: depixLiquidAddress ?? this.depixLiquidAddress,
+      onboarded: onboarded ?? this.onboarded,
+    );
+  }
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      recoveryCode: json['user']['authentication_token'],
+      paymentId: json['user']['payment_id'],
+      depixLiquidAddress: json['user']['liquid_address'],
+    );
+  }
+
+  factory User.fromShowUserJson(Map<String, dynamic> json) {
+    return User(
+      recoveryCode: json['user']['authentication_token'],
+      paymentId: json['user']['payment_id'],
+      depixLiquidAddress: json['user']['liquid_address'],
+      createdAffiliateCode: json['created_affiliate']['code'] ?? '',
+      insertedAffiliateCode: json['inserted_affiliate']['code'] ?? '',
+      hasCreatedAffiliate: json['has_created_affiliate'] ?? false,
+      createdAffiliateLiquidAddress: json['created_affiliate']['liquid_address'] ?? '',
+      hasInsertedAffiliate: json['has_inserted_affiliate'] ?? false,
     );
   }
 }
 
 class UserService {
-  Future<String> createUserRequest(String liquidAddress) async {
-    final response = await http.post(
-      Uri.parse('https://splitter.satsails.com/users'),
-      body: jsonEncode({
-        'user': {
-          'liquid_address': liquidAddress,
-        }
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
+  static Future<Result<User>> createUserRequest(String liquidAddress) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://2ef7-93-108-187-211.ngrok-free.app/users'),
+        body: jsonEncode({
+          'user': {
+            'liquid_address': liquidAddress,
+          }
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body)['payment_id'];
-    } else {
-      throw Exception('Failed to create user: ${response.body}');
+      if (response.statusCode == 201) {
+        return Result(data: User.fromJson(jsonDecode(response.body)));
+      } else {
+        return Result(error: 'Failed to create user: ${response.body}');
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please check your internet connection or contact support'); 
     }
   }
 
-  Future<bool> addAffiliateCode(String paymentId, String affiliateCode) async {
-    final response = await http.post(
-      Uri.parse('https://splitter.satsails.com/add_affiliate'),
-      body: jsonEncode({
-        'user': {
-          'payment_id': paymentId,
-          'affiliate_code': affiliateCode,
-        }
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
 
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      throw jsonDecode(response.body)['error'];
+  static Future<Result<List<Transfer>>> getUserTransactions(String pixPaymentCode, String auth) async {
+    try {
+      final uri = Uri.parse('https://2ef7-93-108-187-211.ngrok-free.app/users/user_transfers')
+          .replace(queryParameters: {
+        'payment_id': pixPaymentCode,
+      });
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = jsonDecode(response.body);
+        List<Transfer> transfers = jsonResponse.map((item) => Transfer.fromJson(item as Map<String, dynamic>)).toList();
+        return Result(data: transfers);
+      } else {
+        return Result(error: 'Failed to get user transactions: ${response.body}');
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please check your internet connection or contact support'); 
     }
   }
 
-  Future<bool> createAffiliateCode(String paymentId, String affiliateCode, String liquidAddress) async {
-    final response = await http.post(
-      Uri.parse('https://splitter.satsails.com/affiliates'),
-      body: jsonEncode({
-        'affiliate': {
-          'affiliate_owner': paymentId,
-          'code': affiliateCode,
-          'liquid_address': liquidAddress,
-        }
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
+  static Future<Result<String>> getAmountTransferred(String pixPaymentCode, String auth) async {
+    try {
+      final uri = Uri.parse('https://2ef7-93-108-187-211.ngrok-free.app/users/amount_transfered_by_day')
+          .replace(queryParameters: {
+        'payment_id': pixPaymentCode,
+      });
 
-    if (response.statusCode == 201) {
-      return true;
-    } else {
-      throw (jsonDecode(response.body)['code']);
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: jsonDecode(response.body));
+      } else {
+        return Result(error: 'Failed to get amount transferred');
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please check your internet connection or contact support'); 
     }
   }
 
-  Future<List<Transfer>> getUserTransactions(String pixPaymentCode) async {
-    final uri = Uri.parse('https://splitter.satsails.com/user_transfers')
-        .replace(queryParameters: {
-      'payment_id': pixPaymentCode,
-    });
-    final response = await http.get(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
+  static Future<Result<String>> updateLiquidAddress(String liquidAddress, String auth) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('https://2ef7-93-108-187-211.ngrok-free.app/users/update_liquid_address'),
+        body: jsonEncode({
+          'user': {
+            'liquid_address': liquidAddress,
+          }
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
 
-    if (response.statusCode == 200) {
-      List<dynamic> jsonResponse = jsonDecode(response.body);
-      List<Transfer> transfers = jsonResponse.map((item) => Transfer.fromJson(item as Map<String, dynamic>)).toList();
-      return transfers;
-    } else {
-      throw Exception('Failed to get user transactions: ${response.body}');
+      if (response.statusCode == 200) {
+        return Result(data: 'OK');
+      } else {
+        return Result(error: 'Failed to update liquid address');
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please check your internet connection or contact support'); 
     }
   }
 
-  Future<String> getAmountTransferred(String pixPaymentCode) async {
-    final uri = Uri.parse('https://splitter.satsails.com/amount_transfered_by_day')
-        .replace(queryParameters: {
-      'payment_id': pixPaymentCode,
-    });
-    final response = await http.get(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
+  static Future<Result<User>> showUser(String auth) async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://2ef7-93-108-187-211.ngrok-free.app/users/show_user'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to get amount transferred');
+      if (response.statusCode == 200) {
+        return Result(data: User.fromShowUserJson(jsonDecode(response.body)));
+      } else {
+        return Result(error: 'Failed to show user');
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please check your internet connection or contact support'); 
     }
   }
 
-  Future<int> affiliateNumberOfUsers(String affiliateCode) async {
-    final uri = Uri.parse('https://splitter.satsails.com/number_of_users')
-        .replace(queryParameters: {
-         'code': affiliateCode,
-    });
-    final response = await http.get(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to get number of users');
-    }
-  }
-
-  Future<String> affiliateEarnings(String affiliateCode) async {
-    final uri = Uri.parse('https://splitter.satsails.com/value_purchased_by_affiliate')
-        .replace(queryParameters: {
-      'code': affiliateCode,
-    });
-    final response = await http.get(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to get amount generated by affiliate');
-    }
-  }
 }
+
+

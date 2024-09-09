@@ -1,3 +1,4 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,18 +40,18 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Important to call super.build when using AutomaticKeepAliveClientMixin
+    super.build(context);
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(29, 31, 49, 1.0),
         title: Text(
-          'Search the blockchain',
-          style: TextStyle(color: Colors.white, fontSize: screenHeight * 0.03), // 3% of screen height
+          'Search the blockchain'.i18n(ref),
+          style: TextStyle(color: Colors.white),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white, size: screenHeight * 0.03), // 3% of screen height
+          icon: Icon(Icons.arrow_back, color: Colors.white, size: screenHeight * 0.03),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),

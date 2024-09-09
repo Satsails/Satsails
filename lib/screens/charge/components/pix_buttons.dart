@@ -25,33 +25,35 @@ class PixButtons extends ConsumerWidget {
             ref.read(topSelectedButtonProvider.notifier).state = "Pix Address";
             break;
           case 1:
-            ref.read(topSelectedButtonProvider.notifier).state = "Check Pix Transactions";
+            ref.read(topSelectedButtonProvider.notifier).state = "History";
             break;
           default:
             ref.read(topSelectedButtonProvider.notifier).state = "Pix Address";
         }
       },
-      buttons: ["Pix Address".i18n(ref), "Check Pix Transactions".i18n(ref)],
+      buttons: ["Pix Address".i18n(ref), "History".i18n(ref)],
       options: GroupButtonOptions(
-        unselectedTextStyle: TextStyle(fontSize: screenWidth * 0.035, color: Colors.black),
-        selectedTextStyle: TextStyle(fontSize: screenWidth * 0.035, color: Colors.white),
-        selectedColor: Colors.deepOrange,
-        spacing: screenWidth * 0.005, // 1% of screen width
+        unselectedTextStyle: TextStyle(
+            fontSize: screenWidth * 0.04, color: Colors.orange),
+        selectedTextStyle: TextStyle(
+            fontSize: screenWidth * 0.04, color: Colors.black),
+        selectedColor: Colors.orange,
         mainGroupAlignment: MainGroupAlignment.center,
         crossGroupAlignment: CrossGroupAlignment.center,
         groupRunAlignment: GroupRunAlignment.center,
-        unselectedColor: Colors.white,
-        groupingType: GroupingType.wrap,
+        unselectedColor: Colors.black,
+        groupingType: GroupingType.row,
         alignment: Alignment.center,
         elevation: 0,
         textPadding: EdgeInsets.zero,
+        unselectedBorderColor: Colors.orange,
         selectedShadow: <BoxShadow>[
           const BoxShadow(color: Colors.transparent)
         ],
         unselectedShadow: <BoxShadow>[
           const BoxShadow(color: Colors.transparent)
         ],
-        borderRadius: BorderRadius.circular(screenWidth * 0.075),
+        borderRadius: BorderRadius.circular(screenWidth * 0.01),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Logo extends StatelessWidget {
   final double? widthFactor;
@@ -8,13 +9,12 @@ class Logo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    return Image.asset(
-      'lib/assets/app_icon.png',
-      width: screenWidth * (widthFactor ?? 0.5), // Use provided widthFactor or default to 50%
-      height: screenHeight * (heightFactor ?? 0.3), // Use provided heightFactor or default to 30%
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    return SvgPicture.asset(
+      'lib/assets/satsails.svg',
+      width: screenWidth * (widthFactor ?? 0.9),
+      height: screenHeight * (heightFactor ?? 0.25),
     );
   }
 }

@@ -1,6 +1,49 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:hive/hive.dart';
+import 'dart:math';
+import 'package:convert/convert.dart';
+
+class SecureKeyManager {
+  static const String _keyId = 'boltz_key';
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
+  static Future<void> generateAndStoreKey() async {
+    String? existingKey = await _secureStorage.read(key: _keyId);
+    if (existingKey == null) {
+      final key = _generateRandom256BitKey();
+      await _secureStorage.write(key: _keyId, value: key);
+    }
+  }
+
+  static Future<String?> retrieveKey() async {
+    return await _secureStorage.read(key: _keyId);
+  }
+
+  static Future<void> deleteKey() async {
+    await _secureStorage.delete(key: _keyId);
+  }
+
+  static String _generateRandom256BitKey() {
+    final keyBytes = List<int>.generate(32, (i) => Random.secure().nextInt(256));
+    return hex.encode(keyBytes);
+  }
+
+  static Future<Box<T>> openEncryptedBox<T>(String boxName) async {
+    final encryptionKey = await retrieveKey();
+
+    if (encryptionKey == null) {
+      throw Exception("Encryption key not found.");
+    }
+
+    final key = hex.decode(encryptionKey);
+
+    return await Hive.openBox<T>(
+      boxName,
+      encryptionCipher: HiveAesCipher(key),
+    );
+  }
+}
 
 class AuthModel {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -41,6 +84,7 @@ class AuthModel {
     await _storage.delete(key: 'mnemonic');
     await _storage.delete(key: 'pin');
     await _storage.delete(key: 'pixPaymentCode');
+    await _storage.delete(key: 'recoveryCode');
     await Hive.deleteBoxFromDisk('bitcoin');
     await Hive.deleteBoxFromDisk('liquid');
     await Hive.deleteBoxFromDisk('settings');
@@ -52,5 +96,7 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('sideswapSwapData');
     await Hive.deleteBoxFromDisk('pix');
     await Hive.deleteBoxFromDisk('user');
+    await Hive.deleteBoxFromDisk('affiliate');
+    await SecureKeyManager.deleteKey();
   }
 }

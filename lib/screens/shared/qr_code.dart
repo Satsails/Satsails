@@ -6,14 +6,6 @@ Widget buildQrCode(String address, BuildContext context) {
     decoration: BoxDecoration(
       borderRadius: const BorderRadius.all(Radius.circular(20)),
       color: Colors.white,
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.5),
-          spreadRadius: 5,
-          blurRadius: 7,
-          offset: const Offset(0, 3),
-        ),
-      ],
     ),
     child: Padding(
       padding: const EdgeInsets.all(8.0),
@@ -22,7 +14,7 @@ Widget buildQrCode(String address, BuildContext context) {
         child: QrImageView(
           data: address,
           version: QrVersions.auto,
-          size: MediaQuery.of(context).size.width * 0.6,
+          size: MediaQuery.of(context).size.width * 0.5,
           eyeStyle: const QrEyeStyle(
             eyeShape: QrEyeShape.square,
             color: Colors.orange,

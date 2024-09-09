@@ -167,7 +167,7 @@ final sideswapUploadAndSignInputsProvider = FutureProvider.autoDispose<SideswapC
   final state = await ref.read(sideswapStartExchangeProvider.future).then((value) => value);
   final receiveAddress = await ref.read(liquidAddressProvider.future).then((value) => value);
   final returnAddress = await ref.read(liquidNextAddressProvider.future).then((value) => value);
-  final liquidUnspentUtxos = await ref.read(liquidUnspentUtxosProvider.future).then((value) => value);
+  final liquidUnspentUtxos = await ref.refresh(liquidUnspentUtxosProvider.future).then((value) => value);
   final sendAmount = ref.read(sideswapPriceProvider).sendAmount!;
   final inputsUpload =  await state.uploadInputs(returnAddress, liquidUnspentUtxos, receiveAddress.confidential, sendAmount).then((value) => value);
   final signedPset = await ref.read(signLiquidPsetStringProvider(inputsUpload.pset).future).then((value) => value);
