@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -47,6 +48,8 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
 
   @override
   Widget build(BuildContext context) {
+    final language = ref.watch(settingsProvider).language;
+
     super.build(context);
 
     return Scaffold(
@@ -76,7 +79,7 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
           ),
         ),
       ),
-      drawer: _buildDrawer(ref, context),
+      drawer: _buildDrawer(ref, context, language),
       body: Stack(
         children: [
           WebViewWidget(
@@ -125,7 +128,9 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
     );
   }
 
-  Widget _buildDrawer(WidgetRef ref, BuildContext context) {
+  Widget _buildDrawer(WidgetRef ref, BuildContext context, String language) {
+    final String baseUrl = language == 'pt' ? 'https://bitcoincounterflow.com/pt/satsails' : 'https://bitcoincounterflow.com/satsails';
+
     return Drawer(
       child: Container(
         color: Colors.black,
@@ -160,61 +165,55 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
                   title: 'Courses',
                   url: 'https://www.educacaoreal.com',
                 ),
-                // _buildDrawerItem(
-                //   ref,
-                //   icon: Icons.video_library,
-                //   title: 'Satsails Tutorials',
-                //   url: 'https://www.educacaoreal.com/tutoriais',
-                // ),
               ],
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.dashboard,
               title: 'Dashboards',
-              url: 'https://bitcoincounterflow.com/satsails/dashboards-iframe',
+              url: '$baseUrl/dashboards-iframe',
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.assessment,
               title: 'ETF Tracker',
-              url: 'https://bitcoincounterflow.com/satsails/etf-tracker-iframe',
+              url: '$baseUrl/etf-tracker-iframe',
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.calculate,
               title: 'Retirement Calculator',
-              url: 'https://bitcoincounterflow.com/satsails/bitcoin-retirement-calculator-iframe/',
+              url: '$baseUrl/bitcoin-retirement-calculator-iframe/',
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.attach_money,
               title: 'Bitcoin Converter',
-              url: 'https://bitcoincounterflow.com/satsails/bitcoin-converter-calculator-iframe/',
+              url: '$baseUrl/bitcoin-converter-calculator-iframe/',
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.history,
               title: 'DCA Calculator',
-              url: 'https://bitcoincounterflow.com/satsails/dca-calculator-iframe/',
+              url: '$baseUrl/dca-calculator-iframe/',
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.trending_up,
               title: 'Bitcoin Counterflow Strategy',
-              url: 'https://bitcoincounterflow.com/satsails/bitcoin-counterflow-strategy-iframe/',
+              url: '$baseUrl/bitcoin-counterflow-strategy-iframe/',
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.show_chart,
               title: 'Charts',
-              url: 'https://bitcoincounterflow.com/satsails/charts-iframe',
+              url: '$baseUrl/charts-iframe',
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.waterfall_chart,
               title: 'Liquidation Zone',
-              url: 'https://bitcoincounterflow.com/satsails/liquidation-heatmap-iframe/',
+              url: '$baseUrl/liquidation-heatmap-iframe/',
             ),
           ],
         ),

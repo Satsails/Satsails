@@ -377,7 +377,7 @@ class AffiliateViewWidget extends ConsumerWidget {
                   style: TextStyle(fontSize: width * 0.06, fontWeight: FontWeight.bold, color: Colors.black)),
               SizedBox(height: height * 0.02),
               Text(isUnlocked
-                  ? 'With ${totalValue.toString()} DEPIX, you have reached the $label tier.'.i18n(ref)
+                  ?'With '.i18n(ref) + totalValue.toString() + ' DEPIX, you have reached the '.i18n(ref) + label
                   : 'You need ${threshold.toString()} DEPIX to unlock the $label tier.'.i18n(ref),
                   style: const TextStyle(fontSize: 16, color: Colors.black), textAlign: TextAlign.center),
               SizedBox(height: height * 0.02),

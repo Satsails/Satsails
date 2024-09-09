@@ -1459,7 +1459,43 @@ extension Localization on String {
       {
         'en': 'You have not unlocked the Diamond tier yet. Unlock it by reaching 20000 in value transacted.',
         'pt': 'Você ainda não desbloqueou o nível Diamante. Desbloqueie-o ao atingir 20000 em valor transacionado.',
+      } +      {
+    'en': 'You have not unlocked the Ouro tier yet. Unlock it by reaching 5000 in value transacted.',
+    'pt': 'Você ainda não desbloqueou o nível Ouro. Desbloqueie ao atingir 5000 em valor transacionado.',
+  } +
+      {
+        'en': 'You need 5000 DEPIX to unlock the Ouro tier.',
+        'pt': 'Você precisa de 5000 DEPIX para desbloquear o nível Ouro.',
+      } +
+      {
+        'en': 'You have not unlocked the Prata tier yet. Unlock it by reaching 2500 in value transacted.',
+        'pt': 'Você ainda não desbloqueou o nível Prata. Desbloqueie ao atingir 2500 em valor transacionado.',
+      } +
+      {
+        'en': 'You need 2500 DEPIX to unlock the Prata tier.',
+        'pt': 'Você precisa de 2500 DEPIX para desbloquear o nível Prata.',
+      } +
+      {
+        'en': 'You have not unlocked the Diamante tier yet. Unlock it by reaching 20000 in value transacted.',
+        'pt': 'Você ainda não desbloqueou o nível Diamante. Desbloqueie ao atingir 20000 em valor transacionado.',
+      } +
+      {
+        'en': 'You need 20000 DEPIX to unlock the Diamante tier.',
+        'pt': 'Você precisa de 20000 DEPIX para desbloquear o nível Diamante.',
+      } +
+      {
+        'en': 'Close',
+        'pt': 'Fechar',
+      } +
+      {
+        'en': 'With ',
+        'pt': 'Com '
+      }  +
+      {
+        'en': ' DEPIX, you have reached the ',
+        'pt': ' DEPIX, você atingiu o '
       };
+
 
 
   String i18n(WidgetRef ref) {
