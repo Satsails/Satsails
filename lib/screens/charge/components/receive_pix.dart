@@ -79,6 +79,11 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     final double transferredAmount = double.tryParse(amountTransferred) ?? 0.0;
     _remainingLimit = _dailyLimit - transferredAmount;
 
+    // Ensure remaining limit is never negative
+    if (_remainingLimit < 0) {
+      _remainingLimit = 0;
+    }
+
     if (amountInDouble > _remainingLimit) {
       Fluttertoast.showToast(
         msg: 'You have reached the daily limit'.i18n(ref),
@@ -177,6 +182,11 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
         final double transferredAmount = double.tryParse(amountTransferred) ?? 0.0;
         _remainingLimit = _dailyLimit - transferredAmount;
 
+        // Ensure remaining limit is never negative
+        if (_remainingLimit < 0) {
+          _remainingLimit = 0;
+        }
+
         final amount = _amountController.text;
         if (amount.isNotEmpty) {
           amountInDouble = double.tryParse(amount.replaceAll(',', '.')) ?? 0.0;
@@ -199,9 +209,9 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 20),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -215,7 +225,14 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
+                  child: Text(
+                    'Transferred Today:'.i18n(ref) + ' ${transferredAmount.toStringAsFixed(2)} BRL',
+                    style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.green),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
                   child: TextField(
                     controller: _amountController,
                     keyboardType: TextInputType.number,
@@ -224,7 +241,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       CommaTextInputFormatter(),
                     ],
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.03, color: Colors.white),
+                    style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.white),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey, width: 1.0),
@@ -244,11 +261,11 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       children: [
                         Text(
                           'You will receive: '.i18n(ref) + '${_amountToReceive.toStringAsFixed(2)} BRL',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.orange),
+                          style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.green),
                         ),
                         Text(
                           _feeDescription,
-                          style: TextStyle(fontSize: 12, color: Colors.orange),
+                          style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -273,9 +290,9 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       },
                     ),
                   ),
-                const SizedBox(height: 20),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                 if (_pixQRCode.isNotEmpty) buildQrCode(_pixQRCode, context),
-                const SizedBox(height: 20),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                 if (_pixQRCode.isNotEmpty) buildAddressText(_pixQRCode, context, ref),
               ],
             ),
