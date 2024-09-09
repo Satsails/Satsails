@@ -22,7 +22,7 @@ class ClaimBoltz extends ConsumerWidget {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Text('Lightning transactions'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: MediaQuery.of(context).size.width < 400 ? 16 : 20)),
+        title: Text('Lightning transactions'.i18n(ref), style: TextStyle(color: Colors.white),),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
