@@ -4,6 +4,7 @@ import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
 import 'package:Satsails/screens/charge/components/pix_transaction_details.dart';
+import 'package:Satsails/screens/home/main_screen.dart';
 import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
 import 'package:Satsails/screens/settings/components/support.dart';
 import 'package:Satsails/screens/user/start_affiliate.dart';
@@ -172,7 +173,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
               '/exchange': (context) => Exchange(),
               '/apps': (context) => const Services(),
               '/pay': (context) => Pay(),
-              '/home': (context) => const Home(),
+              '/home': (context) => const MainScreen(),
               '/recover_wallet': (context) => const RecoverWallet(),
               '/search_modal': (context) => SearchModal(),
               '/confirm_bitcoin_payment': (context) => ConfirmBitcoinPayment(),

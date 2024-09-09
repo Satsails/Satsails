@@ -68,7 +68,7 @@ class OpenPin extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 106),
+                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
                   child: CustomButton(text: 'Unlock'.i18n(ref), onPressed: () => _checkPin(context, ref)),
                 ),
                 const SizedBox(height: 20),

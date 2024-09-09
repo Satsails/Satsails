@@ -1,6 +1,7 @@
 import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -28,7 +29,7 @@ class _UserViewState extends ConsumerState<UserView> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title: const Text('User Details', style: TextStyle(color: Colors.white)),
+          title: Text('User Details'.i18n(ref), style: TextStyle(color: Colors.white)),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.pushNamed(context, '/settings'),
@@ -50,7 +51,7 @@ class _UserViewState extends ConsumerState<UserView> {
                 _buildRecoveryCodeSection(user.recoveryCode, width, height),
                 SizedBox(height: height * 0.03),
                 Text(
-                  'Hint: Please store your recovery code somewhere safe. There is no other way to recover your account if you lose this code.',
+                  'Hint: Please store your recovery code somewhere safe. There is no other way to recover your account if you lose this code.'.i18n(ref),
                   style: TextStyle(color: Colors.redAccent, fontSize: width * 0.03),
                   textAlign: TextAlign.center,
                 ),
@@ -65,12 +66,12 @@ class _UserViewState extends ConsumerState<UserView> {
                   child: Column(
                     children: [
                       Text(
-                        'Affiliate Portal',
+                        'Affiliate Portal'.i18n(ref),
                         style: TextStyle(color: Colors.white, fontSize: width * 0.045, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: height * 0.01),
                       Text(
-                        'Track your performance and access exclusive resources.',
+                        'Track your performance and access exclusive resources.'.i18n(ref),
                         style: TextStyle(color: Colors.white70, fontSize: width * 0.035),
                         textAlign: TextAlign.center,
                       ),
@@ -79,7 +80,7 @@ class _UserViewState extends ConsumerState<UserView> {
                         onPressed: () {
                           Navigator.of(context).pushNamed('/start_affiliate');
                         },
-                        text: "Go to Affiliate Portal",
+                        text: "Go to Affiliate Portal".i18n(ref),
                         backgroundColor: Colors.orange,
                       ),
                     ],
@@ -98,7 +99,7 @@ class _UserViewState extends ConsumerState<UserView> {
       onTap: () {
         Clipboard.setData(ClipboardData(text: paymentId));
         Fluttertoast.showToast(
-          msg: 'Payment ID copied to clipboard',
+          msg: 'Payment ID copied to clipboard'.i18n(ref),
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 1,
@@ -111,7 +112,7 @@ class _UserViewState extends ConsumerState<UserView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Payment ID',
+            'Payment ID'.i18n(ref),
             style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
           ),
           SizedBox(height: height * 0.01),
@@ -130,7 +131,7 @@ class _UserViewState extends ConsumerState<UserView> {
         if (affiliateCode != 'N/A') {
           Clipboard.setData(ClipboardData(text: affiliateCode));
           Fluttertoast.showToast(
-            msg: 'Created Affiliate Code copied to clipboard',
+            msg: 'Created Affiliate Code copied to clipboard'.i18n(ref),
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.TOP,
             timeInSecForIosWeb: 1,
@@ -144,7 +145,7 @@ class _UserViewState extends ConsumerState<UserView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Affiliate code for sharing',
+            'Affiliate code for sharing'.i18n(ref),
             style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
           ),
           SizedBox(height: height * 0.01),
@@ -163,7 +164,7 @@ class _UserViewState extends ConsumerState<UserView> {
         if (affiliateCode != 'N/A') {
           Clipboard.setData(ClipboardData(text: affiliateCode));
           Fluttertoast.showToast(
-            msg: 'Inserted Affiliate Code copied to clipboard',
+            msg: 'Inserted Affiliate Code copied to clipboard'.i18n(ref),
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.TOP,
             timeInSecForIosWeb: 1,
@@ -177,7 +178,7 @@ class _UserViewState extends ConsumerState<UserView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Referred by',
+            'Referred by'.i18n(ref),
             style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
           ),
           SizedBox(height: height * 0.01),
@@ -196,7 +197,7 @@ class _UserViewState extends ConsumerState<UserView> {
         if (!_isRecoveryCodeHidden) {
           Clipboard.setData(ClipboardData(text: recoveryCode));
           Fluttertoast.showToast(
-            msg: 'Recovery code copied to clipboard',
+            msg: 'Recovery code copied to clipboard'.i18n(ref),
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.TOP,
             timeInSecForIosWeb: 1,
@@ -210,7 +211,7 @@ class _UserViewState extends ConsumerState<UserView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Recovery Code',
+            'Recovery Code'.i18n(ref),
             style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
           ),
           SizedBox(height: height * 0.01),

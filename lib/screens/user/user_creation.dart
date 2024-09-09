@@ -20,8 +20,8 @@ class UserCreation extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text(
-          'User Section',
+        title: Text(
+          'User Section'.i18n(ref),
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -45,8 +45,8 @@ class UserCreation extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                const Text(
-                  'Welcome,',
+                Text(
+                  'Welcome,'.i18n(ref),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 28,
@@ -56,13 +56,13 @@ class UserCreation extends ConsumerWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'This section is completely anonymous and does not require any personal information.',
+                  'This section is completely anonymous and does not require any personal information.'.i18n(ref),
                   style: TextStyle(color: Colors.grey[300], fontSize: 18),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
                 CustomElevatedButton(
-                  text: 'Create anonymous account',
+                  text: 'Create anonymous account'.i18n(ref),
                   onPressed: () async {
                     ref.read(loadingProvider.notifier).state = true;
                     try {
@@ -99,7 +99,7 @@ class UserCreation extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 CustomElevatedButton(
-                  text: 'Recover account',
+                  text: 'Recover Account'.i18n(ref),
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
@@ -122,8 +122,8 @@ class UserCreation extends ConsumerWidget {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              const Text(
-                                'Recover Account',
+                               Text(
+                                'Recover Account'.i18n(ref),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -135,8 +135,8 @@ class UserCreation extends ConsumerWidget {
                               TextField(
                                 style: const TextStyle(color: Colors.white),
                                 controller: controller,
-                                decoration: const InputDecoration(
-                                  labelText: 'Enter recovery code',
+                                decoration: InputDecoration(
+                                  labelText: 'Enter recovery code'.i18n(ref),
                                   labelStyle: TextStyle(color: Colors.grey),
                                   enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(color: Colors.white),
@@ -147,38 +147,41 @@ class UserCreation extends ConsumerWidget {
                                 ),
                               ),
                               const SizedBox(height: 20),
-                              CustomElevatedButton(
-                                text: 'Recover',
-                                onPressed: () async {
-                                  ref.read(loadingProvider.notifier).state = true;
-                                  try {
-                                    await ref.read(userProvider.notifier).setRecoveryCode(controller.text);
-                                    await ref.read(setUserProvider.future);
-                                    ref.read(loadingProvider.notifier).state = false;
-                                    Navigator.pushReplacementNamed(context, '/user_view');
-                                    Fluttertoast.showToast(
-                                      msg: 'Account recovered successfully!'.i18n(ref),
-                                      toastLength: Toast.LENGTH_LONG,
-                                      gravity: ToastGravity.TOP,
-                                      timeInSecForIosWeb: 1,
-                                      backgroundColor: Colors.green,
-                                      textColor: Colors.white,
-                                      fontSize: 16.0,
-                                    );
-                                  } catch (e) {
-                                    ref.read(loadingProvider.notifier).state = false;
-                                    await ref.read(userProvider.notifier).setRecoveryCode('');
-                                    Fluttertoast.showToast(
-                                      msg: 'The code you have inserted is not correct'.i18n(ref),
-                                      toastLength: Toast.LENGTH_LONG,
-                                      gravity: ToastGravity.TOP,
-                                      timeInSecForIosWeb: 1,
-                                      backgroundColor: Colors.red,
-                                      textColor: Colors.white,
-                                      fontSize: 16.0,
-                                    );
-                                  }
-                                },
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: CustomElevatedButton(
+                                  text: 'Recover'.i18n(ref),
+                                  onPressed: () async {
+                                    ref.read(loadingProvider.notifier).state = true;
+                                    try {
+                                      await ref.read(userProvider.notifier).setRecoveryCode(controller.text);
+                                      await ref.read(setUserProvider.future);
+                                      ref.read(loadingProvider.notifier).state = false;
+                                      Navigator.pushReplacementNamed(context, '/user_view');
+                                      Fluttertoast.showToast(
+                                        msg: 'Account recovered successfully!'.i18n(ref),
+                                        toastLength: Toast.LENGTH_LONG,
+                                        gravity: ToastGravity.TOP,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.green,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0,
+                                      );
+                                    } catch (e) {
+                                      ref.read(loadingProvider.notifier).state = false;
+                                      await ref.read(userProvider.notifier).setRecoveryCode('');
+                                      Fluttertoast.showToast(
+                                        msg: 'The code you have inserted is not correct'.i18n(ref),
+                                        toastLength: Toast.LENGTH_LONG,
+                                        gravity: ToastGravity.TOP,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0,
+                                      );
+                                    }
+                                  },
+                                ),
                               ),
                             ],
                           ),

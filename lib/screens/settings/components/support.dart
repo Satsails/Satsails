@@ -1,5 +1,6 @@
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:crisp_chat/crisp_chat.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,16 +41,15 @@ class _SupportState extends ConsumerState<Support> {
         value: user.paymentId,
       );
     } catch (e) {
-      print("Error opening Crisp Chat");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Set the background color to black
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Crisp Chat', style: TextStyle(color: Colors.white)),
+        title: Text('Support'.i18n(ref), style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -66,7 +66,7 @@ class _SupportState extends ConsumerState<Support> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 CustomElevatedButton(
-                  text: 'Open support chat',
+                  text: 'Open support chat'.i18n(ref),
                   onPressed: () async {
                     await _openCrispChat(ref);
                   },
@@ -75,7 +75,7 @@ class _SupportState extends ConsumerState<Support> {
                 ),
                 const SizedBox(height: 20),
                 CustomElevatedButton(
-                  text: 'Reset Chat Session',
+                  text: 'Reset Chat Session'.i18n(ref),
                   onPressed: () async {
                     await FlutterCrispChat.resetCrispChatSession();
                   },

@@ -17,7 +17,7 @@ class PixTransactionDetails extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Transaction Details',
+          'Transaction Details'.i18n(ref),
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
@@ -74,10 +74,6 @@ class PixTransactionDetails extends ConsumerWidget {
                 value: "${transaction.createdAt.day}/${transaction.createdAt.month}/${transaction.createdAt.year}",
               ),
               TransactionDetailRow(
-                label: "Transaction ID".i18n(ref),
-                value: transaction.sentTxid ?? "N/A",
-              ),
-              TransactionDetailRow(
                 label: "Status".i18n(ref),
                 value: transaction.completedTransfer ? "Completed".i18n(ref) : "Pending".i18n(ref),
               ),
@@ -119,7 +115,7 @@ class PixTransactionDetails extends ConsumerWidget {
                         Icon(Icons.download, color: Colors.white),
                         SizedBox(width: 8.0),
                         Text(
-                          "Download document",
+                          "Download document".i18n(ref),
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
                       ],

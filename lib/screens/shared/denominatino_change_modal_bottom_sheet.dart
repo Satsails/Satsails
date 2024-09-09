@@ -1,7 +1,9 @@
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 
-class DenominationChangeModalBottomSheet extends StatefulWidget {
+class DenominationChangeModalBottomSheet extends ConsumerStatefulWidget {
   final settingsNotifier;
 
   const DenominationChangeModalBottomSheet({Key? key, required this.settingsNotifier}) : super(key: key);
@@ -10,7 +12,7 @@ class DenominationChangeModalBottomSheet extends StatefulWidget {
   _DenominationChangeModalBottomSheetState createState() => _DenominationChangeModalBottomSheetState();
 }
 
-class _DenominationChangeModalBottomSheetState extends State<DenominationChangeModalBottomSheet> {
+class _DenominationChangeModalBottomSheetState extends ConsumerState<DenominationChangeModalBottomSheet> {
   String selectedButton = 'currency';
 
   @override
@@ -20,7 +22,7 @@ class _DenominationChangeModalBottomSheetState extends State<DenominationChangeM
 
     return Container(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom), // Adjust for keyboard if necessary
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.black, // Background color for the modal
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
       ),
@@ -57,7 +59,7 @@ class _DenominationChangeModalBottomSheetState extends State<DenominationChangeM
                       ),
                     ),
                     child: Text(
-                      'Currency',
+                      'Currency'.i18n(ref),
                       style: TextStyle(
                         fontSize: titleFontSize * 0.7,
                         color: Colors.white, // Text color
@@ -79,7 +81,7 @@ class _DenominationChangeModalBottomSheetState extends State<DenominationChangeM
                       ),
                     ),
                     child: Text(
-                      'Bitcoin Unit',
+                      'Bitcoin Unit'.i18n(ref),
                       style: TextStyle(
                         fontSize: titleFontSize * 0.7,
                         color: Colors.white, // Text color
