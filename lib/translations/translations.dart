@@ -66,7 +66,7 @@ extension Localization on String {
       } +
       {
         'en': 'Add Money',
-        'pt': 'Adicionar Dinheiro',
+        'pt': 'Carregar',
       } + {
     'en': 'Exchange',
     'pt': 'Trocar',} + {
@@ -683,8 +683,8 @@ extension Localization on String {
         'pt': 'Solicitar permissão da câmera',
       }+
       {
-      'en': 'Complete lightning transactions',
-      'pt': 'Completar transações lightning',
+        'en': 'Complete lightning transactions',
+        'pt': 'Completar transações lightning',
       }+
       {
         'en': 'All lightning transactions were complete',
@@ -933,7 +933,170 @@ extension Localization on String {
       {
         'en': 'Become sovereign and freely opt out of the system.',
         'pt': 'Seja soberano e opte por sair do sistema livremente.'
+      }  +
+      {
+        'en': 'Total balance:',
+        'pt': 'Saldo total:'
+      } +
+      {
+        'en': 'Change Denomination',
+        'pt': 'Alterar Denominação'
+      } +
+      {
+        'en': 'Services',
+        'pt': 'Serviços'
+      } +
+      {
+        'en': 'Wallets',
+        'pt': 'Carteiras'
+      } +
+      {
+        'en': 'Liquid',
+        'pt': 'Liquid'
+      } +
+      {
+        'en': 'PIX received',
+        'pt': 'PIX recebido'
+      } +
+      {
+        'en': 'Pix received but transfer limit exceeded, you will receive the amount in 24h. If you wish to receive it sooner, please contact support',
+        'pt': 'Pix recebido, mas o limite de transferência foi excedido, você receberá o valor em 24h. Se desejar recebê-lo mais cedo, entre em contato com o suporte'
+      } +
+      {
+        'en': 'Become sovereign and freely opt out of the system.',
+        'pt': 'Seja soberano e opte por sair do sistema livremente.'
+      } +
+      {
+        'en': 'Security',
+        'pt': 'Segurança'
+      } +
+      {
+        'en': 'Logout',
+        'pt': 'Sair'
+      } +
+      {
+        'en': 'Transaction History',
+        'pt': 'Histórico de Transações'
+      } +
+      {
+        'en': 'Blockchain Explorer',
+        'pt': 'Explorador de Blockchain'
+      } +
+      {
+        'en': 'Confirmations Required',
+        'pt': 'Confirmações Necessárias'
+      } +
+      {
+        'en': 'Remaining Balance',
+        'pt': 'Saldo Restante'
+      } +
+      {
+        'en': 'Network Fee',
+        'pt': 'Taxa de Rede'
+      } +
+      {
+        'en': 'Pending Transactions',
+        'pt': 'Transações Pendentes'
+      } +
+      {
+        'en': 'View More',
+        'pt': 'Ver Mais'
+      } +
+      {
+        'en': 'Failed',
+        'pt': 'Falhou'
+      } +
+      {
+        'en': 'Retry',
+        'pt': 'Tentar Novamente'
+      } +
+      {
+        'en': 'Settings',
+        'pt': 'Configurações'
+      } +
+      {
+        'en': 'Create wallet',
+        'pt': 'Criar carteira'
+      } +
+      {
+        'en': 'Recover wallet',
+        'pt': 'Recuperar carteira'
+      } +
+      {
+        'en': 'Delete Account?',
+        'pt': 'Excluir Conta?'
+      } +
+      {
+        'en': 'All information will be permanently deleted.',
+        'pt': 'Todas as informações serão permanentemente excluídas.'
+      } +
+      {
+        'en': 'Interactive Mode',
+        'pt': 'Modo Interativo'
+      } +
+      {
+        'en': 'View Accounts',
+        'pt': 'Ver Contas',
+      } +
+      {
+        'en': 'Total balance',
+        'pt': 'Saldo total',
+      } +
+      {
+        'en': 'Dashboards',
+        'pt': 'Dashboards',
+      } +
+      {
+        'en': 'Educação Real',
+        'pt': 'Educação Real',
+      } +
+      {
+        'en': 'Courses',
+        'pt': 'Cursos',
+      } +
+      {
+        'en': 'ETF Tracker',
+        'pt': 'Rastreador de ETF',
+      } +
+      {
+        'en': 'Retirement Calculator',
+        'pt': 'Calculadora de Aposentadoria',
+      } +
+      {
+        'en': 'Bitcoin Converter',
+        'pt': 'Conversor de Bitcoin',
+      } +
+      {
+        'en': 'DCA Calculator',
+        'pt': 'Calculadora DCA',
+      } +
+      {
+        'en': 'Bitcoin Counterflow Strategy',
+        'pt': 'Estratégia Counterflow de Bitcoin',
+      } +
+      {
+        'en': 'Charts',
+        'pt': 'Gráficos',
+      } +
+      {
+        'en': 'Liquidation Zone',
+        'pt': 'Zona de Liquidação',
+      }  +
+      {
+        'en': 'Transferred Today:',
+        'pt': 'Transferido Hoje:',
+      } +
+      {
+        'en': 'Transferred This Week:',
+        'pt': 'Transferido Esta Semana:',
+      }+
+      {
+        'en': 'History',
+        'pt': 'Histórico',
       };
+
+
+
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;

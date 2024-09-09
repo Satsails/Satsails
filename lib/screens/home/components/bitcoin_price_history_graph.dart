@@ -1,13 +1,11 @@
-import 'package:Satsails/models/coingecko_model.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
-import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:coingecko_api/data/market_chart_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 
 final interactiveModeProvider = StateProvider<bool>((ref) => false);
 
@@ -135,7 +133,7 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
               ),
               child:
               Text(
-                'Interactive Mode',
+                'Interactive Mode'.i18n(ref),
                 style: TextStyle(
                   color: isInteractiveMode ? Colors.orangeAccent : Colors.white,
                   fontSize: 9,
