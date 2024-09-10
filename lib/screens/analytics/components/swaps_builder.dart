@@ -173,7 +173,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
                       children: [
                         Text(_assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)), style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white, fontWeight: FontWeight.bold)),
                         Text(
-                          _assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)) == 'BTC'
+                          _assetNameFromTicker(AssetMapper.mapAsset(swap.recvAsset)) == 'LBTC'
                               ? ref.watch(conversionProvider((swap.recvAmount).toInt()))
                               : (swap.recvAmount / 100000000).toStringAsFixed(2),
                           style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
