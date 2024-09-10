@@ -60,7 +60,7 @@ class Home extends ConsumerWidget {
         buildActionButtons(context, ref),
         SizedBox(height: screenHeight * 0.01),
         Flexible(
-          child: Container(
+          child: SizedBox(
             height: double.infinity,
             child: Consumer(builder: (context, watch, child) {
               final initializeBalance = ref.watch(initializeBalanceProvider);

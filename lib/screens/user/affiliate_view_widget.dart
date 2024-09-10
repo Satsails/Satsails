@@ -37,7 +37,7 @@ class AffiliateViewWidget extends ConsumerWidget {
       child:Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
-          title: Text('Affiliate Section'.i18n(ref), style: TextStyle(color: Colors.white)),
+          title: Text('Affiliate Section'.i18n(ref), style: const TextStyle(color: Colors.white)),
           backgroundColor: Colors.black,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -92,7 +92,7 @@ class AffiliateViewWidget extends ConsumerWidget {
                   ] else if (!hasCreatedAffiliate && hasInsertedAffiliate) ...[
                     _buildInsertedAffiliateSection(affiliateData, width, height, ref),
                     const SizedBox(height: 20),
-                    Text('Would you like to become an affiliate?'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: 18)),
+                    Text('Would you like to become an affiliate?'.i18n(ref), style: const TextStyle(color: Colors.white, fontSize: 18)),
                     const SizedBox(height: 10),
                     if (ref.watch(loadingProvider.notifier).state)
                       Align(
@@ -124,7 +124,7 @@ class AffiliateViewWidget extends ConsumerWidget {
 
   Widget _errorWidget(Object error, WidgetRef ref) {
     return Center(
-      child: Text('An error has occurred. Please check your internet connection or contact support'.i18n(ref) + ' $error', style: TextStyle(color: Colors.white)),
+      child: Text('${'An error has occurred. Please check your internet connection or contact support'.i18n(ref)} $error', style: const TextStyle(color: Colors.white)),
     );
   }
 
@@ -223,7 +223,7 @@ class AffiliateViewWidget extends ConsumerWidget {
                     return Center(
                       child: Text(
                         'No earnings data available'.i18n(ref),
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     );
                   } else {
@@ -250,8 +250,8 @@ class AffiliateViewWidget extends ConsumerWidget {
 
     return SfCartesianChart(
       backgroundColor: Colors.transparent,
-      primaryXAxis: DateTimeAxis(isVisible: true, majorGridLines: MajorGridLines(width: 0), axisLine: AxisLine(width: 0), labelStyle: TextStyle(color: Colors.white)),
-      primaryYAxis: NumericAxis(isVisible: true, majorGridLines: MajorGridLines(width: 0), axisLine: AxisLine(width: 0), labelStyle: TextStyle(color: Colors.white)),
+      primaryXAxis: const DateTimeAxis(isVisible: true, majorGridLines: MajorGridLines(width: 0), axisLine: AxisLine(width: 0), labelStyle: TextStyle(color: Colors.white)),
+      primaryYAxis: const NumericAxis(isVisible: true, majorGridLines: MajorGridLines(width: 0), axisLine: AxisLine(width: 0), labelStyle: TextStyle(color: Colors.white)),
       series: <LineSeries<ChartData, DateTime>>[
         LineSeries<ChartData, DateTime>(
           dataSource: chartData,
@@ -312,7 +312,7 @@ class AffiliateViewWidget extends ConsumerWidget {
                 SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                 TextField(
                   controller: liquidAddressController,
-                  decoration: InputDecoration(labelText: 'Liquid Address to receive commission'.i18n(ref), labelStyle: TextStyle(color: Colors.black), border: OutlineInputBorder(), fillColor: Colors.orange, filled: true),
+                  decoration: InputDecoration(labelText: 'Liquid Address to receive commission'.i18n(ref), labelStyle: const TextStyle(color: Colors.black), border: const OutlineInputBorder(), fillColor: Colors.orange, filled: true),
                   style: const TextStyle(color: Colors.black),
                 ),
                 const SizedBox(height: 20),

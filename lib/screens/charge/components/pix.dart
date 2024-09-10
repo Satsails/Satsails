@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Pix extends ConsumerWidget {
-  const Pix({Key? key}) : super(key: key);
+  const Pix({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,7 +26,7 @@ class Pix extends ConsumerWidget {
           children: [
             const PixButtons(),
             Expanded(
-              child: selectedButton == 'Pix Address' ? ReceivePix() : PixHistory(),
+              child: selectedButton == 'Pix Address' ? const ReceivePix() : const PixHistory(),
             ),
           ],
         ),

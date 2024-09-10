@@ -17,9 +17,9 @@ class Charge extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black, // black app bar
-        title: Text('Charge Wallet'.i18n(ref), style: TextStyle(color: Colors.white)),
+        title: Text('Charge Wallet'.i18n(ref), style: const TextStyle(color: Colors.white)),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
         ),
       ),

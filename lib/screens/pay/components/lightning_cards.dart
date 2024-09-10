@@ -23,7 +23,7 @@ class LightningCards extends StatelessWidget {
   final WidgetRef ref;
 
   const LightningCards({
-    Key? key,
+    super.key,
     required this.titleFontSize,
     required this.initializeBalance,
     required this.liquidFormart,
@@ -34,7 +34,7 @@ class LightningCards extends StatelessWidget {
     required this.dynamicMargin,
     required this.dynamicCardHeight,
     required this.ref,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -49,12 +49,12 @@ class BuildTransactions extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true, // Makes the modal sheet full screen if needed
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext context) {
         return Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             color: Color.fromARGB(255, 29, 29, 29),
           ),

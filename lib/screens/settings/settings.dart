@@ -54,7 +54,7 @@ class Settings extends ConsumerWidget {
     return ListTile(
       leading: const Icon(Icons.supervised_user_circle_sharp, color: Colors.white),
       title: Text('User Section'.i18n(ref), style: const TextStyle(color: Colors.white)),
-      subtitle: Text('Manage your anonymous account'.i18n(ref), style: TextStyle(color: Colors.grey)),
+      subtitle: Text('Manage your anonymous account'.i18n(ref), style: const TextStyle(color: Colors.grey)),
       onTap: () {
         if (paymentId == '') {
           Navigator.pushNamed(context, '/user_creation');

@@ -6,39 +6,39 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PixTransactionDetails extends ConsumerWidget {
-  PixTransactionDetails({Key? key}) : super(key: key);
+  const PixTransactionDetails({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Transfer transaction = ref.watch(singleTransactionDetailsProvider);
-    final double dynamicMargin = 16.0;
-    final double dynamicRadius = 12.0;
+    const double dynamicMargin = 16.0;
+    const double dynamicRadius = 12.0;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Transaction Details'.i18n(ref),
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
         child: Container(
-          margin: EdgeInsets.symmetric(horizontal: dynamicMargin, vertical: 8.0),
-          padding: EdgeInsets.all(16.0),
+          margin: const EdgeInsets.symmetric(horizontal: dynamicMargin, vertical: 8.0),
+          padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: Color(0xFF1C1C1E),
+            color: const Color(0xFF1C1C1E),
             borderRadius: BorderRadius.circular(dynamicRadius),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.5),
                 blurRadius: 4,
-                offset: Offset(0, 2),
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -48,27 +48,27 @@ class PixTransactionDetails extends ConsumerWidget {
               Center(
                 child: Column(
                   children: [
-                    Icon(Icons.arrow_downward_rounded, color: Colors.green, size: 40),
-                    SizedBox(height: 8.0),
+                    const Icon(Icons.arrow_downward_rounded, color: Colors.green, size: 40),
+                    const SizedBox(height: 8.0),
                     Text(
                       "R\$ ${transaction.receivedAmount.toStringAsFixed(2)}",
-                      style: TextStyle(color: Colors.green, fontSize: 36, fontWeight: FontWeight.bold),
+                      style: const TextStyle(color: Colors.green, fontSize: 36, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       transaction.transferId,
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+                      style: const TextStyle(color: Colors.white, fontSize: 18),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Text(
                 "About the transaction".i18n(ref),
-                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TransactionDetailRow(
                 label: "Date".i18n(ref),
                 value: "${transaction.createdAt.day}/${transaction.createdAt.month}/${transaction.createdAt.year}",
@@ -77,12 +77,12 @@ class PixTransactionDetails extends ConsumerWidget {
                 label: "Status".i18n(ref),
                 value: transaction.completedTransfer ? "Completed".i18n(ref) : "Pending".i18n(ref),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Text(
                 "Origin".i18n(ref),
-                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TransactionDetailRow(
                 label: "Name".i18n(ref),
                 value: transaction.name,
@@ -91,7 +91,7 @@ class PixTransactionDetails extends ConsumerWidget {
                 label: "CPF/CNPJ",
                 value: transaction.cpf,
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),
               if (transaction.receipt != null)
                 GestureDetector(
@@ -103,8 +103,8 @@ class PixTransactionDetails extends ConsumerWidget {
                     }
                   },
                   child: Container(
-                    margin: EdgeInsets.only(top: 12.0),
-                    padding: EdgeInsets.all(12.0),
+                    margin: const EdgeInsets.only(top: 12.0),
+                    padding: const EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
                       color: Colors.orange,
                       borderRadius: BorderRadius.circular(dynamicRadius),
@@ -112,11 +112,11 @@ class PixTransactionDetails extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.download, color: Colors.white),
-                        SizedBox(width: 8.0),
+                        const Icon(Icons.download, color: Colors.white),
+                        const SizedBox(width: 8.0),
                         Text(
                           "Download document".i18n(ref),
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          style: const TextStyle(color: Colors.white, fontSize: 16),
                         ),
                       ],
                     ),
@@ -134,7 +134,7 @@ class TransactionDetailRow extends StatelessWidget {
   final String label;
   final String value;
 
-  TransactionDetailRow({required this.label, required this.value});
+  const TransactionDetailRow({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -145,13 +145,13 @@ class TransactionDetailRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(color: Colors.grey, fontSize: 16),
+            style: const TextStyle(color: Colors.grey, fontSize: 16),
           ),
           Expanded(
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: TextStyle(color: Colors.white, fontSize: 16),
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
         ],

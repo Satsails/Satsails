@@ -89,21 +89,21 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle, color: Colors.green, size: 50.0),
-                  SizedBox(height: 16.0),
+                  const Icon(Icons.check_circle, color: Colors.green, size: 50.0),
+                  const SizedBox(height: 16.0),
                   Text(
                     "Transaction Received".i18n(ref),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   Text(
                     "Your balance will update soon".i18n(ref),
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16.0,
                       color: Colors.grey,
                     ),
@@ -112,7 +112,7 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: Text("OK", style: TextStyle(color: Colors.green)),
+                  child: const Text("OK", style: TextStyle(color: Colors.green)),
                   onPressed: () {
                     ref.read(inputAmountProvider.notifier).state = '0.0';
                     ref.read(inputCurrencyProvider.notifier).state = 'BTC';
@@ -222,21 +222,21 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle, color: Colors.green, size: 50.0),
-                  SizedBox(height: 16.0),
+                  const Icon(Icons.check_circle, color: Colors.green, size: 50.0),
+                  const SizedBox(height: 16.0),
                   Text(
                     "Transaction Received".i18n(ref),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   Text(
                     "Your balance will update soon".i18n(ref),
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16.0,
                       color: Colors.grey,
                     ),
@@ -245,7 +245,7 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: Text("OK", style: TextStyle(color: Colors.green)),
+                  child: const Text("OK", style: TextStyle(color: Colors.green)),
                   onPressed: () {
                     ref.read(inputAmountProvider.notifier).state = '0.0';
                     ref.read(inputCurrencyProvider.notifier).state = 'BTC';

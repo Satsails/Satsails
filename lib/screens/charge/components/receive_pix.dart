@@ -15,6 +15,8 @@ import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 
 class ReceivePix extends ConsumerStatefulWidget {
+  const ReceivePix({super.key});
+
   @override
   _ReceivePixState createState() => _ReceivePixState();
 }
@@ -22,9 +24,9 @@ class ReceivePix extends ConsumerStatefulWidget {
 class _ReceivePixState extends ConsumerState<ReceivePix> {
   final TextEditingController _amountController = TextEditingController();
   String _pixQRCode = '';
-  String _address = "satsails@depix.info";
+  final String _address = "satsails@depix.info";
   double _amountToReceive = 0.0;
-  double _dailyLimit = 5000.0;
+  final double _dailyLimit = 5000.0;
   double _remainingLimit = 5000.0;
   bool _isLoading = false;
   String _feeDescription = 'Fee: 2% + 2 BRL';
@@ -133,7 +135,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     double amountInDouble = 0;
 
     txReceived.whenData((data) {
-      if (data != null && data.isNotEmpty) {
+      if (data.isNotEmpty) {
         final messageType = data['type'];
         final messageText = data['message'];
         Color backgroundColor;
@@ -175,7 +177,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       error: (error, stack) => Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: Text('An error has occurred. Please check your internet connection or contact support'.i18n(ref), style: TextStyle(color: Colors.red)),
+          child: Text('An error has occurred. Please check your internet connection or contact support'.i18n(ref), style: const TextStyle(color: Colors.red)),
         ),
       ),
       data: (amountTransferred) {
@@ -215,10 +217,10 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.warning_amber, color: Colors.red),
-                      SizedBox(width: 1),
+                      const Icon(Icons.warning_amber, color: Colors.red),
+                      const SizedBox(width: 1),
                       Text(
-                        'You can transfer up to'.i18n(ref) + ' ${formatLimit(_remainingLimit)} BRL' + ' today'.i18n(ref),
+                        '${'You can transfer up to'.i18n(ref)} ${formatLimit(_remainingLimit)} BRL${' today'.i18n(ref)}',
                         style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.red),
                       ),
                     ],
@@ -227,7 +229,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                 Padding(
                   padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
                   child: Text(
-                    'Transferred Today:'.i18n(ref) + ' ${transferredAmount.toStringAsFixed(2)} BRL',
+                    '${'Transferred Today:'.i18n(ref)} ${transferredAmount.toStringAsFixed(2)} BRL',
                     style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.green),
                   ),
                 ),
@@ -243,10 +245,10 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.white),
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(
+                      border: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey, width: 1.0),
                       ),
-                      focusedBorder: OutlineInputBorder(
+                      focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey, width: 2.0),
                       ),
                       labelText: 'Insert an amount'.i18n(ref),
@@ -260,7 +262,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     child: Column(
                       children: [
                         Text(
-                          'You will receive: '.i18n(ref) + '${_amountToReceive.toStringAsFixed(2)} BRL',
+                          '${'You will receive: '.i18n(ref)}${_amountToReceive.toStringAsFixed(2)} BRL',
                           style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.green),
                         ),
                         Text(

@@ -94,7 +94,7 @@ Widget buildDiagram(BuildContext context, Percentage percentage) {
                   btcPercentage,
                   const Icon(Icons.currency_bitcoin, color: Colors.white),
                 ),
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [Colors.orange, Colors.orange],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -108,8 +108,8 @@ Widget buildDiagram(BuildContext context, Percentage percentage) {
                   liquidPercentage,
                   const Icon(Lbtc_icon.lbtc_icon, color: Colors.white),
                 ),
-                gradient: LinearGradient(
-                  colors: [Color(0xFF288BECe), Color(0xFF288BECe)],
+                gradient: const LinearGradient(
+                  colors: [Color(0xff288bece), Color(0xff288bece)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -126,7 +126,7 @@ Widget buildDiagram(BuildContext context, Percentage percentage) {
                     height: 25,
                   ),
                 ),
-                color: Color(0xFF009B3A), // Brazilian flag green
+                color: const Color(0xFF009B3A), // Brazilian flag green
               ),
               PieChartSectionData(
                 value: eurPercentage,
@@ -140,7 +140,7 @@ Widget buildDiagram(BuildContext context, Percentage percentage) {
                     height: 25,
                   ),
                 ),
-                color: Color(0xFF003399), // European Union blue
+                color: const Color(0xFF003399), // European Union blue
               ),
               PieChartSectionData(
                 value: usdPercentage,
@@ -154,7 +154,7 @@ Widget buildDiagram(BuildContext context, Percentage percentage) {
                     height: 25,
                   ),
                 ),
-                color: Color(0xFF008000), // US dollar green
+                color: const Color(0xFF008000), // US dollar green
               ),
             ],
             borderData: FlBorderData(show: false),

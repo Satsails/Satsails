@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class DeleteWalletSection extends StatelessWidget {
   final WidgetRef ref;
   final String title;
-  const DeleteWalletSection({Key? key, required this.ref, this.title = 'Delete Wallet'}) : super(key: key);
+  const DeleteWalletSection({super.key, required this.ref, this.title = 'Delete Wallet'});
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +34,10 @@ class DeleteWalletSection extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 40,
                 backgroundColor: Colors.red,
-                child: const Icon(Icons.warning, size: 40, color: Colors.white),
+                child: Icon(Icons.warning, size: 40, color: Colors.white),
               ),
               const SizedBox(height: 16.0),
               Text(

@@ -6,7 +6,7 @@ import 'package:icons_plus/icons_plus.dart';
 class DenominationChangeModalBottomSheet extends ConsumerStatefulWidget {
   final settingsNotifier;
 
-  const DenominationChangeModalBottomSheet({Key? key, required this.settingsNotifier}) : super(key: key);
+  const DenominationChangeModalBottomSheet({super.key, required this.settingsNotifier});
 
   @override
   _DenominationChangeModalBottomSheetState createState() => _DenominationChangeModalBottomSheetState();

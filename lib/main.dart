@@ -30,7 +30,6 @@ import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/login/open_pin.dart';
 import 'package:Satsails/screens/services/services.dart';
 import 'package:Satsails/screens/charge/charge.dart';
-import 'package:Satsails/screens/home/home.dart';
 import 'package:Satsails/screens/pay/pay.dart';
 import 'package:Satsails/screens/creation/recover_wallet.dart';
 import 'package:Satsails/screens/pay/components/confirm_bitcoin_payment.dart';
@@ -95,7 +94,7 @@ void main() async {
       builder: (context, child) {
         final mediaQueryData = MediaQuery.of(context);
         return MediaQuery(
-          data: mediaQueryData.copyWith(textScaler: TextScaler.linear(1.0)),
+          data: mediaQueryData.copyWith(textScaler: const TextScaler.linear(1.0)),
           child: child!,
         );
       },
@@ -175,18 +174,18 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
               '/pay': (context) => Pay(),
               '/home': (context) => const MainScreen(),
               '/recover_wallet': (context) => const RecoverWallet(),
-              '/search_modal': (context) => SearchModal(),
+              '/search_modal': (context) => const SearchModal(),
               '/confirm_bitcoin_payment': (context) => ConfirmBitcoinPayment(),
               '/confirm_liquid_payment': (context) => ConfirmLiquidPayment(),
               '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
               '/claim_boltz_transactions': (context) => ClaimBoltz(),
               '/backup_wallet': (context) => const BackupWallet(),
               '/pix': (context) => const Pix(),
-              '/pix_onboarding': (context) => PixOnBoarding(),
+              '/pix_onboarding': (context) => const PixOnBoarding(),
               '/start_affiliate': (context) => const StartAffiliate(),
-              '/pix_transaction_details': (context) => PixTransactionDetails(),
-              '/user_creation': (context) => UserCreation(),
-              '/user_view': (context) => UserView(),
+              '/pix_transaction_details': (context) => const PixTransactionDetails(),
+              '/user_creation': (context) => const UserCreation(),
+              '/user_view': (context) => const UserView(),
               '/support': (context) => const Support(),
             },
           );

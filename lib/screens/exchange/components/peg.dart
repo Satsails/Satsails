@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
@@ -286,7 +285,7 @@ class _PegState extends ConsumerState<Peg> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Text(
-              '${'Receiving Bitcoin fee:'.i18n(ref)} ${networkFee} sats',
+              '${'Receiving Bitcoin fee:'.i18n(ref)} $networkFee sats',
               style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
@@ -348,7 +347,7 @@ class _PegState extends ConsumerState<Peg> {
 
   Widget _pickBitcoinFeeSuggestions(WidgetRef ref, double dynamicPadding, double titleFontSize) {
     final status = ref.watch(sideswapStatusProvider).bitcoinFeeRates ?? [];
-    final _selectedBlocks = ref.watch(pegOutBlocksProvider);
+    final selectedBlocks = ref.watch(pegOutBlocksProvider);
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 2),
@@ -357,7 +356,7 @@ class _PegState extends ConsumerState<Peg> {
           "How fast would you like to receive your bitcoin".i18n(ref),
           style: TextStyle(fontSize: titleFontSize / 2.3, color: Colors.orange),
         ),
-        dropdownColor: _selectedBlocks == 12 ? const Color(0xFF1A1A1A) : const Color(0xFF2B2B2B),
+        dropdownColor: selectedBlocks == 12 ? const Color(0xFF1A1A1A) : const Color(0xFF2B2B2B),
         items: status.map((dynamic value) {
           return DropdownMenuItem<dynamic>(
             value: value,
@@ -366,7 +365,7 @@ class _PegState extends ConsumerState<Peg> {
                 "${value["blocks"]} blocks - ${value["value"]} sats/vbyte",
                 style: TextStyle(
                   fontSize: titleFontSize / 2,
-                  color: _selectedBlocks == value["blocks"]
+                  color: selectedBlocks == value["blocks"]
                       ? const Color(0xFFFF9800)
                       : const Color(0xFFD98100),
                 ),
@@ -497,8 +496,8 @@ class _PegState extends ConsumerState<Peg> {
                 else
                   Column(
                     children: [
-                      Text("$formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
-                      Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
+                      Text(formattedValueToReceive, style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                      Text('${valueInCurrency.toStringAsFixed(2)} $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
                       SizedBox(height: dynamicPadding / 2),
                       Text(
                         '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
@@ -543,7 +542,7 @@ class _PegState extends ConsumerState<Peg> {
               error: (error, stack) => Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: titleFontSize / 2)),
             ),
           Text(
-            controller.text.isEmpty || !pegIn ? '' : valueToSendInCurrency.toStringAsFixed(2) + ' $currency',
+            controller.text.isEmpty || !pegIn ? '' : '${valueToSendInCurrency.toStringAsFixed(2)} $currency',
             style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
             textAlign: TextAlign.center,
           ),
@@ -587,8 +586,8 @@ class _PegState extends ConsumerState<Peg> {
                 else
                   Column(
                     children: [
-                      Text("$formattedValueToReceive", style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
-                      Text(valueInCurrency.toStringAsFixed(2) + ' $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey), textAlign: TextAlign.center),
+                      Text(formattedValueToReceive, style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                      Text('${valueInCurrency.toStringAsFixed(2)} $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey), textAlign: TextAlign.center),
                       SizedBox(height: dynamicPadding / 2),
                       Text(
                         '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
@@ -627,7 +626,7 @@ class _PegState extends ConsumerState<Peg> {
                       },
                     ),
                     Text(
-                      controller.text.isEmpty ? '' : valueToSendInCurrency.toStringAsFixed(2) + ' $currency',
+                      controller.text.isEmpty ? '' : '${valueToSendInCurrency.toStringAsFixed(2)} $currency',
                       style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
                       textAlign: TextAlign.center,
                     ),

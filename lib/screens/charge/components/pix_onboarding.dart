@@ -9,6 +9,8 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 final loadingProvider = StateProvider<bool>((ref) => false);
 
 class PixOnBoarding extends ConsumerWidget {
+  const PixOnBoarding({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenSize = MediaQuery.of(context).size;
@@ -168,9 +170,9 @@ class PixOnBoarding extends ConsumerWidget {
                 ref.read(loadingProvider.notifier).state = false;
               },
               showSkipButton: true,
-              skip: Text('Skip'.i18n(ref), style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
-              next: Icon(Icons.navigate_next, color: Colors.white),
-              done: Text('Done'.i18n(ref), style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
+              skip: Text('Skip'.i18n(ref), style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
+              next: const Icon(Icons.navigate_next, color: Colors.white),
+              done: Text('Done'.i18n(ref), style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
               dotsDecorator: DotsDecorator(
                 activeColor: Colors.white,
                 color: Colors.white.withOpacity(0.5),

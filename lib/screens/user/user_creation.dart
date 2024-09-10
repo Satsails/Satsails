@@ -22,7 +22,7 @@ class UserCreation extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'User Section'.i18n(ref),
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 26,
@@ -47,7 +47,7 @@ class UserCreation extends ConsumerWidget {
               children: <Widget>[
                 Text(
                   'Welcome,'.i18n(ref),
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -124,7 +124,7 @@ class UserCreation extends ConsumerWidget {
                             children: [
                                Text(
                                 'Recover Account'.i18n(ref),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 22,
@@ -137,11 +137,11 @@ class UserCreation extends ConsumerWidget {
                                 controller: controller,
                                 decoration: InputDecoration(
                                   labelText: 'Enter recovery code'.i18n(ref),
-                                  labelStyle: TextStyle(color: Colors.grey),
-                                  enabledBorder: OutlineInputBorder(
+                                  labelStyle: const TextStyle(color: Colors.grey),
+                                  enabledBorder: const OutlineInputBorder(
                                     borderSide: BorderSide(color: Colors.white),
                                   ),
-                                  focusedBorder: OutlineInputBorder(
+                                  focusedBorder: const OutlineInputBorder(
                                     borderSide: BorderSide(color: Colors.blueAccent),
                                   ),
                                 ),

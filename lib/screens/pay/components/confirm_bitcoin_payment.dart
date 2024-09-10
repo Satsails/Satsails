@@ -54,7 +54,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title: Text('Confirm Payment'.i18n(ref), style: TextStyle(color: Colors.white)),
+          title: Text('Confirm Payment'.i18n(ref), style: const TextStyle(color: Colors.white)),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
@@ -374,7 +374,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                       controller.reset();
                     }
                   },
-                  child: Text('Slide to send'.i18n(ref), style: TextStyle(color: Colors.white)),
+                  child: Text('Slide to send'.i18n(ref), style: const TextStyle(color: Colors.white)),
                 ),
               ),
             ),

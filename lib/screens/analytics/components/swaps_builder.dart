@@ -127,7 +127,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
     return Container(
       margin: EdgeInsets.all(screenWidth * 0.02),
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 29, 29, 29),
+        color: const Color.fromARGB(255, 29, 29, 29),
         borderRadius: BorderRadius.circular(screenWidth * 0.0375),
       ),
       child: Column(
@@ -199,7 +199,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
     return Container(
       margin: EdgeInsets.all(screenWidth * 0.02),
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 29, 29, 29),
+        color: const Color.fromARGB(255, 29, 29, 29),
         borderRadius: BorderRadius.circular(screenWidth * 0.0375),
       ),
       child: Column(

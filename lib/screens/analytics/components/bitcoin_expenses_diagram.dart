@@ -54,8 +54,8 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
               ],
             ),
           if (!ref.watch(oneDayProvider))
-            Expanded(  // Ensure ExpensesGraph expands to take all available space
-              child: const ExpensesGraph(),
+            const Expanded(  // Ensure ExpensesGraph expands to take all available space
+              child: ExpensesGraph(),
             ),
         ],
       ),

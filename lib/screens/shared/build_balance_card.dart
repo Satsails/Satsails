@@ -3,7 +3,6 @@ import 'package:Satsails/screens/shared/denominatino_change_modal_bottom_sheet.d
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -69,7 +68,7 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
                   onPressed: () {
                     _showDenominationChangeModalBottomSheet(context, ref);
                   },
-                  child: Text('Change Denomination'.i18n(ref), style: TextStyle(color: Colors.black)),
+                  child: Text('Change Denomination'.i18n(ref), style: const TextStyle(color: Colors.black)),
                 ),
               ),
             ],
@@ -107,20 +106,20 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
         if (displayText == '-0.00%' || displayText == '0.00%') {
           displayText = '0%';
           icon = null;
-          color = Color(0xFF00752B);
+          color = const Color(0xFF00752B);
         } else if (data > 0) {
           icon = Icons.arrow_upward;
-          color = Color(0xFF00752B);
+          color = const Color(0xFF00752B);
         } else if (data < 0) {
           icon = Icons.arrow_downward;
           color = Colors.red;
         } else {
           icon = null;
-          color = Color(0xFF00752B);
+          color = const Color(0xFF00752B);
         }
 
         return Container(
-          padding: EdgeInsets.all(5.0),
+          padding: const EdgeInsets.all(5.0),
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(20.0),
@@ -146,7 +145,7 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
       error: (error, stack) {
         return Container(
           height: containerHeight,
-          padding: EdgeInsets.all(5.0),
+          padding: const EdgeInsets.all(5.0),
           decoration: BoxDecoration(
             color: Colors.red,
             borderRadius: BorderRadius.circular(10.0),

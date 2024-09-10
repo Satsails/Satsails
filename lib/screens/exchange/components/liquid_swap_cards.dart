@@ -61,9 +61,9 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
 
     List<Column> cards = [
-      buildCard('Depix', 'BRL', Color(0xFF009B3A), Color(0xFF009B3A), ref, context, false, AssetId.BRL, titleFontSize),
-      buildCard('USDt', 'USD',Color(0xFF008000),Color(0xFF008000), ref, context, false, AssetId.USD, titleFontSize),
-      buildCard('EURx', 'EUR', Color(0xFF003399), Color(0xFF003399), ref, context, false, AssetId.EUR, titleFontSize),
+      buildCard('Depix', 'BRL', const Color(0xFF009B3A), const Color(0xFF009B3A), ref, context, false, AssetId.BRL, titleFontSize),
+      buildCard('USDt', 'USD',const Color(0xFF008000),const Color(0xFF008000), ref, context, false, AssetId.USD, titleFontSize),
+      buildCard('EURx', 'EUR', const Color(0xFF003399), const Color(0xFF003399), ref, context, false, AssetId.EUR, titleFontSize),
     ];
 
     List<Widget> swapCards = [
@@ -113,7 +113,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
           ),
           SizedBox(height: dynamicPadding),
           ...swapCards,
-          Spacer(),
+          const Spacer(),
           _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
         ],
       );
@@ -294,7 +294,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (!isBitcoin)
-                Icon(Icons.swipe_vertical, color: Colors.grey),
+                const Icon(Icons.swipe_vertical, color: Colors.grey),
               Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center), // Matching text style
               if (sendBitcoin && !isBitcoin || !sendBitcoin && isBitcoin)
                 Consumer(
@@ -306,7 +306,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                           return Text(value.errorMsg!, style: TextStyle(color: Colors.orange, fontSize: titleFontSize), textAlign: TextAlign.center);
                         } else {
                           final valueToReceive = value.recvAmount!;
-                          return Text('${btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin)}', style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center);
+                          return Text(btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin), style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center);
                         }
                       },
                       loading: () => controller.text.isEmpty ?Text("0", style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center) : Center(child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
@@ -340,7 +340,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                       },
                     ),
                     Text(
-                      controller.text.isEmpty || !isBitcoin ? '' : valueToSendInCurrency.toStringAsFixed(2) + ' $currency',
+                      controller.text.isEmpty || !isBitcoin ? '' : '${valueToSendInCurrency.toStringAsFixed(2)} $currency',
                       style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
                       textAlign: TextAlign.center,
                     ),

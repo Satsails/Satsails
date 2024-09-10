@@ -16,7 +16,7 @@ Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [do
         AnimatedContainer(
           duration: const Duration(seconds: 1),
           curve: Curves.easeIn,
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8.0),
           decoration: BoxDecoration(
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(10.0),

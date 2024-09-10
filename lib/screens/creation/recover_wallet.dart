@@ -155,7 +155,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
         title: Text('Recover Wallet'.i18n(ref), style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -174,21 +174,21 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                   padding: EdgeInsets.symmetric(horizontal: screenHeight * 0.15),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: _totalWords == 12 ? Color(0xFF1A1A1A) : Color(0xFF2B2B2B),
+                      color: _totalWords == 12 ? const Color(0xFF1A1A1A) : const Color(0xFF2B2B2B),
                       borderRadius: BorderRadius.circular(8.0), // Set the desired border radius
                     ),
                     child: DropdownButtonFormField<int>(
                       decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
-                          borderSide: BorderSide(color: Colors.transparent),
+                          borderSide: const BorderSide(color: Colors.transparent),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
-                          borderSide: BorderSide(color: Colors.transparent),
+                          borderSide: const BorderSide(color: Colors.transparent),
                         ),
                       ),
-                      dropdownColor: _totalWords == 12 ? Color(0xFF1A1A1A) : Color(0xFF2B2B2B),
+                      dropdownColor: _totalWords == 12 ? const Color(0xFF1A1A1A) : const Color(0xFF2B2B2B),
                       value: _totalWords,
                       items: [12, 24].map((value) {
                         return DropdownMenuItem<int>(
@@ -196,7 +196,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                           child: Text(
                             "$value${'words'.i18n(ref)}",
                             style: TextStyle(
-                              color: _totalWords == value ? Color(0xFFFF9800) : Color(0xFFD98100),
+                              color: _totalWords == value ? const Color(0xFFFF9800) : const Color(0xFFD98100),
                             ),
                           ),
                         );
@@ -211,7 +211,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                           return Text(
                             "$value${'words'.i18n(ref)}",
                             style: TextStyle(
-                              color: _totalWords == value ? Color(0xFFFF9800) : Color(0xFFD98100),
+                              color: _totalWords == value ? const Color(0xFFFF9800) : const Color(0xFFD98100),
                             ),
                           );
                         }).toList();
@@ -249,7 +249,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                               labelText: '${'Word'.i18n(ref)} ${index + 1}',
                               labelStyle: TextStyle(
-                                color: _selectedWordIndex == index ? Colors.orangeAccent : Color(0xFF6D6D6D),
+                                color: _selectedWordIndex == index ? Colors.orangeAccent : const Color(0xFF6D6D6D),
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),

@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 
-final FlutterSecureStorage _storage = const FlutterSecureStorage();
+const FlutterSecureStorage _storage = FlutterSecureStorage();
 
 final initializeUserProvider = FutureProvider<User>((ref) async {
   final box = await Hive.openBox('user');

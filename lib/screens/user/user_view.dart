@@ -29,7 +29,7 @@ class _UserViewState extends ConsumerState<UserView> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title: Text('User Details'.i18n(ref), style: TextStyle(color: Colors.white)),
+          title: Text('User Details'.i18n(ref), style: const TextStyle(color: Colors.white)),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.pushNamed(context, '/settings'),

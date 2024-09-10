@@ -163,7 +163,7 @@ class _CalendarState extends ConsumerState<Calendar> {
                 const SegmentedButtonSlideEntry(
                   label: "6m",
                 ),
-                SegmentedButtonSlideEntry(
+                const SegmentedButtonSlideEntry(
                   icon: Icons.calendar_today_outlined,
                 ),
               ],
@@ -212,7 +212,7 @@ class _CalendarState extends ConsumerState<Calendar> {
                 ref.read(selectedButtonProvider.notifier).state = selected;
               },
               colors: SegmentedButtonSlideColors(
-                barColor: Color(0xFF333333),
+                barColor: const Color(0xFF333333),
                 backgroundSelectedColor: Colors.orangeAccent,
                 foregroundSelectedColor: Colors.black,
                 foregroundUnselectedColor: Colors.white,

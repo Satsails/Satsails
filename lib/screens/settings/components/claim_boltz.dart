@@ -2,7 +2,6 @@ import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/screens/settings/components/boltz_button_picker.dart';
-import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,7 +21,7 @@ class ClaimBoltz extends ConsumerWidget {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Text('Lightning transactions'.i18n(ref), style: TextStyle(color: Colors.white),),
+        title: Text('Lightning transactions'.i18n(ref), style: const TextStyle(color: Colors.white),),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
@@ -225,7 +224,7 @@ Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext con
             ),
           ],
         ),
-        subtitle: Text('${isBitcoin ? 'Bitcoin' : 'Liquid'}', style: const TextStyle(fontSize: 13, color: Colors.white)),
+        subtitle: Text(isBitcoin ? 'Bitcoin' : 'Liquid', style: const TextStyle(fontSize: 13, color: Colors.white)),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [

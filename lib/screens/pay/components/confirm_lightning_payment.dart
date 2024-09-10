@@ -114,7 +114,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: showBitcoinRelatedWidgets.state ? '0' : '0.00',
-                            hintStyle: TextStyle(color: Colors.white),
+                            hintStyle: const TextStyle(color: Colors.white),
                           ),
                           onChanged: (value) async {
                             if (value.isEmpty) {
@@ -166,7 +166,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                       controller.reset();
                     }
                   },
-                  child: Text('Slide to send'.i18n(ref), style: TextStyle(color: Colors.white)),
+                  child: Text('Slide to send'.i18n(ref), style: const TextStyle(color: Colors.white)),
                 ),
               ),
             ),

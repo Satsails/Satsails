@@ -7,7 +7,7 @@ import 'package:Satsails/screens/accounts/accounts.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  const MainScreen({super.key});
 
   @override
   _MainScreenState createState() => _MainScreenState();

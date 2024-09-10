@@ -7,7 +7,6 @@ import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/transaction_data_provider.dart';
 import 'package:Satsails/screens/shared/qr_view_widget.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class Pay extends ConsumerWidget {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
@@ -171,7 +170,7 @@ class Pay extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Flexible(
-                    child: Container(
+                    child: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.3,
                       height: MediaQuery.of(context).size.height * 0.06,
                       child: ElevatedButton(
@@ -194,7 +193,7 @@ class Pay extends ConsumerWidget {
                   ),
                   const SizedBox(width: 10),
                   Flexible(
-                    child: Container(
+                    child: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.3,
                       height: MediaQuery.of(context).size.height * 0.06,
                       child: ElevatedButton(

@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class PixHistory extends ConsumerWidget {
+  const PixHistory({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pixHistory = ref.watch(getUserTransactionsProvider);
@@ -14,19 +16,19 @@ class PixHistory extends ConsumerWidget {
       data: (history) {
         if (history.isEmpty) {
           return Center(
-            child: Text('No Pix transactions'.i18n(ref), style: TextStyle(color: Colors.white)),
+            child: Text('No Pix transactions'.i18n(ref), style: const TextStyle(color: Colors.white)),
           );
         }
         return ListView.builder(
           itemCount: history.length,
           itemBuilder: (context, index) {
             final pix = history[index];
-            final double dynamicMargin = 10.0;
-            final double dynamicRadius = 10.0;
+            const double dynamicMargin = 10.0;
+            const double dynamicRadius = 10.0;
             return Container(
-              margin: EdgeInsets.all(dynamicMargin),
+              margin: const EdgeInsets.all(dynamicMargin),
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 29, 29, 29),
+                color: const Color.fromARGB(255, 29, 29, 29),
                 borderRadius: BorderRadius.circular(dynamicRadius),
               ),
               child: InkWell(
@@ -36,22 +38,22 @@ class PixHistory extends ConsumerWidget {
                 },
                 child: ListTile(
                   leading: const Icon(Icons.arrow_downward_rounded, color: Colors.green),
-                  title: Text(pix.name, style: TextStyle(color: Colors.white)),
+                  title: Text(pix.name, style: const TextStyle(color: Colors.white)),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("${"Received".i18n(ref)} ${pix.receivedAmount.toStringAsFixed(2)}", style: TextStyle(color: Colors.green)),
+                      Text("${"Received".i18n(ref)} ${pix.receivedAmount.toStringAsFixed(2)}", style: const TextStyle(color: Colors.green)),
                       if (pix.sentTxid == null)
                         Container(
-                          margin: EdgeInsets.only(top: 8.0),
-                          padding: EdgeInsets.all(8.0),
+                          margin: const EdgeInsets.only(top: 8.0),
+                          padding: const EdgeInsets.all(8.0),
                           decoration: BoxDecoration(
                             color: Colors.orange,
                             borderRadius: BorderRadius.circular(dynamicRadius),
                           ),
                           child: Text(
                             "Transaction still pending".i18n(ref),
-                            style: TextStyle(color: Colors.black),
+                            style: const TextStyle(color: Colors.black),
                           ),
                         ),
                     ],
@@ -72,7 +74,7 @@ class PixHistory extends ConsumerWidget {
       error: (error, stack) => Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: Text('An error has occurred. Please check your internet connection or contact support'.i18n(ref), style: TextStyle(color: Colors.red)),
+          child: Text('An error has occurred. Please check your internet connection or contact support'.i18n(ref), style: const TextStyle(color: Colors.red)),
         ),
       ),
     );

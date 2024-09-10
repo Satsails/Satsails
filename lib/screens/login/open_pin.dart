@@ -47,7 +47,7 @@ class OpenPin extends ConsumerWidget {
                     length: 6,
                     obscureText: true,
                     keyboardType: TextInputType.number,
-                    textStyle: TextStyle(color: Colors.white),
+                    textStyle: const TextStyle(color: Colors.white),
                     pinTheme: PinTheme(
                       inactiveColor: Colors.white,
                       selectedColor: Colors.red,
@@ -137,10 +137,10 @@ class OpenPin extends ConsumerWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 40,
                 backgroundColor: Colors.red,
-                child: const Icon(Icons.warning, size: 40, color: Colors.white),
+                child: Icon(Icons.warning, size: 40, color: Colors.white),
               ),
               const SizedBox(height: 16.0),
               Text(

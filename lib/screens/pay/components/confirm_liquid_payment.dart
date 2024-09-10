@@ -60,7 +60,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
               Navigator.pop(context);
             },
           ),
-          title: Text('Confirm Payment'.i18n(ref), style: TextStyle(color: Colors.white)),
+          title: Text('Confirm Payment'.i18n(ref), style: const TextStyle(color: Colors.white)),
         ),
         body: Column(
           children: [
@@ -118,7 +118,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: showBitcoinRelatedWidgets.state ? '0' : '0.00',
-                            hintStyle: TextStyle(color: Colors.white),
+                            hintStyle: const TextStyle(color: Colors.white),
                           ),
                           onChanged: (value) async {
                             if (showBitcoinRelatedWidgets.state) {
@@ -311,7 +311,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                       controller.reset();
                     }
                   },
-                  child: Text('Slide to send'.i18n(ref), style: TextStyle(color: Colors.white)),
+                  child: Text('Slide to send'.i18n(ref), style: const TextStyle(color: Colors.white)),
                 ),
               ),
             ),

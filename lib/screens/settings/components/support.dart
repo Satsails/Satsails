@@ -6,7 +6,7 @@ import 'package:crisp_chat/crisp_chat.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Support extends ConsumerStatefulWidget {
-  const Support({Key? key}) : super(key: key);
+  const Support({super.key});
 
   @override
   _SupportState createState() => _SupportState();

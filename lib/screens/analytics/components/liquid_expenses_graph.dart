@@ -35,7 +35,7 @@ class LiquidExpensesGraph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SfCartesianChart(
-      primaryXAxis: DateTimeAxis(
+      primaryXAxis: const DateTimeAxis(
         isVisible: true,
         labelStyle: TextStyle(color: Colors.white),
         majorGridLines: MajorGridLines(width: 0),
@@ -49,7 +49,7 @@ class LiquidExpensesGraph extends StatelessWidget {
             : 0,
         majorGridLines: const MajorGridLines(width: 0),
         minorGridLines: const MinorGridLines(width: 0),
-        labelStyle: TextStyle(color: Colors.white),
+        labelStyle: const TextStyle(color: Colors.white),
       ),
       plotAreaBorderWidth: 0,
       trackballBehavior: TrackballBehavior(

@@ -24,7 +24,7 @@ class LiquidCards extends StatelessWidget {
   final TextEditingController controller;
 
   const LiquidCards({
-    Key? key,
+    super.key,
     required this.titleFontSize,
     required this.initializeBalance,
     required this.liquidFormart,
@@ -35,7 +35,7 @@ class LiquidCards extends StatelessWidget {
     required this.dynamicCardHeight,
     required this.ref,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

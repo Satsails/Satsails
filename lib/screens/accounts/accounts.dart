@@ -30,7 +30,7 @@ class Accounts extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         automaticallyImplyLeading: false,
-        title: Center(child: Text('Account Management'.i18n(ref), style: TextStyle(color: Colors.white))),
+        title: Center(child: Text('Account Management'.i18n(ref), style: const TextStyle(color: Colors.white))),
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: ref.watch(navigationProvider),
@@ -474,10 +474,10 @@ class Accounts extends ConsumerWidget {
             children: [
               ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
+                  backgroundColor: WidgetStateProperty.all<Color>(
                       Colors.deepOrangeAccent),
-                  elevation: MaterialStateProperty.all<double>(4),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  elevation: WidgetStateProperty.all<double>(4),
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -491,10 +491,10 @@ class Accounts extends ConsumerWidget {
               ),
               ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
+                  backgroundColor: WidgetStateProperty.all<Color>(
                       Colors.deepOrangeAccent),
-                  elevation: MaterialStateProperty.all<double>(4),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  elevation: WidgetStateProperty.all<double>(4),
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),

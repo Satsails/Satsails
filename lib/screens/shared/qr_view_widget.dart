@@ -8,7 +8,6 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/transaction_data_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class QRViewWidget extends StatefulWidget {
   final GlobalKey qrKey;

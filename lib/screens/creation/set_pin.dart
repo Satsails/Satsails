@@ -17,9 +17,9 @@ class SetPin extends ConsumerWidget {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Text('Set PIN'.i18n(ref), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text('Set PIN'.i18n(ref), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -40,7 +40,7 @@ class SetPin extends ConsumerWidget {
                     length: 6,
                     obscureText: true,
                     keyboardType: TextInputType.number,
-                    textStyle: TextStyle(color: Colors.white),
+                    textStyle: const TextStyle(color: Colors.white),
                     pinTheme: PinTheme(
                       inactiveColor: Colors.white,
                       selectedColor: Colors.red,

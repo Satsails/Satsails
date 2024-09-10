@@ -42,9 +42,9 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
-                  _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
-                  _buildCard('Fee'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee,[Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                  _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                  _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                  _buildCard('Fee'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee,[const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
                 ],
               ),
             if (!oneDay)
@@ -68,8 +68,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).brlSent / 100000000, [Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
-                _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).brlReceived / 100000000, [Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).brlSent / 100000000, [const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).brlReceived / 100000000, [const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
               ],
             ),
           if (!oneDay)
@@ -92,8 +92,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).usdSent / 100000000, [Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
-                _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).usdReceived / 100000000, [Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).usdSent / 100000000, [const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).usdReceived / 100000000, [const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
               ],
             ),
           if (!oneDay)
@@ -116,8 +116,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).euroSent / 100000000, [Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
-                _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).euroReceived / 100000000, [Color(0xFF288BEC), Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).euroSent / 100000000, [const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).euroReceived / 100000000, [const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
               ],
             ),
           if (!oneDay)

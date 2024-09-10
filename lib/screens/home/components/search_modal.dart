@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 
 class SearchModal extends ConsumerStatefulWidget {
-  SearchModal({super.key});
+  const SearchModal({super.key});
 
   @override
   _SearchModalState createState() => _SearchModalState();
@@ -48,7 +48,7 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
         backgroundColor: const Color.fromRGBO(29, 31, 49, 1.0),
         title: Text(
           'Search the blockchain'.i18n(ref),
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white, size: screenHeight * 0.03),

@@ -21,7 +21,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
       child: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
-          title: Text('Affiliate'.i18n(ref), style: TextStyle(color: Colors.white)),
+          title: Text('Affiliate'.i18n(ref), style: const TextStyle(color: Colors.white)),
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
@@ -53,7 +53,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                   children: [
                     Text(
                       'Connect with other users and earn sats!'.i18n(ref),
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -63,7 +63,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                     const SizedBox(height: 10),
                     Text(
                       'Enter your affiliate code or create a new code to receive benefits.'.i18n(ref),
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+                      style: const TextStyle(color: Colors.white, fontSize: 18),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 40),
@@ -101,7 +101,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
   }
 
   void _showInsertBottomModal(BuildContext context, String title, WidgetRef ref) {
-    final TextEditingController _controller = TextEditingController();
+    final TextEditingController controller = TextEditingController();
 
     showModalBottomSheet(
       context: context,
@@ -129,11 +129,11 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 TextField(
-                  controller: _controller,
+                  controller: controller,
                   decoration: InputDecoration(
                     labelText: 'Affiliate Code'.i18n(ref),
-                    labelStyle: TextStyle(color: Colors.black),
-                    border: OutlineInputBorder(),
+                    labelStyle: const TextStyle(color: Colors.black),
+                    border: const OutlineInputBorder(),
                     fillColor: Colors.orange,
                     filled: true,
                   ),
@@ -148,7 +148,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                     backgroundColor: Colors.black,
                     onPressed: () async {
                       ref.read(loadingProvider.notifier).state = true;
-                      String code = _controller.text;
+                      String code = controller.text;
                       try {
                         await ref.read(addAffiliateCodeProvider(code).future);
                         Fluttertoast.showToast(
@@ -186,7 +186,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
   }
 
   void _showCreateBottomModal(BuildContext context, String title, WidgetRef ref) {
-    final TextEditingController _liquidAddressController = TextEditingController();
+    final TextEditingController liquidAddressController = TextEditingController();
 
     showModalBottomSheet(
       context: context,
@@ -214,11 +214,11 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 TextField(
-                  controller: _liquidAddressController,
+                  controller: liquidAddressController,
                   decoration: InputDecoration(
                     labelText: 'Liquid Address to receive commission'.i18n(ref),
-                    labelStyle: TextStyle(color: Colors.black),
-                    border: OutlineInputBorder(),
+                    labelStyle: const TextStyle(color: Colors.black),
+                    border: const OutlineInputBorder(),
                     fillColor: Colors.orange,
                     filled: true,
                   ),
@@ -236,7 +236,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                       final hasInserted = ref.watch(affiliateProvider).insertedAffiliateCode.isNotEmpty;
                       Affiliate affiliate = Affiliate(
                         createdAffiliateCode: "",
-                        createdAffiliateLiquidAddress: _liquidAddressController.text,
+                        createdAffiliateLiquidAddress: liquidAddressController.text,
                         insertedAffiliateCode: hasInserted ? ref.watch(affiliateProvider).insertedAffiliateCode : '',
                       );
                       try {

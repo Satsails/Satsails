@@ -3,8 +3,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 Widget buildQrCode(String address, BuildContext context) {
   return Container(
-    decoration: BoxDecoration(
-      borderRadius: const BorderRadius.all(Radius.circular(20)),
+    decoration: const BoxDecoration(
+      borderRadius: BorderRadius.all(Radius.circular(20)),
       color: Colors.white,
     ),
     child: Padding(
