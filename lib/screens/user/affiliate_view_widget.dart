@@ -350,6 +350,7 @@ class AffiliateViewWidget extends ConsumerWidget {
   }
 
   void _showTierInfoModal(BuildContext context, String label, Decimal totalValue, Decimal threshold, bool isUnlocked, double width, double height, WidgetRef ref) {
+    String diamondSpecialCode = 'Contact our support to get a custom affiliate code'.i18n(ref);
     String feeInfo = isUnlocked
         ? (totalValue >= Decimal.parse('20000')
         ? "Current fee is 1% per affiliate in perpetuity.".i18n(ref)
@@ -370,6 +371,8 @@ class AffiliateViewWidget extends ConsumerWidget {
               SizedBox(height: height * 0.02),
               Text(isUnlocked ? 'You are $label!'.i18n(ref) : 'Tier Locked'.i18n(ref),
                   style: TextStyle(fontSize: width * 0.06, fontWeight: FontWeight.bold, color: Colors.black)),
+              SizedBox(height: height * 0.02),
+              if (label == 'Diamond'.i18n(ref) && isUnlocked) Text(diamondSpecialCode, style: TextStyle(fontSize: width * 0.03, color: Colors.black), textAlign: TextAlign.center),
               SizedBox(height: height * 0.02),
               Text(isUnlocked
                   ?'With '.i18n(ref) + totalValue.toString() + ' DEPIX, you have reached the '.i18n(ref) + label

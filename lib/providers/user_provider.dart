@@ -1,4 +1,3 @@
-import 'package:Satsails/models/affiliate_model.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/affiliate_provider.dart';

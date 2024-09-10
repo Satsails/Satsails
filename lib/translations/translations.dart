@@ -1505,9 +1505,11 @@ extension Localization on String {
       {
         'en': ' DEPIX, you have reached the ',
         'pt': ' DEPIX, você atingiu o '
+      }  +
+      {
+        'en': 'Contact our support to get a custom affiliate code',
+        'pt': 'Contate nosso suporte para obter um código de afiliado personalizado'
       };
-
-
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;
