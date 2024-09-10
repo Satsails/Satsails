@@ -284,10 +284,10 @@ class _PegState extends ConsumerState<Peg> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+            SizedBox(height: dynamicPadding / 2),
             Text(
               '${'Receiving Bitcoin fee:'.i18n(ref)} $networkFee sats',
               style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
-              textAlign: TextAlign.center,
             ),
             GestureDetector(
               onTap: () {
@@ -310,11 +310,10 @@ class _PegState extends ConsumerState<Peg> {
                                   color: Colors.orange,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
-                                  Icons.warning, // Using warning as exclamation mark icon
-                                  color: Colors.white,
-                                  size: 48.0,
-                                ),
+                                child: Text(
+                                  "!",
+                                  style: TextStyle(fontSize: titleFontSize, color: Colors.black),
+                                )
                               ),
                               SizedBox(height: dynamicPadding / 2),
                               _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
@@ -332,13 +331,13 @@ class _PegState extends ConsumerState<Peg> {
                   color: Colors.orange,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.warning, // Using warning as exclamation mark icon
-                  color: Colors.black,
-                  size: 20.0,
-                ),
+                child: Text(
+                  "!",
+                  style: TextStyle(fontSize: titleFontSize / 1.8, color: Colors.black),
+                )
               ),
             ),
+            SizedBox(height: dynamicPadding / 2),
           ],
         ),
       ],
@@ -354,7 +353,7 @@ class _PegState extends ConsumerState<Peg> {
       child: DropdownButton<dynamic>(
         hint: Text(
           "How fast would you like to receive your bitcoin".i18n(ref),
-          style: TextStyle(fontSize: titleFontSize / 2.3, color: Colors.orange),
+          style: TextStyle(fontSize: titleFontSize / 2.3, color: Colors.grey),
         ),
         dropdownColor: selectedBlocks == 12 ? const Color(0xFF1A1A1A) : const Color(0xFF2B2B2B),
         items: status.map((dynamic value) {

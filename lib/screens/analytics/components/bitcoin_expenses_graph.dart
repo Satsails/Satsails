@@ -1,6 +1,7 @@
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/screens/analytics/components/calendar.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -181,6 +182,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
             _buildLegend('Fee'.i18n(ref), Colors.orangeAccent),
           ],
         ),
+        const Calendar(),
         Expanded(  // This makes the LineChartSample expand to take up available space
           child: LineChartSample(
             selectedDays: selectedDays,

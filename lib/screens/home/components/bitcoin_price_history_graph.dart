@@ -1,5 +1,4 @@
 import 'package:Satsails/providers/coingecko_provider.dart';
-import 'package:Satsails/translations/translations.dart';
 import 'package:coingecko_api/data/market_chart_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -116,7 +115,7 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
     final isInteractiveMode = ref.watch(interactiveModeProvider);
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _buildDateRangeButton(ref, 1, '1D'),
         _buildDateRangeButton(ref, 7, '7D'),
@@ -131,14 +130,7 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
               style: TextButton.styleFrom(
                 foregroundColor: isInteractiveMode ? Colors.orangeAccent : Colors.grey,
               ),
-              child:
-              Text(
-                'Interactive Mode'.i18n(ref),
-                style: TextStyle(
-                  color: isInteractiveMode ? Colors.orangeAccent : Colors.white,
-                  fontSize: 9,
-                ),
-              ),
+              child: Icon(Icons.touch_app, color: isInteractiveMode ? Colors.orangeAccent : Colors.white),
             ),
           ],
         )

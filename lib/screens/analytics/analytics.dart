@@ -41,8 +41,9 @@ class Analytics extends ConsumerWidget {
     return Column(
       children: [
         const Center(child: ButtonPicker()),
-        if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')
-          const Calendar(),
+        // leave this commented out in case there are issues in the future to bring back functionality
+        // if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')
+        //   const Calendar(),
         if (transactionType == 'Bitcoin') const BitcoinExpensesDiagram(),
         if (transactionType == 'Instant Bitcoin') const LiquidExpensesDiagram(),
         if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')

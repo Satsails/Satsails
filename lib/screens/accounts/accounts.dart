@@ -1,6 +1,7 @@
 import 'package:Satsails/assets/lbtc_icon.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
+import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/screens/receive/components/lightning_widget.dart';
 import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -472,41 +473,14 @@ class Accounts extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all<Color>(
-                      Colors.deepOrangeAccent),
-                  elevation: WidgetStateProperty.all<double>(4),
-                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                ),
-                onPressed: () {
-                  _receivePayment(context, bitcoin, ref);
-                },
-                child: const Text(
-                    'Liquid', style: TextStyle(color: Colors.white)),
-              ),
-              ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all<Color>(
-                      Colors.deepOrangeAccent),
-                  elevation: WidgetStateProperty.all<double>(4),
-                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                ),
-                onPressed: () {
-                  _receiveLightningPayment(context, ref);
-                },
-                child: const Text(
-                  'Lightning', style: TextStyle(color: Colors.white),
-                ),
-              ),
+              CustomElevatedButton(
+                  onPressed:() {_receivePayment(context, bitcoin, ref);},
+                  text: 'Liquid',
+                  backgroundColor: Colors.orange),
+              CustomElevatedButton(
+                  onPressed:() {_receiveLightningPayment(context, ref);},
+                  text: 'Lightning',
+                  backgroundColor: Colors.orange),
             ],
           ),
         );

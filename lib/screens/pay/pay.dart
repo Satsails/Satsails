@@ -185,7 +185,7 @@ class Pay extends ConsumerWidget {
                           'Paste'.i18n(ref),
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: MediaQuery.of(context).size.height * 0.015,
+                            fontSize: MediaQuery.of(context).size.height * 0.016,
                           ),
                         ),
                       ),
@@ -208,7 +208,7 @@ class Pay extends ConsumerWidget {
                           'Flash'.i18n(ref),
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: MediaQuery.of(context).size.height * 0.015,
+                            fontSize: MediaQuery.of(context).size.height * 0.016,
                           ),
                         ),
                       ),

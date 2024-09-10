@@ -142,9 +142,9 @@ Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext con
       child: ListTile(
         leading: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(_timestampToDateTime(timestamp), style: TextStyle(fontSize: MediaQuery.of(context).size.width < 400 ? 10 : 13, color: Colors.white)),
-            Text("Amount".i18n(ref), style: const TextStyle(fontSize: 13, color: Colors.orange)),
+            Text("Amount".i18n(ref), style: const TextStyle(fontSize: 13, color: Colors.orange), textAlign: TextAlign.start),
             Text("${btcInDenominationFormatted(amount.toDouble(), btcFormat)} $btcFormat", style: const TextStyle(fontSize: 13, color: Colors.white)),
           ],
         ),
@@ -210,23 +210,11 @@ Widget buildBoltzItem(LbtcBoltz? liquidTx, BtcBoltz? bitcoinTx, BuildContext con
             },
           );
         },
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Type: '.i18n(ref), style: const TextStyle(fontSize: 13, color: Colors.orange)),
-                  Text(kind, style: const TextStyle(fontSize: 13, color: Colors.orange)),
-                ],
-              ),
-            ),
-          ],
-        ),
-        subtitle: Text(isBitcoin ? 'Bitcoin' : 'Liquid', style: const TextStyle(fontSize: 13, color: Colors.white)),
+        title: Center(child: Text(_timestampToDateTime(timestamp), style: TextStyle(fontSize: MediaQuery.of(context).size.width < 400 ? 10 : 13, color: Colors.white))),
+        subtitle: Center(child: Text(isBitcoin ? 'Bitcoin' : 'Liquid', style: const TextStyle(fontSize: 13, color: Colors.white))),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Column(
               children: [

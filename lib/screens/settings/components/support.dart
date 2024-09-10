@@ -76,11 +76,11 @@ class _SupportState extends ConsumerState<Support> {
                 const SizedBox(height: 20),
                 CustomElevatedButton(
                   text: 'Reset Chat Session'.i18n(ref),
+                  textColor: Colors.white,
+                  backgroundColor: Colors.black,
                   onPressed: () async {
                     await FlutterCrispChat.resetCrispChatSession();
                   },
-                  backgroundColor: Colors.orange,
-                  textColor: Colors.black,
                 ),
               ],
             );

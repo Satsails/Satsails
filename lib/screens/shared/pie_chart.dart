@@ -162,10 +162,15 @@ Widget buildDiagram(BuildContext context, Percentage percentage) {
         ),
       ),
       const SizedBox(width: 16),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: buildLegend(),
+      Padding(
+        padding: MediaQuery.of(context).size.height > 800
+            ?  EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.1)
+            : const EdgeInsets.symmetric(vertical: 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: buildLegend(),
+        ),
       ),
     ],
   );

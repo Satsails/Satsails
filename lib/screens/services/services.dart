@@ -56,21 +56,21 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        leading: Builder(
+        leading:
+        IconButton(
+          icon: const Icon(Icons.refresh, color: Colors.white),
+          onPressed: () {
+            setState(() {
+              _webViewController.reload();
+            });
+          },
+        ),
+        actions: [Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu, color: Colors.white),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: () {
-              setState(() {
-                _webViewController.reload();
-              });
-            },
-          ),
         ],
         title: Center(
           child: Text(
@@ -79,7 +79,10 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
           ),
         ),
       ),
-      drawer: _buildDrawer(ref, context, language),
+      drawer: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        child: _buildDrawer(ref, context, language),
+      ),
       body: Stack(
         children: [
           WebViewWidget(
@@ -92,30 +95,30 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
         ],
       ),
       bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min, // Make sure the controls don’t take too much space
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Back and Forward Navigation Buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () async {
-                  if (await _webViewController.canGoBack()) {
-                    _webViewController.goBack();
-                  }
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.arrow_forward, color: Colors.white),
-                onPressed: () async {
-                  if (await _webViewController.canGoForward()) {
-                    _webViewController.goForward();
-                  }
-                },
-              ),
-            ],
-          ),
+          if (!_currentUrl.contains('bitcoincounterflow'))
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () async {
+                    if (await _webViewController.canGoBack()) {
+                      _webViewController.goBack();
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward, color: Colors.white),
+                  onPressed: () async {
+                    if (await _webViewController.canGoForward()) {
+                      _webViewController.goForward();
+                    }
+                  },
+                ),
+              ],
+            ),
           CustomBottomNavigationBar(
             currentIndex: ref.watch(navigationProvider),
             context: context,
@@ -144,14 +147,27 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
                   bottom: BorderSide.none,
                 ),
               ),
-              child: Center(
-                child: Text(
-                  'Services'.i18n(ref),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.02),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Services'.i18n(ref),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -161,7 +177,7 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
               children: [
                 _buildDrawerItem(
                   ref,
-                  icon: Icons.book,
+                  icon: Icons.arrow_right,
                   title: 'Courses',
                   url: 'https://www.educacaoreal.com',
                 ),

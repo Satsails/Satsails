@@ -9,6 +9,8 @@ import 'package:Satsails/providers/settings_provider.dart';
 
 final selectedButtonProvider = StateProvider<String>((ref) => 'currency');
 
+final isBalanceVisibleProvider = StateProvider<bool>((ref) => false);
+
 Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProviderName, String balanceInFiatName) {
   final screenWidth = MediaQuery.of(context).size.width;
   final screenHeight = MediaQuery.of(context).size.height;
@@ -43,23 +45,30 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Total balance:'.i18n(ref), style: TextStyle(fontSize: titleFontSize * 0.7, color: Colors.black)),
-                    _buildPricePercentageChangeTicker(context, ref)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text('Total balance:'.i18n(ref), style: TextStyle(fontSize: titleFontSize * 0.7, color: Colors.black)),
+                        _buildVisibilityToggleIcon(context, ref),
+                      ],
+                    ),
+                    _buildPricePercentageChangeTicker(context, ref),
                   ],
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: _buildBalanceConsumer(ref, titleFontSize, balanceProviderName, 'btcFormat', FontWeight.bold)
+                  alignment: Alignment.centerLeft,
+                  child: _buildBalanceConsumer(ref, titleFontSize, balanceProviderName, 'btcFormat', FontWeight.bold),
                 ),
               ),
               SizedBox(height: screenHeight * 0.01),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Align(
-                    alignment: Alignment.centerLeft,child: _buildBalanceConsumer(ref, subtitleFontSize, balanceInFiatName, 'currency', FontWeight.normal)
+                  alignment: Alignment.centerLeft,
+                  child: _buildBalanceConsumer(ref, subtitleFontSize, balanceInFiatName, 'currency', FontWeight.normal),
                 ),
               ),
               Align(
@@ -68,7 +77,7 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
                   onPressed: () {
                     _showDenominationChangeModalBottomSheet(context, ref);
                   },
-                  child: Text('Change Denomination'.i18n(ref), style: const TextStyle(color: Colors.black)),
+                  child: Text('Change'.i18n(ref), style: const TextStyle(color: Colors.black)),
                 ),
               ),
             ],
@@ -162,11 +171,27 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
   );
 }
 
+
+Widget _buildVisibilityToggleIcon(BuildContext context, WidgetRef ref) {
+  final isBalanceVisible = ref.watch(isBalanceVisibleProvider);
+
+  return IconButton(
+    icon: Icon(
+      isBalanceVisible ? Icons.visibility : Icons.visibility_off,
+      color: Colors.black,
+    ),
+    onPressed: () {
+      ref.read(isBalanceVisibleProvider.notifier).state = !isBalanceVisible;
+    },
+  );
+}
+
 Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName, String settingsName, FontWeight font) {
   final settings = ref.watch(settingsProvider);
   final initializeBalance = ref.watch(initializeBalanceProvider);
-  String balance;
+  final isBalanceVisible = ref.watch(isBalanceVisibleProvider);
 
+  String balance;
   switch (providerName) {
     case 'totalBalanceInDenominationProvider':
       balance = ref.watch(totalBalanceInDenominationProvider(settings.btcFormat));
@@ -191,8 +216,25 @@ Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName
   }
 
   return initializeBalance.when(
-    data: (_) => SizedBox(height: fontSize * 1.5, child: Text('$balance $settingsValue', style: TextStyle(fontSize: fontSize, color: Colors.black, fontWeight: font))),
-    loading: () => SizedBox(height: fontSize * 1.5, child: LoadingAnimationWidget.prograssiveDots(size: fontSize, color: Colors.black)),
-    error: (error, stack) => SizedBox(height: fontSize * 1.5, child: TextButton(onPressed: () { ref.refresh(initializeBalanceProvider); }, child: Text('Retry', style: TextStyle(color: Colors.black, fontSize: fontSize)))),
+    data: (_) => SizedBox(
+      height: fontSize * 1.5,
+      child: Text(
+        isBalanceVisible ? '$balance $settingsValue' : '******',
+        style: TextStyle(fontSize: fontSize, color: Colors.black, fontWeight: font),
+      ),
+    ),
+    loading: () => SizedBox(
+      height: fontSize * 1.5,
+      child: LoadingAnimationWidget.prograssiveDots(size: fontSize, color: Colors.black),
+    ),
+    error: (error, stack) => SizedBox(
+      height: fontSize * 1.5,
+      child: TextButton(
+        onPressed: () {
+          ref.refresh(initializeBalanceProvider);
+        },
+        child: Text('Retry', style: TextStyle(color: Colors.black, fontSize: fontSize)),
+      ),
+    ),
   );
 }

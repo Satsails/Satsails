@@ -70,11 +70,12 @@ extension Localization on String {
       } +
       {
         'en': 'Exchange',
-        'pt': 'Trocar',}
-      + {
+        'pt': 'Converter',} +
+      {
         'en': 'Pay',
-        'pt': 'Pagar',} + {'en': "Recieve",
-    'pt': "Receber",} +
+        'pt': 'Pagar',} +
+      {'en': "Recieve",
+        'pt': "Receber",} +
       {
         'en': 'Home',
         'pt': 'Início',
@@ -308,10 +309,6 @@ extension Localization on String {
         'pt': 'Deslize para enviar',
       } +
       {
-        'en': 'Insufficient funds',
-        'pt': 'Fundos insuficientes',
-      } +
-      {
         'en': 'Liquid Balance',
         'pt': 'Saldo Liquid',
       } +
@@ -459,10 +456,6 @@ extension Localization on String {
         'en': 'PIN must be exactly 6 digits',
         'pt': 'O PIN deve ter exatamente 6 dígitos',
       } +
-      {
-        'en': 'Insufficient funds',
-        'pt': 'Fundos insuficientes',
-      }+
       {
         'en': 'Order ID',
         'pt': 'ID do Pedido',
@@ -721,7 +714,7 @@ extension Localization on String {
       }+
       {
         'en': 'Swaps',
-        'pt': "Trocas",
+        'pt': "Converter",
       }+
       {
         'en': 'Spending',
@@ -940,8 +933,8 @@ extension Localization on String {
         'pt': 'Saldo total:'
       } +
       {
-        'en': 'Change Denomination',
-        'pt': 'Alterar Denominação'
+        'en': 'Change',
+        'pt': 'Alterar'
       } +
       {
         'en': 'Services',
@@ -1509,6 +1502,14 @@ extension Localization on String {
       {
         'en': 'Contact our support to get a custom affiliate code',
         'pt': 'Contate nosso suporte para obter um código de afiliado personalizado'
+      }  +
+      {
+        'en': 'Insufficient funds',
+        'pt': 'Fundos insuficientes'
+      }  +
+      {
+        'en': 'Choose your fee:',
+        'pt': 'Escolha sua taxa:'
       };
 
   String i18n(WidgetRef ref) {

@@ -104,7 +104,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                                       onPressed: () {
                                         ref.refresh(initializeBalanceProvider);
                                       },
-                                      child: Text('Retry', style: TextStyle(color: Colors.black, fontSize: titleFontSize)),
+                                      child: Text('Retry'.i18n(ref), style: TextStyle(color: Colors.black, fontSize: titleFontSize)),
                                     ),
                                   ),
                                 ),
@@ -363,7 +363,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                     } catch (e) {
                       controller.failure();
                       Fluttertoast.showToast(
-                        msg: e.toString(),
+                        msg: e.toString().i18n(ref),
                         toastLength: Toast.LENGTH_LONG,
                         gravity: ToastGravity.TOP,
                         timeInSecForIosWeb: 1,
