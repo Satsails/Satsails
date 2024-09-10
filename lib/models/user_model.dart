@@ -113,7 +113,7 @@ class UserService {
   static Future<Result<User>> createUserRequest(String liquidAddress) async {
     try {
       final response = await http.post(
-        Uri.parse('https://4ee7-84-90-103-7.ngrok-free.app/users'),
+        Uri.parse('https://splitter.satsails.com/users'),
         body: jsonEncode({
           'user': {
             'liquid_address': liquidAddress,
@@ -137,7 +137,7 @@ class UserService {
 
   static Future<Result<List<Transfer>>> getUserTransactions(String pixPaymentCode, String auth) async {
     try {
-      final uri = Uri.parse('https://4ee7-84-90-103-7.ngrok-free.app/users/user_transfers')
+      final uri = Uri.parse('https://splitter.satsails.com/users/user_transfers')
           .replace(queryParameters: {
         'payment_id': pixPaymentCode,
       });
@@ -164,7 +164,7 @@ class UserService {
 
   static Future<Result<String>> getAmountTransferred(String pixPaymentCode, String auth) async {
     try {
-      final uri = Uri.parse('https://4ee7-84-90-103-7.ngrok-free.app/users/amount_transfered_by_day')
+      final uri = Uri.parse('https://splitter.satsails.com/users/amount_transfered_by_day')
           .replace(queryParameters: {
         'payment_id': pixPaymentCode,
       });
@@ -190,7 +190,7 @@ class UserService {
   static Future<Result<String>> updateLiquidAddress(String liquidAddress, String auth) async {
     try {
       final response = await http.patch(
-        Uri.parse('https://4ee7-84-90-103-7.ngrok-free.app/users/update_liquid_address'),
+        Uri.parse('https://splitter.satsails.com/users/update_liquid_address'),
         body: jsonEncode({
           'user': {
             'liquid_address': liquidAddress,
@@ -215,7 +215,7 @@ class UserService {
   static Future<Result<User>> showUser(String auth) async {
     try {
       final response = await http.get(
-        Uri.parse('https://4ee7-84-90-103-7.ngrok-free.app/users/show_user'),
+        Uri.parse('https://splitter.satsails.com/users/show_user'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,

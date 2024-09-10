@@ -56,8 +56,8 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
                   );
                 },
                 loading: () => LoadingAnimationWidget.threeArchedCircle(
-                  size: screenWidth * 0.5,
-                  color: Colors.white,
+                  size: screenWidth * 0.2,
+                  color: Colors.orange,
                 ),
                 error: (error, stackTrace) => Center(
                   child: Text('Error: $error', style: TextStyle(fontSize: screenWidth * 0.05)),

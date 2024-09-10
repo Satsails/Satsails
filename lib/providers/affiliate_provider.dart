@@ -96,9 +96,6 @@ final numberOfAffiliateInstallsProvider = FutureProvider.autoDispose<int>((ref) 
   final affiliateCode = ref.watch(affiliateProvider).createdAffiliateCode;
   final auth = ref.watch(userProvider).recoveryCode;
   final numberOfUsers = await AffiliateService.affiliateNumberOfUsers(affiliateCode, auth);
-  // this is here to mearly update the affilaite it should be refactored somewhere where it makes sense, but we have to release
-  await ref.read(updateUserDataProvider.future);
-  // I know it sucks
 
   if (numberOfUsers.isSuccess && numberOfUsers.data != null) {
     return numberOfUsers.data!;
@@ -107,6 +104,6 @@ final numberOfAffiliateInstallsProvider = FutureProvider.autoDispose<int>((ref) 
   }
 });
 
-final updateAffiliateData = FutureProvider.autoDispose<void>((ref) async {
+final updateAffiliateData = FutureProvider<void>((ref) async {
   await ref.read(updateUserDataProvider.future);
 });
