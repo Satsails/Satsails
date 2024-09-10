@@ -39,14 +39,13 @@ final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>
 });
 
 final createAffiliateCodeProvider = FutureProvider.autoDispose.family<void, Affiliate>((ref, affiliate) async {
-  var paymentId = ref.read(userProvider).paymentId;
   final auth = ref.read(userProvider).recoveryCode;
   final insertedAffiliateCode = ref.read(affiliateProvider).insertedAffiliateCode;
-  final result = await AffiliateService.createAffiliateCode(paymentId, affiliate.createdAffiliateCode, affiliate.createdAffiliateLiquidAddress, auth);
+  final result = await AffiliateService.createAffiliateCode(affiliate.createdAffiliateLiquidAddress, auth);
 
-  if (result.isSuccess && result.data == true) {
+  if (result.isSuccess && result.data!.isNotEmpty) {
     await ref.read(userProvider.notifier).setHasCreatedAffiliate(true);
-    await ref.read(affiliateProvider.notifier).setCreatedAffiliateCode(affiliate.createdAffiliateCode);
+    await ref.read(affiliateProvider.notifier).setCreatedAffiliateCode(result.data!);
     await ref.read(affiliateProvider.notifier).setLiquidAddress(affiliate.createdAffiliateLiquidAddress);
     if (insertedAffiliateCode.isEmpty) {
       await ref.read(affiliateProvider.notifier).setInsertedAffiliateCode(affiliate.createdAffiliateCode);
@@ -97,10 +96,17 @@ final numberOfAffiliateInstallsProvider = FutureProvider.autoDispose<int>((ref) 
   final affiliateCode = ref.watch(affiliateProvider).createdAffiliateCode;
   final auth = ref.watch(userProvider).recoveryCode;
   final numberOfUsers = await AffiliateService.affiliateNumberOfUsers(affiliateCode, auth);
+  // this is here to mearly update the affilaite it should be refactored somewhere where it makes sense, but we have to release
+  await ref.read(updateUserDataProvider.future);
+  // I know it sucks
 
   if (numberOfUsers.isSuccess && numberOfUsers.data != null) {
     return numberOfUsers.data!;
   } else {
     throw numberOfUsers.error!;
   }
+});
+
+final updateAffiliateData = FutureProvider.autoDispose<void>((ref) async {
+  await ref.read(updateUserDataProvider.future);
 });

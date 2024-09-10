@@ -22,12 +22,15 @@ class AffiliateViewWidget extends ConsumerWidget {
     final user = ref.watch(userProvider);
     final hasInsertedAffiliate = user.hasInsertedAffiliate;
     final hasCreatedAffiliate = user.hasCreatedAffiliate;
-    final numberOfInstall = ref.watch(numberOfAffiliateInstallsProvider);
-    final earnings = ref.watch(affiliateEarningsProvider);
-    final allTransfers = ref.watch(getAllTransfersFromAffiliateUsersProvider);
-    final totalValuePurchased = ref.watch(getTotalValuePurchasedByAffiliateUsersProvider);
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+
+    ref.read(updateAffiliateData);
+
+    final numberOfInstall = hasCreatedAffiliate ? ref.watch(numberOfAffiliateInstallsProvider) : null;
+    final earnings = hasCreatedAffiliate ? ref.watch(affiliateEarningsProvider) : null;
+    final allTransfers = hasCreatedAffiliate ? ref.watch(getAllTransfersFromAffiliateUsersProvider) : null;
+    final totalValuePurchased = hasCreatedAffiliate ? ref.watch(getTotalValuePurchasedByAffiliateUsersProvider) : null;
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -51,7 +54,7 @@ class AffiliateViewWidget extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   if (hasCreatedAffiliate) ...[
-                    totalValuePurchased.when(
+                    totalValuePurchased!.when(
                       data: (totalValue) {
                         final totalValueDecimal = Decimal.parse(totalValue.toString());
                         return Row(
@@ -70,13 +73,13 @@ class AffiliateViewWidget extends ConsumerWidget {
                     SizedBox(height: height * 0.01),
                     _buildAffiliateInfo(affiliateData, width, height, ref),
                     SizedBox(height: height * 0.01),
-                    earnings.when(
+                    earnings!.when(
                       data: (data) => _buildEarningsInfo(Decimal.parse(data.toString()), width, height, ref),
                       loading: () => _loadingWidget(context, height),
                       error: (error, stackTrace) => _errorWidget(error, ref),
                     ),
                     SizedBox(height: height * 0.02),
-                    numberOfInstall.when(
+                    numberOfInstall!.when(
                       data: (installs) => _buildInstallationsInfo(installs, width, height, ref),
                       loading: () => _loadingWidget(context, height),
                       error: (error, stackTrace) => _errorWidget(error, ref),
@@ -84,7 +87,7 @@ class AffiliateViewWidget extends ConsumerWidget {
                     SizedBox(height: height * 0.02),
                     CustomElevatedButton(
                       text: "Show Earnings Over Time".i18n(ref),
-                      onPressed: () => _showGraphBottomModal(context, ref, allTransfers),
+                      onPressed: () => _showGraphBottomModal(context, ref, allTransfers!),
                     ),
                   ] else if (!hasCreatedAffiliate && hasInsertedAffiliate) ...[
                     _buildInsertedAffiliateSection(affiliateData, width, height, ref),
@@ -287,7 +290,6 @@ class AffiliateViewWidget extends ConsumerWidget {
   }
 
   void _showCreateBottomModal(BuildContext context, String title, WidgetRef ref) {
-    final TextEditingController affiliateController = TextEditingController();
     final TextEditingController liquidAddressController = TextEditingController();
 
     showModalBottomSheet(
@@ -310,13 +312,7 @@ class AffiliateViewWidget extends ConsumerWidget {
                 SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                 TextField(
                   controller: liquidAddressController,
-                  decoration: InputDecoration(labelText: 'Liquid Address'.i18n(ref), labelStyle: TextStyle(color: Colors.black), border: OutlineInputBorder(), fillColor: Colors.orange, filled: true),
-                  style: const TextStyle(color: Colors.black),
-                ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                TextField(
-                  controller: affiliateController,
-                  decoration: InputDecoration(labelText: 'Affiliate Code'.i18n(ref), labelStyle: TextStyle(color: Colors.black), border: OutlineInputBorder(), fillColor: Colors.orange, filled: true),
+                  decoration: InputDecoration(labelText: 'Liquid Address to receive commission'.i18n(ref), labelStyle: TextStyle(color: Colors.black), border: OutlineInputBorder(), fillColor: Colors.orange, filled: true),
                   style: const TextStyle(color: Colors.black),
                 ),
                 const SizedBox(height: 20),
@@ -327,11 +323,10 @@ class AffiliateViewWidget extends ConsumerWidget {
                     textColor: Colors.white,
                     backgroundColor: Colors.black,
                     onPressed: () async {
-                      final hasInserted = ref.watch(affiliateProvider).insertedAffiliateCode.isNotEmpty;
                       Affiliate affiliate = Affiliate(
-                        createdAffiliateCode: affiliateController.text,
+                        createdAffiliateCode: "",
                         createdAffiliateLiquidAddress: liquidAddressController.text,
-                        insertedAffiliateCode: hasInserted ? ref.watch(affiliateProvider).insertedAffiliateCode : affiliateController.text,
+                        insertedAffiliateCode: ref.watch(affiliateProvider).insertedAffiliateCode
                       );
                       try {
                         ref.read(loadingProvider.notifier).state = true;

@@ -117,3 +117,15 @@ final setUserProvider = FutureProvider.autoDispose<void>((ref) async {
     throw userResult.error!;
   }
 });
+
+final updateUserDataProvider = FutureProvider.autoDispose<void>((ref) async {
+  final auth = ref.read(userProvider).recoveryCode;
+  final result = await UserService.showUser(auth);
+
+  if (result.isSuccess && result.data != null) {
+    await ref.read(affiliateProvider.notifier).setCreatedAffiliateCode(result.data!.createdAffiliateCode ?? '');
+    await ref.read(affiliateProvider.notifier).setInsertedAffiliateCode(result.data!.insertedAffiliateCode ?? '');
+  } else {
+    throw result.error!;
+  }
+});

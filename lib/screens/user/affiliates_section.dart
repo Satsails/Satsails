@@ -186,7 +186,6 @@ class AffiliatesSectionWidget extends ConsumerWidget {
   }
 
   void _showCreateBottomModal(BuildContext context, String title, WidgetRef ref) {
-    final TextEditingController _affiliateController = TextEditingController();
     final TextEditingController _liquidAddressController = TextEditingController();
 
     showModalBottomSheet(
@@ -217,19 +216,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                 TextField(
                   controller: _liquidAddressController,
                   decoration: InputDecoration(
-                    labelText: 'Liquid Address'.i18n(ref),
-                    labelStyle: TextStyle(color: Colors.black),
-                    border: OutlineInputBorder(),
-                    fillColor: Colors.orange,
-                    filled: true,
-                  ),
-                  style: const TextStyle(color: Colors.black),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _affiliateController,
-                  decoration: InputDecoration(
-                    labelText: 'Affiliate Code'.i18n(ref),
+                    labelText: 'Liquid Address to receive commission'.i18n(ref),
                     labelStyle: TextStyle(color: Colors.black),
                     border: OutlineInputBorder(),
                     fillColor: Colors.orange,
@@ -248,7 +235,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                       ref.read(loadingProvider.notifier).state = true;
                       final hasInserted = ref.watch(affiliateProvider).insertedAffiliateCode.isNotEmpty;
                       Affiliate affiliate = Affiliate(
-                        createdAffiliateCode: _affiliateController.text,
+                        createdAffiliateCode: "",
                         createdAffiliateLiquidAddress: _liquidAddressController.text,
                         insertedAffiliateCode: hasInserted ? ref.watch(affiliateProvider).insertedAffiliateCode : '',
                       );

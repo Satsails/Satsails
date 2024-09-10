@@ -67,13 +67,14 @@ extension Localization on String {
       {
         'en': 'Add Money',
         'pt': 'Carregar',
-      } + {
-    'en': 'Exchange',
-    'pt': 'Trocar',} + {
-    'en': 'Pay',
-    'pt': 'Pagar',}
-      + {'en': "Recieve",
-        'pt': "Receber",}+
+      } +
+      {
+        'en': 'Exchange',
+        'pt': 'Trocar',}
+      + {
+        'en': 'Pay',
+        'pt': 'Pagar',} + {'en': "Recieve",
+    'pt': "Receber",} +
       {
         'en': 'Home',
         'pt': 'Início',
@@ -461,10 +462,11 @@ extension Localization on String {
       {
         'en': 'Insufficient funds',
         'pt': 'Fundos insuficientes',
-      }+    {
-    'en': 'Order ID',
-    'pt': 'ID do Pedido',
-  } +
+      }+
+      {
+        'en': 'Order ID',
+        'pt': 'ID do Pedido',
+      } +
       {
         'en': 'Received at',
         'pt': 'Recebido em',
@@ -532,16 +534,19 @@ extension Localization on String {
       {
         'en': 'Account Management',
         'pt': 'Gerenciamento de Contas',
-      } + {
-    'en': 'Confirm Payment',
-    'pt': 'Confirmar Pagamento',
-  } + {
-    'en': 'Details',
-    'pt': 'Detalhes',
-  } +    {
-    'en': '10 minutes',
-    'pt': '10 minutos',
-  } +
+      } +
+      {
+        'en': 'Confirm Payment',
+        'pt': 'Confirmar Pagamento',
+      } +
+      {
+        'en': 'Details',
+        'pt': 'Detalhes',
+      } +
+      {
+        'en': '10 minutes',
+        'pt': '10 minutos',
+      } +
       {
         'en': '30 minutes',
         'pt': '30 minutos',
@@ -1129,10 +1134,11 @@ extension Localization on String {
       {
         'en': 'Download document',
         'pt': 'Baixar documento',
-      }+     {
-    'en': 'Chat with us about anything',
-    'pt': 'Converse conosco sobre qualquer coisa',
-  } +
+      }+
+      {
+        'en': 'Chat with us about anything',
+        'pt': 'Converse conosco sobre qualquer coisa',
+      } +
       {
         'en': 'Claim your Boltz transactions',
         'pt': 'Reivindique suas transações Boltz',
@@ -1168,10 +1174,11 @@ extension Localization on String {
       {
         'en': 'Lightning transactions',
         'pt': 'Transações Lightning',
-      }+{
-    'en': 'User Details',
-    'pt': 'Detalhes do Usuário',
-  } +
+      }+
+      {
+        'en': 'User Details',
+        'pt': 'Detalhes do Usuário',
+      } +
       {
         'en': 'Payment ID',
         'pt': 'ID de Pagamento',
@@ -1215,10 +1222,11 @@ extension Localization on String {
       {
         'en': 'Create anonymous account',
         'pt': 'Criar conta anônima',
-      }+     {
-    'en': 'Anonymous account created successfully!',
-    'pt': 'Conta anônima criada com sucesso!',
-  } +
+      }+
+      {
+        'en': 'Anonymous account created successfully!',
+        'pt': 'Conta anônima criada com sucesso!',
+      } +
       {
         'en': 'Add funds to your wallet. Convert stablecoins to Bitcoin quickly and easily.',
         'pt': 'Adicione fundos à sua carteira. Converta stablecoins em Bitcoin de forma rápida e fácil.',
@@ -1254,10 +1262,11 @@ extension Localization on String {
       {
         'en': 'Recover',
         'pt': 'Recuperar',
-      } +{
-    'en': 'Affiliate not found',
-    'pt': 'Afiliado não encontrado',
-  } +
+      } +
+      {
+        'en': 'Affiliate not found',
+        'pt': 'Afiliado não encontrado',
+      } +
       {
         'en': 'Invalid liquid address',
         'pt': 'Endereço Liquid inválido',
@@ -1390,8 +1399,8 @@ extension Localization on String {
         'pt': 'Ganhos de Afiliado',
       } +
       {
-        'en': 'Liquid Address',
-        'pt': 'Endereço Liquid',
+        'en': 'Liquid Address to receive commission',
+        'pt': 'Endereço Liquid para receber comissão',
       } +
       {
         'en': 'Affiliate Code',
@@ -1408,10 +1417,11 @@ extension Localization on String {
       {
         'en': 'Created Affiliate Code copied to clipboard',
         'pt': 'Código de Afiliado criado copiado para a área de transferência',
-      }+      {
-    'en': 'You are Bronze!',
-    'pt': 'Você é Bronze!',
-  } +
+      }+
+      {
+        'en': 'You are Bronze!',
+        'pt': 'Você é Bronze!',
+      } +
       {
         'en': 'You are Silver!',
         'pt': 'Você é Prata!',
@@ -1459,10 +1469,11 @@ extension Localization on String {
       {
         'en': 'You have not unlocked the Diamond tier yet. Unlock it by reaching 20000 in value transacted.',
         'pt': 'Você ainda não desbloqueou o nível Diamante. Desbloqueie-o ao atingir 20000 em valor transacionado.',
-      } +      {
-    'en': 'You have not unlocked the Ouro tier yet. Unlock it by reaching 5000 in value transacted.',
-    'pt': 'Você ainda não desbloqueou o nível Ouro. Desbloqueie ao atingir 5000 em valor transacionado.',
-  } +
+      } +
+      {
+        'en': 'You have not unlocked the Ouro tier yet. Unlock it by reaching 5000 in value transacted.',
+        'pt': 'Você ainda não desbloqueou o nível Ouro. Desbloqueie ao atingir 5000 em valor transacionado.',
+      } +
       {
         'en': 'You need 5000 DEPIX to unlock the Ouro tier.',
         'pt': 'Você precisa de 5000 DEPIX para desbloquear o nível Ouro.',
