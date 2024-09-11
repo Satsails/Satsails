@@ -92,7 +92,7 @@ class ParsedTransfer {
   factory ParsedTransfer.fromJson(Map<String, dynamic> json) {
     return ParsedTransfer(
       timestamp: json['timestamp'],
-      amount_payed_to_affiliate: json['amount_payed_to_affiliate'],
+      amount_payed_to_affiliate: json['amount_payed_to_affiliate'] ?? '0',
     );
   }
 }

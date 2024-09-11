@@ -25,7 +25,7 @@ class AffiliateViewWidget extends ConsumerWidget {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    ref.read(updateAffiliateData);
+    ref.read(updateAffiliateData.future);
 
     final numberOfInstall = hasCreatedAffiliate ? ref.watch(numberOfAffiliateInstallsProvider) : null;
     final earnings = hasCreatedAffiliate ? ref.watch(affiliateEarningsProvider) : null;

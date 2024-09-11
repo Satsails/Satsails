@@ -77,7 +77,8 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                     const SizedBox(height: 20),
                     CustomElevatedButton(
                       text: 'Create Affiliate Code'.i18n(ref),
-                      textColor: Colors.black,
+                      backgroundColor: Colors.transparent,
+                      textColor: Colors.white,
                       onPressed: () {
                         _showCreateBottomModal(context, 'Create Affiliate Code'.i18n(ref), ref);
                       },

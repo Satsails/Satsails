@@ -129,12 +129,6 @@ class Balance {
       case 'sats':
         double balanceInSats = balanceInBTC * 100000000;
         return balanceInSats.toInt().toString();
-      case 'mBTC':
-        double balanceInMBTC = balanceInBTC * 1000;
-        return balanceInMBTC.toStringAsFixed(5);
-      case 'bits':
-        double balanceInBits = balanceInBTC * 1000000;
-        return balanceInBits.toStringAsFixed(2);
       default:
         return "0";
     }

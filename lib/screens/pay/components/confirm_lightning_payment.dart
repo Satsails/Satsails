@@ -51,7 +51,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title: Text('Confirm lightning payment'.i18n(ref), style: const TextStyle(color: Colors.black, fontSize: 17)),
+          title: Text('Confirm lightning payment'.i18n(ref), style: const TextStyle(color: Colors.white, fontSize: 17)),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             color: Colors.white,
