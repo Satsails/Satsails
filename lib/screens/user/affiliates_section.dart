@@ -252,7 +252,6 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                           fontSize: 16.0,
                         );
                         ref.read(loadingProvider.notifier).state = false;
-                        Navigator.pop(context);
                       } catch (e) {
                         ref.read(loadingProvider.notifier).state = false;
                         Fluttertoast.showToast(

@@ -18,23 +18,12 @@ class AffiliateViewWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final affiliateData = ref.watch(affiliateProvider);
-    final user = ref.watch(userProvider);
-    final hasInsertedAffiliate = user.hasInsertedAffiliate;
-    final hasCreatedAffiliate = user.hasCreatedAffiliate;
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    ref.read(updateAffiliateData.future);
-
-    final numberOfInstall = hasCreatedAffiliate ? ref.watch(numberOfAffiliateInstallsProvider) : null;
-    final earnings = hasCreatedAffiliate ? ref.watch(affiliateEarningsProvider) : null;
-    final allTransfers = hasCreatedAffiliate ? ref.watch(getAllTransfersFromAffiliateUsersProvider) : null;
-    final totalValuePurchased = hasCreatedAffiliate ? ref.watch(getTotalValuePurchasedByAffiliateUsersProvider) : null;
-
     return WillPopScope(
       onWillPop: () async => false,
-      child:Scaffold(
+      child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
           title: Text('Affiliate Section'.i18n(ref), style: const TextStyle(color: Colors.white)),
@@ -46,71 +35,87 @@ class AffiliateViewWidget extends ConsumerWidget {
             },
           ),
         ),
-        body: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(width * 0.05),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (hasCreatedAffiliate) ...[
-                    totalValuePurchased!.when(
-                      data: (totalValue) {
-                        final totalValueDecimal = Decimal.parse(totalValue.toString());
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildTierIcon(context, 'Bronze'.i18n(ref), Icons.vpn_key, totalValueDecimal, Decimal.parse('0'), width, height, ref),
-                            _buildTierIcon(context, 'Silver'.i18n(ref), Icons.military_tech, totalValueDecimal, Decimal.parse('2500'), width, height, ref),
-                            _buildTierIcon(context, 'Gold'.i18n(ref), Icons.emoji_events, totalValueDecimal, Decimal.parse('5000'), width, height, ref),
-                            _buildTierIcon(context, 'Diamond'.i18n(ref), Icons.diamond, totalValueDecimal, Decimal.parse('20000'), width, height, ref),
-                          ],
-                        );
-                      },
-                      loading: () => _loadingWidget(context, height),
-                      error: (error, stackTrace) => _errorWidget(error, ref),
-                    ),
-                    SizedBox(height: height * 0.01),
-                    _buildAffiliateInfo(affiliateData, width, height, ref),
-                    SizedBox(height: height * 0.01),
-                    earnings!.when(
-                      data: (data) => _buildEarningsInfo(Decimal.parse(data.toString()), width, height, ref),
-                      loading: () => _loadingWidget(context, height),
-                      error: (error, stackTrace) => _errorWidget(error, ref),
-                    ),
-                    SizedBox(height: height * 0.02),
-                    numberOfInstall!.when(
-                      data: (installs) => _buildInstallationsInfo(installs, width, height, ref),
-                      loading: () => _loadingWidget(context, height),
-                      error: (error, stackTrace) => _errorWidget(error, ref),
-                    ),
-                    SizedBox(height: height * 0.02),
-                    CustomElevatedButton(
-                      text: "Show Earnings Over Time".i18n(ref),
-                      onPressed: () => _showGraphBottomModal(context, ref, allTransfers!),
-                    ),
-                  ] else if (!hasCreatedAffiliate && hasInsertedAffiliate) ...[
-                    _buildInsertedAffiliateSection(affiliateData, width, height, ref),
-                    const SizedBox(height: 20),
-                    Text('Would you like to become an affiliate?'.i18n(ref), style: const TextStyle(color: Colors.white, fontSize: 18)),
-                    const SizedBox(height: 10),
-                    if (ref.watch(loadingProvider.notifier).state)
-                      Align(
-                        alignment: Alignment.topCenter,
-                        child: LoadingAnimationWidget.threeArchedCircle(
-                          color: Colors.orange,
-                          size: 50,
-                        ),
+        body: ref.watch(updateAffiliateData).when(
+          data: (_) {
+            final affiliateData = ref.watch(affiliateProvider);
+            final user = ref.watch(userProvider);
+            final hasInsertedAffiliate = user.hasInsertedAffiliate;
+            final hasCreatedAffiliate = user.hasCreatedAffiliate;
+
+            final numberOfInstall = hasCreatedAffiliate ? ref.watch(numberOfAffiliateInstallsProvider) : null;
+            final earnings = hasCreatedAffiliate ? ref.watch(affiliateEarningsProvider) : null;
+            final allTransfers = hasCreatedAffiliate ? ref.watch(getAllTransfersFromAffiliateUsersProvider) : null;
+            final totalValuePurchased = hasCreatedAffiliate ? ref.watch(getTotalValuePurchasedByAffiliateUsersProvider) : null;
+
+            return SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.all(width * 0.05),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (hasCreatedAffiliate) ...[
+                      totalValuePurchased!.when(
+                        data: (totalValue) {
+                          final totalValueDecimal = Decimal.parse(totalValue.toString());
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _buildTierIcon(context, 'Bronze'.i18n(ref), Icons.vpn_key, totalValueDecimal, Decimal.parse('0'), width, height, ref),
+                              _buildTierIcon(context, 'Silver'.i18n(ref), Icons.military_tech, totalValueDecimal, Decimal.parse('2500'), width, height, ref),
+                              _buildTierIcon(context, 'Gold'.i18n(ref), Icons.emoji_events, totalValueDecimal, Decimal.parse('5000'), width, height, ref),
+                              _buildTierIcon(context, 'Diamond'.i18n(ref), Icons.diamond, totalValueDecimal, Decimal.parse('20000'), width, height, ref),
+                            ],
+                          );
+                        },
+                        loading: () => _loadingWidget(context, height),
+                        error: (error, stackTrace) => _errorWidget(error, ref),
                       ),
-                    CustomElevatedButton(
-                      text: 'Create Affiliate Code'.i18n(ref),
-                      onPressed: () => _showCreateBottomModal(context, 'Create Affiliate Code'.i18n(ref), ref),
-                    ),
-                  ]
-                ],
+                      SizedBox(height: height * 0.01),
+                      _buildAffiliateInfo(affiliateData, width, height, ref),
+                      SizedBox(height: height * 0.01),
+                      earnings!.when(
+                        data: (data) => _buildEarningsInfo(Decimal.parse(data.toString()), width, height, ref),
+                        loading: () => _loadingWidget(context, height),
+                        error: (error, stackTrace) => _errorWidget(error, ref),
+                      ),
+                      SizedBox(height: height * 0.02),
+                      numberOfInstall!.when(
+                        data: (installs) => _buildInstallationsInfo(installs, width, height, ref),
+                        loading: () => _loadingWidget(context, height),
+                        error: (error, stackTrace) => _errorWidget(error, ref),
+                      ),
+                      SizedBox(height: height * 0.02),
+                      CustomElevatedButton(
+                        text: "Show Earnings Over Time".i18n(ref),
+                        onPressed: () => _showGraphBottomModal(context, ref, allTransfers!),
+                      ),
+                    ] else if (!hasCreatedAffiliate && hasInsertedAffiliate) ...[
+                      _buildInsertedAffiliateSection(affiliateData, width, height, ref),
+                      const SizedBox(height: 20),
+                      Text('Would you like to become an affiliate?'.i18n(ref), style: const TextStyle(color: Colors.white, fontSize: 18)),
+                      const SizedBox(height: 10),
+                      if (ref.watch(loadingProvider.notifier).state)
+                        Align(
+                          alignment: Alignment.topCenter,
+                          child: LoadingAnimationWidget.threeArchedCircle(
+                            color: Colors.orange,
+                            size: 50,
+                          ),
+                        ),
+                      CustomElevatedButton(
+                        text: 'Create Affiliate Code'.i18n(ref),
+                        onPressed: () => _showCreateBottomModal(context, 'Create Affiliate Code'.i18n(ref), ref),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            );
+          },
+          loading: () => Center(
+            child: LoadingAnimationWidget.threeArchedCircle(size: height * 0.1, color: Colors.black),
+          ),
+          error: (error, stackTrace) => _errorWidget(error, ref),
         ),
       ),
     );
@@ -118,7 +123,7 @@ class AffiliateViewWidget extends ConsumerWidget {
 
   Widget _loadingWidget(BuildContext context, double height) {
     return Center(
-      child: LoadingAnimationWidget.threeArchedCircle(size: height * 0.1, color: Colors.orange),
+      child: LoadingAnimationWidget.threeArchedCircle(size: height * 0.1, color: Colors.black),
     );
   }
 
@@ -196,7 +201,6 @@ class AffiliateViewWidget extends ConsumerWidget {
   }
 
   void _showGraphBottomModal(BuildContext context, WidgetRef ref, AsyncValue<List<ParsedTransfer>> allTransfers) {
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -239,7 +243,6 @@ class AffiliateViewWidget extends ConsumerWidget {
       },
     );
   }
-
 
   Widget _buildSyncfusionChart(List<ParsedTransfer> transfersData, double width, double height, WidgetRef ref) {
     List<ChartData> chartData = transfersData.map((transfer) {
@@ -326,17 +329,32 @@ class AffiliateViewWidget extends ConsumerWidget {
                       Affiliate affiliate = Affiliate(
                         createdAffiliateCode: "",
                         createdAffiliateLiquidAddress: liquidAddressController.text,
-                        insertedAffiliateCode: ref.watch(affiliateProvider).insertedAffiliateCode
+                        insertedAffiliateCode: ref.watch(affiliateProvider).insertedAffiliateCode,
                       );
                       try {
                         ref.read(loadingProvider.notifier).state = true;
                         await ref.read(createAffiliateCodeProvider(affiliate).future);
-                        Fluttertoast.showToast(msg: 'Affiliate code created successfully'.i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
-                        Navigator.pop(context);
+                        Fluttertoast.showToast(
+                          msg: 'Affiliate code created successfully'.i18n(ref),
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.TOP,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.green,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
                         ref.read(loadingProvider.notifier).state = false;
                       } catch (e) {
                         ref.read(loadingProvider.notifier).state = false;
-                        Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                        Fluttertoast.showToast(
+                          msg: e.toString(),
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.TOP,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
                       }
                     },
                   ),
@@ -374,10 +392,13 @@ class AffiliateViewWidget extends ConsumerWidget {
               SizedBox(height: height * 0.02),
               if (label == 'Diamond'.i18n(ref) && isUnlocked) Text(diamondSpecialCode, style: TextStyle(fontSize: width * 0.03, color: Colors.black), textAlign: TextAlign.center),
               SizedBox(height: height * 0.02),
-              Text(isUnlocked
-                  ?'With '.i18n(ref) + totalValue.toString() + ' DEPIX, you have reached the '.i18n(ref) + label
-                  : 'You need ${threshold.toString()} DEPIX to unlock the $label tier.'.i18n(ref),
-                  style: const TextStyle(fontSize: 16, color: Colors.black), textAlign: TextAlign.center),
+              Text(
+                isUnlocked
+                    ? 'With '.i18n(ref) + totalValue.toString() + ' DEPIX, you have reached the '.i18n(ref) + label
+                    : 'You need ${threshold.toString()} DEPIX to unlock the $label tier.'.i18n(ref),
+                style: const TextStyle(fontSize: 16, color: Colors.black),
+                textAlign: TextAlign.center,
+              ),
               SizedBox(height: height * 0.02),
               Text(feeInfo, style: TextStyle(fontSize: width * 0.03, color: Colors.black), textAlign: TextAlign.center),
               SizedBox(height: height * 0.02),
@@ -389,7 +410,6 @@ class AffiliateViewWidget extends ConsumerWidget {
     );
   }
 }
-
 
 class ChartData {
   final DateTime x;

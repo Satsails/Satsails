@@ -99,6 +99,8 @@ final updateLiquidAddressProvider = FutureProvider.autoDispose<String>((ref) asy
 
 final setUserProvider = FutureProvider.autoDispose<void>((ref) async {
   await ref.read(updateLiquidAddressProvider.future);
+  // hammer in a fix
+  ref.read(affiliateProvider);
   final auth = ref.read(userProvider).recoveryCode;
   final userResult = await UserService.showUser(auth);
 
