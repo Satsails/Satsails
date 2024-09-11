@@ -30,27 +30,27 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
   final double _dailyLimit = 5000.0;
   double _remainingLimit = 5000.0;
   bool _isLoading = false;
-  String _feeDescription = 'Fee: 2% + 2 BRL';
+  String _feeDescription = 'Fee: 2% + 1.98 BRL';
 
   double calculateFee(double amountInDouble, bool hasInsertedAffiliateCode, bool hasCreatedAffiliate, int numberOfAffiliateInstalls) {
     if (hasInsertedAffiliateCode) {
-      return amountInDouble * 0.015 + 2;
+      return amountInDouble * 0.015 + 1.98;
     } else if (hasCreatedAffiliate) {
       if (numberOfAffiliateInstalls > 1) {
-        return amountInDouble * 0.015 + 2;
+        return amountInDouble * 0.015 + 1.98;
       } else {
-        return amountInDouble * 0.02 + 2;
+        return amountInDouble * 0.02 + 1.98;
       }
     } else {
-      return amountInDouble * 0.02 + 2;
+      return amountInDouble * 0.02 + 1.98;
     }
   }
 
   String getFeeDescription(bool hasInsertedAffiliateCode, bool hasCreatedAffiliate, int numberOfAffiliateInstalls) {
     if (hasInsertedAffiliateCode || (hasCreatedAffiliate && numberOfAffiliateInstalls > 1)) {
-      return 'Fee: 1.5% + 2 BRL (Affiliate Discount)';
+      return 'Fee: 1.5% + 1,98 BRL (Affiliate Discount)';
     } else {
-      return 'Fee: 2% + 2 BRL';
+      return 'Fee: 2% + 1,98 BRL';
     }
   }
 
@@ -248,7 +248,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                           style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.green),
                         ),
                         Text(
-                          _feeDescription,
+                          _feeDescription.i18n(ref),
                           style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.grey),
                         ),
                       ],

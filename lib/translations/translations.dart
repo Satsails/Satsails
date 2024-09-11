@@ -1510,6 +1510,14 @@ extension Localization on String {
       {
         'en': 'Choose your fee:',
         'pt': 'Escolha sua taxa:'
+      }  +
+      {
+        'en': 'Fee: 1.5% + 1,98 BRL (Affiliate Discount)',
+        'pt': 'Taxa: 1,5% + 1,98 BRL (Desconto de Afiliado)'
+      } +
+      {
+        'en': 'Fee: 2% + 1,98 BRL',
+        'pt': 'Taxa: 2% + 1,98 BRL'
       };
 
   String i18n(WidgetRef ref) {
