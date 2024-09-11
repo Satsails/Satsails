@@ -104,6 +104,6 @@ final numberOfAffiliateInstallsProvider = FutureProvider.autoDispose<int>((ref) 
   }
 });
 
-final updateAffiliateData = FutureProvider<void>((ref) async {
+final updateAffiliateData = FutureProvider.autoDispose<void>((ref) async {
   await ref.read(updateUserDataProvider.future);
 });
