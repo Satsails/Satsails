@@ -42,7 +42,12 @@ class PixHistory extends ConsumerWidget {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("${"Received".i18n(ref)} ${pix.receivedAmount.toStringAsFixed(2)}", style: const TextStyle(color: Colors.green)),
+                      Text(
+                        pix.receivedAmount == 0.0
+                            ? "Waiting".i18n(ref)
+                            : "${"Received".i18n(ref)} ${pix.receivedAmount.toStringAsFixed(2)}",
+                        style: const TextStyle(color: Colors.green),
+                      ),
                       if (pix.sentTxid == null)
                         Container(
                           margin: const EdgeInsets.only(top: 8.0),

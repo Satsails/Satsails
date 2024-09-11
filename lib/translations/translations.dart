@@ -1518,6 +1518,10 @@ extension Localization on String {
       {
         'en': 'Fee: 2% + 1,98 BRL',
         'pt': 'Taxa: 2% + 1,98 BRL'
+      } +
+      {
+        'en': 'Waiting',
+        'pt': 'Aguardando'
       };
 
   String i18n(WidgetRef ref) {

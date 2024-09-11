@@ -52,7 +52,9 @@ class PixTransactionDetails extends ConsumerWidget {
                     const Icon(Icons.arrow_downward_rounded, color: Colors.green, size: 40),
                     const SizedBox(height: 8.0),
                     Text(
-                      "R\$ ${transaction.receivedAmount.toStringAsFixed(2)}",
+                      transaction.receivedAmount == 0.0
+                          ? "Waiting".i18n(ref)
+                          : "R\$ ${transaction.receivedAmount.toStringAsFixed(2)}",
                       style: const TextStyle(color: Colors.green, fontSize: 36, fontWeight: FontWeight.bold),
                     ),
                     GestureDetector(
