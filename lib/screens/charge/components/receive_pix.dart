@@ -136,6 +136,23 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
     txReceived.whenData((data) {
       if (data.isNotEmpty) {
+        final messageType = data['type'];
+        final messageText = data['message'];
+        Color backgroundColor;
+
+        switch (messageType) {
+          case 'success':
+            backgroundColor = Colors.green;
+            break;
+          case 'delayed':
+            backgroundColor = Colors.orange;
+            break;
+          case 'failed':
+          default:
+            backgroundColor = Colors.red;
+            break;
+        }
+
         _pixQRCode = '';
         _feeDescription = '';
         _amountToReceive = 0.0;
@@ -144,6 +161,15 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
         Future.microtask(() {
           ref.read(topSelectedButtonProvider.notifier).state = "History";
           ref.read(groupButtonControllerProvider).selectIndex(1);
+          Fluttertoast.showToast(
+            msg: messageText.i18n(ref),
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
+            backgroundColor: backgroundColor,
+            textColor: Colors.white,
+            fontSize: MediaQuery.of(context).size.height * 0.02,
+          );
         });
       }
     });
