@@ -13,6 +13,7 @@ import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
+import './pix_buttons.dart';
 
 class ReceivePix extends ConsumerStatefulWidget {
   const ReceivePix({super.key});
@@ -105,7 +106,6 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     }
 
     final pixPaymentCode = ref.read(userProvider).paymentId;
-
     PixFlutter pixFlutter = PixFlutter(
       payload: Payload(
         pixKey: _address,
@@ -136,36 +136,18 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
     txReceived.whenData((data) {
       if (data.isNotEmpty) {
-        final messageType = data['type'];
-        final messageText = data['message'];
-        Color backgroundColor;
-        switch (messageType) {
-          case 'success':
-            backgroundColor = Colors.green;
-            break;
-          case 'delayed':
-            backgroundColor = Colors.orange;
-            break;
-          case 'failed':
-          default:
-            backgroundColor = Colors.red;
-            break;
-        }
         _pixQRCode = '';
         _feeDescription = '';
         _amountToReceive = 0.0;
         _amountController.clear();
-        Fluttertoast.showToast(
-          msg: messageText.i18n(ref),
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP,
-          timeInSecForIosWeb: 5,
-          backgroundColor: backgroundColor,
-          textColor: Colors.white,
-          fontSize: MediaQuery.of(context).size.height * 0.02,
-        );
+
+        Future.microtask(() {
+          ref.read(topSelectedButtonProvider.notifier).state = "History";
+          ref.read(groupButtonControllerProvider).selectIndex(1);
+        });
       }
     });
+
 
     return amountTransferredAsyncValue.when(
       loading: () => Center(

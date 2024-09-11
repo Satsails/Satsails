@@ -8,6 +8,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -113,7 +114,7 @@ class AffiliateViewWidget extends ConsumerWidget {
             );
           },
           loading: () => Center(
-            child: LoadingAnimationWidget.threeArchedCircle(size: height * 0.1, color: Colors.black),
+            child: LoadingAnimationWidget.threeArchedCircle(size: height * 0.1, color: Colors.orange),
           ),
           error: (error, stackTrace) => _errorWidget(error, ref),
         ),
@@ -123,7 +124,7 @@ class AffiliateViewWidget extends ConsumerWidget {
 
   Widget _loadingWidget(BuildContext context, double height) {
     return Center(
-      child: LoadingAnimationWidget.threeArchedCircle(size: height * 0.1, color: Colors.black),
+      child: LoadingAnimationWidget.threeArchedCircle(size: height * 0.1, color: Colors.orange),
     );
   }
 
@@ -206,66 +207,118 @@ class AffiliateViewWidget extends ConsumerWidget {
       isScrollControlled: true,
       backgroundColor: Colors.black,
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            top: 16.0,
-            left: 16.0,
-            right: 16.0,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Earnings Over Time'.i18n(ref),
-                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              allTransfers.when(
-                data: (transfersData) {
-                  if (transfersData.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No earnings data available'.i18n(ref),
-                        style: const TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                    );
-                  } else {
-                    return _buildSyncfusionChart(transfersData, MediaQuery.of(context).size.width, MediaQuery.of(context).size.height, ref);
-                  }
-                },
-                loading: () => _loadingWidget(context, MediaQuery.of(context).size.height * 0.1),
-                error: (error, stackTrace) => _errorWidget(error, ref),
-              ),
-            ],
+        return SingleChildScrollView(  // Ensure scrollability in modal
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              top: 16.0,
+              left: 16.0,
+              right: 16.0,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Earnings Over Time'.i18n(ref),
+                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                allTransfers.when(
+                  data: (transfersData) {
+                    if (transfersData.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No earnings data available'.i18n(ref),
+                          style: const TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      );
+                    } else {
+                      return SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.5,  // Set a fixed height for the chart
+                        child: _buildSyncfusionChart(transfersData, MediaQuery.of(context).size.width, MediaQuery.of(context).size.height, ref),
+                      );
+                    }
+                  },
+                  loading: () => _loadingWidget(context, MediaQuery.of(context).size.height * 0.1),
+                  error: (error, stackTrace) => _errorWidget(error, ref),
+                ),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
+
   Widget _buildSyncfusionChart(List<ParsedTransfer> transfersData, double width, double height, WidgetRef ref) {
     List<ChartData> chartData = transfersData.map((transfer) {
       final timestamp = DateTime.parse(transfer.timestamp);
-      final amount = double.parse(transfer.amount_payed_to_affiliate);
+      final amount = Decimal.parse(transfer.amount_payed_to_affiliate);
       return ChartData(timestamp, amount);
     }).toList();
 
+    final DateTime minDate = chartData.isNotEmpty ? chartData.map((data) => data.x).reduce((a, b) => a.isBefore(b) ? a : b) : DateTime.now();
+    final DateTime maxDate = chartData.isNotEmpty ? chartData.map((data) => data.x).reduce((a, b) => a.isAfter(b) ? a : b) : DateTime.now();
+
     return SfCartesianChart(
       backgroundColor: Colors.transparent,
-      primaryXAxis: const DateTimeAxis(isVisible: true, majorGridLines: MajorGridLines(width: 0), axisLine: AxisLine(width: 0), labelStyle: TextStyle(color: Colors.white)),
-      primaryYAxis: const NumericAxis(isVisible: true, majorGridLines: MajorGridLines(width: 0), axisLine: AxisLine(width: 0), labelStyle: TextStyle(color: Colors.white)),
+      primaryXAxis: DateTimeAxis(
+        isVisible: true,
+        minimum: minDate,
+        maximum: maxDate,
+        majorGridLines: const MajorGridLines(width: 0),
+        axisLine: const AxisLine(width: 0),
+        labelStyle: const TextStyle(color: Colors.white),
+      ),
+      primaryYAxis: NumericAxis(
+        isVisible: true,
+        majorGridLines: const MajorGridLines(width: 0),
+        axisLine: const AxisLine(width: 0),
+        labelStyle: const TextStyle(color: Colors.white),
+      ),
+      plotAreaBorderWidth: 0,
+      trackballBehavior: TrackballBehavior(
+        enable: true, // Ensure trackball is enabled
+        activationMode: ActivationMode.singleTap, // Trackball activates on single tap
+        lineType: TrackballLineType.none, // No vertical line
+        tooltipSettings: const InteractiveTooltip(
+          enable: true,
+          color: Colors.orangeAccent,
+          textStyle: TextStyle(color: Colors.white),
+          borderWidth: 0,
+          decimalPlaces: 2,
+        ),
+        builder: (BuildContext context, TrackballDetails trackballDetails) {
+          final DateFormat formatter = DateFormat('dd/MM/yyyy');
+          final DateTime date = trackballDetails.point!.x;
+          final num? value = trackballDetails.point!.y;
+          final String formattedDate = formatter.format(date);
+          final String affiliateValue = value!.toStringAsFixed(value == value.roundToDouble() ? 0 : 2);
+
+          return Text(
+            '$formattedDate\n $affiliateValue',
+            style: const TextStyle(color: Colors.white),
+          );
+        },
+      ),
       series: <LineSeries<ChartData, DateTime>>[
         LineSeries<ChartData, DateTime>(
           dataSource: chartData,
           xValueMapper: (ChartData sales, _) => sales.x,
-          yValueMapper: (ChartData sales, _) => sales.y,
-          color: Colors.orange,
-          name: 'Affiliate Earnings'.i18n(ref),
+          yValueMapper: (ChartData sales, _) => sales.y.toDouble(),
+          color: Colors.orangeAccent,
+          markerSettings: const MarkerSettings(isVisible: false),
+          animationDuration: 0,
+          enableTooltip: true, // Enable tooltips for this series
         ),
       ],
     );
   }
+
+
+
+
 
   String _formatLiquidAddress(String address) {
     if (address.isEmpty) return 'N/A';
@@ -332,6 +385,7 @@ class AffiliateViewWidget extends ConsumerWidget {
                         insertedAffiliateCode: ref.watch(affiliateProvider).insertedAffiliateCode,
                       );
                       try {
+                        Navigator.pop(context);
                         ref.read(loadingProvider.notifier).state = true;
                         await ref.read(createAffiliateCodeProvider(affiliate).future);
                         Fluttertoast.showToast(
@@ -413,6 +467,6 @@ class AffiliateViewWidget extends ConsumerWidget {
 
 class ChartData {
   final DateTime x;
-  final double y;
+  final Decimal y;
   ChartData(this.x, this.y);
 }

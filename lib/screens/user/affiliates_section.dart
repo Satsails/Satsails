@@ -5,6 +5,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 final loadingProvider = StateProvider.autoDispose<bool>((ref) => false);
@@ -151,6 +152,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                       ref.read(loadingProvider.notifier).state = true;
                       String code = controller.text;
                       try {
+                        Navigator.pop(context);
                         await ref.read(addAffiliateCodeProvider(code).future);
                         Fluttertoast.showToast(
                           msg: 'Affiliate code saved successfully'.i18n(ref),
@@ -162,7 +164,6 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                           fontSize: 16.0,
                         );
                         ref.read(loadingProvider.notifier).state = false;
-                        Navigator.pop(context);
                       } catch (e) {
                         ref.read(loadingProvider.notifier).state = false;
                         Fluttertoast.showToast(
@@ -241,6 +242,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                         insertedAffiliateCode: hasInserted ? ref.watch(affiliateProvider).insertedAffiliateCode : '',
                       );
                       try {
+                        Navigator.pop(context);
                         await ref.read(createAffiliateCodeProvider(affiliate).future);
                         Fluttertoast.showToast(
                           msg: 'Affiliate code created successfully'.i18n(ref),

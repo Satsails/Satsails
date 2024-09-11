@@ -2,6 +2,7 @@ import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/providers/pix_transaction_details_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -54,9 +55,14 @@ class PixTransactionDetails extends ConsumerWidget {
                       "R\$ ${transaction.receivedAmount.toStringAsFixed(2)}",
                       style: const TextStyle(color: Colors.green, fontSize: 36, fontWeight: FontWeight.bold),
                     ),
-                    Text(
-                      transaction.transferId,
-                      style: const TextStyle(color: Colors.white, fontSize: 18),
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: transaction.transferId));
+                      },
+                      child: Text(
+                        transaction.transferId,
+                        style: const TextStyle(color: Colors.white, fontSize: 18, decoration: TextDecoration.underline),
+                      ),
                     ),
                   ],
                 ),
