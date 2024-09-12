@@ -54,7 +54,7 @@ class PixTransactionDetails extends ConsumerWidget {
                     Text(
                       transaction.receivedAmount == 0.0
                           ? "Waiting".i18n(ref)
-                          : "R\$ ${transaction.receivedAmount.toStringAsFixed(3)}",
+                          : "R\$ ${transaction.receivedAmount % 1 == 0 ? transaction.receivedAmount.toInt() : transaction.receivedAmount.toStringAsFixed(3)}",
                       style: const TextStyle(color: Colors.green, fontSize: 36, fontWeight: FontWeight.bold),
                     ),
                     GestureDetector(
@@ -81,26 +81,32 @@ class PixTransactionDetails extends ConsumerWidget {
                 label: "Date".i18n(ref),
                 value: "${transaction.createdAt.day}/${transaction.createdAt.month}/${transaction.createdAt.year}",
               ),
+              const SizedBox(height: 16.0),
               TransactionDetailRow(
                 label: "Status".i18n(ref),
                 value: transaction.completedTransfer ? "Completed".i18n(ref) : "Pending".i18n(ref),
               ),
               const SizedBox(height: 16.0),
+              TransactionDetailRow(
+                label: "Payment ID".i18n(ref),
+                value: transaction.sentTxid ?? "N/A",
+              ),
+              Divider(color: Colors.grey.shade700),
+              const SizedBox(height: 16.0),
               Text(
-                "Origin".i18n(ref),
+                "Fees".i18n(ref),
                 style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16.0),
               TransactionDetailRow(
-                label: "Name".i18n(ref),
-                value: transaction.name,
-              ),
-              TransactionDetailRow(
-                label: "CPF/CNPJ",
-                value: transaction.cpf,
+                label: "Original amount".i18n(ref),
+                value: "R\$ ${transaction.originalAmount % 1 == 0 ? transaction.originalAmount.toInt() : transaction.originalAmount.toStringAsFixed(3)}",
               ),
               const SizedBox(height: 16.0),
-              Divider(color: Colors.grey.shade700),
+              TransactionDetailRow(
+                label: "Total fees".i18n(ref),
+                value: "R\$ ${(transaction.originalAmount - transaction.receivedAmount) % 1 == 0 ? (transaction.originalAmount - transaction.receivedAmount).toInt() : (transaction.originalAmount - transaction.receivedAmount).toStringAsFixed(3)}",
+              ),
               if (transaction.receipt != null)
                 GestureDetector(
                   onTap: () async {

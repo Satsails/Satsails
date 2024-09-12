@@ -45,23 +45,18 @@ class PixHistory extends ConsumerWidget {
                 },
                 child: ListTile(
                   leading: const Icon(Icons.arrow_downward_rounded, color: Colors.green),
-                  title: Text(pix.name, style: const TextStyle(color: Colors.white)),
+                  title:Text(
+                      pix.receivedAmount == 0.0
+                          ? "Waiting".i18n(ref)
+                          : "${"Received".i18n(ref)} ${pix.receivedAmount % 1 == 0 ? pix.receivedAmount.toInt() : pix.receivedAmount.toStringAsFixed(3)}",
+                      style: const TextStyle(color: Colors.green)),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        pix.receivedAmount == 0.0
-                            ? "Waiting".i18n(ref)
-                            : "${"Received".i18n(ref)} ${pix.receivedAmount.toStringAsFixed(3)}",
-                        style: const TextStyle(color: Colors.green),
-                      ),
                       if (pix.completedTransfer == false)
-                        Container(
-                          margin: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            "Transaction still pending".i18n(ref),
-                            style: const TextStyle(color: Colors.orange),
-                          ),
+                        Text(
+                          "Transaction still pending".i18n(ref),
+                          style: const TextStyle(color: Colors.orange),
                         ),
                       // Displaying the createdAt date
                       Padding(
