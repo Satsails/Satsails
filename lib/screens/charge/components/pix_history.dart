@@ -52,7 +52,7 @@ class PixHistory extends ConsumerWidget {
                       Text(
                         pix.receivedAmount == 0.0
                             ? "Waiting".i18n(ref)
-                            : "${"Received".i18n(ref)} ${pix.receivedAmount.toStringAsFixed(2)}",
+                            : "${"Received".i18n(ref)} ${pix.receivedAmount.toStringAsFixed(3)}",
                         style: const TextStyle(color: Colors.green),
                       ),
                       if (pix.completedTransfer == null)
