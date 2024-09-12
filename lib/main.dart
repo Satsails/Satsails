@@ -116,6 +116,10 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(LifecycleHandler(onAppPaused: handleAppPaused));
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.black, // Change this to match your theme
+      systemNavigationBarIconBrightness: Brightness.light, // Ensure icons are visible on dark backgrounds
+    ));
   }
 
   @override
