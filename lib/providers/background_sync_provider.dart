@@ -18,9 +18,6 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
 
   void _initializeSync() {
     performSync();
-    Timer.periodic(const Duration(seconds: 120), (timer) {
-      performSync();
-    });
   }
 
   Future<void> performSync() async {

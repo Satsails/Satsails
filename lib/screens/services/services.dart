@@ -132,7 +132,32 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
   }
 
   Widget _buildDrawer(WidgetRef ref, BuildContext context, String language) {
-    final String baseUrl = language == 'pt' ? 'https://bitcoincounterflow.com/pt/satsails' : 'https://bitcoincounterflow.com/satsails';
+    final links = {
+      'Dashboards': language == 'pt'
+          ? 'https://bitcoincounterflow.com/pt/satsails-2/mini-paineis-iframe'
+          : 'https://bitcoincounterflow.com/satsails/dashboards-iframe',
+      'ETF Tracker': language == 'pt'
+          ? 'https://bitcoincounterflow.com/pt/satsails-2/etf-tracker-btc-iframe'
+          : 'https://bitcoincounterflow.com/satsails/etf-tracker-iframe',
+      'Retirement Calculator': language == 'pt'
+          ? 'https://bitcoincounterflow.com/pt/satsails-2/calculadora-de-aposentadoria-bitcoin-iframe/'
+          : 'https://bitcoincounterflow.com/satsails/bitcoin-retirement-calculator-iframe/',
+      'Bitcoin Converter': language == 'pt'
+          ? 'https://bitcoincounterflow.com/pt/satsails-2/calculadora-conversora-bitcoin-iframe/'
+          : 'https://bitcoincounterflow.com/satsails/bitcoin-converter-calculator-iframe/',
+      'DCA Calculator': language == 'pt'
+          ? 'https://bitcoincounterflow.com/pt/satsails-2/calculadora-dca-iframe/'
+          : 'https://bitcoincounterflow.com/satsails/dca-calculator-iframe/',
+      'Bitcoin Counterflow Strategy': language == 'pt'
+          ? 'https://bitcoincounterflow.com/pt/satsails-2/estrategia-counterflow-iframe/'
+          : 'https://bitcoincounterflow.com/satsails/bitcoin-counterflow-strategy-iframe/',
+      'Charts': language == 'pt'
+          ? 'https://bitcoincounterflow.com/pt/satsails-2/graficos-bitcoin-iframe/'
+          : 'https://bitcoincounterflow.com/satsails/charts-iframe',
+      'Liquidation Zone': language == 'pt'
+          ? 'https://bitcoincounterflow.com/pt/satsails-2/zona-de-liquidacao-iframe/'
+          : 'https://bitcoincounterflow.com/satsails/liquidation-heatmap-iframe/',
+    };
 
     return Drawer(
       child: Container(
@@ -187,49 +212,49 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
               ref,
               icon: Icons.dashboard,
               title: 'Dashboards',
-              url: '$baseUrl/dashboards-iframe',
+              url: links['Dashboards']!,
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.assessment,
               title: 'ETF Tracker',
-              url: '$baseUrl/etf-tracker-iframe',
+              url: links['ETF Tracker']!,
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.calculate,
               title: 'Retirement Calculator',
-              url: '$baseUrl/bitcoin-retirement-calculator-iframe/',
+              url: links['Retirement Calculator']!,
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.attach_money,
               title: 'Bitcoin Converter',
-              url: '$baseUrl/bitcoin-converter-calculator-iframe/',
+              url: links['Bitcoin Converter']!,
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.history,
               title: 'DCA Calculator',
-              url: '$baseUrl/dca-calculator-iframe/',
+              url: links['DCA Calculator']!,
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.trending_up,
               title: 'Bitcoin Counterflow Strategy',
-              url: '$baseUrl/bitcoin-counterflow-strategy-iframe/',
+              url: links['Bitcoin Counterflow Strategy']!,
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.show_chart,
               title: 'Charts',
-              url: '$baseUrl/charts-iframe',
+              url: links['Charts']!,
             ),
             _buildDrawerItem(
               ref,
               icon: Icons.waterfall_chart,
               title: 'Liquidation Zone',
-              url: '$baseUrl/liquidation-heatmap-iframe/',
+              url: links['Liquidation Zone']!,
             ),
           ],
         ),
