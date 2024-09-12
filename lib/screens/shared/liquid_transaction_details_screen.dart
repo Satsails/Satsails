@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class LiquidTransactionDetailsScreen extends ConsumerWidget {
   final Tx transaction;
