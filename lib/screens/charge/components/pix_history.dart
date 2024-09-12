@@ -55,17 +55,12 @@ class PixHistory extends ConsumerWidget {
                             : "${"Received".i18n(ref)} ${pix.receivedAmount.toStringAsFixed(3)}",
                         style: const TextStyle(color: Colors.green),
                       ),
-                      if (pix.completedTransfer == null)
+                      if (pix.completedTransfer == false)
                         Container(
                           margin: const EdgeInsets.only(top: 8.0),
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: Colors.orange,
-                            borderRadius: BorderRadius.circular(dynamicRadius),
-                          ),
                           child: Text(
                             "Transaction still pending".i18n(ref),
-                            style: const TextStyle(color: Colors.black),
+                            style: const TextStyle(color: Colors.orange),
                           ),
                         ),
                       // Displaying the createdAt date

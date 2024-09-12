@@ -85,7 +85,7 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
               ...transaction.balances.map((balance) {
                 return TransactionDetailRow(
                   label: AssetMapper.mapAsset(balance.assetId).name,
-                  value: balance.value.toString(),
+                  value: (balance.value / 100000000).toStringAsFixed(8),
                   amount: balance.value,
                 );
               }).toList(),

@@ -1538,6 +1538,14 @@ extension Localization on String {
       {
         'en': 'Liquid Transaction Details',
         'pt': 'Detalhes da Transação Liquid'
+      } +
+      {
+        'en': 'History',
+        'pt': 'Histórico'
+      } +
+      {
+        'en': 'More Details',
+        'pt': 'Mais Detalhes'
       };
 
   String i18n(WidgetRef ref) {

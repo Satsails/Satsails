@@ -270,7 +270,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     child: Column(
                       children: [
                         Text(
-                          '${'You will receive: '.i18n(ref)}${_amountToReceive.toStringAsFixed(2)} BRL',
+                          '${'You will receive: '.i18n(ref)}${_amountToReceive.toStringAsFixed(3)} BRL',
                           style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.green),
                         ),
                         Text(
