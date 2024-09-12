@@ -18,11 +18,11 @@ class Analytics extends ConsumerWidget {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         appBar: AppBar(
-          title: Center(child: Text('Analytics'.i18n(ref))),
+          title: Center(child: Text('Analytics'.i18n(ref), style: const TextStyle(color: Colors.white))),
           automaticallyImplyLeading: false,
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.black,
         ),
         body: _buildBody(context, ref),
         bottomNavigationBar: CustomBottomNavigationBar(
@@ -41,12 +41,13 @@ class Analytics extends ConsumerWidget {
     return Column(
       children: [
         const Center(child: ButtonPicker()),
-        if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')
-          const Calendar(),
+        // leave this commented out in case there are issues in the future to bring back functionality
+        // if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')
+        //   const Calendar(),
         if (transactionType == 'Bitcoin') const BitcoinExpensesDiagram(),
         if (transactionType == 'Instant Bitcoin') const LiquidExpensesDiagram(),
         if (transactionType == 'Bitcoin' || transactionType == 'Instant Bitcoin')
-        const Expanded(child: BuildTransactions(showAllTransactions: false,)),
+        const BuildTransactions(showAllTransactions: false,),
         if(transactionType == 'Swap') const Expanded(child: SwapsBuilder()),
       ],
     );

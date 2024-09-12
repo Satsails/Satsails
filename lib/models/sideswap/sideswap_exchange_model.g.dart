@@ -23,13 +23,14 @@ class SideswapCompletedSwapAdapter extends TypeAdapter<SideswapCompletedSwap> {
       recvAsset: fields[3] as String,
       recvAmount: fields[4] as num,
       orderId: fields[5] as String,
+      timestamp: fields[6] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, SideswapCompletedSwap obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.txid)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class SideswapCompletedSwapAdapter extends TypeAdapter<SideswapCompletedSwap> {
       ..writeByte(4)
       ..write(obj.recvAmount)
       ..writeByte(5)
-      ..write(obj.orderId);
+      ..write(obj.orderId)
+      ..writeByte(6)
+      ..write(obj.timestamp);
   }
 
   @override

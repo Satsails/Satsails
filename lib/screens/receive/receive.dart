@@ -25,12 +25,12 @@ class Receive extends ConsumerWidget {
     final controller = ref.watch(groupButtonControllerProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text('Receive'.i18n(ref), style: TextStyle(fontSize: screenHeight * 0.03)), // 3% of screen height
+        backgroundColor: Colors.black,
+        title: Text('Receive'.i18n(ref), style: const TextStyle(color: Colors.white)),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, size: screenHeight * 0.03), // 3% of screen height
+          icon: Icon(Icons.arrow_back, size: screenHeight * 0.03, color: Colors.white),
           onPressed: () {
             Navigator.of(context).pop();
             ref.read(inputAmountProvider.notifier).state = '0.0';
@@ -40,7 +40,6 @@ class Receive extends ConsumerWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // OfflineTransactionWarning(online: online),
             GroupButton(
               isRadio: true,
               controller: controller,
@@ -68,26 +67,26 @@ class Receive extends ConsumerWidget {
               buttons: const ["Lightning", 'Bitcoin', "Liquid"],
               options: GroupButtonOptions(
                 unselectedTextStyle: TextStyle(
-                    fontSize: screenHeight * 0.02, color: Colors.black), // 2% of screen height
+                    fontSize: screenWidth * 0.04, color: Colors.orange),
                 selectedTextStyle: TextStyle(
-                    fontSize: screenHeight * 0.02, color: Colors.white), // 2% of screen height
-                selectedColor: Colors.deepOrange,
+                    fontSize: screenWidth * 0.04, color: Colors.black),
+                selectedColor: Colors.orange,
                 mainGroupAlignment: MainGroupAlignment.center,
                 crossGroupAlignment: CrossGroupAlignment.center,
                 groupRunAlignment: GroupRunAlignment.center,
-                unselectedColor: Colors.white,
+                unselectedColor: Colors.black,
                 groupingType: GroupingType.row,
-                spacing: screenWidth * 0.01, // 1% of screen width
                 alignment: Alignment.center,
                 elevation: 0,
                 textPadding: EdgeInsets.zero,
+                unselectedBorderColor: Colors.orange,
                 selectedShadow: <BoxShadow>[
                   const BoxShadow(color: Colors.transparent)
                 ],
                 unselectedShadow: <BoxShadow>[
                   const BoxShadow(color: Colors.transparent)
                 ],
-                borderRadius: BorderRadius.circular(30.0),
+                borderRadius: BorderRadius.circular(screenWidth * 0.01),
               ),
             ),
             SizedBox(height: screenHeight * 0.02), // 2% of screen height

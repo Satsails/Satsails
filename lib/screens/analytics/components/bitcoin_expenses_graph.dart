@@ -1,6 +1,7 @@
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/screens/analytics/components/calendar.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,12 +33,12 @@ class LineChartSample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SfCartesianChart(
-      primaryXAxis: DateTimeAxis(
-        intervalType: DateTimeIntervalType.days,
-        dateFormat: DateFormat('dd/MM'),
-        interval: selectedDays.length > 20 ? 5 : 1,
-        majorGridLines: const MajorGridLines(width: 0),
-        minorGridLines: const MinorGridLines(width: 0),
+      primaryXAxis: const DateTimeAxis(
+        isVisible: true,
+        labelStyle: TextStyle(color: Colors.white),
+        majorGridLines: MajorGridLines(width: 0),
+        minorGridLines: MinorGridLines(width: 0),
+        axisLine: AxisLine(width: 0),
       ),
       primaryYAxis: NumericAxis(
         isVisible: true,
@@ -46,6 +47,7 @@ class LineChartSample extends StatelessWidget {
             : 0, // Default value when balanceInCurrency.values is empty
         majorGridLines: const MajorGridLines(width: 0),
         minorGridLines: const MinorGridLines(width: 0),
+        labelStyle: const TextStyle(color: Colors.white),
       ),
       plotAreaBorderWidth: 0,
       trackballBehavior: TrackballBehavior(
@@ -55,7 +57,7 @@ class LineChartSample extends StatelessWidget {
         tooltipSettings: const InteractiveTooltip(
           enable: true,
           color: Colors.orangeAccent,
-          textStyle: TextStyle(color: Colors.grey),
+          textStyle: TextStyle(color: Colors.white),
           borderWidth: 0,
           decimalPlaces: 8,
         ),
@@ -74,18 +76,10 @@ class LineChartSample extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(5),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 1,
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                ),
-              ],
             ),
             child: Text(
               isShowingMainData ? displayString : displayStringIfNotMainData,
-              style: const TextStyle(color: Colors.grey),
+              style: const TextStyle(color: Colors.black),
             ),
           );
         },
@@ -94,48 +88,53 @@ class LineChartSample extends StatelessWidget {
     );
   }
 
-  List<SplineSeries<MapEntry<DateTime, num>, DateTime>> _chartSeries() {
-    final seriesList = <SplineSeries<MapEntry<DateTime, num>, DateTime>>[];
+  List<LineSeries<MapEntry<DateTime, num>, DateTime>> _chartSeries() {
+    final seriesList = <LineSeries<MapEntry<DateTime, num>, DateTime>>[];
 
     if (mainData != null && isShowingMainData) {
-      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Main Data',
         dataSource: mainData!.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
         yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
         color: Colors.orangeAccent,
         markerSettings: const MarkerSettings(isVisible: false),
+        animationDuration: 0,
       ));
     } else {
-      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Spending',
         dataSource: spendingData.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
         yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
         color: Colors.blueAccent,
         markerSettings: const MarkerSettings(isVisible: false),
+        animationDuration: 0,
       ));
-      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Income',
         dataSource: incomeData.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
         yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
         color: Colors.greenAccent,
         markerSettings: const MarkerSettings(isVisible: false),
+        animationDuration: 0,
       ));
-      seriesList.add(SplineSeries<MapEntry<DateTime, num>, DateTime>(
+      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Fee',
         dataSource: feeData.entries.toList(),
         xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
         yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
         color: Colors.orangeAccent,
         markerSettings: const MarkerSettings(isVisible: false),
+        animationDuration: 0,
       ));
     }
 
     return seriesList;
   }
 }
+
 
 class ExpensesGraph extends ConsumerStatefulWidget {
   const ExpensesGraph({super.key});
@@ -158,29 +157,13 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
     final selectedCurrency = ref.watch(settingsProvider).currency;
     final currencyRate = ref.watch(selectedCurrencyProvider(selectedCurrency));
 
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Column(
       children: <Widget>[
-        Container(
-          height: screenHeight * 0.2,
-          padding: const EdgeInsets.only(right: 16),
-          child: LineChartSample(
-            selectedDays: selectedDays,
-            feeData: feeData,
-            incomeData: incomeData,
-            spendingData: spendingData,
-            mainData: !isShowingMainData ? bitcoinBalanceByDay : null,
-            balanceInCurrency: calculateBalanceInCurrency(bitcoinBalanceByDayUnformatted, currencyRate),
-            selectedCurrency: selectedCurrency,
-            isShowingMainData: !isShowingMainData,
-          ),
-        ),
         Center(
           child: TextButton(
             child: Text(
               !isShowingMainData ? 'Show Statistics over period'.i18n(ref) : 'Show Balance'.i18n(ref),
-              style: const TextStyle(color: Colors.grey),
+              style: const TextStyle(color: Colors.white),
             ),
             onPressed: () {
               setState(() {
@@ -199,6 +182,19 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
             _buildLegend('Fee'.i18n(ref), Colors.orangeAccent),
           ],
         ),
+        const Calendar(),
+        Expanded(  // This makes the LineChartSample expand to take up available space
+          child: LineChartSample(
+            selectedDays: selectedDays,
+            feeData: feeData,
+            incomeData: incomeData,
+            spendingData: spendingData,
+            mainData: !isShowingMainData ? bitcoinBalanceByDay : null,
+            balanceInCurrency: calculateBalanceInCurrency(bitcoinBalanceByDayUnformatted, currencyRate),
+            selectedCurrency: selectedCurrency,
+            isShowingMainData: !isShowingMainData,
+          ),
+        ),
       ],
     );
   }
@@ -212,7 +208,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
           color: color,
         ),
         const SizedBox(width: 5),
-        Text(label),
+        Text(label, style: const TextStyle(color: Colors.white)),
       ],
     );
   }

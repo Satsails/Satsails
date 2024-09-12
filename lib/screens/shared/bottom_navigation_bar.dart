@@ -1,7 +1,5 @@
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:Satsails/screens/analytics/analytics.dart';
-import 'package:Satsails/screens/home/home.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'dart:math' as math;
@@ -21,66 +19,55 @@ class CustomBottomNavigationBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
-    const maxFontSize = 16.0; // Set your desired max size
+    const maxFontSize = 16.0;
 
     List<BottomNavigationBarItem> bottomNavBarItems = [
       BottomNavigationBarItem(
-        icon: Icon(AntDesign.home_outline, size: math.min(screenHeight * 0.03, 25.0)),
+        icon: GestureDetector(
+          onTapDown: (_) => onTap(0), // Trigger on tap down immediately
+          onLongPress: () {}, // Disable long press by doing nothing
+          child: Icon(AntDesign.home_outline, size: math.min(screenHeight * 0.03, 25.0)),
+        ),
         label: 'Home'.i18n(ref),
       ),
       BottomNavigationBarItem(
-        icon: Icon(AntDesign.bar_chart_outline, size: math.min(screenHeight * 0.03, 25.0)),
+        icon: GestureDetector(
+          onTapDown: (_) => onTap(1), // Trigger on tap down immediately
+          onLongPress: () {}, // Disable long press by doing nothing
+          child: Icon(AntDesign.bar_chart_outline, size: math.min(screenHeight * 0.03, 25.0)),
+        ),
         label: 'Analytics'.i18n(ref),
+      ),
+      BottomNavigationBarItem(
+        icon: GestureDetector(
+          onTapDown: (_) => onTap(2), // Trigger on tap down immediately
+          onLongPress: () {}, // Disable long press by doing nothing
+          child: Icon(AntDesign.bulb_outline, size: math.min(screenHeight * 0.03, 25.0)),
+        ),
+        label: 'Services'.i18n(ref),
+      ),
+      BottomNavigationBarItem(
+        icon: GestureDetector(
+          onTapDown: (_) => onTap(3), // Trigger on tap down immediately
+          onLongPress: () {}, // Disable long press by doing nothing
+          child: Icon(AntDesign.wallet_outline, size: math.min(screenHeight * 0.03, 25.0)),
+        ),
+        label: 'Wallets'.i18n(ref),
       ),
     ];
 
-    return Theme(
-      data: Theme.of(context).copyWith(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-      ),
-      child: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        currentIndex: currentIndex,
-        onTap: (index) {
-          _navigateToScreen(index, context);
-          onTap(index);
-        },
-        unselectedItemColor: Colors.black,
-        selectedItemColor: Colors.orangeAccent,
-        elevation: 8.0,
-        items: bottomNavBarItems,
-        unselectedFontSize: math.min(screenHeight * 0.02, maxFontSize),
-        selectedFontSize: math.min(screenHeight * 0.02, maxFontSize),
-      ),
-    );
-  }
-
-  void _navigateToScreen(int index, BuildContext context) {
-    Widget page = const Home();
-
-    switch (index) {
-      case 0:
-        page = const Home();
-        break;
-      case 1:
-        page = const Analytics();
-        break;
-    }
-
-    _navigateToPage(page, context);
-  }
-
-  void _navigateToPage(Widget page, BuildContext context) {
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (BuildContext context, Animation<double> animation1, Animation<double> animation2) {
-          return page;
-        },
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-      ),
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.black,
+      currentIndex: currentIndex,
+      onTap: onTap, // Regular tap
+      unselectedItemColor: Colors.white,
+      selectedItemColor: Colors.orangeAccent,
+      elevation: 8.0,
+      items: bottomNavBarItems,
+      unselectedFontSize: math.min(screenHeight * 0.02, maxFontSize),
+      selectedFontSize: math.min(screenHeight * 0.02, maxFontSize),
     );
   }
 }
+

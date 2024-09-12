@@ -1,9 +1,9 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -68,6 +68,8 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     if (mnemonicWords.isEmpty) {
       return Scaffold(
         appBar: AppBar(
@@ -80,20 +82,33 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text('Backup Wallet'.i18n(ref)),
+        backgroundColor: Colors.black,
+        title: Text(
+          'Backup Wallet'.i18n(ref),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/settings');
+          },
+        ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(screenWidth * 0.05),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Select the correct word for each position:'.i18n(ref),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: screenWidth * 0.05),
             Expanded(
               child: ListView.builder(
                 itemCount: selectedIndices.length,
@@ -106,12 +121,12 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
                       children: [
                         Text(
                           '${'Word in position'.i18n(ref)} ${wordIndex + 1}:',
-                          style: const TextStyle(fontSize: 16),
+                          style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.04),
                         ),
                         Column(
                           children: quizOptions[wordIndex]!.map((option) {
                             return RadioListTile<String>(
-                              title: Text(option),
+                              title: Text(option, style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.04)),
                               value: option,
                               groupValue: userSelections[wordIndex],
                               onChanged: (value) {
@@ -129,29 +144,32 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
                 },
               ),
             ),
-            CustomButton(
-              text: 'Verify'.i18n(ref),
-              onPressed: () {
-                if (checkAnswers()) {
-                  ref.read(settingsProvider.notifier).setBackup(true);
-                  Fluttertoast.showToast(
-                    msg: 'Wallet successfully backed up!'.i18n(ref),
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.TOP,
-                    backgroundColor: Colors.green,
-                    textColor: Colors.white,
-                  );
-                  Navigator.pushReplacementNamed(context, '/home');
-                } else {
-                  Fluttertoast.showToast(
-                    msg: 'Incorrect selections. Please try again.'.i18n(ref),
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.TOP,
-                    backgroundColor: Colors.red,
-                    textColor: Colors.white,
-                  );
-                }
-              },
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.2),
+              child: CustomButton(
+                text: 'Verify'.i18n(ref),
+                onPressed: () {
+                  if (checkAnswers()) {
+                    ref.read(settingsProvider.notifier).setBackup(true);
+                    Fluttertoast.showToast(
+                      msg: 'Wallet successfully backed up!'.i18n(ref),
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.TOP,
+                      backgroundColor: Colors.green,
+                      textColor: Colors.white,
+                    );
+                    Navigator.pushReplacementNamed(context, '/home');
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: 'Incorrect selections. Please try again.'.i18n(ref),
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.TOP,
+                      backgroundColor: Colors.red,
+                      textColor: Colors.white,
+                    );
+                  }
+                },
+              ),
             ),
           ],
         ),

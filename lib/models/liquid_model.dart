@@ -45,7 +45,7 @@ class LiquidModel {
       final pset = await config.liquid.wallet.buildLbtcTx(
         sats: params.amount,
         outAddress: params.outAddress,
-        feeRate: params.fee * 1000,
+        feeRate: params.fee * 100,
         drain: false,
       );
       return pset;
@@ -62,7 +62,7 @@ class LiquidModel {
       final pset = await config.liquid.wallet.buildLbtcTx(
         sats: params.amount,
         outAddress: params.outAddress,
-        feeRate: params.fee * 1000,
+        feeRate: params.fee * 100,
         drain: true,
       );
       return pset;
@@ -80,7 +80,7 @@ class LiquidModel {
       final pset = await config.liquid.wallet.buildAssetTx(
         sats: params.amount,
         outAddress: params.outAddress,
-        feeRate: params.fee * 1000,
+        feeRate: params.fee * 100,
         asset: params.assetId,
       );
       return pset;

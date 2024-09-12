@@ -14,12 +14,6 @@ String btcInDenominationFormatted(double amount, String denomination, [bool isBi
     case 'BTC':
       balance = (amount / 100000000);
       break;
-    case 'mBTC':
-      balance = (amount / 100000000) * 1000;
-      break;
-    case 'bits':
-      balance = (amount / 100000000) * 1000000;
-      break;
     default:
       return "0";
   }
@@ -30,10 +24,6 @@ String btcInDenominationFormatted(double amount, String denomination, [bool isBi
     switch (denomination) {
       case 'BTC':
         return balance.toStringAsFixed(8);
-      case 'mBTC':
-        return balance.toStringAsFixed(5);
-      case 'bits':
-        return balance.toStringAsFixed(2);
       default:
         return balance.toStringAsFixed(0);
     }
@@ -58,12 +48,6 @@ num btcInDenominationNum(num amount, String denomination, [bool isBitcoin = true
       break;
     case 'BTC':
       balance = (amount / 100000000);
-      break;
-    case 'mBTC':
-      balance = (amount / 100000000) * 1000;
-      break;
-    case 'bits':
-      balance = (amount / 100000000) * 1000000;
       break;
     default:
       return 0;

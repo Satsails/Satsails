@@ -13,12 +13,6 @@ final conversionProvider = StateProvider.autoDispose.family<String, int>((ref, a
     case 'BTC':
       balance = amount / 100000000;
       return balance.toStringAsFixed(8);
-    case 'mBTC':
-      balance = (amount / 100000000) * 1000;
-      return balance.toStringAsFixed(5);
-    case 'bits':
-      balance = (amount / 100000000) * 1000000;
-      return balance.toStringAsFixed(2);
     default:
       return "Invalid format";
   }
