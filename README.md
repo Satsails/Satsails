@@ -8,7 +8,7 @@ Satsails is a self-custodial Bitcoin and Liquid Network platform that offers non
 
 We are committed to being open source and transparent, offering a non-custodial service.
 
-**Everything we build is designed to be held and operated by you. We either use on-device technology or connect you to partner companies. Nothing will ever be stored by us.**
+**Everything we build is designed to be held and operated by you. We either use on-device technology or connect you to partner companies.**
 
 ## Data Collection
 
