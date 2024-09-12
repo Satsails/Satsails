@@ -18,7 +18,7 @@ This is the only data we ever collect.
 
 ### PIX Metadata
 
-When using PIX for payments, the metadata includes the **CPF** and the **name** of the person. This information is stored alongside the **transaction ID (txid)**. We know that a certain CPF with a certain name bought a specific amount of **Depix**, and we store the **address** and **txid** where the currency was sent. Although, liquid network makes these transactions private, we store this information for customer support and compliance purposes. We do not know anything about the transactions made with the currency after it leaves our platform.
+When using PIX for payments, the metadata includes the **CPF** and the **name** of the person. This information is stored alongside the **transaction ID (txid)**. We know that a certain CPF with a certain name bought a specific amount of **Depix**, and we store the **address** and **txid** where the currency was sent. Although, liquid network makes these transactions private, we store this information for customer support. We do not know anything about the transactions made with the currency after it leaves our platform.
 
 ## Core Dependencies
 
