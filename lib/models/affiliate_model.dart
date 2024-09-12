@@ -68,7 +68,7 @@ class AffiliateService {
   static Future<Result<bool>> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
     try {
       final response = await http.post(
-        Uri.parse('https://8fbe-84-90-103-7.ngrok-free.app/users/add_affiliate'),
+        Uri.parse('https://splitter.satsails.com/users/add_affiliate'),
         body: jsonEncode({
           'user': {
             'payment_id': paymentId,
@@ -97,7 +97,7 @@ class AffiliateService {
     if (isValid) {
       try {
         final response = await http.post(
-          Uri.parse('https://8fbe-84-90-103-7.ngrok-free.app/affiliates'),
+          Uri.parse('https://splitter.satsails.com/affiliates'),
           body: jsonEncode({
             'affiliate': {
               'liquid_address': liquidAddress,
@@ -125,7 +125,7 @@ class AffiliateService {
 
   static Future<Result<int>> affiliateNumberOfUsers(String affiliateCode, String auth) async {
     try {
-      final uri = Uri.parse('https://8fbe-84-90-103-7.ngrok-free.app/affiliates/number_of_users')
+      final uri = Uri.parse('https://splitter.satsails.com/affiliates/number_of_users')
           .replace(queryParameters: {
         'code': affiliateCode,
       });
@@ -150,7 +150,7 @@ class AffiliateService {
 
   static Future<Result<String>> affiliateEarnings(String affiliateCode, String auth) async {
     try {
-      final uri = Uri.parse('https://8fbe-84-90-103-7.ngrok-free.app/affiliates/value_earned_by_affiliate')
+      final uri = Uri.parse('https://splitter.satsails.com/affiliates/value_earned_by_affiliate')
           .replace(queryParameters: {
         'code': affiliateCode,
       });
@@ -175,7 +175,7 @@ class AffiliateService {
 
   static Future<Result<String>> affiliateUsersSpend(String affiliateCode, String auth) async {
     try {
-      final uri = Uri.parse('https://8fbe-84-90-103-7.ngrok-free.app/affiliates/total_value_purchased_by_clients')
+      final uri = Uri.parse('https://splitter.satsails.com/affiliates/total_value_purchased_by_clients')
           .replace(queryParameters: {
         'code': affiliateCode,
       });
@@ -200,7 +200,7 @@ class AffiliateService {
   static Future<Result<List<ParsedTransfer>>> getAllTransfersFromAffiliateUsers(String affiliateCode, String auth) async {
     try {
       final response = await http.get(
-        Uri.parse('https://8fbe-84-90-103-7.ngrok-free.app/affiliates/all_transfers')
+        Uri.parse('https://splitter.satsails.com/affiliates/all_transfers')
             .replace(queryParameters: {
           'code': affiliateCode,
         }),

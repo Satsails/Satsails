@@ -25,32 +25,30 @@ class LiquidExpensesDiagram extends ConsumerWidget {
     final oneDay = ref.watch(oneDayProvider);
 
     List<Widget> cards = [
-      Expanded(
-        child: Column(
-          children: [
-            Text(
-              '${'Current Balance'.i18n(ref)}: $liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white),
-            ),
+      Column(
+        children: [
+          Text(
+            '${'Current Balance'.i18n(ref)}: $liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Bitcoin", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.white)),
+              const Icon(Icons.swipe, color: Colors.white),
+            ],
+          ),
+          if (oneDay)
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text("Bitcoin", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.white)),
-                const Icon(Icons.swipe, color: Colors.white),
+                _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
+                _buildCard('Fee'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee,[const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
               ],
             ),
-            if (oneDay)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildCard('Sent'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinSent, [const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
-                  _buildCard('Received'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).bitcoinReceived, [const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
-                  _buildCard('Fee'.i18n(ref), _calculateLiquidExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee,[const Color(0xFF288BEC), const Color(0xFF288BEC)], context, btcFormat, screenWidth, screenHeight),
-                ],
-              ),
-            if (!oneDay)
-              Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.LBTC))),
-          ],
-        ),
+          if (!oneDay)
+            Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.LBTC))),
+        ],
       ),
       Column(
         children: [

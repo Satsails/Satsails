@@ -1522,6 +1522,30 @@ extension Localization on String {
       {
         'en': 'Waiting',
         'pt': 'Aguardando'
+      } +
+      {
+        'en': 'Confirmation block',
+        'pt': 'Bloco de confirmação'
+      } +
+      {
+        'en': 'Amounts',
+        'pt': 'Quantias'
+      } +
+      {
+        'en': 'Search on Mempool',
+        'pt': 'Pesquisar no Mempool'
+      } +
+      {
+        'en': 'Liquid Transaction Details',
+        'pt': 'Detalhes da Transação Liquid'
+      } +
+      {
+        'en': 'History',
+        'pt': 'Histórico'
+      } +
+      {
+        'en': 'More Details',
+        'pt': 'Mais Detalhes'
       };
 
   String i18n(WidgetRef ref) {

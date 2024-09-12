@@ -294,7 +294,7 @@ class AffiliateViewWidget extends ConsumerWidget {
           final DateTime date = trackballDetails.point!.x;
           final num? value = trackballDetails.point!.y;
           final String formattedDate = formatter.format(date);
-          final String affiliateValue = value!.toStringAsFixed(value == value.roundToDouble() ? 0 : 2);
+          final String affiliateValue = value!.toStringAsFixed(value == value.roundToDouble() ? 0 : 3);
 
           return Text(
             '$formattedDate\n $affiliateValue',
