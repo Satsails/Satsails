@@ -1,6 +1,3 @@
-Here’s the updated section in proper markdown format:
-
----
 
 # About Satsails
 
