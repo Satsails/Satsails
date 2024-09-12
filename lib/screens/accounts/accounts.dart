@@ -54,21 +54,12 @@ class Accounts extends ConsumerWidget {
               SizedBox(height: screenWidth * 0.02),
               Consumer(
                 builder: (context, ref, _) {
-                  final format = ref
-                      .watch(settingsProvider)
-                      .btcFormat;
-                  final currency = ref
-                      .watch(settingsProvider)
-                      .currency;
+                  final format = ref.watch(settingsProvider).btcFormat;
+                  final currency = ref.watch(settingsProvider).currency;
                   final balanceProvider = ref.watch(balanceNotifierProvider);
-                  final btcBalanceInFormat = ref.watch(
-                      btcBalanceInFormatProvider(format));
+                  final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(format));
                   final bitcoinAddress = ref.watch(bitcoinAddressProvider.future);
-                  final bitcoinInCurrency = ref.watch(
-                      currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref
-                          .watch(settingsProvider)
-                          .currency, balanceProvider.btcBalance)))
-                      .toStringAsFixed(2);
+                  final bitcoinInCurrency = ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, balanceProvider.btcBalance))).toStringAsFixed(2);
                   return Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
@@ -116,14 +107,9 @@ class Accounts extends ConsumerWidget {
                       .watch(settingsProvider)
                       .currency;
                   final balanceProvider = ref.watch(balanceNotifierProvider);
-                  final liquidBalanceInFormat = ref.watch(
-                      liquidBalanceInFormatProvider(format));
+                  final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
                   final liquid = ref.watch(liquidAddressProvider.future);
-                  final liquidInCurrency = ref.watch(
-                      currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref
-                          .watch(settingsProvider)
-                          .currency, balanceProvider.liquidBalance)))
-                      .toStringAsFixed(2);
+                  final liquidInCurrency = ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, balanceProvider.liquidBalance))).toStringAsFixed(2);
                   return Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
