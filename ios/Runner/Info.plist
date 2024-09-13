@@ -4,7 +4,13 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>NSFaceIDUsageDescription</key>
+	<key>NSCameraUsageDescription</key>
+        <string>Access to send live photos to our support</string>
+        <key>NSPhotoLibraryAddUsageDescription</key>
+        <string>Access to send photos to our support</string>
+        <key>NSMicrophoneUsageDescription</key>
+        <string>Access to send audio messages to our support</string>
+		<key>NSFaceIDUsageDescription</key>
     <string>We need to use face id for easier app unlock</string>
 	<key>CFBundleDisplayName</key>
 	<string>Satsails</string>

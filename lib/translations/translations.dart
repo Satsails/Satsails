@@ -66,14 +66,16 @@ extension Localization on String {
       } +
       {
         'en': 'Add Money',
-        'pt': 'Adicionar Dinheiro',
-      } + {
-    'en': 'Exchange',
-    'pt': 'Trocar',} + {
-    'en': 'Pay',
-    'pt': 'Pagar',}
-      + {'en': "Recieve",
-        'pt': "Receber",}+
+        'pt': 'Carregar',
+      } +
+      {
+        'en': 'Exchange',
+        'pt': 'Converter',} +
+      {
+        'en': 'Pay',
+        'pt': 'Pagar',} +
+      {'en': "Recieve",
+        'pt': "Receber",} +
       {
         'en': 'Home',
         'pt': 'Início',
@@ -283,10 +285,6 @@ extension Localization on String {
         'pt': 'Múltiplas',
       } +
       {
-        'en': 'Received',
-        'pt': 'Recebido',
-      } +
-      {
         'en': 'Sent',
         'pt': 'Enviado',
       } +
@@ -311,10 +309,6 @@ extension Localization on String {
         'pt': 'Deslize para enviar',
       } +
       {
-        'en': 'Insufficient funds',
-        'pt': 'Fundos insuficientes',
-      } +
-      {
         'en': 'Liquid Balance',
         'pt': 'Saldo Liquid',
       } +
@@ -335,8 +329,8 @@ extension Localization on String {
         'pt': 'Aguardando transação...',
       } +
       {
-        'en': 'Set an amount to create an invoice',
-        'pt': 'Defina um valor para criar uma fatura',
+        'en': 'Set an amount to create a lightning invoice',
+        'pt': 'Defina um valor para criar uma fatura lightning',
       } +
       {
         'en': 'Amount is above the maximal limit',
@@ -463,12 +457,9 @@ extension Localization on String {
         'pt': 'O PIN deve ter exatamente 6 dígitos',
       } +
       {
-        'en': 'Insufficient funds',
-        'pt': 'Fundos insuficientes',
-      }+    {
-    'en': 'Order ID',
-    'pt': 'ID do Pedido',
-  } +
+        'en': 'Order ID',
+        'pt': 'ID do Pedido',
+      } +
       {
         'en': 'Received at',
         'pt': 'Recebido em',
@@ -536,16 +527,19 @@ extension Localization on String {
       {
         'en': 'Account Management',
         'pt': 'Gerenciamento de Contas',
-      } + {
-    'en': 'Confirm Payment',
-    'pt': 'Confirmar Pagamento',
-  } + {
-    'en': 'Details',
-    'pt': 'Detalhes',
-  } +    {
-    'en': '10 minutes',
-    'pt': '10 minutos',
-  } +
+      } +
+      {
+        'en': 'Confirm Payment',
+        'pt': 'Confirmar Pagamento',
+      } +
+      {
+        'en': 'Details',
+        'pt': 'Detalhes',
+      } +
+      {
+        'en': '10 minutes',
+        'pt': '10 minutos',
+      } +
       {
         'en': '30 minutes',
         'pt': '30 minutos',
@@ -603,8 +597,8 @@ extension Localization on String {
         'pt': 'Reivindicar transações lightning',
       } +
       {
-        'en': 'Set an amount to create an invoice',
-        'pt': 'Defina um valor para criar uma fatura',
+        'en': 'Set an amount to create a lightning invoice',
+        'pt': 'Defina um valor para criar uma fatura lightning',
       } +
       {
         'en': 'Amount is below the minimal limit',
@@ -683,8 +677,8 @@ extension Localization on String {
         'pt': 'Solicitar permissão da câmera',
       }+
       {
-      'en': 'Complete lightning transactions',
-      'pt': 'Completar transações lightning',
+        'en': 'Complete lightning transactions',
+        'pt': 'Completar transações lightning',
       }+
       {
         'en': 'All lightning transactions were complete',
@@ -720,7 +714,7 @@ extension Localization on String {
       }+
       {
         'en': 'Swaps',
-        'pt': "Trocas",
+        'pt': "Converter",
       }+
       {
         'en': 'Spending',
@@ -752,7 +746,7 @@ extension Localization on String {
       }+
       {
         'en': 'Seed Words',
-        'pt': 'Seed Words'
+        'pt': 'Seed'
       }+
       {
         'en': 'Select the correct word for each position:',
@@ -805,12 +799,762 @@ extension Localization on String {
       {
         'en': 'Instant Bitcoin',
         'pt': 'Bitcoin Instantâneo'
+      }+
+      {
+        'en': 'Send a pix and we will credit your wallet',
+        'pt': 'Envie um pix e creditaremos sua carteira'
+      }+
+      {
+        'en': 'Pix Address',
+        'pt': 'Endereço Pix'
+      }+
+      {
+        'en': 'Check Pix Transactions',
+        'pt': 'Verificar Transações Pix'
+      } +
+      {
+        'en': 'Minimum amount is 3 BRL',
+        'pt': 'O valor mínimo é de 3 BRL'
+      } +
+      {
+        'en': 'You have reached the daily limit',
+        'pt': 'Você atingiu o limite diário'
+      } +
+      {
+        'en': 'An error has occurred. Please check your internet connection or contact support',
+        'pt': 'Ocorreu um erro. Por favor, verifique sua conexão com a internet ou contate o suporte'
+      } +
+      {
+        'en': 'You can transfer up to',
+        'pt': 'Você pode transferir até '
+      } +
+      {
+        'en': ' today',
+        'pt': ' hoje'
+      } +
+      {
+        'en': 'Insert an amount',
+        'pt': 'Insira um valor'
+      } +
+      {
+        'en': 'You will receive: ',
+        'pt': 'Você receberá: '
+      } +
+      {
+        'en': 'Generate Pix code',
+        'pt': 'Gerar código Pix'
+      } +
+      {
+        'en': 'No Pix transactions',
+        'pt': 'Nenhuma transação Pix'
+      } +
+      {
+        'en': 'Received: ',
+        'pt': 'Recebido: '
+      } +
+      {
+        'en': 'Tap to view receipt',
+        'pt': 'Toque para ver o recibo'
+      } +
+      {
+        'en': 'Transaction still pending, or maximum value of 5000 per CPF has been reached and depix will be transferred on next available day',
+        'pt': 'Transação ainda pendente, ou o valor máximo de 5000 por CPF foi atingido e o depix será transferido no próximo dia disponível'
+      } +
+      {
+        'en': 'Charge your wallet',
+        'pt': 'Carregue sua carteira'
+      } +
+      {
+        'en': 'Get Real stablecoins, and convert them to Bitcoin',
+        'pt': 'Obtenha stablecoins de Real e converta-os em Bitcoin'
+      } +
+      {
+        'en': 'Simply send us a pix with your unique code',
+        'pt': 'Simplesmente nos envie um pix com seu código único'
+      } +
+      {
+        'en': 'Send a pix with the to the key we provide you, and we will credit your wallet',
+        'pt': 'Envie um pix com a chave que fornecemos a você, e creditaremos sua carteira'
+      } +
+      {
+        'en': 'Your wallet did not get credited?',
+        'pt': 'Sua carteira não foi creditada?'
+      } +
+      {
+        'en': 'Contact us via our support in settings and we will help you',
+        'pt': 'Contate-nos através do nosso suporte nas configurações e nós ajudaremos você'
+      } +
+      {
+        'en': 'You can not send more than 5000 BRL per day',
+        'pt': 'Você não pode enviar mais de 5000 BRL por dia'
+      } +
+      {
+        'en': 'If you need to send more, contact us via our support in settings, and we will help you',
+        'pt': 'Se você precisar enviar mais, contate-nos através do nosso suporte nas configurações, e nós ajudaremos você'
+      } +
+      {
+        'en': 'There was an error saving your code. Please try again or contact support',
+        'pt': 'Houve um erro ao salvar seu código. Por favor, tente novamente ou contate o suporte'
+      } +
+      {
+        'en': 'Skip',
+        'pt': 'Pular'
+      } +
+      {
+        'en': 'Done',
+        'pt': 'Concluído'
+      } +
+      {
+        'en': 'Receive',
+        'pt': 'Receber'
+      } +
+      {
+        'en': 'Send',
+        'pt': 'Enviar'
+      } +
+      {
+        'en': 'Error please contact support',
+        'pt': 'Erro, por favor, contate o suporte'
+      } +
+      {
+        'en': 'PIX received',
+        'pt': 'PIX recebido'
+      } +
+      {
+        'en': 'Pix received but transfer limit exceeded, you will receive the amount in 24h. If you wish to receive it sooner, please contact support',
+        'pt': 'Pix recebido, mas o limite de transferência foi excedido, você receberá o valor em 24h. Se desejar recebê-lo mais cedo, entre em contato com o suporte'
+      } +
+      {
+        'en': 'Become sovereign and freely opt out of the system.',
+        'pt': 'Seja soberano e opte por sair do sistema livremente.'
+      }  +
+      {
+        'en': 'Total balance:',
+        'pt': 'Saldo total:'
+      } +
+      {
+        'en': 'Change',
+        'pt': 'Alterar'
+      } +
+      {
+        'en': 'Services',
+        'pt': 'Serviços'
+      } +
+      {
+        'en': 'Wallets',
+        'pt': 'Carteiras'
+      } +
+      {
+        'en': 'Liquid',
+        'pt': 'Liquid'
+      } +
+      {
+        'en': 'PIX received',
+        'pt': 'PIX recebido'
+      } +
+      {
+        'en': 'Pix received but transfer limit exceeded, you will receive the amount in 24h. If you wish to receive it sooner, please contact support',
+        'pt': 'Pix recebido, mas o limite de transferência foi excedido, você receberá o valor em 24h. Se desejar recebê-lo mais cedo, entre em contato com o suporte'
+      } +
+      {
+        'en': 'Become sovereign and freely opt out of the system.',
+        'pt': 'Seja soberano e opte por sair do sistema livremente.'
+      } +
+      {
+        'en': 'Security',
+        'pt': 'Segurança'
+      } +
+      {
+        'en': 'Logout',
+        'pt': 'Sair'
+      } +
+      {
+        'en': 'Transaction History',
+        'pt': 'Histórico de Transações'
+      } +
+      {
+        'en': 'Blockchain Explorer',
+        'pt': 'Explorador de Blockchain'
+      } +
+      {
+        'en': 'Confirmations Required',
+        'pt': 'Confirmações Necessárias'
+      } +
+      {
+        'en': 'Remaining Balance',
+        'pt': 'Saldo Restante'
+      } +
+      {
+        'en': 'Network Fee',
+        'pt': 'Taxa de Rede'
+      } +
+      {
+        'en': 'Pending Transactions',
+        'pt': 'Transações Pendentes'
+      } +
+      {
+        'en': 'View More',
+        'pt': 'Ver Mais'
+      } +
+      {
+        'en': 'Failed',
+        'pt': 'Falhou'
+      } +
+      {
+        'en': 'Retry',
+        'pt': 'Tentar Novamente'
+      } +
+      {
+        'en': 'Settings',
+        'pt': 'Configurações'
+      } +
+      {
+        'en': 'Create wallet',
+        'pt': 'Criar carteira'
+      } +
+      {
+        'en': 'Recover wallet',
+        'pt': 'Recuperar carteira'
+      } +
+      {
+        'en': 'Delete Account?',
+        'pt': 'Excluir Conta?'
+      } +
+      {
+        'en': 'All information will be permanently deleted.',
+        'pt': 'Todas as informações serão permanentemente excluídas.'
+      } +
+      {
+        'en': 'Interactive Mode',
+        'pt': 'Modo Interativo'
+      } +
+      {
+        'en': 'View Accounts',
+        'pt': 'Ver Contas',
+      } +
+      {
+        'en': 'Total balance',
+        'pt': 'Saldo total',
+      } +
+      {
+        'en': 'Dashboards',
+        'pt': 'Dashboards',
+      } +
+      {
+        'en': 'Educação Real',
+        'pt': 'Educação Real',
+      } +
+      {
+        'en': 'Courses',
+        'pt': 'Cursos',
+      } +
+      {
+        'en': 'ETF Tracker',
+        'pt': 'Rastreador de ETF',
+      } +
+      {
+        'en': 'Retirement Calculator',
+        'pt': 'Calculadora de Aposentadoria',
+      } +
+      {
+        'en': 'Bitcoin Converter',
+        'pt': 'Conversor de Bitcoin',
+      } +
+      {
+        'en': 'DCA Calculator',
+        'pt': 'Calculadora DCA',
+      } +
+      {
+        'en': 'Bitcoin Counterflow Strategy',
+        'pt': 'Estratégia Counterflow de Bitcoin',
+      } +
+      {
+        'en': 'Charts',
+        'pt': 'Gráficos',
+      } +
+      {
+        'en': 'Liquidation Zone',
+        'pt': 'Zona de Liquidação',
+      }  +
+      {
+        'en': 'Transferred Today:',
+        'pt': 'Transferido Hoje:',
+      } +
+      {
+        'en': 'Transferred This Week:',
+        'pt': 'Transferido Esta Semana:',
+      }+
+      {
+        'en': 'history',
+        'pt': 'histórico',
+      }+
+      {
+        'en': 'Transaction still pending',
+        'pt': 'Transação ainda pendente',
+      }+
+      {
+        'en': 'An error has occurred. Please check your internet connection or contact support',
+        'pt': 'Ocorreu um erro. Por favor, verifique sua conexão com a internet ou contate o suporte',
+      }+
+      {
+        'en': 'Transaction Details',
+        'pt': 'Detalhes da Transação',
+      } +
+      {
+        'en': 'About the transaction',
+        'pt': 'Sobre a transação',
+      } +
+      {
+        'en': 'Date',
+        'pt': 'Data',
+      } +
+      {
+        'en': 'Pending',
+        'pt': 'Pendente',
+      } +
+      {
+        'en': 'Origin',
+        'pt': 'Origem',
+      } +
+      {
+        'en': 'Name',
+        'pt': 'Nome',
+      } +
+      {
+        'en': 'Completed',
+        'pt': 'Concluída',
+      } +
+      {
+        'en': 'Download document',
+        'pt': 'Baixar documento',
+      }+
+      {
+        'en': 'Chat with us about anything',
+        'pt': 'Converse conosco sobre qualquer coisa',
+      } +
+      {
+        'en': 'Claim your Boltz transactions',
+        'pt': 'Reivindique suas transações Boltz',
+      } +
+      {
+        'en': 'User Section',
+        'pt': 'Seção do Usuário',
+      } +
+      {
+        'en': 'Manage your anonymous account',
+        'pt': 'Gerencie sua conta anônima',
+      } +
+      {
+        'en': 'Instant',
+        'pt': 'Instantâneo',
+      } +
+      {
+        'en': 'See Full History',
+        'pt': 'Ver Histórico Completo',
+      } +
+      {
+        'en': 'Open support chat',
+        'pt': 'Abrir chat de suporte',
+      } +
+      {
+        'en': 'Reset Chat Session',
+        'pt': 'Reset da Sessão de Chat',
+      } +
+      {
+        'en': 'Support',
+        'pt': 'Suporte',
+      } +
+      {
+        'en': 'Lightning transactions',
+        'pt': 'Transações Lightning',
+      }+
+      {
+        'en': 'User Details',
+        'pt': 'Detalhes do Usuário',
+      } +
+      {
+        'en': 'Payment ID',
+        'pt': 'ID de Pagamento',
+      } +
+      {
+        'en': 'Affiliate code for sharing',
+        'pt': 'Código de afiliado para compartilhar',
+      } +
+      {
+        'en': 'Referred by',
+        'pt': 'Indicado por',
+      } +
+      {
+        'en': 'Recovery Code',
+        'pt': 'Código de Recuperação',
+      } +
+      {
+        'en': 'Hint: Please store your recovery code somewhere safe. There is no other way to recover your account if you lose this code.',
+        'pt': 'Dica: Guarde seu código de recuperação em um local seguro. Não há outra maneira de recuperar sua conta se você perder este código.',
+      } +
+      {
+        'en': 'Affiliate Portal',
+        'pt': 'Portal de Afiliados',
+      } +
+      {
+        'en': 'Track your performance and access exclusive resources.',
+        'pt': 'Acompanhe seu desempenho e acesse recursos exclusivos.',
+      } +
+      {
+        'en': 'Go to Affiliate Portal',
+        'pt': 'Ir para o Portal de Afiliados',
+      } +
+      {
+        'en': 'Welcome,',
+        'pt': 'Bem-vindo,',
+      } +
+      {
+        'en': 'This section is completely anonymous and does not require any personal information.',
+        'pt': 'Esta seção é completamente anônima e não requer nenhuma informação pessoal.',
+      } +
+      {
+        'en': 'Create anonymous account',
+        'pt': 'Criar conta anônima',
+      }+
+      {
+        'en': 'Anonymous account created successfully!',
+        'pt': 'Conta anônima criada com sucesso!',
+      } +
+      {
+        'en': 'Add funds to your wallet. Convert stablecoins to Bitcoin quickly and easily.',
+        'pt': 'Adicione fundos à sua carteira. Converta stablecoins em Bitcoin de forma rápida e fácil.',
+      } +
+      {
+        'en': 'Get your PIX key',
+        'pt': 'Obtenha sua chave PIX',
+      } +
+      {
+        'en': 'Receive an exclusive Pix key to add funds. This key is unique for each transaction.',
+        'pt': 'Receba uma chave Pix exclusiva para adicionar fundos. Esta chave é única para cada transação.',
+      } +
+      {
+        'en': 'Send us a PIX',
+        'pt': 'Envie-nos um PIX',
+      } +
+      {
+        'en': 'Make a Pix payment using the provided exclusive key. Your funds will be credited to your wallet.',
+        'pt': 'Faça um pagamento Pix usando a chave exclusiva fornecida. Seus fundos serão creditados em sua carteira.',
+      } +
+      {
+        'en': 'Daily limit',
+        'pt': 'Limite diário',
+      } +
+      {
+        'en': 'Daily transaction limit: BRL 5000. Need to send more? Contact our support.',
+        'pt': 'Limite diário de transações: BRL 5000. Precisa enviar mais? Entre em contato com nosso suporte.',
+      } +
+      {
+        'en': 'Enter recovery code',
+        'pt': 'Digite o código de recuperação',
+      } +
+      {
+        'en': 'Recover',
+        'pt': 'Recuperar',
+      } +
+      {
+        'en': 'Affiliate not found',
+        'pt': 'Afiliado não encontrado',
+      } +
+      {
+        'en': 'Invalid liquid address',
+        'pt': 'Endereço Liquid inválido',
+      } +
+      {
+        'en': 'The code you have inserted is not correct',
+        'pt': 'O código que você inseriu está incorreto',
+      } +
+      {
+        'en': 'The affiliate code can have a maximum of 8 characters, no spaces or special characters',
+        'pt': 'O código de afiliado pode ter no máximo 8 caracteres, sem espaços ou caracteres especiais',
+      } +
+      {
+        'en': 'The affiliate code you inserted already exists',
+        'pt': 'O código de afiliado que você inseriu já existe',
+      } +
+      {
+        'en': 'Affiliate',
+        'pt': 'Afiliado',
+      } +
+      {
+        'en': 'Connect with other users and earn sats!',
+        'pt': 'Conecte-se com outros usuários e ganhe sats!',
+      } +
+      {
+        'en': 'Enter your affiliate code or create a new code to receive benefits.',
+        'pt': 'Insira seu código de afiliado ou crie um novo código para receber benefícios.',
+      } +
+      {
+        'en': 'Insert Affiliate Code',
+        'pt': 'Inserir Código de Afiliado',
+      } +
+      {
+        'en': 'Create Affiliate Code',
+        'pt': 'Criar Código de Afiliado',
+      } +
+      {
+        'en': 'Recovery code copied to clipboard',
+        'pt': 'Código de recuperação copiado para a área de transferência',
+      } +
+      {
+        'en': 'Share',
+        'pt': 'Compartilhar',
+      } +
+      {
+        'en': 'Copy',
+        'pt': 'Copiar',
+      } +
+      {
+        'en': 'Affiliate code created successfully',
+        'pt': 'Código de afiliado criado com sucesso',
+      } +
+      {
+        'en': 'Enter a value to send',
+        'pt': 'Insira um valor para enviar',
+      } +
+      {
+        'en': 'Slide to Swap',
+        'pt': 'Deslize para Trocar',
+      } +{
+    'en': 'Affiliate Section',
+    'pt': 'Seção de Afiliados',
+  } +
+      {
+        'en': 'Bronze',
+        'pt': 'Bronze',
+      } +
+      {
+        'en': 'Silver',
+        'pt': 'Prata',
+      } +
+      {
+        'en': 'Gold',
+        'pt': 'Ouro',
+      } +
+      {
+        'en': 'Diamond',
+        'pt': 'Diamante',
+      } +
+      {
+        'en': 'Your Affiliate Code to Share',
+        'pt': 'Seu Código de Afiliado para Compartilhar',
+      } +
+      {
+        'en': 'Registered:',
+        'pt': 'Registrado:',
+      } +
+      {
+        'en': 'Total Earnings',
+        'pt': 'Ganhos Totais',
+      } +
+      {
+        'en': 'Number of Installations',
+        'pt': 'Número de Instalações',
+      } +
+      {
+        'en': 'Show Earnings Over Time',
+        'pt': 'Mostrar Ganhos',
+      } +
+      {
+        'en': 'Would you like to become an affiliate?',
+        'pt': 'Gostaria de se tornar um afiliado?',
+      } +
+      {
+        'en': 'Create Affiliate Code',
+        'pt': 'Criar Código de Afiliado',
+      } +
+      {
+        'en': 'Submit',
+        'pt': 'Enviar',
+      } +
+      {
+        'en': 'Affiliate code created successfully',
+        'pt': 'Código de afiliado criado com sucesso',
+      } +
+      {
+        'en': 'An error has occurred. Please check your internet connection or contact support',
+        'pt': 'Ocorreu um erro. Verifique sua conexão com a internet ou entre em contato com o suporte',
+      } +
+      {
+        'en': 'Earnings Over Time',
+        'pt': 'Ganhos ao Longo do Tempo',
+      } +
+      {
+        'en': 'No earnings data available',
+        'pt': 'Nenhum dado de ganhos disponível',
+      } +
+      {
+        'en': 'Affiliate Earnings',
+        'pt': 'Ganhos de Afiliado',
+      } +
+      {
+        'en': 'Liquid Address to receive commission',
+        'pt': 'Endereço Liquid para receber comissão',
+      } +
+      {
+        'en': 'Affiliate Code',
+        'pt': 'Código de Afiliado',
+      } +
+      {
+        'en': 'You were referred by',
+        'pt': 'Você foi indicado por',
+      } +
+      {
+        'en': 'Inserted Affiliate Code copied to clipboard',
+        'pt': 'Código de Afiliado inserido copiado para a área de transferência',
+      } +
+      {
+        'en': 'Created Affiliate Code copied to clipboard',
+        'pt': 'Código de Afiliado criado copiado para a área de transferência',
+      }+
+      {
+        'en': 'You are Bronze!',
+        'pt': 'Você é Bronze!',
+      } +
+      {
+        'en': 'You are Silver!',
+        'pt': 'Você é Prata!',
+      } +
+      {
+        'en': 'You are Gold!',
+        'pt': 'Você é Ouro!',
+      } +
+      {
+        'en': 'You are Diamond!',
+        'pt': 'Você é Diamante!',
+      } +
+      {
+        'en': 'Tier Locked',
+        'pt': 'Nível Bloqueado',
+      } +
+      {
+        'en': 'With 5000 DEPIX, you have reached the Gold tier.',
+        'pt': 'Com 5000 DEPIX, você atingiu o nível Ouro.',
+      } +
+      {
+        'en': 'With 20000 DEPIX, you have reached the Diamond tier.',
+        'pt': 'Com 20000 DEPIX, você atingiu o nível Diamante.',
+      } +
+      {
+        'en': 'You need 5000 DEPIX to unlock the Gold tier.',
+        'pt': 'Você precisa de 5000 DEPIX para desbloquear o nível Ouro.',
+      } +
+      {
+        'en': 'You need 20000 DEPIX to unlock the Diamond tier.',
+        'pt': 'Você precisa de 20000 DEPIX para desbloquear o nível Diamante.',
+      } +
+      {
+        'en': 'Current fee is 1% per affiliate in perpetuity.',
+        'pt': 'Taxa atual é de 1% por afiliado perpetuamente.',
+      } +
+      {
+        'en': 'Current fee is 0.2% per affiliate in perpetuity until you reach 20K in value transacted, then it goes to 1%.',
+        'pt': 'A taxa atual é de 0,2% por afiliado perpetuamente até que você atinja 20K em valor transacionado, então passa para 1%.',
+      } +
+      {
+        'en': 'You have not unlocked the Gold tier yet. Unlock it by reaching 5000 in value transacted.',
+        'pt': 'Você ainda não desbloqueou o nível Ouro. Desbloqueie-o ao atingir 5000 em valor transacionado.',
+      } +
+      {
+        'en': 'You have not unlocked the Diamond tier yet. Unlock it by reaching 20000 in value transacted.',
+        'pt': 'Você ainda não desbloqueou o nível Diamante. Desbloqueie-o ao atingir 20000 em valor transacionado.',
+      } +
+      {
+        'en': 'You have not unlocked the Ouro tier yet. Unlock it by reaching 5000 in value transacted.',
+        'pt': 'Você ainda não desbloqueou o nível Ouro. Desbloqueie ao atingir 5000 em valor transacionado.',
+      } +
+      {
+        'en': 'You need 5000 DEPIX to unlock the Ouro tier.',
+        'pt': 'Você precisa de 5000 DEPIX para desbloquear o nível Ouro.',
+      } +
+      {
+        'en': 'You have not unlocked the Prata tier yet. Unlock it by reaching 2500 in value transacted.',
+        'pt': 'Você ainda não desbloqueou o nível Prata. Desbloqueie ao atingir 2500 em valor transacionado.',
+      } +
+      {
+        'en': 'You need 2500 DEPIX to unlock the Prata tier.',
+        'pt': 'Você precisa de 2500 DEPIX para desbloquear o nível Prata.',
+      } +
+      {
+        'en': 'You have not unlocked the Diamante tier yet. Unlock it by reaching 20000 in value transacted.',
+        'pt': 'Você ainda não desbloqueou o nível Diamante. Desbloqueie ao atingir 20000 em valor transacionado.',
+      } +
+      {
+        'en': 'You need 20000 DEPIX to unlock the Diamante tier.',
+        'pt': 'Você precisa de 20000 DEPIX para desbloquear o nível Diamante.',
+      } +
+      {
+        'en': 'Close',
+        'pt': 'Fechar',
+      } +
+      {
+        'en': 'With ',
+        'pt': 'Com '
+      }  +
+      {
+        'en': ' DEPIX, you have reached the ',
+        'pt': ' DEPIX, você atingiu o '
+      }  +
+      {
+        'en': 'Contact our support to get a custom affiliate code',
+        'pt': 'Contate nosso suporte para obter um código de afiliado personalizado'
+      }  +
+      {
+        'en': 'Insufficient funds',
+        'pt': 'Fundos insuficientes'
+      }  +
+      {
+        'en': 'Choose your fee:',
+        'pt': 'Escolha sua taxa:'
+      }  +
+      {
+        'en': 'Fee: 1.5% + 1,98 BRL (Affiliate Discount)',
+        'pt': 'Taxa: 1,5% + 1,98 BRL (Desconto de Afiliado)'
+      } +
+      {
+        'en': 'Fee: 2% + 1,98 BRL',
+        'pt': 'Taxa: 2% + 1,98 BRL'
+      } +
+      {
+        'en': 'Waiting',
+        'pt': 'Aguardando'
+      } +
+      {
+        'en': 'Confirmation block',
+        'pt': 'Bloco de confirmação'
+      } +
+      {
+        'en': 'Amounts',
+        'pt': 'Quantias'
+      } +
+      {
+        'en': 'Search on Mempool',
+        'pt': 'Pesquisar no Mempool'
+      } +
+      {
+        'en': 'Liquid Transaction Details',
+        'pt': 'Detalhes da Transação Liquid'
+      } +
+      {
+        'en': 'History',
+        'pt': 'Histórico'
+      } +
+      {
+        'en': 'More Details',
+        'pt': 'Mais Detalhes'
+      } +
+      {
+        'en': 'Fees',
+        'pt': 'Taxas'
+      } +
+      {
+        'en': 'Original amount',
+        'pt': 'Quantia original'
       };
-
-
-
-
-
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;

@@ -18,9 +18,6 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
 
   void _initializeSync() {
     performSync();
-    Timer.periodic(const Duration(seconds: 120), (timer) {
-      performSync();
-    });
   }
 
   Future<void> performSync() async {
@@ -33,11 +30,11 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           _setBackgroundSyncInProgress(true);
           final bitcoinBox = await Hive.openBox('bitcoin');
           final balanceModel = ref.read(balanceNotifierProvider.notifier);
-          ref.read(syncBitcoinProvider);
+          await ref.read(syncBitcoinProvider.future);
           final bitcoinBalance = await ref.refresh(getBitcoinBalanceProvider.future);
           await bitcoinBox.put('bitcoin', bitcoinBalance.total);
           balanceModel.updateBtcBalance(bitcoinBalance.total);
-          ref.read(syncLiquidProvider);
+          await ref.read(syncLiquidProvider.future);
           final liquidBalance = await ref.refresh(liquidBalanceProvider.future);
           await updateLiquidBalances(liquidBalance);
           ref.read(updateTransactionsProvider);

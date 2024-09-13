@@ -201,12 +201,15 @@ class LbtcBoltz {
   final PreImage preimage;
   @HiveField(3)
   final LBtcSwapScriptStr swapScript;
+  @HiveField(4)
+  final int timestamp; // Add timestamp field
 
   LbtcBoltz({
     required this.swap,
     required this.keys,
     required this.preimage,
     required this.swapScript,
+    required this.timestamp, // Add timestamp to constructor
   });
 
   static Future<LbtcBoltz> createBoltzReceive({
@@ -217,7 +220,7 @@ class LbtcBoltz {
     required int index,
   }) async {
     if (amount == 0) {
-      throw 'Set an amount to create an invoice';
+      throw 'Set an amount to create a lightning invoice';
     }
 
     if (fees.lbtcLimits.minimal > amount) {
@@ -235,7 +238,7 @@ class LbtcBoltz {
         outAddress: address,
         outAmount: amount,
         network: Chain.liquid,
-        electrumUrl: 'blockstream.info:995',
+        electrumUrl: 'les.bullbitcoin.com:995',
         boltzUrl: 'https://api.boltz.exchange/v2',
         referralId: 'satsails',
       );
@@ -263,6 +266,7 @@ class LbtcBoltz {
       keys: result.keys,
       preimage: result.preimage,
       swapScript: result.swapScript,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
     );
   }
 
@@ -322,7 +326,7 @@ class LbtcBoltz {
         index: index,
         invoice: invoice,
         network: Chain.liquid,
-        electrumUrl: 'blockstream.info:995',
+        electrumUrl: 'les.bullbitcoin.com:995',
         boltzUrl: 'https://api.boltz.exchange/v2',
         referralId: 'satsails',
       );
@@ -350,6 +354,7 @@ class LbtcBoltz {
       keys: result.keys,
       preimage: result.preimage,
       swapScript: result.swapScript,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
     );
   }
 
@@ -480,12 +485,15 @@ class BtcBoltz {
   final PreImage preimage;
   @HiveField(3)
   final BtcSwapScriptStr swapScript;
+  @HiveField(4)
+  final int timestamp;
 
   BtcBoltz({
     required this.swap,
     required this.keys,
     required this.preimage,
     required this.swapScript,
+    required this.timestamp,
   });
 
   static Future<BtcBoltz> createBoltzReceive({
@@ -496,7 +504,7 @@ class BtcBoltz {
     required int index,
   }) async {
     if (amount == 0) {
-      throw 'Set an amount to create an invoice';
+      throw 'Set an amount to create a lightning invoice';
     }
 
     if (fees.btcLimits.minimal > amount) {
@@ -514,7 +522,7 @@ class BtcBoltz {
         outAmount: amount,
         outAddress: address,
         network: Chain.bitcoin,
-        electrumUrl: 'electrum.blockstream.info:50002',
+        electrumUrl: 'wes.bullbitcoin.com:50002',
         boltzUrl: 'https://api.boltz.exchange/v2',
       );
     } catch (e) {
@@ -540,6 +548,7 @@ class BtcBoltz {
       keys: result.keys,
       preimage: result.preimage,
       swapScript: result.swapScript,
+      timestamp: DateTime.now().millisecondsSinceEpoch, // Store the current timestamp
     );
   }
 
@@ -597,7 +606,7 @@ class BtcBoltz {
         index: index,
         invoice: invoice,
         network: Chain.bitcoin,
-        electrumUrl: 'electrum.blockstream.info:50002',
+        electrumUrl: 'wes.bullbitcoin.com:50002',
         boltzUrl: 'https://api.boltz.exchange/v2',
       );
     } catch (e) {
@@ -623,6 +632,7 @@ class BtcBoltz {
       keys: result.keys,
       preimage: result.preimage,
       swapScript: result.swapScript,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
     );
   }
 

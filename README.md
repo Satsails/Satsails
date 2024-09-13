@@ -1,10 +1,21 @@
+
 # About Satsails
 
-Satsails is a self-custodial Bitcoin and Liquid Network which offers non-custodial atomic swaps across Bitcoin, Lightning and Liquid. The philosophy of Satsails is to become a platform for everything and anything Bitcoin. Many more features are coming soon!
+Satsails is a self-custodial Bitcoin and Liquid Network platform that offers non-custodial atomic swaps across Bitcoin, Lightning, and Liquid. The philosophy of Satsails is to become a platform for everything and anything Bitcoin. Many more features are coming soon!
 
-We are committed to being open source and transparent and a a non-custodial service.
+We are committed to being open source and transparent, offering a non-custodial service.
 
-**Everything that we will build will be held and operated by you. We will either use on device technology or connect you to partner companies. Nothing will be ever stored by us**
+**Everything we build is designed to be held and operated by you. We either use on-device technology or connect you to partner companies.**
+
+## Data Collection
+
+As part of our operations, we collect a **unique identifier** and register it on our server. This identifier is in no way related to your wallet. Additionally, we register a **public key**, which is used solely to direct your fiat payments and ensure that these payments are routed directly to your wallet.
+
+This is the only data we ever collect on our systems
+
+### PIX Metadata
+
+When using PIX for payments, the metadata includes the **CPF** and the **name** of the person. This is collected by our partners
 
 ## Core Dependencies
 
@@ -17,6 +28,8 @@ We are committed to being open source and transparent and a a non-custodial serv
 
 ## Acknowledgements
 
- - Special thanks to Renato 38 and Alan Schramm for the motivation to build this platform. 
- - Thanks to the entire Bull Bitcoin team for the libraries they created and the support they provide.
--  A special thanks to Ishi for the great help and quick responses to our questions.
+- Special thanks to **Renato 38**, **Alan Schramm**, and **Paula** for the motivation and support to create this project.
+- Thanks to the entire **Bull Bitcoin** team for the libraries they created and the support they provide.
+- A special thanks to **Ishi** for the great help and quick responses to our questions.
+
+---

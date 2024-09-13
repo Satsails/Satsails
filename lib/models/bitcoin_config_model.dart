@@ -38,7 +38,7 @@ class BitcoinConfigModel {
                     stopGap: 20,
                     timeout: 2,
                     retry: 2,
-                    url: "ssl://electrum.blockstream.info:50002",
+                    url: "ssl://wes.bullbitcoin.com:50002",
                     validateDomain: false)));
         return blockchain;
       } catch (_) {

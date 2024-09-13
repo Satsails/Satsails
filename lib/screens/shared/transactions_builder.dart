@@ -1,4 +1,8 @@
+import 'package:Satsails/helpers/common_operation_methods.dart';
 import 'package:Satsails/screens/analytics/components/button_picker.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
+import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
+import 'package:Satsails/screens/shared/transactions_details_screen.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +24,21 @@ class BuildTransactions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02, horizontal: screenWidth * 0.2),
+      child: CustomButton(
+        onPressed: () => _showTransactionModal(context, ref),
+        text: 'See Full History'.i18n(ref),
+        primaryColor: Colors.transparent,
+        secondaryColor: Colors.transparent,
+        textColor: Colors.white,
+      ),
+    );
+  }
+
+  void _showTransactionModal(BuildContext context, WidgetRef ref) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     final List bitcoinTransactions;
     final List liquidTransactions;
@@ -30,50 +49,66 @@ class BuildTransactions extends ConsumerWidget {
     allTx.addAll(bitcoinTransactions);
     allTx.addAll(liquidTransactions);
 
-    return Container(
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        color: Colors.white,
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Makes the modal sheet full screen if needed
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: SizedBox(
-        width: screenWidth, // use screenWidth here
-        height: screenHeight - kToolbarHeight, // use screenHeight here
-        child: LiquidPullToRefresh(
-          onRefresh: () async {
-            ref.read(backgroundSyncNotifierProvider).performSync();
-          },
-          color: Colors.orangeAccent,
-          showChildOpacityTransition: false,
-          child: ListView.builder(
-            itemCount: txLength(bitcoinTransactions, liquidTransactions, ref),
-            itemBuilder: (BuildContext context, int index) {
-              switch (transationType) {
-                case 'Bitcoin':
-                  if (index < bitcoinTransactions.length) {
-                    return _buildTransactionItem(bitcoinTransactions[index], context, ref);
-                  } else if (bitcoinTransactions.isEmpty) {
-                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey))); // use screenHeight here
-                  }
-                case 'Liquid':
-                  if (index < liquidTransactions.length) {
-                    return _buildTransactionItem(liquidTransactions[index], context, ref);
-                  } else if (liquidTransactions.isEmpty) {
-                    return Center(child: Text('Pull up to refresh'.i18n(ref).i18n(ref), style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey))); // use screenHeight here
-                  }
-                default:
-                  if (index < allTx.length) {
-                    return _buildTransactionItem(allTx[index], context, ref);
-                  } else {
-                    return Center(child: Text('Pull up to refresh'.i18n(ref), style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey))); // use screenHeight here
-                  }
-              }
-              return null;
-            },
+      builder: (BuildContext context) {
+        return Container(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            color: Color.fromARGB(255, 29, 29, 29),
           ),
-        ),
-      ),
+          child: SizedBox(
+            width: screenWidth,
+            height: screenHeight * 0.75, // Use 75% of screen height for the modal sheet
+            child: LiquidPullToRefresh(
+              onRefresh: () async {
+                ref.read(backgroundSyncNotifierProvider).performSync();
+              },
+              color: Colors.orange,
+              showChildOpacityTransition: false,
+              child: ListView.builder(
+                itemCount: txLength(bitcoinTransactions, liquidTransactions, ref),
+                itemBuilder: (BuildContext context, int index) {
+                  switch (transationType) {
+                    case 'Bitcoin':
+                      if (index < bitcoinTransactions.length) {
+                        return _buildTransactionItem(bitcoinTransactions[index], context, ref);
+                      } else if (bitcoinTransactions.isEmpty) {
+                        return Center(
+                            child: Text('Pull up to refresh'.i18n(ref),
+                                style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey)));
+                      }
+                    case 'Liquid':
+                      if (index < liquidTransactions.length) {
+                        return _buildTransactionItem(liquidTransactions[index], context, ref);
+                      } else if (liquidTransactions.isEmpty) {
+                        return Center(
+                            child: Text('Pull up to refresh'.i18n(ref),
+                                style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey)));
+                      }
+                    default:
+                      if (index < allTx.length) {
+                        return _buildTransactionItem(allTx[index], context, ref);
+                      } else {
+                        return Center(
+                            child: Text('Pull up to refresh'.i18n(ref),
+                                style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey)));
+                      }
+                  }
+                  return null;
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
+
 
   int txLength(List<dynamic> bitcoinTransactions, List<dynamic> liquidTransactions, ref) {
     final transationType = ref.watch(transactionTypeShowProvider);
@@ -107,16 +142,8 @@ class BuildTransactions extends ConsumerWidget {
       return Container(
         margin: EdgeInsets.all(dynamicMargin),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.black,
           borderRadius: BorderRadius.circular(dynamicRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: const Offset(0, 3),
-            ),
-          ],
         ),
         child: _buildBitcoinTransactionItem(transaction, context, ref),
       );
@@ -124,16 +151,8 @@ class BuildTransactions extends ConsumerWidget {
       return Container(
         margin: EdgeInsets.all(dynamicMargin),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.black,
           borderRadius: BorderRadius.circular(dynamicRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: const Offset(0, 3),
-            ),
-          ],
         ),
         child: _buildLiquidTransactionItem(transaction, context, ref),
       );
@@ -144,36 +163,37 @@ class BuildTransactions extends ConsumerWidget {
 
   Widget _buildBitcoinTransactionItem(TransactionDetails transaction, BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
 
-    final dynamicFontSize = screenHeight * 0.015; // 2% of screen height
+    final dynamicFontSize = screenHeight * 0.015;
 
     return Column(
       children: [
         GestureDetector(
           onTap: () {
-            ref.read(transactionSearchProvider).isLiquid = false;
-            ref.read(transactionSearchProvider).txid = transaction.txid;
-            Navigator.pushNamed(context, '/search_modal');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TransactionDetailsScreen(transaction: transaction),
+              ),
+            );
           },
           child: ListTile(
             leading: Column(
               children: [
-                _transactionTypeIcon(transaction),
-                Text(_transactionAmountInFiat(transaction, ref), style: TextStyle(fontSize: dynamicFontSize)),
+                transactionTypeIcon(transaction),
+                Text(transactionAmountInFiat(transaction, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
               ],
             ),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(_transactionTypeString(transaction, ref), style: TextStyle(fontSize: dynamicFontSize)),
-                Text(_transactionAmount(transaction, ref), style: TextStyle(fontSize: dynamicFontSize)),
+                Text(transactionTypeString(transaction, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
+                Text(transactionAmount(transaction, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
               ],
             ),
-            // subtitle: Text("Fee: ${_transactionFee(transaction, ref)}", style: TextStyle(fontSize: dynamicFontSize)),
-            subtitle: Text(timestampToDateTime(transaction.confirmationTime?.timestamp), style: TextStyle(fontSize: dynamicFontSize)),
-            trailing: _confirmationStatus(transaction, ref) == 'Confirmed'.i18n(ref)
-                ? const Icon(Icons.check_circle, color: Colors.green)
+            subtitle: Text(timestampToDateTime(transaction.confirmationTime?.timestamp), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
+            trailing: confirmationStatus(transaction, ref) == 'Confirmed'.i18n(ref)
+                ? const Icon(Icons.check_circle_outlined, color: Colors.green)
                 : const Icon(Icons.access_alarm_outlined, color: Colors.red),
           ),
         ),
@@ -181,11 +201,11 @@ class BuildTransactions extends ConsumerWidget {
     );
   }
 
+
   Widget _buildLiquidTransactionItem(Tx transaction, BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
 
-    final dynamicFontSize = screenHeight * 0.015; // 2% of screen height
+    final dynamicFontSize = screenHeight * 0.015;
 
     return Column(
       children: [
@@ -195,36 +215,35 @@ class BuildTransactions extends ConsumerWidget {
               data: Theme.of(context).copyWith(
                   dividerColor: Colors.transparent),
               child: ExpansionTile(
-                leading: _transactionTypeLiquidIcon(transaction.kind),
+                leading: transactionTypeLiquidIcon(transaction.kind),
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(liquidTransactionType(transaction, ref), style: TextStyle(fontSize: dynamicFontSize)),
-                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: TextStyle(fontSize: dynamicFontSize)) : Text('Multiple'.i18n(ref), style: TextStyle(fontSize: dynamicFontSize)),
+                    Text(liquidTransactionType(transaction, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
+                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)) : Text('Multiple'.i18n(ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
                   ],
                 ),
-                // subtitle: Text("Fee: ${_transactionValueLiquid(transaction.fee, ref)}",style: TextStyle(fontSize: dynamicFontSize)),
-                subtitle: Text(timestampToDateTime(transaction.timestamp),style: TextStyle(fontSize: dynamicFontSize)),
-                trailing: transaction.outputs.isNotEmpty && transaction.outputs[0].height != null || transaction.inputs.isNotEmpty && transaction.inputs[0].height != null
-                    ? const Icon(Icons.check_circle, color: Colors.green)
-                    : const Icon(Icons.access_alarm_outlined, color: Colors.red),
+                subtitle: Text(timestampToDateTime(transaction.timestamp), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
+                trailing: confirmationStatusIcon(transaction),
                 children: transaction.balances.map((balance) {
                   return GestureDetector(
                     onTap: () {
-                      setTransactionSearchProvider(transaction, ref);
-
-                      Navigator.pushNamed(context, '/search_modal');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LiquidTransactionDetailsScreen(transaction: transaction),
+                        ),
+                      );
                     },
                     child: ListTile(
                       trailing: Column(
                         children: [
-                          _subTransactionIcon(balance.value),
-                          Text(_liquidTransactionAmountInFiat(balance, ref), style: TextStyle(fontSize: dynamicFontSize)),
+                          subTransactionIcon(balance.value),
+                          Text(_liquidTransactionAmountInFiat(balance, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
                         ],
                       ),
-                      title: Text(AssetMapper.mapAsset(balance.assetId).name, style: TextStyle(fontSize: dynamicFontSize)),
-                      subtitle: Text(_valueOfLiquidSubTransaction(
-                          AssetMapper.mapAsset(balance.assetId), balance.value, ref), style: TextStyle(fontSize: dynamicFontSize)),
+                      title: Text(AssetMapper.mapAsset(balance.assetId).name, style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
+                      subtitle: Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(balance.assetId), balance.value, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
                     ),
                   );
                 }).toList(),
@@ -236,138 +255,7 @@ class BuildTransactions extends ConsumerWidget {
     );
   }
 
-  String liquidTransactionType(Tx transaction, WidgetRef ref) {
-    switch (transaction.kind) {
-      case 'incoming':
-        return 'Received'.i18n(ref);
-      case 'outgoing':
-        return 'Sent'.i18n(ref);
-      case 'burn':
-        return 'Burn'.i18n(ref);
-      case 'redeposit':
-        return 'Redeposit'.i18n(ref);
-      case 'issuance':
-        return 'Issuance'.i18n(ref);
-      case 'reissuance':
-        return 'Reissuance'.i18n(ref);
-      default:
-        return 'Swap'.i18n(ref);
-    }
-  }
 
-  String timestampToDateTime(int? timestamp) {
-    if (timestamp == 0 || timestamp == null) {
-      return 'Unconfirmed';
-    }
-    final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-    return "${date.day}/${date.month}/${date.year}";
-  }
-
-  void setTransactionSearchProvider(Tx transaction, WidgetRef ref) {
-    ref.read(transactionSearchProvider).isLiquid = true;
-    ref.read(transactionSearchProvider).txid = transaction.txid;
-
-    if (transaction.kind == 'incoming') {
-      final outputs = transaction.outputs[0];
-      final output = outputs.unblinded;
-      ref.read(transactionSearchProvider).amountBlinder = output.valueBf;
-      ref.read(transactionSearchProvider).assetBlinder = output.assetBf;
-      ref.read(transactionSearchProvider).amount = output.value;
-      ref.read(transactionSearchProvider).assetId = output.asset;
-    } else {
-      final inputs = transaction.inputs[0];
-      final input = inputs.unblinded;
-      ref.read(transactionSearchProvider).amountBlinder = input.valueBf;
-      ref.read(transactionSearchProvider).assetBlinder = input.assetBf;
-      ref.read(transactionSearchProvider).amount = input.value;
-      ref.read(transactionSearchProvider).assetId = input.asset;
-    }
-  }
-
-  Icon _subTransactionIcon(int value) {
-    if (value > 0) {
-      return const Icon(Icons.arrow_downward, color: Colors.green);
-    } else if (value < 0) {
-      return const Icon(Icons.arrow_upward, color: Colors.red);
-    } else {
-      return const Icon(Icons.device_unknown_outlined, color: Colors.grey);
-    }
-  }
-
-  Icon _transactionTypeLiquidIcon(String kind) {
-    switch (kind) {
-      case 'incoming':
-        return const Icon(Icons.arrow_downward, color: Colors.green);
-      case 'outgoing':
-        return const Icon(Icons.arrow_upward, color: Colors.red);
-      case 'burn':
-        return const Icon(Icons.local_fire_department, color: Colors.redAccent);
-      case 'redeposit':
-        return const Icon(Icons.subdirectory_arrow_left, color: Colors.green);
-      case 'issuance':
-        return const Icon(Icons.add_circle, color: Colors.greenAccent);
-      case 'reissuance':
-        return const Icon(Icons.add_circle, color: Colors.green);
-      default:
-        return const Icon(Icons.swap_calls, color: Colors.orange);
-    }
-  }
-
-  String _transactionTypeString(TransactionDetails transaction, WidgetRef ref) {
-    if (transaction.received == 0 && transaction.sent > 0) {
-      return 'Sent'.i18n(ref);
-    } else if (transaction.received > 0 && transaction.sent == 0) {
-      return 'Received'.i18n(ref);
-    } else {
-      return 'Multiple'.i18n(ref);
-    }
-  }
-
-  Icon _transactionTypeIcon(TransactionDetails transaction) {
-    if (transaction.received == 0 && transaction.sent > 0) {
-      return const Icon(Icons.arrow_upward, color: Colors.red);
-    } else if (transaction.received > 0 && transaction.sent == 0) {
-      return const Icon(Icons.arrow_downward, color: Colors.green);
-    } else {
-      return const Icon(Icons.arrow_forward_sharp, color: Colors.orangeAccent);
-    }
-  }
-
-  String _confirmationStatus(TransactionDetails transaction, WidgetRef ref) {
-    if (transaction.confirmationTime == null || transaction.confirmationTime!.height == 0) {
-      return 'Unconfirmed'.i18n(ref);
-    } else if (transaction.confirmationTime != null) {
-      return 'Confirmed'.i18n(ref);
-    } else {
-      return 'Unknown'.i18n(ref);
-    }
-  }
-
-  String _transactionAmount(TransactionDetails transaction, WidgetRef ref) {
-    if (transaction.received == 0 && transaction.sent > 0) {
-      return ref.watch(conversionProvider(transaction.sent));
-    } else if (transaction.received > 0 && transaction.sent == 0) {
-      return ref.watch(conversionProvider(transaction.received));
-    } else {
-      int total = (transaction.received - transaction.sent).abs();
-      return ref.watch(conversionProvider(total));
-    }
-  }
-
-  String _transactionAmountInFiat(TransactionDetails transaction, WidgetRef ref) {
-    final sent = ref.watch(conversionToFiatProvider(transaction.sent));
-    final received = ref.watch(conversionToFiatProvider(transaction.received));
-    final currency = ref.watch(settingsProvider).currency;
-
-    if (transaction.received == 0 && transaction.sent > 0) {
-      return '${(double.parse(sent) / 100000000).toStringAsFixed(2)} $currency';
-    } else if (transaction.received > 0 && transaction.sent == 0) {
-      return '${(double.parse(received) / 100000000).toStringAsFixed(2)} $currency';
-    } else {
-      double total = (double.parse(received) - double.parse(sent)).abs() / 100000000;
-      return '${total.toStringAsFixed(2)} $currency';
-    }
-  }
 
   String _liquidTransactionAmountInFiat(transaction, WidgetRef ref) {
     if (AssetMapper.mapAsset(transaction.assetId) == AssetId.LBTC) {
@@ -384,13 +272,6 @@ class BuildTransactions extends ConsumerWidget {
     }
   }
 
-  // String _transactionFee(TransactionDetails transaction, WidgetRef ref) {
-  //   return ref.watch(conversionProvider(transaction.fee ?? 0));
-  // }
-  //
-  // String _transactionValueLiquid(int transaction, WidgetRef ref) {
-  //   return ref.watch(conversionProvider(transaction));
-  // }
 
   String _valueOfLiquidSubTransaction(AssetId asset, int value, WidgetRef ref) {
     switch (asset) {

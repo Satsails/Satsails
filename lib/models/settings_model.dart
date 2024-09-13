@@ -40,12 +40,13 @@ class Settings {
   late bool online;
   final bool backup;
 
+
   Settings({
     required this.currency,
     required this.language,
     required String btcFormat,
     required this.online,
-    required this.backup
+    required this.backup,
   }) : btcFormat = (['BTC', 'mBTC', 'bits', 'sats'].contains(btcFormat)) ? btcFormat : throw ArgumentError('Invalid btcFormat'),
         super();
 
@@ -54,14 +55,16 @@ class Settings {
     String? language,
     String? btcFormat,
     bool? online,
-    bool? backup
+    bool? backup,
+    bool? pixOnboarding,
+    String? pixPaymentCode,
   }) {
     return Settings(
       currency: currency ?? this.currency,
       language: language ?? this.language,
       btcFormat: btcFormat ?? this.btcFormat,
       online: online ?? this.online,
-      backup: backup ?? this.backup
+      backup: backup ?? this.backup,
     );
   }
 }
