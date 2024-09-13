@@ -39,7 +39,7 @@ class Start extends ConsumerWidget {
                             ..shader = createGradientShader(
                               Rect.fromLTWH(0.0, 0.0, screenWidth * 0.6, screenHeight * 0.1),
                             ),
-                          fontSize: screenWidth * 0.15,
+                          fontSize: screenWidth * 0.14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

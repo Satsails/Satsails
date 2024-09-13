@@ -110,7 +110,6 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "lib/assets/satsails.png"
-  adaptive_icon_background: "#000000"
 
 flutter_native_splash:
   color: "#000000"
