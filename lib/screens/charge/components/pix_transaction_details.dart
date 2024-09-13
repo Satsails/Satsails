@@ -1,3 +1,4 @@
+import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/providers/pix_transaction_details_provider.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -54,7 +55,7 @@ class PixTransactionDetails extends ConsumerWidget {
                     Text(
                       transaction.receivedAmount == 0.0
                           ? "Waiting".i18n(ref)
-                          : "R\$ ${transaction.receivedAmount % 1 == 0 ? transaction.receivedAmount.toInt() : transaction.receivedAmount.toStringAsFixed(3)}",
+                          : currencyFormat(transaction.receivedAmount, 'BRL', decimalPlaces: 3),
                       style: const TextStyle(color: Colors.green, fontSize: 36, fontWeight: FontWeight.bold),
                     ),
                     GestureDetector(
@@ -88,7 +89,7 @@ class PixTransactionDetails extends ConsumerWidget {
               ),
               const SizedBox(height: 16.0),
               TransactionDetailRow(
-                label: "Payment ID".i18n(ref),
+                label: "Txid".i18n(ref),
                 value: transaction.sentTxid ?? "N/A",
               ),
               Divider(color: Colors.grey.shade700),
@@ -100,12 +101,13 @@ class PixTransactionDetails extends ConsumerWidget {
               const SizedBox(height: 16.0),
               TransactionDetailRow(
                 label: "Original amount".i18n(ref),
-                value: "R\$ ${transaction.originalAmount % 1 == 0 ? transaction.originalAmount.toInt() : transaction.originalAmount.toStringAsFixed(3)}",
+                value: currencyFormat(transaction.originalAmount, 'BRL', decimalPlaces: 3),
               ),
               const SizedBox(height: 16.0),
+              if (transaction.completedTransfer)
               TransactionDetailRow(
                 label: "Total fees".i18n(ref),
-                value: "R\$ ${(transaction.originalAmount - transaction.receivedAmount) % 1 == 0 ? (transaction.originalAmount - transaction.receivedAmount).toInt() : (transaction.originalAmount - transaction.receivedAmount).toStringAsFixed(3)}",
+                value: currencyFormat((transaction.originalAmount - transaction.receivedAmount), 'BRL', decimalPlaces: 3),
               ),
               if (transaction.receipt != null)
                 GestureDetector(

@@ -1546,6 +1546,14 @@ extension Localization on String {
       {
         'en': 'More Details',
         'pt': 'Mais Detalhes'
+      } +
+      {
+        'en': 'Fees',
+        'pt': 'Taxas'
+      } +
+      {
+        'en': 'Original amount',
+        'pt': 'Quantia original'
       };
 
   String i18n(WidgetRef ref) {

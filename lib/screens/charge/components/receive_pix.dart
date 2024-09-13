@@ -3,12 +3,11 @@ import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/pix_transaction_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pix_flutter/pix_flutter.dart';
-import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
-import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
@@ -247,8 +246,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     controller: _amountController,
                     keyboardType: TextInputType.number,
                     inputFormatters: [
-                      DecimalTextInputFormatter(decimalRange: 2),
-                      CommaTextInputFormatter(),
+                      FilteringTextInputFormatter.digitsOnly
                     ],
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.white),
@@ -270,7 +268,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     child: Column(
                       children: [
                         Text(
-                          '${'You will receive: '.i18n(ref)}${_amountToReceive.toStringAsFixed(3)} BRL',
+                          '${'You will receive: '.i18n(ref)}${currencyFormat(_amountToReceive, 'BRL')}',
                           style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.green),
                         ),
                         Text(
