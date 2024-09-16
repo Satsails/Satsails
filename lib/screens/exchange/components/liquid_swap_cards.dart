@@ -1,6 +1,8 @@
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
+import 'package:Satsails/screens/analytics/components/button_picker.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
@@ -74,14 +76,14 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: ref.read(sendBitcoinProvider)
                 ? [
-              buildCard('Liquid', 'BTC', Colors.blueAccent, Colors.deepPurple, ref, context, true, AssetId.LBTC, titleFontSize),
+              buildCard('Liquid Bitcoin', 'BTC', Colors.blueAccent, Colors.deepPurple, ref, context, true, AssetId.LBTC, titleFontSize),
               SizedBox(height: dynamicSizedBox),
               buildCardSwiper(context, ref, dynamicCardHeight, cards),
             ]
                 : [
               buildCardSwiper(context, ref, dynamicCardHeight, cards),
               SizedBox(height: dynamicSizedBox),
-              buildCard('Liquid', 'BTC', Colors.blueAccent, Colors.deepPurple, ref, context, true, AssetId.LBTC, titleFontSize),
+              buildCard('Liquid Bitcoin', 'BTC', Colors.blueAccent, Colors.deepPurple, ref, context, true, AssetId.LBTC, titleFontSize),
             ],
           ),
           buildSwapGestureDetector(context, ref, titleFontSize),
@@ -365,16 +367,20 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
           toggleColor: Colors.orange,
           action: (controller) async {
             controller.loading();
-            await Future.delayed(const Duration(seconds: 3));
             try {
               await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
-              controller.success();
-              Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+              await ref.read(backgroundSyncNotifierProvider).performSync();
+              await Future.delayed(const Duration(seconds: 3));
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
-              ref.read(backgroundSyncNotifierProvider).performSync();
-              await Future.delayed(const Duration(seconds: 3));
+              controller.success();
+              Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+              Future.microtask(() {
+              ref.read(topSelectedButtonProvider.notifier).state = "Swap";
+              ref.read(groupButtonControllerProvider).selectIndex(2);
+              ref.read(navigationProvider.notifier).state = 1;
+             });
               Navigator.pushReplacementNamed(context, '/home');
             } catch (e) {
               controller.failure();

@@ -20,7 +20,7 @@ class SideswapPeg extends HiveObject {
   });
 
   factory SideswapPeg.fromJson(Map<String, dynamic> json) {
-    var result = json['result'];
+    var result = json['result'] ?? json['params'];
     return SideswapPeg(
       createdAt: result["created_at"],
       expiresAt: result["expires_at"],
@@ -58,7 +58,7 @@ class SideswapPegStatus extends HiveObject {
   });
 
   factory SideswapPegStatus.fromJson(Map<String, dynamic> json) {
-    var result = json['result'];
+    var result = json['result'] ?? json['params'];
     return SideswapPegStatus(
       orderId: result["order_id"],
       addr: result["addr"],

@@ -66,7 +66,7 @@ extension Localization on String {
       } +
       {
         'en': 'Add Money',
-        'pt': 'Carregar',
+        'pt': 'Comprar',
       } +
       {
         'en': 'Exchange',
@@ -365,8 +365,8 @@ extension Localization on String {
         'pt': 'O valor está abaixo do valor mínimo'
       } +
       {
-        'en': 'Swap done! Check Analytics for more info',
-        'pt': 'Troca feita! Verifique Análises para mais informações'
+        'en': 'Swap done!',
+        'pt': 'Troca feita!'
       } +
       {
         'en': 'Sending Transaction fee:',
@@ -1285,16 +1285,12 @@ extension Localization on String {
         'pt': 'Conecte-se com outros usuários e ganhe sats!',
       } +
       {
-        'en': 'Enter your affiliate code or create a new code to receive benefits.',
-        'pt': 'Insira seu código de afiliado ou crie um novo código para receber benefícios.',
+        'en': 'Enter your affiliate code or create a new code to receive discounts.',
+        'pt': 'Insira seu código de afiliado ou crie um novo código para receber descontos.',
       } +
       {
         'en': 'Insert Affiliate Code',
         'pt': 'Inserir Código de Afiliado',
-      } +
-      {
-        'en': 'Create Affiliate Code',
-        'pt': 'Criar Código de Afiliado',
       } +
       {
         'en': 'Recovery code copied to clipboard',
@@ -1352,8 +1348,8 @@ extension Localization on String {
         'pt': 'Ganhos Totais',
       } +
       {
-        'en': 'Number of Installations',
-        'pt': 'Número de Instalações',
+        'en': 'Number of Referrals',
+        'pt': 'Número de Indicações',
       } +
       {
         'en': 'Show Earnings Over Time',
@@ -1364,8 +1360,8 @@ extension Localization on String {
         'pt': 'Gostaria de se tornar um afiliado?',
       } +
       {
-        'en': 'Create Affiliate Code',
-        'pt': 'Criar Código de Afiliado',
+        'en': 'Become an Affiliate',
+        'pt': 'Torne-se um Afiliado',
       } +
       {
         'en': 'Submit',
@@ -1452,36 +1448,36 @@ extension Localization on String {
         'pt': 'Taxa atual é de 1% por afiliado perpetuamente.',
       } +
       {
-        'en': 'Current fee is 0.2% per affiliate in perpetuity until you reach 20K in value transacted, then it goes to 1%.',
-        'pt': 'A taxa atual é de 0,2% por afiliado perpetuamente até que você atinja 20K em valor transacionado, então passa para 1%.',
+        'en': 'Current fee is 0.2% per affiliate in perpetuity until you reach 20K in value purchased by your referrals.',
+        'pt': 'Taxa atual é de 0.2% por afiliado perpetuamente até você atingir 20K em valor comprado por suas indicações.',
       } +
       {
-        'en': 'You have not unlocked the Gold tier yet. Unlock it by reaching 5000 in value transacted.',
-        'pt': 'Você ainda não desbloqueou o nível Ouro. Desbloqueie-o ao atingir 5000 em valor transacionado.',
+        'en': 'You have not unlocked the Gold tier yet. Unlock it by reaching 5000 in value purchased by your referrals.',
+        'pt': 'Você ainda não desbloqueou o nível Ouro. Desbloqueie-o ao atingir 5000 DEPIX comprados por suas indicações.',
       } +
       {
-        'en': 'You have not unlocked the Diamond tier yet. Unlock it by reaching 20000 in value transacted.',
-        'pt': 'Você ainda não desbloqueou o nível Diamante. Desbloqueie-o ao atingir 20000 em valor transacionado.',
+        'en': 'You have not unlocked the Diamond tier yet. Unlock it by reaching 20000 in value purchased by your referrals.',
+        'pt': 'Você ainda não desbloqueou o nível Diamante. Desbloqueie-o ao atingir 20000 DEPIX comprados por suas indicações.',
       } +
       {
-        'en': 'You have not unlocked the Ouro tier yet. Unlock it by reaching 5000 in value transacted.',
-        'pt': 'Você ainda não desbloqueou o nível Ouro. Desbloqueie ao atingir 5000 em valor transacionado.',
+        'en': 'You have not unlocked the Ouro tier yet. Unlock it by reaching 5000 in value purchased by your referrals.',
+        'pt': 'Você ainda não desbloqueou o nível Ouro. Desbloqueie ao atingir 5000 DEPIX comprados por suas indicações.',
       } +
       {
         'en': 'You need 5000 DEPIX to unlock the Ouro tier.',
         'pt': 'Você precisa de 5000 DEPIX para desbloquear o nível Ouro.',
       } +
       {
-        'en': 'You have not unlocked the Prata tier yet. Unlock it by reaching 2500 in value transacted.',
-        'pt': 'Você ainda não desbloqueou o nível Prata. Desbloqueie ao atingir 2500 em valor transacionado.',
+        'en': 'You have not unlocked the Prata tier yet. Unlock it by reaching 2500 in value purchased by your referrals.',
+        'pt': 'Você ainda não desbloqueou o nível Prata. Desbloqueie ao atingir 2500 DEPIX comprados por suas indicações.',
       } +
       {
         'en': 'You need 2500 DEPIX to unlock the Prata tier.',
         'pt': 'Você precisa de 2500 DEPIX para desbloquear o nível Prata.',
       } +
       {
-        'en': 'You have not unlocked the Diamante tier yet. Unlock it by reaching 20000 in value transacted.',
-        'pt': 'Você ainda não desbloqueou o nível Diamante. Desbloqueie ao atingir 20000 em valor transacionado.',
+        'en': 'You have not unlocked the Diamante tier yet. Unlock it by reaching 20000 in value purchased by your referrals.',
+        'pt': 'Você ainda não desbloqueou o nível Diamante. Desbloqueie ao atingir 20000 DEPIX comprados por suas indicações.',
       } +
       {
         'en': 'You need 20000 DEPIX to unlock the Diamante tier.',
@@ -1514,6 +1510,10 @@ extension Localization on String {
       {
         'en': 'Fee: 1.5% + 1,98 BRL (Affiliate Discount)',
         'pt': 'Taxa: 1,5% + 1,98 BRL (Desconto de Afiliado)'
+      } +
+      {
+        'en': 'Fee: 2% + 1,98 BRL (No Affiliate Discount)',
+        'pt': 'Taxa: 2% + 1,98 BRL (Sem Desconto de Afiliado)'
       } +
       {
         'en': 'Fee: 2% + 1,98 BRL',
@@ -1554,6 +1554,26 @@ extension Localization on String {
       {
         'en': 'Original amount',
         'pt': 'Quantia original'
+      } +
+      {
+        'en': 'You earn 1% per referral in perpetuity',
+        'pt': 'Você ganha 1% por indicação perpetuamente'
+      } +
+      {
+        'en': 'You earn 0.2% per referral in perpetuity',
+        'pt': 'Você ganha 0.2% por indicação perpetuamente'
+      } +
+      {
+        'en': 'Receiving Bitcoin fee:',
+        'pt': 'Taxa de recebimento de Bitcoin:'
+      } +
+      {
+        'en': 'Create Affiliate Code',
+        'pt': 'Criar Código de Afiliado'
+      } +
+      {
+        'en': 'Amount is below minimum peg in amount',
+        'pt': 'A quantia está abaixo da quantia mínima de conversão'
       };
 
   String i18n(WidgetRef ref) {

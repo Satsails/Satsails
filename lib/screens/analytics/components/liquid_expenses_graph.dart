@@ -113,6 +113,7 @@ class LiquidExpensesGraph extends StatelessWidget {
         markerSettings: const MarkerSettings(isVisible: false),
         dashArray: _getDashArray(mainData!),
         animationDuration: 0,
+        width: 3,
       ));
     } else {
       seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
@@ -124,6 +125,7 @@ class LiquidExpensesGraph extends StatelessWidget {
         markerSettings: const MarkerSettings(isVisible: false),
         dashArray: _getDashArray(sentData),
         animationDuration: 0,
+        width: 3,
       ));
       seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Received',
@@ -134,6 +136,7 @@ class LiquidExpensesGraph extends StatelessWidget {
         markerSettings: const MarkerSettings(isVisible: false),
         dashArray: _getDashArray(receivedData),
         animationDuration: 0,
+        width: 3,
       ));
       if (isBtc) {
         seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
@@ -145,6 +148,7 @@ class LiquidExpensesGraph extends StatelessWidget {
           markerSettings: const MarkerSettings(isVisible: false),
           dashArray: _getDashArray(feeData),
           animationDuration: 0,
+          width: 3,
         ));
       }
     }

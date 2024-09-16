@@ -77,10 +77,10 @@ class PegDetails extends ConsumerWidget {
         return _buildListTile("Status".i18n(ref), "Insufficient Amount".i18n(ref), Icons.error, screenWidth);
       case 'Detected':
         return ListTile(
-          leading: const Icon(Icons.search, color: Colors.black),
+          leading: const Icon(Icons.search, color: Colors.orange),
           title: Text("Confirmations".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold, color: Colors.white)),
-          subtitle: Text("${status.detectedConfs} ${"Detected".i18n(ref)}", style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white)),
-          trailing: Text("${status.totalConfs} ${"Needed".i18n(ref)}", style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white)),
+          subtitle: Text("${status.detectedConfs ?? 0} ${"Detected".i18n(ref)}", style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white)),
+          trailing: Text("${status.totalConfs ?? 0} ${"Needed".i18n(ref)}", style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white)),
         );
       case 'Processing':
         return _buildListTile("Status", "Processing".i18n(ref), Icons.hourglass_empty, screenWidth);

@@ -74,6 +74,7 @@ class LineChartSample extends StatelessWidget {
         color: Colors.orangeAccent,
         markerSettings: const MarkerSettings(isVisible: false),
         animationDuration: 0,
+        width: 3,
       ),
     ];
   }

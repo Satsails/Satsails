@@ -1,4 +1,5 @@
-import 'package:Satsails/helpers/life_cycle_handler.dart';
+import 'dart:async';
+
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -111,11 +112,13 @@ class MainApp extends ConsumerStatefulWidget {
 
 class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  Timer? _lockTimer;
+  final int lockThresholdInSeconds = 300; // 5 minutes
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(LifecycleHandler(onAppPaused: handleAppPaused));
+    WidgetsBinding.instance.addObserver(this); // Observe app lifecycle
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.black,
       systemNavigationBarIconBrightness: Brightness.light,
@@ -124,11 +127,38 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(LifecycleHandler(onAppPaused: handleAppPaused));
+    WidgetsBinding.instance.removeObserver(this); // Stop observing
+    _cancelLockTimer(); // Cancel the timer if the app is closed
     super.dispose();
   }
 
-  Future<void> handleAppPaused() async {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      // Start the lock countdown when the app is inactive or paused
+      _startLockCountdown();
+    } else if (state == AppLifecycleState.resumed) {
+      // Cancel the lock countdown when the app is resumed
+      _cancelLockTimer();
+    }
+  }
+
+  // Start a countdown timer for 5 minutes (300 seconds)
+  void _startLockCountdown() {
+    _cancelLockTimer(); // Ensure no previous timer is running
+    _lockTimer = Timer(Duration(seconds: lockThresholdInSeconds), _lockApp);
+  }
+
+  // Cancel the countdown timer if the app resumes before 5 minutes
+  void _cancelLockTimer() {
+    if (_lockTimer != null) {
+      _lockTimer!.cancel();
+      _lockTimer = null;
+    }
+  }
+
+  Future<void> _lockApp() async {
     final authModel = ref.read(authModelProvider);
     final mnemonic = await authModel.getMnemonic();
 

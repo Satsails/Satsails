@@ -49,7 +49,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     if (hasInsertedAffiliateCode || (hasCreatedAffiliate && numberOfAffiliateInstalls > 1)) {
       return 'Fee: 1.5% + 1,98 BRL (Affiliate Discount)';
     } else {
-      return 'Fee: 2% + 1,98 BRL';
+      return 'Fee: 2% + 1,98 BRL (No Affiliate Discount)';
     }
   }
 

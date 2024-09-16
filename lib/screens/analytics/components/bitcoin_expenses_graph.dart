@@ -100,6 +100,7 @@ class LineChartSample extends StatelessWidget {
         color: Colors.orangeAccent,
         markerSettings: const MarkerSettings(isVisible: false),
         animationDuration: 0,
+        width: 3,
       ));
     } else {
       seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
@@ -110,6 +111,7 @@ class LineChartSample extends StatelessWidget {
         color: Colors.blueAccent,
         markerSettings: const MarkerSettings(isVisible: false),
         animationDuration: 0,
+        width: 3,
       ));
       seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Income',
@@ -119,6 +121,7 @@ class LineChartSample extends StatelessWidget {
         color: Colors.greenAccent,
         markerSettings: const MarkerSettings(isVisible: false),
         animationDuration: 0,
+        width: 3,
       ));
       seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
         name: 'Fee',
@@ -128,6 +131,7 @@ class LineChartSample extends StatelessWidget {
         color: Colors.orangeAccent,
         markerSettings: const MarkerSettings(isVisible: false),
         animationDuration: 0,
+        width: 3,
       ));
     }
 
