@@ -23,6 +23,12 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
   @override
   void initState() {
     super.initState();
+    final language = ref.read(settingsProvider).language;
+    if (language == 'pt') {
+      setState(() {
+        _currentUrl  = 'https://bitcoincounterflow.com/pt/satsails-2/mini-paineis-iframe/';
+      });
+    }
     _initializeWebView();
   }
 
@@ -134,7 +140,7 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
   Widget _buildDrawer(WidgetRef ref, BuildContext context, String language) {
     final links = {
       'Dashboards': language == 'pt'
-          ? 'https://bitcoincounterflow.com/pt/satsails-2/mini-paineis-iframe'
+          ? 'https://bitcoincounterflow.com/pt/satsails-2/mini-paineis-iframe/'
           : 'https://bitcoincounterflow.com/satsails/dashboards-iframe',
       'ETF Tracker': language == 'pt'
           ? 'https://bitcoincounterflow.com/pt/satsails-2/etf-tracker-btc-iframe'

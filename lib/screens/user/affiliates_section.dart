@@ -63,7 +63,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Enter your affiliate code or create a new code to receive benefits.'.i18n(ref),
+                      'Enter your affiliate code or create a new code to receive discounts.'.i18n(ref),
                       style: const TextStyle(color: Colors.white, fontSize: 18),
                       textAlign: TextAlign.center,
                     ),
@@ -76,14 +76,20 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                       },
                     ),
                     const SizedBox(height: 20),
-                    CustomElevatedButton(
-                      text: 'Create Affiliate Code'.i18n(ref),
-                      backgroundColor: Colors.transparent,
-                      textColor: Colors.white,
-                      onPressed: () {
-                        _showCreateBottomModal(context, 'Create Affiliate Code'.i18n(ref), ref);
-                      },
-                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white),
+                        borderRadius: BorderRadius.circular(8.0), // Adjust the radius as needed
+                      ),
+                      child: CustomElevatedButton(
+                        text: 'Become an Affiliate'.i18n(ref),
+                        backgroundColor: Colors.transparent,
+                        textColor: Colors.white,
+                        onPressed: () {
+                          _showCreateBottomModal(context, 'Create Affiliate Code'.i18n(ref), ref);
+                        },
+                      ),
+                    )
                   ],
                 ),
               ),

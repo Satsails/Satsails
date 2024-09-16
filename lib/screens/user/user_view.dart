@@ -115,10 +115,21 @@ class _UserViewState extends ConsumerState<UserView> {
             'Payment ID'.i18n(ref),
             style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
           ),
+          SizedBox(width: width * 0.01),
           SizedBox(height: height * 0.01),
-          Text(
-            paymentId,
-            style: TextStyle(color: Colors.white, fontSize: width * 0.05, fontWeight: FontWeight.bold),
+          Row(
+            children: [
+              Text(
+                paymentId,
+                style: TextStyle(color: Colors.white, fontSize: width * 0.05, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(width: width * 0.02),
+              Icon(
+                Icons.copy,
+                color: Colors.white,
+                size: width * 0.05,
+              ),
+            ],
           ),
         ],
       ),
@@ -149,9 +160,20 @@ class _UserViewState extends ConsumerState<UserView> {
             style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
           ),
           SizedBox(height: height * 0.01),
-          Text(
-            affiliateCode,
-            style: TextStyle(color: Colors.white, fontSize: width * 0.05, fontWeight: FontWeight.bold),
+          Row(
+            children: [
+              Text(
+                affiliateCode,
+                style: TextStyle(color: Colors.white, fontSize: width * 0.05, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(width: width * 0.02),
+              if (affiliateCode != 'N/A')
+              Icon(
+                Icons.copy,
+                color: Colors.white,
+                size: width * 0.05,
+              ),
+            ],
           ),
         ],
       ),
@@ -182,9 +204,20 @@ class _UserViewState extends ConsumerState<UserView> {
             style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
           ),
           SizedBox(height: height * 0.01),
-          Text(
-            affiliateCode,
-            style: TextStyle(color: Colors.white, fontSize: width * 0.05, fontWeight: FontWeight.bold),
+          Row(
+            children: [
+              Text(
+                affiliateCode,
+                style: TextStyle(color: Colors.white, fontSize: width * 0.05, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(width: width * 0.02),
+              if (affiliateCode != 'N/A')
+              Icon(
+                Icons.copy,
+                color: Colors.white,
+                size: width * 0.05,
+              ),
+            ],
           ),
         ],
       ),
@@ -234,6 +267,22 @@ class _UserViewState extends ConsumerState<UserView> {
                   });
                 },
               ),
+              if (!_isRecoveryCodeHidden)
+              IconButton(
+                icon: Icon(Icons.copy, color: Colors.white),
+                onPressed: () {
+                    Clipboard.setData(ClipboardData(text: recoveryCode));
+                    Fluttertoast.showToast(
+                      msg: 'Recovery code copied to clipboard'.i18n(ref),
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.TOP,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.green,
+                      textColor: Colors.white,
+                      fontSize: height * 0.02,
+                    );
+                },
+              ),
             ],
           ),
         ],
@@ -241,3 +290,4 @@ class _UserViewState extends ConsumerState<UserView> {
     );
   }
 }
+

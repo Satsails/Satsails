@@ -104,7 +104,7 @@ class AffiliateViewWidget extends ConsumerWidget {
                           ),
                         ),
                       CustomElevatedButton(
-                        text: 'Create Affiliate Code'.i18n(ref),
+                        text: 'Become an Affiliate'.i18n(ref),
                         onPressed: () => _showCreateBottomModal(context, 'Create Affiliate Code'.i18n(ref), ref),
                       ),
                     ],
@@ -165,6 +165,12 @@ class AffiliateViewWidget extends ConsumerWidget {
   Widget _buildEarningsInfo(Decimal earningsDecimal, double width, double height, WidgetRef ref) {
     return Column(
       children: [
+        SizedBox(height: height * 0.02),
+        if (earningsDecimal > Decimal.parse('20000'))
+          Text('You earn 1% per referral in perpetuity'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: width * 0.03)),
+        if (earningsDecimal <= Decimal.parse('20000'))
+          Text('You earn 0.2% per referral in perpetuity'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: width * 0.03)),
+        SizedBox(height: height * 0.01),
         Text('Total Earnings'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: width * 0.04)),
         SizedBox(height: height * 0.01),
         Text('$earningsDecimal DEPIX', style: TextStyle(color: Colors.white, fontSize: width * 0.06, fontWeight: FontWeight.bold)),
@@ -175,7 +181,7 @@ class AffiliateViewWidget extends ConsumerWidget {
   Widget _buildInstallationsInfo(int installs, double width, double height, WidgetRef ref) {
     return Column(
       children: [
-        Text('Number of Installations'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: width * 0.04)),
+        Text('Number of Referrals'.i18n(ref), style: TextStyle(color: Colors.white, fontSize: width * 0.04)),
         SizedBox(height: height * 0.02),
         Text(installs.toString(), style: TextStyle(color: Colors.white, fontSize: width * 0.06, fontWeight: FontWeight.bold)),
       ],
@@ -426,8 +432,8 @@ class AffiliateViewWidget extends ConsumerWidget {
     String feeInfo = isUnlocked
         ? (totalValue >= Decimal.parse('20000')
         ? "Current fee is 1% per affiliate in perpetuity.".i18n(ref)
-        : "Current fee is 0.2% per affiliate in perpetuity until you reach 20K in value transacted, then it goes to 1%.".i18n(ref))
-        : "You have not unlocked the $label tier yet. Unlock it by reaching ${threshold.toString()} in value transacted.".i18n(ref);
+        : "Current fee is 0.2% per affiliate in perpetuity until you reach 20K in value purchased by your referrals.".i18n(ref))
+        : "You have not unlocked the $label tier yet. Unlock it by reaching ${threshold.toString()} in value purchased by your referrals.".i18n(ref);
 
     showModalBottomSheet(
       context: context,

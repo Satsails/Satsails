@@ -1,6 +1,8 @@
 
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
+import 'package:Satsails/screens/analytics/components/button_picker.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -194,20 +196,24 @@ class _PegState extends ConsumerState<Peg> {
               toggleColor: Colors.orange,
               action: (controller) async {
                 controller.loading();
-                await Future.delayed(const Duration(seconds: 3));
                 try {
                   if (ref.watch(sendTxProvider).amount < status.minPegOutAmount) {
                     throw 'Amount is below minimum peg out amount'.i18n(ref);
                   }
                   await ref.watch(sendLiquidTransactionProvider.future);
                   await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
+                  await ref.read(backgroundSyncNotifierProvider).performSync();
+                  await Future.delayed(const Duration(seconds: 3));
                   controller.success();
-                  Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                   ref.read(sendTxProvider.notifier).updateAddress('');
                   ref.read(sendTxProvider.notifier).updateAmount(0);
                   ref.read(sendBlocksProvider.notifier).state = 1;
-                  ref.read(backgroundSyncNotifierProvider).performSync();
-                  await Future.delayed(const Duration(seconds: 3));
+                  Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                  Future.microtask(() {
+                    ref.read(topSelectedButtonProvider.notifier).state = "Swap";
+                    ref.read(groupButtonControllerProvider).selectIndex(2);
+                    ref.read(navigationProvider.notifier).state = 1;
+                  });
                   Navigator.pushReplacementNamed(context, '/home');
                 } catch (e) {
                   controller.failure();
@@ -239,20 +245,24 @@ class _PegState extends ConsumerState<Peg> {
               toggleColor: Colors.orange,
               action: (controller) async {
                 controller.loading();
-                await Future.delayed(const Duration(seconds: 3));
                 try {
                   if (ref.watch(sendTxProvider).amount < ref.watch(sideswapStatusProvider).minPegInAmount) {
                     throw 'Amount is below minimum peg in amount'.i18n(ref);
                   }
                   await ref.watch(sendBitcoinTransactionProvider.future);
                   await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
+                  await ref.read(backgroundSyncNotifierProvider).performSync();
+                  await Future.delayed(const Duration(seconds: 3));
                   controller.success();
-                  Fluttertoast.showToast(msg: "Swap done! Check Analytics for more info".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                   ref.read(sendTxProvider.notifier).updateAddress('');
                   ref.read(sendTxProvider.notifier).updateAmount(0);
                   ref.read(sendBlocksProvider.notifier).state = 1;
-                  ref.read(backgroundSyncNotifierProvider).performSync();
-                  await Future.delayed(const Duration(seconds: 3));
+                  Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                  Future.microtask(() {
+                    ref.read(topSelectedButtonProvider.notifier).state = "Swap";
+                    ref.read(groupButtonControllerProvider).selectIndex(2);
+                    ref.read(navigationProvider.notifier).state = 1;
+                  });
                   Navigator.pushReplacementNamed(context, '/home');
                 } catch (e) {
                   controller.failure();
@@ -305,7 +315,7 @@ class _PegState extends ConsumerState<Peg> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
-                                padding: EdgeInsets.all(dynamicPadding / 2),
+                                padding: EdgeInsets.all(dynamicPadding),
                                 decoration: const BoxDecoration(
                                   color: Colors.orange,
                                   shape: BoxShape.circle,
@@ -348,37 +358,34 @@ class _PegState extends ConsumerState<Peg> {
     final status = ref.watch(sideswapStatusProvider).bitcoinFeeRates ?? [];
     final selectedBlocks = ref.watch(pegOutBlocksProvider);
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 2),
-      child: DropdownButton<dynamic>(
-        hint: Text(
-          "How fast would you like to receive your bitcoin".i18n(ref),
-          style: TextStyle(fontSize: titleFontSize / 2.3, color: Colors.grey),
-        ),
-        dropdownColor: selectedBlocks == 12 ? const Color(0xFF1A1A1A) : const Color(0xFF2B2B2B),
-        items: status.map((dynamic value) {
-          return DropdownMenuItem<dynamic>(
-            value: value,
-            child: Center(
-              child: Text(
-                "${value["blocks"]} blocks - ${value["value"]} sats/vbyte",
-                style: TextStyle(
-                  fontSize: titleFontSize / 2,
-                  color: selectedBlocks == value["blocks"]
-                      ? const Color(0xFFFF9800)
-                      : const Color(0xFFD98100),
-                ),
+    return DropdownButton<dynamic>(
+      hint: Text(
+        "How fast would you like to receive your bitcoin".i18n(ref),
+        style: TextStyle(fontSize: titleFontSize / 2.3, color: Colors.grey),
+      ),
+      dropdownColor: selectedBlocks == 12 ? const Color(0xFF1A1A1A) : const Color(0xFF2B2B2B),
+      items: status.map((dynamic value) {
+        return DropdownMenuItem<dynamic>(
+          value: value,
+          child: Center(
+            child: Text(
+              "${value["blocks"]} blocks - ${value["value"]} sats/vbyte",
+              style: TextStyle(
+                fontSize: titleFontSize / 2,
+                color: selectedBlocks == value["blocks"]
+                    ? const Color(0xFFFF9800)
+                    : const Color(0xFFD98100),
               ),
             ),
-          );
-        }).toList(),
-        onChanged: (dynamic newValue) {
-          if (newValue != null) {
-            ref.read(bitcoinReceiveSpeedProvider.notifier).state = "${newValue["value"]} sats/vbyte";
-            ref.read(pegOutBlocksProvider.notifier).state = newValue["blocks"];
-          }
-        },
-      ),
+          ),
+        );
+      }).toList(),
+      onChanged: (dynamic newValue) {
+        if (newValue != null) {
+          ref.read(bitcoinReceiveSpeedProvider.notifier).state = "${newValue["value"]} sats/vbyte";
+          ref.read(pegOutBlocksProvider.notifier).state = newValue["blocks"];
+        }
+      },
     );
   }
 
@@ -575,7 +582,7 @@ class _PegState extends ConsumerState<Peg> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Liquid', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
+          const Text('Liquid Bitcoin', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
           if (pegIn)
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
