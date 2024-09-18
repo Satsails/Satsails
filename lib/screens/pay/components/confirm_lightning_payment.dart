@@ -46,131 +46,133 @@ class ConfirmLightningPayment extends HookConsumerWidget {
         ref.read(sendTxProvider.notifier).resetToDefault();
         ref.read(sendBlocksProvider.notifier).state = 1;
       },
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
+      child: SafeArea(
+        child: Scaffold(
           backgroundColor: Colors.black,
-          title: Text('Confirm lightning payment'.i18n(ref), style: const TextStyle(color: Colors.white, fontSize: 17)),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            color: Colors.white,
-            onPressed: () {
-              Navigator.pop(context);
-            },
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            title: Text('Confirm lightning payment'.i18n(ref), style: const TextStyle(color: Colors.white, fontSize: 17)),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              color: Colors.white,
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
           ),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    SizedBox(height: dynamicSizedBox),
-                    LightningCards(
-                      titleFontSize: titleFontSize,
-                      initializeBalance: initializeBalance,
-                      liquidFormart: liquidFormart,
-                      btcFormart: btcFormart,
-                      liquidBalanceInFormat: liquidBalanceInFormat,
-                      btcBalanceInFormat: btcBalanceInFormat,
-                      dynamicPadding: dynamicPadding,
-                      dynamicMargin: dynamicMargin,
-                      dynamicCardHeight: dynamicCardHeight,
-                      ref: ref,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: dynamicPadding),
-                      child: Center(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5.0),
-                            border: Border.all(color: Colors.grey, width: 1),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(dynamicPadding / 2),
-                            child: Text(
-                              addressState.value,
-                              style: TextStyle(
-                                fontSize: dynamicFontSize / 1.5,
-                                color: Colors.white,
+          body: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      SizedBox(height: dynamicSizedBox),
+                      LightningCards(
+                        titleFontSize: titleFontSize,
+                        initializeBalance: initializeBalance,
+                        liquidFormart: liquidFormart,
+                        btcFormart: btcFormart,
+                        liquidBalanceInFormat: liquidBalanceInFormat,
+                        btcBalanceInFormat: btcBalanceInFormat,
+                        dynamicPadding: dynamicPadding,
+                        dynamicMargin: dynamicMargin,
+                        dynamicCardHeight: dynamicCardHeight,
+                        ref: ref,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: dynamicPadding),
+                        child: Center(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5.0),
+                              border: Border.all(color: Colors.grey, width: 1),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(dynamicPadding / 2),
+                              child: Text(
+                                addressState.value,
+                                style: TextStyle(
+                                  fontSize: dynamicFontSize / 1.5,
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10.0),
-                      child: FocusScope(
-                        child: TextFormField(
-                          controller: controller,
-                          readOnly: true,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
-                          style: TextStyle(fontSize: dynamicFontSize * 3, color: Colors.white),
-                          textAlign: TextAlign.center,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: showBitcoinRelatedWidgets.state ? '0' : '0.00',
-                            hintStyle: const TextStyle(color: Colors.white),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: FocusScope(
+                          child: TextFormField(
+                            controller: controller,
+                            readOnly: true,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)],
+                            style: TextStyle(fontSize: dynamicFontSize * 3, color: Colors.white),
+                            textAlign: TextAlign.center,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: showBitcoinRelatedWidgets.state ? '0' : '0.00',
+                              hintStyle: const TextStyle(color: Colors.white),
+                            ),
+                            onChanged: (value) async {
+                              if (value.isEmpty) {
+                                ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                              }
+                              ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                            },
                           ),
-                          onChanged: (value) async {
-                            if (value.isEmpty) {
-                              ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
-                            }
-                            ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
-                          },
                         ),
                       ),
-                    ),
-                    SizedBox(height: dynamicSizedBox),
-                    Text(
-                      '${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
-                      style: TextStyle(
-                        fontSize: dynamicFontSize / 1.5,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                      SizedBox(height: dynamicSizedBox),
+                      Text(
+                        '${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
+                        style: TextStyle(
+                          fontSize: dynamicFontSize / 1.5,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: dynamicSizedBox),
-                  ],
+                      SizedBox(height: dynamicSizedBox),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Center(
-                child: ActionSlider.standard(
-                  sliderBehavior: SliderBehavior.stretch,
-                  width: double.infinity,
-                  backgroundColor: Colors.black,
-                  toggleColor: Colors.orange,
-                  action: (controller) async {
-                    controller.loading();
-                    await Future.delayed(const Duration(seconds: 3));
-                    try {
-                      final sendLiquid = ref.read(sendLiquidProvider);
-                      sendLiquid ? await ref.read(boltzPayProvider.future) : await ref.read(bitcoinBoltzPayProvider.future);
-                      controller.success();
-                      Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Center(
+                  child: ActionSlider.standard(
+                    sliderBehavior: SliderBehavior.stretch,
+                    width: double.infinity,
+                    backgroundColor: Colors.black,
+                    toggleColor: Colors.orange,
+                    action: (controller) async {
+                      controller.loading();
                       await Future.delayed(const Duration(seconds: 3));
-                      ref.read(sendTxProvider.notifier).resetToDefault();
-                      ref.read(backgroundSyncNotifierProvider).performSync();
-                      Navigator.pushNamed(context, '/home');
-                    } catch (e) {
-                      controller.failure();
-                      Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
-                      controller.reset();
-                    }
-                  },
-                  child: Text('Slide to send'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                      try {
+                        final sendLiquid = ref.read(sendLiquidProvider);
+                        sendLiquid ? await ref.read(boltzPayProvider.future) : await ref.read(bitcoinBoltzPayProvider.future);
+                        controller.success();
+                        Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                        await Future.delayed(const Duration(seconds: 3));
+                        ref.read(sendTxProvider.notifier).resetToDefault();
+                        ref.read(backgroundSyncNotifierProvider).performSync();
+                        Navigator.pushNamed(context, '/home');
+                      } catch (e) {
+                        controller.failure();
+                        Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                        controller.reset();
+                      }
+                    },
+                    child: Text('Slide to send'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

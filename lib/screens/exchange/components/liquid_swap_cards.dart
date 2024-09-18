@@ -18,6 +18,7 @@ import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
+import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 final currentBalanceProvider = StateProvider.autoDispose<String>((ref) {
@@ -95,30 +96,40 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
       swapCards = swapCards.reversed.toList();
     }
 
-    return
-      Column(
-        children: [
-          Text(
-            "Balance to Spend: ".i18n(ref),
-            style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return SafeArea(
+      child: KeyboardDismisser(
+          gestures: const [
+            GestureType.onTap,
+            GestureType.onPanUpdateDownDirection,
+            GestureType.onPanUpdateUpDirection,
+            GestureType.onPanUpdateLeftDirection,
+            GestureType.onPanUpdateRightDirection,
+          ],
+          child: Column(
             children: [
               Text(
-                currentBalance,
-                style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                textAlign: TextAlign.center,
+                "Balance to Spend: ".i18n(ref),
+                style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
               ),
-              _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat, titleFontSize),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    currentBalance,
+                    style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                  _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat, titleFontSize),
+                ],
+              ),
+              SizedBox(height: dynamicPadding),
+              ...swapCards,
+              const Spacer(),
+              _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
             ],
           ),
-          SizedBox(height: dynamicPadding),
-          ...swapCards,
-          const Spacer(),
-          _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
-        ],
-      );
+        ),
+    );
   }
 
   Widget buildCardSwiper(BuildContext context, WidgetRef ref, double dynamicCardHeight, List<Column> cards) {
@@ -320,9 +331,9 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                 Column(
                   children: [
                     TextFormField(
-                      keyboardType: TextInputType.number,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       controller: controller,
-                      inputFormatters: isBitcoin ? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()] : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()],
+                      inputFormatters: isBitcoin ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)] : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
                         border: InputBorder.none,

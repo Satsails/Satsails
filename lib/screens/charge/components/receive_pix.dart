@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pix_flutter/pix_flutter.dart';
 import 'package:Satsails/providers/user_provider.dart';
@@ -213,96 +214,105 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
         final double amountToReceive = amountInDouble - fee;
         _amountToReceive = amountToReceive;
 
-        return SingleChildScrollView(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                Padding(
-                  padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.warning_amber, color: Colors.red),
-                      const SizedBox(width: 1),
-                      Text(
-                        '${'You can transfer up to'.i18n(ref)} ${formatLimit(_remainingLimit)} BRL${' today'.i18n(ref)}',
-                        style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.red),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
-                  child: Text(
-                    '${'Transferred Today:'.i18n(ref)} ${transferredAmount.toStringAsFixed(2)} BRL',
-                    style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.green),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
-                  child: TextField(
-                    controller: _amountController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly
-                    ],
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.white),
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey, width: 1.0),
-                      ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey, width: 2.0),
-                      ),
-                      labelText: 'Insert an amount'.i18n(ref),
-                      labelStyle: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.grey),
-                    ),
-                  ),
-                ),
-                if (_amountToReceive > 0)
+        return  KeyboardDismisser(
+          gestures: const [
+            GestureType.onTap,
+            GestureType.onPanUpdateDownDirection,
+            GestureType.onPanUpdateUpDirection,
+            GestureType.onPanUpdateLeftDirection,
+            GestureType.onPanUpdateRightDirection,
+          ],
+          child: SingleChildScrollView(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
+                    padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        const Icon(Icons.warning_amber, color: Colors.red),
+                        const SizedBox(width: 1),
                         Text(
-                          '${'You will receive: '.i18n(ref)}${currencyFormat(_amountToReceive, 'BRL')}',
-                          style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.green),
-                        ),
-                        Text(
-                          _feeDescription.i18n(ref),
-                          style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.grey),
+                          '${'You can transfer up to'.i18n(ref)} ${formatLimit(_remainingLimit)} BRL${' today'.i18n(ref)}',
+                          style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.red),
                         ),
                       ],
                     ),
                   ),
-                if (_isLoading)
-                  Center(
-                    child: LoadingAnimationWidget.threeArchedCircle(
-                      size: MediaQuery.of(context).size.height * 0.1,
-                      color: Colors.orange,
-                    ),
-                  )
-                else
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
-                    child: CustomButton(
-                      text: 'Generate Pix code'.i18n(ref),
-                      primaryColor: Colors.orange,
-                      secondaryColor: Colors.orange,
-                      textColor: Colors.black,
-                      onPressed: () async {
-                        await _generateQRCode();
-                      },
+                    padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
+                    child: Text(
+                      '${'Transferred Today:'.i18n(ref)} ${transferredAmount.toStringAsFixed(2)} BRL',
+                      style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.green),
                     ),
                   ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                if (_pixQRCode.isNotEmpty) buildQrCode(_pixQRCode, context),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                if (_pixQRCode.isNotEmpty) buildAddressText(_pixQRCode, context, ref),
-              ],
+                  Padding(
+                    padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
+                    child: TextField(
+                      controller: _amountController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.white),
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey, width: 2.0),
+                        ),
+                        labelText: 'Insert an amount'.i18n(ref),
+                        labelStyle: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                  if (_amountToReceive > 0)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            '${'You will receive: '.i18n(ref)}${currencyFormat(_amountToReceive, 'BRL')}',
+                            style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.green),
+                          ),
+                          Text(
+                            _feeDescription.i18n(ref),
+                            style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (_isLoading)
+                    Center(
+                      child: LoadingAnimationWidget.threeArchedCircle(
+                        size: MediaQuery.of(context).size.height * 0.1,
+                        color: Colors.orange,
+                      ),
+                    )
+                  else
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
+                      child: CustomButton(
+                        text: 'Generate Pix code'.i18n(ref),
+                        primaryColor: Colors.orange,
+                        secondaryColor: Colors.orange,
+                        textColor: Colors.black,
+                        onPressed: () async {
+                          await _generateQRCode();
+                        },
+                      ),
+                    ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                  if (_pixQRCode.isNotEmpty) buildQrCode(_pixQRCode, context),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                  if (_pixQRCode.isNotEmpty) buildAddressText(_pixQRCode, context, ref),
+                ],
+              ),
             ),
           ),
         );

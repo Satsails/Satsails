@@ -27,12 +27,12 @@ class AmountInput extends ConsumerWidget {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: bitcoinInput
               ? [
-            DecimalTextInputFormatter(decimalRange: 8),
             CommaTextInputFormatter(),
+            DecimalTextInputFormatter(decimalRange: 8),
           ]
               : [
-            DecimalTextInputFormatter(decimalRange: 2),
             CommaTextInputFormatter(),
+            DecimalTextInputFormatter(decimalRange: 2),
           ],
           style: TextStyle(
             fontSize: dynamicFontSize * 3,
