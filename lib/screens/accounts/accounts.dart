@@ -487,11 +487,11 @@ class Accounts extends ConsumerWidget {
         builder: (context, scrollController) {
           return Scaffold(
             backgroundColor: Colors.black,
-            body: SingleChildScrollView(
-              controller: scrollController,
-              padding: const EdgeInsets.all(16.0),
-              child: const LightningWidget(),
-            ),
+            // body: SingleChildScrollView(
+            //   controller: scrollController,
+            //   padding: const EdgeInsets.all(16.0),
+            //   child: const LightningWidget(),
+            // ),
           );
         },
       ),

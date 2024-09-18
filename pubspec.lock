@@ -811,14 +811,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.9.0"
-  keyboard_dismisser:
+  keyboard_actions:
     dependency: "direct main"
     description:
-      name: keyboard_dismisser
-      sha256: f67e032581fc3dd1f77e1cb54c421b089e015d122aeba2490ba001cfcc42a181
+      name: keyboard_actions
+      sha256: "31e0ab2a706ac8f58887efa60efc1f19aecdf37d8ab0f665a0f156d1fbeab650"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "4.2.0"
   leak_tracker:
     dependency: transitive
     description:
