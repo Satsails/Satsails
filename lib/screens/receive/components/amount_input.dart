@@ -6,12 +6,10 @@ import 'package:Satsails/providers/address_receive_provider.dart';
 
 class AmountInput extends ConsumerWidget {
   final TextEditingController controller;
-  final FocusNode focusNode;
 
   AmountInput({
     Key? key,
     required this.controller,
-    required this.focusNode,
   }) : super(key: key);
 
   @override
@@ -23,7 +21,6 @@ class AmountInput extends ConsumerWidget {
       children: [
         TextFormField(
           controller: controller,
-          focusNode: focusNode,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: bitcoinInput
               ? [

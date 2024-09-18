@@ -7,6 +7,7 @@ import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
@@ -475,7 +476,6 @@ class Accounts extends ConsumerWidget {
   }
 
   void _receiveLightningPayment(BuildContext context, WidgetRef ref) {
-    final FocusNode focusNode = FocusNode();
 
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
@@ -489,36 +489,21 @@ class Accounts extends ConsumerWidget {
         builder: (context, scrollController) {
           return Scaffold(
             backgroundColor: Colors.black,
-            body: KeyboardActions(
-              config: KeyboardActionsConfig(
-                keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
-                actions: [
-                  KeyboardActionsItem(
-                    focusNode: focusNode,
-                    toolbarButtons: [
-                          (node) {
-                        return GestureDetector(
-                          onTap: () => node.unfocus(),
-                          child: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'Done',
-                              style: TextStyle(color: Colors.blue, fontSize: 16),
-                            ),
-                          ),
-                        );
-                      },
-                    ],
-                  ),
-                ],
-              ),
+            body:  KeyboardDismisser(
+              gestures: const [
+                GestureType.onTap,
+                GestureType.onPanUpdateDownDirection,
+                GestureType.onPanUpdateUpDirection,
+                GestureType.onPanUpdateLeftDirection,
+                GestureType.onPanUpdateRightDirection,
+              ],
               child: SingleChildScrollView(
-                controller: scrollController,
-                padding: const EdgeInsets.all(16.0),
-                child: LightningWidget(focusNode: focusNode),
-              ),
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(16.0),
+                  child: LightningWidget(),
+                ),
             ),
-          );
+            );
         },
       ),
     );

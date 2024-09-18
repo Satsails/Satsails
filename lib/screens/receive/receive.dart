@@ -4,9 +4,9 @@ import 'package:Satsails/screens/receive/components/liquid_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
+import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 
 final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
 final FocusNode _focusNode = FocusNode();
@@ -17,31 +17,6 @@ class Receive extends ConsumerWidget {
     return GroupButtonController(selectedIndex: 1);
   });
 
-
-  KeyboardActionsConfig _buildKeyboardActionsConfig() {
-    return KeyboardActionsConfig(
-      keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
-      actions: [
-        KeyboardActionsItem(
-          focusNode: _focusNode,
-          toolbarButtons: [
-                (node) {
-              return GestureDetector(
-                onTap: () => node.unfocus(),
-                child: const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'Done',
-                    style: TextStyle(color: Colors.blue, fontSize: 16),
-                  ),
-                ),
-              );
-            },
-          ],
-        ),
-      ],
-    );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -64,8 +39,14 @@ class Receive extends ConsumerWidget {
           },
         ),
       ),
-      body: KeyboardActions(
-        config: _buildKeyboardActionsConfig(),
+      body: KeyboardDismisser(
+        gestures: const [
+          GestureType.onTap,
+          GestureType.onPanUpdateDownDirection,
+          GestureType.onPanUpdateUpDirection,
+          GestureType.onPanUpdateLeftDirection,
+          GestureType.onPanUpdateRightDirection,
+        ],
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -109,11 +90,11 @@ class Receive extends ConsumerWidget {
               ),
               SizedBox(height: screenHeight * 0.02),
               if (selectedIndex == 'Bitcoin')
-                BitcoinWidget(focusNode: _focusNode),
+                BitcoinWidget(),
               if (selectedIndex == "Liquid")
-                LiquidWidget(focusNode: _focusNode),
+                LiquidWidget(),
               if (selectedIndex == "Lightning")
-                LightningWidget(focusNode: _focusNode),
+                LightningWidget(),
             ],
           ),
         ),

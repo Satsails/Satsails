@@ -11,9 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 class LightningWidget extends ConsumerStatefulWidget {
-  final FocusNode focusNode;
 
-  const LightningWidget({Key? key, required this.focusNode}) : super(key: key);
+  const LightningWidget({Key? key }) : super(key: key);
 
   @override
   _LightningWidgetState createState() => _LightningWidgetState();
@@ -67,11 +66,10 @@ class _LightningWidgetState extends ConsumerState<LightningWidget> {
           ],
         ),
         SizedBox(height: 16),
-        // Pass the FocusNode to the child widgets
         if (selectedCurrency == 'Liquid')
-          LiquidReceiveWidget(focusNode: widget.focusNode)
+          LiquidReceiveWidget()
         else
-          BitcoinReceiveWidget(focusNode: widget.focusNode),
+          BitcoinReceiveWidget(),
       ],
     );
   }
@@ -79,9 +77,8 @@ class _LightningWidgetState extends ConsumerState<LightningWidget> {
 
 
 class LiquidReceiveWidget extends ConsumerStatefulWidget {
-  final FocusNode focusNode;
 
-  const LiquidReceiveWidget({Key? key, required this.focusNode}) : super(key: key);
+  const LiquidReceiveWidget({Key? key }) : super(key: key);
 
   @override
   _LiquidReceiveWidgetState createState() => _LiquidReceiveWidgetState();
@@ -186,7 +183,7 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
 
     return Column(
       children: [
-        AmountInput(controller: controller, focusNode: widget.focusNode),
+        AmountInput(controller: controller),
         SizedBox(height: height * 0.02),
         CustomElevatedButton(
           onPressed: _onCreateInvoice,
@@ -255,9 +252,8 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
 }
 
 class BitcoinReceiveWidget extends ConsumerStatefulWidget {
-  final FocusNode focusNode;
 
-  const BitcoinReceiveWidget({Key? key, required this.focusNode}) : super(key: key);
+  const BitcoinReceiveWidget({Key? key }) : super(key: key);
 
   @override
   _BitcoinReceiveWidgetState createState() => _BitcoinReceiveWidgetState();
@@ -362,7 +358,7 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        AmountInput(controller: controller, focusNode: widget.focusNode),
+        AmountInput(controller: controller),
         CustomElevatedButton(
           onPressed: _onCreateInvoice,
           text: 'Create Address'.i18n(ref),

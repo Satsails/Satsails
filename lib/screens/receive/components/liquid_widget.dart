@@ -11,9 +11,8 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lwk_dart/lwk_dart.dart';
 
 class LiquidWidget extends ConsumerStatefulWidget {
-  final FocusNode focusNode;
 
-  const LiquidWidget({Key? key, required this.focusNode}) : super(key: key);
+  const LiquidWidget({Key? key}) : super(key: key);
 
   @override
   _LiquidWidgetState createState() => _LiquidWidgetState();
@@ -60,7 +59,7 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
 
     return Column(
       children: [
-        AmountInput(controller: controller, focusNode: widget.focusNode),
+        AmountInput(controller: controller),
         SizedBox(height: height * 0.02),
         includeAmountInAddress
             ? _buildAddressWithAmount(liquidAddressWithAmountAsyncValue)

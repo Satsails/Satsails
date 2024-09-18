@@ -10,9 +10,8 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class BitcoinWidget extends ConsumerStatefulWidget {
-  final FocusNode focusNode;
 
-  const BitcoinWidget({Key? key, required this.focusNode}) : super(key: key);
+  const BitcoinWidget({Key? key}) : super(key: key);
 
   @override
   _BitcoinWidgetState createState() => _BitcoinWidgetState();
@@ -52,7 +51,7 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
 
     return Column(
       children: [
-        AmountInput(controller: controller, focusNode: widget.focusNode),
+        AmountInput(controller: controller),
         SizedBox(height: height * 0.02),
         includeAmountInAddress
             ? _buildAddressWithAmount(bitcoinAddressWithAmountAsyncValue)
