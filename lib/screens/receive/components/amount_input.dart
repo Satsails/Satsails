@@ -87,7 +87,6 @@ class AmountInput extends ConsumerWidget {
               ),
             ],
             onChanged: (value) {
-              // ref.read(inputAmountProvider.notifier).state = '0.0';
               ref.read(inputCurrencyProvider.notifier).state = value!;
               if (value == 'Sats' || value == 'BTC') {
                 ref.read(isBitcoinInputProvider.notifier).state = true;
