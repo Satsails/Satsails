@@ -1,3 +1,4 @@
+import 'dart:async'; // Import Timer
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/providers/pix_transaction_details_provider.dart';
@@ -5,14 +6,59 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class PixTransactionDetails extends ConsumerWidget {
+class PixTransactionDetails extends ConsumerStatefulWidget {
   const PixTransactionDetails({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    Transfer transaction = ref.watch(singleTransactionDetailsProvider);
+  _PixTransactionDetailsState createState() => _PixTransactionDetailsState();
+}
+
+class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
+  Timer? _timer;
+  Duration _expirationTime = const Duration(minutes: 5);
+
+  @override
+  void initState() {
+    super.initState();
+    final transaction = ref.read(singleTransactionDetailsProvider);
+    _initializeExpirationTime(transaction.createdAt);
+    _startCountdown();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _initializeExpirationTime(DateTime createdAt) {
+    final timeSinceCreation = DateTime.now().difference(createdAt);
+    setState(() {
+      _expirationTime = const Duration(minutes: 5) - timeSinceCreation;
+      if (_expirationTime.isNegative) {
+        _expirationTime = Duration.zero;
+      }
+    });
+  }
+
+  void _startCountdown() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_expirationTime.inSeconds > 0) {
+        setState(() {
+          _expirationTime -= const Duration(seconds: 1);
+        });
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final transaction = ref.watch(singleTransactionDetailsProvider);
     const double dynamicMargin = 16.0;
     const double dynamicRadius = 12.0;
 
@@ -48,27 +94,7 @@ class PixTransactionDetails extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Column(
-                  children: [
-                    const Icon(Icons.arrow_downward_rounded, color: Colors.green, size: 40),
-                    const SizedBox(height: 8.0),
-                    Text(
-                      transaction.receivedAmount == 0.0
-                          ? "Waiting".i18n(ref)
-                          : currencyFormat(transaction.receivedAmount, 'BRL', decimalPlaces: 3),
-                      style: const TextStyle(color: Colors.green, fontSize: 36, fontWeight: FontWeight.bold),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Clipboard.setData(ClipboardData(text: transaction.transferId));
-                      },
-                      child: Text(
-                        transaction.transferId,
-                        style: const TextStyle(color: Colors.white, fontSize: 18, decoration: TextDecoration.underline),
-                      ),
-                    ),
-                  ],
-                ),
+                child: _buildTransactionHeader(ref, transaction),
               ),
               const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),
@@ -78,71 +104,188 @@ class PixTransactionDetails extends ConsumerWidget {
                 style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16.0),
-              TransactionDetailRow(
-                label: "Date".i18n(ref),
-                value: "${transaction.createdAt.day}/${transaction.createdAt.month}/${transaction.createdAt.year}",
-              ),
-              const SizedBox(height: 16.0),
-              TransactionDetailRow(
-                label: "Status".i18n(ref),
-                value: transaction.completedTransfer ? "Completed".i18n(ref) : "Pending".i18n(ref),
-              ),
-              const SizedBox(height: 16.0),
-              TransactionDetailRow(
-                label: "Txid".i18n(ref),
-                value: transaction.sentTxid ?? "N/A",
-              ),
-              Divider(color: Colors.grey.shade700),
-              const SizedBox(height: 16.0),
-              Text(
-                "Fees".i18n(ref),
-                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16.0),
-              TransactionDetailRow(
-                label: "Original amount".i18n(ref),
-                value: currencyFormat(transaction.originalAmount, 'BRL', decimalPlaces: 3),
-              ),
-              const SizedBox(height: 16.0),
-              if (transaction.completedTransfer)
-              TransactionDetailRow(
-                label: "Total fees".i18n(ref),
-                value: currencyFormat((transaction.originalAmount - transaction.receivedAmount), 'BRL', decimalPlaces: 3),
-              ),
-              if (transaction.receipt != null)
-                GestureDetector(
-                  onTap: () async {
-                    if (await canLaunch(transaction.receipt!)) {
-                      await launch(transaction.receipt!);
-                    } else {
-                      throw 'Could not launch ${transaction.receipt}';
-                    }
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 12.0),
-                    padding: const EdgeInsets.all(12.0),
-                    decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.circular(dynamicRadius),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.download, color: Colors.white),
-                        const SizedBox(width: 8.0),
-                        Text(
-                          "Download document".i18n(ref),
-                          style: const TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ),
+              _buildTransactionDetails(ref, transaction),
+              if (transaction.completedTransfer || transaction.sentToHotWallet) ...[
+                Divider(color: Colors.grey.shade700),
+                const SizedBox(height: 16.0),
+                Text(
+                  "Fees".i18n(ref),
+                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
+                const SizedBox(height: 16.0),
+                _buildFeeDetails(ref, transaction),
+                _buildReceiptDownload(ref, transaction, dynamicRadius),
+              ]
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildTransactionHeader(WidgetRef ref, Transfer transaction) {
+    return Column(
+      children: [
+        Icon(
+          transaction.failed
+              ? Icons.error_rounded
+              : transaction.completedTransfer || transaction.sentToHotWallet
+              ? Icons.check_circle_rounded
+              : Icons.access_time_rounded,
+          color: transaction.failed
+              ? Colors.red
+              : transaction.completedTransfer || transaction.sentToHotWallet
+              ? Colors.green
+              : Colors.orange,
+          size: 40,
+        ),
+        const SizedBox(height: 8.0),
+        if (!transaction.completedTransfer && !transaction.sentToHotWallet && _expirationTime.inSeconds > 0)
+          Text(
+            'Time left: ${_expirationTime.inMinutes}:${(_expirationTime.inSeconds % 60).toString().padLeft(2, '0')}',
+            style: const TextStyle(color: Colors.orange, fontSize: 16),
+          ),
+
+        Text(
+          transaction.failed
+              ? "Failed".i18n(ref)
+              : transaction.receivedAmount == 0.0
+              ? "Waiting".i18n(ref)
+              : currencyFormat(transaction.receivedAmount, 'BRL', decimalPlaces: 3),
+          style: TextStyle(
+            color: transaction.failed ? Colors.red : Colors.green,
+            fontSize: 36,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: transaction.transferId));
+            Fluttertoast.showToast(
+              msg: 'Transfer ID copied'.i18n(ref),
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              backgroundColor: Colors.grey,
+              textColor: Colors.white,
+            );
+          },
+          child: Text(
+            transaction.transferId,
+            style: const TextStyle(color: Colors.white, fontSize: 18, decoration: TextDecoration.underline),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTransactionDetails(WidgetRef ref, Transfer transaction) {
+    return Column(
+      children: [
+        TransactionDetailRow(
+          label: "Date".i18n(ref),
+          value: "${transaction.createdAt.day}/${transaction.createdAt.month}/${transaction.createdAt.year}",
+        ),
+        const SizedBox(height: 16.0),
+        TransactionDetailRow(
+          label: "Status".i18n(ref),
+          value: transaction.failed
+              ? "Transaction failed".i18n(ref)
+              : transaction.completedTransfer || transaction.sentToHotWallet
+              ? "Completed".i18n(ref)
+              : "Pending".i18n(ref),
+        ),
+        const SizedBox(height: 16.0),
+        TransactionDetailRow(
+          label: "CPF/CNPJ".i18n(ref),
+          value: transaction.cpf,
+        ),
+        const SizedBox(height: 16.0),
+        GestureDetector(
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: transaction.sentTxid ?? "N/A"));
+            Fluttertoast.showToast(
+              msg: 'Txid copied'.i18n(ref),
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              backgroundColor: Colors.grey,
+              textColor: Colors.white,
+            );
+          },
+          child: TransactionDetailRow(
+            label: "Txid".i18n(ref),
+            value: transaction.sentTxid ?? "N/A",
+          ),
+        ),
+        const SizedBox(height: 16.0),
+        if(!transaction.completedTransfer && !transaction.sentToHotWallet)
+          GestureDetector(
+            onTap: () {
+              Clipboard.setData(ClipboardData(text: transaction.pixKey ?? "N/A"));
+              Fluttertoast.showToast(
+                msg: 'Pix key copied'.i18n(ref),
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                backgroundColor: Colors.grey,
+                textColor: Colors.white,
+              );
+            },
+            child: TransactionDetailRow(
+              label: "Pix".i18n(ref),
+              value: transaction.pixKey ?? "N/A",
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildFeeDetails(WidgetRef ref, Transfer transaction) {
+    return Column(
+      children: [
+        TransactionDetailRow(
+          label: "Original amount".i18n(ref),
+          value: currencyFormat(transaction.originalAmount, 'BRL', decimalPlaces: 3),
+        ),
+        const SizedBox(height: 16.0),
+        if (transaction.completedTransfer || transaction.sentToHotWallet)
+          TransactionDetailRow(
+            label: "Total fees".i18n(ref),
+            value: currencyFormat((transaction.originalAmount - transaction.receivedAmount), 'BRL', decimalPlaces: 3),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildReceiptDownload(WidgetRef ref, Transfer transaction, double dynamicRadius) {
+    return transaction.receipt != null
+        ? GestureDetector(
+      onTap: () async {
+        if (await canLaunch(transaction.receipt!)) {
+          await launch(transaction.receipt!);
+        } else {
+          throw 'Could not launch ${transaction.receipt}';
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.only(top: 12.0),
+        padding: const EdgeInsets.all(12.0),
+        decoration: BoxDecoration(
+          color: Colors.orange,
+          borderRadius: BorderRadius.circular(dynamicRadius),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.download, color: Colors.white),
+            const SizedBox(width: 8.0),
+            Text(
+              "Download document".i18n(ref),
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    )
+        : const SizedBox.shrink();
   }
 }
 

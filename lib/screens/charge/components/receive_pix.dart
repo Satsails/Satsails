@@ -1,13 +1,16 @@
+import 'dart:async';
+
 import 'package:Satsails/helpers/string_extension.dart';
+import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/pix_transaction_provider.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:pix_flutter/pix_flutter.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
@@ -23,13 +26,44 @@ class ReceivePix extends ConsumerStatefulWidget {
 
 class _ReceivePixState extends ConsumerState<ReceivePix> {
   final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _cpfController = TextEditingController();
   String _pixQRCode = '';
-  final String _address = "satsails@depix.info";
   double _amountToReceive = 0.0;
   final double _dailyLimit = 5000.0;
   double _remainingLimit = 5000.0;
   bool _isLoading = false;
   String _feeDescription = 'Fee: 2% + 1.98 BRL';
+  Timer? _timer;
+  Duration _timeLeft = const Duration(minutes: 5);
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel the timer on dispose
+    _amountController.dispose();
+    _cpfController.dispose();
+    super.dispose();
+  }
+
+  void startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_timeLeft.inSeconds > 0) {
+          _timeLeft -= const Duration(seconds: 1);
+        } else {
+          timer.cancel();
+          _pixQRCode = '';
+          _amountToReceive = 0.0;
+          Fluttertoast.showToast(
+            msg: 'Transaction expired'.i18n(ref),
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+          );
+        }
+      });
+    });
+  }
 
   double calculateFee(double amountInDouble, bool hasInsertedAffiliateCode, bool hasCreatedAffiliate, int numberOfAffiliateInstalls) {
     if (hasInsertedAffiliateCode) {
@@ -55,7 +89,32 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
   Future<void> _generateQRCode() async {
     final amount = _amountController.text;
+    final cpf = _cpfController.text;
+
+    // Validate amount input
     if (amount.isEmpty) {
+      Fluttertoast.showToast(
+        msg: 'Please enter an amount'.i18n(ref),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: MediaQuery.of(context).size.height * 0.02,
+      );
+      return;
+    }
+
+    if (!CPFValidator.isValid(cpf)) {
+      Fluttertoast.showToast(
+        msg: 'Invalid CPF'.i18n(ref),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: MediaQuery.of(context).size.height * 0.02,
+      );
       return;
     }
 
@@ -75,13 +134,14 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
     setState(() {
       _isLoading = true;
+      _timeLeft = const Duration(minutes: 5);
+      startTimer();
     });
 
     final amountTransferred = await ref.watch(getAmountTransferredProvider.future);
     final double transferredAmount = double.tryParse(amountTransferred) ?? 0.0;
     _remainingLimit = _dailyLimit - transferredAmount;
 
-    // Ensure remaining limit is never negative
     if (_remainingLimit < 0) {
       _remainingLimit = 0;
     }
@@ -98,30 +158,40 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       );
       setState(() {
         _isLoading = false;
-        _pixQRCode = '';
         _amountController.clear();
       });
       return;
     }
 
-    final pixPaymentCode = ref.read(userProvider).paymentId;
-    PixFlutter pixFlutter = PixFlutter(
-      payload: Payload(
-        pixKey: _address,
-        description: pixPaymentCode,
-        merchantName: 'PLEBANK.COM.BR SOLUCOES',
-        merchantCity: 'SP',
-        txid: pixPaymentCode,
-        amount: amountInDouble.toStringAsFixed(2),
-        isUniquePayment: true,
-      ),
-    );
 
-    setState(() {
-      _pixQRCode = pixFlutter.getQRCode();
-      _isLoading = false;
-    });
+    final auth = ref.read(userProvider).recoveryCode;
+
+    try {
+      final transfer = await TransferService.createTransactionRequest(cpf, auth, amountInDouble);
+
+      setState(() {
+        if (transfer.error != null) {
+          throw transfer.error!;
+        }
+        _pixQRCode = transfer.data!.pixKey;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      Fluttertoast.showToast(
+        msg: '${e.toString()}',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: MediaQuery.of(context).size.height * 0.02,
+      );
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -262,6 +332,36 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
+                  child: TextField(
+                    controller: _cpfController,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.white),
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey, width: 2.0),
+                      ),
+                      labelText: 'CPF/CNPJ'.i18n(ref),
+                      labelStyle: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.grey),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
+                  child: Text(
+                    'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix'.i18n(ref),
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height * 0.015,
+                      color: Colors.red,
+                    ),
+                    softWrap: true,
+                    overflow: TextOverflow.clip,
+                  ),
+                ),
                 if (_amountToReceive > 0)
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -297,6 +397,12 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                         await _generateQRCode();
                       },
                     ),
+                  ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                if (_timeLeft.inSeconds > 0 && _pixQRCode.isNotEmpty)
+                  Text(
+                    'Transaction will expire in: ${_timeLeft.inMinutes}:${(_timeLeft.inSeconds % 60).toString().padLeft(2, '0')}',
+                    style: const TextStyle(color: Colors.orange),
                   ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                 if (_pixQRCode.isNotEmpty) buildQrCode(_pixQRCode, context),
