@@ -136,7 +136,7 @@ class TransferService {
   static Future<Result<Transfer>> createTransactionRequest(String cpf, String auth, double valueSetToReceive) async {
     try {
       final response = await http.post(
-        Uri.parse('https://4c7f-84-90-103-7.ngrok-free.app/transfers'),
+        Uri.parse('https://splitter.satsails.com/transfers'),
         body: jsonEncode({
           'transfer': {
             'cpf': cpf,
