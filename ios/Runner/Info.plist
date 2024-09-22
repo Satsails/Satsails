@@ -8,7 +8,7 @@
 			<string>tel</string>
 		</array>
 		<key>NSCameraUsageDescription</key>
-        <string>Access to send live photos to our support</string>
+        <string>Access to the camera</string>
         <key>NSPhotoLibraryAddUsageDescription</key>
         <string>Access to send photos to our support</string>
         <key>NSMicrophoneUsageDescription</key>

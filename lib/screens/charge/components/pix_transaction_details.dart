@@ -142,15 +142,15 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
         const SizedBox(height: 8.0),
         if (!transaction.completedTransfer && !transaction.sentToHotWallet && _expirationTime.inSeconds > 0)
           Text(
-            'Time left: ${_expirationTime.inMinutes}:${(_expirationTime.inSeconds % 60).toString().padLeft(2, '0')}',
+            'Time left:'.i18n(ref) +
+                ' ${_expirationTime.inMinutes}:${(_expirationTime.inSeconds % 60).toString().padLeft(2, '0')}',
             style: const TextStyle(color: Colors.orange, fontSize: 16),
           ),
-
         Text(
           transaction.failed
-              ? "Failed".i18n(ref)
+              ? "Transaction failed".i18n(ref)
               : transaction.receivedAmount == 0.0
-              ? "Waiting".i18n(ref)
+              ? "Waiting payment".i18n(ref)
               : currencyFormat(transaction.receivedAmount, 'BRL', decimalPlaces: 3),
           style: TextStyle(
             color: transaction.failed ? Colors.red : Colors.green,
@@ -158,6 +158,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        if (transaction.completedTransfer || transaction.sentToHotWallet)
         GestureDetector(
           onTap: () {
             Clipboard.setData(ClipboardData(text: transaction.transferId));
@@ -182,6 +183,11 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     return Column(
       children: [
         TransactionDetailRow(
+          label: "ID",
+          value: transaction.id.toString(),
+        ),
+        const SizedBox(height: 16.0),
+        TransactionDetailRow(
           label: "Date".i18n(ref),
           value: "${transaction.createdAt.day}/${transaction.createdAt.month}/${transaction.createdAt.year}",
         ),
@@ -196,7 +202,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
         ),
         const SizedBox(height: 16.0),
         TransactionDetailRow(
-          label: "CPF/CNPJ".i18n(ref),
+          label: "CPF/CNPJ",
           value: transaction.cpf,
         ),
         const SizedBox(height: 16.0),
@@ -212,28 +218,11 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
             );
           },
           child: TransactionDetailRow(
-            label: "Txid".i18n(ref),
+            label: "Txid",
             value: transaction.sentTxid ?? "N/A",
           ),
         ),
         const SizedBox(height: 16.0),
-        if(!transaction.completedTransfer && !transaction.sentToHotWallet)
-          GestureDetector(
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: transaction.pixKey ?? "N/A"));
-              Fluttertoast.showToast(
-                msg: 'Pix key copied'.i18n(ref),
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                backgroundColor: Colors.grey,
-                textColor: Colors.white,
-              );
-            },
-            child: TransactionDetailRow(
-              label: "Pix".i18n(ref),
-              value: transaction.pixKey ?? "N/A",
-            ),
-          ),
       ],
     );
   }

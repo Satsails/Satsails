@@ -100,8 +100,8 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                             : pix.completedTransfer
                             ? "${"Received".i18n(ref)} ${pix.receivedAmount % 1 == 0 ? pix.receivedAmount.toInt() : pix.receivedAmount.toStringAsFixed(3)}"
                             : pix.processingStatus && !pix.sentToHotWallet
-                            ? "Waiting".i18n(ref)
-                            : "${"Received".i18n(ref)} ${pix.receivedAmount.toStringAsFixed(3)}",
+                            ? "Waiting payment".i18n(ref)
+                            : "${"Received".i18n(ref)} ${pix.receivedAmount % 1 == 0 ? pix.receivedAmount.toInt() : pix.receivedAmount.toStringAsFixed(3)}",
                         style: TextStyle(
                           color: pix.failed
                               ? Colors.red
@@ -112,7 +112,8 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                       ),
                       if (!pix.completedTransfer && !pix.sentToHotWallet && remainingTime.inSeconds > 0)
                         Text(
-                          'Time left: ${remainingTime.inMinutes}:${(remainingTime.inSeconds % 60).toString().padLeft(2, '0')}',
+                          'Time left:'.i18n(ref) +
+                              ' ${remainingTime.inMinutes}:${(remainingTime.inSeconds % 60).toString().padLeft(2, '0')}',
                           style: const TextStyle(color: Colors.orange, fontSize: 16),
                         ),
                     ],
@@ -129,11 +130,6 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                         Text(
                           "Completed".i18n(ref),
                           style: const TextStyle(color: Colors.green),
-                        ),
-                      if (pix.processingStatus && !pix.sentToHotWallet)
-                        Text(
-                          "Awaiting payment".i18n(ref),
-                          style: const TextStyle(color: Colors.orange),
                         ),
                       Column(
                         children: [
@@ -155,7 +151,13 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                       ),
                     ],
                   ),
-                  trailing: const Icon(Icons.receipt_long, color: Colors.green, size: 30),
+                  trailing: Column(
+                    children: [
+                      Text("ID: ${pix.id}", style: const TextStyle(color: Colors.grey)),
+                      SizedBox(height: 2),
+                      const Icon(Icons.receipt_long, color: Colors.green, size: 30),
+                    ],
+                  ),
                 ),
               ),
             );

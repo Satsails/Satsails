@@ -24,8 +24,6 @@ class UserCreation extends ConsumerWidget {
           'User Section'.i18n(ref),
           style: const TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 26,
           ),
         ),
         leading: IconButton(

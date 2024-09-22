@@ -345,7 +345,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey, width: 2.0),
                       ),
-                      labelText: 'CPF/CNPJ'.i18n(ref),
+                      labelText: 'CPF/CNPJ',
                       labelStyle: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.grey),
                     ),
                   ),
@@ -401,9 +401,10 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                 SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                 if (_timeLeft.inSeconds > 0 && _pixQRCode.isNotEmpty)
                   Text(
-                    'Transaction will expire in: ${_timeLeft.inMinutes}:${(_timeLeft.inSeconds % 60).toString().padLeft(2, '0')}',
+                    'Transaction will expire in:'.i18n(ref) +' ${_timeLeft.inMinutes}:${(_timeLeft.inSeconds % 60).toString().padLeft(2, '0')}',
                     style: const TextStyle(color: Colors.orange),
                   ),
+
                 SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                 if (_pixQRCode.isNotEmpty) buildQrCode(_pixQRCode, context),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.01),

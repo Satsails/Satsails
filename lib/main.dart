@@ -192,6 +192,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
             navigatorKey: navigatorKey,
             locale: Locale(language),
             initialRoute: initialRoute,
+            themeMode: ThemeMode.dark,
             debugShowCheckedModeBanner: false,
             routes: {
               '/': (context) => const Start(),

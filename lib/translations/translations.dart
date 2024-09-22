@@ -1574,6 +1574,46 @@ extension Localization on String {
       {
         'en': 'Amount is below minimum peg in amount',
         'pt': 'A quantia está abaixo da quantia mínima de conversão'
+      } +
+      {
+        'en': 'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix',
+        'pt': 'Por favor, certifique-se de que o CPF/CNPJ que você insere corresponde ao CPF/CNPJ registrado em seu Pix'
+      } +
+      {
+        'en': 'Transaction will expire in:',
+        'pt': 'A transação expirará em:'
+      } +
+      {
+        'en': "Awaiting payment",
+        'pt': 'Aguardando pagamento'
+      } +
+      {
+        'en': "Transaction failed",
+        'pt': 'Transação falhou'
+      } +
+      {
+        'en': "Waiting payment",
+        'pt': 'Aguardando Pix'
+      } +
+      {
+        'en': "Time left:",
+        'pt': 'Tempo restante:'
+      } +
+      {
+        'en': "Transfer ID copied",
+        'pt': 'ID de transferência copiado'
+      } +
+      {
+        'en': "Txid copied",
+        'pt': 'Txid copiado'
+      } +
+      {
+        'en': "Unable to get minimum amount",
+        'pt': 'Não foi possível obter a quantia mínima'
+      } +
+      {
+        'en': "Minimum amount:",
+        'pt': 'Quantia mínima:'
       };
 
   String i18n(WidgetRef ref) {

@@ -1,5 +1,7 @@
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
@@ -11,14 +13,22 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class LightningWidget extends ConsumerStatefulWidget {
-  const LightningWidget({super.key});
+  final String selectedCurrency;
+
+  const LightningWidget({Key? key, this.selectedCurrency = 'Liquid'}) : super(key: key);
 
   @override
   _LightningWidgetState createState() => _LightningWidgetState();
 }
 
 class _LightningWidgetState extends ConsumerState<LightningWidget> {
-  String selectedCurrency = 'Liquid';
+  late String selectedCurrency;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedCurrency = widget.selectedCurrency;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +70,10 @@ class _LightningWidgetState extends ConsumerState<LightningWidget> {
             ),
           ],
         ),
-        if (selectedCurrency == 'Liquid') const LiquidReceiveWidget() else const BitcoinReceiveWidget(),
+        if (selectedCurrency == 'Liquid')
+          const LiquidReceiveWidget()
+        else
+          const BitcoinReceiveWidget(),
       ],
     );
   }
@@ -142,6 +155,7 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
   Widget build(BuildContext context) {
     final TextEditingController controller = TextEditingController();
     final boltzReceiveAsyncValue = ref.watch(boltzReceiveProvider);
+    final fees = ref.watch(boltzFeesProvider);
     return Column(
       children: [
         boltzReceiveAsyncValue.when(
@@ -186,6 +200,49 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
         ),
 
         AmountInput(controller: controller),
+        fees.when(
+          data: (data) {
+            final inputCurrency = ref.watch(inputCurrencyProvider);
+            final currencyRate = ref.read(selectedCurrencyProvider(inputCurrency));
+            final formattedValueInBtc = btcInDenominationFormatted(data.lbtcLimits.minimal.toDouble(), 'BTC');
+            final valueToDisplay = currencyRate * double.parse(formattedValueInBtc);
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                'Minimum amount:'.i18n(ref) + ' ' + (
+                    inputCurrency == 'BTC'
+                        ? formattedValueInBtc
+                        : inputCurrency == 'Sats'
+                        ? data.btcLimits.minimal.toString()
+                        : valueToDisplay.toStringAsFixed(2)
+                ),
+                style: const TextStyle(
+                  color: Colors.grey,
+                ),
+              ),
+            );
+          },
+          loading: () => Center(
+            child: LoadingAnimationWidget.threeRotatingDots(color: Colors.grey, size: 20),
+          ),
+          error: (error, stack) => Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.6,
+              height: MediaQuery.of(context).size.width * 0.6,
+              alignment: Alignment.center,
+              child: Text(
+                'Unable to get minimum amount'.i18n(ref),
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
         CustomElevatedButton(
           onPressed: () {
             String inputValue = controller.text;
@@ -273,6 +330,7 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
   @override
   Widget build(BuildContext context) {
     final bitcoinBoltzReceiveAsyncValue = ref.watch(bitcoinBoltzReceiveProvider);
+    final fees = ref.watch(bitcoinBoltzFeesProvider);
     final TextEditingController controller = TextEditingController();
     return Column(
       children: [
@@ -317,6 +375,49 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
           ),
         ),
         AmountInput(controller: controller),
+        fees.when(
+          data: (data) {
+            final inputCurrency = ref.watch(inputCurrencyProvider);
+            final currencyRate = ref.read(selectedCurrencyProvider(inputCurrency));
+            final formattedValueInBtc = btcInDenominationFormatted(data.btcLimits.minimal.toDouble(), 'BTC');
+            final valueToDisplay = currencyRate * double.parse(formattedValueInBtc);
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                'Minimum amount:'.i18n(ref) + ' ' + (
+                    inputCurrency == 'BTC'
+                        ? formattedValueInBtc
+                        : inputCurrency == 'Sats'
+                        ? data.btcLimits.minimal.toString()
+                        : valueToDisplay.toStringAsFixed(2)
+                ),
+                style: const TextStyle(
+                  color: Colors.grey,
+                ),
+              ),
+            );
+          },
+          loading: () => Center(
+            child: LoadingAnimationWidget.threeRotatingDots(color: Colors.grey, size: 20),
+          ),
+          error: (error, stack) => Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.6,
+              height: MediaQuery.of(context).size.width * 0.6,
+              alignment: Alignment.center,
+              child: Text(
+                'Unable to get minimum amount'.i18n(ref),
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
         CustomElevatedButton(
           onPressed: () {
             String inputValue = controller.text;

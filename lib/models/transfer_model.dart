@@ -89,6 +89,7 @@ class Transfer {
       processingStatus: json['processing_status'],
       sentToHotWallet: json['sent_to_hot_wallet'],
       failed: json['failed'],
+      pixKey: json['pix'] ?? '',
     );
   }
 
