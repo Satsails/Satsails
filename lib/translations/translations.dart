@@ -1614,6 +1614,10 @@ extension Localization on String {
       {
         'en': "Minimum amount:",
         'pt': 'Quantia mínima:'
+      } +
+      {
+        'en': "About ",
+        'pt': 'Cerca de '
       };
 
   String i18n(WidgetRef ref) {
