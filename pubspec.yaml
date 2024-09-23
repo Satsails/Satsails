@@ -11,7 +11,6 @@ dependencies:
     sdk: flutter
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
   flutter_secure_storage: ^9.0.0
   pin_code_fields: ^8.0.1
   http: ^1.2.1
@@ -41,8 +40,6 @@ dependencies:
   loading_animation_widget: ^1.2.1
   group_button: ^5.3.4
   liquid_pull_to_refresh: ^3.0.1
-  bolt11_decoder: ^1.0.2
-  crypto: ^3.0.5
   action_slider: ^0.7.0
   hooks_riverpod: ^2.5.1
   fluttertoast: ^8.2.5
@@ -60,7 +57,6 @@ dependencies:
   go_router: ^14.1.4
   segmented_button_slide: ^1.0.4
   syncfusion_flutter_charts: ^27.1.48
-  random_string: ^2.3.1
   share_plus: ^10.0.2
   introduction_screen: ^3.1.14
   flutter_svg: ^2.0.10+1

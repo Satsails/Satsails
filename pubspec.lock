@@ -65,14 +65,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.31.2-dev.2"
-  bech32:
-    dependency: transitive
-    description:
-      name: bech32
-      sha256: "156cbace936f7720c79a79d16a03efad343b1ef17106716e04b8b8e39f99f7f7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.2"
   bip39:
     dependency: "direct main"
     description:
@@ -81,14 +73,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.6"
-  bolt11_decoder:
-    dependency: "direct main"
-    description:
-      name: bolt11_decoder
-      sha256: ce3c4e4311e84c7b6ceb06ffbf84329bf6bdac1244ecfa1fc157c46038021bbc
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
   boltz_dart:
     dependency: "direct main"
     description:
@@ -275,7 +259,7 @@ packages:
     source: hosted
     version: "0.3.4+2"
   crypto:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: crypto
       sha256: ec30d999af904f33454ba22ed9a86162b35e52b44ac4807d1d93c288041d7d27
@@ -291,7 +275,7 @@ packages:
     source: hosted
     version: "1.0.0"
   cupertino_icons:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: cupertino_icons
       sha256: ba631d1c7f7bef6b729a622b7b752645a2d076dba9976925b8f25725a30e1ee6
@@ -1159,14 +1143,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.0"
-  random_string:
-    dependency: "direct main"
-    description:
-      name: random_string
-      sha256: "03b52435aae8cbdd1056cf91bfc5bf845e9706724dd35ae2e99fa14a1ef79d02"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.1"
   rational:
     dependency: transitive
     description:
