@@ -159,7 +159,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                       await Future.delayed(const Duration(seconds: 3));
                       ref.read(sendTxProvider.notifier).resetToDefault();
                       ref.read(backgroundSyncNotifierProvider).performSync();
-                      Navigator.pushNamed(context, '/home');
+                      Navigator.pop(context);
                     } catch (e) {
                       controller.failure();
                       Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);

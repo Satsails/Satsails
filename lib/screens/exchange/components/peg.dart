@@ -1,4 +1,5 @@
 
+import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
@@ -21,6 +22,8 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 
 final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');
+final inputInFiatProvider = StateProvider.autoDispose<bool>((ref) => false);
+final precisionFiatValueProvider = StateProvider<String>((ref) => "0.00");
 
 class Peg extends ConsumerStatefulWidget {
   const Peg({super.key});
@@ -91,6 +94,8 @@ class _PegState extends ConsumerState<Peg> {
                           ref.read(sendTxProvider.notifier).updateAddress('');
                           ref.read(sendTxProvider.notifier).updateAmount(0);
                           ref.read(sendBlocksProvider.notifier).state = 1;
+                          ref.read(inputInFiatProvider.notifier).state = false;
+                          ref.read(precisionFiatValueProvider.notifier).state = "0.00";
                           controller.text = '';
                         },
                         child: CircleAvatar(
@@ -315,15 +320,15 @@ class _PegState extends ConsumerState<Peg> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
-                                padding: EdgeInsets.all(dynamicPadding),
-                                decoration: const BoxDecoration(
-                                  color: Colors.orange,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Text(
-                                  "!",
-                                  style: TextStyle(fontSize: titleFontSize, color: Colors.black),
-                                )
+                                  padding: EdgeInsets.all(dynamicPadding),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.orange,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    "!",
+                                    style: TextStyle(fontSize: titleFontSize, color: Colors.black),
+                                  )
                               ),
                               SizedBox(height: dynamicPadding / 2),
                               _pickBitcoinFeeSuggestions(ref, dynamicPadding, titleFontSize),
@@ -336,15 +341,15 @@ class _PegState extends ConsumerState<Peg> {
                 );
               },
               child: Container(
-                padding: EdgeInsets.all(dynamicPadding / 2.3),
-                decoration: const BoxDecoration(
-                  color: Colors.orange,
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  "!",
-                  style: TextStyle(fontSize: titleFontSize / 1.8, color: Colors.black),
-                )
+                  padding: EdgeInsets.all(dynamicPadding / 2.3),
+                  decoration: const BoxDecoration(
+                    color: Colors.orange,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    "!",
+                    style: TextStyle(fontSize: titleFontSize / 1.8, color: Colors.black),
+                  )
               ),
             ),
             SizedBox(height: dynamicPadding / 2),
@@ -519,39 +524,136 @@ class _PegState extends ConsumerState<Peg> {
               data: (peg) {
                 return Column(
                   children: [
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      controller: controller,
-                      inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
-                      style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: '0',
-                        hintStyle: TextStyle(color: Colors.white, fontSize: titleFontSize),
-                      ),
-                      onChanged: (value) async {
-                        if (value.isEmpty) {
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
-                          ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                          ref.read(sendTxProvider.notifier).updateDrain(false);
-                        }
-                        ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
-                        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                        ref.read(sendTxProvider.notifier).updateDrain(false);
-                      },
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (!ref.watch(inputInFiatProvider))
+                          IntrinsicWidth(
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              controller: controller,
+                              inputFormatters: [
+                                btcFormart == 'sats'
+                                    ? DecimalTextInputFormatter(decimalRange: 0)
+                                    : DecimalTextInputFormatter(decimalRange: 8),
+                                CommaTextInputFormatter()
+                              ],
+                              style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: '0',
+                                hintStyle: TextStyle(color: Colors.white, fontSize: titleFontSize),
+                              ),
+                              onChanged: (value) async {
+                                if (value.isEmpty) {
+                                  ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                                  ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                                  ref.read(sendTxProvider.notifier).updateDrain(false);
+                                }
+                                ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                                ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                                ref.read(sendTxProvider.notifier).updateDrain(false);
+                              },
+                            ),
+                          ),
+                        if (ref.watch(inputInFiatProvider))
+                          IntrinsicWidth(
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              controller: controller,
+                              inputFormatters: [
+                                DecimalTextInputFormatter(decimalRange: 2),
+                                CommaTextInputFormatter()
+                              ],
+                              style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: '0',
+                                hintStyle: TextStyle(color: Colors.white, fontSize: titleFontSize),
+                              ),
+                              onChanged: (value) async {
+                                if (value.isEmpty) {
+                                  ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                                  ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                                  ref.read(sendTxProvider.notifier).updateDrain(false);
+                                }
+                                String send = btcFormart == 'sats'
+                                    ? calculateAmountToDisplayFromFiatInSats(controller.text, currency, ref.watch(currencyNotifierProvider))
+                                    : calculateAmountToDisplayFromFiat(controller.text, currency, ref.watch(currencyNotifierProvider));
+
+                                ref.read(sendTxProvider.notifier).updateAmountFromInput(send, btcFormart);
+                                ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                                ref.read(sendTxProvider.notifier).updateDrain(false);
+                              },
+                            ),
+                          ),
+                        SizedBox(width: 8),
+                        if (!ref.watch(inputInFiatProvider))
+                          Text(
+                            btcFormart == 'sats' ? 'Sats' : 'BTC',
+                            style: TextStyle(color: Colors.grey, fontSize: titleFontSize / 2),
+                          ),
+                        if (ref.watch(inputInFiatProvider))
+                          Text(
+                            currency,
+                            style: TextStyle(color: Colors.grey, fontSize: titleFontSize / 2),
+                          ),
+                      ],
                     ),
+                    GestureDetector(
+                      onTap: () {
+                        bool currentIsFiat = ref.read(inputInFiatProvider);
+                        if (currentIsFiat) {
+                          String btcValue = btcFormart == 'sats'
+                              ? calculateAmountToDisplayFromFiatInSats(ref.watch(precisionFiatValueProvider), currency, ref.watch(currencyNotifierProvider))
+                              : calculateAmountToDisplayFromFiat(ref.watch(precisionFiatValueProvider), currency, ref.watch(currencyNotifierProvider));
+
+                          controller.text = btcInDenominationFormatted(double.parse(btcValue), btcFormart);
+                        } else {
+                          String fiatValue = calculateAmountInSelectedCurrency(ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
+                          ref.read(precisionFiatValueProvider.notifier).state = fiatValue;
+                          controller.text = double.parse(fiatValue) < 0.01 ? '' : double.parse(fiatValue).toStringAsFixed(2);
+                        }
+                        ref.read(inputInFiatProvider.notifier).state = !currentIsFiat;
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.arrow_downward, size: titleFontSize / 1.5, color: Colors.white),
+                          Icon(Icons.arrow_upward, size: titleFontSize / 1.5, color: Colors.white),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: dynamicPadding / 2),
+                    if (!ref.watch(inputInFiatProvider))
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "About ".i18n(ref),
+                            style: TextStyle(color: Colors.grey, fontSize: titleFontSize / 2),
+                          ),
+                          Text(
+                            '${valueToSendInCurrency.toStringAsFixed(0)} $currency',
+                            style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    if (ref.watch(inputInFiatProvider))
+                      Text(
+                        '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormart)} $btcFormart',
+                        style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                      ),
                   ],
                 );
               },
               loading: () => Center(child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
               error: (error, stack) => Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: titleFontSize / 2)),
             ),
-          Text(
-            controller.text.isEmpty || !pegIn ? '' : '${valueToSendInCurrency.toStringAsFixed(2)} $currency',
-            style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
-            textAlign: TextAlign.center,
-          ),
         ],
       ),
     );
@@ -592,7 +694,18 @@ class _PegState extends ConsumerState<Peg> {
                 else
                   Column(
                     children: [
-                      Text(formattedValueToReceive, style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                      IntrinsicWidth(
+                        child: Row(
+                          children: [
+                            Text(formattedValueToReceive, style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
+                            SizedBox(width: 8),
+                            Text(
+                              btcFormart == 'sats' ? 'Sats' : 'BTC',
+                              style: TextStyle(color: Colors.grey, fontSize: titleFontSize / 2),
+                            ),
+                          ],
+                        ),
+                      ),
                       Text('${valueInCurrency.toStringAsFixed(2)} $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey), textAlign: TextAlign.center),
                       SizedBox(height: dynamicPadding / 2),
                       Text(
@@ -609,33 +722,130 @@ class _PegState extends ConsumerState<Peg> {
               data: (peg) {
                 return Column(
                   children: [
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      controller: controller,
-                      inputFormatters: [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()],
-                      style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: '0',
-                        hintStyle: TextStyle(color: Colors.white, fontSize: titleFontSize),
-                      ),
-                      onChanged: (value) async {
-                        if (value.isEmpty) {
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
-                          ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                          ref.read(sendTxProvider.notifier).updateDrain(false);
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (!ref.watch(inputInFiatProvider))
+                          IntrinsicWidth(
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              controller: controller,
+                              inputFormatters: [
+                                btcFormart == 'sats'
+                                    ? DecimalTextInputFormatter(decimalRange: 0)
+                                    : DecimalTextInputFormatter(decimalRange: 8),
+                                CommaTextInputFormatter()
+                              ],
+                              style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: '0',
+                                hintStyle: TextStyle(color: Colors.white, fontSize: titleFontSize),
+                              ),
+                              onChanged: (value) async {
+                                if (value.isEmpty) {
+                                  ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                                  ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                                  ref.read(sendTxProvider.notifier).updateDrain(false);
+                                }
+                                ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                                ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                                ref.read(sendTxProvider.notifier).updateDrain(false);
+                              },
+                            ),
+                          ),
+                        if (ref.watch(inputInFiatProvider))
+                          IntrinsicWidth(
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              controller: controller,
+                              inputFormatters: [
+                                DecimalTextInputFormatter(decimalRange: 2),
+                                CommaTextInputFormatter()
+                              ],
+                              style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: '0',
+                                hintStyle: TextStyle(color: Colors.white, fontSize: titleFontSize),
+                              ),
+                              onChanged: (value) async {
+                                if (value.isEmpty) {
+                                  ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                                  ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                                  ref.read(sendTxProvider.notifier).updateDrain(false);
+                                }
+                                String send = btcFormart == 'sats'
+                                    ? calculateAmountToDisplayFromFiatInSats(controller.text, currency, ref.watch(currencyNotifierProvider))
+                                    : calculateAmountToDisplayFromFiat(controller.text, currency, ref.watch(currencyNotifierProvider));
+
+                                ref.read(sendTxProvider.notifier).updateAmountFromInput(send, btcFormart);
+                                ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                                ref.read(sendTxProvider.notifier).updateDrain(false);
+                              },
+                            ),
+                          ),
+                        SizedBox(width: 8),
+                        if (!ref.watch(inputInFiatProvider))
+                          Text(
+                            btcFormart == 'sats' ? 'Sats' : 'BTC',
+                            style: TextStyle(color: Colors.grey, fontSize: titleFontSize / 2),
+                          ),
+                        if (ref.watch(inputInFiatProvider))
+                          Text(
+                            currency,
+                            style: TextStyle(color: Colors.grey, fontSize: titleFontSize / 2),
+                          ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        bool currentIsFiat = ref.read(inputInFiatProvider);
+                        if (currentIsFiat) {
+                          String btcValue = btcFormart == 'sats'
+                              ? calculateAmountToDisplayFromFiatInSats(ref.watch(precisionFiatValueProvider), currency, ref.watch(currencyNotifierProvider))
+                              : calculateAmountToDisplayFromFiat(ref.watch(precisionFiatValueProvider), currency, ref.watch(currencyNotifierProvider));
+
+                          controller.text = btcInDenominationFormatted(double.parse(btcValue), btcFormart);
+                        } else {
+                          String fiatValue = calculateAmountInSelectedCurrency(ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
+                          ref.read(precisionFiatValueProvider.notifier).state = fiatValue;
+                          controller.text = double.parse(fiatValue) < 0.01 ? '' : double.parse(fiatValue).toStringAsFixed(2);
                         }
-                        ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
-                        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                        ref.read(sendTxProvider.notifier).updateDrain(false);
+                        ref.read(inputInFiatProvider.notifier).state = !currentIsFiat;
                       },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.arrow_downward, size: titleFontSize / 1.5, color: Colors.white),
+                          Icon(Icons.arrow_upward, size: titleFontSize / 1.5, color: Colors.white),
+                        ],
+                      ),
                     ),
-                    Text(
-                      controller.text.isEmpty ? '' : '${valueToSendInCurrency.toStringAsFixed(2)} $currency',
-                      style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
-                      textAlign: TextAlign.center,
-                    ),
+                    SizedBox(height: dynamicPadding / 2),
+                    if (!ref.watch(inputInFiatProvider))
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "About ".i18n(ref),
+                            style: TextStyle(color: Colors.grey, fontSize: titleFontSize / 2),
+                          ),
+                          Text(
+                            '${valueToSendInCurrency.toStringAsFixed(0)} $currency',
+                            style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    if (ref.watch(inputInFiatProvider))
+                      Text(
+                        '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormart)} $btcFormart',
+                        style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                      ),
                   ],
                 );
               },
