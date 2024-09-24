@@ -614,7 +614,7 @@ class _PegState extends ConsumerState<Peg> {
                         } else {
                           String fiatValue = calculateAmountInSelectedCurrency(ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
                           ref.read(precisionFiatValueProvider.notifier).state = fiatValue;
-                          controller.text = double.parse(fiatValue).toStringAsFixed(2);
+                          controller.text = double.parse(fiatValue) < 0.01 ? '' : double.parse(fiatValue).toStringAsFixed(2);
                         }
                         ref.read(inputInFiatProvider.notifier).state = !currentIsFiat;
                       },
@@ -812,7 +812,7 @@ class _PegState extends ConsumerState<Peg> {
                         } else {
                           String fiatValue = calculateAmountInSelectedCurrency(ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
                           ref.read(precisionFiatValueProvider.notifier).state = fiatValue;
-                          controller.text = double.parse(fiatValue).toStringAsFixed(2);
+                          controller.text = double.parse(fiatValue) < 0.01 ? '' : double.parse(fiatValue).toStringAsFixed(2);
                         }
                         ref.read(inputInFiatProvider.notifier).state = !currentIsFiat;
                       },
