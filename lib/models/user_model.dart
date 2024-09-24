@@ -256,7 +256,7 @@ class UserService {
           'Authorization': auth,
         }
         ..queryParams = {
-          'user_id': '4FvQanBJxX',
+          'user_id': userId
         }
         ..credentials = 'omit';
 
