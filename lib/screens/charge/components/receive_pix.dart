@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/transfer_model.dart';
+import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/pix_transaction_provider.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -15,6 +16,7 @@ import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
+import 'package:pusher_beams/pusher_beams.dart';
 import './pix_buttons.dart';
 
 class ReceivePix extends ConsumerStatefulWidget {
@@ -88,6 +90,9 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
   }
 
   Future<void> _generateQRCode() async {
+    final userID = ref.read(userProvider).paymentId;
+    final auth = ref.read(userProvider).recoveryCode;
+    await PusherBeams.instance.setUserId(userID, UserService.getPusherAuth(auth, userID), (error) {});
     final amount = _amountController.text;
     final cpf = _cpfController.text;
 
@@ -163,8 +168,6 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       return;
     }
 
-
-    final auth = ref.read(userProvider).recoveryCode;
 
     try {
       final transfer = await TransferService.createTransactionRequest(cpf, auth, amountInDouble);

@@ -2,6 +2,7 @@ import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/charge/charge.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -16,6 +17,8 @@ class PixOnBoarding extends ConsumerWidget {
     final screenSize = MediaQuery.of(context).size;
     final iconSize = screenSize.width * 0.4;
     final isLoading = ref.watch(loadingProvider);
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()!.requestNotificationsPermission();
 
     return Scaffold(
       body: Container(

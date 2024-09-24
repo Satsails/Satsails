@@ -16,6 +16,7 @@ import 'package:Satsails/screens/user/user_view.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive/hive.dart';
 import 'package:lwk_dart/lwk_dart.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
@@ -41,6 +42,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:pusher_beams/pusher_beams.dart';
 
 import 'screens/charge/components/pix.dart';
 import 'screens/settings/components/backup_wallet.dart';
@@ -48,6 +50,26 @@ import 'screens/settings/components/backup_wallet.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await PusherBeams.instance.start('ac5722c9-48df-4a97-9b90-438fc759b42a');
+  PusherBeams.instance.onMessageReceivedInTheForeground((message) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+    AndroidNotificationDetails(
+      'pix_payments_channel',
+      'PIX Payments',
+      channelDescription: 'Notifications for received PIX transactions.',
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: false,
+    );
+    const NotificationDetails platformChannelSpecifics =
+    NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      '1',
+      '2',
+      platformChannelSpecifics,
+    );
+  });;
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -228,4 +250,12 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
       },
     );
   }
+}
+
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
+
+Future<void> showNotification(message) async {
+
 }
