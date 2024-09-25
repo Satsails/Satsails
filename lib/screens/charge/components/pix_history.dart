@@ -65,6 +65,9 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
             const double dynamicRadius = 10.0;
             final remainingTime = _getRemainingTime(pix.createdAt);
 
+            // Check if the transaction is "expired" for the user (4 minutes timeout)
+            final isFrontendExpired = remainingTime.inSeconds <= 0;
+
             return Container(
               margin: const EdgeInsets.all(dynamicMargin),
               decoration: BoxDecoration(
@@ -78,12 +81,12 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                 },
                 child: ListTile(
                   leading: Icon(
-                    pix.failed
-                        ? Icons.error_rounded
+                    isFrontendExpired && !pix.completedTransfer && !pix.sentToHotWallet
+                        ? Icons.error_rounded // Show error if frontend expired and not completed/sent to hot wallet
                         : pix.completedTransfer
                         ? Icons.check_circle_rounded
                         : Icons.arrow_downward_rounded,
-                    color: pix.failed
+                    color: isFrontendExpired && !pix.completedTransfer && !pix.sentToHotWallet
                         ? Colors.red
                         : pix.completedTransfer
                         ? Colors.green
@@ -93,7 +96,7 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        pix.failed
+                        isFrontendExpired && !pix.completedTransfer && !pix.sentToHotWallet
                             ? "Transaction failed".i18n(ref)
                             : pix.sentToHotWallet
                             ? "Payment received".i18n(ref)
@@ -103,7 +106,7 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                             ? "Waiting payment".i18n(ref)
                             : "${"Received".i18n(ref)} ${pix.receivedAmount % 1 == 0 ? pix.receivedAmount.toInt() : pix.receivedAmount.toStringAsFixed(3)}",
                         style: TextStyle(
-                          color: pix.failed
+                          color: isFrontendExpired && !pix.completedTransfer && !pix.sentToHotWallet
                               ? Colors.red
                               : pix.completedTransfer
                               ? Colors.green

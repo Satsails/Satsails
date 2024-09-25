@@ -56,7 +56,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
           _pixQRCode = '';
           _amountToReceive = 0.0;
           Fluttertoast.showToast(
-            msg: 'Transaction expired'.i18n(ref),
+            msg: 'Transaction failed'.i18n(ref),
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.TOP,
             backgroundColor: Colors.red,
@@ -338,7 +338,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                 Padding(
                   padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
                   child: Text(
-                    'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix'.i18n(ref),
+                    'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix or the transfer may fail'.i18n(ref),
                     style: TextStyle(
                       fontSize: MediaQuery.of(context).size.height * 0.015,
                       color: Colors.red,

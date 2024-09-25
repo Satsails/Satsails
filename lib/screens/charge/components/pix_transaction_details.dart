@@ -25,7 +25,6 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     super.initState();
     final transaction = ref.read(singleTransactionDetailsProvider);
     _initializeExpirationTime(transaction.createdAt);
-    _startCountdown();
   }
 
   @override
@@ -44,23 +43,15 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     });
   }
 
-  void _startCountdown() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_expirationTime.inSeconds > 0) {
-        setState(() {
-          _expirationTime -= const Duration(seconds: 1);
-        });
-      } else {
-        timer.cancel();
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     final transaction = ref.watch(singleTransactionDetailsProvider);
     const double dynamicMargin = 16.0;
     const double dynamicRadius = 12.0;
+
+    // Check if the frontend has marked this transaction as "expired"
+    final isFrontendExpired = _expirationTime.inSeconds <= 0 && !transaction.completedTransfer && !transaction.sentToHotWallet;
 
     return Scaffold(
       appBar: AppBar(
@@ -94,7 +85,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: _buildTransactionHeader(ref, transaction),
+                child: _buildTransactionHeader(ref, transaction, isFrontendExpired),
               ),
               const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),
@@ -123,16 +114,16 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     );
   }
 
-  Widget _buildTransactionHeader(WidgetRef ref, Transfer transaction) {
+  Widget _buildTransactionHeader(WidgetRef ref, Transfer transaction, bool isFrontendExpired) {
     return Column(
       children: [
         Icon(
-          transaction.failed
+          isFrontendExpired
               ? Icons.error_rounded
               : transaction.completedTransfer || transaction.sentToHotWallet
               ? Icons.check_circle_rounded
               : Icons.access_time_rounded,
-          color: transaction.failed
+          color: isFrontendExpired
               ? Colors.red
               : transaction.completedTransfer || transaction.sentToHotWallet
               ? Colors.green
@@ -147,7 +138,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
             style: const TextStyle(color: Colors.orange, fontSize: 16),
           ),
         Text(
-          transaction.failed
+          isFrontendExpired
               ? "Transaction failed".i18n(ref)
               : transaction.sentToHotWallet
               ? "Processing transfer".i18n(ref)
@@ -155,29 +146,29 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
               ? "Waiting payment".i18n(ref)
               : currencyFormat(transaction.receivedAmount, 'BRL', decimalPlaces: 3),
           style: TextStyle(
-            color: transaction.failed ? Colors.red : Colors.green,
+            color: isFrontendExpired ? Colors.red : Colors.green,
             fontSize: MediaQuery.of(context).size.width * 0.045,
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 8.0),
+        const SizedBox(height: 8.0),
         if (transaction.completedTransfer || transaction.sentToHotWallet)
-        GestureDetector(
-          onTap: () {
-            Clipboard.setData(ClipboardData(text: transaction.transferId));
-            Fluttertoast.showToast(
-              msg: 'Transfer ID copied'.i18n(ref),
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              backgroundColor: Colors.grey,
-              textColor: Colors.white,
-            );
-          },
-          child: Text(
-            transaction.transferId,
-            style: TextStyle(color: Colors.white, fontSize: MediaQuery.of(context).size.width * 0.045),
+          GestureDetector(
+            onTap: () {
+              Clipboard.setData(ClipboardData(text: transaction.transferId));
+              Fluttertoast.showToast(
+                msg: 'Transfer ID copied'.i18n(ref),
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                backgroundColor: Colors.grey,
+                textColor: Colors.white,
+              );
+            },
+            child: Text(
+              transaction.transferId,
+              style: TextStyle(color: Colors.white, fontSize: MediaQuery.of(context).size.width * 0.045),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -280,6 +271,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
         : const SizedBox.shrink();
   }
 }
+
 
 class TransactionDetailRow extends StatelessWidget {
   final String label;

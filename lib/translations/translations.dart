@@ -1576,8 +1576,8 @@ extension Localization on String {
         'pt': 'A quantia está abaixo da quantia mínima de conversão'
       } +
       {
-        'en': 'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix',
-        'pt': 'Por favor, certifique-se de que o CPF/CNPJ que você insere corresponde ao CPF/CNPJ registrado em seu Pix'
+        'en': 'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix or the transfer may fail',
+        'pt': 'Por favor, certifique-se de que o CPF/CNPJ que insere corresponde ao CPF/CNPJ registrado em seu Pix ou a transferência pode falhar'
       } +
       {
         'en': 'Transaction will expire in:',
