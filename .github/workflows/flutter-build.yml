@@ -50,7 +50,7 @@ jobs:
 
       - name: Install dependencies
         if: env.RUN_PIPELINE == 'true'
-        run: fvm flutter pub get --verbose
+        run: fvm flutter pub get
 
       - name: Clean before build
         if: env.RUN_PIPELINE == 'true'
@@ -58,11 +58,11 @@ jobs:
 
       - name: Build APK
         if: env.RUN_PIPELINE == 'true'
-        run: fvm flutter build apk --release --verbose --no-daemon
+        run: fvm flutter build apk --release
 
       - name: Build App Bundle
         if: env.RUN_PIPELINE == 'true'
-        run: fvm flutter build appbundle --release --verbose --no-daemon
+        run: fvm flutter build appbundle --release
 
       - name: Upload APK
         if: env.RUN_PIPELINE == 'true'
