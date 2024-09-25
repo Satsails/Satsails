@@ -111,13 +111,14 @@ class User {
 }
 
 class UserService {
-  static Future<Result<User>> createUserRequest(String liquidAddress) async {
+  static Future<Result<User>> createUserRequest(String liquidAddress, int liquidAddressIndex) async {
     try {
       final response = await http.post(
         Uri.parse('https://splitter.satsails.com/users'),
         body: jsonEncode({
           'user': {
             'liquid_address': liquidAddress,
+            'liquid_address_index': liquidAddressIndex,
           }
         }),
         headers: {
@@ -198,8 +199,7 @@ class UserService {
     }
   }
 
-  static Future<Result<String>> updateLiquidAddress(String liquidAddress,
-      String auth) async {
+  static Future<Result<String>> updateLiquidAddress(String liquidAddress, String auth, int liquidAddressIndex) async {
     try {
       final response = await http.patch(
         Uri.parse(
@@ -207,6 +207,7 @@ class UserService {
         body: jsonEncode({
           'user': {
             'liquid_address': liquidAddress,
+            'liquid_address_index': liquidAddressIndex,
           }
         }),
         headers: {
@@ -225,6 +226,27 @@ class UserService {
           error: 'An error has occurred. Please check your internet connection or contact support');
     }
   }
+
+ static Future<Result<Map<String, dynamic>>> getLiquidAddressIndex(String auth) async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://splitter.satsails.com/users/get_liquid_address'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: jsonDecode(response.body));
+      } else {
+        return Result(error: 'Failed to get liquid address index');
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please check your internet connection or contact support');
+    }
+  }
+
 
   static Future<Result<User>> showUser(String auth) async {
     try {

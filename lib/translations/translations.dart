@@ -1618,6 +1618,26 @@ extension Localization on String {
       {
         'en': "About ",
         'pt': 'Cerca de '
+      } +
+      {
+        'en': "Failed to get liquid address index",
+        'pt': 'Falha ao obter o índice do endereço Liquid'
+      } +
+      {
+        'en': "Your wallet does not belong to the account you are trying to charge",
+        'pt': 'Sua carteira não pertence à conta que você está tentando carregar'
+      } +
+      {
+        'en': "Payment received",
+        'pt': 'Pagamento recebido'
+      } +
+      {
+        'en': "Processing transfer",
+        'pt': 'Processando transferência'
+      } +
+      {
+        'en': "Please wait a few minutes and try again",
+        'pt': 'Aguarde alguns minutos e tente novamente'
       };
 
   String i18n(WidgetRef ref) {

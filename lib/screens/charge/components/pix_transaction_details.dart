@@ -18,7 +18,7 @@ class PixTransactionDetails extends ConsumerStatefulWidget {
 
 class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
   Timer? _timer;
-  Duration _expirationTime = const Duration(minutes: 5);
+  Duration _expirationTime = const Duration(minutes: 4);
 
   @override
   void initState() {
@@ -37,7 +37,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
   void _initializeExpirationTime(DateTime createdAt) {
     final timeSinceCreation = DateTime.now().difference(createdAt);
     setState(() {
-      _expirationTime = const Duration(minutes: 5) - timeSinceCreation;
+      _expirationTime = const Duration(minutes: 4) - timeSinceCreation;
       if (_expirationTime.isNegative) {
         _expirationTime = Duration.zero;
       }
@@ -105,7 +105,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
               ),
               const SizedBox(height: 16.0),
               _buildTransactionDetails(ref, transaction),
-              if (transaction.completedTransfer || transaction.sentToHotWallet) ...[
+              if (transaction.completedTransfer) ...[
                 Divider(color: Colors.grey.shade700),
                 const SizedBox(height: 16.0),
                 Text(
@@ -149,15 +149,18 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
         Text(
           transaction.failed
               ? "Transaction failed".i18n(ref)
-              : transaction.receivedAmount == 0.0
+              : transaction.sentToHotWallet
+              ? "Processing transfer".i18n(ref)
+              : transaction.processingStatus && !transaction.sentToHotWallet
               ? "Waiting payment".i18n(ref)
               : currencyFormat(transaction.receivedAmount, 'BRL', decimalPlaces: 3),
           style: TextStyle(
             color: transaction.failed ? Colors.red : Colors.green,
-            fontSize: 36,
+            fontSize: MediaQuery.of(context).size.width * 0.045,
             fontWeight: FontWeight.bold,
           ),
         ),
+        SizedBox(height: 8.0),
         if (transaction.completedTransfer || transaction.sentToHotWallet)
         GestureDetector(
           onTap: () {
@@ -172,7 +175,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           },
           child: Text(
             transaction.transferId,
-            style: const TextStyle(color: Colors.white, fontSize: 18, decoration: TextDecoration.underline),
+            style: TextStyle(color: Colors.white, fontSize: MediaQuery.of(context).size.width * 0.045),
           ),
         ),
       ],
@@ -299,6 +302,7 @@ class TransactionDetailRow extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.right,
+              overflow: TextOverflow.ellipsis, // This will handle long text by truncating it
               style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),

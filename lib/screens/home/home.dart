@@ -118,14 +118,30 @@ class Home extends ConsumerWidget {
       title: Row(
         children: [
           const Logo(widthFactor: 0.03, heightFactor: 0.03),
-          // Slightly larger size
           SizedBox(width: screenWidth * 0.02),
-          // 2% of screen width
-          const Text(
-            'Satsails',
-            style: TextStyle(
-              color: Colors.orange,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Satsails',
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(width: 5),
+              Transform.translate(
+                offset: const Offset(0, -2),
+                child: const Text(
+                  'BETA',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

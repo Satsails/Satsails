@@ -36,7 +36,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
   bool _isLoading = false;
   String _feeDescription = 'Fee: 2% + 1.98 BRL';
   Timer? _timer;
-  Duration _timeLeft = const Duration(minutes: 5);
+  Duration _timeLeft = const Duration(minutes: 4);
 
   @override
   void dispose() {
@@ -139,7 +139,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
     setState(() {
       _isLoading = true;
-      _timeLeft = const Duration(minutes: 5);
+      _timeLeft = const Duration(minutes: 4);
       startTimer();
     });
 
@@ -184,7 +184,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
         _isLoading = false;
       });
       Fluttertoast.showToast(
-        msg: '${e.toString()}',
+        msg: '${e.toString().i18n(ref)}',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.TOP,
         timeInSecForIosWeb: 1,
@@ -365,7 +365,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     ),
                   ),
                 ),
-                if (_amountToReceive > 0)
+                if (_amountToReceive > 0 && _pixQRCode.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -389,18 +389,19 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     ),
                   )
                 else
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
-                    child: CustomButton(
-                      text: 'Generate Pix code'.i18n(ref),
-                      primaryColor: Colors.orange,
-                      secondaryColor: Colors.orange,
-                      textColor: Colors.black,
-                      onPressed: () async {
-                        await _generateQRCode();
-                      },
+                  if (_pixQRCode.isEmpty)
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
+                      child: CustomButton(
+                        text: 'Generate Pix code'.i18n(ref),
+                        primaryColor: Colors.orange,
+                        secondaryColor: Colors.orange,
+                        textColor: Colors.black,
+                        onPressed: () async {
+                          await _generateQRCode();
+                        },
+                      ),
                     ),
-                  ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                 if (_timeLeft.inSeconds > 0 && _pixQRCode.isNotEmpty)
                   Text(

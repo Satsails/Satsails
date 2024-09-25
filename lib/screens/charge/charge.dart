@@ -2,6 +2,7 @@ import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 final onBoardingInProgressProvider = StateProvider<bool>((ref) => false);
 
@@ -52,16 +53,47 @@ class Charge extends ConsumerWidget {
     );
   }
 
-  void _handleOnPress(WidgetRef ref, BuildContext context, bool hasOnboarded, String paymentId) {
-    if (paymentId == '') {
+  Future<void> _handleOnPress(WidgetRef ref, BuildContext context, bool hasOnboarded, String paymentId) async {
+    // If the user doesn't have a payment ID, prompt onboarding
+    if (paymentId.isEmpty) {
       ref.read(onBoardingInProgressProvider.notifier).state = true;
       Navigator.of(context).pushNamed('/user_creation');
-    } else {
-      if (hasOnboarded) {
-        Navigator.of(context).pushNamed('/pix');
-      } else {
-        Navigator.of(context).pushNamed('/pix_onboarding');
+      return;
+    }
+
+    try {
+      final walletBelongsToUser = await ref.watch(
+          checkIfAccountBelongsToSetPrivateKeyProvider.future);
+
+      if (walletBelongsToUser == false) {
+        Fluttertoast.showToast(
+          msg: 'Your wallet does not belong to the account you are trying to charge'.i18n(ref),
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.TOP,
+          timeInSecForIosWeb: 4,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        return;
       }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: e.toString().i18n(ref),
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 4,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return;
+    }
+
+    if (hasOnboarded) {
+      Navigator.of(context).pushNamed('/pix');
+    } else {
+      Navigator.of(context).pushNamed('/pix_onboarding');
     }
   }
 }

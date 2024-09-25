@@ -37,7 +37,7 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
 
   Duration _getRemainingTime(DateTime createdAt) {
     final timeSinceCreation = DateTime.now().difference(createdAt);
-    return const Duration(minutes: 5) - timeSinceCreation;
+    return const Duration(minutes: 4) - timeSinceCreation;
   }
 
   @override

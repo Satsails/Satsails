@@ -20,6 +20,11 @@ class LiquidModel {
     return address.confidential;
   }
 
+  Future<String> getAddressOfIndex(int index) async {
+    final address = await config.liquid.wallet.address(index: index);
+    return address.confidential;
+  }
+
   Future<bool> sync() async {
     await config.liquid.wallet.sync(electrumUrl: config.electrumUrl);
     return true;
