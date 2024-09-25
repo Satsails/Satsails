@@ -353,16 +353,18 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
-                  child: Text(
-                    'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix'.i18n(ref),
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height * 0.015,
-                      color: Colors.red,
+                Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
+                    child: Text(
+                      'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix'.i18n(ref),
+                      style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height * 0.015,
+                        color: Colors.red,
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow.clip,
                     ),
-                    softWrap: true,
-                    overflow: TextOverflow.clip,
                   ),
                 ),
                 if (_amountToReceive > 0)
