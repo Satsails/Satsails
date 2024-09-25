@@ -15,24 +15,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up JDK 11
+      - name: Install Flutter
         if: env.RUN_PIPELINE == 'true'
-        uses: actions/setup-java@v1
+        uses: subosito/flutter-action@v2
         with:
-          java-version: '11'
-
-      - name: Install FVM
-        if: env.RUN_PIPELINE == 'true'
-        run: |
-          curl -fsSL https://fvm.app/install.sh | bash
-          export PATH="$PATH:$HOME/.fvm/bin"
-
-      - name: Install Flutter with FVM
-        if: env.RUN_PIPELINE == 'true'
-        run: |
-          fvm install ${{ env.FLUTTER_VERSION }}
-          fvm use ${{ env.FLUTTER_VERSION }}
-          fvm flutter --version
+          flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - name: Create google-services.json
         if: env.RUN_PIPELINE == 'true'
@@ -50,19 +37,19 @@ jobs:
 
       - name: Install dependencies
         if: env.RUN_PIPELINE == 'true'
-        run: fvm flutter pub get
+        run: flutter pub get
 
       - name: Clean before build
         if: env.RUN_PIPELINE == 'true'
-        run: fvm flutter clean
+        run: flutter clean
 
       - name: Build APK
         if: env.RUN_PIPELINE == 'true'
-        run: fvm flutter build apk --release
+        run: flutter build apk --release
 
       - name: Build App Bundle
         if: env.RUN_PIPELINE == 'true'
-        run: fvm flutter build appbundle --release
+        run: flutter build appbundle --release
 
       - name: Upload APK
         if: env.RUN_PIPELINE == 'true'
