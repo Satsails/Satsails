@@ -9,7 +9,7 @@ jobs:
 
     env:
       FLUTTER_VERSION: '3.22.3'
-      RUN_PIPELINE: 'true' # Variável para controlar se o pipeline deve ser executado
+      RUN_PIPELINE: 'true'
 
     steps:
       - name: Checkout repository
