@@ -44,15 +44,15 @@ jobs:
 
       - name: Install dependencies
         if: env.RUN_PIPELINE == 'true'
-        run: fvm flutter pub get
+        run: fvm flutter pub get --verbose
 
       - name: Build APK
         if: env.RUN_PIPELINE == 'true'
-        run: fvm flutter build apk --release
+        run: fvm flutter build apk --release --verbose
 
       - name: Build App Bundle
         if: env.RUN_PIPELINE == 'true'
-        run: fvm flutter build appbundle --release
+        run: fvm flutter build appbundle --release --verbose
 
       - name: Upload APK
         if: env.RUN_PIPELINE == 'true'
