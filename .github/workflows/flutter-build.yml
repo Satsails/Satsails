@@ -1,33 +1,34 @@
 name: Flutter Build APK and App Bundle
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch: # Adiciona a opção de rodar manualmente via GitHub Actions UI
+  workflow_dispatch: # Apenas permite que o workflow seja acionado manualmente
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     env:
-      FLUTTER_VERSION: ${{ inputs.flutter_version || '3.22.3' }}
-      BUILD_AAB: ${{ inputs.build_aab || 'false' }}
-      BUILD_APK: ${{ inputs.build_apk || 'true' }}
-      RUN_PIPELINE: ${{ inputs.run_pipeline || 'true' }} # Variável para controlar se o pipeline deve ser executado
+      FLUTTER_VERSION: '3.22.3'
+      RUN_PIPELINE: 'true' # Variável para controlar se o pipeline deve ser executado
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Flutter
-        if: env.RUN_PIPELINE == 'true' # Condição para rodar o pipeline
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+      - name: Install FVM
+        if: env.RUN_PIPELINE == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          curl -o- https://raw.githubusercontent.com/leoafarias/fvm/master/install.sh | bash
+          export PATH="$PATH:$HOME/.fvm/bin"
+
+      - name: Install Flutter with FVM
+        if: env.RUN_PIPELINE == 'true'
+        run: |
+          fvm install ${{ env.FLUTTER_VERSION }}
+          fvm use ${{ env.FLUTTER_VERSION }}
+          fvm flutter --version
 
       - name: Create google-services.json
         if: env.RUN_PIPELINE == 'true'
@@ -45,25 +46,25 @@ jobs:
 
       - name: Install dependencies
         if: env.RUN_PIPELINE == 'true'
-        run: flutter pub get
+        run: fvm flutter pub get
 
       - name: Build APK
-        if: env.BUILD_APK == 'true' && env.RUN_PIPELINE == 'true'
-        run: flutter build apk --release
+        if: env.RUN_PIPELINE == 'true'
+        run: fvm flutter build apk --release
 
       - name: Build App Bundle
-        if: env.BUILD_AAB == 'true' && env.RUN_PIPELINE == 'true'
-        run: flutter build appbundle --release
+        if: env.RUN_PIPELINE == 'true'
+        run: fvm flutter build appbundle --release
 
       - name: Upload APK
-        if: env.BUILD_APK == 'true' && env.RUN_PIPELINE == 'true'
+        if: env.RUN_PIPELINE == 'true'
         uses: actions/upload-artifact@v3
         with:
           name: app-release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
       - name: Upload App Bundle
-        if: env.BUILD_AAB == 'true' && env.RUN_PIPELINE == 'true'
+        if: env.RUN_PIPELINE == 'true'
         uses: actions/upload-artifact@v3
         with:
           name: app-release.aab
