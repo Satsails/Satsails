@@ -1,4 +1,4 @@
-name: Flutter Build APK
+name: Flutter Build APK and App Bundle
 
 on:
   push:
@@ -7,39 +7,64 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch: # Adiciona a opção de rodar manualmente via GitHub Actions UI
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    env:
+      FLUTTER_VERSION: ${{ inputs.flutter_version || '3.22.3' }}
+      BUILD_AAB: ${{ inputs.build_aab || 'false' }}
+      BUILD_APK: ${{ inputs.build_apk || 'true' }}
+      RUN_PIPELINE: ${{ inputs.run_pipeline || 'true' }} # Variável para controlar se o pipeline deve ser executado
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Set up Flutter
+        if: env.RUN_PIPELINE == 'true' # Condição para rodar o pipeline
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.3'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - name: Create google-services.json
+        if: env.RUN_PIPELINE == 'true'
         run: |
           echo "$GOOGLE_SERVICES_JSON" > $GITHUB_WORKSPACE/android/app/google-services.json
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+
       - name: Create key.properties
+        if: env.RUN_PIPELINE == 'true'
         run: |
           echo "$KEY_PROPERTIES_FILE" > $GITHUB_WORKSPACE/android/key.properties
         env:
           KEY_PROPERTIES_FILE: ${{ secrets.KEY_PROPERTIES_FILE }}
 
       - name: Install dependencies
+        if: env.RUN_PIPELINE == 'true'
         run: flutter pub get
 
       - name: Build APK
+        if: env.BUILD_APK == 'true' && env.RUN_PIPELINE == 'true'
         run: flutter build apk --release
 
+      - name: Build App Bundle
+        if: env.BUILD_AAB == 'true' && env.RUN_PIPELINE == 'true'
+        run: flutter build appbundle --release
+
       - name: Upload APK
+        if: env.BUILD_APK == 'true' && env.RUN_PIPELINE == 'true'
         uses: actions/upload-artifact@v3
         with:
           name: app-release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload App Bundle
+        if: env.BUILD_AAB == 'true' && env.RUN_PIPELINE == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release.aab
+          path: build/app/outputs/bundle/release/app-release.aab
