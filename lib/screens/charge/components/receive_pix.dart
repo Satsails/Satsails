@@ -336,6 +336,18 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                   ),
                 ),
                 Padding(
+                  padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
+                  child: Text(
+                    'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix'.i18n(ref),
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height * 0.015,
+                      color: Colors.red,
+                    ),
+                    softWrap: true,
+                    overflow: TextOverflow.clip,
+                  ),
+                ),
+                Padding(
                   padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
                   child: TextField(
                     controller: _cpfController,
@@ -350,20 +362,6 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       ),
                       labelText: 'CPF/CNPJ',
                       labelStyle: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.grey),
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
-                    child: Text(
-                      'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix'.i18n(ref),
-                      style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.height * 0.015,
-                        color: Colors.red,
-                      ),
-                      softWrap: true,
-                      overflow: TextOverflow.clip,
                     ),
                   ),
                 ),
