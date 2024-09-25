@@ -1,7 +1,7 @@
 name: Flutter Build APK and App Bundle
 
 on:
-  workflow_dispatch: # Apenas permite que o workflow seja acionado manualmente
+  workflow_dispatch: # Allows the workflow to be triggered manually
 
 jobs:
   build:
@@ -14,6 +14,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Set up JDK 11
+        if: env.RUN_PIPELINE == 'true'
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
 
       - name: Install FVM
         if: env.RUN_PIPELINE == 'true'
@@ -46,13 +52,17 @@ jobs:
         if: env.RUN_PIPELINE == 'true'
         run: fvm flutter pub get --verbose
 
+      - name: Clean before build
+        if: env.RUN_PIPELINE == 'true'
+        run: fvm flutter clean
+
       - name: Build APK
         if: env.RUN_PIPELINE == 'true'
-        run: fvm flutter build apk --release --verbose
+        run: fvm flutter build apk --release --verbose --no-daemon
 
       - name: Build App Bundle
         if: env.RUN_PIPELINE == 'true'
-        run: fvm flutter build appbundle --release --verbose
+        run: fvm flutter build appbundle --release --verbose --no-daemon
 
       - name: Upload APK
         if: env.RUN_PIPELINE == 'true'
