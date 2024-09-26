@@ -281,6 +281,10 @@ extension Localization on String {
         'pt': 'Trocar',
       } +
       {
+        'en': 'Fiat Swap',
+        'pt': 'Troca de Fiat',
+      }+
+      {
         'en': 'Multiple',
         'pt': 'Múltiplas',
       } +

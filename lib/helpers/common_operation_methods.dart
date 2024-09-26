@@ -99,7 +99,7 @@ String liquidTransactionType(Tx transaction, WidgetRef ref) {
     case 'reissuance':
       return 'Reissuance'.i18n(ref);
     default:
-      return 'Swap'.i18n(ref);
+      return 'Fiat Swap'.i18n(ref);
   }
 }
 
