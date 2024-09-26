@@ -80,7 +80,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
               const SizedBox(height: 16.0),
               TransactionDetailRow(
                 label: "Date".i18n(ref),
-                value: _formatTimestamp(transaction.confirmationTime?.timestamp),
+                value: _formatTimestamp(transaction.confirmationTime?.timestamp).i18n(ref)
               ),
               TransactionDetailRow(
                 label: "Status".i18n(ref),
