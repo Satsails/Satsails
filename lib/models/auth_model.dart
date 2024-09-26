@@ -3,6 +3,7 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:hive/hive.dart';
 import 'dart:math';
 import 'package:convert/convert.dart';
+import 'package:pusher_beams/pusher_beams.dart';
 
 class SecureKeyManager {
   static const String _keyId = 'boltz_key';
@@ -98,5 +99,6 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('user');
     await Hive.deleteBoxFromDisk('affiliate');
     await SecureKeyManager.deleteKey();
+    await PusherBeams.instance.clearAllState();
   }
 }

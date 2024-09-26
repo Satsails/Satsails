@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
+import 'package:pusher_beams/pusher_beams.dart';
 
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 
@@ -110,13 +111,14 @@ class User {
 }
 
 class UserService {
-  static Future<Result<User>> createUserRequest(String liquidAddress) async {
+  static Future<Result<User>> createUserRequest(String liquidAddress, int liquidAddressIndex) async {
     try {
       final response = await http.post(
         Uri.parse('https://splitter.satsails.com/users'),
         body: jsonEncode({
           'user': {
             'liquid_address': liquidAddress,
+            'liquid_address_index': liquidAddressIndex,
           }
         }),
         headers: {
@@ -130,14 +132,17 @@ class UserService {
         return Result(error: 'Failed to create user: ${response.body}');
       }
     } catch (e) {
-      return Result(error: 'An error has occurred. Please check your internet connection or contact support'); 
+      return Result(
+          error: 'An error has occurred. Please check your internet connection or contact support');
     }
   }
 
 
-  static Future<Result<List<Transfer>>> getUserTransactions(String pixPaymentCode, String auth) async {
+  static Future<Result<List<Transfer>>> getUserTransactions(
+      String pixPaymentCode, String auth) async {
     try {
-      final uri = Uri.parse('https://splitter.satsails.com/users/user_transfers')
+      final uri = Uri.parse(
+          'https://splitter.satsails.com/users/user_transfers')
           .replace(queryParameters: {
         'payment_id': pixPaymentCode,
       });
@@ -151,20 +156,26 @@ class UserService {
       );
 
       if (response.statusCode == 200) {
-        List<dynamic> jsonResponse = jsonDecode(response.body);
-        List<Transfer> transfers = jsonResponse.map((item) => Transfer.fromJson(item as Map<String, dynamic>)).toList();
+        final jsonResponse = jsonDecode(response.body);
+        List<Transfer> transfers = jsonResponse['transfer'].map((item) =>
+            Transfer.fromJson(item as Map<String, dynamic>)).toList().cast<
+            Transfer>();
         return Result(data: transfers);
       } else {
-        return Result(error: 'Failed to get user transactions: ${response.body}');
+        return Result(
+            error: 'Failed to get user transactions: ${response.body}');
       }
     } catch (e) {
-      return Result(error: 'An error has occurred. Please check your internet connection or contact support'); 
+      return Result(
+          error: 'An error has occurred. Please check your internet connection or contact support');
     }
   }
 
-  static Future<Result<String>> getAmountTransferred(String pixPaymentCode, String auth) async {
+  static Future<Result<String>> getAmountTransferred(String pixPaymentCode,
+      String auth) async {
     try {
-      final uri = Uri.parse('https://splitter.satsails.com/users/amount_transfered_by_day')
+      final uri = Uri.parse(
+          'https://splitter.satsails.com/users/amount_transfered_by_day')
           .replace(queryParameters: {
         'payment_id': pixPaymentCode,
       });
@@ -183,17 +194,20 @@ class UserService {
         return Result(error: 'Failed to get amount transferred');
       }
     } catch (e) {
-      return Result(error: 'An error has occurred. Please check your internet connection or contact support'); 
+      return Result(
+          error: 'An error has occurred. Please check your internet connection or contact support');
     }
   }
 
-  static Future<Result<String>> updateLiquidAddress(String liquidAddress, String auth) async {
+  static Future<Result<String>> updateLiquidAddress(String liquidAddress, String auth, int liquidAddressIndex) async {
     try {
       final response = await http.patch(
-        Uri.parse('https://splitter.satsails.com/users/update_liquid_address'),
+        Uri.parse(
+            'https://splitter.satsails.com/users/update_liquid_address'),
         body: jsonEncode({
           'user': {
             'liquid_address': liquidAddress,
+            'liquid_address_index': liquidAddressIndex,
           }
         }),
         headers: {
@@ -208,9 +222,31 @@ class UserService {
         return Result(error: 'Failed to update liquid address');
       }
     } catch (e) {
-      return Result(error: 'An error has occurred. Please check your internet connection or contact support'); 
+      return Result(
+          error: 'An error has occurred. Please check your internet connection or contact support');
     }
   }
+
+ static Future<Result<Map<String, dynamic>>> getLiquidAddressIndex(String auth) async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://splitter.satsails.com/users/get_liquid_address'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: jsonDecode(response.body));
+      } else {
+        return Result(error: 'Failed to get liquid address index');
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please check your internet connection or contact support');
+    }
+  }
+
 
   static Future<Result<User>> showUser(String auth) async {
     try {
@@ -228,10 +264,28 @@ class UserService {
         return Result(error: 'Failed to show user');
       }
     } catch (e) {
-      return Result(error: 'An error has occurred. Please check your internet connection or contact support'); 
+      return Result(
+          error: 'An error has occurred. Please check your internet connection or contact support');
     }
   }
 
+  static BeamsAuthProvider getPusherAuth(String auth, String userId) {
+    try {
+      final BeamsAuthProvider response = BeamsAuthProvider()
+        ..authUrl = 'https://splitter.satsails.com/users/get_pusher_auth'
+        ..headers = {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        }
+        ..queryParams = {
+          'user_id': userId
+        }
+        ..credentials = 'omit';
+
+      return response;
+    } catch (e) {
+      throw Exception(
+          'An error has occurred. Please check your internet connection or contact support');
+    }
+  }
 }
-
-

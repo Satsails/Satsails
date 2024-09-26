@@ -1574,6 +1574,70 @@ extension Localization on String {
       {
         'en': 'Amount is below minimum peg in amount',
         'pt': 'A quantia está abaixo da quantia mínima de conversão'
+      } +
+      {
+        'en': 'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix or the transfer may fail',
+        'pt': 'Por favor, certifique-se de que o CPF/CNPJ que insere corresponde ao CPF/CNPJ registrado em seu Pix ou a transferência pode falhar'
+      } +
+      {
+        'en': 'Transaction will expire in:',
+        'pt': 'A transação expirará em:'
+      } +
+      {
+        'en': "Awaiting payment",
+        'pt': 'Aguardando pagamento'
+      } +
+      {
+        'en': "Transaction failed",
+        'pt': 'Transação falhou'
+      } +
+      {
+        'en': "Waiting payment",
+        'pt': 'Aguardando Pix'
+      } +
+      {
+        'en': "Time left:",
+        'pt': 'Tempo restante:'
+      } +
+      {
+        'en': "Transfer ID copied",
+        'pt': 'ID de transferência copiado'
+      } +
+      {
+        'en': "Txid copied",
+        'pt': 'Txid copiado'
+      } +
+      {
+        'en': "Unable to get minimum amount",
+        'pt': 'Não foi possível obter a quantia mínima'
+      } +
+      {
+        'en': "Minimum amount:",
+        'pt': 'Quantia mínima:'
+      } +
+      {
+        'en': "About ",
+        'pt': 'Cerca de '
+      } +
+      {
+        'en': "Failed to get liquid address index",
+        'pt': 'Falha ao obter o índice do endereço Liquid'
+      } +
+      {
+        'en': "Your wallet does not belong to the account you are trying to charge",
+        'pt': 'Sua carteira não pertence à conta que você está tentando carregar'
+      } +
+      {
+        'en': "Payment received",
+        'pt': 'Pagamento recebido'
+      } +
+      {
+        'en': "Processing transfer",
+        'pt': 'Processando transferência'
+      } +
+      {
+        'en': "Please wait a few minutes and try again",
+        'pt': 'Aguarde alguns minutos e tente novamente'
       };
 
   String i18n(WidgetRef ref) {

@@ -48,7 +48,7 @@ final userProvider = StateNotifierProvider<UserModel, User>((ref) {
 
 final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
   final liquidAddress = await ref.read(liquidAddressProvider.future);
-  final result = await UserService.createUserRequest(liquidAddress.confidential);
+  final result = await UserService.createUserRequest(liquidAddress.confidential, liquidAddress.index);
 
   if (result.isSuccess && result.data != null) {
     final user = result.data!;
@@ -88,7 +88,7 @@ final getAmountTransferredProvider = FutureProvider.autoDispose<String>((ref) as
 final updateLiquidAddressProvider = FutureProvider.autoDispose<String>((ref) async {
   final liquidAddress = await ref.read(liquidAddressProvider.future);
   final auth = ref.read(userProvider).recoveryCode;
-  final result = await UserService.updateLiquidAddress(liquidAddress.confidential, auth);
+  final result = await UserService.updateLiquidAddress(liquidAddress.confidential, auth, liquidAddress.index);
 
   if (result.isSuccess && result.data != null) {
     return result.data!;
@@ -128,5 +128,26 @@ final updateUserDataProvider = FutureProvider.autoDispose<void>((ref) async {
     await ref.read(affiliateProvider.notifier).setInsertedAffiliateCode(result.data!.insertedAffiliateCode ?? '');
   } else {
     throw result.error!;
+  }
+});
+
+final getLiquidAddressIndexProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
+  final auth = ref.read(userProvider).recoveryCode;
+  final result = await UserService.getLiquidAddressIndex(auth);
+
+  if (result.isSuccess && result.data != null) {
+    return result.data!;
+  } else {
+    throw result.error!;
+  }
+});
+
+final checkIfAccountBelongsToSetPrivateKeyProvider = FutureProvider.autoDispose<bool>((ref) async {
+  final registeredAddress = await ref.read(getLiquidAddressIndexProvider.future);
+  final walletLiquidAddress = await ref.read(liquidAddressOfIndexProvider(registeredAddress['liquid_address_index']).future);
+  if (walletLiquidAddress == registeredAddress['liquid_address']) {
+    return true;
+  } else {
+    return false;
   }
 });

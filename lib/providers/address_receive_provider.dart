@@ -58,16 +58,42 @@ int calculateAmountInSatsToDisplay(String amount, String currency, currencyConve
   }
 }
 
+String calculateAmountToDisplayFromFiat(String amount, String currency, currencyConverter) {
+  switch (currency) {
+    case 'USD':
+      return (double.parse(amount) * currencyConverter.usdToBtc).toStringAsFixed(8);
+    case 'EUR':
+      return (double.parse(amount) * currencyConverter.usdToBtc).toStringAsFixed(8);
+    case 'BRL':
+      return (double.parse(amount) * currencyConverter.brlToBtc).toStringAsFixed(8);
+    default:
+      return "0";
+  }
+}
+
+String calculateAmountToDisplayFromFiatInSats(String amount, String currency, currencyConverter) {
+  switch (currency) {
+    case 'USD':
+      return (double.parse(amount) * currencyConverter.usdToBtc * 100000000).toStringAsFixed(0);
+    case 'EUR':
+      return (double.parse(amount) * currencyConverter.eurToBtc * 100000000).toStringAsFixed(0);
+    case 'BRL':
+      return (double.parse(amount) * currencyConverter.brlToBtc * 100000000).toStringAsFixed(0);
+    default:
+      return "0";
+  }
+}
+
 String calculateAmountInSelectedCurrency(int sats, String currency, currencyConverter) {
   switch (currency) {
     case 'BTC':
       return (sats / 100000000).toStringAsFixed(8);
     case 'USD':
-      return (sats / 100000000 / currencyConverter.usdToBtc).toStringAsFixed(2);
+      return (sats / 100000000 / currencyConverter.usdToBtc).toString();
     case 'EUR':
-      return (sats / 100000000 / currencyConverter.eurToBtc).toStringAsFixed(2);
+      return (sats / 100000000 / currencyConverter.eurToBtc).toString();
     case 'BRL':
-      return (sats / 100000000 / currencyConverter.brlToBtc).toStringAsFixed(2);
+      return (sats / 100000000 / currencyConverter.brlToBtc).toString();
     case 'Sats':
       return sats.toString();
     default:

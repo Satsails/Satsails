@@ -12,148 +12,99 @@ class Pay extends ConsumerWidget {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   late QRViewController controller;
 
-  Pay({super.key});
+  Pay({Key? key}) : super(key: key);
 
   Future<void> _pasteFromClipboard(BuildContext context, WidgetRef ref) async {
     final data = await Clipboard.getData('text/plain');
     if (data != null) {
       try {
         await ref.refresh(setAddressAndAmountProvider(data.text ?? '').future);
-        switch (ref
-            .read(sendTxProvider.notifier)
-            .state
-            .type) {
+        switch (ref.read(sendTxProvider.notifier).state.type) {
           case PaymentType.Bitcoin:
             Navigator.pushReplacementNamed(context, '/confirm_bitcoin_payment');
             break;
           case PaymentType.Lightning:
-            Navigator.pushReplacementNamed(
-                context, '/confirm_lightning_payment');
+            Navigator.pushReplacementNamed(context, '/confirm_lightning_payment');
             break;
           case PaymentType.Liquid:
             Navigator.pushReplacementNamed(context, '/confirm_liquid_payment');
             break;
           default:
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
-                  backgroundColor: Colors.white,
-                  // Light teal background
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 20.0, horizontal: 24.0),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.red,
-                        child: Icon(
-                            Icons.close, size: 40, color: Colors.white),
-                      ),
-                      const SizedBox(height: 16.0),
-                      Text(
-                        'Scan failed!'.i18n(ref),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        'Something went wrong, please try again.'.i18n(ref),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black54,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.black54),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
+            _showErrorDialog(context, ref, 'Scan failed!');
         }
       } catch (e) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-              ),
-              backgroundColor: Colors.white,
-              // Light teal background
-              contentPadding: const EdgeInsets.symmetric(
-                  vertical: 20.0, horizontal: 24.0),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.red.withOpacity(0.8),
-                    child: const Icon(
-                        Icons.close, size: 40, color: Colors.white),
-                  ),
-                  const SizedBox(height: 16.0),
-                  Text(
-                    e.toString().i18n(ref),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.black54),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
+        _showErrorDialog(context, ref, e.toString());
       }
     }
   }
-
-
 
   void _toggleFlash() {
     controller.toggleFlash();
   }
 
+  void _showErrorDialog(BuildContext context, WidgetRef ref, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          backgroundColor: Colors.white,
+          contentPadding:
+          const EdgeInsets.symmetric(vertical: 20.0, horizontal: 24.0),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.red.withOpacity(0.8),
+                child: const Icon(Icons.close, size: 40, color: Colors.white),
+              ),
+              const SizedBox(height: 16.0),
+              Text(
+                message.i18n(ref),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.black54),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
-        children: <Widget>[
-          QRViewWidget(
-            qrKey: qrKey,
-            onQRViewCreated: (QRViewController ctrl) {
-              controller = ctrl;
-            },
-            ref: ref,
+        children: [
+          // QR Code Scanner View
+          Positioned.fill(
+            child: QRViewWidget(
+              qrKey: qrKey,
+              onQRViewCreated: (QRViewController ctrl) {
+                controller = ctrl;
+              },
+              ref: ref,
+            ),
           ),
+          // Back Button
           Positioned(
             top: 40.0,
             left: 10.0,
@@ -162,60 +113,49 @@ class Pay extends ConsumerWidget {
               onPressed: () => Navigator.pop(context),
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Flexible(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.3,
-                      height: MediaQuery.of(context).size.height * 0.06,
-                      child: ElevatedButton(
-                        onPressed: () => _pasteFromClipboard(context, ref),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orangeAccent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        child: Text(
-                          'Paste'.i18n(ref),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: MediaQuery.of(context).size.height * 0.016,
-                          ),
-                        ),
+          // Bottom Buttons
+          Positioned(
+            bottom: 20.0,
+            left: 20.0,
+            right: 20.0,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                SizedBox(
+                  width: screenSize.width * 0.4,
+                  child: ElevatedButton(
+                    onPressed: () => _pasteFromClipboard(context, ref),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orangeAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Flexible(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.3,
-                      height: MediaQuery.of(context).size.height * 0.06,
-                      child: ElevatedButton(
-                        onPressed: _toggleFlash,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orangeAccent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        child: Text(
-                          'Flash'.i18n(ref),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: MediaQuery.of(context).size.height * 0.016,
-                          ),
-                        ),
-                      ),
+                    child: Text(
+                      'Paste'.i18n(ref),
+                      style: const TextStyle(color: Colors.black),
                     ),
                   ),
-                ],
-              ),
+                ),
+                SizedBox(
+                  width: screenSize.width * 0.4,
+                  child: ElevatedButton(
+                    onPressed: _toggleFlash,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orangeAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    child: Text(
+                      'Flash'.i18n(ref),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

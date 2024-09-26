@@ -27,6 +27,13 @@ final liquidAddressProvider = FutureProvider.autoDispose<Address>((ref) {
   });
 });
 
+final liquidAddressOfIndexProvider = FutureProvider.autoDispose.family<String, int>((ref, index) {
+  return ref.watch(initializeLiquidProvider.future).then((liquid) {
+    LiquidModel liquidModel = LiquidModel(liquid);
+    return liquidModel.getAddressOfIndex(index);
+  });
+});
+
 final liquidNextAddressProvider = FutureProvider.autoDispose<String>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);

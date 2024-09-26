@@ -54,9 +54,9 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
 
   @override
   Widget build(BuildContext context) {
-    final language = ref.watch(settingsProvider).language;
-
     super.build(context);
+
+    final language = ref.watch(settingsProvider).language;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -163,6 +163,9 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
       'Liquidation Zone': language == 'pt'
           ? 'https://bitcoincounterflow.com/pt/satsails-2/zona-de-liquidacao-iframe/'
           : 'https://bitcoincounterflow.com/satsails/liquidation-heatmap-iframe/',
+      'Bitrefill': language == 'pt'
+          ? 'https://www.bitrefill.com/pt/pt/'
+          : 'https://www.bitrefill.com',
     };
 
     return Drawer(
@@ -261,6 +264,12 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
               icon: Icons.waterfall_chart,
               title: 'Liquidation Zone',
               url: links['Liquidation Zone']!,
+            ),
+            _buildDrawerItem(
+              ref,
+              icon: Icons.shopping_cart,
+              title: 'Bitrefill',
+              url: links['Bitrefill']!,
             ),
           ],
         ),

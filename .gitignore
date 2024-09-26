@@ -46,3 +46,6 @@ app.*.map.json
 /lib/externalLibraries/
 /crypto/
 /rust-elements-wrapper/
+
+# FVM Version Cache
+.fvm/
