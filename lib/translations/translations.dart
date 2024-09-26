@@ -1642,6 +1642,10 @@ extension Localization on String {
       {
         'en': "Invalid CPF",
         'pt': 'CPF inválido'
+      } +
+      {
+        'en': "Please enter an amount",
+        'pt': 'Por favor, insira uma quantia'
       };
 
   String i18n(WidgetRef ref) {
