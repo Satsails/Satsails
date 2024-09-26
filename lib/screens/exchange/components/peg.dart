@@ -103,7 +103,8 @@ class _PegState extends ConsumerState<Peg> {
                               ref.read(pegInProvider.notifier).state = !pegIn;
                               ref.read(sendTxProvider.notifier).updateAddress('');
                               ref.read(sendTxProvider.notifier).updateAmount(0);
-                              ref.read(sendBlocksProvider.notifier).state = 1;
+                              ref.read(sendTxProvider.notifier).updateDrain(false);
+                          ref.read(inputInFiatProvider.notifier).state = false;ref.read(sendBlocksProvider.notifier).state = 1;
                               ref.read(inputInFiatProvider.notifier).state = false;
                           ref.read(precisionFiatValueProvider.notifier).state = "0.00";controller.text = '';
                             },
@@ -150,6 +151,7 @@ class _PegState extends ConsumerState<Peg> {
               borderRadius: BorderRadius.circular(10),
               onTap: () async {
                 try {
+                  ref.read(inputInFiatProvider.notifier).state = false;
                   ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
                   if(pegIn){
                     final bitcoin = ref.watch(balanceNotifierProvider).btcBalance;
@@ -621,7 +623,7 @@ class _PegState extends ConsumerState<Peg> {
                               ? calculateAmountToDisplayFromFiatInSats(ref.watch(precisionFiatValueProvider), currency, ref.watch(currencyNotifierProvider))
                               : calculateAmountToDisplayFromFiat(ref.watch(precisionFiatValueProvider), currency, ref.watch(currencyNotifierProvider));
 
-                          controller.text = btcInDenominationFormatted(double.parse(btcValue), btcFormart);
+                          controller.text = btcFormart == 'sats' ? btcInDenominationFormatted(double.parse(btcValue), btcFormart) : btcValue;
                         } else {
                           String fiatValue = calculateAmountInSelectedCurrency(ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
                           ref.read(precisionFiatValueProvider.notifier).state = fiatValue;
@@ -819,7 +821,7 @@ class _PegState extends ConsumerState<Peg> {
                               ? calculateAmountToDisplayFromFiatInSats(ref.watch(precisionFiatValueProvider), currency, ref.watch(currencyNotifierProvider))
                               : calculateAmountToDisplayFromFiat(ref.watch(precisionFiatValueProvider), currency, ref.watch(currencyNotifierProvider));
 
-                          controller.text = btcInDenominationFormatted(double.parse(btcValue), btcFormart);
+                          controller.text = btcFormart == 'sats' ? btcInDenominationFormatted(double.parse(btcValue), btcFormart) : btcValue;
                         } else {
                           String fiatValue = calculateAmountInSelectedCurrency(ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
                           ref.read(precisionFiatValueProvider.notifier).state = fiatValue;

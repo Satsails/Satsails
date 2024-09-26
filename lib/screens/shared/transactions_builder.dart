@@ -191,7 +191,7 @@ class BuildTransactions extends ConsumerWidget {
                 Text(transactionAmount(transaction, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
               ],
             ),
-            subtitle: Text(timestampToDateTime(transaction.confirmationTime?.timestamp), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
+            subtitle: Text(timestampToDateTime(transaction.confirmationTime?.timestamp).i18n(ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
             trailing: confirmationStatus(transaction, ref) == 'Confirmed'.i18n(ref)
                 ? const Icon(Icons.check_circle_outlined, color: Colors.green)
                 : const Icon(Icons.access_alarm_outlined, color: Colors.red),
@@ -223,7 +223,7 @@ class BuildTransactions extends ConsumerWidget {
                     transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)) : Text('Multiple'.i18n(ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
                   ],
                 ),
-                subtitle: Text(timestampToDateTime(transaction.timestamp), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
+                subtitle: Text(timestampToDateTime(transaction.timestamp).i18n(ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
                 trailing: confirmationStatusIcon(transaction),
                 children: transaction.balances.map((balance) {
                   return GestureDetector(
