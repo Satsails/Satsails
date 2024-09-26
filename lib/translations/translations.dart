@@ -713,10 +713,6 @@ extension Localization on String {
         'pt': "Escolher",
       }+
       {
-        'en': 'Swaps',
-        'pt': "Converter",
-      }+
-      {
         'en': 'Spending',
         'pt': "Gastos",
       }+

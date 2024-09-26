@@ -17,22 +17,18 @@ String confirmationStatus(TransactionDetails transaction, WidgetRef ref) {
 }
 
 String transactionTypeString(TransactionDetails transaction, WidgetRef ref) {
-  if (transaction.received == 0 && transaction.sent > 0) {
+  if (transaction.sent - transaction.received > 0) {
     return 'Sent'.i18n(ref);
-  } else if (transaction.received > 0 && transaction.sent == 0) {
-    return 'Received'.i18n(ref);
   } else {
-    return 'Multiple'.i18n(ref);
+    return 'Received'.i18n(ref);
   }
 }
 
 Icon transactionTypeIcon(TransactionDetails transaction) {
-  if (transaction.received == 0 && transaction.sent > 0) {
+  if (transaction.sent - transaction.received > 0) {
     return const Icon(Icons.arrow_upward, color: Colors.red);
-  } else if (transaction.received > 0 && transaction.sent == 0) {
-    return const Icon(Icons.arrow_downward, color: Colors.green);
   } else {
-    return const Icon(Icons.arrow_forward_sharp, color: Colors.orangeAccent);
+    return const Icon(Icons.arrow_downward, color: Colors.green);
   }
 }
 
