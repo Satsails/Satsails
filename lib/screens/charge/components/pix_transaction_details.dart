@@ -25,6 +25,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     super.initState();
     final transaction = ref.read(singleTransactionDetailsProvider);
     _initializeExpirationTime(transaction.createdAt);
+    _startCountdown();
   }
 
   @override
@@ -39,6 +40,18 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
       _expirationTime = const Duration(minutes: 4) - timeSinceCreation;
       if (_expirationTime.isNegative) {
         _expirationTime = Duration.zero;
+      }
+    });
+  }
+
+  void _startCountdown() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_expirationTime.inSeconds > 0) {
+        setState(() {
+          _expirationTime -= const Duration(seconds: 1);
+        });
+      } else {
+        timer.cancel();
       }
     });
   }

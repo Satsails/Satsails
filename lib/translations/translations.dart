@@ -1638,6 +1638,14 @@ extension Localization on String {
       {
         'en': "Please wait a few minutes and try again",
         'pt': 'Aguarde alguns minutos e tente novamente'
+      } +
+      {
+        'en': "Invalid CPF",
+        'pt': 'CPF inválido'
+      } +
+      {
+        'en': "Please enter an amount",
+        'pt': 'Por favor, insira uma quantia'
       };
 
   String i18n(WidgetRef ref) {
