@@ -70,7 +70,7 @@ class Settings extends ConsumerWidget {
                   title: const Text('Blockstream', style: TextStyle(color: Colors.white)),
                   onTap: () {
                     ref.read(settingsProvider.notifier).setLiquidElectrumNode('blockstream.info:995');
-                    ref.read(settingsProvider.notifier).setBitcoinElectrumNode('electrum.blockstream.info:50002');
+                    ref.read(settingsProvider.notifier).setBitcoinElectrumNode('blockstream.info:700');
                     ref.read(settingsProvider.notifier).setNodeType('Blockstream');
                     Navigator.pop(context);
                   },

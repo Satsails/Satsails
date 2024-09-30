@@ -33,11 +33,12 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           await ref.read(syncBitcoinProvider.future);
           final bitcoinBalance = await ref.refresh(getBitcoinBalanceProvider.future);
           await bitcoinBox.put('bitcoin', bitcoinBalance.total);
+          ref.read(updateBitcoinTransactionsProvider);
           balanceModel.updateBtcBalance(bitcoinBalance.total);
           await ref.read(syncLiquidProvider.future);
           final liquidBalance = await ref.refresh(liquidBalanceProvider.future);
           await updateLiquidBalances(liquidBalance);
-          ref.read(updateTransactionsProvider);
+          ref.read(updateLiquidTransactionsProvider);
           ref.read(settingsProvider.notifier).setOnline(true);
           await ref.read(claimAndDeleteAllBoltzProvider.future);
           await ref.read(claimAndDeleteAllBitcoinBoltzProvider.future);

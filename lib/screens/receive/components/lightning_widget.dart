@@ -214,7 +214,7 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
                     inputCurrency == 'BTC'
                         ? formattedValueInBtc
                         : inputCurrency == 'Sats'
-                        ? data.btcLimits.minimal.toString()
+                        ? data.lbtcLimits.minimal.toString()
                         : valueToDisplay.toStringAsFixed(2)
                 ),
                 style: const TextStyle(

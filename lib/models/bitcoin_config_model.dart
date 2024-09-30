@@ -35,9 +35,9 @@ class BitcoinConfigModel {
         final blockchain = await Blockchain.create(
             config: BlockchainConfig.electrum(
                 config: ElectrumConfig(
-                    stopGap: 20,
-                    timeout: 2,
-                    retry: 2,
+                    stopGap: 10,
+                    timeout: 5,
+                    retry: 5,
                     url: "ssl://${config.electrumUrl}",
                     validateDomain: false)));
         return blockchain;
@@ -51,7 +51,6 @@ class BitcoinConfigModel {
                   baseUrl: 'https://blockstream.info/api/',
                   stopGap: 10)));
       return blockchain;
-
     }
   }
 
