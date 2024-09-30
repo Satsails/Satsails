@@ -454,7 +454,7 @@ extension Localization on String {
       } +
       {
         'en': 'Swaps',
-        'pt': 'Trocas',
+        'pt': 'Conversões'
       } +
       {
         'en': 'PIN must be exactly 6 digits',
@@ -1658,6 +1658,10 @@ extension Localization on String {
       {
         'en': 'Send with Bitcoin Balance',
         'pt': 'Enviar com Saldo Bitcoin'
+      } +
+      {
+        'en': 'Select Electrum Node',
+        'pt': 'Selecionar um Nó Electrum'
       };
 
   String i18n(WidgetRef ref) {

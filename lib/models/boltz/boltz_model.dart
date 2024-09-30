@@ -238,7 +238,6 @@ class LbtcBoltz {
         network: Chain.liquid,
         electrumUrl: electrumUrl,
         boltzUrl: 'https://api.boltz.exchange/v2',
-        referralId: 'satsails',
       );
     } catch (e) {
       throw 'Error creating swap';
@@ -287,7 +286,6 @@ class LbtcBoltz {
         blindingKey: swap.blindingKey,
         electrumUrl: electrumUrl,
         boltzUrl: swap.boltzUrl,
-        referralId: 'satsails',
       );
       await claimToInvoice.claim(outAddress: receiveAddress, absFee: fees.lbtcReverse.claimFeesEstimate, tryCooperate: true);
       return true;
@@ -326,7 +324,6 @@ class LbtcBoltz {
         network: Chain.liquid,
         electrumUrl: electrumUrl,
         boltzUrl: 'https://api.boltz.exchange/v2',
-        referralId: 'satsails',
       );
     } catch (e) {
       throw 'Error creating swap';

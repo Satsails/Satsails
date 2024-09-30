@@ -76,18 +76,6 @@ class Sideswap {
     }
   }
 
-  void login() {
-    _channel.sink.add(json.encode({
-      'id': 1,
-      'method': 'login_client',
-      'params': {
-        "api_key": "d0f9f22c7eab0f94d66846708025d75fe0b7d63aed805b400ba0c2c3783c1950",
-        "user_agent": "satsails",
-        "version": "1.0"
-      }
-    }));
-  }
-
   void status() {
     _channel.sink.add(json.encode({
       'id': 1,
