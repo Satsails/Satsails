@@ -41,6 +41,8 @@ class Settings extends ConsumerWidget {
             _buildDivider(),
             _buildLanguageSection(ref, context),
             _buildDivider(),
+            _buildElectrumNodeSection(context, ref),
+            _buildDivider(),
             _buildUserSection(context, ref, paymentId),
             _buildDivider(),
             DeleteWalletSection(ref: ref),
@@ -49,7 +51,48 @@ class Settings extends ConsumerWidget {
       ),
     );
   }
-  
+
+  Widget _buildElectrumNodeSection(BuildContext context, WidgetRef ref) {
+    return ListTile(
+      leading: const Icon(Icons.cloud, color: Colors.white),
+      title: Text('Select Electrum Node'.i18n(ref), style: const TextStyle(color: Colors.white)),
+      subtitle: Text(ref.watch(settingsProvider).nodeType, style: TextStyle(color: Colors.grey)),
+      onTap: () {
+        showModalBottomSheet(
+          backgroundColor: Colors.black,
+          context: context,
+          builder: (BuildContext context) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  leading: const Icon(Icons.cloud, color: Colors.white),
+                  title: const Text('Blockstream', style: TextStyle(color: Colors.white)),
+                  onTap: () {
+                    ref.read(settingsProvider.notifier).setLiquidElectrumNode('blockstream.info:995');
+                    ref.read(settingsProvider.notifier).setBitcoinElectrumNode('electrum.blockstream.info:50002');
+                    ref.read(settingsProvider.notifier).setNodeType('Blockstream');
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.cloud, color: Colors.white),
+                  title: const Text('BullBitcoin', style: TextStyle(color: Colors.white)),
+                  onTap: () {
+                    ref.read(settingsProvider.notifier).setLiquidElectrumNode('les.bullbitcoin.com:995');
+                    ref.read(settingsProvider.notifier).setBitcoinElectrumNode('wes.bullbitcoin.com:50002');
+                    ref.read(settingsProvider.notifier).setNodeType('Bull Bitcoin');
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildUserSection(BuildContext context, WidgetRef ref, String paymentId) {
     return ListTile(
       leading: const Icon(Icons.supervised_user_circle_sharp, color: Colors.white),

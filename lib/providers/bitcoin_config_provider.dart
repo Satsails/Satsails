@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:Satsails/models/bitcoin_config_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,12 +10,14 @@ final bitcoinConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
   if (mnemonic == null || mnemonic.isEmpty) {
     throw Exception('Mnemonic is null or empty');
   }
+  final electrumUrl = ref.watch(settingsProvider).bitcoinElectrumNode;
   return BitcoinConfig(
     mnemonic: mnemonic,
     network: Network.bitcoin,
     externalKeychain: KeychainKind.externalChain,
     internalKeychain: KeychainKind.internalChain,
     isElectrumBlockchain: true,
+    electrumUrl: electrumUrl,
   );
 });
 

@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk_dart/lwk_dart.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
@@ -8,8 +9,9 @@ import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 
 final initializeLiquidProvider = FutureProvider<Liquid>((ref) {
+  final electrumUrl = ref.watch(settingsProvider).liquidElectrumNode;
   return ref.watch(liquidConfigProvider.future).then((config) {
-    return Liquid(liquid: config, electrumUrl: 'les.bullbitcoin.com:995');
+    return Liquid(liquid: config, electrumUrl: electrumUrl);
   });
 });
 
