@@ -268,7 +268,7 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
 
   Future<void> checkTransactionStatus() async {
     try {
-      final data = await ref.read(claimSingleBoltzTransactionProvider(transactionId).future);
+      final data = await ref.read(claimSingleBitcoinBoltzTransactionProvider(transactionId).future);
       if (data) {
         await showDialog(
           context: context,

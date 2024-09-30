@@ -1646,6 +1646,18 @@ extension Localization on String {
       {
         'en': "Please enter an amount",
         'pt': 'Por favor, insira uma quantia'
+      }  +
+      {
+        'en': "Swap failed, please contact support",
+        'pt': 'Troca falhou, por favor, contate o suporte'
+      } +
+      {
+        'en': 'Send with Liquid Balance',
+        'pt': 'Enviar com Saldo Liquid'
+      } +
+      {
+        'en': 'Send with Bitcoin Balance',
+        'pt': 'Enviar com Saldo Bitcoin'
       };
 
   String i18n(WidgetRef ref) {

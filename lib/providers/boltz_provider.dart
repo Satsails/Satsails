@@ -100,10 +100,14 @@ final claimAndDeleteAllBoltzProvider = FutureProvider.autoDispose<void>((ref) as
     final currentLiquidTip = await getCurrentBlockHeight();
 
     for (var item in receive) {
-      if (item.swapScript.locktime < currentLiquidTip) {
-        receiveBox.delete(item.swap.id);
-      } else {
-        await ref.read(claimSingleBoltzTransactionProvider(item.swap.id).future).then((value) => value);
+      try {
+        if (item.swapScript.locktime < currentLiquidTip) {
+          receiveBox.delete(item.swap.id);
+        } else {
+          await ref.read(claimSingleBoltzTransactionProvider(item.swap.id).future).then((value) => value);
+        }
+      } catch (_) {
+        // Ignore any errors for this item and continue to the next
       }
     }
   } catch (_) {
@@ -203,10 +207,14 @@ final claimAndDeleteAllBitcoinBoltzProvider = FutureProvider.autoDispose<void>((
     final currentBitcoinTip = await getCurrentBitcoinBlockHeight();
 
     for (var item in receive) {
-      if (item.swapScript.locktime < currentBitcoinTip) {
-        receiveBox.delete(item.swap.id);
-      } else {
-        await ref.read(claimSingleBitcoinBoltzTransactionProvider(item.swap.id).future).then((value) => value);
+      try {
+        if (item.swapScript.locktime < currentBitcoinTip) {
+          receiveBox.delete(item.swap.id);
+        } else {
+          await ref.read(claimSingleBitcoinBoltzTransactionProvider(item.swap.id).future).then((value) => value);
+        }
+      } catch (_) {
+        // Ignore any errors for this item and continue to the next
       }
     }
   } catch (_) {
