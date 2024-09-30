@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -31,11 +32,15 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           final bitcoinBox = await Hive.openBox('bitcoin');
           final balanceModel = ref.read(balanceNotifierProvider.notifier);
           await ref.read(syncBitcoinProvider.future);
+          final address = await ref.refresh(lastUsedAddressProvider.future);
+          ref.read(addressProvider.notifier).setBitcoinAddress(address);
           final bitcoinBalance = await ref.refresh(getBitcoinBalanceProvider.future);
           await bitcoinBox.put('bitcoin', bitcoinBalance.total);
           ref.read(updateBitcoinTransactionsProvider);
           balanceModel.updateBtcBalance(bitcoinBalance.total);
           await ref.read(syncLiquidProvider.future);
+          final liquidAddress = await ref.refresh(liquidLastUsedAddressProvider.future);
+          ref.read(addressProvider.notifier).setLiquidAddress(liquidAddress);
           final liquidBalance = await ref.refresh(liquidBalanceProvider.future);
           await updateLiquidBalances(liquidBalance);
           ref.read(updateLiquidTransactionsProvider);

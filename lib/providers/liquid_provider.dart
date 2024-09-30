@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk_dart/lwk_dart.dart';
@@ -22,24 +23,33 @@ final syncLiquidProvider = FutureProvider.autoDispose<void>((ref) {
   });
 });
 
-final liquidAddressProvider = FutureProvider.autoDispose<Address>((ref) {
+final liquidLastUsedAddressProvider = FutureProvider.autoDispose<int>((ref) async {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     return liquidModel.getAddress();
   });
 });
 
+final liquidAddressProvider = FutureProvider.autoDispose<Address>((ref) {
+  return ref.watch(initializeLiquidProvider.future).then((liquid) {
+    LiquidModel liquidModel = LiquidModel(liquid);
+    final addressIndex = ref.watch(addressProvider).liquidAddressIndex;
+    return liquidModel.getAddressOfIndex(addressIndex);
+  });
+});
+
 final liquidAddressOfIndexProvider = FutureProvider.autoDispose.family<String, int>((ref, index) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
-    return liquidModel.getAddressOfIndex(index);
+    return liquidModel.getAddressOfIndexString(index);
   });
 });
 
 final liquidNextAddressProvider = FutureProvider.autoDispose<String>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
-    return liquidModel.getNextAddress();
+    final addressIndex = ref.watch(addressProvider).liquidAddressIndex;
+    return liquidModel.getAddressOfIndexString(addressIndex + 1);
   });
 });
 

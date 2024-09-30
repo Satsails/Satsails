@@ -9,18 +9,17 @@ class LiquidModel {
 
   LiquidModel(this.config);
 
-  Future<Address> getAddress() async {
+  Future<int> getAddress() async {
     final address = await config.liquid.wallet.addressLastUnused();
+    return address.index;
+  }
+
+  Future<Address> getAddressOfIndex(int index) async {
+    final address = await config.liquid.wallet.address(index: index);
     return address;
   }
 
-  Future<String> getNextAddress() async {
-    final lastUnused = await config.liquid.wallet.addressLastUnused();
-    final address = await config.liquid.wallet.address(index: lastUnused.index + 1);
-    return address.confidential;
-  }
-
-  Future<String> getAddressOfIndex(int index) async {
+  Future<String> getAddressOfIndexString(int index) async {
     final address = await config.liquid.wallet.address(index: index);
     return address.confidential;
   }

@@ -18,8 +18,8 @@ class Exchange extends ConsumerWidget {
     return PopScope(
       onPopInvoked: (pop) async {
         ref.read(sendTxProvider.notifier).resetToDefault();
-        ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
         ref.read(sendBlocksProvider.notifier).state = 1;
+        ref.read(selectedButtonProvider.notifier).state = "Swap";
       },
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -31,8 +31,8 @@ class Exchange extends ConsumerWidget {
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
               ref.read(sendTxProvider.notifier).resetToDefault();
-              ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
               ref.read(sendBlocksProvider.notifier).state = 1;
+              ref.read(selectedButtonProvider.notifier).state = "Swap";
               Navigator.pop(context);
             },
           ),
@@ -42,8 +42,8 @@ class Exchange extends ConsumerWidget {
             const ButtonPicker(),
             // OfflineTransactionWarning(online: online),
             SizedBox(height: dynamicSizedBox),
-            if(button == 'Bitcoin Layer Swap') const Expanded(child: Peg()),
             if(button == 'Swap') const Expanded(child: LiquidSwapCards()),
+            if(button == 'Bitcoin Layer Swap') const Expanded(child: Peg()),
           ],
         ),
       ),
