@@ -1662,6 +1662,10 @@ extension Localization on String {
       {
         'en': 'Select Electrum Node',
         'pt': 'Selecionar um Nó Electrum'
+      } +
+      {
+        'en': 'Convert your DEPIX to bitcoin',
+        'pt': 'Converta seus DEPIX em bitcoin'
       };
 
   String i18n(WidgetRef ref) {
