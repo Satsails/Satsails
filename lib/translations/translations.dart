@@ -1666,6 +1666,10 @@ extension Localization on String {
       {
         'en': 'Convert your DEPIX to bitcoin',
         'pt': 'Converta seus DEPIX em bitcoin'
+      } +
+      {
+        'en': 'Your balance will update soon',
+        'pt': 'Seu saldo será atualizado em breve'
       };
 
   String i18n(WidgetRef ref) {

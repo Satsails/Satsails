@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/delete_wallet_modal.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -72,6 +73,7 @@ class Settings extends ConsumerWidget {
                     ref.read(settingsProvider.notifier).setLiquidElectrumNode('blockstream.info:995');
                     ref.read(settingsProvider.notifier).setBitcoinElectrumNode('blockstream.info:700');
                     ref.read(settingsProvider.notifier).setNodeType('Blockstream');
+                    ref.read(backgroundSyncNotifierProvider).performSync();
                     Navigator.pop(context);
                   },
                 ),
@@ -82,6 +84,7 @@ class Settings extends ConsumerWidget {
                     ref.read(settingsProvider.notifier).setLiquidElectrumNode('les.bullbitcoin.com:995');
                     ref.read(settingsProvider.notifier).setBitcoinElectrumNode('wes.bullbitcoin.com:50002');
                     ref.read(settingsProvider.notifier).setNodeType('Bull Bitcoin');
+                    ref.read(backgroundSyncNotifierProvider).performSync();
                     Navigator.pop(context);
                   },
                 ),
