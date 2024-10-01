@@ -13,7 +13,7 @@ class DepixConvertWarning extends ConsumerWidget {
 
     final dynamicFontSize = screenSize.width * 0.04;
 
-    return depixConvertWarning >= 0
+    return depixConvertWarning >= 2000000000
         ? Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
