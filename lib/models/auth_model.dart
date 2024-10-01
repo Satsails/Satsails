@@ -98,6 +98,7 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('pix');
     await Hive.deleteBoxFromDisk('user');
     await Hive.deleteBoxFromDisk('affiliate');
+    await Hive.deleteBoxFromDisk('addresses');
     await SecureKeyManager.deleteKey();
     await PusherBeams.instance.clearAllState();
   }

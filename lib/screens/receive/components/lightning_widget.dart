@@ -214,7 +214,7 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
                     inputCurrency == 'BTC'
                         ? formattedValueInBtc
                         : inputCurrency == 'Sats'
-                        ? data.btcLimits.minimal.toString()
+                        ? data.lbtcLimits.minimal.toString()
                         : valueToDisplay.toStringAsFixed(2)
                 ),
                 style: const TextStyle(
@@ -268,7 +268,7 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
 
   Future<void> checkTransactionStatus() async {
     try {
-      final data = await ref.read(claimSingleBoltzTransactionProvider(transactionId).future);
+      final data = await ref.read(claimSingleBitcoinBoltzTransactionProvider(transactionId).future);
       if (data) {
         await showDialog(
           context: context,

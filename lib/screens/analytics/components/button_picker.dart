@@ -40,7 +40,7 @@ class ButtonPicker extends ConsumerWidget {
             ref.read(transactionTypeShowProvider.notifier).state = "Bitcoin";
         }
       },
-      buttons: ["Bitcoin", "Instant".i18n(ref), 'Swaps'.i18n(ref)],
+      buttons: ["Bitcoin", "Liquid".i18n(ref), 'Swaps'.i18n(ref)],
       options: GroupButtonOptions(
         unselectedTextStyle: TextStyle(
             fontSize: screenWidth * 0.035, color: Colors.orange),

@@ -44,21 +44,31 @@ final liquidTransactionsByDate = StateProvider.autoDispose<List<dynamic>>((ref) 
   return ref.watch(transactionNotifierProvider).filterLiquidTransactions(dateTimeRange);
 });
 
-final updateTransactionsProvider = FutureProvider.autoDispose<void>((ref) async {
-  try{
+final updateBitcoinTransactionsProvider = FutureProvider.autoDispose<void>((ref) async {
+  try {
     final bitcoinBox = await Hive.openBox('bitcoin');
     final transactionProvider = ref.read(transactionNotifierProvider.notifier);
     final bitcoinTransactions = await ref.refresh(getBitcoinTransactionsProvider.future);
     List<TransactionDetails> bitcoinTransactionsHive = bitcoinTransactions.map((transaction) => TransactionDetails.fromBdk(transaction)).toList();
+
     if (bitcoinTransactions.isNotEmpty) {
       await bitcoinBox.put('bitcoinTransactions', bitcoinTransactionsHive);
       if (transactionProvider.mounted) {
         transactionProvider.updateBitcoinTransactions(bitcoinTransactionsHive);
       }
     }
-    final liquidTransactions = await ref.refresh(liquidTransactionsProvider.future);
+  } catch (e) {
+    rethrow;
+  }
+});
+
+final updateLiquidTransactionsProvider = FutureProvider.autoDispose<void>((ref) async {
+  try {
     final liquidBox = await Hive.openBox('liquid');
+    final transactionProvider = ref.read(transactionNotifierProvider.notifier);
+    final liquidTransactions = await ref.refresh(liquidTransactionsProvider.future);
     List<Tx> liquidTransactionsHive = liquidTransactions.map((transaction) => Tx.fromLwk(transaction)).toList();
+
     if (liquidTransactions.isNotEmpty) {
       await liquidBox.put('liquidTransactions', liquidTransactionsHive);
       if (transactionProvider.mounted) {
@@ -69,3 +79,5 @@ final updateTransactionsProvider = FutureProvider.autoDispose<void>((ref) async 
     rethrow;
   }
 });
+
+

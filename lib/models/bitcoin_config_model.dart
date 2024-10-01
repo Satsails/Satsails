@@ -33,12 +33,12 @@ class BitcoinConfigModel {
     if (config.isElectrumBlockchain) {
       try {
         final blockchain = await Blockchain.create(
-            config: const BlockchainConfig.electrum(
+            config: BlockchainConfig.electrum(
                 config: ElectrumConfig(
-                    stopGap: 20,
-                    timeout: 2,
-                    retry: 2,
-                    url: "ssl://wes.bullbitcoin.com:50002",
+                    stopGap: 10,
+                    timeout: 5,
+                    retry: 5,
+                    url: "ssl://${config.electrumUrl}",
                     validateDomain: false)));
         return blockchain;
       } catch (_) {
@@ -51,7 +51,6 @@ class BitcoinConfigModel {
                   baseUrl: 'https://blockstream.info/api/',
                   stopGap: 10)));
       return blockchain;
-
     }
   }
 
@@ -71,6 +70,7 @@ class BitcoinConfig {
   final KeychainKind externalKeychain;
   final KeychainKind internalKeychain;
   final bool isElectrumBlockchain;
+  final String electrumUrl;
 
   BitcoinConfig({
     required this.mnemonic,
@@ -78,5 +78,6 @@ class BitcoinConfig {
     required this.externalKeychain,
     required this.internalKeychain,
     required this.isElectrumBlockchain,
+    required this.electrumUrl,
   });
 }

@@ -17,7 +17,6 @@ final sideswapServiceProvider = StateProvider.autoDispose<Sideswap>((ref) {
   ref.watch(appLifecycleStateProvider);
   final service = Sideswap();
   service.connect();
-  service.login();
 
   ref.onDispose(
     () => service.close(),

@@ -4,7 +4,6 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 class Sideswap {
   late WebSocketChannel _channel;
-  final _loginController = StreamController<Map<String, dynamic>>.broadcast();
   final _statusController = StreamController<Map<String, dynamic>>.broadcast();
   final _pegController = StreamController<Map<String, dynamic>>.broadcast();
   final _pegStatusController = StreamController<Map<String, dynamic>>.broadcast();
@@ -13,7 +12,6 @@ class Sideswap {
   final _exchangeController = StreamController<Map<String, dynamic>>.broadcast();
   final _exchangeDoneController = StreamController<Map<String, dynamic>>.broadcast();
 
-  Stream<Map<String, dynamic>> get loginStream => _loginController.stream;
   Stream<Map<String, dynamic>> get statusStream => _statusController.stream;
   Stream<Map<String, dynamic>> get pegStream => _pegController.stream;
   Stream<Map<String, dynamic>> get pegStatusStream => _pegStatusController.stream;
@@ -40,9 +38,6 @@ class Sideswap {
   void handleIncomingMessage(dynamic message) {
     var decodedMessage = json.decode(message);
     switch (decodedMessage['method']) {
-      case 'login_client':
-        _loginController.add(decodedMessage);
-        break;
       case 'server_status':
         _statusController.add(decodedMessage);
         break;
@@ -74,18 +69,6 @@ class Sideswap {
           throw Exception('Unknown method: ${decodedMessage['method']}');
         }
     }
-  }
-
-  void login() {
-    _channel.sink.add(json.encode({
-      'id': 1,
-      'method': 'login_client',
-      'params': {
-        "api_key": "d0f9f22c7eab0f94d66846708025d75fe0b7d63aed805b400ba0c2c3783c1950",
-        "user_agent": "satsails",
-        "version": "1.0"
-      }
-    }));
   }
 
   void status() {
@@ -173,7 +156,6 @@ class Sideswap {
 
   void close() {
     _channel.sink.close();
-    _loginController.close();
     _statusController.close();
     _pegController.close();
     _pegStatusController.close();
