@@ -11,15 +11,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 class LightningWidget extends ConsumerStatefulWidget {
+  final String? selectedCurrency;
 
-  const LightningWidget({Key? key }) : super(key: key);
+  const LightningWidget({Key? key, this.selectedCurrency}) : super(key: key);
 
   @override
   _LightningWidgetState createState() => _LightningWidgetState();
 }
 
 class _LightningWidgetState extends ConsumerState<LightningWidget> {
-  String selectedCurrency = 'Liquid';
+  late String selectedCurrency;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedCurrency = widget.selectedCurrency ?? 'Liquid';
+  }
 
   @override
   Widget build(BuildContext context) {
