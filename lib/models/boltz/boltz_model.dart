@@ -241,7 +241,6 @@ class LbtcBoltz {
         network: Chain.liquid,
         electrumUrl: electrumUrl,
         boltzUrl: 'https://api.boltz.exchange/v2',
-       
       );
     } catch (e) {
       throw 'Error creating swap';
@@ -277,8 +276,10 @@ class LbtcBoltz {
     required ReverseFeesAndLimits fees,
     required String electrumUrl,
   }) async {
+    LbtcLnSwap? claimToInvoice; // Declare the variable outside the try-catch
     try {
-      final claimToInvoice = await LbtcLnSwap.newInstance(
+      // Initialize the claimToInvoice inside the try block
+      claimToInvoice = await LbtcLnSwap.newInstance(
         id: swap.id,
         kind: swap.kind,
         network: swap.network,
@@ -293,7 +294,13 @@ class LbtcBoltz {
         electrumUrl: electrumUrl,
         boltzUrl: swap.boltzUrl,
       );
-      await claimToInvoice.claim(outAddress: receiveAddress, absFee: fees.lbtcFees.minerFees.lockup, tryCooperate: true);
+
+      final hex = await claimToInvoice.claim(
+        outAddress: receiveAddress,
+        absFee: fees.lbtcFees.minerFees.lockup,
+        tryCooperate: true,
+      );
+      await claimToInvoice.broadcastBoltz(signedHex: hex);
       return true;
     } catch (e) {
       return false;
@@ -330,7 +337,6 @@ class LbtcBoltz {
         network: Chain.liquid,
         electrumUrl: electrumUrl,
         boltzUrl: 'https://api.boltz.exchange/v2',
-       
       );
     } catch (e) {
       throw 'Error creating swap';
@@ -384,23 +390,16 @@ class LbtcBoltz {
         electrumUrl: electrumUrl,
         boltzUrl: swap.boltzUrl,
       );
-      await refund.refund(outAddress: outAddress,
-          absFee: fees.lbtcFees.minerFees,
-          tryCooperate: tryCooperate);
+      final hex = await refund.refund(
+        outAddress: outAddress,
+        absFee: fees.lbtcFees.minerFees,
+        tryCooperate: tryCooperate,
+      );
+      refund.broadcastBoltz(signedHex: hex);
       return true;
     } catch (e) {
-      try {
-        if (refund != null) {
-          await refund.refund(outAddress: outAddress,
-              absFee: fees.lbtcFees.minerFees,
-              tryCooperate: false);
-          return true;
-        }
-      } catch (e) {
-        return false;
-      }
+      return false;
     }
-    return false;
   }
 }
 
@@ -430,7 +429,7 @@ class BtcSwapScriptV2StrAdapter extends TypeAdapter<BtcSwapScriptStr> {
   @override
   void write(BinaryWriter writer, BtcSwapScriptStr obj) {
     writer.writeByte(obj.swapType.index);
-    writer.writeString(obj.fundingAddrs?? '',);
+    writer.writeString(obj.fundingAddrs?? '');
     writer.writeString(obj.hashlock);
     writer.writeString(obj.receiverPubkey);
     writer.writeInt(obj.locktime);
@@ -562,8 +561,10 @@ class BtcBoltz {
     required int keyIndex,
     required String electrumUrl,
   }) async {
+    BtcLnSwap? claimToInvoice;
     try {
-      final claimToInvoice = await BtcLnSwap.newInstance(
+      // Create the instance of BtcLnSwap
+      claimToInvoice = await BtcLnSwap.newInstance(
         id: swap.id,
         kind: swap.kind,
         network: swap.network,
@@ -577,7 +578,14 @@ class BtcBoltz {
         electrumUrl: electrumUrl,
         boltzUrl: swap.boltzUrl,
       );
-      await claimToInvoice.claim(outAddress: receiveAddress, absFee: fees.btcFees.minerFees.lockup, tryCooperate: true);
+
+      final hex = await claimToInvoice.claim(
+        outAddress: receiveAddress,
+        absFee: fees.btcFees.minerFees.claim,
+        tryCooperate: true,
+      );
+
+      await claimToInvoice.broadcastBoltz(signedHex: hex);
       return true;
     } catch (e) {
       return false;
@@ -665,18 +673,15 @@ class BtcBoltz {
         electrumUrl: electrumUrl,
         boltzUrl: swap.boltzUrl,
       );
-      await refund.refund(outAddress: outAddress, absFee: fees.btcFees.minerFees, tryCooperate: tryCooperate);
+      final hex = await refund.refund(
+        outAddress: outAddress,
+        absFee: fees.btcFees.minerFees,
+        tryCooperate: tryCooperate,
+      );
+      refund.broadcastBoltz(signedHex: hex);
       return true;
     } catch (e) {
-      try {
-        if (refund != null) {
-          await refund.refund(outAddress: outAddress, absFee: fees.btcFees.minerFees, tryCooperate: false);
-          return true;
-        }
-      } catch (e) {
-        return false;
-      }
+      return false;
     }
-    return false;
   }
 }
