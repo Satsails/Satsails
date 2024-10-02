@@ -1,6 +1,7 @@
 import 'package:Satsails/screens/creation/components/logo.dart';
 import 'package:Satsails/screens/home/components/bitcoin_price_history_graph.dart';
 import 'package:Satsails/screens/shared/backup_warning.dart';
+import 'package:Satsails/screens/shared/depix_convert_warning.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,6 +57,7 @@ class Home extends ConsumerWidget {
       children: [
         const BackupWarning(),
         buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
+        const DepixConvertWarning(),
         SizedBox(height: screenHeight * 0.01),
         buildActionButtons(context, ref),
         SizedBox(height: screenHeight * 0.01),

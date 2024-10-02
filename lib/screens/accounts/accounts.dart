@@ -349,7 +349,7 @@ class Accounts extends ConsumerWidget {
                     } else if (title == 'Bitcoin') {
                       _receivePayment(context, bitcoin, ref);
                     } else {
-                      // Handle other cases if needed
+                      _showLiquidAddress(context, bitcoin, ref);
                     }
                   },
                   child: Row(
@@ -384,6 +384,71 @@ class Accounts extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showLiquidAddress(BuildContext context, dynamic liquid, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.black,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      ),
+      builder: (BuildContext context) {
+        final screenSize = MediaQuery.of(context).size;
+        return FutureBuilder<dynamic>(
+          future: liquid,
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: LoadingAnimationWidget.threeArchedCircle(
+                    size: 200, color: Colors.orange),
+              );
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (snapshot.hasData) {
+              final String address = snapshot.data is String
+                  ? snapshot.data
+                  : snapshot.data.confidential;
+              return Container(
+                decoration: const BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(50.0)),
+                ),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: 1,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Column(
+                      children: [
+                        Center(
+                          child: Padding(
+                            padding:
+                            EdgeInsets.only(top: screenSize.height * 0.02),
+                            child: Text(
+                              'Receive'.i18n(ref),
+                              style: TextStyle(
+                                  fontSize: screenSize.width * 0.06,
+                                  color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        buildQrCode(address, context),
+                        SizedBox(height: screenSize.height * 0.02),
+                        buildAddressText(address, context, ref),
+                        SizedBox(height: screenSize.height * 0.02),
+                      ],
+                    );
+                  },
+                ),
+              );
+            } else {
+              return const Center(child: Text('No data'));
+            }
+          },
+        );
+      },
     );
   }
 

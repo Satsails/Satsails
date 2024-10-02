@@ -1,12 +1,12 @@
 import 'package:boltz_dart/boltz_dart.dart';
-import 'package:lwk_dart/lwk_dart.dart';
+import 'package:lwk_dart/lwk_dart.dart' as lwk;
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/address_model.dart';
 
 Future<bool> isValidLiquidAddress(String address) async {
   try {
-    await Address.validate(addressString: address).then((value) => value);
+    await lwk.Address.validate(addressString: address).then((value) => value);
     return true;
   } catch (_) {
     return false;
@@ -26,7 +26,7 @@ Future<DecodedInvoice> isValidLightningAddress(String invoice) async {
   try {
     final res = await DecodedInvoice.fromString(
       s: invoice,
-      boltzUrl: 'https://api.boltz.exchange',
+      boltzUrl: 'https://api.boltz.exchange/v2',
     );
     return res;
   } catch (e) {

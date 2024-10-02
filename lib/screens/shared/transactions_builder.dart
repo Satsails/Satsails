@@ -66,7 +66,9 @@ class BuildTransactions extends ConsumerWidget {
             height: screenHeight * 0.75, // Use 75% of screen height for the modal sheet
             child: LiquidPullToRefresh(
               onRefresh: () async {
-                ref.read(backgroundSyncNotifierProvider).performSync();
+                await ref.read(backgroundSyncNotifierProvider).performSync();
+                ref.refresh(bitcoinTransactionsByDate);
+                ref.refresh(liquidTransactionsByDate);
               },
               color: Colors.orange,
               showChildOpacityTransition: false,

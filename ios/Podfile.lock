@@ -5,7 +5,7 @@ PODS:
   - Crisp (2.5.5):
     - Crisp/Crisp (= 2.5.5)
   - Crisp/Crisp (2.5.5)
-  - crisp_chat (2.0.4):
+  - crisp_chat (2.0.6):
     - Crisp
     - Flutter
   - Flutter (1.0.0)
@@ -128,7 +128,7 @@ SPEC CHECKSUMS:
   bdk_flutter: af166bdb3f24fa9bac1de94772973f76302cb1c1
   boltz_dart: 7ebb80d3776711efacb5823a3d9a9bb1221bac95
   Crisp: dcf7d9e64be6614ceee71c5582f616212ed4a881
-  crisp_chat: e0b3294cfd6cabd60673cad0ed9ba9e6b9d53714
+  crisp_chat: 306dad2ec547c9cb8bd3c52f9fb4fb23dd6b3c9f
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086

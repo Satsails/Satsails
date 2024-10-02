@@ -1,6 +1,8 @@
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
@@ -11,9 +13,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 class LightningWidget extends ConsumerStatefulWidget {
-  final String? selectedCurrency;
+  final String selectedCurrency;
 
-  const LightningWidget({Key? key, this.selectedCurrency}) : super(key: key);
+  const LightningWidget({Key? key, this.selectedCurrency = 'Liquid'}) : super(key: key);
 
   @override
   _LightningWidgetState createState() => _LightningWidgetState();
@@ -25,14 +27,13 @@ class _LightningWidgetState extends ConsumerState<LightningWidget> {
   @override
   void initState() {
     super.initState();
-    selectedCurrency = widget.selectedCurrency ?? 'Liquid';
+    selectedCurrency = widget.selectedCurrency;
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Receive in Dropdown
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -84,8 +85,7 @@ class _LightningWidgetState extends ConsumerState<LightningWidget> {
 
 
 class LiquidReceiveWidget extends ConsumerStatefulWidget {
-
-  const LiquidReceiveWidget({Key? key }) : super(key: key);
+  const LiquidReceiveWidget({Key? key}) : super(key: key);
 
   @override
   _LiquidReceiveWidgetState createState() => _LiquidReceiveWidgetState();
@@ -95,6 +95,7 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
   late TextEditingController controller;
   String transactionId = '';
   bool showInvoice = false;
+  Future<BtcBoltz>? _boltzSwapFuture;
 
   @override
   void initState() {
@@ -187,15 +188,58 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
+    final fees = ref.watch(boltzReverseFeesProvider);
 
     return Column(
       children: [
         AmountInput(controller: controller),
-        SizedBox(height: height * 0.02),
         CustomElevatedButton(
           onPressed: _onCreateInvoice,
           text: 'Create Address'.i18n(ref),
           controller: controller,
+        ),
+        SizedBox(height: height * 0.02),
+        fees.when(
+          data: (data) {
+            final inputCurrency = ref.watch(inputCurrencyProvider);
+            final currencyRate = ref.read(selectedCurrencyProvider(inputCurrency));
+            final formattedValueInBtc = btcInDenominationFormatted(data.lbtcLimits.minimal.toDouble(), 'BTC');
+            final valueToDisplay = currencyRate * double.parse(formattedValueInBtc);
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                'Minimum amount:'.i18n(ref) + ' ' + (
+                    inputCurrency == 'BTC'
+                        ? formattedValueInBtc
+                        : inputCurrency == 'Sats'
+                        ? data.lbtcLimits.minimal.toString()
+                        : valueToDisplay.toStringAsFixed(2)
+                ),
+                style: const TextStyle(
+                  color: Colors.grey,
+                ),
+              ),
+            );
+          },
+          loading: () => Center(
+            child: LoadingAnimationWidget.threeRotatingDots(color: Colors.grey, size: 20),
+          ),
+          error: (error, stack) => Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.6,
+              height: MediaQuery.of(context).size.width * 0.6,
+              alignment: Alignment.center,
+              child: Text(
+                'Unable to get minimum amount'.i18n(ref),
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
         ),
         if (showInvoice)
           Consumer(
@@ -259,8 +303,7 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
 }
 
 class BitcoinReceiveWidget extends ConsumerStatefulWidget {
-
-  const BitcoinReceiveWidget({Key? key }) : super(key: key);
+  const BitcoinReceiveWidget({super.key});
 
   @override
   _BitcoinReceiveWidgetState createState() => _BitcoinReceiveWidgetState();
@@ -302,7 +345,7 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
 
   Future<void> checkTransactionStatus() async {
     try {
-      final data = await ref.read(claimSingleBoltzTransactionProvider(transactionId).future);
+      final data = await ref.read(claimSingleBitcoinBoltzTransactionProvider(transactionId).future);
       if (data) {
         await showDialog(
           context: context,
@@ -363,6 +406,9 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final fees = ref.watch(boltzReverseFeesProvider);
+    final height = MediaQuery.of(context).size.height;
+
     return Column(
       children: [
         AmountInput(controller: controller),
@@ -370,6 +416,50 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
           onPressed: _onCreateInvoice,
           text: 'Create Address'.i18n(ref),
           controller: controller,
+        ),
+        SizedBox(height: height * 0.02),
+        fees.when(
+          data: (data) {
+            final inputCurrency = ref.watch(inputCurrencyProvider);
+            final currencyRate = ref.read(selectedCurrencyProvider(inputCurrency));
+            final formattedValueInBtc = btcInDenominationFormatted(data.btcLimits.minimal.toDouble(), 'BTC');
+            final valueToDisplay = currencyRate * double.parse(formattedValueInBtc);
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                'Minimum amount:'.i18n(ref) + ' ' + (
+                    inputCurrency == 'BTC'
+                        ? formattedValueInBtc
+                        : inputCurrency == 'Sats'
+                        ? data.btcLimits.minimal.toString()
+                        : valueToDisplay.toStringAsFixed(2)
+                ),
+                style: const TextStyle(
+                  color: Colors.grey,
+                ),
+              ),
+            );
+          },
+          loading: () => Center(
+            child: LoadingAnimationWidget.threeRotatingDots(color: Colors.grey, size: 20),
+          ),
+          error: (error, stack) => Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.6,
+              height: MediaQuery.of(context).size.width * 0.6,
+              alignment: Alignment.center,
+              child: Text(
+                'Unable to get minimum amount'.i18n(ref),
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
         ),
         if (showInvoice)
           FutureBuilder<BtcBoltz>(

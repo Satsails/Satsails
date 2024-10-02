@@ -218,6 +218,7 @@ class LbtcBoltz {
     required String address,
     required int amount,
     required int index,
+    required String electrumUrl,
   }) async {
     if (amount == 0) {
       throw 'Set an amount to create a lightning invoice';
@@ -238,9 +239,9 @@ class LbtcBoltz {
         outAddress: address,
         outAmount: amount,
         network: Chain.liquid,
-        electrumUrl: 'les.bullbitcoin.com:995',
+        electrumUrl: electrumUrl,
         boltzUrl: 'https://api.boltz.exchange/v2',
-        referralId: 'satsails',
+       
       );
     } catch (e) {
       throw 'Error creating swap';
@@ -257,7 +258,7 @@ class LbtcBoltz {
       outAmount: result.outAmount,
       scriptAddress: result.scriptAddress,
       blindingKey: result.blindingKey,
-      electrumUrl: result.electrumUrl,
+      electrumUrl: electrumUrl,
       boltzUrl: result.boltzUrl,
     );
 
@@ -274,6 +275,7 @@ class LbtcBoltz {
     required String receiveAddress,
     required int keyIndex,
     required ReverseFeesAndLimits fees,
+    required String electrumUrl,
   }) async {
     try {
       final claimToInvoice = await LbtcLnSwap.newInstance(
@@ -288,11 +290,10 @@ class LbtcBoltz {
         invoice: swap.invoice,
         outAddress: swap.scriptAddress,
         blindingKey: swap.blindingKey,
-        electrumUrl: swap.electrumUrl,
+        electrumUrl: electrumUrl,
         boltzUrl: swap.boltzUrl,
-        referralId: 'satsails',
       );
-      await claimToInvoice.claim(outAddress: receiveAddress, absFee: fees.lbtcFees.minerFees.claim, tryCooperate: true);
+      await claimToInvoice.claim(outAddress: receiveAddress, absFee: fees.lbtcFees.minerFees.lockup, tryCooperate: true);
       return true;
     } catch (e) {
       return false;
@@ -305,6 +306,7 @@ class LbtcBoltz {
     required String invoice,
     required int amount,
     required int index,
+    required String electrumUrl,
   }) async {
     if (amount == 0) {
       throw 'Amount cannot be 0';
@@ -326,9 +328,9 @@ class LbtcBoltz {
         index: index,
         invoice: invoice,
         network: Chain.liquid,
-        electrumUrl: 'les.bullbitcoin.com:995',
+        electrumUrl: electrumUrl,
         boltzUrl: 'https://api.boltz.exchange/v2',
-        referralId: 'satsails',
+       
       );
     } catch (e) {
       throw 'Error creating swap';
@@ -345,7 +347,7 @@ class LbtcBoltz {
       outAmount: result.outAmount,
       scriptAddress: result.scriptAddress,
       blindingKey: result.blindingKey,
-      electrumUrl: result.electrumUrl,
+      electrumUrl: electrumUrl,
       boltzUrl: result.boltzUrl,
     );
 
@@ -363,6 +365,7 @@ class LbtcBoltz {
     required SubmarineFeesAndLimits fees,
     required bool tryCooperate,
     required int keyIndex,
+    required String electrumUrl,
   }) async {
     LbtcLnSwap? refund;
     try {
@@ -378,7 +381,7 @@ class LbtcBoltz {
         outAmount: swap.outAmount,
         outAddress: swap.scriptAddress,
         blindingKey: swap.blindingKey,
-        electrumUrl: swap.electrumUrl,
+        electrumUrl: electrumUrl,
         boltzUrl: swap.boltzUrl,
       );
       await refund.refund(outAddress: outAddress,
@@ -502,6 +505,7 @@ class BtcBoltz {
     required String address,
     required int amount,
     required int index,
+    required String electrumUrl,
   }) async {
     if (amount == 0) {
       throw 'Set an amount to create a lightning invoice';
@@ -522,7 +526,7 @@ class BtcBoltz {
         outAmount: amount,
         outAddress: address,
         network: Chain.bitcoin,
-        electrumUrl: 'wes.bullbitcoin.com:50002',
+        electrumUrl: electrumUrl,
         boltzUrl: 'https://api.boltz.exchange/v2',
       );
     } catch (e) {
@@ -539,7 +543,7 @@ class BtcBoltz {
       invoice: result.invoice,
       outAmount: result.outAmount,
       scriptAddress: result.scriptAddress,
-      electrumUrl: result.electrumUrl,
+      electrumUrl: electrumUrl,
       boltzUrl: result.boltzUrl,
     );
 
@@ -556,6 +560,7 @@ class BtcBoltz {
     required String receiveAddress,
     required ReverseFeesAndLimits fees,
     required int keyIndex,
+    required String electrumUrl,
   }) async {
     try {
       final claimToInvoice = await BtcLnSwap.newInstance(
@@ -569,10 +574,10 @@ class BtcBoltz {
         invoice: swap.invoice,
         scriptAddress: swap.scriptAddress,
         outAmount: swap.outAmount,
-        electrumUrl: swap.electrumUrl,
+        electrumUrl: electrumUrl,
         boltzUrl: swap.boltzUrl,
       );
-      await claimToInvoice.claim(outAddress: receiveAddress, absFee: fees.btcFees.minerFees.claim, tryCooperate: true);
+      await claimToInvoice.claim(outAddress: receiveAddress, absFee: fees.btcFees.minerFees.lockup, tryCooperate: true);
       return true;
     } catch (e) {
       return false;
@@ -585,6 +590,7 @@ class BtcBoltz {
     required String invoice,
     required int amount,
     required int index,
+    required String electrumUrl,
   }) async {
     if (amount == 0) {
       throw 'Amount cannot be 0';
@@ -606,7 +612,7 @@ class BtcBoltz {
         index: index,
         invoice: invoice,
         network: Chain.bitcoin,
-        electrumUrl: 'wes.bullbitcoin.com:50002',
+        electrumUrl: electrumUrl,
         boltzUrl: 'https://api.boltz.exchange/v2',
       );
     } catch (e) {
@@ -623,7 +629,7 @@ class BtcBoltz {
       invoice: result.invoice,
       outAmount: result.outAmount,
       scriptAddress: result.scriptAddress,
-      electrumUrl: result.electrumUrl,
+      electrumUrl: electrumUrl,
       boltzUrl: result.boltzUrl,
     );
 
@@ -641,6 +647,7 @@ class BtcBoltz {
     required SubmarineFeesAndLimits fees,
     required bool tryCooperate,
     required int keyIndex,
+    required String electrumUrl,
   }) async {
     BtcLnSwap? refund;
     try {
@@ -655,7 +662,7 @@ class BtcBoltz {
         invoice: swap.invoice,
         outAmount: swap.outAmount,
         scriptAddress: swap.scriptAddress,
-        electrumUrl: swap.electrumUrl,
+        electrumUrl: electrumUrl,
         boltzUrl: swap.boltzUrl,
       );
       await refund.refund(outAddress: outAddress, absFee: fees.btcFees.minerFees, tryCooperate: tryCooperate);

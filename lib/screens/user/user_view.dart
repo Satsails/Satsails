@@ -42,7 +42,6 @@ class _UserViewState extends ConsumerState<UserView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildPaymentIdRow(user.paymentId, width, height),
                 SizedBox(height: height * 0.02),
                 _buildCreatedAffiliateRow(affiliate.createdAffiliateCode.isNotEmpty == true ? affiliate.createdAffiliateCode : 'N/A', width, height),
                 SizedBox(height: height * 0.02),
@@ -90,48 +89,6 @@ class _UserViewState extends ConsumerState<UserView> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildPaymentIdRow(String paymentId, double width, double height) {
-    return GestureDetector(
-      onTap: () {
-        Clipboard.setData(ClipboardData(text: paymentId));
-        Fluttertoast.showToast(
-          msg: 'Payment ID copied to clipboard'.i18n(ref),
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: height * 0.02,
-        );
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Payment ID'.i18n(ref),
-            style: TextStyle(color: Colors.grey, fontSize: width * 0.04),
-          ),
-          SizedBox(width: width * 0.01),
-          SizedBox(height: height * 0.01),
-          Row(
-            children: [
-              Text(
-                paymentId,
-                style: TextStyle(color: Colors.white, fontSize: width * 0.05, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(width: width * 0.02),
-              Icon(
-                Icons.copy,
-                color: Colors.white,
-                size: width * 0.05,
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }

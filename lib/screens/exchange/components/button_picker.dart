@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 
-final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin Layer Swap");
+final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Swap");
 final groupButtonControllerProvider = Provider.autoDispose<GroupButtonController>((ref) {
   return GroupButtonController(selectedIndex: 0);
 });
@@ -25,20 +25,20 @@ class ButtonPicker extends ConsumerWidget {
           case 0:
             ref.read(sendTxProvider.notifier).resetToDefault();
             ref.read(sendBlocksProvider.notifier).state = 1;
-            ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
+            ref.read(selectedButtonProvider.notifier).state = "Swap";
             break;
           case 1:
             ref.read(sendTxProvider.notifier).resetToDefault();
             ref.read(sendBlocksProvider.notifier).state = 1;
-            ref.read(selectedButtonProvider.notifier).state = "Swap";
-            break;
+            ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
           default:
             ref.read(sendTxProvider.notifier).resetToDefault();
             ref.read(sendBlocksProvider.notifier).state = 1;
-            ref.read(selectedButtonProvider.notifier).state = "Bitcoin Layer Swap";
+            ref.read(selectedButtonProvider.notifier).state = "Swap";
+            break;
         }
       },
-      buttons: ["BTC ⇄ Liquid".i18n(ref), 'Liquid ⇄ Stable'.i18n(ref)],
+      buttons: ['Liquid ⇄ Stable'.i18n(ref), "BTC ⇄ Liquid".i18n(ref)],
       options: GroupButtonOptions(
         unselectedTextStyle: TextStyle(
             fontSize: screenWidth * 0.04, color: Colors.orange),

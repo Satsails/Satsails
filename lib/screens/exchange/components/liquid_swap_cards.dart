@@ -380,8 +380,6 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
             controller.loading();
             try {
               await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
-              await ref.read(backgroundSyncNotifierProvider).performSync();
-              await Future.delayed(const Duration(seconds: 3));
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
@@ -393,6 +391,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
               ref.read(navigationProvider.notifier).state = 1;
              });
               Navigator.pushReplacementNamed(context, '/home');
+              await ref.read(backgroundSyncNotifierProvider).performSync();
             } catch (e) {
               controller.failure();
               Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);

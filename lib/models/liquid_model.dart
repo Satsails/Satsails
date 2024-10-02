@@ -9,18 +9,17 @@ class LiquidModel {
 
   LiquidModel(this.config);
 
-  Future<Address> getAddress() async {
+  Future<int> getAddress() async {
     final address = await config.liquid.wallet.addressLastUnused();
+    return address.index;
+  }
+
+  Future<Address> getAddressOfIndex(int index) async {
+    final address = await config.liquid.wallet.address(index: index);
     return address;
   }
 
-  Future<String> getNextAddress() async {
-    final lastUnused = await config.liquid.wallet.addressLastUnused();
-    final address = await config.liquid.wallet.address(index: lastUnused.index + 1);
-    return address.confidential;
-  }
-
-  Future<String> getAddressOfIndex(int index) async {
+  Future<String> getAddressOfIndexString(int index) async {
     final address = await config.liquid.wallet.address(index: index);
     return address.confidential;
   }
@@ -50,7 +49,7 @@ class LiquidModel {
       final pset = await config.liquid.wallet.buildLbtcTx(
         sats: params.amount,
         outAddress: params.outAddress,
-        feeRate: params.fee * 100,
+        feeRate: config.electrumUrl == 'blockstream.info:995' ? params.fee * 1000 : params.fee * 100,
         drain: false,
       );
       return pset;
@@ -67,7 +66,7 @@ class LiquidModel {
       final pset = await config.liquid.wallet.buildLbtcTx(
         sats: params.amount,
         outAddress: params.outAddress,
-        feeRate: params.fee * 100,
+        feeRate: config.electrumUrl == 'blockstream.info:995' ? params.fee * 1000 : params.fee * 100,
         drain: true,
       );
       return pset;
@@ -85,7 +84,7 @@ class LiquidModel {
       final pset = await config.liquid.wallet.buildAssetTx(
         sats: params.amount,
         outAddress: params.outAddress,
-        feeRate: params.fee * 100,
+        feeRate: config.electrumUrl == 'blockstream.info:995' ? params.fee * 1000 : params.fee * 100,
         asset: params.assetId,
       );
       return pset;

@@ -454,7 +454,7 @@ extension Localization on String {
       } +
       {
         'en': 'Swaps',
-        'pt': 'Trocas',
+        'pt': 'Conversões'
       } +
       {
         'en': 'PIN must be exactly 6 digits',
@@ -1646,6 +1646,42 @@ extension Localization on String {
       {
         'en': "Please enter an amount",
         'pt': 'Por favor, insira uma quantia'
+      } +
+      {
+        'en': "Swap failed, please contact support",
+        'pt': 'Troca falhou, por favor, contate o suporte'
+      } +
+      {
+        'en': 'Send with Liquid Balance',
+        'pt': 'Enviar com Saldo Liquid'
+      } +
+      {
+        'en': 'Send with Bitcoin Balance',
+        'pt': 'Enviar com Saldo Bitcoin'
+      }  +
+      {
+        'en': "Swap failed, please contact support",
+        'pt': 'Troca falhou, por favor, contate o suporte'
+      } +
+      {
+        'en': 'Send with Liquid Balance',
+        'pt': 'Enviar com Saldo Liquid'
+      } +
+      {
+        'en': 'Send with Bitcoin Balance',
+        'pt': 'Enviar com Saldo Bitcoin'
+      } +
+      {
+        'en': 'Select Electrum Node',
+        'pt': 'Selecionar um Nó Electrum'
+      } +
+      {
+        'en': 'Convert your DEPIX to bitcoin',
+        'pt': 'Converta seus DEPIX em bitcoin'
+      } +
+      {
+        'en': 'Your balance will update soon',
+        'pt': 'Seu saldo será atualizado em breve'
       };
 
   String i18n(WidgetRef ref) {

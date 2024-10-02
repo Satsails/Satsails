@@ -220,8 +220,6 @@ class _PegState extends ConsumerState<Peg> {
                   }
                   await ref.watch(sendLiquidTransactionProvider.future);
                   await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-                  await ref.read(backgroundSyncNotifierProvider).performSync();
-                  await Future.delayed(const Duration(seconds: 3));
                   controller.success();
                   ref.read(sendTxProvider.notifier).updateAddress('');
                   ref.read(sendTxProvider.notifier).updateAmount(0);
@@ -233,6 +231,7 @@ class _PegState extends ConsumerState<Peg> {
                     ref.read(navigationProvider.notifier).state = 1;
                   });
                   Navigator.pushReplacementNamed(context, '/home');
+                  await ref.read(backgroundSyncNotifierProvider).performSync();
                 } catch (e) {
                   controller.failure();
                   Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
@@ -269,8 +268,6 @@ class _PegState extends ConsumerState<Peg> {
                   }
                   await ref.watch(sendBitcoinTransactionProvider.future);
                   await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-                  await ref.read(backgroundSyncNotifierProvider).performSync();
-                  await Future.delayed(const Duration(seconds: 3));
                   controller.success();
                   ref.read(sendTxProvider.notifier).updateAddress('');
                   ref.read(sendTxProvider.notifier).updateAmount(0);
@@ -282,6 +279,7 @@ class _PegState extends ConsumerState<Peg> {
                     ref.read(navigationProvider.notifier).state = 1;
                   });
                   Navigator.pushReplacementNamed(context, '/home');
+                  await ref.read(backgroundSyncNotifierProvider).performSync();
                 } catch (e) {
                   controller.failure();
                   Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);

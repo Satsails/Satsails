@@ -15,13 +15,18 @@ class BitcoinModel {
     }
   }
 
-  Future<String> getAddress() async {
+  Future<int> getAddress() async {
     final address = await config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
+    return address.index;
+  }
+
+  Future<String> getCurrentAddress(int index) async {
+    final address = await config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
     return await address.address.asString();
   }
 
-  Future<AddressInfo> getAddressInfo() async {
-    final address = await config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
+  Future<AddressInfo> getAddressInfo(int index) async {
+    final address = await config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
     return address;
   }
 

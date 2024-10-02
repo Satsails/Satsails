@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -9,10 +10,10 @@ import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 
-class BackgroundSyncNotifier extends StateNotifier<void> {
+class BitcoinSyncNotifier extends StateNotifier<void> {
   final Ref ref;
 
-  BackgroundSyncNotifier(this.ref) : super(null) {
+  BitcoinSyncNotifier(this.ref) : super(null) {
     _initializeSync();
   }
 
@@ -30,14 +31,60 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
           _setBackgroundSyncInProgress(true);
           final bitcoinBox = await Hive.openBox('bitcoin');
           final balanceModel = ref.read(balanceNotifierProvider.notifier);
-          await ref.read(syncBitcoinProvider.future);
+          await ref.watch(syncBitcoinProvider.future);
+          final address = await ref.refresh(lastUsedAddressProvider.future);
+          ref.read(addressProvider.notifier).setBitcoinAddress(address);
           final bitcoinBalance = await ref.refresh(getBitcoinBalanceProvider.future);
           await bitcoinBox.put('bitcoin', bitcoinBalance.total);
+          ref.read(updateBitcoinTransactionsProvider);
           balanceModel.updateBtcBalance(bitcoinBalance.total);
+
+          break;
+        } catch (e) {
+          if (attempt == maxAttempts - 1) {
+            ref.read(settingsProvider.notifier).setOnline(false);
+            rethrow;
+          }
+          attempt++;
+        }
+      }
+    } finally {
+      _setBackgroundSyncInProgress(false);
+    }
+  }
+
+  void _setBackgroundSyncInProgress(bool inProgress) {
+    Future.microtask(() {
+      ref.read(backgroundSyncInProgressProvider.notifier).state = inProgress;
+    });
+  }
+}
+
+class LiquidSyncNotifier extends StateNotifier<void> {
+  final Ref ref;
+
+  LiquidSyncNotifier(this.ref) : super(null) {
+    _initializeSync();
+  }
+
+  void _initializeSync() {
+    performSync();
+  }
+
+  Future<void> performSync() async {
+    const maxAttempts = 3;
+    int attempt = 0;
+
+    try {
+      while (attempt < maxAttempts) {
+        try {
+          _setBackgroundSyncInProgress(true);
           await ref.read(syncLiquidProvider.future);
+          final liquidAddress = await ref.refresh(liquidLastUsedAddressProvider.future);
+          ref.read(addressProvider.notifier).setLiquidAddress(liquidAddress);
           final liquidBalance = await ref.refresh(liquidBalanceProvider.future);
           await updateLiquidBalances(liquidBalance);
-          ref.read(updateTransactionsProvider);
+          ref.read(updateLiquidTransactionsProvider);
           ref.read(settingsProvider.notifier).setOnline(true);
           await ref.read(claimAndDeleteAllBoltzProvider.future);
           await ref.read(claimAndDeleteAllBitcoinBoltzProvider.future);
@@ -93,6 +140,25 @@ class BackgroundSyncNotifier extends StateNotifier<void> {
   }
 }
 
+class BackgroundSyncNotifier extends StateNotifier<void> {
+  final Ref ref;
+
+  BackgroundSyncNotifier(this.ref) : super(null) {
+    _initializeSync();
+  }
+
+  void _initializeSync() {
+    performSync();
+  }
+
+  Future<void> performSync() async {
+    await Future.wait([
+      ref.read(bitcoinSyncNotifierProvider).performSync(),
+      ref.read(liquidSyncNotifierProvider).performSync(),
+    ]);
+  }
+}
+
 final backgroundSyncNotifierProvider = Provider((ref) {
   final notifier = BackgroundSyncNotifier(ref);
   ref.onDispose(() {
@@ -100,3 +166,13 @@ final backgroundSyncNotifierProvider = Provider((ref) {
   });
   return notifier;
 });
+
+final bitcoinSyncNotifierProvider = Provider((ref) {
+  return BitcoinSyncNotifier(ref);
+});
+
+final liquidSyncNotifierProvider = Provider((ref) {
+  return LiquidSyncNotifier(ref);
+});
+
+

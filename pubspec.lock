@@ -246,10 +246,10 @@ packages:
     dependency: "direct main"
     description:
       name: crisp_chat
-      sha256: fdf8957b217401b98fa2418885e05298b0c3d4e1ec9d427f54f1161073967b5e
+      sha256: be64cceaa81cb2eb8871faf32319eb36379b2796ea924830284bce97ba9c0dcf
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.4"
+    version: "2.0.6"
   cross_file:
     dependency: transitive
     description:
@@ -310,10 +310,10 @@ packages:
     dependency: "direct main"
     description:
       name: decimal
-      sha256: "24a261d5d5c87e86c7651c417a5dbdf8bcd7080dd592533910e8d0505a279f21"
+      sha256: "4140a688f9e443e2f4de3a1162387bf25e1ac6d51e24c9da263f245210f41440"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.3"
+    version: "3.0.2"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -674,10 +674,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: "2ddb88e9ad56ae15ee144ed10e33886777eb5ca2509a914850a5faa7b52ff459"
+      sha256: "5cf5fdcf853b0629deb35891c7af643be900c3dcaed7489009f9e7dbcfe55ab6"
       url: "https://pub.dev"
     source: hosted
-    version: "14.2.7"
+    version: "14.2.8"
   graphs:
     dependency: transitive
     description:
@@ -914,10 +914,10 @@ packages:
     dependency: transitive
     description:
       name: local_auth_darwin
-      sha256: "7ba5738c874ca2b910d72385d00d2bebad9d4e807612936cf5e32bc01a048c71"
+      sha256: "6d2950da311d26d492a89aeb247c72b4653ddc93601ea36a84924a396806d49c"
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.0"
+    version: "1.4.1"
   local_auth_platform_interface:
     dependency: transitive
     description:
@@ -947,7 +947,7 @@ packages:
     description:
       path: "."
       ref: trunk
-      resolved-ref: "7b5335bab015a478924e8fe16506eb343ea55954"
+      resolved-ref: "7c126bf090688354e2c8cb9745ed8a7aef967596"
       url: "https://github.com/SatoshiPortal/lwk-dart.git"
     source: git
     version: "0.1.5"
@@ -1377,18 +1377,18 @@ packages:
     dependency: "direct main"
     description:
       name: syncfusion_flutter_charts
-      sha256: "68eac622c9ad73618ddddbb5b8185792f590258e7400cf1f606c97f892c4a724"
+      sha256: f1463e08decdae2fff4c67f0cd86bcd64050bc49ae50c2db18acd99fdc04da18
       url: "https://pub.dev"
     source: hosted
-    version: "27.1.50"
+    version: "27.1.51"
   syncfusion_flutter_core:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: efbc44bdef33bf8f469c5ac7830df9631972721e157021db14bd78cdb1047fe1
+      sha256: "95a53df168fd4473bbf23c481db656db97434d18d60f59fbeec97a754794f7b5"
       url: "https://pub.dev"
     source: hosted
-    version: "27.1.50"
+    version: "27.1.51"
   term_glyph:
     dependency: transitive
     description:
@@ -1481,10 +1481,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_macos
-      sha256: "9a1a42d5d2d95400c795b2914c36fdcb525870c752569438e4ebb09a2b5d90de"
+      sha256: "769549c999acdb42b8bcfa7c43d72bf79a382ca7441ab18a808e101149daf672"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.0"
+    version: "3.2.1"
   url_launcher_platform_interface:
     dependency: transitive
     description:
@@ -1513,10 +1513,10 @@ packages:
     dependency: transitive
     description:
       name: uuid
-      sha256: f33d6bb662f0e4f79dcd7ada2e6170f3b3a2530c28fc41f49a411ddedd576a77
+      sha256: a5be9ef6618a7ac1e964353ef476418026db906c4facdedaa299b7a2e71690ff
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.0"
+    version: "4.5.1"
   vector_graphics:
     dependency: transitive
     description:
@@ -1569,10 +1569,10 @@ packages:
     dependency: transitive
     description:
       name: web
-      sha256: d43c1d6b787bf0afad444700ae7f4db8827f701bc61c255ac8d328c6f4d52062
+      sha256: cd3543bd5798f6ad290ea73d210f423502e71900302dde696f8bff84bf89a1cb
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "1.1.0"
   web_socket_channel:
     dependency: "direct main"
     description:
@@ -1593,10 +1593,10 @@ packages:
     dependency: transitive
     description:
       name: webview_flutter_android
-      sha256: "6e64fcb1c19d92024da8f33503aaeeda35825d77142c01d0ea2aa32edc79fdc8"
+      sha256: ed021f27ae621bc97a6019fb601ab16331a3db4bf8afa305e9f6689bdb3edced
       url: "https://pub.dev"
     source: hosted
-    version: "3.16.7"
+    version: "3.16.8"
   webview_flutter_platform_interface:
     dependency: transitive
     description:

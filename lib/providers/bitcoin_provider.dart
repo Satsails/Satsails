@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/bitcoin_model.dart';
@@ -15,24 +16,33 @@ final bitcoinProvider = FutureProvider<Bitcoin>((ref) async {
   }
 });
 
-final syncBitcoinProvider = FutureProvider.autoDispose<void>((ref) {
+final syncBitcoinProvider = FutureProvider<void>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     return bitcoinModel.sync();
   });
 });
 
-final bitcoinAddressProvider = FutureProvider.autoDispose<String>((ref) async {
+final lastUsedAddressProvider = FutureProvider.autoDispose<int>((ref) async {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     return bitcoinModel.getAddress();
   });
 });
 
+final bitcoinAddressProvider = FutureProvider.autoDispose<String>((ref) async {
+  return ref.watch(bitcoinProvider.future).then((bitcoin) {
+    BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
+    final addressIndex = ref.watch(addressProvider).bitcoinAddressIndex;
+    return bitcoinModel.getCurrentAddress(addressIndex);
+  });
+});
+
 final bitcoinAddressInfoProvider = FutureProvider.autoDispose<AddressInfo>((ref) async {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    return bitcoinModel.getAddressInfo();
+    final addressIndex = ref.watch(addressProvider).bitcoinAddressIndex;
+    return bitcoinModel.getAddressInfo(addressIndex);
   });
 });
 
