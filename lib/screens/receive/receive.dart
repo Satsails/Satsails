@@ -2,14 +2,13 @@ import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
 import 'package:Satsails/screens/receive/components/lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:group_button/group_button.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
-import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 
 final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
-final FocusNode _focusNode = FocusNode();
 
 class Receive extends ConsumerWidget {
   Receive({super.key});
@@ -39,14 +38,12 @@ class Receive extends ConsumerWidget {
           },
         ),
       ),
-      body: KeyboardDismisser(
-        gestures: const [
-          GestureType.onTap,
-          GestureType.onPanUpdateDownDirection,
-          GestureType.onPanUpdateUpDirection,
-          GestureType.onPanUpdateLeftDirection,
-          GestureType.onPanUpdateRightDirection,
-        ],
+      body: FlutterKeyboardDoneWidget(
+        doneWidgetBuilder: (context) {
+          return const Text(
+            'Done',
+          );
+        },
         child: SingleChildScrollView(
           child: Column(
             children: [

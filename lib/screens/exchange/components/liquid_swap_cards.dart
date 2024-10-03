@@ -7,6 +7,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -18,7 +19,6 @@ import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
-import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 final currentBalanceProvider = StateProvider.autoDispose<String>((ref) {
@@ -97,14 +97,12 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
     }
 
     return SafeArea(
-      child: KeyboardDismisser(
-          gestures: const [
-            GestureType.onTap,
-            GestureType.onPanUpdateDownDirection,
-            GestureType.onPanUpdateUpDirection,
-            GestureType.onPanUpdateLeftDirection,
-            GestureType.onPanUpdateRightDirection,
-          ],
+      child: FlutterKeyboardDoneWidget(
+              doneWidgetBuilder: (context) {
+                return const Text(
+                  'Done',
+                );
+              },
           child: Column(
             children: [
               Text(

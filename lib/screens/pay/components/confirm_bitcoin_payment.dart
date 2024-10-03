@@ -4,7 +4,7 @@ import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:keyboard_dismisser/keyboard_dismisser.dart';
+import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
@@ -51,14 +51,12 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
         ref.read(sendBlocksProvider.notifier).state = 1;
       },
       child: SafeArea(
-        child: KeyboardDismisser(
-          gestures: const [
-            GestureType.onTap,
-            GestureType.onPanUpdateDownDirection,
-            GestureType.onPanUpdateUpDirection,
-            GestureType.onPanUpdateLeftDirection,
-            GestureType.onPanUpdateRightDirection,
-          ],
+        child: FlutterKeyboardDoneWidget(
+              doneWidgetBuilder: (context) {
+                return const Text(
+                  'Done',
+                );
+              },
           child: Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: Colors.black,

@@ -9,9 +9,9 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
@@ -287,14 +287,12 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
         final double amountToReceive = amountInDouble - fee;
         _amountToReceive = amountToReceive;
 
-        return  KeyboardDismisser(
-          gestures: const [
-            GestureType.onTap,
-            GestureType.onPanUpdateDownDirection,
-            GestureType.onPanUpdateUpDirection,
-            GestureType.onPanUpdateLeftDirection,
-            GestureType.onPanUpdateRightDirection,
-          ],
+        return  FlutterKeyboardDoneWidget(
+              doneWidgetBuilder: (context) {
+                return const Text(
+                  'Done',
+                );
+              },
           child: SingleChildScrollView(
             child: Center(
               child: Column(

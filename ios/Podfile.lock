@@ -9,6 +9,8 @@ PODS:
     - Crisp
     - Flutter
   - Flutter (1.0.0)
+  - flutter_keyboard_done (0.0.1):
+    - Flutter
   - flutter_keyboard_visibility (0.0.1):
     - Flutter
   - flutter_local_notifications (0.0.1):
@@ -58,6 +60,7 @@ DEPENDENCIES:
   - boltz_dart (from `.symlinks/plugins/boltz_dart/ios`)
   - crisp_chat (from `.symlinks/plugins/crisp_chat/ios`)
   - Flutter (from `Flutter`)
+  - flutter_keyboard_done (from `.symlinks/plugins/flutter_keyboard_done/ios`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
@@ -93,6 +96,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/crisp_chat/ios"
   Flutter:
     :path: Flutter
+  flutter_keyboard_done:
+    :path: ".symlinks/plugins/flutter_keyboard_done/ios"
   flutter_keyboard_visibility:
     :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
   flutter_local_notifications:
@@ -130,6 +135,7 @@ SPEC CHECKSUMS:
   Crisp: dcf7d9e64be6614ceee71c5582f616212ed4a881
   crisp_chat: 306dad2ec547c9cb8bd3c52f9fb4fb23dd6b3c9f
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_keyboard_done: 8f25c02565f57c19eb31d11cfb9323afc33e4c9e
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
   flutter_native_splash: edf599c81f74d093a4daf8e17bd7a018854bc778

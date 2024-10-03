@@ -7,10 +7,10 @@ import 'package:Satsails/screens/analytics/components/button_picker.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
@@ -58,14 +58,12 @@ class _PegState extends ConsumerState<Peg> {
     }
 
     return SafeArea(
-      child: KeyboardDismisser(
-        gestures: const [
-          GestureType.onTap,
-          GestureType.onPanUpdateDownDirection,
-          GestureType.onPanUpdateUpDirection,
-          GestureType.onPanUpdateLeftDirection,
-          GestureType.onPanUpdateRightDirection,
-        ],
+      child: FlutterKeyboardDoneWidget(
+        doneWidgetBuilder: (context) {
+          return const Text(
+            'Done',
+          );
+        },
         child: Column(
           children: [
             Expanded(

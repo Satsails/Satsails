@@ -439,6 +439,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.6"
+  flutter_keyboard_done:
+    dependency: "direct main"
+    description:
+      name: flutter_keyboard_done
+      sha256: "65fd3a42ec44b26047d70b9df2a516bb654b2d38fbe8f5212a24025f0807d535"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   flutter_keyboard_visibility:
     dependency: transitive
     description:
@@ -830,22 +838,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.9.0"
-  keyboard_actions:
-    dependency: "direct main"
-    description:
-      name: keyboard_actions
-      sha256: "31e0ab2a706ac8f58887efa60efc1f19aecdf37d8ab0f665a0f156d1fbeab650"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.2.0"
-  keyboard_dismisser:
-    dependency: "direct main"
-    description:
-      name: keyboard_dismisser
-      sha256: f67e032581fc3dd1f77e1cb54c421b089e015d122aeba2490ba001cfcc42a181
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
   leak_tracker:
     dependency: transitive
     description:

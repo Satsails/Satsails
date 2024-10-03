@@ -6,8 +6,8 @@ import 'package:Satsails/screens/receive/components/lightning_widget.dart';
 import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
@@ -16,7 +16,7 @@ import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
-import 'package:Satsails/screens/pay/pay.dart'; // Make sure to import the Pay widget
+import 'package:Satsails/screens/pay/pay.dart';
 
 class Accounts extends ConsumerWidget {
   const Accounts({super.key});
@@ -601,14 +601,12 @@ class Accounts extends ConsumerWidget {
         builder: (context, scrollController) {
           return Scaffold(
             backgroundColor: Colors.black,
-            body:  KeyboardDismisser(
-              gestures: const [
-                GestureType.onTap,
-                GestureType.onPanUpdateDownDirection,
-                GestureType.onPanUpdateUpDirection,
-                GestureType.onPanUpdateLeftDirection,
-                GestureType.onPanUpdateRightDirection,
-              ],
+            body:  FlutterKeyboardDoneWidget(
+              doneWidgetBuilder: (context) {
+                return const Text(
+                  'Done',
+                );
+              },
               child: SingleChildScrollView(
                   controller: scrollController,
                   padding: const EdgeInsets.all(16.0),
