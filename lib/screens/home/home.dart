@@ -60,7 +60,6 @@ class Home extends ConsumerWidget {
         const DepixConvertWarning(),
         SizedBox(height: screenHeight * 0.01),
         buildActionButtons(context, ref),
-        SizedBox(height: screenHeight * 0.01),
         Flexible(
           child: SizedBox(
             height: double.infinity,
@@ -93,10 +92,7 @@ class Home extends ConsumerWidget {
       indicatorBottomPadding: 0,
       indicatorBackgroundColor: Colors.grey,
       children: [
-        Padding(
-          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.1),
-          child: buildDiagram(context, percentageOfEachCurrency),
-        ),
+        buildBarChart(context, percentageOfEachCurrency),
         const BitcoinPriceHistoryGraph(),
       ],
     );

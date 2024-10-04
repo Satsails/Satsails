@@ -1,4 +1,3 @@
-import 'package:Satsails/assets/lbtc_icon.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:Satsails/models/balance_model.dart';
@@ -8,170 +7,145 @@ Widget buildLegendItem(Widget icon, String label, double percentage) {
     children: [
       icon,
       const SizedBox(width: 8),
-      Text('$label: ${percentage.toStringAsFixed(0)}%', style: const TextStyle(color: Colors.white)),
+      Text('$label: ${percentage.toStringAsFixed(2)}%', style: const TextStyle(color: Colors.white)),
     ],
   );
 }
 
-Widget buildDiagram(BuildContext context, Percentage percentage) {
-  const double minPercentageForIcon = 1.0;
-  const double radius = 10.0;
-
+Widget buildBarChart(BuildContext context, Percentage percentage) {
   double totalValue = percentage.btcPercentage +
       percentage.liquidPercentage +
       percentage.brlPercentage +
       percentage.eurPercentage +
       percentage.usdPercentage;
 
-  double btcPercentage = (percentage.btcPercentage / totalValue) * 100;
-  double liquidPercentage = (percentage.liquidPercentage / totalValue) * 100;
-  double brlPercentage = (percentage.brlPercentage / totalValue) * 100;
-  double eurPercentage = (percentage.eurPercentage / totalValue) * 100;
-  double usdPercentage = (percentage.usdPercentage / totalValue) * 100;
+  List<BarChartGroupData> barGroups = [];
 
-  Widget? getBadgeWidget(double value, Widget badge) {
-    return value > minPercentageForIcon ? badge : null;
-  }
-
-  List<Widget> buildLegend() {
-    return [
-      if (btcPercentage > minPercentageForIcon)
-        buildLegendItem(
-          const Icon(Icons.currency_bitcoin, color: Colors.orange),
-          'BTC',
-          btcPercentage,
-        ),
-      if (liquidPercentage > minPercentageForIcon)
-        buildLegendItem(
-          const Icon(Lbtc_icon.lbtc_icon, color: Colors.blue),
-          'Liquid',
-          liquidPercentage,
-        ),
-      if (brlPercentage > minPercentageForIcon)
-        buildLegendItem(
-          Image.asset('lib/assets/depix.png', width: 25, height: 25),
-          'Depix',
-          brlPercentage,
-        ),
-      if (eurPercentage > minPercentageForIcon)
-        buildLegendItem(
-          Image.asset('lib/assets/eurx.png', width: 25, height: 25),
-          'EURx',
-          eurPercentage,
-        ),
-      if (usdPercentage > minPercentageForIcon)
-        buildLegendItem(
-          Image.asset('lib/assets/tether.png', width: 25, height: 25),
-          'USDT',
-          usdPercentage,
-        ),
-    ];
-  }
-
-  return totalValue == 0
-      ? PieChart(PieChartData(
-    sections: [
-      PieChartSectionData(
-        value: 1,
-        title: '',
-        radius: radius,
-        color: Colors.grey,
+  if ((percentage.btcPercentage / totalValue) * 100 >= 0.1) {
+    barGroups.add(
+      BarChartGroupData(
+        x: 0,
+        barRods: [
+          BarChartRodData(
+            toY: (percentage.btcPercentage / totalValue) * 100,
+            color: Colors.orange,
+            width: 15,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ],
       ),
-    ],
-    borderData: FlBorderData(show: false),
-  ))
-      : Row(
-    children: [
-      Expanded(
-        child: PieChart(
-          PieChartData(
-            sections: [
-              PieChartSectionData(
-                value: btcPercentage,
-                title: '',
-                radius: radius,
-                badgeWidget: getBadgeWidget(
-                  btcPercentage,
-                  const Icon(Icons.currency_bitcoin, color: Colors.white),
-                ),
-                gradient: const LinearGradient(
-                  colors: [Colors.orange, Colors.orange],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              PieChartSectionData(
-                value: liquidPercentage,
-                title: '',
-                radius: radius,
-                badgeWidget: getBadgeWidget(
-                  liquidPercentage,
-                  const Icon(Lbtc_icon.lbtc_icon, color: Colors.white),
-                ),
-                gradient: const LinearGradient(
-                  colors: [Color(0xff288bece), Color(0xff288bece)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              PieChartSectionData(
-                value: brlPercentage,
-                title: '',
-                radius: radius,
-                badgeWidget: getBadgeWidget(
-                  brlPercentage,
-                  Image.asset(
-                    'lib/assets/depix.png',
-                    width: 25,
-                    height: 25,
-                  ),
-                ),
-                color: const Color(0xFF009B3A), // Brazilian flag green
-              ),
-              PieChartSectionData(
-                value: eurPercentage,
-                title: '',
-                radius: radius,
-                badgeWidget: getBadgeWidget(
-                  eurPercentage,
-                  Image.asset(
-                    'lib/assets/eurx.png',
-                    width: 25,
-                    height: 25,
-                  ),
-                ),
-                color: const Color(0xFF003399), // European Union blue
-              ),
-              PieChartSectionData(
-                value: usdPercentage,
-                title: '',
-                radius: radius,
-                badgeWidget: getBadgeWidget(
-                  usdPercentage,
-                  Image.asset(
-                    'lib/assets/tether.png',
-                    width: 25,
-                    height: 25,
-                  ),
-                ),
-                color: const Color(0xFF008000), // US dollar green
-              ),
-            ],
-            borderData: FlBorderData(show: false),
+    );
+  }
+  if ((percentage.liquidPercentage / totalValue) * 100 >= 0.1) {
+    barGroups.add(
+      BarChartGroupData(
+        x: 1,
+        barRods: [
+          BarChartRodData(
+            toY: (percentage.liquidPercentage / totalValue) * 100,
+            color: Colors.blue,
+            width: 15,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ],
+      ),
+    );
+  }
+  if ((percentage.brlPercentage / totalValue) * 100 >= 0.1) {
+    barGroups.add(
+      BarChartGroupData(
+        x: 2,
+        barRods: [
+          BarChartRodData(
+            toY: (percentage.brlPercentage / totalValue) * 100,
+            color: const Color(0xFF009B3A),
+            width: 15,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ],
+      ),
+    );
+  }
+  if ((percentage.eurPercentage / totalValue) * 100 >= 0.1) {
+    barGroups.add(
+      BarChartGroupData(
+        x: 3,
+        barRods: [
+          BarChartRodData(
+            toY: (percentage.eurPercentage / totalValue) * 100,
+            color: const Color(0xFF003399),
+            width: 15,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ],
+      ),
+    );
+  }
+  if ((percentage.usdPercentage / totalValue) * 100 >= 0.1) {
+    barGroups.add(
+      BarChartGroupData(
+        x: 4,
+        barRods: [
+          BarChartRodData(
+            toY: (percentage.usdPercentage / totalValue) * 100,
+            color: const Color(0xFF008000),
+            width: 15,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  return BarChart(
+    BarChartData(
+      barGroups: barGroups,
+      borderData: FlBorderData(show: false),
+      titlesData: FlTitlesData(
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            getTitlesWidget: (double value, TitleMeta meta) {
+              switch (value.toInt()) {
+                case 0:
+                  return Text('BTC', style: TextStyle(color: Colors.white));
+                case 1:
+                  return Text('Liquid', style: TextStyle(color: Colors.white));
+                case 2:
+                  return Text('Depix', style: TextStyle(color: Colors.white));
+                case 3:
+                  return Text('EURx', style: TextStyle(color: Colors.white));
+                case 4:
+                  return Text('USDT', style: TextStyle(color: Colors.white));
+                default:
+                  return Text('', style: TextStyle(color: Colors.white));
+              }
+            },
           ),
         ),
-      ),
-      const SizedBox(width: 16),
-      Padding(
-        padding: MediaQuery.of(context).size.height > 800
-            ?  EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.1)
-            : const EdgeInsets.symmetric(vertical: 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: buildLegend(),
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        topTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        rightTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
         ),
       ),
-    ],
+      gridData: FlGridData(show: false),
+      barTouchData: BarTouchData(
+        touchTooltipData: BarTouchTooltipData(
+          tooltipHorizontalAlignment: FLHorizontalAlignment.center,
+            fitInsideVertically: true,
+          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+            return BarTooltipItem(
+              '${rod.toY.toStringAsFixed(2)}%',
+              TextStyle(color: Colors.white),
+            );
+          },
+        ),
+      ),
+    ),
   );
 }

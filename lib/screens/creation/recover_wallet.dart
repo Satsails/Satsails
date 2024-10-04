@@ -152,7 +152,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Recover Wallet'.i18n(ref), style: const TextStyle(color: Colors.white)),
+        title: Text('Recover wallet'.i18n(ref), style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
