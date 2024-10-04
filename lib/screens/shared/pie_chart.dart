@@ -12,7 +12,7 @@ Widget buildLegendItem(Widget icon, String label, double percentage) {
   );
 }
 
-Widget buildBarChart(BuildContext context, Percentage percentage) {
+Widget buildBarChart(BuildContext context, Percentage percentage, Balance balance) {
   double totalValue = percentage.btcPercentage +
       percentage.liquidPercentage +
       percentage.brlPercentage +
@@ -21,7 +21,7 @@ Widget buildBarChart(BuildContext context, Percentage percentage) {
 
   List<BarChartGroupData> barGroups = [];
 
-  if ((percentage.btcPercentage / totalValue) * 100 >= 0.1) {
+  if ((percentage.btcPercentage / totalValue) * 100 >= 0.1 && balance.btcBalance > 0) {
     barGroups.add(
       BarChartGroupData(
         x: 0,
@@ -36,7 +36,7 @@ Widget buildBarChart(BuildContext context, Percentage percentage) {
       ),
     );
   }
-  if ((percentage.liquidPercentage / totalValue) * 100 >= 0.1) {
+  if ((percentage.liquidPercentage / totalValue) * 100 >= 0.1 && balance.liquidBalance > 0) {
     barGroups.add(
       BarChartGroupData(
         x: 1,
@@ -51,7 +51,7 @@ Widget buildBarChart(BuildContext context, Percentage percentage) {
       ),
     );
   }
-  if ((percentage.brlPercentage / totalValue) * 100 >= 0.1) {
+  if ((percentage.brlPercentage / totalValue) * 100 >= 0.1 && balance.brlBalance > 10000000) {
     barGroups.add(
       BarChartGroupData(
         x: 2,
@@ -66,7 +66,7 @@ Widget buildBarChart(BuildContext context, Percentage percentage) {
       ),
     );
   }
-  if ((percentage.eurPercentage / totalValue) * 100 >= 0.1) {
+  if ((percentage.eurPercentage / totalValue) * 100 >= 0.1 && balance.eurBalance > 10000000) {
     barGroups.add(
       BarChartGroupData(
         x: 3,
@@ -81,7 +81,7 @@ Widget buildBarChart(BuildContext context, Percentage percentage) {
       ),
     );
   }
-  if ((percentage.usdPercentage / totalValue) * 100 >= 0.1) {
+  if ((percentage.usdPercentage / totalValue) * 100 >= 0.1 && balance.usdBalance > 10000000) {
     barGroups.add(
       BarChartGroupData(
         x: 4,

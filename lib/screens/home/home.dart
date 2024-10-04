@@ -69,7 +69,7 @@ class Home extends ConsumerWidget {
               return initializeBalance.when(
                 data: (balance) => balance.isEmpty
                     ? const BitcoinPriceHistoryGraph()
-                    : walletWidget(ref, context, percentageOfEachCurrency),
+                    : walletWidget(ref, context, percentageOfEachCurrency, balance),
                 loading: () =>Center(child: LoadingAnimationWidget.threeArchedCircle(size: 100, color: Colors.orange)),
                 error: (error, stack) =>
                     Center(
@@ -84,7 +84,7 @@ class Home extends ConsumerWidget {
     );
   }
 
-  Widget walletWidget(WidgetRef ref, BuildContext context, percentageOfEachCurrency) {
+  Widget walletWidget(WidgetRef ref, BuildContext context, percentageOfEachCurrency, balance) {
 
     return ImageSlideshow(
       initialPage: 0,
@@ -92,7 +92,7 @@ class Home extends ConsumerWidget {
       indicatorBottomPadding: 0,
       indicatorBackgroundColor: Colors.grey,
       children: [
-        buildBarChart(context, percentageOfEachCurrency),
+        buildBarChart(context, percentageOfEachCurrency, balance),
         const BitcoinPriceHistoryGraph(),
       ],
     );

@@ -1,7 +1,7 @@
 name: Satsails
 description: "Sail your wealth to the cloud!"
 publish_to: 'none'
-version: 1.0.0+24
+version: 1.0.0+26
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
@@ -115,12 +115,12 @@ flutter_launcher_icons:
 
 flutter_native_splash:
   color: "#000000"
-  image: "lib/assets/app_icon.png"
+  image: "lib/assets/satsails.png"
   icon_background_color: "#000000"
   android: true
   ios: true
   web: false
   android_12:
-    image: "lib/assets/app_icon.png"
+    image: "lib/assets/satsails.png"
     icon_background_color: "#000000"
     color: "#000000"
