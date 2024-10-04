@@ -7,6 +7,10 @@
 			<string>sms</string>
 			<string>tel</string>
 		</array>
+	    <key>io.flutter.embedded_views_preview</key>
+        <true/>
+		<key>NSFaceIDUsageDescription</key>
+        <string>Allow face id to unlock satsails</string>
 		<key>NSCameraUsageDescription</key>
         <string>Access to send live photos to our support</string>
         <key>NSPhotoLibraryAddUsageDescription</key>
