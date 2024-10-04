@@ -29,15 +29,11 @@ class BitcoinSyncNotifier extends StateNotifier<void> {
       while (attempt < maxAttempts) {
         try {
           _setBackgroundSyncInProgress(true);
-          final bitcoinBox = await Hive.openBox('bitcoin');
-          final balanceModel = ref.read(balanceNotifierProvider.notifier);
           await ref.watch(syncBitcoinProvider.future);
           final address = await ref.refresh(lastUsedAddressProvider.future);
           ref.read(addressProvider.notifier).setBitcoinAddress(address);
-          final bitcoinBalance = await ref.refresh(getBitcoinBalanceProvider.future);
-          await bitcoinBox.put('bitcoin', bitcoinBalance.total);
           ref.read(updateBitcoinTransactionsProvider);
-          balanceModel.updateBtcBalance(bitcoinBalance.total);
+          await ref.read(claimAndDeleteAllBoltzProvider.future);
 
           break;
         } catch (e) {
@@ -82,11 +78,8 @@ class LiquidSyncNotifier extends StateNotifier<void> {
           await ref.read(syncLiquidProvider.future);
           final liquidAddress = await ref.refresh(liquidLastUsedAddressProvider.future);
           ref.read(addressProvider.notifier).setLiquidAddress(liquidAddress);
-          final liquidBalance = await ref.refresh(liquidBalanceProvider.future);
-          await updateLiquidBalances(liquidBalance);
           ref.read(updateLiquidTransactionsProvider);
           ref.read(settingsProvider.notifier).setOnline(true);
-          await ref.read(claimAndDeleteAllBoltzProvider.future);
           await ref.read(claimAndDeleteAllBitcoinBoltzProvider.future);
 
           break;
@@ -103,35 +96,6 @@ class LiquidSyncNotifier extends StateNotifier<void> {
     }
   }
 
-  Future<void> updateLiquidBalances(balances) async {
-    final balanceModel = ref.read(balanceNotifierProvider.notifier);
-    final liquidBox = await Hive.openBox('liquid');
-    for (var balance in balances) {
-      switch (AssetMapper.mapAsset(balance.assetId)) {
-        case AssetId.USD:
-          balance = balance.value;
-          await liquidBox.put('usd', balance);
-          balanceModel.updateUsdBalance(balance);
-          break;
-        case AssetId.EUR:
-          balance = balance.value;
-          await liquidBox.put('eur', balance);
-          balanceModel.updateEurBalance(balance);
-          break;
-        case AssetId.BRL:
-          balance = balance.value;
-          await liquidBox.put('brl', balance);
-          balanceModel.updateBrlBalance(balance);
-          break;
-        case AssetId.LBTC:
-          balanceModel.updateLiquidBalance(balance.value);
-          await liquidBox.put('liquid', balance.value);
-          break;
-        default:
-          break;
-      }
-    }
-  }
 
   void _setBackgroundSyncInProgress(bool inProgress) {
     Future.microtask(() {

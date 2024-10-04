@@ -1,30 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/currency_conversions.dart';
-
-class BalanceModel extends StateNotifier<Balance>{
-  BalanceModel(super.state);
-
-  void updateBtcBalance(int newBtcBalance) {
-    state = state.copyWith(btcBalance: newBtcBalance);
-  }
-
-  void updateLiquidBalance(int newLiquidBalance) {
-    state = state.copyWith(liquidBalance: newLiquidBalance);
-  }
-
-  void updateUsdBalance(int newUsdBalance) {
-    state = state.copyWith(usdBalance: newUsdBalance);
-  }
-
-  void updateEurBalance(int newEurBalance) {
-    state = state.copyWith(eurBalance: newEurBalance);
-  }
-
-  void updateBrlBalance(int newBrlBalance) {
-    state = state.copyWith(brlBalance: newBrlBalance);
-  }
-
-}
 
 class Balance {
   late final int btcBalance;
@@ -45,19 +20,37 @@ class Balance {
     required this.brlBalance,
   });
 
-  Balance copyWith({
-    int? btcBalance,
-    int? liquidBalance,
-    int? usdBalance,
-    int? eurBalance,
-    int? brlBalance,
-  }) {
+  factory Balance.updateFromAssets(List<dynamic> balances, int bitcoinBalance) {
+    int usdBalance = 0;
+    int eurBalance = 0;
+    int brlBalance = 0;
+    int liquidBalance = 0;
+
+    for (var balance in balances) {
+      switch (AssetMapper.mapAsset(balance.assetId)) {
+        case AssetId.USD:
+          usdBalance = balance.value;
+          break;
+        case AssetId.EUR:
+          eurBalance = balance.value;
+          break;
+        case AssetId.BRL:
+          brlBalance = balance.value;
+          break;
+        case AssetId.LBTC:
+          liquidBalance = balance.value;
+          break;
+        default:
+          break;
+      }
+    }
+
     return Balance(
-      btcBalance: btcBalance ?? this.btcBalance,
-      liquidBalance: liquidBalance ?? this.liquidBalance,
-      usdBalance: usdBalance ?? this.usdBalance,
-      eurBalance: eurBalance ?? this.eurBalance,
-      brlBalance: brlBalance ?? this.brlBalance,
+      btcBalance: bitcoinBalance,
+      liquidBalance: liquidBalance,
+      usdBalance: usdBalance,
+      eurBalance: eurBalance,
+      brlBalance: brlBalance,
     );
   }
 

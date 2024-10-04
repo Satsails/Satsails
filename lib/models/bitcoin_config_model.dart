@@ -1,4 +1,5 @@
 import 'package:bdk_flutter/bdk_flutter.dart';
+import 'package:path_provider/path_provider.dart'; // Import this package
 
 class BitcoinConfigModel {
   final BitcoinConfig config;
@@ -6,7 +7,7 @@ class BitcoinConfigModel {
   BitcoinConfigModel(this.config);
 
   Future<Descriptor> _createDescriptor(KeychainKind keychain) async {
-    Mnemonic mnemonic = await Mnemonic.fromString(config.mnemonic).then((value) => value);
+    Mnemonic mnemonic = await Mnemonic.fromString(config.mnemonic);
 
     final descriptorSecretKey = await DescriptorSecretKey.create(
       network: config.network,
@@ -14,9 +15,10 @@ class BitcoinConfigModel {
     );
 
     final descriptor = await Descriptor.newBip84(
-        secretKey: descriptorSecretKey,
-        network: config.network,
-        keychain: keychain);
+      secretKey: descriptorSecretKey,
+      network: config.network,
+      keychain: keychain,
+    );
 
     return descriptor;
   }
@@ -33,33 +35,48 @@ class BitcoinConfigModel {
     if (config.isElectrumBlockchain) {
       try {
         final blockchain = await Blockchain.create(
-            config: BlockchainConfig.electrum(
-                config: ElectrumConfig(
-                    stopGap: 10,
-                    timeout: 5,
-                    retry: 5,
-                    url: "ssl://${config.electrumUrl}",
-                    validateDomain: false)));
+          config: BlockchainConfig.electrum(
+            config: ElectrumConfig(
+              stopGap: 10,
+              timeout: 5,
+              retry: 5,
+              url: "ssl://${config.electrumUrl}",
+              validateDomain: false,
+            ),
+          ),
+        );
         return blockchain;
       } catch (_) {
         throw Exception('Failed to initialize blockchain');
       }
     } else {
       final blockchain = await Blockchain.create(
-          config: const BlockchainConfig.esplora(
-              config: EsploraConfig(
-                  baseUrl: 'https://blockstream.info/api/',
-                  stopGap: 10)));
+        config: const BlockchainConfig.esplora(
+          config: EsploraConfig(
+            baseUrl: 'https://blockstream.info/api/',
+            stopGap: 10,
+          ),
+        ),
+      );
       return blockchain;
     }
   }
 
   Future<Wallet> restoreWallet(Descriptor descriptor, Descriptor change) async {
+    // Get the application documents directory
+    final appDocDir = await getApplicationDocumentsDirectory();
+    final dbPath = '${appDocDir.path}/bdk_wallet.sqlite';
+
     final wallet = await Wallet.create(
-        descriptor: descriptor,
-        changeDescriptor: change,
-        network: config.network,
-        databaseConfig: const DatabaseConfig.memory());
+      descriptor: descriptor,
+      changeDescriptor: change,
+      network: config.network,
+      databaseConfig: DatabaseConfig.sqlite(
+        config: SqliteDbConfiguration(
+          path: dbPath,
+        ),
+      ),
+    );
     return wallet;
   }
 }
