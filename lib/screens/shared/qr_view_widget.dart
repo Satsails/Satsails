@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -26,7 +28,7 @@ class QRViewWidget extends StatefulWidget {
 }
 
 class _QRViewWidgetState extends State<QRViewWidget> {
-  PermissionStatus _status = PermissionStatus.denied;
+  PermissionStatus _status = PermissionStatus.granted;
 
   @override
   void initState() {
@@ -178,7 +180,6 @@ class _QRViewWidgetState extends State<QRViewWidget> {
       }
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
