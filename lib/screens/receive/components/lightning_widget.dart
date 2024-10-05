@@ -150,12 +150,12 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final TextEditingController controller = TextEditingController();
     final boltzReceiveAsyncValue = ref.watch(boltzReceiveProvider);
     final fees = ref.watch(boltzFeesProvider);
+
     return Column(
       children: [
         boltzReceiveAsyncValue.when(
@@ -169,8 +169,12 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
                   child: buildAddressText(data.swap.invoice, context, ref, MediaQuery.of(context).size.height * 0.02 / 1.5),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: CustomElevatedButton(onPressed: checkTransactionStatus, text: 'Claim transaction'.i18n(ref), controller: controller),
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                  child: CustomElevatedButton(
+                    onPressed: checkTransactionStatus,
+                    text: 'Claim transaction'.i18n(ref),
+                    controller: controller,
+                  ),
                 ),
               ],
             );
@@ -198,28 +202,45 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
             ),
           ),
         ),
-
-        AmountInput(controller: controller),
         fees.when(
           data: (data) {
             final inputCurrency = ref.watch(inputCurrencyProvider);
+            final inputAmount = ref.watch(inputAmountProvider);
             final currencyRate = ref.read(selectedCurrencyProvider(inputCurrency));
             final formattedValueInBtc = btcInDenominationFormatted(data.lbtcLimits.minimal.toDouble(), 'BTC');
+            final formattedTotalFee = btcInDenominationFormatted(data.lbtcReverse.boltzFeesRate * double.parse(inputAmount) + data.lbtcReverse.claimFeesEstimate + data.lbtcReverse.lockupFees, 'BTC');
+            final totalFeeValueToDisplay = currencyRate * double.parse(formattedTotalFee);
             final valueToDisplay = currencyRate * double.parse(formattedValueInBtc);
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                'Minimum amount:'.i18n(ref) + ' ' + (
-                    inputCurrency == 'BTC'
-                        ? formattedValueInBtc
-                        : inputCurrency == 'Sats'
-                        ? data.lbtcLimits.minimal.toString()
-                        : valueToDisplay.toStringAsFixed(2)
-                ),
-                style: const TextStyle(
-                  color: Colors.grey,
-                ),
+              child: Column(
+                children: [
+                  Text(
+                    'Minimum amount:'.i18n(ref) + ' ' + (
+                        inputCurrency == 'BTC'
+                            ? formattedValueInBtc
+                            : inputCurrency == 'Sats'
+                            ? data.lbtcLimits.minimal.toString()
+                            : valueToDisplay.toStringAsFixed(2)
+                    ),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    'Total fee:'.i18n(ref) + ' ' + (
+                        inputCurrency == 'BTC'
+                            ? formattedTotalFee
+                            : inputCurrency == 'Sats'
+                            ? (data.lbtcReverse.boltzFeesRate * double.parse(inputAmount) + data.lbtcReverse.claimFeesEstimate + data.lbtcReverse.lockupFees).toString()
+                            : totalFeeValueToDisplay.toStringAsFixed(2)
+                    ),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
               ),
             );
           },
@@ -243,6 +264,7 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
             ),
           ),
         ),
+        AmountInput(controller: controller),
         CustomElevatedButton(
           onPressed: () {
             String inputValue = controller.text;
@@ -332,6 +354,7 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
     final bitcoinBoltzReceiveAsyncValue = ref.watch(bitcoinBoltzReceiveProvider);
     final fees = ref.watch(bitcoinBoltzFeesProvider);
     final TextEditingController controller = TextEditingController();
+
     return Column(
       children: [
         bitcoinBoltzReceiveAsyncValue.when(
@@ -374,27 +397,45 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
             ),
           ),
         ),
-        AmountInput(controller: controller),
         fees.when(
           data: (data) {
             final inputCurrency = ref.watch(inputCurrencyProvider);
+            final inputAmount = ref.watch(inputAmountProvider);
             final currencyRate = ref.read(selectedCurrencyProvider(inputCurrency));
             final formattedValueInBtc = btcInDenominationFormatted(data.btcLimits.minimal.toDouble(), 'BTC');
+            final formattedTotalFee = btcInDenominationFormatted(data.btcReverse.boltzFeesRate * double.parse(inputAmount) + data.btcReverse.claimFeesEstimate + data.btcReverse.lockupFees, 'BTC');
+            final totalFeeValueToDisplay = currencyRate * double.parse(formattedTotalFee);
             final valueToDisplay = currencyRate * double.parse(formattedValueInBtc);
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                'Minimum amount:'.i18n(ref) + ' ' + (
-                    inputCurrency == 'BTC'
-                        ? formattedValueInBtc
-                        : inputCurrency == 'Sats'
-                        ? data.btcLimits.minimal.toString()
-                        : valueToDisplay.toStringAsFixed(2)
-                ),
-                style: const TextStyle(
-                  color: Colors.grey,
-                ),
+              child: Column(
+                children: [
+                  Text(
+                    'Minimum amount:'.i18n(ref) + ' ' + (
+                        inputCurrency == 'BTC'
+                            ? formattedValueInBtc
+                            : inputCurrency == 'Sats'
+                            ? data.btcLimits.minimal.toString()
+                            : valueToDisplay.toStringAsFixed(2)
+                    ),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    'Total fee:'.i18n(ref) + ' ' + (
+                        inputCurrency == 'BTC'
+                            ? formattedTotalFee
+                            : inputCurrency == 'Sats'
+                            ? (data.btcReverse.boltzFeesRate * double.parse(inputAmount) + data.btcReverse.claimFeesEstimate + data.btcReverse.lockupFees).toString()
+                            : totalFeeValueToDisplay.toStringAsFixed(2)
+                    ),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
               ),
             );
           },
@@ -418,6 +459,7 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
             ),
           ),
         ),
+        AmountInput(controller: controller),
         CustomElevatedButton(
           onPressed: () {
             String inputValue = controller.text;
@@ -425,7 +467,6 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
           },
           text: 'Create Address'.i18n(ref),
           controller: controller,
-
         ),
       ],
     );
