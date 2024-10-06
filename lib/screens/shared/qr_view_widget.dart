@@ -26,7 +26,7 @@ class QRViewWidget extends StatefulWidget {
 }
 
 class _QRViewWidgetState extends State<QRViewWidget> {
-  PermissionStatus _status = PermissionStatus.granted;
+  PermissionStatus _status = PermissionStatus.denied;
 
   @override
   void initState() {
