@@ -296,10 +296,9 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                     controller.loading();
                     try {
                       await ref.watch(sendLiquidTransactionProvider.future);
+                      await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                       controller.success();
-                      ref.read(backgroundSyncNotifierProvider.notifier).performSync();
                       ref.read(sendTxProvider.notifier).resetToDefault();
-                      Future.delayed(const Duration(seconds: 2));
                       Navigator.pop(context);
                       Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                     } catch (e) {

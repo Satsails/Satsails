@@ -329,10 +329,9 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                     controller.loading();
                     try {
                       await ref.watch(sendBitcoinTransactionProvider.future);
+                      await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
                       controller.success();
-                      ref.read(backgroundSyncNotifierProvider.notifier).performSync();
                       ref.read(sendTxProvider.notifier).resetToDefault();
-                      Future.delayed(const Duration(seconds: 2));
                       Navigator.pop(context);
                       Fluttertoast.showToast(
                         msg: "Transaction Sent".i18n(ref),

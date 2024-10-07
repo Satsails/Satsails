@@ -41,7 +41,7 @@ class LiquidWidget extends ConsumerWidget {
           ],
         );
       },
-      loading: () => Container(),
+      loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
       error: (error, stack) => Center(child: LoadingAnimationWidget.threeArchedCircle(size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
     );
   }
