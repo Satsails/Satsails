@@ -299,7 +299,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                               textAlign: TextAlign.center,
                             );
                           },
-                          loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize / 1.5 , color: Colors.white),
+                          loading: () => LoadingAnimationWidget.progressiveDots(size: dynamicFontSize / 1.5 , color: Colors.white),
                           error: (error, stack) => TextButton(
                             onPressed: () {
                               ref.refresh(feeProvider);
@@ -319,7 +319,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                               textAlign: TextAlign.center,
                             );
                           },
-                          loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize / 1.5, color: Colors.white),
+                          loading: () => LoadingAnimationWidget.progressiveDots(size: dynamicFontSize / 1.5, color: Colors.white),
                           error: (error, stack) => Text('', style: TextStyle(color: Colors.white, fontSize: dynamicFontSize / 1.5)),
                         ),
                       ],

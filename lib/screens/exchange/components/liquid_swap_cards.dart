@@ -320,7 +320,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                           return Text(btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin), style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center);
                         }
                       },
-                      loading: () => controller.text.isEmpty ?Text("0", style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center) : Center(child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
+                      loading: () => controller.text.isEmpty ?Text("0", style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center) : Center(child: LoadingAnimationWidget.progressiveDots(size: titleFontSize, color: Colors.white)),
                       error: (error, stack) => Text('Error: $error', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: titleFontSize)),
                     );
                   },

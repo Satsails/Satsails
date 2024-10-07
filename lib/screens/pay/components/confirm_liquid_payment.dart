@@ -274,7 +274,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                               textAlign: TextAlign.center,
                             );
                           },
-                          loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize / 1.5, color: Colors.white),
+                          loading: () => LoadingAnimationWidget.progressiveDots(size: dynamicFontSize / 1.5, color: Colors.white),
                           error: (error, stack) => TextButton(onPressed: () { ref.refresh(feeProvider); }, child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: dynamicFontSize / 1.5))),
                         ),
                         SizedBox(height: dynamicSizedBox),
@@ -286,7 +286,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                               textAlign: TextAlign.center,
                             );
                           },
-                          loading: () => LoadingAnimationWidget.prograssiveDots(size: dynamicFontSize / 1.5, color: Colors.black),
+                          loading: () => LoadingAnimationWidget.progressiveDots(size: dynamicFontSize / 1.5, color: Colors.black),
                           error: (error, stack) => Text('', style: TextStyle(color: Colors.black, fontSize: dynamicFontSize / 1.5)),
                         ),
                       ],

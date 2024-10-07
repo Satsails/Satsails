@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/charge/charge.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -18,7 +20,20 @@ class PixOnBoarding extends ConsumerWidget {
     final iconSize = screenSize.width * 0.4;
     final isLoading = ref.watch(loadingProvider);
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =FlutterLocalNotificationsPlugin();
-    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()!.requestNotificationsPermission();
+    if (Platform.isAndroid) {
+      flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()!
+          .requestNotificationsPermission();
+    } else if (Platform.isIOS) {
+      flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>()!
+          .requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
 
     return Scaffold(
       body: Container(

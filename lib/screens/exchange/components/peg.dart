@@ -185,7 +185,7 @@ class _PegState extends ConsumerState<Peg> {
       },
       loading: () => Padding(
         padding: EdgeInsets.all(dynamicPadding / 2),
-        child: LoadingAnimationWidget.prograssiveDots(size:  dynamicFontSize / 2, color: Colors.white),
+        child: LoadingAnimationWidget.progressiveDots(size:  dynamicFontSize / 2, color: Colors.white),
       ),
       error: (error, stack) => Padding(
           padding: EdgeInsets.all(dynamicPadding / 2),
@@ -239,7 +239,7 @@ class _PegState extends ConsumerState<Peg> {
           ),
         );
       },
-      loading: () => Center(child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize * 2, color: Colors.white)),
+      loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size:  titleFontSize * 2, color: Colors.white)),
       error: (error, stack) => Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize)),
     );
   }
@@ -289,7 +289,7 @@ class _PegState extends ConsumerState<Peg> {
       },
       loading: () => Padding(
         padding: EdgeInsets.all(dynamicPadding / 2),
-        child: Center(child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize * 2, color: Colors.white)),
+        child: Center(child: LoadingAnimationWidget.progressiveDots(size:  titleFontSize * 2, color: Colors.white)),
       ),
       error: (error, stack) => Padding(
           padding: EdgeInsets.all(dynamicPadding / 2),
@@ -450,7 +450,7 @@ class _PegState extends ConsumerState<Peg> {
                 textAlign: TextAlign.center,
               );
             },
-            loading: () => LoadingAnimationWidget.prograssiveDots(size:  titleFontSize / 2, color: Colors.white),
+            loading: () => LoadingAnimationWidget.progressiveDots(size:  titleFontSize / 2, color: Colors.white),
             error: (error, stack) => TextButton(
                 onPressed: () { ref.refresh(feeProvider); },
                 child: Text(ref.watch(sendTxProvider).amount == 0 ? 'Enter a value to send'.i18n(ref) : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
@@ -471,7 +471,7 @@ class _PegState extends ConsumerState<Peg> {
                 textAlign: TextAlign.center,
               );
             },
-            loading: () => LoadingAnimationWidget.prograssiveDots(size:  titleFontSize / 2, color: Colors.white),
+            loading: () => LoadingAnimationWidget.progressiveDots(size:  titleFontSize / 2, color: Colors.white),
             error: (error, stack) => TextButton(
                 onPressed: () { ref.refresh(liquidFeeProvider); },
                 child: Text(ref.watch(sendTxProvider).amount == 0 ? 'Enter a value to send'.i18n(ref) : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
@@ -659,7 +659,7 @@ class _PegState extends ConsumerState<Peg> {
                   ],
                 );
               },
-              loading: () => Center(child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
+              loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size: titleFontSize, color: Colors.white)),
               error: (error, stack) => Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: titleFontSize / 2)),
             ),
         ],
@@ -857,7 +857,7 @@ class _PegState extends ConsumerState<Peg> {
                   ],
                 );
               },
-              loading: () => Center(child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
+              loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size: titleFontSize, color: Colors.white)),
               error: (error, stack) => Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: titleFontSize / 2)),
             ),
         ],

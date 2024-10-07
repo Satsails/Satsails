@@ -149,7 +149,7 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
         );
       },
       loading: () {
-        return LoadingAnimationWidget.prograssiveDots(size: titleFontSize * 0.5, color: Colors.black);
+        return LoadingAnimationWidget.progressiveDots(size: titleFontSize * 0.5, color: Colors.black);
       },
       error: (error, stack) {
         return Container(
