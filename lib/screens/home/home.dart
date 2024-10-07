@@ -111,7 +111,7 @@ class Home extends ConsumerWidget {
 
     void toggleOnlineStatus() {
       settingsNotifier.setOnline(true);
-      ref.read(backgroundSyncNotifierProvider).performSync();
+      ref.read(backgroundSyncNotifierProvider.notifier).performSync();
     }
 
     return AppBar(

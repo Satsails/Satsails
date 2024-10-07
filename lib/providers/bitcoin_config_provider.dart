@@ -4,7 +4,7 @@ import 'package:Satsails/models/bitcoin_config_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 
-final bitcoinConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
+final bitcoinConfigProvider = FutureProvider.autoDispose<BitcoinConfig>((ref) async {
   final authModel = ref.read(authModelProvider);
   final mnemonic = await authModel.getMnemonic();
   if (mnemonic == null || mnemonic.isEmpty) {
@@ -21,28 +21,28 @@ final bitcoinConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
   );
 });
 
-final createInternalDescriptorProvider = FutureProvider<Descriptor>((ref) {
+final createInternalDescriptorProvider = FutureProvider.autoDispose<Descriptor>((ref) {
   return ref.watch(bitcoinConfigProvider.future).then((config) {
     BitcoinConfigModel bitcoinConfigModel = BitcoinConfigModel(config);
     return bitcoinConfigModel.createInternalDescriptor();
   });
 });
 
-final createExternalDescriptorProvider = FutureProvider<Descriptor>((ref) {
+final createExternalDescriptorProvider = FutureProvider.autoDispose<Descriptor>((ref) {
   return ref.watch(bitcoinConfigProvider.future).then((config) {
     BitcoinConfigModel bitcoinConfigModel = BitcoinConfigModel(config);
     return bitcoinConfigModel.createExternalDescriptor();
   });
 });
 
-final initializeBlockchainProvider = FutureProvider<Blockchain>((ref) {
+final initializeBlockchainProvider = FutureProvider.autoDispose<Blockchain>((ref) {
   return ref.watch(bitcoinConfigProvider.future).then((config) {
     BitcoinConfigModel bitcoinConfigModel = BitcoinConfigModel(config);
     return bitcoinConfigModel.initializeBlockchain();
   });
 });
 
-final restoreWalletProvider = FutureProvider<Wallet>((ref) {
+final restoreWalletProvider = FutureProvider.autoDispose<Wallet>((ref) {
   return ref.watch(bitcoinConfigProvider.future).then((config) async {
     final externalDescriptor = await ref.watch(createExternalDescriptorProvider.future);
     final internalDescriptor = await ref.watch(createInternalDescriptorProvider.future);

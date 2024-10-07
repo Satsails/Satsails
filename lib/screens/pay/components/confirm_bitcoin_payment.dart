@@ -343,10 +343,12 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                   toggleColor: Colors.orange,
                   action: (controller) async {
                     controller.loading();
-                    await Future.delayed(const Duration(seconds: 3));
                     try {
                       await ref.watch(sendBitcoinTransactionProvider.future);
                       controller.success();
+                      ref.read(sendTxProvider.notifier).resetToDefault();
+                      await ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+                      Navigator.pop(context);
                       Fluttertoast.showToast(
                         msg: "Transaction Sent".i18n(ref),
                         toastLength: Toast.LENGTH_LONG,
@@ -356,10 +358,6 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                         textColor: Colors.white,
                         fontSize: 16.0,
                       );
-                      await Future.delayed(const Duration(seconds: 3));
-                      ref.read(sendTxProvider.notifier).resetToDefault();
-                      ref.read(backgroundSyncNotifierProvider).performSync();
-                      Navigator.pop(context);
                     } catch (e) {
                       controller.failure();
                       Fluttertoast.showToast(

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:path_provider/path_provider.dart'; // Import this package
 
@@ -63,7 +65,6 @@ class BitcoinConfigModel {
   }
 
   Future<Wallet> restoreWallet(Descriptor descriptor, Descriptor change) async {
-    // Get the application documents directory
     final appDocDir = await getApplicationDocumentsDirectory();
     final dbPath = '${appDocDir.path}/bdk_wallet.sqlite';
 

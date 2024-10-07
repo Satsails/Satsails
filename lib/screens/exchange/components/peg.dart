@@ -220,7 +220,7 @@ class _PegState extends ConsumerState<Peg> {
                     ref.read(navigationProvider.notifier).state = 1;
                   });
                   Navigator.pushReplacementNamed(context, '/home');
-                  await ref.read(backgroundSyncNotifierProvider).performSync();
+                  await ref.read(backgroundSyncNotifierProvider.notifier).performSync();
                 } catch (e) {
                   controller.failure();
                   Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
@@ -268,7 +268,7 @@ class _PegState extends ConsumerState<Peg> {
                     ref.read(navigationProvider.notifier).state = 1;
                   });
                   Navigator.pushReplacementNamed(context, '/home');
-                  await ref.read(backgroundSyncNotifierProvider).performSync();
+                  await ref.read(backgroundSyncNotifierProvider.notifier).performSync();
                 } catch (e) {
                   controller.failure();
                   Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);

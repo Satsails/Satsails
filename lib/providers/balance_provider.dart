@@ -8,18 +8,19 @@ import 'package:Satsails/providers/settings_provider.dart';
 
 final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) async {
   final online = ref.watch(settingsProvider).online;
+  if (online) {
+    await ref.read(backgroundSyncNotifierProvider.future);
+    await ref.read(updateCurrencyProvider.future);
+  }
+
   final bitcoinBalance = await ref.watch(getBitcoinBalanceProvider.future);
   final liquidBalances = await ref.watch(liquidBalanceProvider.future);
-
-  if (online) {
-    await ref.read(updateCurrencyProvider.future);
-    ref.read(backgroundSyncNotifierProvider);
-  }
 
   final liquidBalanceData = Balance.updateFromAssets(liquidBalances, bitcoinBalance.total);
 
   return liquidBalanceData;
 });
+
 
 final balanceNotifierProvider = StateProvider.autoDispose<Balance>((ref) {
   final initialBalance = ref.watch(initializeBalanceProvider);
