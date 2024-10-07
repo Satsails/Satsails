@@ -1,4 +1,3 @@
-
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
@@ -218,7 +217,6 @@ class _PegState extends ConsumerState<Peg> {
                   }
                   await ref.watch(sendLiquidTransactionProvider.future);
                   await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-                  controller.success();
                   ref.read(sendTxProvider.notifier).updateAddress('');
                   ref.read(sendTxProvider.notifier).updateAmount(0);
                   ref.read(sendBlocksProvider.notifier).state = 1;
@@ -228,8 +226,9 @@ class _PegState extends ConsumerState<Peg> {
                     ref.read(groupButtonControllerProvider).selectIndex(2);
                     ref.read(navigationProvider.notifier).state = 1;
                   });
+                  await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+                  controller.success();
                   Navigator.pushReplacementNamed(context, '/home');
-                  await ref.read(backgroundSyncNotifierProvider).performSync();
                 } catch (e) {
                   controller.failure();
                   Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
@@ -266,7 +265,6 @@ class _PegState extends ConsumerState<Peg> {
                   }
                   await ref.watch(sendBitcoinTransactionProvider.future);
                   await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-                  controller.success();
                   ref.read(sendTxProvider.notifier).updateAddress('');
                   ref.read(sendTxProvider.notifier).updateAmount(0);
                   ref.read(sendBlocksProvider.notifier).state = 1;
@@ -276,8 +274,9 @@ class _PegState extends ConsumerState<Peg> {
                     ref.read(groupButtonControllerProvider).selectIndex(2);
                     ref.read(navigationProvider.notifier).state = 1;
                   });
+                  await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
+                  controller.success();
                   Navigator.pushReplacementNamed(context, '/home');
-                  await ref.read(backgroundSyncNotifierProvider).performSync();
                 } catch (e) {
                   controller.failure();
                   Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);

@@ -29,5 +29,3 @@ final settingsProvider = StateNotifierProvider<SettingsModel, Settings>((ref) {
             },
       ));
 });
-
-final backgroundSyncInProgressProvider = StateProvider.autoDispose<bool>((ref) => false);

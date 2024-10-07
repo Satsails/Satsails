@@ -21,7 +21,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final titleFontSize = MediaQuery.of(context).size.height * 0.03;
     final sendTxState = ref.read(sendTxProvider);
-    final initializeBalance = ref.watch(initializeBalanceProvider);
+    final balance = ref.watch(balanceNotifierProvider);
     final liquidFormart = ref.watch(settingsProvider).btcFormat;
     final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(liquidFormart));
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
@@ -70,7 +70,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                       SizedBox(height: dynamicSizedBox),
                       LightningCards(
                         titleFontSize: titleFontSize,
-                        initializeBalance: initializeBalance,
+                        balance: balance,
                         liquidFormart: liquidFormart,
                         btcFormart: btcFormart,
                         liquidBalanceInFormat: liquidBalanceInFormat,
@@ -151,16 +151,14 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                     toggleColor: Colors.orange,
                     action: (controller) async {
                       controller.loading();
-                      await Future.delayed(const Duration(seconds: 3));
                       try {
                         final sendLiquid = ref.read(sendLiquidProvider);
                         sendLiquid ? await ref.read(boltzPayProvider.future) : await ref.read(bitcoinBoltzPayProvider.future);
+                        sendLiquid ? ref.read(liquidSyncNotifierProvider.notifier).performSync() : ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
                         controller.success();
-                        Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
-                        await Future.delayed(const Duration(seconds: 3));
                         ref.read(sendTxProvider.notifier).resetToDefault();
-                        ref.read(backgroundSyncNotifierProvider).performSync();
                         Navigator.pop(context);
+                        Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                       } catch (e) {
                         controller.failure();
                         Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);

@@ -381,15 +381,15 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
-              controller.success();
-              Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
               Future.microtask(() {
               ref.read(topSelectedButtonProvider.notifier).state = "Swap";
               ref.read(groupButtonControllerProvider).selectIndex(2);
               ref.read(navigationProvider.notifier).state = 1;
              });
+              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+              controller.success();
               Navigator.pushReplacementNamed(context, '/home');
-              await ref.read(backgroundSyncNotifierProvider).performSync();
+              Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
             } catch (e) {
               controller.failure();
               Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);

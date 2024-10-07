@@ -14,7 +14,7 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/build_balance_card.dart';
 import 'package:Satsails/screens/shared/circular_button.dart';
-import 'package:Satsails/screens/shared/pie_chart.dart';
+import 'package:Satsails/screens/shared/bar_chart.dart';
 
 
 class Home extends ConsumerWidget {
@@ -51,6 +51,8 @@ class Home extends ConsumerWidget {
 
   Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final balance = ref.watch(balanceNotifierProvider);
+    final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -63,26 +65,13 @@ class Home extends ConsumerWidget {
         Flexible(
           child: SizedBox(
             height: double.infinity,
-            child: Consumer(builder: (context, watch, child) {
-              final initializeBalance = ref.watch(initializeBalanceProvider);
-              final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
-              return initializeBalance.when(
-                data: (balance) => balance.isEmpty
-                    ? const BitcoinPriceHistoryGraph()
-                    : walletWidget(ref, context, percentageOfEachCurrency, balance),
-                loading: () =>Center(child: LoadingAnimationWidget.threeArchedCircle(size: 100, color: Colors.orange)),
-                error: (error, stack) =>
-                    Center(
-                      child: LoadingAnimationWidget.threeArchedCircle(
-                          size: 100, color: Colors.orange),
-                    ),
-              );
-            }),
+            child: balance.isEmpty ? const BitcoinPriceHistoryGraph() : walletWidget(ref, context, percentageOfEachCurrency, balance),
           ),
         ),
       ],
     );
   }
+
 
   Widget walletWidget(WidgetRef ref, BuildContext context, percentageOfEachCurrency, balance) {
 
@@ -107,7 +96,7 @@ class Home extends ConsumerWidget {
 
     void toggleOnlineStatus() {
       settingsNotifier.setOnline(true);
-      ref.read(backgroundSyncNotifierProvider).performSync();
+      ref.read(backgroundSyncNotifierProvider.notifier).performSync();
     }
 
     return AppBar(

@@ -12,7 +12,7 @@ Widget buildLegendItem(Widget icon, String label, double percentage) {
   );
 }
 
-Widget buildBarChart(BuildContext context, Percentage percentage, Balance balance) {
+Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance balance) {
   double totalValue = percentage.btcPercentage +
       percentage.liquidPercentage +
       percentage.brlPercentage +
