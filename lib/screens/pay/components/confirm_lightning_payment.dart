@@ -21,7 +21,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final titleFontSize = MediaQuery.of(context).size.height * 0.03;
     final sendTxState = ref.read(sendTxProvider);
-    final initializeBalance = ref.watch(initializeBalanceProvider);
+    final balance = ref.watch(balanceNotifierProvider);
     final liquidFormart = ref.watch(settingsProvider).btcFormat;
     final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(liquidFormart));
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
@@ -69,7 +69,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                     SizedBox(height: dynamicSizedBox),
                     LightningCards(
                       titleFontSize: titleFontSize,
-                      initializeBalance: initializeBalance,
+                      balance: balance,
                       liquidFormart: liquidFormart,
                       btcFormart: btcFormart,
                       liquidBalanceInFormat: liquidBalanceInFormat,
@@ -154,8 +154,9 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                       final sendLiquid = ref.read(sendLiquidProvider);
                       sendLiquid ? await ref.read(boltzPayProvider.future) : await ref.read(bitcoinBoltzPayProvider.future);
                       controller.success();
+                      ref.read(backgroundSyncNotifierProvider.notifier).performSync();
                       ref.read(sendTxProvider.notifier).resetToDefault();
-                      await ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+                      Future.delayed(const Duration(seconds: 2));
                       Navigator.pop(context);
                       Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                     } catch (e) {

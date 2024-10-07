@@ -26,7 +26,6 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final titleFontSize = MediaQuery.of(context).size.height * 0.03;
     final sendTxState = ref.watch(sendTxProvider);
-    final initializeBalance = ref.watch(initializeBalanceProvider);
     final liquidFormart = ref.watch(settingsProvider).btcFormat;
     final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(liquidFormart));
     final balance = ref.watch(balanceNotifierProvider);
@@ -70,7 +69,6 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                   children: [
                     LiquidCards(
                       titleFontSize: titleFontSize,
-                      initializeBalance: initializeBalance,
                       liquidFormart: liquidFormart,
                       liquidBalanceInFormat: liquidBalanceInFormat,
                       balance: balance,
@@ -299,8 +297,9 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                     try {
                       await ref.watch(sendLiquidTransactionProvider.future);
                       controller.success();
+                      ref.read(backgroundSyncNotifierProvider.notifier).performSync();
                       ref.read(sendTxProvider.notifier).resetToDefault();
-                      await ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+                      Future.delayed(const Duration(seconds: 2));
                       Navigator.pop(context);
                       Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                     } catch (e) {

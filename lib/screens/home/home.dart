@@ -51,6 +51,8 @@ class Home extends ConsumerWidget {
 
   Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final balance = ref.watch(balanceNotifierProvider);
+    final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -64,26 +66,13 @@ class Home extends ConsumerWidget {
         Flexible(
           child: SizedBox(
             height: double.infinity,
-            child: Consumer(builder: (context, watch, child) {
-              final initializeBalance = ref.watch(initializeBalanceProvider);
-              final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
-              return initializeBalance.when(
-                data: (balance) => balance.isEmpty
-                    ? const BitcoinPriceHistoryGraph()
-                    : walletWidget(ref, context, percentageOfEachCurrency),
-                loading: () =>Center(child: LoadingAnimationWidget.threeArchedCircle(size: 100, color: Colors.orange)),
-                error: (error, stack) =>
-                    Center(
-                      child: LoadingAnimationWidget.threeArchedCircle(
-                          size: 100, color: Colors.orange),
-                    ),
-              );
-            }),
+            child: balance.isEmpty ? const BitcoinPriceHistoryGraph() : walletWidget(ref, context, percentageOfEachCurrency),
           ),
         ),
       ],
     );
   }
+
 
   Widget walletWidget(WidgetRef ref, BuildContext context, percentageOfEachCurrency) {
 

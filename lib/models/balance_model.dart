@@ -1,18 +1,75 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/currency_conversions.dart';
+import 'package:Satsails/providers/balance_provider.dart';
+import 'package:hive/hive.dart';
+import 'package:riverpod/riverpod.dart';
 
-class Balance {
-  late final int btcBalance;
+part 'balance_model.g.dart';
+
+class BalanceNotifier extends StateNotifier<WalletBalance> {
+  BalanceNotifier(this.ref) : super(
+      WalletBalance(
+        btcBalance: 0,
+        liquidBalance: 0,
+        usdBalance: 0,
+        eurBalance: 0,
+        brlBalance: 0,
+      )) {
+    _initialize();
+  }
+
+  final Ref ref;
+
+  void _initialize() {
+    Future.microtask(() async {
+      // Open Hive box
+      final hiveBox = await Hive.openBox<WalletBalance>('balanceBox');
+
+      // Load the cached balance
+      final cachedBalance = hiveBox.get('balance');
+
+      if (cachedBalance != null) {
+        // Update the state with the cached balance
+        state = cachedBalance;
+      }
+
+      // Listen for balance updates
+      ref.listen<AsyncValue<WalletBalance>>(initializeBalanceProvider, (previous, next) async {
+        next.when(
+          data: (balance) async {
+            state = balance; // Update state with new balance
+            await hiveBox.put('balance', balance); // Store new balance in Hive
+          },
+          loading: () {
+            // Do nothing, retain previous balance
+          },
+          error: (error, stackTrace) {
+            print('Error updating balance: $error');
+          },
+        );
+      });
+    });
+  }
+}
+
+@HiveType(typeId: 26)
+class WalletBalance {
+  @HiveField(0)
+  final int btcBalance;
+  @HiveField(1)
   final int liquidBalance;
+  @HiveField(2)
   final int usdBalance;
+  @HiveField(3)
   final int eurBalance;
+  @HiveField(4)
   final int brlBalance;
 
   bool get isEmpty {
     return btcBalance == 0 && liquidBalance == 0 && usdBalance == 0 && eurBalance == 0 && brlBalance == 0;
   }
 
-  Balance({
+  WalletBalance({
     required this.btcBalance,
     required this.liquidBalance,
     required this.usdBalance,
@@ -20,7 +77,7 @@ class Balance {
     required this.brlBalance,
   });
 
-  factory Balance.updateFromAssets(List<dynamic> balances, int bitcoinBalance) {
+  factory WalletBalance.updateFromAssets(List<dynamic> balances, int bitcoinBalance) {
     int usdBalance = 0;
     int eurBalance = 0;
     int brlBalance = 0;
@@ -45,7 +102,7 @@ class Balance {
       }
     }
 
-    return Balance(
+    return WalletBalance(
       btcBalance: bitcoinBalance,
       liquidBalance: liquidBalance,
       usdBalance: usdBalance,

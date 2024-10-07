@@ -6,7 +6,7 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 
-final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) async {
+final initializeBalanceProvider = FutureProvider<WalletBalance>((ref) async {
   final online = ref.watch(settingsProvider).online;
   if (online) {
     await ref.read(backgroundSyncNotifierProvider.future);
@@ -16,29 +16,16 @@ final initializeBalanceProvider = FutureProvider.autoDispose<Balance>((ref) asyn
   final bitcoinBalance = await ref.watch(getBitcoinBalanceProvider.future);
   final liquidBalances = await ref.watch(liquidBalanceProvider.future);
 
-  final liquidBalanceData = Balance.updateFromAssets(liquidBalances, bitcoinBalance.total);
+  final liquidBalanceData = WalletBalance.updateFromAssets(liquidBalances, bitcoinBalance.total);
 
   return liquidBalanceData;
 });
 
 
-final balanceNotifierProvider = StateProvider.autoDispose<Balance>((ref) {
-  final initialBalance = ref.watch(initializeBalanceProvider);
-
-  return initialBalance.when(
-    data: (balance) => balance,
-    loading: () => Balance(
-      btcBalance: 0,
-      liquidBalance: 0,
-      usdBalance: 0,
-      eurBalance: 0,
-      brlBalance: 0,
-    ),
-    error: (Object error, StackTrace stackTrace) {
-      throw error;
-    },
-  );
+final balanceNotifierProvider = StateNotifierProvider<BalanceNotifier, WalletBalance>((ref) {
+  return BalanceNotifier(ref);
 });
+
 
 final totalBalanceInFiatProvider = StateProvider.family.autoDispose<String, String>((ref, currency)  {
   final balanceModel = ref.watch(balanceNotifierProvider);

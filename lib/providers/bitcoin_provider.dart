@@ -5,7 +5,7 @@ import 'package:Satsails/models/bitcoin_model.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'bitcoin_config_provider.dart';
 
-final bitcoinProvider = FutureProvider.autoDispose<Bitcoin>((ref) async {
+final bitcoinProvider = FutureProvider<Bitcoin>((ref) async {
   Wallet wallet = await ref.watch(restoreWalletProvider.future);
   final config = await ref.read(bitcoinConfigProvider.future);
   try {
@@ -53,7 +53,7 @@ final getBitcoinTransactionsProvider = FutureProvider.autoDispose<List<Transacti
   });
 });
 
-final getBitcoinBalanceProvider = FutureProvider.autoDispose<Balance>((ref) {
+final getBitcoinBalanceProvider = FutureProvider<Balance>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     return bitcoinModel.getBalance();

@@ -91,6 +91,7 @@ class AuthModel {
     await _storage.delete(key: 'recoveryCode');
     await Hive.deleteBoxFromDisk('bitcoin');
     await Hive.deleteBoxFromDisk('liquid');
+    await Hive.deleteBoxFromDisk('balanceBox');
     await Hive.deleteBoxFromDisk('settings');
     await Hive.deleteBoxFromDisk('bitcoinTransactions');
     await Hive.deleteBoxFromDisk('liquidTransactions');

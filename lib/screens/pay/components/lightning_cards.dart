@@ -1,3 +1,4 @@
+import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
@@ -12,7 +13,7 @@ final sendLiquidProvider = StateProvider((ref) => true);
 
 class LightningCards extends StatelessWidget {
   final double titleFontSize;
-  final AsyncValue initializeBalance;
+  final WalletBalance balance;
   final dynamic liquidFormart;
   final dynamic btcFormart;
   final dynamic liquidBalanceInFormat;
@@ -25,7 +26,7 @@ class LightningCards extends StatelessWidget {
   const LightningCards({
     super.key,
     required this.titleFontSize,
-    required this.initializeBalance,
+    required this.balance,
     required this.liquidFormart,
     required this.btcFormart,
     required this.liquidBalanceInFormat,
@@ -126,45 +127,32 @@ class LightningCards extends StatelessWidget {
                             fontSize: titleFontSize / 1.5,
                             color: Colors.black,),
                           textAlign: TextAlign.center),
-                      initializeBalance.when(
-                        data: (_) => Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(balanceText,
-                                style: TextStyle(
-                                    fontSize: titleFontSize,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black),
-                                textAlign: TextAlign.center),
-                            if (isLiquid)
-                              Text(
-                                '$liquidBalanceInSelectedCurrency ${ref.read(settingsProvider).currency}',
-                                style: TextStyle(
-                                    fontSize: titleFontSize / 1.24,
-                                    color: Colors.black),
-                                textAlign: TextAlign.center,
-                              ),
-                            if (!isLiquid)
-                              Text(
-                                '$btcBalanceInSelectedCurrency ${ref.read(settingsProvider).currency}',
-                                style: TextStyle(
-                                    fontSize: titleFontSize / 1.24,
-                                    color: Colors.black),
-                                textAlign: TextAlign.center,
-                              ),
-                          ],
-                        ),
-                        loading: () => LoadingAnimationWidget.prograssiveDots(
-                            size: titleFontSize, color: Colors.black),
-                        error: (error, stack) => TextButton(
-                          onPressed: () {
-                            ref.refresh(initializeBalanceProvider);
-                          },
-                          child: Text('Retry',
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(balanceText,
                               style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: titleFontSize)),
-                        ),
+                                  fontSize: titleFontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                              textAlign: TextAlign.center),
+                          if (isLiquid)
+                            Text(
+                              '$liquidBalanceInSelectedCurrency ${ref.read(settingsProvider).currency}',
+                              style: TextStyle(
+                                  fontSize: titleFontSize / 1.24,
+                                  color: Colors.black),
+                              textAlign: TextAlign.center,
+                            ),
+                          if (!isLiquid)
+                            Text(
+                              '$btcBalanceInSelectedCurrency ${ref.read(settingsProvider).currency}',
+                              style: TextStyle(
+                                  fontSize: titleFontSize / 1.24,
+                                  color: Colors.black),
+                              textAlign: TextAlign.center,
+                            ),
+                        ],
                       ),
                     ],
                   ),

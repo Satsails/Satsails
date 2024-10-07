@@ -188,7 +188,6 @@ Widget _buildVisibilityToggleIcon(BuildContext context, WidgetRef ref) {
 
 Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName, String settingsName, FontWeight font) {
   final settings = ref.watch(settingsProvider);
-  final initializeBalance = ref.watch(initializeBalanceProvider);
   final isBalanceVisible = ref.watch(isBalanceVisibleProvider);
 
   String balance;
@@ -215,26 +214,11 @@ Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName
       throw Exception('Invalid settingsName: $settingsName');
   }
 
-  return initializeBalance.when(
-    data: (_) => SizedBox(
-      height: fontSize * 1.5,
-      child: Text(
-        isBalanceVisible ? '$balance $settingsValue' : '******',
-        style: TextStyle(fontSize: fontSize, color: Colors.black, fontWeight: font),
-      ),
-    ),
-    loading: () => SizedBox(
-      height: fontSize * 1.5,
-      child: LoadingAnimationWidget.prograssiveDots(size: fontSize, color: Colors.black),
-    ),
-    error: (error, stack) => SizedBox(
-      height: fontSize * 1.5,
-      child: TextButton(
-        onPressed: () {
-          ref.refresh(initializeBalanceProvider);
-        },
-        child: Text('Retry', style: TextStyle(color: Colors.black, fontSize: fontSize)),
-      ),
+  return SizedBox(
+    height: fontSize * 1.5,
+    child: Text(
+      isBalanceVisible ? '$balance $settingsValue' : '******',
+      style: TextStyle(fontSize: fontSize, color: Colors.black, fontWeight: font),
     ),
   );
 }

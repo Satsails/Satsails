@@ -41,7 +41,7 @@ class BitcoinWidget extends ConsumerWidget {
           ],
         );
       },
-      loading: () => Center(child: LoadingAnimationWidget.threeArchedCircle(size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
+      loading: () => Container(),
       error: (error, stack) => Center(child: LoadingAnimationWidget.threeArchedCircle(size: MediaQuery.of(context).size.width * 0.6, color: Colors.orange)),
     );
   }

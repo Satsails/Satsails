@@ -25,7 +25,6 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final titleFontSize = screenHeight * 0.03;
     final sendTxState = ref.watch(sendTxProvider);
-    final initializeBalance = ref.watch(initializeBalanceProvider);
     final btcFormart = ref.watch(settingsProvider).btcFormat;
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormart));
     final sendAmount = ref.watch(sendTxProvider).btcBalanceInDenominationFormatted(btcFormart);
@@ -87,26 +86,11 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text('Bitcoin Balance'.i18n(ref), style: TextStyle(fontSize: titleFontSize / 1.5 , color: Colors.black), textAlign: TextAlign.center),
-                                initializeBalance.when(
-                                  data: (_) => Column(
-                                    children: [
-                                      Text('$btcBalanceInFormat $btcFormart', style: TextStyle(fontSize: titleFontSize, color: Colors.black, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-                                      Text('$balanceInSelectedCurrency $currency', style: TextStyle(fontSize: titleFontSize, color: Colors.black), textAlign: TextAlign.center),
-                                    ],
-                                  ),
-                                  loading: () => SizedBox(
-                                    height: titleFontSize,
-                                    child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.black),
-                                  ),
-                                  error: (error, stack) => SizedBox(
-                                    height: titleFontSize,
-                                    child: TextButton(
-                                      onPressed: () {
-                                        ref.refresh(initializeBalanceProvider);
-                                      },
-                                      child: Text('Retry'.i18n(ref), style: TextStyle(color: Colors.black, fontSize: titleFontSize)),
-                                    ),
-                                  ),
+                                Column(
+                                  children: [
+                                    Text('$btcBalanceInFormat $btcFormart', style: TextStyle(fontSize: titleFontSize, color: Colors.black, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                                    Text('$balanceInSelectedCurrency $currency', style: TextStyle(fontSize: titleFontSize, color: Colors.black), textAlign: TextAlign.center),
+                                  ],
                                 ),
                               ],
                             ),
@@ -346,8 +330,9 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                     try {
                       await ref.watch(sendBitcoinTransactionProvider.future);
                       controller.success();
+                      ref.read(backgroundSyncNotifierProvider.notifier).performSync();
                       ref.read(sendTxProvider.notifier).resetToDefault();
-                      await ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+                      Future.delayed(const Duration(seconds: 2));
                       Navigator.pop(context);
                       Fluttertoast.showToast(
                         msg: "Transaction Sent".i18n(ref),
