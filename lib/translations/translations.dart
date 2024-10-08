@@ -1682,6 +1682,18 @@ extension Localization on String {
       {
         'en': 'Your balance will update soon',
         'pt': 'Seu saldo será atualizado em breve'
+      } +
+      {
+        'en': 'PIX failed',
+        'pt': 'PIX falhou'
+      } +
+      {
+        'en': 'Transaction failed, please try again',
+        'pt': 'Transação falhou, por favor, tente novamente'
+      } +
+      {
+        'en': 'App will sync in background',
+        'pt': 'O aplicativo sincronizará em segundo plano'
       };
 
   String i18n(WidgetRef ref) {

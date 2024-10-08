@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
@@ -45,18 +44,18 @@ import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pusher_beams/pusher_beams.dart';
-
+import 'package:in_app_notification/in_app_notification.dart';
 import 'screens/charge/components/pix.dart';
 import 'screens/settings/components/backup_wallet.dart';
-
+import 'package:Satsails/screens/shared/app_notification.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await PusherBeams.instance.start('ac5722c9-48df-4a97-9b90-438fc759b42a');
+
   PusherBeams.instance.onMessageReceivedInTheForeground((message) async {
-    // Display notification for received Pusher message
     if (Platform.isAndroid || Platform.isIOS) {
       const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
         'pix_payments_channel',
@@ -81,12 +80,13 @@ void main() async {
 
       await flutterLocalNotificationsPlugin.show(
         0,
-        '1',
-        '2',
+        'PIX Payment',
+        'You have received a new transaction',
         platformChannelSpecifics,
       );
     }
   });
+
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -113,37 +113,38 @@ void main() async {
   await BoltzCore.init();
   await LwkCore.init();
 
-
   runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('pt'),
-      ],
-      home: I18n(
-        child: const ProviderScope(
-          child: MainApp(),
+    InAppNotification(
+      child: ProviderScope(
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'),
+            Locale('pt'),
+          ],
+          home: I18n(
+            child: MainApp(),
+          ),
+          builder: (context, child) {
+            final mediaQueryData = MediaQuery.of(context);
+            return MediaQuery(
+              data: mediaQueryData.copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: child!,
+            );
+          },
         ),
       ),
-      builder: (context, child) {
-        final mediaQueryData = MediaQuery.of(context);
-        return MediaQuery(
-          data: mediaQueryData.copyWith(textScaler: const TextScaler.linear(1.0)),
-          child: child!,
-        );
-      },
     ),
   );
 }
 
 class MainApp extends ConsumerStatefulWidget {
-  const MainApp({super.key});
+  const MainApp({Key? key}) : super(key: key);
 
   @override
   ConsumerState<MainApp> createState() => _MainAppState();
@@ -152,12 +153,12 @@ class MainApp extends ConsumerStatefulWidget {
 class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   Timer? _lockTimer;
-  final int lockThresholdInSeconds = 300; // 5 minutes
+  final int lockThresholdInSeconds = 300;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this); // Observe app lifecycle
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.black,
       systemNavigationBarIconBrightness: Brightness.light,
@@ -166,8 +167,8 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this); // Stop observing
-    _cancelLockTimer(); // Cancel the timer if the app is closed
+    WidgetsBinding.instance.removeObserver(this);
+    _cancelLockTimer();
     super.dispose();
   }
 
@@ -175,26 +176,20 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
-      // Start the lock countdown when the app is inactive or paused
       _startLockCountdown();
     } else if (state == AppLifecycleState.resumed) {
-      // Cancel the lock countdown when the app is resumed
       _cancelLockTimer();
     }
   }
 
-  // Start a countdown timer for 5 minutes (300 seconds)
   void _startLockCountdown() {
-    _cancelLockTimer(); // Ensure no previous timer is running
+    _cancelLockTimer();
     _lockTimer = Timer(Duration(seconds: lockThresholdInSeconds), _lockApp);
   }
 
-  // Cancel the countdown timer if the app resumes before 5 minutes
   void _cancelLockTimer() {
-    if (_lockTimer != null) {
-      _lockTimer!.cancel();
-      _lockTimer = null;
-    }
+    _lockTimer?.cancel();
+    _lockTimer = null;
   }
 
   Future<void> _lockApp() async {
@@ -215,53 +210,57 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     final language = ref.watch(settingsProvider.notifier).state.language;
 
     return FutureBuilder<String?>(
-        future: mnemonicFuture,
-        builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Splash();
-      } else if (snapshot.hasError) {
-        return Text('Error: ${snapshot.error}');
-      } else {
-        final mnemonic = snapshot.data;
-        final initialRoute = (mnemonic == null || mnemonic.isEmpty)
-            ? '/'
-            : '/open_pin';
+      future: mnemonicFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Splash();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          final mnemonic = snapshot.data;
+          final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/open_pin';
 
-        return MaterialApp(
-            navigatorKey: navigatorKey,
-            locale: Locale(language),
-            initialRoute: initialRoute,
-            themeMode: ThemeMode.dark,
-            debugShowCheckedModeBanner: false,
-            routes: {
-              '/': (context) => const Start(),
-              '/seed_words': (context) => const SeedWords(),
-              '/open_pin': (context) => OpenPin(),
-              '/charge': (context) => const Charge(),
-              '/accounts': (context) => const Accounts(),
-              '/receive': (context) => Receive(),
-              '/settings': (context) => const Settings(),
-              '/analytics': (context) => const Analytics(),
-              '/set_pin': (context) => const SetPin(),
-              '/exchange': (context) => Exchange(),
-              '/apps': (context) => const Services(),
-              '/pay': (context) => Pay(),
-              '/home': (context) => const MainScreen(),
-              '/recover_wallet': (context) => const RecoverWallet(),
-              '/search_modal': (context) => const SearchModal(),
-              '/confirm_bitcoin_payment': (context) => ConfirmBitcoinPayment(),
-              '/confirm_liquid_payment': (context) => ConfirmLiquidPayment(),
-              '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
-              '/claim_boltz_transactions': (context) => ClaimBoltz(),
-              '/backup_wallet': (context) => const BackupWallet(),
-              '/pix': (context) => const Pix(),
-              '/pix_onboarding': (context) => const PixOnBoarding(),
-              '/start_affiliate': (context) => const StartAffiliate(),
-              '/pix_transaction_details': (context) => const PixTransactionDetails(),
-              '/user_creation': (context) => const UserCreation(),
-              '/user_view': (context) => const UserView(),
-              '/support': (context) => const Support(),
-            },
+          return Stack(
+            children: [
+              MaterialApp(
+                navigatorKey: navigatorKey,
+                locale: Locale(language),
+                initialRoute: initialRoute,
+                themeMode: ThemeMode.dark,
+                debugShowCheckedModeBanner: false,
+                routes: {
+                  '/': (context) => const Start(),
+                  '/seed_words': (context) => const SeedWords(),
+                  '/open_pin': (context) => OpenPin(),
+                  '/charge': (context) => const Charge(),
+                  '/accounts': (context) => const Accounts(),
+                  '/receive': (context) => Receive(),
+                  '/settings': (context) => const Settings(),
+                  '/analytics': (context) => const Analytics(),
+                  '/set_pin': (context) => const SetPin(),
+                  '/exchange': (context) => Exchange(),
+                  '/apps': (context) => const Services(),
+                  '/pay': (context) => Pay(),
+                  '/home': (context) => const MainScreen(),
+                  '/recover_wallet': (context) => const RecoverWallet(),
+                  '/search_modal': (context) => const SearchModal(),
+                  '/confirm_bitcoin_payment': (context) => ConfirmBitcoinPayment(),
+                  '/confirm_liquid_payment': (context) => ConfirmLiquidPayment(),
+                  '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
+                  '/claim_boltz_transactions': (context) => ClaimBoltz(),
+                  '/backup_wallet': (context) => const BackupWallet(),
+                  '/pix': (context) => const Pix(),
+                  '/pix_onboarding': (context) => const PixOnBoarding(),
+                  '/start_affiliate': (context) => const StartAffiliate(),
+                  '/pix_transaction_details': (context) => const PixTransactionDetails(),
+                  '/user_creation': (context) => const UserCreation(),
+                  '/user_view': (context) => const UserView(),
+                  '/support': (context) => const Support(),
+                },
+              ),
+              // Including AppNotification to show in-app notifications
+              const AppNotification(),
+            ],
           );
         }
       },

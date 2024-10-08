@@ -234,15 +234,6 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
         Future.microtask(() {
           ref.read(topSelectedButtonProvider.notifier).state = "History";
           ref.read(groupButtonControllerProvider).selectIndex(1);
-          Fluttertoast.showToast(
-            msg: messageText.i18n(ref),
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.TOP,
-            timeInSecForIosWeb: 1,
-            backgroundColor: backgroundColor,
-            textColor: Colors.white,
-            fontSize: MediaQuery.of(context).size.height * 0.02,
-          );
         });
       }
     });

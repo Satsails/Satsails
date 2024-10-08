@@ -25,19 +25,24 @@ class Satsails {
           handleIncomingMessage(event);
         },
       );
-
     } catch (e) {
       throw Exception('Error connecting to Pusher: $e');
     }
   }
 
   void handleIncomingMessage(PusherEvent event) {
-    var decodedMessage = json.decode(event.data);
-    _pixController.add(decodedMessage);
+    try {
+      var decodedMessage = json.decode(event.data);
+      _pixController.add(decodedMessage);
+    } catch (e) {
+      print('Error decoding message: $e');
+    }
   }
 
   void dispose(String paymentId) {
-    _pixController.close();
+    if (!_pixController.isClosed) {
+      _pixController.close();
+    }
     pusher.unsubscribe(channelName: 'transaction_update_channel_$paymentId');
     pusher.disconnect();
   }

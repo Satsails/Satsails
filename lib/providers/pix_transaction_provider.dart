@@ -7,8 +7,9 @@ final appLifecycleStateProvider = StateProvider.autoDispose<AppLifecycleState>((
 
 final pixTransactionReceivedProvider = StreamProvider.autoDispose<Map<String, dynamic>>((ref) {
   ref.watch(appLifecycleStateProvider);
-  final paymentId = ref.read(userProvider).paymentId;
+  final paymentId = ref.watch(userProvider).paymentId;
   final service = Satsails();
+
   service.connect(paymentId);
 
   ref.onDispose(() => service.dispose(paymentId));
