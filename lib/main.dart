@@ -45,15 +45,16 @@ import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pusher_beams/pusher_beams.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/charge/components/pix.dart';
 import 'screens/settings/components/backup_wallet.dart';
 
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await PusherBeams.instance.start('ac5722c9-48df-4a97-9b90-438fc759b42a');
   PusherBeams.instance.onMessageReceivedInTheForeground((message) async {
     // Display notification for received Pusher message

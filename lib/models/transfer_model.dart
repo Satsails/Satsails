@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:Satsails/handlers/response_handlers.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Transfer {
   final int id;
@@ -137,7 +138,7 @@ class TransferService {
   static Future<Result<Transfer>> createTransactionRequest(String cpf, String auth, double valueSetToReceive) async {
     try {
       final response = await http.post(
-        Uri.parse('https://splitter.satsails.com/transfers'),
+        Uri.parse(dotenv.env['BACKEND']! + '/transfers'),
         body: jsonEncode({
           'transfer': {
             'cpf': cpf,
