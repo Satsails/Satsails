@@ -4,6 +4,7 @@ import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/affiliate_provider.dart';
+import 'package:Satsails/providers/pix_transaction_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:flutter/material.dart';
@@ -198,12 +199,53 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
   @override
   Widget build(BuildContext context) {
+    final txReceived = ref.watch(pixTransactionReceivedProvider);
     final amountTransferredAsyncValue = ref.watch(getAmountTransferredProvider);
 
     final hasInsertedAffiliateCode = ref.watch(userProvider).hasInsertedAffiliate;
     final hasCreatedAffiliate = ref.watch(userProvider).hasCreatedAffiliate;
     double fee = 0;
     double amountInDouble = 0;
+
+    txReceived.whenData((data) {
+      if (data.isNotEmpty) {
+        final messageType = data['type'];
+        final messageText = data['message'];
+        Color backgroundColor;
+
+        switch (messageType) {
+          case 'success':
+            backgroundColor = Colors.green;
+            break;
+          case 'delayed':
+            backgroundColor = Colors.orange;
+            break;
+          case 'failed':
+          default:
+            backgroundColor = Colors.red;
+            break;
+        }
+
+        _pixQRCode = '';
+        _feeDescription = '';
+        _amountToReceive = 0.0;
+        _amountController.clear();
+
+        Future.microtask(() {
+          ref.read(topSelectedButtonProvider.notifier).state = "History";
+          ref.read(groupButtonControllerProvider).selectIndex(1);
+          Fluttertoast.showToast(
+            msg: messageText.i18n(ref),
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
+            backgroundColor: backgroundColor,
+            textColor: Colors.white,
+            fontSize: MediaQuery.of(context).size.height * 0.02,
+          );
+        });
+      }
+    });
 
 
     return amountTransferredAsyncValue.when(
@@ -246,11 +288,11 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
         _amountToReceive = amountToReceive;
 
         return  FlutterKeyboardDoneWidget(
-              doneWidgetBuilder: (context) {
-                return const Text(
-                  'Done',
-                );
-              },
+          doneWidgetBuilder: (context) {
+            return const Text(
+              'Done',
+            );
+          },
           child: SingleChildScrollView(
             child: Center(
               child: Column(
@@ -301,36 +343,36 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     ),
                   ),
                   Padding(
-                  padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
-                  child: Text(
-                    'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix or the transfer may fail'.i18n(ref),
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height * 0.015,
-                      color: Colors.red,
-                    ),
-                    softWrap: true,
-                    overflow: TextOverflow.clip,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
-                  child: TextField(
-                    controller: _cpfController,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.white),
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                    padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
+                    child: Text(
+                      'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix or the transfer may fail'.i18n(ref),
+                      style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height * 0.015,
+                        color: Colors.red,
                       ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey, width: 2.0),
-                      ),
-                      labelText: 'CPF/CNPJ',
-                      labelStyle: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.grey),
+                      softWrap: true,
+                      overflow: TextOverflow.clip,
                     ),
                   ),
-                ),
-                if (_amountToReceive > 0 && _pixQRCode.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
+                    child: TextField(
+                      controller: _cpfController,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.white),
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey, width: 2.0),
+                        ),
+                        labelText: 'CPF/CNPJ',
+                        labelStyle: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                  if (_amountToReceive > 0 && _pixQRCode.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -365,12 +407,12 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                           await _generateQRCode();
                         },),
                     ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                if (_timeLeft.inSeconds > 0 && _pixQRCode.isNotEmpty)
-                  Text(
-                    'Transaction will expire in:'.i18n(ref) +' ${_timeLeft.inMinutes}:${(_timeLeft.inSeconds % 60).toString().padLeft(2, '0')}',
-                    style: const TextStyle(color: Colors.orange),
-                      ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                  if (_timeLeft.inSeconds > 0 && _pixQRCode.isNotEmpty)
+                    Text(
+                      'Transaction will expire in:'.i18n(ref) +' ${_timeLeft.inMinutes}:${(_timeLeft.inSeconds % 60).toString().padLeft(2, '0')}',
+                      style: const TextStyle(color: Colors.orange),
+                    ),
 
                   SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                   if (_pixQRCode.isNotEmpty) buildQrCode(_pixQRCode, context),

@@ -1213,6 +1213,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
+  pusher_channels_flutter:
+    dependency: "direct main"
+    description:
+      name: pusher_channels_flutter
+      sha256: a678f20dfcd3b023a6ba37f4a77e2f7b0a0bb88bf0623593b2c5837dfa8ac36e
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.1"
   qr:
     dependency: transitive
     description:
