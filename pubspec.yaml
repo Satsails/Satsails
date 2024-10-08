@@ -63,7 +63,6 @@ dependencies:
   flutter_svg: ^2.0.10+1
   cpf_cnpj_validator: ^2.0.0
   intl: any
-  pusher_channels_flutter: ^2.2.1
   coingecko_api: ^2.0.1
   flutter_image_slideshow: ^0.1.6
   crisp_chat: ^2.0.4
