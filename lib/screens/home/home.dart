@@ -14,7 +14,7 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/build_balance_card.dart';
 import 'package:Satsails/screens/shared/circular_button.dart';
-import 'package:Satsails/screens/shared/pie_chart.dart';
+import 'package:Satsails/screens/shared/bar_chart.dart';
 
 
 class Home extends ConsumerWidget {
@@ -51,6 +51,8 @@ class Home extends ConsumerWidget {
 
   Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final balance = ref.watch(balanceNotifierProvider);
+    final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -60,32 +62,18 @@ class Home extends ConsumerWidget {
         const DepixConvertWarning(),
         SizedBox(height: screenHeight * 0.01),
         buildActionButtons(context, ref),
-        SizedBox(height: screenHeight * 0.01),
         Flexible(
           child: SizedBox(
             height: double.infinity,
-            child: Consumer(builder: (context, watch, child) {
-              final initializeBalance = ref.watch(initializeBalanceProvider);
-              final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
-              return initializeBalance.when(
-                data: (balance) => balance.isEmpty
-                    ? const BitcoinPriceHistoryGraph()
-                    : walletWidget(ref, context, percentageOfEachCurrency),
-                loading: () =>Center(child: LoadingAnimationWidget.threeArchedCircle(size: 100, color: Colors.orange)),
-                error: (error, stack) =>
-                    Center(
-                      child: LoadingAnimationWidget.threeArchedCircle(
-                          size: 100, color: Colors.orange),
-                    ),
-              );
-            }),
+            child: balance.isEmpty ? const BitcoinPriceHistoryGraph() : walletWidget(ref, context, percentageOfEachCurrency, balance),
           ),
         ),
       ],
     );
   }
 
-  Widget walletWidget(WidgetRef ref, BuildContext context, percentageOfEachCurrency) {
+
+  Widget walletWidget(WidgetRef ref, BuildContext context, percentageOfEachCurrency, balance) {
 
     return ImageSlideshow(
       initialPage: 0,
@@ -93,10 +81,7 @@ class Home extends ConsumerWidget {
       indicatorBottomPadding: 0,
       indicatorBackgroundColor: Colors.grey,
       children: [
-        Padding(
-          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.1),
-          child: buildDiagram(context, percentageOfEachCurrency),
-        ),
+        buildBarChart(context, percentageOfEachCurrency, balance),
         const BitcoinPriceHistoryGraph(),
       ],
     );
@@ -111,7 +96,7 @@ class Home extends ConsumerWidget {
 
     void toggleOnlineStatus() {
       settingsNotifier.setOnline(true);
-      ref.read(backgroundSyncNotifierProvider).performSync();
+      ref.read(backgroundSyncNotifierProvider.notifier).performSync();
     }
 
     return AppBar(

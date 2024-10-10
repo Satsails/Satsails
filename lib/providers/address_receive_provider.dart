@@ -17,7 +17,7 @@ final defaultDropdownValueProvider = StateProvider.autoDispose<String>((ref) {
   }
 });
 final inputCurrencyProvider = StateProvider.autoDispose<String>((ref) => ref.watch(defaultDropdownValueProvider));
-final inputAmountProvider = StateProvider.autoDispose<String>((ref) => '0.0');
+final inputAmountProvider = StateProvider<String>((ref) => '0.0');
 final shouldUpdateBoltzLiquidReceive = StateProvider.autoDispose<bool>((ref) => true);
 
 String calculateAmountToDisplay(String amount, String currency, currencyConverter) {

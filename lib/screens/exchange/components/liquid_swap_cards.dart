@@ -7,6 +7,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -95,30 +96,38 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
       swapCards = swapCards.reversed.toList();
     }
 
-    return
-      Column(
-        children: [
-          Text(
-            "Balance to Spend: ".i18n(ref),
-            style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return SafeArea(
+      child: FlutterKeyboardDoneWidget(
+              doneWidgetBuilder: (context) {
+                return const Text(
+                  'Done',
+                );
+              },
+          child: Column(
             children: [
               Text(
-                currentBalance,
-                style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                textAlign: TextAlign.center,
+                "Balance to Spend: ".i18n(ref),
+                style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
               ),
-              _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat, titleFontSize),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    currentBalance,
+                    style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                  _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat, titleFontSize),
+                ],
+              ),
+              SizedBox(height: dynamicPadding),
+              ...swapCards,
+              const Spacer(),
+              _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
             ],
           ),
-          SizedBox(height: dynamicPadding),
-          ...swapCards,
-          const Spacer(),
-          _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
-        ],
-      );
+        ),
+    );
   }
 
   Widget buildCardSwiper(BuildContext context, WidgetRef ref, double dynamicCardHeight, List<Column> cards) {
@@ -311,7 +320,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                           return Text(btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin), style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center);
                         }
                       },
-                      loading: () => controller.text.isEmpty ?Text("0", style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center) : Center(child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
+                      loading: () => controller.text.isEmpty ?Text("0", style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center) : Center(child: LoadingAnimationWidget.progressiveDots(size: titleFontSize, color: Colors.white)),
                       error: (error, stack) => Text('Error: $error', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: titleFontSize)),
                     );
                   },
@@ -320,9 +329,9 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                 Column(
                   children: [
                     TextFormField(
-                      keyboardType: TextInputType.number,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       controller: controller,
-                      inputFormatters: isBitcoin ? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()] : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()],
+                      inputFormatters: isBitcoin ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)] : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
                         border: InputBorder.none,
@@ -372,15 +381,15 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
-              controller.success();
-              Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
               Future.microtask(() {
               ref.read(topSelectedButtonProvider.notifier).state = "Swap";
               ref.read(groupButtonControllerProvider).selectIndex(2);
               ref.read(navigationProvider.notifier).state = 1;
              });
+              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+              controller.success();
               Navigator.pushReplacementNamed(context, '/home');
-              await ref.read(backgroundSyncNotifierProvider).performSync();
+              Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
             } catch (e) {
               controller.failure();
               Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);

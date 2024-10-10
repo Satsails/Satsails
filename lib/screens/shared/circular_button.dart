@@ -46,8 +46,6 @@ Widget buildCircularButton(BuildContext context, icon, String subtitle, VoidCall
 }
 
 Widget buildActionButtons(BuildContext context, WidgetRef ref) {
-  final screenHeight = MediaQuery.of(context).size.height;
-
   return SizedBox(
     height: MediaQuery.of(context).padding.top + kToolbarHeight * 1.1,
     child: Row(

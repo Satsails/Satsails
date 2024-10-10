@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -43,33 +45,49 @@ import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pusher_beams/pusher_beams.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/charge/components/pix.dart';
 import 'screens/settings/components/backup_wallet.dart';
 
 
-void main() async {
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await PusherBeams.instance.start('ac5722c9-48df-4a97-9b90-438fc759b42a');
   PusherBeams.instance.onMessageReceivedInTheForeground((message) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-    AndroidNotificationDetails(
-      'pix_payments_channel',
-      'PIX Payments',
-      channelDescription: 'Notifications for received PIX transactions.',
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: false,
-    );
-    const NotificationDetails platformChannelSpecifics =
-    NotificationDetails(android: androidPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      '1',
-      '2',
-      platformChannelSpecifics,
-    );
-  });;
+    // Display notification for received Pusher message
+    if (Platform.isAndroid || Platform.isIOS) {
+      const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        'pix_payments_channel',
+        'PIX Payments',
+        channelDescription: 'Notifications for received PIX transactions.',
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen: false,
+      );
+
+      const DarwinNotificationDetails iOSPlatformChannelSpecifics = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        subtitle: 'PIX Payments',
+      );
+
+      const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics,
+      );
+
+      await flutterLocalNotificationsPlugin.show(
+        0,
+        '1',
+        '2',
+        platformChannelSpecifics,
+      );
+    }
+  });
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -80,6 +98,7 @@ void main() async {
   Hive.registerAdapter(TxOutAdapter());
   Hive.registerAdapter(TxAdapter());
   Hive.registerAdapter(BalanceAdapter());
+  Hive.registerAdapter(WalletBalanceAdapter());
   Hive.registerAdapter(SideswapPegStatusAdapter());
   Hive.registerAdapter(SideswapCompletedSwapAdapter());
   Hive.registerAdapter(KeyPairAdapter());
@@ -92,7 +111,6 @@ void main() async {
   Hive.registerAdapter(BtcSwapScriptV2StrAdapter());
   Hive.registerAdapter(SwapTypeAdapter());
   Hive.registerAdapter(ChainAdapter());
-
   await BoltzCore.init();
   await LwkCore.init();
 
@@ -250,12 +268,4 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
       },
     );
   }
-}
-
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
-
-Future<void> showNotification(message) async {
-
 }

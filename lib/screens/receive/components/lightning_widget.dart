@@ -1,4 +1,5 @@
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
@@ -11,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-
 class LightningWidget extends ConsumerStatefulWidget {
   final String selectedCurrency;
 
@@ -56,7 +56,10 @@ class _LightningWidgetState extends ConsumerState<LightningWidget> {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Center(
-                      child: Text(value, style: const TextStyle(color: Color(0xFFD98100))),
+                      child: Text(
+                        value,
+                        style: const TextStyle(color: Color(0xFFD98100)),
+                      ),
                     ),
                   );
                 }).toList(),
@@ -70,24 +73,56 @@ class _LightningWidgetState extends ConsumerState<LightningWidget> {
             ),
           ],
         ),
+        SizedBox(height: 16),
         if (selectedCurrency == 'Liquid')
-          const LiquidReceiveWidget()
+          LiquidReceiveWidget()
         else
-          const BitcoinReceiveWidget(),
+          BitcoinReceiveWidget(),
       ],
     );
   }
 }
 
+
 class LiquidReceiveWidget extends ConsumerStatefulWidget {
-  const LiquidReceiveWidget({super.key});
+  const LiquidReceiveWidget({Key? key}) : super(key: key);
 
   @override
   _LiquidReceiveWidgetState createState() => _LiquidReceiveWidgetState();
 }
 
 class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
+  late TextEditingController controller;
   String transactionId = '';
+  bool showInvoice = false;
+  Future<BtcBoltz>? _boltzSwapFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+
+    // Optionally initialize the controller with existing amount
+    final inputAmount = ref.read(inputAmountProvider);
+    if (inputAmount != '0.0') {
+      controller.text = inputAmount;
+    }
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  void _onCreateInvoice() {
+    String inputValue = controller.text;
+    ref.read(inputAmountProvider.notifier).state = inputValue.isEmpty ? '0.0' : inputValue;
+
+    setState(() {
+      showInvoice = true;
+    });
+  }
 
   Future<void> checkTransactionStatus() async {
     try {
@@ -150,56 +185,20 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final TextEditingController controller = TextEditingController();
-    final boltzReceiveAsyncValue = ref.watch(boltzReceiveProvider);
-    final fees = ref.watch(boltzFeesProvider);
+    final height = MediaQuery.of(context).size.height;
+    final fees = ref.watch(boltzReverseFeesProvider);
+
     return Column(
       children: [
-        boltzReceiveAsyncValue.when(
-          data: (data) {
-            transactionId = data.swap.id;
-            return Column(
-              children: [
-                buildQrCode(data.swap.invoice, context),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: buildAddressText(data.swap.invoice, context, ref, MediaQuery.of(context).size.height * 0.02 / 1.5),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: CustomElevatedButton(onPressed: checkTransactionStatus, text: 'Claim transaction'.i18n(ref), controller: controller),
-                ),
-              ],
-            );
-          },
-          loading: () => Center(
-            child: LoadingAnimationWidget.threeArchedCircle(
-              size: MediaQuery.of(context).size.width * 0.6,
-              color: Colors.orange,
-            ),
-          ),
-          error: (error, stack) => Center(
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.6,
-              height: MediaQuery.of(context).size.width * 0.6,
-              alignment: Alignment.center,
-              child: Text(
-                '$error'.i18n(ref),
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
-
         AmountInput(controller: controller),
+        CustomElevatedButton(
+          onPressed: _onCreateInvoice,
+          text: 'Create Address'.i18n(ref),
+          controller: controller,
+        ),
+        SizedBox(height: height * 0.02),
         fees.when(
           data: (data) {
             final inputCurrency = ref.watch(inputCurrencyProvider);
@@ -238,19 +237,66 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
-                textAlign: TextAlign.center,
               ),
             ),
           ),
         ),
-        CustomElevatedButton(
-          onPressed: () {
-            String inputValue = controller.text;
-            ref.read(inputAmountProvider.notifier).state = inputValue.isEmpty ? '0.0' : inputValue;
-          },
-          text: 'Create Address'.i18n(ref),
-          controller: controller,
-        ),
+        if (showInvoice)
+          Consumer(
+            builder: (context, ref, child) {
+              final boltzReceiveAsyncValue = ref.watch(boltzReceiveProvider);
+
+              return boltzReceiveAsyncValue.when(
+                data: (data) {
+                  transactionId = data.swap.id;
+                  return Column(
+                    children: [
+                      buildQrCode(data.swap.invoice, context),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: buildAddressText(
+                          data.swap.invoice,
+                          context,
+                          ref,
+                          MediaQuery.of(context).size.height * 0.02 / 1.5,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: CustomElevatedButton(
+                          onPressed: checkTransactionStatus,
+                          text: 'Claim transaction'.i18n(ref),
+                          controller: controller,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+                loading: () => Center(
+                  child: LoadingAnimationWidget.threeArchedCircle(
+                    size: MediaQuery.of(context).size.width * 0.6,
+                    color: Colors.orange,
+                  ),
+                ),
+                error: (error, stack) => Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    height: MediaQuery.of(context).size.width * 0.6,
+                    alignment: Alignment.center,
+                    child: Text(
+                      '$error'.i18n(ref),
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
       ],
     );
   }
@@ -264,7 +310,38 @@ class BitcoinReceiveWidget extends ConsumerStatefulWidget {
 }
 
 class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
+  late TextEditingController controller;
   String transactionId = '';
+  bool showInvoice = false;
+  Future<BtcBoltz>? _boltzSwapFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+
+    // Optionally initialize the controller with existing amount
+    final inputAmount = ref.read(inputAmountProvider);
+    if (inputAmount != '0.0') {
+      controller.text = inputAmount;
+    }
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _onCreateInvoice() async {
+    String inputValue = controller.text;
+    ref.read(inputAmountProvider.notifier).state = inputValue.isEmpty ? '0.0' : inputValue;
+
+    setState(() {
+      showInvoice = true;
+      _boltzSwapFuture = ref.read(bitcoinBoltzReceiveProvider.future);
+    });
+  }
 
   Future<void> checkTransactionStatus() async {
     try {
@@ -329,52 +406,18 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final bitcoinBoltzReceiveAsyncValue = ref.watch(bitcoinBoltzReceiveProvider);
-    final fees = ref.watch(bitcoinBoltzFeesProvider);
-    final TextEditingController controller = TextEditingController();
+    final fees = ref.watch(boltzReverseFeesProvider);
+    final height = MediaQuery.of(context).size.height;
+
     return Column(
       children: [
-        bitcoinBoltzReceiveAsyncValue.when(
-          data: (data) {
-            transactionId = data.swap.id;
-            return Column(
-              children: [
-                buildQrCode(data.swap.invoice, context),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: buildAddressText(data.swap.invoice, context, ref, MediaQuery.of(context).size.height * 0.02 / 1.5),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: CustomElevatedButton(onPressed: checkTransactionStatus, text: 'Claim transaction'.i18n(ref), controller: controller),
-                ),
-              ],
-            );
-          },
-          loading: () => Center(
-            child: LoadingAnimationWidget.threeArchedCircle(
-              size: MediaQuery.of(context).size.width * 0.6,
-              color: Colors.orange,
-            ),
-          ),
-          error: (error, stack) => Center(
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.6,
-              height: MediaQuery.of(context).size.width * 0.6,
-              alignment: Alignment.center,
-              child: Text(
-                '$error'.i18n(ref),
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
         AmountInput(controller: controller),
+        CustomElevatedButton(
+          onPressed: _onCreateInvoice,
+          text: 'Create Address'.i18n(ref),
+          controller: controller,
+        ),
+        SizedBox(height: height * 0.02),
         fees.when(
           data: (data) {
             final inputCurrency = ref.watch(inputCurrencyProvider);
@@ -418,15 +461,64 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
             ),
           ),
         ),
-        CustomElevatedButton(
-          onPressed: () {
-            String inputValue = controller.text;
-            ref.read(inputAmountProvider.notifier).state = inputValue.isEmpty ? '0.0' : inputValue;
-          },
-          text: 'Create Address'.i18n(ref),
-          controller: controller,
-
-        ),
+        if (showInvoice)
+          FutureBuilder<BtcBoltz>(
+            future: _boltzSwapFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: LoadingAnimationWidget.threeArchedCircle(
+                    size: MediaQuery.of(context).size.width * 0.6,
+                    color: Colors.orange,
+                  ),
+                );
+              } else if (snapshot.hasError) {
+                return Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    height: MediaQuery.of(context).size.width * 0.6,
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${snapshot.error}'.i18n(ref),
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              } else if (snapshot.hasData) {
+                final data = snapshot.data!;
+                transactionId = data.swap.id;
+                return Column(
+                  children: [
+                    buildQrCode(data.swap.invoice, context),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: buildAddressText(
+                        data.swap.invoice,
+                        context,
+                        ref,
+                        MediaQuery.of(context).size.height * 0.02 / 1.5,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: CustomElevatedButton(
+                        onPressed: checkTransactionStatus,
+                        text: 'Claim transaction'.i18n(ref),
+                        controller: controller,
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                return Container();
+              }
+            },
+          ),
       ],
     );
   }

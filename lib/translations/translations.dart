@@ -1646,6 +1646,18 @@ extension Localization on String {
       {
         'en': "Please enter an amount",
         'pt': 'Por favor, insira uma quantia'
+      } +
+      {
+        'en': "Swap failed, please contact support",
+        'pt': 'Troca falhou, por favor, contate o suporte'
+      } +
+      {
+        'en': 'Send with Liquid Balance',
+        'pt': 'Enviar com Saldo Liquid'
+      } +
+      {
+        'en': 'Send with Bitcoin Balance',
+        'pt': 'Enviar com Saldo Bitcoin'
       }  +
       {
         'en': "Swap failed, please contact support",
@@ -1670,6 +1682,21 @@ extension Localization on String {
       {
         'en': 'Your balance will update soon',
         'pt': 'Seu saldo será atualizado em breve'
+      } +  {
+    'en': 'All Swaps',
+    'pt': 'Todas as trocas'
+  } +
+      {
+        'en': 'Fiat Swaps',
+        'pt': 'Trocas Fiat'
+      } +
+      {
+        'en': 'Layer Swaps',
+        'pt': 'Trocas de Camada'
+      } +
+      {
+        'en': 'Pix History',
+        'pt': 'Histórico Pix'
       };
 
   String i18n(WidgetRef ref) {

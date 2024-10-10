@@ -179,7 +179,6 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     if (_status.isGranted) {

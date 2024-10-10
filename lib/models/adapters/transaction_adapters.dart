@@ -166,7 +166,7 @@ class Tx {
   });
 
   Tx.fromLwk(lwk.Tx lwkTx)
-      : timestamp = lwkTx.timestamp,
+      : timestamp = lwkTx.timestamp ?? 0,
         kind = lwkTx.kind,
         balances = lwkTx.balances.map((balance) => Balance.fromTuple(balance.assetId, balance.value)).toList(),
         txid = lwkTx.txid,

@@ -7,28 +7,41 @@ import 'package:Satsails/providers/address_receive_provider.dart';
 class AmountInput extends ConsumerWidget {
   final TextEditingController controller;
 
-  const AmountInput({super.key, required this.controller});
+  AmountInput({
+    Key? key,
+    required this.controller,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bitcoinInput = ref.watch(isBitcoinInputProvider);
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
-    final inputAmount = ref.watch(inputAmountProvider);
-    controller.text = inputAmount == '0.0' ? '' : inputAmount;
 
     return Column(
       children: [
         TextFormField(
           controller: controller,
-          keyboardType: TextInputType.number,
-          inputFormatters: bitcoinInput ? [DecimalTextInputFormatter(decimalRange: 8),CommaTextInputFormatter(),]:[DecimalTextInputFormatter(decimalRange: 2),CommaTextInputFormatter(),],
-          style: TextStyle(fontSize: dynamicFontSize * 3, color: Colors.white),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: bitcoinInput
+              ? [
+            CommaTextInputFormatter(),
+            DecimalTextInputFormatter(decimalRange: 8),
+          ]
+              : [
+            CommaTextInputFormatter(),
+            DecimalTextInputFormatter(decimalRange: 2),
+          ],
+          style: TextStyle(
+            fontSize: dynamicFontSize * 3,
+            color: Colors.white,
+          ),
           textAlign: TextAlign.center,
           decoration: const InputDecoration(
             border: InputBorder.none,
             hintText: '0',
             hintStyle: TextStyle(color: Colors.white),
           ),
+          // Removed the onChanged callback
         ),
         DropdownButtonHideUnderline(
           child: DropdownButton<String>(
@@ -71,7 +84,6 @@ class AmountInput extends ConsumerWidget {
               ),
             ],
             onChanged: (value) {
-              ref.read(inputAmountProvider.notifier).state = '0.0';
               ref.read(inputCurrencyProvider.notifier).state = value!;
               if (value == 'Sats' || value == 'BTC') {
                 ref.read(isBitcoinInputProvider.notifier).state = true;

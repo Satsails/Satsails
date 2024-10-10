@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:hive/hive.dart';
 import 'dart:math';
 import 'package:convert/convert.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pusher_beams/pusher_beams.dart';
 
 class SecureKeyManager {
@@ -88,6 +91,7 @@ class AuthModel {
     await _storage.delete(key: 'recoveryCode');
     await Hive.deleteBoxFromDisk('bitcoin');
     await Hive.deleteBoxFromDisk('liquid');
+    await Hive.deleteBoxFromDisk('balanceBox');
     await Hive.deleteBoxFromDisk('settings');
     await Hive.deleteBoxFromDisk('bitcoinTransactions');
     await Hive.deleteBoxFromDisk('liquidTransactions');
@@ -101,5 +105,9 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('addresses');
     await SecureKeyManager.deleteKey();
     await PusherBeams.instance.clearAllState();
+    final appDocDir = await getApplicationDocumentsDirectory();
+    final bitcoinDBPath = '${appDocDir.path}/bdk_wallet.sqlite';
+    final dbFile = File(bitcoinDBPath);
+    await dbFile.delete();
   }
 }
