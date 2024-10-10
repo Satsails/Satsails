@@ -56,10 +56,8 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: SafeArea(
-        child: WebViewWidget(
-          controller: controller,
-        ),
+      body: WebViewWidget(
+        controller: controller,
       ),
     );
   }
