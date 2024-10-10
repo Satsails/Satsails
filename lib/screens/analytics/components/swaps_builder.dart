@@ -2,6 +2,8 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
+import 'package:Satsails/providers/user_provider.dart';
+import 'package:Satsails/screens/charge/components/pix_history.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,27 +20,32 @@ class SwapsBuilder extends ConsumerStatefulWidget {
 }
 
 class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
-  String selectedSwapType = 'All';
+  String selectedSwapType = 'All Swaps';
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final allSwaps = ref.watch(sideswapAllPegsProvider);
     final swapsToFiat = ref.watch(sideswapGetSwapsProvider);
+    final paymentId = ref.watch(userProvider).paymentId;
 
     return Column(
       children: [
-        _buildSwapTypeFilter(context),
+        _buildSwapTypeFilter(context, paymentId),
         Expanded(
-          child: allSwaps.when(
+          child: selectedSwapType == 'Pix History' && paymentId.isNotEmpty
+              ? Builder(builder: (context) => PixHistory()) // Lazy-load PixHistory only if selected and paymentId is not empty
+              : allSwaps.when(
             data: (swaps) {
               return swapsToFiat.when(
                 data: (fiatSwaps) {
                   final combinedSwaps = _filterAndSortSwaps([...swaps, ...fiatSwaps]);
                   if (combinedSwaps.isEmpty) {
                     return Center(
-                      child: Text('No swaps found'.i18n(ref),
-                          style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white)),
+                      child: Text(
+                        'No swaps found'.i18n(ref),
+                        style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
+                      ),
                     );
                   }
                   return ListView.builder(
@@ -69,20 +76,35 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
               child: Text('Error: $error', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white)),
             ),
           ),
-        ),
+        )
       ],
     );
   }
 
-  Widget _buildSwapTypeFilter(BuildContext context) {
+  Widget _buildSwapTypeFilter(BuildContext context, String paymentId) {
+    final List<String> swapTypes = [
+      'All'.i18n(ref),
+      'Fiat Swaps'.i18n(ref),
+      'Layer Swaps'.i18n(ref),
+      if (paymentId.isNotEmpty) 'Pix History'.i18n(ref), // Only include if paymentId is not empty
+    ];
+
+    // Ensure selectedSwapType is valid in the current context
+    if (!swapTypes.contains(selectedSwapType)) {
+      selectedSwapType = 'All'.i18n(ref); // Reset to a default value if current selection is not in swapTypes
+    }
+
     return DropdownButtonHideUnderline(
       child: DropdownButton<String>(
         value: selectedSwapType,
         dropdownColor: const Color(0xFF2B2B2B),
-        items: <String>['All', 'Fiat Swaps', 'Layer Swaps'].map((String value) {
+        items: swapTypes.map((String value) {
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(value, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04, color: Colors.orange)),
+            child: Text(
+              value,
+              style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04, color: Colors.orange),
+            ),
           );
         }).toList(),
         onChanged: (String? newValue) {
@@ -102,7 +124,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
       if (selectedSwapType == 'Layer Swaps' && swap is SideswapPegStatus) {
         return true;
       }
-      return selectedSwapType == 'All';
+      return selectedSwapType == 'All Swaps';
     }).toList();
 
     filteredSwaps.sort((a, b) {
@@ -123,7 +145,6 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
   }
 
   Widget _buildFiatTransactionItem(SideswapCompletedSwap swap, BuildContext context, WidgetRef ref, double screenWidth) {
-
     return Container(
       margin: EdgeInsets.all(screenWidth * 0.02),
       decoration: BoxDecoration(
@@ -232,7 +253,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
               ),
             ),
             subtitle: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Text(
                   swap.pegIn! ? "Bitcoin" : "Liquid Bitcoin",

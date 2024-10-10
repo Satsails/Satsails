@@ -61,7 +61,7 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
 });
 
 final getUserTransactionsProvider = FutureProvider.autoDispose<List<Transfer>>((ref) async {
-  final paymentId = ref.read(userProvider).paymentId;
+  final paymentId = ref.watch(userProvider).paymentId;
   final auth = ref.read(userProvider).recoveryCode;
   final transactions = await UserService.getUserTransactions(paymentId, auth);
 
