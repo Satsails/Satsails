@@ -44,6 +44,7 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      backgroundColor: Color.fromRGBO(29, 31, 49, 1.0),
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(29, 31, 49, 1.0),
         title: Text(
@@ -55,8 +56,10 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: WebViewWidget(
-        controller: controller,
+      body: SafeArea(
+        child: WebViewWidget(
+          controller: controller,
+        ),
       ),
     );
   }

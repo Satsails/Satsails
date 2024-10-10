@@ -42,11 +42,14 @@ class _UserViewState extends ConsumerState<UserView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SizedBox(height: height * 0.02),
-                _buildCreatedAffiliateRow(affiliate.createdAffiliateCode.isNotEmpty == true ? affiliate.createdAffiliateCode : 'N/A', width, height),
-                SizedBox(height: height * 0.02),
-                _buildInsertedAffiliateRow(affiliate.insertedAffiliateCode.isNotEmpty == true ? affiliate.insertedAffiliateCode : 'N/A', width, height),
-                SizedBox(height: height * 0.02),
+                if (affiliate.createdAffiliateCode.isNotEmpty == true) ... [
+                  _buildCreatedAffiliateRow(affiliate.createdAffiliateCode, width, height),
+                  SizedBox(height: height * 0.02),
+                ],
+                if (affiliate.insertedAffiliateCode.isNotEmpty == true) ... [
+                  _buildInsertedAffiliateRow(affiliate.insertedAffiliateCode, width, height),
+                  SizedBox(height: height * 0.02),
+                ],
                 _buildRecoveryCodeSection(user.recoveryCode, width, height),
                 SizedBox(height: height * 0.03),
                 Text(
