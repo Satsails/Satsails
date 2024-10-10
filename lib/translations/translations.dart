@@ -1682,6 +1682,21 @@ extension Localization on String {
       {
         'en': 'Your balance will update soon',
         'pt': 'Seu saldo será atualizado em breve'
+      } +  {
+    'en': 'All Swaps',
+    'pt': 'Todas as trocas'
+  } +
+      {
+        'en': 'Fiat Swaps',
+        'pt': 'Trocas Fiat'
+      } +
+      {
+        'en': 'Layer Swaps',
+        'pt': 'Trocas de Camada'
+      } +
+      {
+        'en': 'Pix History',
+        'pt': 'Histórico Pix'
       };
 
   String i18n(WidgetRef ref) {

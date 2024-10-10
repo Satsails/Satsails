@@ -33,7 +33,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
       children: [
         _buildSwapTypeFilter(context, paymentId),
         Expanded(
-          child: selectedSwapType == 'Pix History' && paymentId.isNotEmpty
+          child: selectedSwapType == 'Pix History'.i18n(ref) && paymentId.isNotEmpty
               ? Builder(builder: (context) => PixHistory()) // Lazy-load PixHistory only if selected and paymentId is not empty
               : allSwaps.when(
             data: (swaps) {
@@ -83,7 +83,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
 
   Widget _buildSwapTypeFilter(BuildContext context, String paymentId) {
     final List<String> swapTypes = [
-      'All'.i18n(ref),
+      'All Swaps'.i18n(ref),
       'Fiat Swaps'.i18n(ref),
       'Layer Swaps'.i18n(ref),
       if (paymentId.isNotEmpty) 'Pix History'.i18n(ref), // Only include if paymentId is not empty
@@ -91,7 +91,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
 
     // Ensure selectedSwapType is valid in the current context
     if (!swapTypes.contains(selectedSwapType)) {
-      selectedSwapType = 'All'.i18n(ref); // Reset to a default value if current selection is not in swapTypes
+      selectedSwapType = 'All Swaps'.i18n(ref); // Reset to a default value if current selection is not in swapTypes
     }
 
     return DropdownButtonHideUnderline(
@@ -118,13 +118,13 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
 
   List<dynamic> _filterAndSortSwaps(List<dynamic> swaps) {
     List<dynamic> filteredSwaps = swaps.where((swap) {
-      if (selectedSwapType == 'Fiat Swaps' && swap is SideswapCompletedSwap) {
+      if (selectedSwapType == 'Fiat Swaps'.i18n(ref) && swap is SideswapCompletedSwap) {
         return true;
       }
-      if (selectedSwapType == 'Layer Swaps' && swap is SideswapPegStatus) {
+      if (selectedSwapType == 'Layer Swaps'.i18n(ref) && swap is SideswapPegStatus) {
         return true;
       }
-      return selectedSwapType == 'All Swaps';
+      return selectedSwapType == 'All Swaps'.i18n(ref);
     }).toList();
 
     filteredSwaps.sort((a, b) {
