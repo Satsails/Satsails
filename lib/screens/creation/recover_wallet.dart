@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:go_router/go_router.dart';
 
 class RecoverWallet extends ConsumerStatefulWidget {
   const RecoverWallet({super.key});
@@ -103,7 +104,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
     if (await authModel.validateMnemonic(mnemonic)) {
       await authModel.setMnemonic(mnemonic);
       await ref.read(settingsProvider.notifier).setBackup(true);
-      Navigator.pushNamed(context, '/set_pin');
+      context.push('/set_pin');
     } else {
       Fluttertoast.showToast(
         msg: 'Invalid mnemonic',
@@ -159,7 +160,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context);
+            context.pop();
           },
         ),
       ),

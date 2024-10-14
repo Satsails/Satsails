@@ -5,6 +5,8 @@ import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/restart_widget.dart';
+import 'package:Satsails/screens/settings/settings.dart';
 import 'package:Satsails/screens/spash/splash.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +17,6 @@ import 'package:hive/hive.dart';
 import 'package:lwk_dart/lwk_dart.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
-import 'package:Satsails/screens/settings/settings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:Satsails/models/adapters/transaction_adapters.dart';
@@ -25,15 +26,17 @@ import 'package:pusher_beams/pusher_beams.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import './app_router.dart';
 
-
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
   await dotenv.load(fileName: ".env");
-  await PusherBeams.instance.start('ac5722c9-48df-4a97-9b90-438fc759b42a');
+
+  // Initialize Pusher Beams notifications
+  await PusherBeams.instance.start(dotenv.env['PUSHERINSTANCE']!);
   PusherBeams.instance.onMessageReceivedInTheForeground((message) async {
-    // Display notification for received Pusher message
     if (Platform.isAndroid || Platform.isIOS) {
       const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
         'pix_payments_channel',
@@ -43,14 +46,12 @@ Future<void> main() async {
         priority: Priority.high,
         showWhen: false,
       );
-
       const DarwinNotificationDetails iOSPlatformChannelSpecifics = DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
         subtitle: 'PIX Payments',
       );
-
       const NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: androidPlatformChannelSpecifics,
         iOS: iOSPlatformChannelSpecifics,
@@ -58,15 +59,16 @@ Future<void> main() async {
 
       await flutterLocalNotificationsPlugin.show(
         0,
-        '1',
-        '2',
+        'New Payment',
+        'You have received a PIX payment',
         platformChannelSpecifics,
       );
     }
   });
+
+  // Initialize Hive for local storage
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   Hive.registerAdapter(TransactionDetailsAdapter());
   Hive.registerAdapter(BlockTimeAdapter());
   Hive.registerAdapter(OutPointAdapter());
@@ -87,13 +89,17 @@ Future<void> main() async {
   Hive.registerAdapter(BtcSwapScriptV2StrAdapter());
   Hive.registerAdapter(SwapTypeAdapter());
   Hive.registerAdapter(ChainAdapter());
+
+  // Initialize required libraries
   await BoltzCore.init();
   await LwkCore.init();
 
-
+  // Start the Flutter app with ProviderScope
   runApp(
-    const ProviderScope(
-      child: MainApp(),
+    RestartWidget(
+      child: ProviderScope(
+        child: MainApp(),
+      ),
     ),
   );
 }
@@ -124,7 +130,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     _initializeRouter();
   }
 
-  void _initializeRouter() async {
+  Future<void> _initializeRouter() async {
     final authModel = ref.read(authModelProvider);
     final mnemonic = await authModel.getMnemonic();
 
@@ -154,18 +160,14 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     }
   }
 
-  // Start a countdown timer for 5 minutes (300 seconds)
   void _startLockCountdown() {
     _cancelLockTimer(); // Ensure no previous timer is running
     _lockTimer = Timer(Duration(seconds: lockThresholdInSeconds), _lockApp);
   }
 
-  // Cancel the countdown timer if the app resumes before 5 minutes
   void _cancelLockTimer() {
-    if (_lockTimer != null) {
-      _lockTimer!.cancel();
-      _lockTimer = null;
-    }
+    _lockTimer?.cancel();
+    _lockTimer = null;
   }
 
   Future<void> _lockApp() async {
@@ -180,7 +182,6 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final language = ref.watch(settingsProvider).language;
@@ -192,7 +193,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     }
 
     return MaterialApp.router(
-      routerConfig: _router,
+      routerConfig: _router!,
       locale: Locale(language),
       themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,
@@ -216,5 +217,3 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     );
   }
 }
-
-

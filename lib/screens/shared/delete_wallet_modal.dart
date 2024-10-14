@@ -1,5 +1,6 @@
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -99,7 +100,7 @@ class DeleteWalletSection extends StatelessWidget {
                     ),
                     onPressed: () async {
                       await authModel.deleteAuthentication();
-                      context.go('/');
+                      RestartWidget.restartApp(context);
                     },
                   ),
                 ],

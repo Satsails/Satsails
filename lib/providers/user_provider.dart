@@ -8,7 +8,7 @@ import 'package:hive/hive.dart';
 
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 
-final initializeUserProvider = FutureProvider.autoDispose<User>((ref) async {
+final initializeUserProvider = FutureProvider<User>((ref) async {
   final box = await Hive.openBox('user');
   final hasInsertedAffiliate = box.get('hasInsertedAffiliate', defaultValue: false);
   final hasCreatedAffiliate = box.get('hasCreatedAffiliate', defaultValue: false);
@@ -27,7 +27,7 @@ final initializeUserProvider = FutureProvider.autoDispose<User>((ref) async {
   );
 });
 
-final userProvider = StateNotifierProvider.autoDispose<UserModel, User>((ref) {
+final userProvider = StateNotifierProvider<UserModel, User>((ref) {
   final initialUser = ref.watch(initializeUserProvider);
 
   return UserModel(initialUser.when(
@@ -61,7 +61,7 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
 });
 
 final getUserTransactionsProvider = FutureProvider.autoDispose<List<Transfer>>((ref) async {
-  final paymentId = ref.watch(userProvider).paymentId;
+  final paymentId = ref.read(userProvider).paymentId;
   final auth = ref.read(userProvider).recoveryCode;
   final transactions = await UserService.getUserTransactions(paymentId, auth);
 
