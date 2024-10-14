@@ -1,4 +1,5 @@
 import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/delete_wallet_modal.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -118,6 +119,7 @@ class Settings extends ConsumerWidget {
       title: Text('Search the blockchain'.i18n(ref), style: const TextStyle(color: Colors.white)),
       subtitle: const Text('mempool.com', style: TextStyle(color: Colors.grey)),
       onTap: () {
+        clearTransactionSearch(ref);
         context.push('/search_modal');
       },
     );

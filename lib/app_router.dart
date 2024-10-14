@@ -1,3 +1,5 @@
+import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
+import 'package:Satsails/screens/shared/transactions_details_screen.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
@@ -28,6 +30,8 @@ import 'package:Satsails/screens/home/components/search_modal.dart';
 import 'package:Satsails/screens/charge/components/pix.dart';
 import 'package:Satsails/screens/settings/components/backup_wallet.dart';
 
+import 'models/adapters/transaction_adapters.dart';
+
 class AppRouter {
   static GoRouter createRouter(String initialRoute) {
     return GoRouter(
@@ -37,6 +41,22 @@ class AppRouter {
           path: '/',
           name: 'start',
           builder: (context, state) => const Start(),
+        ),
+        GoRoute(
+          path: '/transaction-details',
+          name: 'transactionDetails',
+          builder: (context, state) {
+            final transaction = state.extra as TransactionDetails;
+            return TransactionDetailsScreen(transaction: transaction);
+          },
+        ),
+        GoRoute(
+          path: '/liquid-transaction-details',
+          name: 'liquidTransactionDetails',
+          builder: (context, state) {
+            final transaction = state.extra as Tx;
+            return LiquidTransactionDetailsScreen(transaction: transaction);
+          },
         ),
         GoRoute(
           path: '/seed_words',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:Satsails/models/address_model.dart';
@@ -68,13 +69,13 @@ class _QRViewWidgetState extends State<QRViewWidget> {
         controller.pauseCamera();
         switch (widget.ref.read(sendTxProvider.notifier).state.type) {
           case PaymentType.Bitcoin:
-            Navigator.pushReplacementNamed(context, '/confirm_bitcoin_payment');
+            context.push('home/pay/confirm_bitcoin_payment');
             break;
           case PaymentType.Lightning:
-            Navigator.pushReplacementNamed(context, '/confirm_lightning_payment');
+            context.push('home/pay/confirm_lightning_payment');
             break;
           case PaymentType.Liquid:
-            Navigator.pushReplacementNamed(context, '/confirm_liquid_payment');
+            context.push('home/pay/confirm_liquid_payment');
             break;
           default:
             showDialog(
@@ -121,7 +122,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
                     IconButton(
                       icon: const Icon(Icons.close, color: Colors.black54),
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        context.pop();
                       },
                     ),
                   ],
@@ -167,7 +168,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.black54),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      context.pop();
                       controller.resumeCamera();
                     },
                   ),

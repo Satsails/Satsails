@@ -6,6 +6,7 @@ import 'package:Satsails/screens/shared/transactions_details_screen.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/adapters/transaction_adapters.dart';
@@ -172,11 +173,9 @@ class BuildTransactions extends ConsumerWidget {
       children: [
         GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => TransactionDetailsScreen(transaction: transaction),
-              ),
+            context.pushNamed(
+              'transactionDetails',
+              extra: transaction,
             );
           },
           child: ListTile(
@@ -230,11 +229,9 @@ class BuildTransactions extends ConsumerWidget {
                 children: transaction.balances.map((balance) {
                   return GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LiquidTransactionDetailsScreen(transaction: transaction),
-                        ),
+                      context.pushNamed(
+                        'liquidTransactionDetails',
+                        extra: transaction,
                       );
                     },
                     child: ListTile(

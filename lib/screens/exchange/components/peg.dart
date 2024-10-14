@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
@@ -228,7 +229,7 @@ class _PegState extends ConsumerState<Peg> {
                   });
                   await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                   controller.success();
-                  Navigator.pushReplacementNamed(context, '/home');
+                  context.go('/home');
                 } catch (e) {
                   controller.failure();
                   Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);

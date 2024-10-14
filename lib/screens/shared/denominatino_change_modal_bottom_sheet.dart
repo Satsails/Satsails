@@ -1,6 +1,7 @@
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 class DenominationChangeModalBottomSheet extends ConsumerStatefulWidget {
@@ -116,7 +117,7 @@ class _DenominationChangeModalBottomSheetState extends ConsumerState<Denominatio
           title: const Text('BRL', style: TextStyle(color: Colors.white)),
           onTap: () {
             settingsNotifier.setCurrency('BRL');
-            Navigator.pop(context);
+           context.pop();
           },
         ),
         ListTile(
@@ -124,7 +125,7 @@ class _DenominationChangeModalBottomSheetState extends ConsumerState<Denominatio
           title: const Text('USD', style: TextStyle(color: Colors.white)),
           onTap: () {
             settingsNotifier.setCurrency('USD');
-            Navigator.pop(context);
+           context.pop();
           },
         ),
         ListTile(
@@ -132,7 +133,7 @@ class _DenominationChangeModalBottomSheetState extends ConsumerState<Denominatio
           title: const Text('EUR', style: TextStyle(color: Colors.white)),
           onTap: () {
             settingsNotifier.setCurrency('EUR');
-            Navigator.pop(context);
+           context.pop();
           },
         ),
       ],
@@ -148,7 +149,7 @@ class _DenominationChangeModalBottomSheetState extends ConsumerState<Denominatio
           title: const Text('BTC', style: TextStyle(color: Colors.white)),
           onTap: () {
             settingsNotifier.setBtcFormat('BTC');
-            Navigator.pop(context);
+           context.pop();
           },
         ),
         ListTile(
@@ -156,7 +157,7 @@ class _DenominationChangeModalBottomSheetState extends ConsumerState<Denominatio
           title: const Text('Satoshi', style: TextStyle(color: Colors.white)),
           onTap: () {
             settingsNotifier.setBtcFormat('sats');
-            Navigator.pop(context);
+           context.pop();
           },
         ),
       ],
