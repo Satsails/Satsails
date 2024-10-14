@@ -9,6 +9,7 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -136,7 +137,7 @@ class Home extends ConsumerWidget {
         IconButton(
           icon: const Icon(Clarity.settings_line, color: Colors.white),
           onPressed: () {
-            Navigator.pushNamed(context, '/settings');
+            context.push('/home/settings');
           },
         ),
         ref.watch(backgroundSyncInProgressProvider)

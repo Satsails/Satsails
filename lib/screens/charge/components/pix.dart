@@ -3,6 +3,7 @@ import 'package:Satsails/screens/charge/components/pix_history.dart';
 import 'package:Satsails/screens/charge/components/receive_pix.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class Pix extends ConsumerWidget {
   const Pix({super.key});
@@ -17,7 +18,7 @@ class Pix extends ConsumerWidget {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pushReplacementNamed(context, '/charge'),
+          onPressed: () => context.pop(),
         ),
       ),
       body: Center(

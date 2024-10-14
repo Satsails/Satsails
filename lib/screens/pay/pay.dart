@@ -2,6 +2,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
@@ -21,13 +22,13 @@ class Pay extends ConsumerWidget {
         await ref.refresh(setAddressAndAmountProvider(data.text ?? '').future);
         switch (ref.read(sendTxProvider.notifier).state.type) {
           case PaymentType.Bitcoin:
-            Navigator.pushReplacementNamed(context, '/confirm_bitcoin_payment');
+            context.push('/home/pay/confirm_bitcoin_payment');
             break;
           case PaymentType.Lightning:
-            Navigator.pushReplacementNamed(context, '/confirm_lightning_payment');
+            context.push('/home/pay/confirm_lightning_payment');
             break;
           case PaymentType.Liquid:
-            Navigator.pushReplacementNamed(context, '/confirm_liquid_payment');
+            context.push('/home/pay/confirm_liquid_payment');
             break;
           default:
             _showErrorDialog(context, ref, 'Scan failed!');
@@ -77,7 +78,7 @@ class Pay extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.close, color: Colors.black54),
               onPressed: () {
-                Navigator.of(context).pop();
+                context.pop();
               },
             ),
           ],
@@ -110,7 +111,7 @@ class Pay extends ConsumerWidget {
             left: 10.0,
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30.0),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
             ),
           ),
           // Bottom Buttons

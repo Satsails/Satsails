@@ -4,6 +4,7 @@ import 'package:Satsails/screens/shared/delete_wallet_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 
@@ -23,7 +24,7 @@ class Settings extends ConsumerWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/home');
+            context.pop();
           },
         ),
       ),
@@ -74,7 +75,7 @@ class Settings extends ConsumerWidget {
                     ref.read(settingsProvider.notifier).setBitcoinElectrumNode('blockstream.info:700');
                     ref.read(settingsProvider.notifier).setNodeType('Blockstream');
                     ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-                    Navigator.pop(context);
+                    context.pop();
                   },
                 ),
                 ListTile(
@@ -85,7 +86,7 @@ class Settings extends ConsumerWidget {
                     ref.read(settingsProvider.notifier).setBitcoinElectrumNode('electrum.bullbitcoin.com:50002');
                     ref.read(settingsProvider.notifier).setNodeType('Bull Bitcoin');
                     ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-                    Navigator.pop(context);
+                    context.pop();
                   },
                 ),
               ],
@@ -103,9 +104,9 @@ class Settings extends ConsumerWidget {
       subtitle: Text('Manage your anonymous account'.i18n(ref), style: const TextStyle(color: Colors.grey)),
       onTap: () {
         if (paymentId == '') {
-          Navigator.pushNamed(context, '/user_creation');
+          context.push('/user_creation');
         } else {
-          Navigator.pushNamed(context, '/user_view');
+          context.push('/home/settings/user_view');
         }
       },
     );
@@ -117,7 +118,7 @@ class Settings extends ConsumerWidget {
       title: Text('Search the blockchain'.i18n(ref), style: const TextStyle(color: Colors.white)),
       subtitle: const Text('mempool.com', style: TextStyle(color: Colors.grey)),
       onTap: () {
-        Navigator.pushNamed(context, '/search_modal');
+        context.push('/search_modal');
       },
     );
   }
@@ -143,7 +144,7 @@ class Settings extends ConsumerWidget {
                   title: Text('Portuguese'.i18n(ref), style: const TextStyle(color: Colors.white)),
                   onTap: () {
                     settingsNotifier.setLanguage('pt');
-                    Navigator.pop(context);
+                    context.pop();
                   },
                 ),
                 ListTile(
@@ -151,7 +152,7 @@ class Settings extends ConsumerWidget {
                   title: Text('English'.i18n(ref), style: const TextStyle(color: Colors.white)),
                   onTap: () {
                     settingsNotifier.setLanguage('en');
-                    Navigator.pop(context);
+                    context.pop();
                   },
                 ),
               ],
@@ -171,7 +172,7 @@ class Settings extends ConsumerWidget {
       trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
       onTap: () {
         ref.read(sendToSeed.notifier).state = true;
-        walletBackedUp ? Navigator.pushNamed(context, '/open_pin') : Navigator.pushNamed(context, '/seed_words');
+        walletBackedUp ? context.push('/open_pin') : context.push('/seed_words');
       },
     );
   }
@@ -182,7 +183,7 @@ class Settings extends ConsumerWidget {
       title:  Text('Help & Support & Bug reporting'.i18n(ref), style: const TextStyle(color: Colors.white)),
       subtitle: Text('Chat with us about anything'.i18n(ref), style: const TextStyle(color: Colors.grey)),
       onTap: () {
-        Navigator.pushNamed(context, '/support');
+        context.push('/support');
       },
     );
   }
@@ -193,7 +194,7 @@ class Settings extends ConsumerWidget {
       title: Text('Lightning Transactions'.i18n(ref), style: const TextStyle(color: Colors.white)),
       subtitle: Text('Claim your Boltz transactions'.i18n(ref), style: const TextStyle(color: Colors.grey)),
       onTap: () {
-        Navigator.pushNamed(context, '/claim_boltz_transactions');
+        context.push('/claim_boltz_transactions');
       },
     );
   }

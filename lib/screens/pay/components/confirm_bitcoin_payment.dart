@@ -5,6 +5,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
@@ -65,7 +66,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
-                  Navigator.pop(context);
+                  context.pop();
                 },
               ),
             ),
@@ -342,7 +343,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                           await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
                           controller.success();
                           ref.read(sendTxProvider.notifier).resetToDefault();
-                          Navigator.pop(context);
+                          context.pop();
                           Fluttertoast.showToast(
                             msg: "Transaction Sent".i18n(ref),
                             toastLength: Toast.LENGTH_LONG,

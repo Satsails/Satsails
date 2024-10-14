@@ -1,6 +1,7 @@
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'dart:math' as math;
 
@@ -52,16 +53,16 @@ Widget buildActionButtons(BuildContext context, WidgetRef ref) {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         buildCircularButton(context, Clarity.add_line, 'Add Money'.i18n(ref), () {
-          Navigator.pushNamed(context, '/charge');
+          context.push('/home/charge');
         }, Colors.black),
         buildCircularButton(context, Clarity.two_way_arrows_line, 'Swaps'.i18n(ref), () {
-          Navigator.pushNamed(context, '/exchange');
+          context.push('/home/exchange');
         }, Colors.black),
         buildCircularButton(context, Clarity.credit_card_line, 'Pay'.i18n(ref), () {
-          Navigator.pushNamed(context, '/pay');
+          context.push('/home/pay');
         }, Colors.black),
         buildCircularButton(context, TeenyIcons.arrow_down, 'Receive'.i18n(ref), () {
-          Navigator.pushNamed(context, '/receive');
+          context.push('/home/receive');
         }, Colors.black),
       ],
     ),

@@ -1,5 +1,6 @@
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
@@ -53,7 +54,7 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white, size: screenHeight * 0.03),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
       ),
       body: WebViewWidget(

@@ -3,6 +3,7 @@ import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class DeleteWalletSection extends StatelessWidget {
   final WidgetRef ref;
@@ -78,7 +79,7 @@ class DeleteWalletSection extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      context.pop();
                     },
                   ),
                   TextButton(
@@ -98,7 +99,7 @@ class DeleteWalletSection extends StatelessWidget {
                     ),
                     onPressed: () async {
                       await authModel.deleteAuthentication();
-                      Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                      context.go('/');
                     },
                   ),
                 ],

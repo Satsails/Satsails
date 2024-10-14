@@ -8,6 +8,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
@@ -64,7 +65,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
-                  Navigator.pop(context);
+                  context.pop();
                 },
               ),
               title: Text('Confirm Payment'.i18n(ref), style: const TextStyle(color: Colors.white)),
@@ -308,7 +309,8 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                           await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                           controller.success();
                           ref.read(sendTxProvider.notifier).resetToDefault();
-                          Navigator.pop(context);Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                          context.pop();
+                          Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                         } catch (e) {
                           controller.failure();
                           Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);

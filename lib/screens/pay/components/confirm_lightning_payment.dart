@@ -1,3 +1,4 @@
+import 'package:Satsails/app_router.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/screens/pay/components/lightning_cards.dart';
@@ -10,6 +11,7 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -57,7 +59,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               color: Colors.white,
               onPressed: () {
-                Navigator.pop(context);
+                context.pop();
               },
             ),
           ),
@@ -157,7 +159,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                         sendLiquid ? ref.read(liquidSyncNotifierProvider.notifier).performSync() : ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
                         controller.success();
                         ref.read(sendTxProvider.notifier).resetToDefault();
-                        Navigator.pop(context);
+                        context.pop();
                         Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                       } catch (e) {
                         controller.failure();

@@ -9,7 +9,6 @@
 		</array>
 		<key>io.flutter.embedded_views_preview</key>
 		<true/>
-
 		<!-- Permissions for Face ID, Camera, Photo Library, and Microphone -->
 		<key>NSFaceIDUsageDescription</key>
 		<string>Allow face ID to unlock Satsails</string>
@@ -19,7 +18,6 @@
 		<string>Access to send photos to our support and scan QR codes</string>
 		<key>NSMicrophoneUsageDescription</key>
 		<string>Access to send audio messages to our support</string>
-
 		<!-- Notification Permissions -->
 		<key>NSUserTrackingUsageDescription</key>
 		<string>This identifier will be used to deliver personalized ads to you.</string>
@@ -28,7 +26,6 @@
 			<string>fetch</string>
 			<string>remote-notification</string>
 		</array>
-
 		<!-- Basic App Configurations -->
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
@@ -56,7 +53,6 @@
 		<string>LaunchScreen</string>
 		<key>UIMainStoryboardFile</key>
 		<string>Main</string>
-
 		<!-- Supported Orientations -->
 		<key>UISupportedInterfaceOrientations</key>
 		<array>
@@ -71,7 +67,6 @@
 			<string>UIInterfaceOrientationLandscapeLeft</string>
 			<string>UIInterfaceOrientationLandscapeRight</string>
 		</array>
-
 		<!-- Additional Configurations -->
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>

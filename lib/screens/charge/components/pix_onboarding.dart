@@ -6,6 +6,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -190,7 +191,7 @@ class PixOnBoarding extends ConsumerWidget {
                   ref.read(loadingProvider.notifier).state = true;
                   ref.read(onBoardingInProgressProvider.notifier).state = false;
                   await ref.read(userProvider.notifier).serOnboarded(true);
-                  Navigator.of(context).pushReplacementNamed('/pix');
+                  context.go('/home/pix');
                   ref.read(loadingProvider.notifier).state = false;
                 },
                 showSkipButton: true,

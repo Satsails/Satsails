@@ -5,40 +5,17 @@ import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
-import 'package:Satsails/screens/charge/components/pix_transaction_details.dart';
-import 'package:Satsails/screens/home/main_screen.dart';
-import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
-import 'package:Satsails/screens/settings/components/support.dart';
-import 'package:Satsails/screens/user/start_affiliate.dart';
-import 'package:Satsails/screens/settings/components/claim_boltz.dart';
 import 'package:Satsails/screens/spash/splash.dart';
-import 'package:Satsails/screens/user/user_creation.dart';
-import 'package:Satsails/screens/user/user_view.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:lwk_dart/lwk_dart.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
-import 'package:Satsails/screens/creation/start.dart';
-import 'package:Satsails/screens/pay/components/confirm_liquid_payment.dart';
-import 'package:Satsails/screens/settings/components/seed_words.dart';
 import 'package:Satsails/screens/settings/settings.dart';
-import 'package:Satsails/screens/receive/receive.dart';
-import 'package:Satsails/screens/accounts/accounts.dart';
-import 'package:Satsails/screens/creation/set_pin.dart';
-import 'package:Satsails/screens/analytics/analytics.dart';
-import 'package:Satsails/screens/login/open_pin.dart';
-import 'package:Satsails/screens/services/services.dart';
-import 'package:Satsails/screens/charge/charge.dart';
-import 'package:Satsails/screens/pay/pay.dart';
-import 'package:Satsails/screens/creation/recover_wallet.dart';
-import 'package:Satsails/screens/pay/components/confirm_bitcoin_payment.dart';
-import 'package:Satsails/screens/exchange/exchange.dart';
-import 'package:Satsails/screens/home/components/search_modal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:Satsails/models/adapters/transaction_adapters.dart';
@@ -46,8 +23,7 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pusher_beams/pusher_beams.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'screens/charge/components/pix.dart';
-import 'screens/settings/components/backup_wallet.dart';
+import './app_router.dart';
 
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -116,29 +92,8 @@ Future<void> main() async {
 
 
   runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('pt'),
-      ],
-      home: I18n(
-        child: const ProviderScope(
-          child: MainApp(),
-        ),
-      ),
-      builder: (context, child) {
-        final mediaQueryData = MediaQuery.of(context);
-        return MediaQuery(
-          data: mediaQueryData.copyWith(textScaler: const TextScaler.linear(1.0)),
-          child: child!,
-        );
-      },
+    const ProviderScope(
+      child: MainApp(),
     ),
   );
 }
@@ -154,6 +109,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   Timer? _lockTimer;
   final int lockThresholdInSeconds = 300; // 5 minutes
+  GoRouter? _router;
 
   @override
   void initState() {
@@ -163,6 +119,20 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
       systemNavigationBarColor: Colors.black,
       systemNavigationBarIconBrightness: Brightness.light,
     ));
+
+    // Initialize the router
+    _initializeRouter();
+  }
+
+  void _initializeRouter() async {
+    final authModel = ref.read(authModelProvider);
+    final mnemonic = await authModel.getMnemonic();
+
+    final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/open_pin';
+
+    setState(() {
+      _router = AppRouter.createRouter(initialRoute);
+    });
   }
 
   @override
@@ -203,69 +173,48 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     final mnemonic = await authModel.getMnemonic();
 
     if (mnemonic == null || mnemonic.isEmpty) {
-      navigatorKey.currentState?.pushNamedAndRemoveUntil('/', (route) => false);
+      _router!.go('/');
     } else {
       ref.read(sendToSeed.notifier).state = false;
-      navigatorKey.currentState?.pushNamedAndRemoveUntil('/open_pin', (route) => false);
+      _router!.go('/open_pin');
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
-    Future<String?> mnemonicFuture = ref.read(authModelProvider).getMnemonic();
-    final language = ref.watch(settingsProvider.notifier).state.language;
+    final language = ref.watch(settingsProvider).language;
 
-    return FutureBuilder<String?>(
-        future: mnemonicFuture,
-        builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Splash();
-      } else if (snapshot.hasError) {
-        return Text('Error: ${snapshot.error}');
-      } else {
-        final mnemonic = snapshot.data;
-        final initialRoute = (mnemonic == null || mnemonic.isEmpty)
-            ? '/'
-            : '/open_pin';
+    if (_router == null) {
+      return const MaterialApp(
+        home: Splash(),
+      );
+    }
 
-        return MaterialApp(
-            navigatorKey: navigatorKey,
-            locale: Locale(language),
-            initialRoute: initialRoute,
-            themeMode: ThemeMode.dark,
-            debugShowCheckedModeBanner: false,
-            routes: {
-              '/': (context) => const Start(),
-              '/seed_words': (context) => const SeedWords(),
-              '/open_pin': (context) => OpenPin(),
-              '/charge': (context) => const Charge(),
-              '/accounts': (context) => const Accounts(),
-              '/receive': (context) => Receive(),
-              '/settings': (context) => const Settings(),
-              '/analytics': (context) => const Analytics(),
-              '/set_pin': (context) => const SetPin(),
-              '/exchange': (context) => Exchange(),
-              '/apps': (context) => const Services(),
-              '/pay': (context) => Pay(),
-              '/home': (context) => const MainScreen(),
-              '/recover_wallet': (context) => const RecoverWallet(),
-              '/search_modal': (context) => const SearchModal(),
-              '/confirm_bitcoin_payment': (context) => ConfirmBitcoinPayment(),
-              '/confirm_liquid_payment': (context) => ConfirmLiquidPayment(),
-              '/confirm_lightning_payment': (context) => ConfirmLightningPayment(),
-              '/claim_boltz_transactions': (context) => ClaimBoltz(),
-              '/backup_wallet': (context) => const BackupWallet(),
-              '/pix': (context) => const Pix(),
-              '/pix_onboarding': (context) => const PixOnBoarding(),
-              '/start_affiliate': (context) => const StartAffiliate(),
-              '/pix_transaction_details': (context) => const PixTransactionDetails(),
-              '/user_creation': (context) => const UserCreation(),
-              '/user_view': (context) => const UserView(),
-              '/support': (context) => const Support(),
-            },
-          );
-        }
+    return MaterialApp.router(
+      routerConfig: _router,
+      locale: Locale(language),
+      themeMode: ThemeMode.dark,
+      debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('pt'),
+      ],
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: I18n(
+            child: child!,
+          ),
+        );
       },
     );
   }
 }
+
+

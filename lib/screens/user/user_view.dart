@@ -5,7 +5,8 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart'; // To use Clipboard
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart'; // To use Clipboard
 
 class UserView extends ConsumerStatefulWidget {
   const UserView({super.key});
@@ -24,72 +25,69 @@ class _UserViewState extends ConsumerState<UserView> {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          title: Text('User Details'.i18n(ref), style: const TextStyle(color: Colors.white)),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pushNamed(context, '/settings'),
-          ),
-        ),
+    return Scaffold(
+      appBar: AppBar(
         backgroundColor: Colors.black,
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(width * 0.05),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (affiliate.createdAffiliateCode.isNotEmpty == true) ... [
-                  _buildCreatedAffiliateRow(affiliate.createdAffiliateCode, width, height),
-                  SizedBox(height: height * 0.02),
-                ],
-                if (affiliate.insertedAffiliateCode.isNotEmpty == true) ... [
-                  _buildInsertedAffiliateRow(affiliate.insertedAffiliateCode, width, height),
-                  SizedBox(height: height * 0.02),
-                ],
-                _buildRecoveryCodeSection(user.recoveryCode, width, height),
-                SizedBox(height: height * 0.03),
-                Text(
-                  'Hint: Please store your recovery code somewhere safe. There is no other way to recover your account if you lose this code.'.i18n(ref),
-                  style: TextStyle(color: Colors.redAccent, fontSize: width * 0.03),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16.0),
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: height * 0.03),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white54),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Affiliate Portal'.i18n(ref),
-                        style: TextStyle(color: Colors.white, fontSize: width * 0.045, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: height * 0.01),
-                      Text(
-                        'Track your performance and access exclusive resources.'.i18n(ref),
-                        style: TextStyle(color: Colors.white70, fontSize: width * 0.035),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: height * 0.02),
-                      CustomElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pushNamed('/start_affiliate');
-                        },
-                        text: "Go to Affiliate Portal".i18n(ref),
-                        backgroundColor: Colors.orange,
-                      ),
-                    ],
-                  ),
-                ),
+        title: Text('User Details'.i18n(ref), style: const TextStyle(color: Colors.white)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      backgroundColor: Colors.black,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(width * 0.05),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (affiliate.createdAffiliateCode.isNotEmpty == true) ... [
+                _buildCreatedAffiliateRow(affiliate.createdAffiliateCode, width, height),
+                SizedBox(height: height * 0.02),
               ],
-            ),
+              if (affiliate.insertedAffiliateCode.isNotEmpty == true) ... [
+                _buildInsertedAffiliateRow(affiliate.insertedAffiliateCode, width, height),
+                SizedBox(height: height * 0.02),
+              ],
+              _buildRecoveryCodeSection(user.recoveryCode, width, height),
+              SizedBox(height: height * 0.03),
+              Text(
+                'Hint: Please store your recovery code somewhere safe. There is no other way to recover your account if you lose this code.'.i18n(ref),
+                style: TextStyle(color: Colors.redAccent, fontSize: width * 0.03),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16.0),
+              Container(
+                padding: EdgeInsets.symmetric(vertical: height * 0.03),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white54),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'Affiliate Portal'.i18n(ref),
+                      style: TextStyle(color: Colors.white, fontSize: width * 0.045, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: height * 0.01),
+                    Text(
+                      'Track your performance and access exclusive resources.'.i18n(ref),
+                      style: TextStyle(color: Colors.white70, fontSize: width * 0.035),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: height * 0.02),
+                    CustomElevatedButton(
+                      onPressed: () {
+                        context.push('/start_affiliate');
+                      },
+                      text: "Go to Affiliate Portal".i18n(ref),
+                      backgroundColor: Colors.orange,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

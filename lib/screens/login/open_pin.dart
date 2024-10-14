@@ -2,6 +2,7 @@ import 'package:Satsails/screens/settings/settings.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:Satsails/providers/auth_provider.dart';
@@ -42,7 +43,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
           leading: openSeed ? IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pushReplacementNamed(context, '/settings');
+              context.go('/settings');
             },
           ) : null,
         ),
@@ -105,7 +106,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
     final openSeed = ref.watch(sendToSeed);
 
     if (pinText == _pinController.text) {
-      openSeed ? Navigator.pushReplacementNamed(context, '/seed_words') : Navigator.pushReplacementNamed(context, '/home');
+      openSeed ? context.go('/seed_words') : context.go('/home');
     } else {
       Fluttertoast.showToast(
           msg: 'Invalid PIN'.i18n(ref),
@@ -135,7 +136,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
           )
       );
       if (authenticated) {
-        openSeed ? Navigator.pushReplacementNamed(context, '/seed_words') : Navigator.pushReplacementNamed(context, '/home');
+        openSeed ? context.go('/seed_words') : context.go('/home');
       }
     }
 
@@ -200,7 +201,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      context.pop();
                     },
                   ),
                   TextButton(
@@ -234,6 +235,6 @@ class _OpenPinState extends ConsumerState<OpenPin> {
   Future<void> _forgotPin(BuildContext context, WidgetRef ref) async {
     final authModel = ref.read(authModelProvider);
     await authModel.deleteAuthentication();
-    Navigator.pushReplacementNamed(context, '/');
+    context.go('/');
   }
 }
