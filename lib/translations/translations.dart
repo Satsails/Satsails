@@ -1640,8 +1640,8 @@ extension Localization on String {
         'pt': 'Aguarde alguns minutos e tente novamente'
       } +
       {
-        'en': "Invalid CPF",
-        'pt': 'CPF inválido'
+        'en': "Invalid CPF/CNPJ",
+        'pt': 'CPF/CNPJ inválido'
       } +
       {
         'en': "Please enter an amount",

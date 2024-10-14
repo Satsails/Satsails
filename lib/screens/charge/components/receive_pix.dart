@@ -6,6 +6,7 @@ import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/pix_transaction_provider.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:cpf_cnpj_validator/cnpj_validator.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -111,9 +112,9 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       return;
     }
 
-    if (!CPFValidator.isValid(cpf)) {
+    if (!CPFValidator.isValid(cpf) && !CNPJValidator.isValid(cpf)) {
       Fluttertoast.showToast(
-        msg: 'Invalid CPF'.i18n(ref),
+        msg: 'Invalid CPF/CNPJ'.i18n(ref),
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.TOP,
         timeInSecForIosWeb: 1,
