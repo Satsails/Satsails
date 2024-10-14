@@ -108,7 +108,7 @@ String timestampToDateTime(int? timestamp) {
     return 'Unconfirmed';
   }
   final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-  return "${date.day}/${date.month}/${date.year}";
+  return "${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute}";
 }
 
 
