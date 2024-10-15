@@ -1,5 +1,7 @@
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
+import 'package:Satsails/screens/shared/transactions_builder.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
+import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
@@ -29,8 +31,8 @@ import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/screens/home/components/search_modal.dart';
 import 'package:Satsails/screens/charge/components/pix.dart';
 import 'package:Satsails/screens/settings/components/backup_wallet.dart';
+import 'package:lwk_dart/lwk_dart.dart';
 
-import 'models/adapters/transaction_adapters.dart';
 
 class AppRouter {
   static GoRouter createRouter(String initialRoute) {

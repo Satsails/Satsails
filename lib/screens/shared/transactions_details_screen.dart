@@ -1,6 +1,6 @@
 import 'package:Satsails/helpers/common_operation_methods.dart';
-import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
+import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

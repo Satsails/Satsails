@@ -26,15 +26,12 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
   void _loadUrl() {
     final isLiquid = ref.read(transactionSearchProvider).isLiquid;
     final transactionHash = ref.read(transactionSearchProvider).txid;
-    final amount = ref.read(transactionSearchProvider).amount;
-    final assetId = ref.read(transactionSearchProvider).assetId;
-    final amountBlinder = ref.read(transactionSearchProvider).amountBlinder;
-    final assetBlinder = ref.read(transactionSearchProvider).assetBlinder;
+    final unblindedUrl = ref.read(transactionSearchProvider).unblindedUrl;
 
     final uri = (isLiquid == null || transactionHash == null)
         ? 'https://mempool.space'
         : (isLiquid
-        ? 'https://liquid.network/tx/$transactionHash#blinded=$amount,$assetId,$amountBlinder,$assetBlinder'
+        ? 'https://liquid.network/$unblindedUrl'
         : 'https://mempool.space/tx/$transactionHash');
     controller.loadRequest(Uri.parse(uri));
   }

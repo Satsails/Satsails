@@ -7,6 +7,7 @@ class TransactionSearchModel {
   String? assetId;
   String? amountBlinder;
   String? assetBlinder;
+  String? unblindedUrl;
 
   TransactionSearchModel({
     this.isLiquid,
@@ -15,6 +16,7 @@ class TransactionSearchModel {
     this.assetId,
     this.amountBlinder,
     this.assetBlinder,
+    this.unblindedUrl,
   });
 
   TransactionSearchModel copyWith({
@@ -24,6 +26,7 @@ class TransactionSearchModel {
     String? assetId,
     String? amountBlinder,
     String? assetBlinder,
+    String? unblindedUrl,
   }) {
     return TransactionSearchModel(
       isLiquid: isLiquid ?? this.isLiquid,
@@ -32,6 +35,7 @@ class TransactionSearchModel {
       assetId: assetId ?? this.assetId,
       amountBlinder: amountBlinder ?? this.amountBlinder,
       assetBlinder: assetBlinder ?? this.assetBlinder,
+      unblindedUrl: unblindedUrl ?? this.unblindedUrl,
     );
   }
 

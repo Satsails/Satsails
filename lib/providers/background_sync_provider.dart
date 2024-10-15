@@ -48,7 +48,6 @@ class BitcoinSyncNotifier extends SyncNotifier {
         await ref.read(syncBitcoinProvider.future);
         final address = await ref.refresh(lastUsedAddressProvider.future);
         ref.read(addressProvider.notifier).setBitcoinAddress(address);
-        ref.read(updateBitcoinTransactionsProvider);
         await ref.read(claimAndDeleteAllBitcoinBoltzProvider.future);
       },
       onSuccess: () {
@@ -71,7 +70,6 @@ class LiquidSyncNotifier extends SyncNotifier {
         await ref.read(syncLiquidProvider.future);
         final liquidAddress = await ref.refresh(liquidLastUsedAddressProvider.future);
         ref.read(addressProvider.notifier).setLiquidAddress(liquidAddress);
-        ref.read(updateLiquidTransactionsProvider);
         ref.read(settingsProvider.notifier).setOnline(true);
         await ref.read(claimAndDeleteAllBoltzProvider.future);
       },

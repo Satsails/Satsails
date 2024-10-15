@@ -19,7 +19,6 @@ import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pusher_beams/pusher_beams.dart';
@@ -69,13 +68,6 @@ Future<void> main() async {
   // Initialize Hive for local storage
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
-  Hive.registerAdapter(TransactionDetailsAdapter());
-  Hive.registerAdapter(BlockTimeAdapter());
-  Hive.registerAdapter(OutPointAdapter());
-  Hive.registerAdapter(TxOutSecretsAdapter());
-  Hive.registerAdapter(TxOutAdapter());
-  Hive.registerAdapter(TxAdapter());
-  Hive.registerAdapter(BalanceAdapter());
   Hive.registerAdapter(WalletBalanceAdapter());
   Hive.registerAdapter(SideswapPegStatusAdapter());
   Hive.registerAdapter(SideswapCompletedSwapAdapter());

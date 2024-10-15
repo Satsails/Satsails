@@ -1,11 +1,11 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
-import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lwk_dart/lwk_dart.dart';
 
 class LiquidTransactionDetailsScreen extends ConsumerWidget {
   final Tx transaction;

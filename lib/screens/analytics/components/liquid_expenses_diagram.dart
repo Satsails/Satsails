@@ -10,6 +10,7 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/expenses_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class LiquidExpensesDiagram extends ConsumerWidget {
   const LiquidExpensesDiagram({super.key});
@@ -17,6 +18,9 @@ class LiquidExpensesDiagram extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bitcoinTransactions = ref.watch(liquidTransactionsByDate);
+    final bitcoinIsLoading = ref.watch(transactionNotifierProvider).liquidTransactions.isNotEmpty
+        ? ref.watch(transactionNotifierProvider).liquidTransactions.first.balances.isEmpty
+        : false;
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -47,7 +51,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               ],
             ),
           if (!oneDay)
-            Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.LBTC))),
+            if (bitcoinIsLoading) Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orange, size: screenHeight * 0.1)),
+            if (!bitcoinIsLoading) Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.LBTC))),
         ],
       ),
       Column(
@@ -71,7 +76,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               ],
             ),
           if (!oneDay)
-            Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.BRL))),
+            if (bitcoinIsLoading) Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orange, size: screenHeight * 0.1)),
+            if (!bitcoinIsLoading) Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.BRL))),
         ],
       ),
       Column(
@@ -95,7 +101,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               ],
             ),
           if (!oneDay)
-            Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.USD))),
+            if (bitcoinIsLoading) Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orange, size: screenHeight * 0.1)),
+            if (!bitcoinIsLoading) Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.USD))),
         ],
       ),
       Column(
@@ -119,7 +126,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               ],
             ),
           if (!oneDay)
-            Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.EUR))),
+            if (!bitcoinIsLoading) Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orange, size: screenHeight * 0.1)),
+            if (bitcoinIsLoading) Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.EUR))),
         ],
       ),
     ];
