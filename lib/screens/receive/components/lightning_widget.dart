@@ -95,14 +95,12 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
   late TextEditingController controller;
   String transactionId = '';
   bool showInvoice = false;
-  Future<BtcBoltz>? _boltzSwapFuture;
 
   @override
   void initState() {
     super.initState();
     controller = TextEditingController();
 
-    // Optionally initialize the controller with existing amount
     final inputAmount = ref.read(inputAmountProvider);
     if (inputAmount != '0.0') {
       controller.text = inputAmount;
@@ -201,25 +199,52 @@ class _LiquidReceiveWidgetState extends ConsumerState<LiquidReceiveWidget> {
         SizedBox(height: height * 0.02),
         fees.when(
           data: (data) {
+            final inputAmount = ref.watch(inputAmountProvider);
             final inputCurrency = ref.watch(inputCurrencyProvider);
+            final currencyConverter = ref.read(currencyNotifierProvider);
             final currencyRate = ref.read(selectedCurrencyProvider(inputCurrency));
+            final inputAmountInSats = (inputCurrency == 'Sats' || inputCurrency == 'BTC')
+                ? calculateAmountInSatsToDisplay(inputAmount, inputCurrency, currencyConverter)
+                : calculateAmountToDisplayFromFiatInSats(inputAmount, inputCurrency, currencyConverter);
             final formattedValueInBtc = btcInDenominationFormatted(data.lbtcLimits.minimal.toDouble(), 'BTC');
+            final formattedFeesInBtc = btcInDenominationFormatted(data.lbtcFees.percentage / 100 * double.parse(inputAmountInSats.toString()) + data.lbtcFees.minerFees.claim + data.lbtcFees.minerFees.lockup, 'BTC');
+            final formattedFeesInSats = data.lbtcFees.percentage / 100 * double.parse(inputAmount) + data.lbtcFees.minerFees.claim + data.lbtcFees.minerFees.lockup;
             final valueToDisplay = currencyRate * double.parse(formattedValueInBtc);
+            final feesToDisplay = currencyRate * double.parse(formattedFeesInBtc);
 
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                'Minimum amount:'.i18n(ref) + ' ' + (
-                    inputCurrency == 'BTC'
-                        ? formattedValueInBtc
-                        : inputCurrency == 'Sats'
-                        ? data.lbtcLimits.minimal.toString()
-                        : valueToDisplay.toStringAsFixed(2)
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'Total fees'.i18n(ref) + ' ' + (
+                        inputCurrency == 'BTC'
+                            ? formattedFeesInBtc
+                            : inputCurrency == 'Sats'
+                            ? formattedFeesInSats.toStringAsFixed(0)
+                            : feesToDisplay.toStringAsFixed(2)
+                    ),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
                 ),
-                style: const TextStyle(
-                  color: Colors.grey,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'Minimum amount:'.i18n(ref) + ' ' + (
+                        inputCurrency == 'BTC'
+                            ? formattedValueInBtc
+                            : inputCurrency == 'Sats'
+                            ? data.lbtcLimits.minimal.toString()
+                            : valueToDisplay.toStringAsFixed(2)
+                    ),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             );
           },
           loading: () => Center(
@@ -420,25 +445,52 @@ class _BitcoinReceiveWidgetState extends ConsumerState<BitcoinReceiveWidget> {
         SizedBox(height: height * 0.02),
         fees.when(
           data: (data) {
+            final inputAmount = ref.watch(inputAmountProvider);
             final inputCurrency = ref.watch(inputCurrencyProvider);
+            final currencyConverter = ref.read(currencyNotifierProvider);
             final currencyRate = ref.read(selectedCurrencyProvider(inputCurrency));
+            final inputAmountInSats = (inputCurrency == 'Sats' || inputCurrency == 'BTC')
+                ? calculateAmountInSatsToDisplay(inputAmount, inputCurrency, currencyConverter)
+                : calculateAmountToDisplayFromFiatInSats(inputAmount, inputCurrency, currencyConverter);
             final formattedValueInBtc = btcInDenominationFormatted(data.btcLimits.minimal.toDouble(), 'BTC');
+            final formattedFeesInBtc = btcInDenominationFormatted(data.btcFees.percentage / 100 * double.parse(inputAmountInSats.toString()) + data.btcFees.minerFees.claim + data.btcFees.minerFees.lockup, 'BTC');
+            final formattedFeesInSats = data.btcFees.percentage / 100 * double.parse(inputAmount) + data.btcFees.minerFees.claim + data.btcFees.minerFees.lockup;
             final valueToDisplay = currencyRate * double.parse(formattedValueInBtc);
+            final feesToDisplay = currencyRate * double.parse(formattedFeesInBtc);
 
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                'Minimum amount:'.i18n(ref) + ' ' + (
-                    inputCurrency == 'BTC'
-                        ? formattedValueInBtc
-                        : inputCurrency == 'Sats'
-                        ? data.btcLimits.minimal.toString()
-                        : valueToDisplay.toStringAsFixed(2)
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'Total fees'.i18n(ref) + ' ' + (
+                        inputCurrency == 'BTC'
+                            ? formattedFeesInBtc
+                            : inputCurrency == 'Sats'
+                            ? formattedFeesInSats.toStringAsFixed(0)
+                            : feesToDisplay.toStringAsFixed(2)
+                    ),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
                 ),
-                style: const TextStyle(
-                  color: Colors.grey,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'Minimum amount:'.i18n(ref) + ' ' + (
+                        inputCurrency == 'BTC'
+                            ? formattedValueInBtc
+                            : inputCurrency == 'Sats'
+                            ? data.btcLimits.minimal.toString()
+                            : valueToDisplay.toStringAsFixed(2)
+                    ),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             );
           },
           loading: () => Center(
