@@ -40,23 +40,43 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
     final btcFormart = ref.watch(settingsProvider).btcFormat;
     final sendAmount = ref.watch(sendTxProvider).btcBalanceInDenominationFormatted(btcFormart);
 
+    // State variable to track if a transaction is in progress
+    final isProcessing = useState(false);
+
     useEffect(() {
-      controller.text = sendAmount == 0 ? '' : (btcFormart == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString());
+      controller.text = sendAmount == 0
+          ? ''
+          : (btcFormart == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString());
       return null;
     }, [showBitcoinRelatedWidgets.state]);
 
     return PopScope(
-      onPopInvoked:(pop) async {
-        ref.read(sendTxProvider.notifier).resetToDefault();
-        ref.read(sendBlocksProvider.notifier).state = 1;
+      onPopInvoked: (pop) async {
+        // Prevent navigation if a transaction is in progress
+        if (isProcessing.value) {
+          // Optionally, show a message to the user
+          Fluttertoast.showToast(
+            msg: "Transaction in progress, please wait.".i18n(ref),
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.orange,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+          return;
+        } else {
+          ref.read(sendTxProvider.notifier).resetToDefault();
+          ref.read(sendBlocksProvider.notifier).state = 1;
+          context.pop();
+        }
       },
       child: SafeArea(
         child: FlutterKeyboardDoneWidget(
-              doneWidgetBuilder: (context) {
-                return const Text(
-                  'Done',
-                );
-              },
+          doneWidgetBuilder: (context) {
+            return const Text(
+              'Done',
+            );
+          },
           child: Scaffold(
             backgroundColor: Colors.black,
             resizeToAvoidBottomInset: false,
@@ -65,7 +85,18 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
-                  context.pop();
+                  if (!isProcessing.value) {
+                    context.pop();
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: "Transaction in progress, please wait.".i18n(ref),
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.TOP,
+                      backgroundColor: Colors.orange,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                  }
                 },
               ),
               title: Text('Confirm Payment'.i18n(ref), style: const TextStyle(color: Colors.white)),
@@ -78,7 +109,6 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                       children: [
                         LiquidCards(
                           titleFontSize: titleFontSize,
-
                           liquidFormart: liquidFormart,
                           liquidBalanceInFormat: liquidBalanceInFormat,
                           balance: balance,
@@ -166,7 +196,8 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                               child: DropdownButton<String>(
                                 hint: Text(
                                   "Select Currency",
-                                  style: TextStyle(fontSize: dynamicFontSize / 2.7, color: Colors.white),  // Adjusted hint style
+                                  style: TextStyle(
+                                      fontSize: dynamicFontSize / 2.7, color: Colors.white),
                                 ),
                                 dropdownColor: const Color(0xFF2B2B2B),
                                 value: ref.watch(inputCurrencyProvider),
@@ -174,13 +205,15 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                                   DropdownMenuItem(
                                     value: 'BTC',
                                     child: Center(
-                                      child: Text('BTC', style: TextStyle(color: Color(0xFFD98100))),
+                                      child: Text('BTC',
+                                          style: TextStyle(color: Color(0xFFD98100))),
                                     ),
                                   ),
                                   DropdownMenuItem(
                                     value: 'USD',
                                     child: Center(
-                                      child: Text('USD', style: TextStyle(color: Color(0xFFD98100))),
+                                      child: Text('USD',
+                                          style: TextStyle(color: Color(0xFFD98100))),
                                     ),
                                   ),
                                   DropdownMenuItem(
@@ -303,21 +336,41 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                       backgroundColor: Colors.black,
                       toggleColor: Colors.orange,
                       action: (controller) async {
+                        isProcessing.value = true;
                         controller.loading();
                         try {
                           await ref.watch(sendLiquidTransactionProvider.future);
-                          await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+                          await ref.watch(liquidSyncNotifierProvider.notifier).performSync();
+                          Fluttertoast.showToast(
+                            msg: "Transaction Sent".i18n(ref),
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.TOP,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.green,
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                          );
                           ref.read(sendTxProvider.notifier).resetToDefault();
-                          controller.success();
-                          context.go('/home');
-                          Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                          ref.read(sendBlocksProvider.notifier).state = 1;
+                          context.replace('/home');
                         } catch (e) {
                           controller.failure();
-                          Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                          Fluttertoast.showToast(
+                            msg: e.toString().i18n(ref),
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.TOP,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                          );
                           controller.reset();
+                        } finally {
+                          isProcessing.value = false;
                         }
                       },
-                      child: Text('Slide to send'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                      child: Text('Slide to send'.i18n(ref),
+                          style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),

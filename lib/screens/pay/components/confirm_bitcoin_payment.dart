@@ -45,10 +45,27 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
     final dynamicMargin = MediaQuery.of(context).size.width * 0.05;
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
 
+    final isProcessing = useState(false);
+
     return PopScope(
       onPopInvoked: (pop) async {
-        ref.read(sendTxProvider.notifier).resetToDefault();
-        ref.read(sendBlocksProvider.notifier).state = 1;
+        // Prevent navigation if a transaction is in progress
+        if (isProcessing.value) {
+          // Optionally, show a message to the user
+          Fluttertoast.showToast(
+            msg: "Transaction in progress, please wait.".i18n(ref),
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.orange,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+          return;
+        } else {
+          ref.read(sendTxProvider.notifier).resetToDefault();
+          ref.read(sendBlocksProvider.notifier).state = 1;
+          context.pop();
+        }
       },
       child: SafeArea(
         child: FlutterKeyboardDoneWidget(
@@ -336,14 +353,11 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                       backgroundColor: Colors.black,
                       toggleColor: Colors.orange,
                       action: (controller) async {
+                        isProcessing.value = true;
                         controller.loading();
-
                         try {
                           await ref.watch(sendBitcoinTransactionProvider.future);
                           await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
-                          ref.read(sendTxProvider.notifier).resetToDefault();
-                          controller.success();
-                          context.go('/home');
                           Fluttertoast.showToast(
                             msg: "Transaction Sent".i18n(ref),
                             toastLength: Toast.LENGTH_LONG,
@@ -353,7 +367,9 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                             textColor: Colors.white,
                             fontSize: 16.0,
                           );
-
+                          ref.read(sendTxProvider.notifier).resetToDefault();
+                          ref.read(sendBlocksProvider.notifier).state = 1;
+                          context.replace('/home');
                         } catch (e) {
                           controller.failure();
                           Fluttertoast.showToast(

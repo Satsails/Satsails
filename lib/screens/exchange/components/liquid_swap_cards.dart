@@ -41,6 +41,8 @@ final tickerProvider = StateProvider.autoDispose<AssetId>((ref) {
   }
 });
 
+final transactionInProgressProvider = StateProvider.autoDispose<bool>((ref) => false);
+
 class LiquidSwapCards extends ConsumerStatefulWidget {
   const LiquidSwapCards({super.key});
 
@@ -63,6 +65,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final btcFormat = ref.read(settingsProvider).btcFormat;
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
+    final inProcessing = ref.watch(transactionInProgressProvider);
 
     List<Column> cards = [
       buildCard('Depix', 'BRL', const Color(0xFF009B3A), const Color(0xFF009B3A), ref, context, false, AssetId.BRL, titleFontSize),
@@ -97,37 +100,56 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
       swapCards = swapCards.reversed.toList();
     }
 
-    return SafeArea(
-      child: FlutterKeyboardDoneWidget(
-              doneWidgetBuilder: (context) {
-                return const Text(
-                  'Done',
-                );
-              },
-          child: Column(
-            children: [
-              Text(
-                "Balance to Spend: ".i18n(ref),
-                style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text(
-                    currentBalance,
-                    style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                    textAlign: TextAlign.center,
-                  ),
-                  _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat, titleFontSize),
-                ],
-              ),
-              SizedBox(height: dynamicPadding),
-              ...swapCards,
-              const Spacer(),
-              _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
-            ],
+    return PopScope(
+      onPopInvoked: (pop) async {
+        if (inProcessing) {
+          Fluttertoast.showToast(
+            msg: "Transaction in progress, please wait.".i18n(ref),
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.orange,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+          return;
+        } else {
+          ref.read(sendTxProvider.notifier).resetToDefault();
+          ref.read(sendBlocksProvider.notifier).state = 1;
+          context.pop();
+        }
+      },
+      child: SafeArea(
+        child: FlutterKeyboardDoneWidget(
+                doneWidgetBuilder: (context) {
+                  return const Text(
+                    'Done',
+                  );
+                },
+            child: Column(
+              children: [
+                Text(
+                  "Balance to Spend: ".i18n(ref),
+                  style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      currentBalance,
+                      style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                    _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat, titleFontSize),
+                  ],
+                ),
+                SizedBox(height: dynamicPadding),
+                ...swapCards,
+                const Spacer(),
+                _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
+              ],
+            ),
           ),
-        ),
+      ),
     );
   }
 
@@ -376,6 +398,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
           backgroundColor: Colors.black,
           toggleColor: Colors.orange,
           action: (controller) async {
+            ref.read(transactionInProgressProvider.notifier).state = true;
             controller.loading();
             try {
               await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
@@ -392,6 +415,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
               context.go('/home');
               Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
             } catch (e) {
+              ref.read(transactionInProgressProvider.notifier).state = false;
               controller.failure();
               Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
               controller.reset();

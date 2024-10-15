@@ -1697,6 +1697,10 @@ extension Localization on String {
       {
         'en': 'Pix History',
         'pt': 'Histórico Pix'
+      } +
+      {
+        'en': 'Transaction in progress, please wait.',
+        'pt': 'Transação em andamento, por favor, aguarde.'
       };
 
   String i18n(WidgetRef ref) {

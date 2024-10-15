@@ -25,6 +25,7 @@ import 'package:Satsails/providers/sideswap_provider.dart';
 final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');
 final inputInFiatProvider = StateProvider.autoDispose<bool>((ref) => false);
 final precisionFiatValueProvider = StateProvider<String>((ref) => "0.00");
+final transactionInProgressProvider = StateProvider.autoDispose<bool>((ref) => false);
 
 class Peg extends ConsumerStatefulWidget {
   const Peg({super.key});
@@ -46,6 +47,7 @@ class _PegState extends ConsumerState<Peg> {
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormart));
     final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(btcFormart));
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
+    final inProcessing = ref.watch(transactionInProgressProvider);
 
     List<Widget> cards = [
       _buildBitcoinCard(ref, dynamicPadding, titleFontSize, pegIn),
@@ -57,77 +59,96 @@ class _PegState extends ConsumerState<Peg> {
       cards = cards.reversed.toList();
     }
 
-    return SafeArea(
-      child: FlutterKeyboardDoneWidget(
-        doneWidgetBuilder: (context) {
-          return const Text(
-            'Done',
+    return PopScope(
+      onPopInvoked: (pop) async {
+        if (inProcessing) {
+          Fluttertoast.showToast(
+            msg: "Transaction in progress, please wait.".i18n(ref),
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.orange,
+            textColor: Colors.white,
+            fontSize: 16.0,
           );
-        },
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Text(
-                      "Balance to Spend: ".i18n(ref),
-                      style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(
-                          pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
-                          style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                          textAlign: TextAlign.center,
-                        ),
-                        _buildBitcoinMaxButton(ref, dynamicPadding, titleFontSize, btcFormart, pegIn),
-                      ],
-                    ),
-                    SizedBox(height: dynamicSizedBox * 2),
-                    Stack(
-                      alignment: Alignment.center,
-                      clipBehavior: Clip.none,
-                      children: [
-                        Column(
-                          children: cards,
-                        ),
-                        Positioned(
-                          top: titleFontSize / 2,
-                          bottom: titleFontSize / 2,
-                          child: GestureDetector(
-                            onTap: () {
-                              ref.read(pegInProvider.notifier).state = !pegIn;
-                              ref.read(sendTxProvider.notifier).updateAddress('');
-                              ref.read(sendTxProvider.notifier).updateAmount(0);
-                              ref.read(sendTxProvider.notifier).updateDrain(false);
-                          ref.read(inputInFiatProvider.notifier).state = false;ref.read(sendBlocksProvider.notifier).state = 1;
-                              ref.read(inputInFiatProvider.notifier).state = false;
-                          ref.read(precisionFiatValueProvider.notifier).state = "0.00";controller.text = '';
-                            },
-                            child: CircleAvatar(
-                              radius: titleFontSize,
-                              backgroundColor: Colors.orange,
-                              child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.black),
+          return;
+        } else {
+          ref.read(sendTxProvider.notifier).resetToDefault();
+          ref.read(sendBlocksProvider.notifier).state = 1;
+          context.pop();
+        }
+      },
+      child: SafeArea(
+        child: FlutterKeyboardDoneWidget(
+          doneWidgetBuilder: (context) {
+            return const Text(
+              'Done',
+            );
+          },
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Text(
+                        "Balance to Spend: ".i18n(ref),
+                        style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
+                            style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                            textAlign: TextAlign.center,
+                          ),
+                          _buildBitcoinMaxButton(ref, dynamicPadding, titleFontSize, btcFormart, pegIn),
+                        ],
+                      ),
+                      SizedBox(height: dynamicSizedBox * 2),
+                      Stack(
+                        alignment: Alignment.center,
+                        clipBehavior: Clip.none,
+                        children: [
+                          Column(
+                            children: cards,
+                          ),
+                          Positioned(
+                            top: titleFontSize / 2,
+                            bottom: titleFontSize / 2,
+                            child: GestureDetector(
+                              onTap: () {
+                                ref.read(pegInProvider.notifier).state = !pegIn;
+                                ref.read(sendTxProvider.notifier).updateAddress('');
+                                ref.read(sendTxProvider.notifier).updateAmount(0);
+                                ref.read(sendTxProvider.notifier).updateDrain(false);
+                            ref.read(inputInFiatProvider.notifier).state = false;ref.read(sendBlocksProvider.notifier).state = 1;
+                                ref.read(inputInFiatProvider.notifier).state = false;
+                            ref.read(precisionFiatValueProvider.notifier).state = "0.00";controller.text = '';
+                              },
+                              child: CircleAvatar(
+                                radius: titleFontSize,
+                                backgroundColor: Colors.orange,
+                                child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.black),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _bitcoinFeeSuggestionsModal(ref, dynamicPadding, titleFontSize),
-                    pegIn ? _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize) : _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
-                  ],
+                        ],
+                      ),
+                      pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _bitcoinFeeSuggestionsModal(ref, dynamicPadding, titleFontSize),
+                      pegIn ? _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize) : _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: dynamicSizedBox * 2),
-              child: pegIn
-                  ? _bitcoinSlideToSend(ref, dynamicPadding, titleFontSize, context)
-                  : _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context),
-            ),
-          ],
+              Padding(
+                padding: EdgeInsets.only(bottom: dynamicSizedBox * 2),
+                child: pegIn
+                    ? _bitcoinSlideToSend(ref, dynamicPadding, titleFontSize, context)
+                    : _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -211,9 +232,11 @@ class _PegState extends ConsumerState<Peg> {
               backgroundColor: Colors.black,
               toggleColor: Colors.orange,
               action: (controller) async {
+                ref.read(transactionInProgressProvider.notifier).state = true;
                 controller.loading();
                 try {
                   if (ref.watch(sendTxProvider).amount < status.minPegOutAmount) {
+                    ref.read(transactionInProgressProvider.notifier).state = false;
                     throw 'Amount is below minimum peg out amount'.i18n(ref);
                   }
                   await ref.watch(sendLiquidTransactionProvider.future);
@@ -232,6 +255,7 @@ class _PegState extends ConsumerState<Peg> {
                   context.go('/home');
                 } catch (e) {
                   controller.failure();
+                  ref.read(transactionInProgressProvider.notifier).state = false;
                   Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                   controller.reset();
                 }
@@ -259,9 +283,11 @@ class _PegState extends ConsumerState<Peg> {
               backgroundColor: Colors.black,
               toggleColor: Colors.orange,
               action: (controller) async {
+                ref.read(transactionInProgressProvider.notifier).state = true;
                 controller.loading();
                 try {
                   if (ref.watch(sendTxProvider).amount < ref.watch(sideswapStatusProvider).minPegInAmount) {
+                    ref.read(transactionInProgressProvider.notifier).state = false;
                     throw 'Amount is below minimum peg in amount'.i18n(ref);
                   }
                   await ref.watch(sendBitcoinTransactionProvider.future);
@@ -277,8 +303,9 @@ class _PegState extends ConsumerState<Peg> {
                   });
                   await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
                   controller.success();
-                  Navigator.pushReplacementNamed(context, '/home');
+                  context.go('/home');
                 } catch (e) {
+                  ref.read(transactionInProgressProvider.notifier).state = false;
                   controller.failure();
                   Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                   controller.reset();

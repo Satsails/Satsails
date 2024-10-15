@@ -1,4 +1,3 @@
-import 'package:Satsails/app_router.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/screens/pay/components/lightning_cards.dart';
@@ -43,10 +42,27 @@ class ConfirmLightningPayment extends HookConsumerWidget {
       return null;
     }, []);
 
+    final isProcessing = useState(false);
+
     return PopScope(
-      onPopInvoked:(pop) async {
-        ref.read(sendTxProvider.notifier).resetToDefault();
-        ref.read(sendBlocksProvider.notifier).state = 1;
+      onPopInvoked: (pop) async {
+        // Prevent navigation if a transaction is in progress
+        if (isProcessing.value) {
+          // Optionally, show a message to the user
+          Fluttertoast.showToast(
+            msg: "Transaction in progress, please wait.".i18n(ref),
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.orange,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+          return;
+        } else {
+          ref.read(sendTxProvider.notifier).resetToDefault();
+          ref.read(sendBlocksProvider.notifier).state = 1;
+          context.pop();
+        }
       },
       child: SafeArea(
         child: Scaffold(
@@ -152,15 +168,24 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                     backgroundColor: Colors.black,
                     toggleColor: Colors.orange,
                     action: (controller) async {
+                      isProcessing.value = true;
                       controller.loading();
                       try {
                         final sendLiquid = ref.read(sendLiquidProvider);
                         sendLiquid ? await ref.read(boltzPayProvider.future) : await ref.read(bitcoinBoltzPayProvider.future);
                         sendLiquid ? await ref.read(liquidSyncNotifierProvider.notifier).performSync() : await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
+                        Fluttertoast.showToast(
+                          msg: "Transaction Sent".i18n(ref),
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.TOP,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.green,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
                         ref.read(sendTxProvider.notifier).resetToDefault();
-                        controller.success();
-                        context.go('/home');
-                        Fluttertoast.showToast(msg: "Transaction Sent".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                        ref.read(sendBlocksProvider.notifier).state = 1;
+                        context.replace('/home');
                       } catch (e) {
                         controller.failure();
                         Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
