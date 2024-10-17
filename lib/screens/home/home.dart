@@ -28,7 +28,24 @@ class Home extends ConsumerWidget {
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: _buildAppBar(context, ref),
-        body: SafeArea(child: _buildBody(context, ref)),
+        body: SafeArea(
+          child: Stack(
+            children: [
+              _buildBody(context, ref),
+              Positioned(
+                bottom: 80,
+                right: 16,
+                child: FloatingActionButton.small(
+                  onPressed: () {
+                    context.push('/support');
+                  },
+                  backgroundColor: Colors.orange,
+                  child: const Icon(Icons.contact_support, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -41,9 +58,7 @@ class Home extends ConsumerWidget {
           currentIndex: ref.watch(navigationProvider),
           context: context,
           onTap: (int index) {
-            ref
-                .read(navigationProvider.notifier)
-                .state = index;
+            ref.read(navigationProvider.notifier).state = index;
           },
         ),
       ],
@@ -73,9 +88,7 @@ class Home extends ConsumerWidget {
     );
   }
 
-
   Widget walletWidget(WidgetRef ref, BuildContext context, percentageOfEachCurrency, balance) {
-
     return ImageSlideshow(
       initialPage: 0,
       indicatorColor: Colors.orangeAccent,
@@ -87,8 +100,6 @@ class Home extends ConsumerWidget {
       ],
     );
   }
-
-
 
   PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {
     final settings = ref.read(settingsProvider);
@@ -142,7 +153,7 @@ class Home extends ConsumerWidget {
         ),
         ref.watch(backgroundSyncInProgressProvider)
             ? LoadingAnimationWidget.bouncingBall(
-            color: Colors.orange, size: 40) // Slightly larger size
+            color: Colors.orange, size: 40)
             : IconButton(
           icon: Icon(
             Icons.sync,
@@ -156,6 +167,4 @@ class Home extends ConsumerWidget {
     );
   }
 }
-
-
 

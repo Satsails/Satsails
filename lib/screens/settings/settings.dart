@@ -36,7 +36,6 @@ class Settings extends ConsumerWidget {
           children: [
             _buildBlockExplorerSection(context, ref),
             _buildDivider(),
-            _buildSupportSection(ref, context),
             _buildDivider(),
             _buildClaimBoltzTransactionsSection(context, ref),
             _buildDivider(),
@@ -175,17 +174,6 @@ class Settings extends ConsumerWidget {
       onTap: () {
         ref.read(sendToSeed.notifier).state = true;
         walletBackedUp ? context.push('/open_pin') : context.push('/seed_words');
-      },
-    );
-  }
-
-  Widget _buildSupportSection(WidgetRef ref, BuildContext context) {
-    return ListTile(
-      leading: const Icon(LineAwesome.telegram, color: Colors.white),
-      title:  Text('Help & Support & Bug reporting'.i18n(ref), style: const TextStyle(color: Colors.white)),
-      subtitle: Text('Chat with us about anything'.i18n(ref), style: const TextStyle(color: Colors.grey)),
-      onTap: () {
-        context.push('/support');
       },
     );
   }
