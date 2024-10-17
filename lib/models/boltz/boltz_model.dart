@@ -319,11 +319,11 @@ class LbtcBoltz {
       throw 'Amount cannot be 0';
     }
 
-    if (fees.lbtcLimits.minimal >= amount) {
+    if (fees.lbtcLimits.minimal > amount) {
       throw 'Amount is below the minimal limit';
     }
 
-    if (fees.lbtcLimits.maximal <= amount) {
+    if (fees.lbtcLimits.maximal < amount) {
       throw 'Amount is above the maximal limit';
     }
 
@@ -604,11 +604,11 @@ class BtcBoltz {
       throw 'Amount cannot be 0';
     }
 
-    if (fees.btcLimits.minimal >= amount) {
+    if (fees.btcLimits.minimal > amount) {
       throw 'Amount is below the minimal limit';
     }
 
-    if (fees.btcLimits.maximal <= amount) {
+    if (fees.btcLimits.maximal < amount) {
       throw 'Amount is above the maximal limit';
     }
 

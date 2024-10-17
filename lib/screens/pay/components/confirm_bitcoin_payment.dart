@@ -64,7 +64,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
           ref.read(sendBlocksProvider.notifier).state = 1;
-          context.pop();
+          context.replace('/home');
         }
       },
       child: SafeArea(

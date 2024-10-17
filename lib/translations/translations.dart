@@ -1701,6 +1701,14 @@ extension Localization on String {
       {
         'en': 'Transaction in progress, please wait.',
         'pt': 'Transação em andamento, por favor, aguarde.'
+      } +
+      {
+        'en': 'Total fees',
+        'pt': 'Taxas totais'
+      } +
+      {
+        'en': 'Total amount to send',
+        'pt': 'Valor total a enviar'
       };
 
   String i18n(WidgetRef ref) {
