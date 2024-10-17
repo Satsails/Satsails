@@ -1,6 +1,7 @@
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
@@ -21,7 +22,7 @@ class SetPin extends ConsumerWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context);
+            context.pop();
           },
         ),
       ),
@@ -69,7 +70,7 @@ class SetPin extends ConsumerWidget {
                         if (mnemonic == null || mnemonic.isEmpty) {
                           await authModel.setMnemonic(await authModel.generateMnemonic());
                         }
-                        Navigator.pushReplacementNamed(context, '/home');
+                        context.go('/home');
                       } else {
                         Fluttertoast.showToast(
                           msg: 'Please enter a 6 digit PIN'.i18n(ref),

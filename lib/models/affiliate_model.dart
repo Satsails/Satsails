@@ -5,6 +5,7 @@ import 'package:Satsails/validations/address_validation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AffiliateModel extends StateNotifier<Affiliate> {
   AffiliateModel(super.state);
@@ -68,7 +69,7 @@ class AffiliateService {
   static Future<Result<bool>> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
     try {
       final response = await http.post(
-        Uri.parse('https://splitter.satsails.com/users/add_affiliate'),
+        Uri.parse(dotenv.env['BACKEND']! + '/users/add_affiliate'),
         body: jsonEncode({
           'user': {
             'payment_id': paymentId,
@@ -97,7 +98,7 @@ class AffiliateService {
     if (isValid) {
       try {
         final response = await http.post(
-          Uri.parse('https://splitter.satsails.com/affiliates'),
+          Uri.parse(dotenv.env['BACKEND']! + '/affiliates'),
           body: jsonEncode({
             'affiliate': {
               'liquid_address': liquidAddress,
@@ -125,7 +126,7 @@ class AffiliateService {
 
   static Future<Result<int>> affiliateNumberOfUsers(String affiliateCode, String auth) async {
     try {
-      final uri = Uri.parse('https://splitter.satsails.com/affiliates/number_of_users')
+      final uri = Uri.parse(dotenv.env['BACKEND']! + '/affiliates/number_of_users')
           .replace(queryParameters: {
         'code': affiliateCode,
       });
@@ -150,7 +151,7 @@ class AffiliateService {
 
   static Future<Result<String>> affiliateEarnings(String affiliateCode, String auth) async {
     try {
-      final uri = Uri.parse('https://splitter.satsails.com/affiliates/value_earned_by_affiliate')
+      final uri = Uri.parse(dotenv.env['BACKEND']! + '/affiliates/value_earned_by_affiliate')
           .replace(queryParameters: {
         'code': affiliateCode,
       });
@@ -175,7 +176,7 @@ class AffiliateService {
 
   static Future<Result<String>> affiliateUsersSpend(String affiliateCode, String auth) async {
     try {
-      final uri = Uri.parse('https://splitter.satsails.com/affiliates/total_value_purchased_by_clients')
+      final uri = Uri.parse(dotenv.env['BACKEND']! + '/affiliates/total_value_purchased_by_clients')
           .replace(queryParameters: {
         'code': affiliateCode,
       });
@@ -200,7 +201,7 @@ class AffiliateService {
   static Future<Result<List<ParsedTransfer>>> getAllTransfersFromAffiliateUsers(String affiliateCode, String auth) async {
     try {
       final response = await http.get(
-        Uri.parse('https://splitter.satsails.com/affiliates/all_transfers')
+        Uri.parse(dotenv.env['BACKEND']! + '/affiliates/all_transfers')
             .replace(queryParameters: {
           'code': affiliateCode,
         }),

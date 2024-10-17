@@ -95,11 +95,13 @@ class AffiliatesSectionWidget extends ConsumerWidget {
               ),
             ),
             if (isLoading) // Show CircularProgressIndicator when loading is true
-              Align(
-                alignment: Alignment.topCenter,
-                child: LoadingAnimationWidget.threeArchedCircle(
-                  color: Colors.orange,
-                  size: 50,
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: LoadingAnimationWidget.threeArchedCircle(
+                    color: Colors.orange,
+                    size: 50,
+                  ),
                 ),
               )
           ],

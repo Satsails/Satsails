@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:go_router/go_router.dart';
 import './components/logo.dart';
 
 class Start extends ConsumerWidget {
@@ -43,7 +44,7 @@ class Start extends ConsumerWidget {
                                 ..shader = createGradientShader(
                                   Rect.fromLTWH(0.0, 0.0, screenWidth * 0.6, screenHeight * 0.1),
                                 ),
-                              fontSize: screenWidth * 0.15,
+                              fontSize: screenWidth * 0.14,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -78,13 +79,13 @@ class Start extends ConsumerWidget {
                     CustomButton(
                       text: 'Create wallet'.i18n(ref),
                       onPressed: () {
-                        Navigator.pushNamed(context, '/set_pin');
+                        context.push('/set_pin');
                       },
                     ),
                     CustomButton(
                         text: 'Recover wallet'.i18n(ref),
                         onPressed: () {
-                          Navigator.pushNamed(context, '/recover_wallet');
+                          context.push('/recover_wallet');
                         },
                         primaryColor: Colors.black,
                         secondaryColor: Colors.black

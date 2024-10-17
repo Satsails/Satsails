@@ -5,6 +5,7 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/screens/exchange/components/button_picker.dart';
 import 'package:Satsails/screens/exchange/components/liquid_swap_cards.dart';
 import 'package:Satsails/screens/exchange/components/peg.dart';
+import 'package:go_router/go_router.dart';
 
 class Exchange extends ConsumerWidget {
   Exchange({super.key});
@@ -33,7 +34,7 @@ class Exchange extends ConsumerWidget {
               ref.read(sendTxProvider.notifier).resetToDefault();
               ref.read(sendBlocksProvider.notifier).state = 1;
               ref.read(selectedButtonProvider.notifier).state = "Swap";
-              Navigator.pop(context);
+              context.pop();
             },
           ),
         ),

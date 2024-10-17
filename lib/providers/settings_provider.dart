@@ -10,9 +10,9 @@ final initialSettingsProvider = FutureProvider<Settings>((ref) async {
       final language = box.get('language', defaultValue: languageIsPortuguese ? 'pt' : 'en');
       final btcFormat = box.get('btcFormat', defaultValue: 'BTC');
       final backup = box.get('backup', defaultValue: false);
-      final bitcoinElectrumNode = box.get('bitcoinElectrumNode', defaultValue: 'blockstream.info:700');
-      final liquidElectrumNode = box.get('liquidElectrumNode', defaultValue: 'blockstream.info:995');
-      final nodeType = box.get('nodeType', defaultValue: 'Blockstream');
+      final bitcoinElectrumNode = box.get('bitcoinElectrumNode', defaultValue: 'electrum.bullbitcoin.com:50002');
+      final liquidElectrumNode = box.get('liquidElectrumNode', defaultValue: 'les.bullbitcoin.com:995');
+      final nodeType = box.get('nodeType', defaultValue: 'Bull Bitcoin');
 
       return Settings(currency: currency, language: language, btcFormat: btcFormat, online: true, backup: backup, bitcoinElectrumNode: bitcoinElectrumNode, liquidElectrumNode: liquidElectrumNode, nodeType: nodeType);
 });
@@ -23,11 +23,9 @@ final settingsProvider = StateNotifierProvider<SettingsModel, Settings>((ref) {
 
       return SettingsModel(initialSettings.when(
             data: (settings) => settings,
-            loading: () => Settings(currency: 'USD', language: languageIsPortuguese ? 'pt' : 'en', btcFormat: 'BTC', online: true, backup: false, bitcoinElectrumNode: 'wes.bullbitcoin.com:50002', liquidElectrumNode: 'les.bullbitcoin.com:995', nodeType: 'Bull Bitcoin'),
+            loading: () => Settings(currency: 'USD', language: languageIsPortuguese ? 'pt' : 'en', btcFormat: 'BTC', online: true, backup: false, bitcoinElectrumNode: 'electrum.bullbitcoin.com:50002', liquidElectrumNode: 'les.bullbitcoin.com:995', nodeType: 'Bull Bitcoin'),
             error: (Object error, StackTrace stackTrace) {
                   throw error;
             },
       ));
 });
-
-final backgroundSyncInProgressProvider = StateProvider.autoDispose<bool>((ref) => false);

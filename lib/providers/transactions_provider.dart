@@ -1,16 +1,15 @@
+import 'package:Satsails/providers/bitcoin_provider.dart';
+import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
-import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
-import 'package:Satsails/providers/bitcoin_provider.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
+import 'package:lwk_dart/lwk_dart.dart' as lwk;
+
+import 'liquid_provider.dart';
 
 final initializeTransactionsProvider = FutureProvider.autoDispose<Transaction>((ref) async {
-  final bitcoinBox = await Hive.openBox('bitcoin');
-  final liquidBox = await Hive.openBox('liquid');
-  final bitcoinTransactions = bitcoinBox.get('bitcoinTransactions', defaultValue: []);
-  final liquidTransactions = liquidBox.get('liquidTransactions', defaultValue: []);
+  final bitcoinTransactions = await ref.watch(getBitcoinTransactionsProvider.future);
+  final liquidTransactions = await ref.watch(liquidTransactionsProvider.future);
 
   return Transaction(
     bitcoinTransactions: bitcoinTransactions,
@@ -24,8 +23,26 @@ final transactionNotifierProvider = StateNotifierProvider.autoDispose<Transactio
   return TransactionModel(initialTransactions.when(
     data: (transactions) => transactions,
     loading: () => Transaction(
-      bitcoinTransactions: [],
-      liquidTransactions: [],
+      bitcoinTransactions: [const bdk.TransactionDetails(
+        transaction: null,
+        txid: '',
+        received: 0,
+        sent: 0,
+        fee: null,
+        confirmationTime: null,
+      )],
+      liquidTransactions: [const lwk.Tx(
+        txid: '',
+        balances: [],
+        kind: '',
+        fee: 0,
+        height: 0,
+        inputs: [],
+        outputs: [],
+        timestamp: 0,
+        unblindedUrl: '',
+        vsize: 0,
+      )],
     ),
     error: (Object error, StackTrace stackTrace) {
       throw error;
@@ -42,42 +59,6 @@ final bitcoinTransactionsByDate = StateProvider.autoDispose<List<dynamic>>((ref)
 final liquidTransactionsByDate = StateProvider.autoDispose<List<dynamic>>((ref) {
   final dateTimeRange = ref.watch(dateTimeSelectProvider);
   return ref.watch(transactionNotifierProvider).filterLiquidTransactions(dateTimeRange);
-});
-
-final updateBitcoinTransactionsProvider = FutureProvider.autoDispose<void>((ref) async {
-  try {
-    final bitcoinBox = await Hive.openBox('bitcoin');
-    final transactionProvider = ref.read(transactionNotifierProvider.notifier);
-    final bitcoinTransactions = await ref.refresh(getBitcoinTransactionsProvider.future);
-    List<TransactionDetails> bitcoinTransactionsHive = bitcoinTransactions.map((transaction) => TransactionDetails.fromBdk(transaction)).toList();
-
-    if (bitcoinTransactions.isNotEmpty) {
-      await bitcoinBox.put('bitcoinTransactions', bitcoinTransactionsHive);
-      if (transactionProvider.mounted) {
-        transactionProvider.updateBitcoinTransactions(bitcoinTransactionsHive);
-      }
-    }
-  } catch (e) {
-    rethrow;
-  }
-});
-
-final updateLiquidTransactionsProvider = FutureProvider.autoDispose<void>((ref) async {
-  try {
-    final liquidBox = await Hive.openBox('liquid');
-    final transactionProvider = ref.read(transactionNotifierProvider.notifier);
-    final liquidTransactions = await ref.refresh(liquidTransactionsProvider.future);
-    List<Tx> liquidTransactionsHive = liquidTransactions.map((transaction) => Tx.fromLwk(transaction)).toList();
-
-    if (liquidTransactions.isNotEmpty) {
-      await liquidBox.put('liquidTransactions', liquidTransactionsHive);
-      if (transactionProvider.mounted) {
-        transactionProvider.updateLiquidTransactions(liquidTransactionsHive);
-      }
-    }
-  } catch (e) {
-    rethrow;
-  }
 });
 
 

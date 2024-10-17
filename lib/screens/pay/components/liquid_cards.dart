@@ -13,7 +13,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class LiquidCards extends StatelessWidget {
   final double titleFontSize;
-  final AsyncValue initializeBalance;
   final dynamic liquidFormart;
   final dynamic liquidBalanceInFormat;
   final dynamic balance;
@@ -26,7 +25,6 @@ class LiquidCards extends StatelessWidget {
   const LiquidCards({
     super.key,
     required this.titleFontSize,
-    required this.initializeBalance,
     required this.liquidFormart,
     required this.liquidBalanceInFormat,
     required this.balance,
@@ -138,39 +136,26 @@ class LiquidCards extends StatelessWidget {
                             fontSize: titleFontSize / 1.5,
                             color: Colors.black,),
                           textAlign: TextAlign.center),
-                      initializeBalance.when(
-                        data: (_) => Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(balanceText,
-                                style: TextStyle(
-                                    fontSize: titleFontSize,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black),
-                                textAlign: TextAlign.center),
-                            if (isLiquid)
-                              Text(
-                                '$liquidBalanceInSelectedCurrency ${ref.read(settingsProvider).currency}',
-                                style: TextStyle(
-                                    fontSize: titleFontSize / 1.24,
-                                    color: Colors.black),
-                                textAlign: TextAlign.center,
-                              ),
-                            if (!isLiquid)
-                              const SizedBox(),  // Display an empty container if not Liquid
-                          ],
-                        ),
-                        loading: () => LoadingAnimationWidget.prograssiveDots(
-                            size: titleFontSize, color: Colors.black),
-                        error: (error, stack) => TextButton(
-                          onPressed: () {
-                            ref.refresh(initializeBalanceProvider);
-                          },
-                          child: Text('Retry',
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(balanceText,
                               style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: titleFontSize)),
-                        ),
+                                  fontSize: titleFontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                              textAlign: TextAlign.center),
+                          if (isLiquid)
+                            Text(
+                              '$liquidBalanceInSelectedCurrency ${ref.read(settingsProvider).currency}',
+                              style: TextStyle(
+                                  fontSize: titleFontSize / 1.24,
+                                  color: Colors.black),
+                              textAlign: TextAlign.center,
+                            ),
+                          if (!isLiquid)
+                            const SizedBox(),  // Display an empty container if not Liquid
+                        ],
                       ),
                     ],
                   ),

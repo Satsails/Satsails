@@ -3,6 +3,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 
 final onBoardingInProgressProvider = StateProvider<bool>((ref) => false);
 
@@ -21,7 +22,7 @@ class Charge extends ConsumerWidget {
         title: Text('Charge Wallet'.i18n(ref), style: const TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
+          onPressed: () => context.pop(),
         ),
       ),
       backgroundColor: Colors.black,
@@ -38,14 +39,6 @@ class Charge extends ConsumerWidget {
                 screenWidth: screenWidth,
                 onPressed: () => _handleOnPress(ref, context, hasOnboarded, paymentId),
               ),
-              const SizedBox(height: 16.0),
-              PaymentMethodCard(
-                title: 'Add money with EURx'.i18n(ref),
-                description: 'Coming Soon'.i18n(ref),
-                icon: Icons.euro,
-                screenWidth: screenWidth,
-                onPressed: null,
-              ),
             ],
           ),
         ),
@@ -57,7 +50,7 @@ class Charge extends ConsumerWidget {
     // If the user doesn't have a payment ID, prompt onboarding
     if (paymentId.isEmpty) {
       ref.read(onBoardingInProgressProvider.notifier).state = true;
-      Navigator.of(context).pushNamed('/user_creation');
+      context.push('/user_creation');
       return;
     }
 
@@ -91,9 +84,9 @@ class Charge extends ConsumerWidget {
     }
 
     if (hasOnboarded) {
-      Navigator.of(context).pushNamed('/pix');
+      context.push('/home/pix');
     } else {
-      Navigator.of(context).pushNamed('/pix_onboarding');
+      context.push('/pix_onboarding');
     }
   }
 }
