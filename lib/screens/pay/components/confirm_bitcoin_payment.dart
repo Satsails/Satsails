@@ -260,7 +260,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                                   final selectedCurrency = ref.watch(inputCurrencyProvider);
                                   final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(amountToSet, selectedCurrency, ref.watch(currencyNotifierProvider));
                                   ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), 'sats');
-                                  controller.text = amountToSetInSelectedCurrency;
+                                  controller.text = selectedCurrency == 'BTC' ? amountToSetInSelectedCurrency : selectedCurrency == 'Sats' ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0) : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
                                   ref.read(sendTxProvider.notifier).updateDrain(true);
                                 } catch (e) {
                                   Fluttertoast.showToast(

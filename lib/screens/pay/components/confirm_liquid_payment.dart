@@ -264,7 +264,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                                     final controllerValue = sendingBalance.abs();
                                     final selectedCurrency = ref.watch(inputCurrencyProvider);
                                     final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
-                                    controller.text = amountToSetInSelectedCurrency;
+                                    controller.text = selectedCurrency == 'BTC' ? amountToSetInSelectedCurrency : selectedCurrency == 'Sats' ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0) : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
                                     ref.read(sendTxProvider.notifier).updateAmountFromInput(controllerValue.toString(), 'sats');
                                     ref.read(sendTxProvider.notifier).updateDrain(true);
                                   } else {
