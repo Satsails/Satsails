@@ -28,7 +28,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context);
+              context.pop();
             },
           ),
         ),
@@ -160,7 +160,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                       ref.read(loadingProvider.notifier).state = true;
                       String code = controller.text;
                       try {
-                        Navigator.pop(context);
+                        context.pop();
                         await ref.read(addAffiliateCodeProvider(code).future);
                         Fluttertoast.showToast(
                           msg: 'Affiliate code saved successfully'.i18n(ref),
@@ -250,7 +250,7 @@ class AffiliatesSectionWidget extends ConsumerWidget {
                         insertedAffiliateCode: hasInserted ? ref.watch(affiliateProvider).insertedAffiliateCode : '',
                       );
                       try {
-                        Navigator.pop(context);
+                        context.pop();
                         await ref.read(createAffiliateCodeProvider(affiliate).future);
                         Fluttertoast.showToast(
                           msg: 'Affiliate code created successfully'.i18n(ref),

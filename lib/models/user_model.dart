@@ -241,7 +241,7 @@ class UserService {
       if (response.statusCode == 200) {
         return Result(data: jsonDecode(response.body));
       } else {
-        return Result(error: 'Failed to get liquid address index');
+        return Result(error: 'An error has occurred. Please check your internet connection or contact support');
       }
     } catch (e) {
       return Result(error: 'An error has occurred. Please check your internet connection or contact support');

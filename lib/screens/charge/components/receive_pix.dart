@@ -5,6 +5,7 @@ import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/pix_transaction_provider.dart';
+import 'package:Satsails/screens/shared/error_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:cpf_cnpj_validator/cnpj_validator.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
@@ -100,28 +101,12 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
     // Validate amount input
     if (amount.isEmpty) {
-      Fluttertoast.showToast(
-        msg: 'Please enter an amount'.i18n(ref),
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: MediaQuery.of(context).size.height * 0.02,
-      );
+      ErrorDisplay(message: 'Please enter an amount'.i18n(ref), isCard: false, showToast: true);
       return;
     }
 
     if (!CPFValidator.isValid(cpf) && !CNPJValidator.isValid(cpf)) {
-      Fluttertoast.showToast(
-        msg: 'Invalid CPF/CNPJ'.i18n(ref),
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: MediaQuery.of(context).size.height * 0.02,
-      );
+      ErrorDisplay(message: 'Invalid CPF/CNPJ'.i18n(ref), isCard: false, showToast: true);
       return;
     }
 
@@ -154,15 +139,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     }
 
     if (amountInDouble > _remainingLimit) {
-      Fluttertoast.showToast(
-        msg: 'You have reached the daily limit'.i18n(ref),
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: MediaQuery.of(context).size.height * 0.02,
-      );
+      ErrorDisplay(message: 'You have reached the daily limit'.i18n(ref), isCard: false, showToast: true);
       setState(() {
         _isLoading = false;
         _amountController.clear();
@@ -185,15 +162,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       setState(() {
         _isLoading = false;
       });
-      Fluttertoast.showToast(
-        msg: '${e.toString().i18n(ref)}',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: MediaQuery.of(context).size.height * 0.02,
-      );
+      ErrorDisplay(message: e.toString().i18n(ref), isCard: false, showToast: true);
     }
   }
 
@@ -235,15 +204,6 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
         Future.microtask(() {
           ref.read(topSelectedButtonProvider.notifier).state = "History";
           ref.read(groupButtonControllerProvider).selectIndex(1);
-          Fluttertoast.showToast(
-            msg: messageText.i18n(ref),
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.TOP,
-            timeInSecForIosWeb: 1,
-            backgroundColor: backgroundColor,
-            textColor: Colors.white,
-            fontSize: MediaQuery.of(context).size.height * 0.02,
-          );
         });
       }
     });
@@ -259,7 +219,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       error: (error, stack) => Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: Text('An error has occurred. Please check your internet connection or contact support'.i18n(ref), style: const TextStyle(color: Colors.red)),
+          child: ErrorDisplay(message: error.toString(), isCard: true)
         ),
       ),
       data: (amountTransferred) {

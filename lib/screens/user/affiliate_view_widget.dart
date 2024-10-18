@@ -3,19 +3,99 @@ import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
+import 'package:Satsails/screens/shared/error_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 final loadingProvider = StateProvider.autoDispose<bool>((ref) => false);
 
+Future<Map<String, dynamic>> fetchAllData(AutoDisposeFutureProviderRef ref) async {
+  final user = ref.read(userProvider);
+  final hasCreatedAffiliate = user.hasCreatedAffiliate;
+  final hasInsertedAffiliate = user.hasInsertedAffiliate;
+
+  Map<String, dynamic> data = {
+    'hasCreatedAffiliate': hasCreatedAffiliate,
+    'hasInsertedAffiliate': hasInsertedAffiliate,
+    'affiliateData': ref.watch(affiliateProvider),
+  };
+
+  if (hasCreatedAffiliate) {
+    final totalValuePurchasedFuture =ref.read(getTotalValuePurchasedByAffiliateUsersProvider.future);
+    final earningsFuture = ref.read(affiliateEarningsProvider.future);
+    final numberOfInstallFuture = ref.read(numberOfAffiliateInstallsProvider.future);
+    final allTransfersFuture = ref.read(getAllTransfersFromAffiliateUsersProvider.future);
+
+    final results = await Future.wait([
+      totalValuePurchasedFuture,
+      earningsFuture,
+      numberOfInstallFuture,
+      allTransfersFuture,
+    ]);
+
+    data.addAll({
+      'totalValuePurchased': results[0],
+      'earnings': results[1],
+      'numberOfInstall': results[2],
+      'allTransfers': results[3],
+    });
+  }
+
+  return data;
+}
+
+
+final affiliateDataProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
+  return await fetchAllData(ref);
+});
+
+
 class AffiliateViewWidget extends ConsumerWidget {
   const AffiliateViewWidget({super.key});
+
+  Future<Map<String, dynamic>> fetchAllData(WidgetRef ref) async {
+    final user = ref.read(userProvider);
+    final hasCreatedAffiliate = user.hasCreatedAffiliate;
+    final hasInsertedAffiliate = user.hasInsertedAffiliate;
+
+    Map<String, dynamic> data = {
+      'hasCreatedAffiliate': hasCreatedAffiliate,
+      'hasInsertedAffiliate': hasInsertedAffiliate,
+      'affiliateData': ref.read(affiliateProvider),
+    };
+
+    if (hasCreatedAffiliate) {
+      final totalValuePurchasedFuture =
+      ref.read(getTotalValuePurchasedByAffiliateUsersProvider.future);
+      final earningsFuture = ref.read(affiliateEarningsProvider.future);
+      final numberOfInstallFuture = ref.read(numberOfAffiliateInstallsProvider.future);
+      final allTransfersFuture = ref.read(getAllTransfersFromAffiliateUsersProvider.future);
+
+      final results = await Future.wait([
+        totalValuePurchasedFuture,
+        earningsFuture,
+        numberOfInstallFuture,
+        allTransfersFuture,
+      ]);
+
+      data.addAll({
+        'totalValuePurchased': results[0],
+        'earnings': results[1],
+        'numberOfInstall': results[2],
+        'allTransfers': results[3],
+      });
+    }
+
+    return data;
+  }
+
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,21 +112,20 @@ class AffiliateViewWidget extends ConsumerWidget {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context);
+              context.pop();
             },
           ),
         ),
-        body: ref.watch(updateAffiliateData).when(
-          data: (_) {
-            final affiliateData = ref.watch(affiliateProvider);
-            final user = ref.watch(userProvider);
-            final hasInsertedAffiliate = user.hasInsertedAffiliate;
-            final hasCreatedAffiliate = user.hasCreatedAffiliate;
+        body: ref.watch(affiliateDataProvider).when(
+          data: (data) {
+            final affiliateData = data['affiliateData'] as Affiliate;
+            final hasInsertedAffiliate = data['hasInsertedAffiliate'] as bool;
+            final hasCreatedAffiliate = data['hasCreatedAffiliate'] as bool;
 
-            final numberOfInstall = hasCreatedAffiliate ? ref.watch(numberOfAffiliateInstallsProvider) : null;
-            final earnings = hasCreatedAffiliate ? ref.watch(affiliateEarningsProvider) : null;
-            final allTransfers = hasCreatedAffiliate ? ref.watch(getAllTransfersFromAffiliateUsersProvider) : null;
-            final totalValuePurchased = hasCreatedAffiliate ? ref.watch(getTotalValuePurchasedByAffiliateUsersProvider) : null;
+            final numberOfInstall = hasCreatedAffiliate ? data['numberOfInstall'] : null;
+            final earnings = hasCreatedAffiliate ? data['earnings'] : null;
+            final allTransfers = hasCreatedAffiliate ? data['allTransfers'] : null;
+            final totalValuePurchased = hasCreatedAffiliate ? data['totalValuePurchased'] : null;
 
             return SingleChildScrollView(
               child: Padding(
@@ -55,36 +134,27 @@ class AffiliateViewWidget extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     if (hasCreatedAffiliate) ...[
-                      totalValuePurchased!.when(
-                        data: (totalValue) {
-                          final totalValueDecimal = Decimal.parse(totalValue.toString());
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildTierIcon(context, 'Bronze'.i18n(ref), Icons.vpn_key, totalValueDecimal, Decimal.parse('0'), width, height, ref),
-                              _buildTierIcon(context, 'Silver'.i18n(ref), Icons.military_tech, totalValueDecimal, Decimal.parse('2500'), width, height, ref),
-                              _buildTierIcon(context, 'Gold'.i18n(ref), Icons.emoji_events, totalValueDecimal, Decimal.parse('5000'), width, height, ref),
-                              _buildTierIcon(context, 'Diamond'.i18n(ref), Icons.diamond, totalValueDecimal, Decimal.parse('20000'), width, height, ref),
-                            ],
-                          );
-                        },
-                        loading: () => _loadingWidget(context, height),
-                        error: (error, stackTrace) => _errorWidget(error, ref),
-                      ),
+                      if (totalValuePurchased != null) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildTierIcon(context, 'Bronze'.i18n(ref), Icons.vpn_key, Decimal.parse(totalValuePurchased.toString()), Decimal.parse('0'), width, height, ref),
+                            _buildTierIcon(context, 'Silver'.i18n(ref), Icons.military_tech, Decimal.parse(totalValuePurchased.toString()), Decimal.parse('2500'), width, height, ref),
+                            _buildTierIcon(context, 'Gold'.i18n(ref), Icons.emoji_events, Decimal.parse(totalValuePurchased.toString()), Decimal.parse('5000'), width, height, ref),
+                            _buildTierIcon(context, 'Diamond'.i18n(ref), Icons.diamond, Decimal.parse(totalValuePurchased.toString()), Decimal.parse('20000'), width, height, ref),
+                          ],
+                        ),
+                      ],
                       SizedBox(height: height * 0.01),
                       _buildAffiliateInfo(affiliateData, width, height, ref),
                       SizedBox(height: height * 0.01),
-                      earnings!.when(
-                        data: (data) => _buildEarningsInfo(Decimal.parse(data.toString()), width, height, ref),
-                        loading: () => _loadingWidget(context, height),
-                        error: (error, stackTrace) => _errorWidget(error, ref),
-                      ),
+                      if (earnings != null) ...[
+                        _buildEarningsInfo(Decimal.parse(earnings.toString()), width, height, ref),
+                      ],
                       SizedBox(height: height * 0.02),
-                      numberOfInstall!.when(
-                        data: (installs) => _buildInstallationsInfo(installs, width, height, ref),
-                        loading: () => _loadingWidget(context, height),
-                        error: (error, stackTrace) => _errorWidget(error, ref),
-                      ),
+                      if (numberOfInstall != null) ...[
+                        _buildInstallationsInfo(numberOfInstall, width, height, ref),
+                      ],
                       SizedBox(height: height * 0.02),
                       CustomElevatedButton(
                         text: "Show Earnings Over Time".i18n(ref),
@@ -130,7 +200,7 @@ class AffiliateViewWidget extends ConsumerWidget {
 
   Widget _errorWidget(Object error, WidgetRef ref) {
     return Center(
-      child: Text('${'An error has occurred. Please check your internet connection or contact support'.i18n(ref)} $error', style: const TextStyle(color: Colors.white)),
+      child: ErrorDisplay(message: error.toString(), isCard: true),
     );
   }
 
@@ -207,7 +277,7 @@ class AffiliateViewWidget extends ConsumerWidget {
     );
   }
 
-  void _showGraphBottomModal(BuildContext context, WidgetRef ref, AsyncValue<List<ParsedTransfer>> allTransfers) {
+  void _showGraphBottomModal(BuildContext context, WidgetRef ref, List<ParsedTransfer> allTransfers) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -228,25 +298,18 @@ class AffiliateViewWidget extends ConsumerWidget {
                   'Earnings Over Time'.i18n(ref),
                   style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 10),
-                allTransfers.when(
-                  data: (transfersData) {
-                    if (transfersData.isEmpty) {
-                      return Center(
-                        child: Text(
-                          'No earnings data available'.i18n(ref),
-                          style: const TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                      );
-                    } else {
-                      return SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.5,  // Set a fixed height for the chart
-                        child: _buildSyncfusionChart(transfersData, MediaQuery.of(context).size.width, MediaQuery.of(context).size.height, ref),
-                      );
-                    }
-                  },
-                  loading: () => _loadingWidget(context, MediaQuery.of(context).size.height * 0.1),
-                  error: (error, stackTrace) => _errorWidget(error, ref),
+                if (allTransfers.isEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: Text(
+                      'No earnings data available'.i18n(ref),
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                if (allTransfers.isNotEmpty)
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.5,  // Set a fixed height for the chart
+                  child: _buildSyncfusionChart(allTransfers, MediaQuery.of(context).size.width, MediaQuery.of(context).size.height, ref),
                 ),
               ],
             ),
@@ -391,7 +454,7 @@ class AffiliateViewWidget extends ConsumerWidget {
                         insertedAffiliateCode: ref.watch(affiliateProvider).insertedAffiliateCode,
                       );
                       try {
-                        Navigator.pop(context);
+                        context.pop();
                         ref.read(loadingProvider.notifier).state = true;
                         await ref.read(createAffiliateCodeProvider(affiliate).future);
                         Fluttertoast.showToast(
@@ -462,7 +525,7 @@ class AffiliateViewWidget extends ConsumerWidget {
               SizedBox(height: height * 0.02),
               Text(feeInfo, style: TextStyle(fontSize: width * 0.03, color: Colors.black), textAlign: TextAlign.center),
               SizedBox(height: height * 0.02),
-              TextButton(onPressed: () => Navigator.pop(context), child: Text('Close'.i18n(ref), style: TextStyle(color: Colors.black, fontSize: width * 0.04))),
+              TextButton(onPressed: () => context.pop(), child: Text('Close'.i18n(ref), style: TextStyle(color: Colors.black, fontSize: width * 0.04))),
             ],
           ),
         );
