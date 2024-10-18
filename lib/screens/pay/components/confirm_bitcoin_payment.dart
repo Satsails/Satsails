@@ -153,7 +153,7 @@ class ConfirmBitcoinPayment extends HookConsumerWidget {
                             child: TextFormField(
                               controller: controller,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats' ? [FilteringTextInputFormatter.digitsOnly] : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)],
+                              inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats' ? [DecimalTextInputFormatter(decimalRange: 0)] : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)],
                               style: TextStyle(fontSize: dynamicFontSize * 3, color: Colors.white),
                               textAlign: TextAlign.center,
                               decoration: const InputDecoration(

@@ -1729,6 +1729,18 @@ extension Localization on String {
       {
         'en': 'Lightning Swaps',
         'pt': 'Trocas Lightning'
+      } +
+      {
+        'en': 'Confirm PIN',
+        'pt': 'Confirmar PIN'
+      } +
+      {
+        'en': 'PINs do not match',
+        'pt': 'PINs não correspondem'
+      } +
+      {
+        'en': 'Choose a 6-digit PIN',
+        'pt': 'Escolha um PIN de 6 dígitos'
       };
 
   String i18n(WidgetRef ref) {

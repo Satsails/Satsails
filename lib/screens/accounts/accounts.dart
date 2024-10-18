@@ -145,7 +145,7 @@ class Accounts extends ConsumerWidget {
               ),
               SizedBox(height: screenWidth * 0.02),
               Text(
-                'Assets'.i18n(ref),
+                'Stable'.i18n(ref),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               SizedBox(height: screenWidth * 0.02),

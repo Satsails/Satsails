@@ -38,7 +38,7 @@ class ButtonPicker extends ConsumerWidget {
             break;
         }
       },
-      buttons: ['Liquid ⇄ Stable'.i18n(ref), "BTC ⇄ Liquid".i18n(ref)],
+      buttons: ['Stable ⇄ Liquid', "Liquid ⇄ BTC"],
       options: GroupButtonOptions(
         unselectedTextStyle: TextStyle(
             fontSize: screenWidth * 0.04, color: Colors.orange),

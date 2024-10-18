@@ -101,12 +101,28 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
     // Validate amount input
     if (amount.isEmpty) {
-      ErrorDisplay(message: 'Please enter an amount'.i18n(ref), isCard: false, showToast: true);
+      Fluttertoast.showToast(
+        msg: 'Please enter an amount'.i18n(ref),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: MediaQuery.of(context).size.height * 0.02,
+      );
       return;
     }
 
     if (!CPFValidator.isValid(cpf) && !CNPJValidator.isValid(cpf)) {
-      ErrorDisplay(message: 'Invalid CPF/CNPJ'.i18n(ref), isCard: false, showToast: true);
+      Fluttertoast.showToast(
+        msg: 'Invalid CPF/CNPJ'.i18n(ref),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: MediaQuery.of(context).size.height * 0.02,
+      );
       return;
     }
 
@@ -139,7 +155,15 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     }
 
     if (amountInDouble > _remainingLimit) {
-      ErrorDisplay(message: 'You have reached the daily limit'.i18n(ref), isCard: false, showToast: true);
+      Fluttertoast.showToast(
+        msg: 'You have reached the daily limit'.i18n(ref),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: MediaQuery.of(context).size.height * 0.02,
+      );
       setState(() {
         _isLoading = false;
         _amountController.clear();
@@ -162,7 +186,15 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       setState(() {
         _isLoading = false;
       });
-      ErrorDisplay(message: e.toString().i18n(ref), isCard: false, showToast: true);
+      Fluttertoast.showToast(
+        msg: '${e.toString().i18n(ref)}',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: MediaQuery.of(context).size.height * 0.02,
+      );
     }
   }
 
@@ -204,6 +236,15 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
         Future.microtask(() {
           ref.read(topSelectedButtonProvider.notifier).state = "History";
           ref.read(groupButtonControllerProvider).selectIndex(1);
+          Fluttertoast.showToast(
+            msg: messageText.i18n(ref),
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
+            backgroundColor: backgroundColor,
+            textColor: Colors.white,
+            fontSize: MediaQuery.of(context).size.height * 0.02,
+          );
         });
       }
     });

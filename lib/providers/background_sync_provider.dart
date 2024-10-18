@@ -6,7 +6,8 @@ import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/providers/transactions_provider.dart';
+
+final syncOnAppOpenProvider = StateProvider<bool>((ref) => false);
 
 /// Abstract class to define common sync behavior
 abstract class SyncNotifier extends AsyncNotifier<void> {

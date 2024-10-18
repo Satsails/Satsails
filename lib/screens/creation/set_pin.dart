@@ -13,6 +13,8 @@ class SetPin extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final formKey = GlobalKey<FormState>();
+    String pin = '';
+    String confirmPin = '';
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -34,6 +36,12 @@ class SetPin extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                // Instruction for choosing a PIN
+                Text(
+                  'Choose a 6-digit PIN'.i18n(ref),
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: PinCodeTextField(
@@ -54,7 +62,41 @@ class SetPin extends ConsumerWidget {
                       return null;
                     },
                     onChanged: (value) {
-                      ref.read(authModelProvider).setPin(value);
+                      pin = value; // Store the entered PIN
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Instruction for confirming the PIN
+                Text(
+                  'Confirm PIN'.i18n(ref),
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: PinCodeTextField(
+                    appContext: context,
+                    length: 6,
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    textStyle: const TextStyle(color: Colors.white),
+                    pinTheme: PinTheme(
+                      inactiveColor: Colors.white,
+                      selectedColor: Colors.red,
+                      activeColor: Colors.orange,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value.length != 6) {
+                        return '';
+                      }
+                      if (value != pin) {
+                        return 'PINs do not match'.i18n(ref); // Custom error message
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      confirmPin = value; // Store the confirmation PIN
                     },
                   ),
                 ),
@@ -66,6 +108,11 @@ class SetPin extends ConsumerWidget {
                     onPressed: () async {
                       if (formKey.currentState!.validate()) {
                         final authModel = ref.read(authModelProvider);
+
+                        // Set the PIN
+                        await authModel.setPin(pin);
+
+                        // Optionally handle mnemonic
                         final mnemonic = await authModel.getMnemonic();
                         if (mnemonic == null || mnemonic.isEmpty) {
                           await authModel.setMnemonic(await authModel.generateMnemonic());

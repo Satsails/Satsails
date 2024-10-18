@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/settings/settings.dart';
@@ -62,6 +63,8 @@ Future<void> main() async {
         'You have received a PIX payment',
         platformChannelSpecifics,
       );
+      final container = ProviderContainer();
+      container.read(syncOnAppOpenProvider.notifier).state = true;
     }
   });
 
@@ -104,7 +107,6 @@ class MainApp extends ConsumerStatefulWidget {
 }
 
 class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   Timer? _lockTimer;
   final int lockThresholdInSeconds = 300; // 5 minutes
   GoRouter? _router;
@@ -144,10 +146,12 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
-      // Start the lock countdown when the app is inactive or paused
       _startLockCountdown();
     } else if (state == AppLifecycleState.resumed) {
-      // Cancel the lock countdown when the app is resumed
+      if (ref.read(syncOnAppOpenProvider)) {
+        ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+        ref.read(syncOnAppOpenProvider.notifier).state = false;
+      }
       _cancelLockTimer();
     }
   }

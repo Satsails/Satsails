@@ -147,7 +147,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                               controller: controller,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               inputFormatters:ref.watch(inputCurrencyProvider) == 'Sats'
-                                  ? [FilteringTextInputFormatter.digitsOnly]
+                                  ? [DecimalTextInputFormatter(decimalRange: 0)]
                                   : (showBitcoinRelatedWidgets.state
                                   ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)]
                                   : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)]),
