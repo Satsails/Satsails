@@ -16,13 +16,6 @@ class DecimalTextInputFormatter extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    if (decimalRange == 0) {
-      return TextEditingValue(
-        text: newValue.text,
-        selection: newValue.selection,
-        composing: TextRange.empty,
-      );
-    }
 
     if (newValue.text.isEmpty) {
       return newValue;

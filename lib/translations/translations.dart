@@ -1640,12 +1640,24 @@ extension Localization on String {
         'pt': 'Aguarde alguns minutos e tente novamente'
       } +
       {
-        'en': "Invalid CPF",
-        'pt': 'CPF inválido'
+        'en': "Invalid CPF/CNPJ",
+        'pt': 'CPF/CNPJ inválido'
       } +
       {
         'en': "Please enter an amount",
         'pt': 'Por favor, insira uma quantia'
+      } +
+      {
+        'en': "Swap failed, please contact support",
+        'pt': 'Troca falhou, por favor, contate o suporte'
+      } +
+      {
+        'en': 'Send with Liquid Balance',
+        'pt': 'Enviar com Saldo Liquid'
+      } +
+      {
+        'en': 'Send with Bitcoin Balance',
+        'pt': 'Enviar com Saldo Bitcoin'
       }  +
       {
         'en': "Swap failed, please contact support",
@@ -1670,6 +1682,65 @@ extension Localization on String {
       {
         'en': 'Your balance will update soon',
         'pt': 'Seu saldo será atualizado em breve'
+      } +  {
+    'en': 'All Swaps',
+    'pt': 'Todas as trocas'
+  } +
+      {
+        'en': 'Fiat Swaps',
+        'pt': 'Trocas Fiat'
+      } +
+      {
+        'en': 'Layer Swaps',
+        'pt': 'Trocas de Camada'
+      } +
+      {
+        'en': 'Pix History',
+        'pt': 'Histórico Pix'
+      } +
+      {
+        'en': 'Transaction in progress, please wait.',
+        'pt': 'Transação em andamento, por favor, aguarde.'
+      } +
+      {
+        'en': 'Total fees',
+        'pt': 'Taxas totais'
+      } +
+      {
+        'en': 'Total amount to send',
+        'pt': 'Valor total a enviar'
+      } +
+      {
+        'en': 'Lightning swap',
+        'pt': 'Troca Lightning'
+      } +
+      {
+        'en': 'Receiving',
+        'pt': 'Recebendo'
+      } +
+      {
+        'en': 'Sending',
+        'pt': 'Enviando'
+      } +
+      {
+        'en': 'Expiry block',
+        'pt': 'Bloco de expiração'
+      } +
+      {
+        'en': 'Lightning Swaps',
+        'pt': 'Trocas Lightning'
+      } +
+      {
+        'en': 'Confirm PIN',
+        'pt': 'Confirmar PIN'
+      } +
+      {
+        'en': 'PINs do not match',
+        'pt': 'PINs não correspondem'
+      } +
+      {
+        'en': 'Choose a 6-digit PIN',
+        'pt': 'Escolha um PIN de 6 dígitos'
       };
 
   String i18n(WidgetRef ref) {

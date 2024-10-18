@@ -1,20 +1,21 @@
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
 import 'package:Satsails/screens/receive/components/lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
-import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:group_button/group_button.dart';
+import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/providers/address_receive_provider.dart';
 
 final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
 
 class Receive extends ConsumerWidget {
   Receive({super.key});
-
   final groupButtonControllerProvider = Provider<GroupButtonController>((ref) {
     return GroupButtonController(selectedIndex: 1);
   });
+
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,66 +38,62 @@ class Receive extends ConsumerWidget {
           },
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            GroupButton(
-              isRadio: true,
-              controller: controller,
-              onSelected: (index, isSelected, isLongPress) {
-                switch (index) {
-                  case 'Bitcoin':
-                    ref.read(selectedButtonProvider.notifier).state = "Bitcoin";
-                    ref.read(inputCurrencyProvider.notifier).state = 'BTC';
-                    ref.read(inputAmountProvider.notifier).state = '0.0';
-                    break;
-                  case 'Liquid':
-                    ref.read(selectedButtonProvider.notifier).state = "Liquid";
-                    ref.read(inputCurrencyProvider.notifier).state = 'BTC';
-                    ref.read(inputAmountProvider.notifier).state = '0.0';
-                    break;
-                  case 'Lightning':
-                    ref.read(selectedButtonProvider.notifier).state = "Lightning";
-                    ref.read(inputCurrencyProvider.notifier).state = 'BTC';
-                    ref.read(inputAmountProvider.notifier).state = '0.0';
-                    break;
-                  default:
-                    'Bitcoin';
-                }
-              },
-              buttons: const ["Lightning", 'Bitcoin', "Liquid"],
-              options: GroupButtonOptions(
-                unselectedTextStyle: TextStyle(
-                    fontSize: screenWidth * 0.04, color: Colors.orange),
-                selectedTextStyle: TextStyle(
-                    fontSize: screenWidth * 0.04, color: Colors.black),
-                selectedColor: Colors.orange,
-                mainGroupAlignment: MainGroupAlignment.center,
-                crossGroupAlignment: CrossGroupAlignment.center,
-                groupRunAlignment: GroupRunAlignment.center,
-                unselectedColor: Colors.black,
-                groupingType: GroupingType.row,
-                alignment: Alignment.center,
-                elevation: 0,
-                textPadding: EdgeInsets.zero,
-                unselectedBorderColor: Colors.orange,
-                selectedShadow: <BoxShadow>[
-                  const BoxShadow(color: Colors.transparent)
-                ],
-                unselectedShadow: <BoxShadow>[
-                  const BoxShadow(color: Colors.transparent)
-                ],
-                borderRadius: BorderRadius.circular(screenWidth * 0.01),
+      body: FlutterKeyboardDoneWidget(
+        doneWidgetBuilder: (context) {
+          return const Text(
+            'Done',
+          );
+        },
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              GroupButton(
+                isRadio: true,
+                controller: controller,
+                onSelected: (value, index, isSelected) {
+                  ref.read(selectedButtonProvider.notifier).state = value;
+                  ref.read(inputCurrencyProvider.notifier).state = 'BTC';
+                  ref.read(inputAmountProvider.notifier).state = '0.0';
+                  ref.read(isBitcoinInputProvider.notifier).state = true;
+                },
+                buttons: const ['Lightning', 'Bitcoin', 'Liquid'],
+                options: GroupButtonOptions(
+                  unselectedTextStyle: TextStyle(
+                    fontSize: screenWidth * 0.04,
+                    color: Colors.orange,
+                  ),
+                  selectedTextStyle: TextStyle(
+                    fontSize: screenWidth * 0.04,
+                    color: Colors.black,
+                  ),
+                  selectedColor: Colors.orange,
+                  mainGroupAlignment: MainGroupAlignment.center,
+                  crossGroupAlignment: CrossGroupAlignment.center,
+                  groupRunAlignment: GroupRunAlignment.center,
+                  unselectedColor: Colors.black,
+                  groupingType: GroupingType.row,
+                  alignment: Alignment.center,
+                  elevation: 0,
+                  textPadding: EdgeInsets.zero,
+                  unselectedBorderColor: Colors.orange,
+                  selectedShadow: const <BoxShadow>[
+                    BoxShadow(color: Colors.transparent)
+                  ],
+                  unselectedShadow: const <BoxShadow>[
+                    BoxShadow(color: Colors.transparent)
+                  ],
+                  borderRadius: BorderRadius.circular(screenWidth * 0.01),
+                ),
               ),
-            ),
-            SizedBox(height: screenHeight * 0.02), // 2% of screen height
-            if (selectedIndex == 'Bitcoin')
-              const BitcoinWidget(),
-            if (selectedIndex == "Liquid")
-              const LiquidWidget(),
-            if (selectedIndex == "Lightning")
-              const LightningWidget(),
-          ],
+              SizedBox(height: screenHeight * 0.02),
+              if (selectedIndex == 'Bitcoin')
+                BitcoinWidget(),
+              if (selectedIndex == "Liquid")
+                LiquidWidget(),
+              if (selectedIndex == "Lightning")
+                LightningWidget(),
+            ],
+          ),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Satsails {
   late PusherChannelsFlutter pusher;
@@ -13,8 +14,8 @@ class Satsails {
       pusher = PusherChannelsFlutter.getInstance();
 
       await pusher.init(
-        apiKey: 'd72ad57ca9898ced8710',
-        cluster: 'sa1',
+        apiKey: dotenv.env['PUSHERKEY']!,
+        cluster: dotenv.env['CLUSTER']!,
       );
 
       await pusher.connect();

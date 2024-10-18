@@ -16,7 +16,7 @@ final bitcoinProvider = FutureProvider<Bitcoin>((ref) async {
   }
 });
 
-final syncBitcoinProvider = FutureProvider<void>((ref) {
+final syncBitcoinProvider = FutureProvider.autoDispose<void>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     return bitcoinModel.sync();
@@ -46,7 +46,7 @@ final bitcoinAddressInfoProvider = FutureProvider.autoDispose<AddressInfo>((ref)
   });
 });
 
-final getBitcoinTransactionsProvider = FutureProvider<List<TransactionDetails>>((ref) {
+final getBitcoinTransactionsProvider = FutureProvider.autoDispose<List<TransactionDetails>>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     return bitcoinModel.getTransactions();
@@ -60,13 +60,13 @@ final getBitcoinBalanceProvider = FutureProvider<Balance>((ref) {
   });
 });
 
-final unspentUtxosProvider = FutureProvider<List<LocalUtxo>>((ref) {
+final unspentUtxosProvider = FutureProvider.autoDispose<List<LocalUtxo>>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     return bitcoin.wallet.listUnspent();
   });
 });
 
-final getPsbtInputProvider = FutureProvider<Input>((ref) {
+final getPsbtInputProvider = FutureProvider.autoDispose<Input>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) async {
     final unspentUtxos = await ref.watch(unspentUtxosProvider.future);
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);

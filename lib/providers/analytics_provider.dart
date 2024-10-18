@@ -1,10 +1,12 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
+import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
+import 'package:lwk_dart/lwk_dart.dart' as lwk;
+import 'package:lwk_dart/lwk_dart.dart';
 
 DateTimeSelect getCurrentMonthDateRange() {
   final DateTime now = DateTime.now();
@@ -253,8 +255,8 @@ final liquidFeePerDayProvider = StateProvider.autoDispose.family<Map<DateTime, n
   }
 
   for (Tx transaction in transactions) {
-    if (transaction.timestamp != 0) {
-      final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp * 1000));
+    if (transaction.timestamp != 0 && transaction.timestamp != null) {
+      final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000));
       final hasSentFromAsset = transaction.balances.any((element) => element.assetId == asset && element.value < 0);
       if (hasSentFromAsset) {
         valueSpentPerDay[date] = valueSpentPerDay[date]! + transaction.fee.abs();
@@ -283,8 +285,8 @@ final liquidIncomePerDayProvider = StateProvider.autoDispose.family<Map<DateTime
   }
 
   for (Tx transaction in transactions) {
-    if (transaction.timestamp != 0) {
-      final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp * 1000));
+    if (transaction.timestamp != 0 && transaction.timestamp != null) {
+      final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000));
       final hasReceivedAsset = transaction.balances.any((element) => element.assetId == asset && element.value > 0);
       final assetIsBtc = asset == AssetMapper.reverseMapTicker(AssetId.LBTC);
       if (hasReceivedAsset) {
@@ -314,8 +316,8 @@ final liquidSpentPerDayProvider = StateProvider.autoDispose.family<Map<DateTime,
   }
 
   for (Tx transaction in transactions) {
-    if (transaction.timestamp != 0) {
-      final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp * 1000));
+    if (transaction.timestamp != 0 && transaction.timestamp != null) {
+      final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000));
       final hasSentAsset = transaction.balances.any((element) => element.assetId == asset && element.value < 0);
       final assetIsBtc = asset == AssetMapper.reverseMapTicker(AssetId.LBTC);
       if (hasSentAsset) {
@@ -353,16 +355,16 @@ final liquidBalanceOverPeriod = StateProvider.autoDispose.family<Map<DateTime, n
   num cumulativeBalance = 0;
 
   for (Tx transaction in transactions) {
-    if (transaction.timestamp == 0) {
+    if (transaction.timestamp == 0 || transaction.timestamp == null) {
       continue;
     }
 
-    final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp * 1000));
+    final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000));
     final hasSentAsset = transaction.balances.any((element) => element.assetId == asset && element.value < 0);
     final hasReceivedAsset = transaction.balances.any((element) => element.assetId == asset && element.value > 0);
     if (hasSentAsset || hasReceivedAsset) {
-      final sentValue = transaction.balances.firstWhere((element) => element.assetId == asset && element.value < 0, orElse: () => Balance(assetId: asset, value: 0)).value;
-      final receivedValue = transaction.balances.firstWhere((element) => element.assetId == asset && element.value > 0, orElse: () => Balance(assetId: asset, value: 0)).value;
+      final sentValue = transaction.balances.firstWhere((element) => element.assetId == asset && element.value < 0, orElse: () => lwk.Balance(assetId: asset, value: 0)).value;
+      final receivedValue = transaction.balances.firstWhere((element) => element.assetId == asset && element.value > 0, orElse: () => lwk.Balance(assetId: asset, value: 0)).value;
       final netAmount = receivedValue + sentValue;
 
       cumulativeBalance += netAmount;

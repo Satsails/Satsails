@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
+import 'package:go_router/go_router.dart';
 
 class SeedWords extends ConsumerWidget {
   const SeedWords({super.key});
@@ -28,7 +29,7 @@ class SeedWords extends ConsumerWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/settings');
+            context.pop();
           },
         ),
       ),
@@ -78,7 +79,7 @@ class SeedWords extends ConsumerWidget {
                       child: CustomButton(
                         text: 'Backup Wallet'.i18n(ref),
                         onPressed: () {
-                          Navigator.pushNamed(context, '/backup_wallet');
+                          context.push('/backup_wallet');
                         },
                       ),
                     ),
