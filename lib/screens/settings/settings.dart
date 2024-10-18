@@ -36,9 +36,6 @@ class Settings extends ConsumerWidget {
           children: [
             _buildBlockExplorerSection(context, ref),
             _buildDivider(),
-            _buildDivider(),
-            _buildClaimBoltzTransactionsSection(context, ref),
-            _buildDivider(),
             _buildSeedSection(context, ref),
             _buildDivider(),
             _buildLanguageSection(ref, context),
@@ -174,17 +171,6 @@ class Settings extends ConsumerWidget {
       onTap: () {
         ref.read(sendToSeed.notifier).state = true;
         walletBackedUp ? context.push('/open_pin') : context.push('/seed_words');
-      },
-    );
-  }
-
-  Widget _buildClaimBoltzTransactionsSection(BuildContext context, WidgetRef ref) {
-    return ListTile(
-      leading: const Icon(Icons.flash_on, color: Colors.white),
-      title: Text('Lightning Transactions'.i18n(ref), style: const TextStyle(color: Colors.white)),
-      subtitle: Text('Claim your Boltz transactions'.i18n(ref), style: const TextStyle(color: Colors.grey)),
-      onTap: () {
-        context.push('/claim_boltz_transactions');
       },
     );
   }

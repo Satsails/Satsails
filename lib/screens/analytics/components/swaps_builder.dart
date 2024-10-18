@@ -3,14 +3,17 @@ import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
+import 'package:Satsails/screens/analytics/components/claim_boltz.dart';
 import 'package:Satsails/screens/charge/components/pix_history.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/screens/analytics/components/peg_details.dart';
+
 
 class SwapsBuilder extends ConsumerStatefulWidget {
   const SwapsBuilder({super.key});
@@ -20,7 +23,7 @@ class SwapsBuilder extends ConsumerStatefulWidget {
 }
 
 class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
-  String selectedSwapType = 'All Swaps';
+  String selectedSwapType = 'Fiat Swaps';
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +36,10 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
       children: [
         _buildSwapTypeFilter(context, paymentId),
         Expanded(
-          child: selectedSwapType == 'Pix History'.i18n(ref) && paymentId.isNotEmpty
-              ? Builder(builder: (context) => PixHistory()) // Lazy-load PixHistory only if selected and paymentId is not empty
+          child: selectedSwapType == 'Pix History' && paymentId.isNotEmpty
+              ? Builder(builder: (context) => const PixHistory())
+              : selectedSwapType == 'Lightning Swaps'
+              ? ClaimBoltz()
               : allSwaps.when(
             data: (swaps) {
               return swapsToFiat.when(
@@ -83,16 +88,11 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
 
   Widget _buildSwapTypeFilter(BuildContext context, String paymentId) {
     final List<String> swapTypes = [
-      'All Swaps'.i18n(ref),
-      'Fiat Swaps'.i18n(ref),
-      'Layer Swaps'.i18n(ref),
-      if (paymentId.isNotEmpty) 'Pix History'.i18n(ref), // Only include if paymentId is not empty
+      'Fiat Swaps',
+      'Layer Swaps',
+      'Lightning Swaps', // Add Lightning Swaps to the dropdown
+      if (paymentId.isNotEmpty) 'Pix History',
     ];
-
-    // Ensure selectedSwapType is valid in the current context
-    if (!swapTypes.contains(selectedSwapType)) {
-      selectedSwapType = 'All Swaps'.i18n(ref); // Reset to a default value if current selection is not in swapTypes
-    }
 
     return DropdownButtonHideUnderline(
       child: DropdownButton<String>(
@@ -102,7 +102,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(
-              value,
+              value.i18n(ref),
               style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04, color: Colors.orange),
             ),
           );
@@ -118,13 +118,13 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
 
   List<dynamic> _filterAndSortSwaps(List<dynamic> swaps) {
     List<dynamic> filteredSwaps = swaps.where((swap) {
-      if (selectedSwapType == 'Fiat Swaps'.i18n(ref) && swap is SideswapCompletedSwap) {
+      if (selectedSwapType == 'Fiat Swaps' && swap is SideswapCompletedSwap) {
         return true;
       }
-      if (selectedSwapType == 'Layer Swaps'.i18n(ref) && swap is SideswapPegStatus) {
+      if (selectedSwapType == 'Layer Swaps' && swap is SideswapPegStatus) {
         return true;
       }
-      return selectedSwapType == 'All Swaps'.i18n(ref);
+      return false;
     }).toList();
 
     filteredSwaps.sort((a, b) {
@@ -208,7 +208,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
             onTap: () {
               ref.read(transactionSearchProvider).isLiquid = true;
               ref.read(transactionSearchProvider).txid = swap.txid;
-              Navigator.pushNamed(context, '/search_modal');
+              context.push('/search_modal');
             },
           ),
         ],

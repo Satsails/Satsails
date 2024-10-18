@@ -1709,6 +1709,26 @@ extension Localization on String {
       {
         'en': 'Total amount to send',
         'pt': 'Valor total a enviar'
+      } +
+      {
+        'en': 'Lightning swap',
+        'pt': 'Troca Lightning'
+      } +
+      {
+        'en': 'Receiving',
+        'pt': 'Recebendo'
+      } +
+      {
+        'en': 'Sending',
+        'pt': 'Enviando'
+      } +
+      {
+        'en': 'Expiry block',
+        'pt': 'Bloco de expiração'
+      } +
+      {
+        'en': 'Lightning Swaps',
+        'pt': 'Trocas Lightning'
       };
 
   String i18n(WidgetRef ref) {
