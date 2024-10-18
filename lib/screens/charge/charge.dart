@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+// Loading state provider
+final isLoadingProvider = StateProvider<bool>((ref) => false);
 final onBoardingInProgressProvider = StateProvider<bool>((ref) => false);
 
 class Charge extends ConsumerWidget {
@@ -15,6 +18,7 @@ class Charge extends ConsumerWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final hasOnboarded = ref.watch(userProvider).onboarded ?? false;
     final paymentId = ref.watch(userProvider).paymentId ?? '';
+    final isLoading = ref.watch(isLoadingProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -26,39 +30,54 @@ class Charge extends ConsumerWidget {
         ),
       ),
       backgroundColor: Colors.black,
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(screenWidth * 0.04), // 4% of screen width
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              PaymentMethodCard(
-                title: 'Add Money with Pix'.i18n(ref),
-                description: 'Send a pix and we will credit your wallet'.i18n(ref),
-                icon: Icons.qr_code,
-                screenWidth: screenWidth,
-                onPressed: () => _handleOnPress(ref, context, hasOnboarded, paymentId),
+      body: Stack(
+        children: [
+          Center(
+            child: Padding(
+              padding: EdgeInsets.all(screenWidth * 0.04), // 4% of screen width
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PaymentMethodCard(
+                    title: 'Add Money with Pix'.i18n(ref),
+                    description: 'Send a pix and we will credit your wallet'.i18n(ref),
+                    icon: Icons.qr_code,
+                    screenWidth: screenWidth,
+                    onPressed: () => _handleOnPress(ref, context, hasOnboarded, paymentId),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+          // Show loading indicator if the isLoading state is true
+          if (isLoading)
+            Center(
+              child: LoadingAnimationWidget.threeArchedCircle(
+                size: MediaQuery.of(context).size.height * 0.1,
+                color: Colors.orange,
+              ),
+            )
+        ],
       ),
     );
   }
 
   Future<void> _handleOnPress(WidgetRef ref, BuildContext context, bool hasOnboarded, String paymentId) async {
-    // If the user doesn't have a payment ID, prompt onboarding
+    // Start loading
+    ref.read(isLoadingProvider.notifier).state = true;
+
     if (paymentId.isEmpty) {
       ref.read(onBoardingInProgressProvider.notifier).state = true;
       context.push('/user_creation');
+      // Stop loading
+      ref.read(isLoadingProvider.notifier).state = false;
       return;
     }
 
     try {
-      final walletBelongsToUser = await ref.watch(
-          checkIfAccountBelongsToSetPrivateKeyProvider.future);
+      final walletBelongsToUser = await ref.watch(checkIfAccountBelongsToSetPrivateKeyProvider.future);
 
-      if (walletBelongsToUser == false) {
+      if (!walletBelongsToUser) {
         Fluttertoast.showToast(
           msg: 'Your wallet does not belong to the account you are trying to charge'.i18n(ref),
           toastLength: Toast.LENGTH_LONG,
@@ -68,6 +87,8 @@ class Charge extends ConsumerWidget {
           textColor: Colors.white,
           fontSize: 16.0,
         );
+        // Stop loading
+        ref.read(isLoadingProvider.notifier).state = false;
         return;
       }
     } catch (e) {
@@ -80,14 +101,20 @@ class Charge extends ConsumerWidget {
         textColor: Colors.white,
         fontSize: 16.0,
       );
+      // Stop loading
+      ref.read(isLoadingProvider.notifier).state = false;
       return;
     }
 
+    // Navigate based on the onboarding state
     if (hasOnboarded) {
       context.push('/home/pix');
     } else {
       context.push('/pix_onboarding');
     }
+
+    // Stop loading after navigation
+    ref.read(isLoadingProvider.notifier).state = false;
   }
 }
 
