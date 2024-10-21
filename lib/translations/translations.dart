@@ -1741,6 +1741,14 @@ extension Localization on String {
       {
         'en': 'Choose a 6-digit PIN',
         'pt': 'Escolha um PIN de 6 dígitos'
+      } +
+      {
+        'en': 'attempts remaining',
+        'pt': 'tentativas restantes'
+      } +
+      {
+        'en': 'Please authenticate to view seed words',
+        'pt': 'Por favor, autentique-se para ver as seeds'
       };
 
   String i18n(WidgetRef ref) {

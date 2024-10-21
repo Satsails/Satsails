@@ -274,6 +274,7 @@ final liquidFeePerDayProvider = StateProvider.autoDispose.family<Map<DateTime, n
   return valueSpentPerDay;
 });
 
+
 final liquidIncomePerDayProvider = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
   final List<DateTime> selectedDays = ref.watch(selectedDaysDateArrayProvider);
   final transactions = ref.watch(liquidTransactionsByDate);
@@ -288,9 +289,10 @@ final liquidIncomePerDayProvider = StateProvider.autoDispose.family<Map<DateTime
     if (transaction.timestamp != 0 && transaction.timestamp != null) {
       final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000));
       final hasReceivedAsset = transaction.balances.any((element) => element.assetId == asset && element.value > 0);
-      final assetIsBtc = asset == AssetMapper.reverseMapTicker(AssetId.LBTC);
+
       if (hasReceivedAsset) {
-        valueIncomePerDay[date] = btcInDenominationNum(valueIncomePerDay[date]! + transaction.balances.firstWhere((element) => element.assetId == asset).value, btcFormat, assetIsBtc);
+        num rawValue = transaction.balances.firstWhere((element) => element.assetId == asset).value;
+        valueIncomePerDay[date] = valueIncomePerDay[date]! + rawValue;
       }
     }
   }
@@ -299,7 +301,10 @@ final liquidIncomePerDayProvider = StateProvider.autoDispose.family<Map<DateTime
   for (DateTime day in selectedDays) {
     final normalizedDay = normalizeDate(day);
     cumulativeIncome += valueIncomePerDay[normalizedDay]!;
-    valueIncomePerDay[normalizedDay] = cumulativeIncome;
+
+    final assetIsBtc = asset == AssetMapper.reverseMapTicker(AssetId.LBTC);
+
+    valueIncomePerDay[normalizedDay] = btcInDenominationNum(cumulativeIncome, btcFormat, assetIsBtc);
   }
 
   return valueIncomePerDay;
@@ -311,30 +316,39 @@ final liquidSpentPerDayProvider = StateProvider.autoDispose.family<Map<DateTime,
   final btcFormat = ref.watch(settingsProvider).btcFormat;
   final Map<DateTime, num> valueSpentPerDay = {};
 
+  // Initialize the map for each selected day
   for (DateTime day in selectedDays) {
     valueSpentPerDay[normalizeDate(day)] = 0;
   }
 
+  // Process transactions and accumulate spent values
   for (Tx transaction in transactions) {
     if (transaction.timestamp != 0 && transaction.timestamp != null) {
       final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000));
       final hasSentAsset = transaction.balances.any((element) => element.assetId == asset && element.value < 0);
-      final assetIsBtc = asset == AssetMapper.reverseMapTicker(AssetId.LBTC);
+
       if (hasSentAsset) {
-        valueSpentPerDay[date] = btcInDenominationNum(valueSpentPerDay[date]! + transaction.balances.firstWhere((element) => element.assetId == asset).value.abs(), btcFormat, assetIsBtc);
+        num rawValue = transaction.balances.firstWhere((element) => element.assetId == asset).value.abs();
+        valueSpentPerDay[date] = valueSpentPerDay[date]! + rawValue;  // Accumulate spent value
       }
     }
   }
 
+  // Accumulate values for each day
   num cumulativeSpent = 0;
   for (DateTime day in selectedDays) {
     final normalizedDay = normalizeDate(day);
     cumulativeSpent += valueSpentPerDay[normalizedDay]!;
-    valueSpentPerDay[normalizedDay] = cumulativeSpent;
+
+    final assetIsBtc = asset == AssetMapper.reverseMapTicker(AssetId.LBTC);
+
+    // Apply truncation if it's a BTC asset
+    valueSpentPerDay[normalizedDay] = btcInDenominationNum(cumulativeSpent, btcFormat, assetIsBtc);
   }
 
   return valueSpentPerDay;
 });
+
 
 final liquidBalanceOverPeriod = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
   final transactions = ref.watch(transactionNotifierProvider).liquidTransactions;

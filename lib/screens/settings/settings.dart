@@ -9,8 +9,6 @@ import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 
-final sendToSeed = StateProvider<bool>((ref) => false);
-
 class Settings extends ConsumerWidget {
   const Settings({super.key});
 
@@ -169,8 +167,7 @@ class Settings extends ConsumerWidget {
       subtitle: Text('Write them down and keep them safe!'.i18n(ref), style: const TextStyle(color: Colors.grey)),
       trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
       onTap: () {
-        ref.read(sendToSeed.notifier).state = true;
-        walletBackedUp ? context.push('/open_pin') : context.push('/seed_words');
+        walletBackedUp ? context.push('/open_seed_words_pin') : context.push('/seed_words');
       },
     );
   }

@@ -7,7 +7,6 @@ import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/restart_widget.dart';
-import 'package:Satsails/screens/settings/settings.dart';
 import 'package:Satsails/screens/spash/splash.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';
@@ -173,7 +172,6 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     if (mnemonic == null || mnemonic.isEmpty) {
       _router!.go('/');
     } else {
-      ref.read(sendToSeed.notifier).state = false;
       _router!.go('/open_pin');
     }
   }

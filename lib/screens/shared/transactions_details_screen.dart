@@ -1,4 +1,6 @@
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +18,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     const double dynamicMargin = 16.0;
     const double dynamicRadius = 12.0;
+    final denomination = ref.read(settingsProvider).btcFormat;
 
     return Scaffold(
       appBar: AppBar(
@@ -99,16 +102,16 @@ class TransactionDetailsScreen extends ConsumerWidget {
               const SizedBox(height: 16.0),
               TransactionDetailRow(
                 label: "Received".i18n(ref),
-                value: "${transaction.received}",
+                value: "${btcInDenominationFormatted(transaction.received, denomination)} $denomination",
               ),
               TransactionDetailRow(
                 label: "Sent".i18n(ref),
-                value: "${transaction.sent}",
+                value: "${btcInDenominationFormatted(transaction.sent, denomination)} $denomination",
               ),
               if (transaction.fee != null)
                 TransactionDetailRow(
                   label: "Fee".i18n(ref),
-                  value: "${transaction.fee}",
+                  value: "${btcInDenominationFormatted(transaction.fee!, denomination)} $denomination",
                 ),
               const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),

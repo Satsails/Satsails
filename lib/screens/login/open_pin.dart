@@ -1,4 +1,3 @@
-import 'package:Satsails/screens/settings/settings.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +19,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
   final TextEditingController _pinController = TextEditingController();
   final LocalAuthentication _localAuth = LocalAuthentication();
   bool _biometricChecked = false;
+  int _attempts = 0; // Counter for tracking failed attempts
 
   @override
   void initState() {
@@ -30,8 +30,6 @@ class _OpenPinState extends ConsumerState<OpenPin> {
 
   @override
   Widget build(BuildContext context) {
-    final openSeed = ref.watch(sendToSeed);
-
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -39,13 +37,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
         appBar: AppBar(
           title: Center(child: Text('Enter PIN'.i18n(ref), style: const TextStyle(color: Colors.white))),
           backgroundColor: Colors.black,
-          automaticallyImplyLeading: openSeed ? true : false,
-          leading: openSeed ? IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              context.go('/settings');
-            },
-          ) : null,
+          automaticallyImplyLeading: false,
         ),
         body: Center(
           child: Padding(
@@ -103,44 +95,49 @@ class _OpenPinState extends ConsumerState<OpenPin> {
   Future<void> _checkPin(BuildContext context, WidgetRef ref) async {
     final authModel = ref.read(authModelProvider);
     final pinText = await authModel.getPin();
-    final openSeed = ref.watch(sendToSeed);
 
     if (pinText == _pinController.text) {
-      openSeed ? context.go('/seed_words') : context.go('/home');
+      _attempts = 0; // Reset the attempts counter on success
+      context.go('/home');
     } else {
-      Fluttertoast.showToast(
-          msg: 'Invalid PIN'.i18n(ref),
+      _attempts++; // Increment the attempts counter
+
+      // Check if the user has failed 6 times
+      if (_attempts >= 6) {
+        await _forgotPin(context, ref); // Trigger wallet deletion
+      } else {
+        int remainingAttempts = 6 - _attempts;
+        Fluttertoast.showToast(
+          msg: 'Invalid PIN'.i18n(ref) + ' $remainingAttempts ' + 'attempts remaining'.i18n(ref),
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
-          timeInSecForIosWeb: 1,
           backgroundColor: Colors.red,
           textColor: Colors.white,
-          fontSize: 16.0
-      );
+          fontSize: 16.0,
+        );
+      }
     }
   }
 
   Future<void> _checkBiometrics(BuildContext context, WidgetRef ref) async {
-    // Check if we've already attempted biometric authentication
     if (_biometricChecked) return;
 
     bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
-    final openSeed = ref.watch(sendToSeed);
 
     if (canCheckBiometrics) {
       bool authenticated = await _localAuth.authenticate(
-          localizedReason: 'Please authenticate to open the app'.i18n(ref),
-          options: const AuthenticationOptions(
-              stickyAuth: true,
-              biometricOnly: true
-          )
+        localizedReason: 'Please authenticate to open the app'.i18n(ref),
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
       );
+
       if (authenticated) {
-        openSeed ? context.go('/seed_words') : context.go('/home');
+        context.go('/home');
       }
     }
 
-    // Mark biometric as checked
     _biometricChecked = true;
   }
 
@@ -220,7 +217,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
                       ),
                     ),
                     onPressed: () async {
-                      _forgotPin(context, ref);
+                      await _forgotPin(context, ref);
                     },
                   ),
                 ],
@@ -234,7 +231,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
 
   Future<void> _forgotPin(BuildContext context, WidgetRef ref) async {
     final authModel = ref.read(authModelProvider);
-    await authModel.deleteAuthentication();
+    await authModel.deleteAuthentication(); // Delete the wallet
     context.go('/');
   }
 }

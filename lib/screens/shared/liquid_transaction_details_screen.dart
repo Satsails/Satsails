@@ -1,5 +1,7 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +18,7 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     const double dynamicMargin = 16.0;
     const double dynamicRadius = 12.0;
+    final denomination = ref.read(settingsProvider).btcFormat;
 
     return Scaffold(
       appBar: AppBar(
@@ -86,13 +89,13 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
               ...transaction.balances.map((balance) {
                 return TransactionDetailRow(
                   label: AssetMapper.mapAsset(balance.assetId).name,
-                  value: (balance.value / 100000000).toStringAsFixed(8),
+                  value: btcInDenominationFormatted(balance.value, denomination, AssetMapper.mapAsset(balance.assetId) == AssetId.LBTC),
                   amount: balance.value,
                 );
               }).toList(),
               TransactionDetailRow(
                 label: "Fee".i18n(ref),
-                value: "${transaction.fee}",
+                value: "${btcInDenominationFormatted(transaction.fee, denomination)} $denomination",
               ),
               const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),

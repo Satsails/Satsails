@@ -143,7 +143,7 @@ class LiquidExpensesGraph extends StatelessWidget {
           name: 'Fee',
           dataSource: feeData.entries.toList(),
           xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-          yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
+          yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
           color: Colors.orangeAccent,
           markerSettings: const MarkerSettings(isVisible: false),
           dashArray: _getDashArray(feeData),

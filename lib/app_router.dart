@@ -1,17 +1,15 @@
 import 'package:Satsails/models/boltz/boltz_model.dart';
+import 'package:Satsails/screens/login/seed_words_pin.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
-import 'package:Satsails/screens/shared/transactions_builder.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
 import 'package:Satsails/screens/charge/components/pix_transaction_details.dart';
 import 'package:Satsails/screens/home/main_screen.dart';
 import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
 import 'package:Satsails/screens/settings/components/support.dart';
 import 'package:Satsails/screens/user/start_affiliate.dart';
-import 'package:Satsails/screens/analytics/components/claim_boltz.dart';
 import 'package:Satsails/screens/user/user_creation.dart';
 import 'package:Satsails/screens/user/user_view.dart';
 import 'package:Satsails/screens/creation/start.dart';
@@ -91,6 +89,11 @@ class AppRouter {
           path: '/open_pin',
           name: 'open_pin',
           builder: (context, state) => OpenPin(),
+        ),
+        GoRoute(
+          path: '/open_seed_words_pin',
+          name: 'open_seed_words_pin',
+          builder: (context, state) => SeedWordsPin(),
         ),
         GoRoute(
           path: '/accounts',
