@@ -1,18 +1,11 @@
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:Satsails/models/balance_model.dart';
+import '../../providers/settings_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-Widget buildLegendItem(Widget icon, String label, double percentage) {
-  return Row(
-    children: [
-      icon,
-      const SizedBox(width: 8),
-      Text('$label: ${percentage.toStringAsFixed(2)}%', style: const TextStyle(color: Colors.white)),
-    ],
-  );
-}
-
-Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance balance) {
+Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance balance, WidgetRef ref) {
   double totalValue = percentage.btcPercentage +
       percentage.liquidPercentage +
       percentage.brlPercentage +
@@ -21,6 +14,7 @@ Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance 
 
   List<BarChartGroupData> barGroups = [];
 
+  // BTC
   if ((percentage.btcPercentage / totalValue) * 100 >= 0.1 && balance.btcBalance > 0) {
     barGroups.add(
       BarChartGroupData(
@@ -36,6 +30,8 @@ Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance 
       ),
     );
   }
+
+  // Liquid
   if ((percentage.liquidPercentage / totalValue) * 100 >= 0.1 && balance.liquidBalance > 0) {
     barGroups.add(
       BarChartGroupData(
@@ -51,6 +47,8 @@ Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance 
       ),
     );
   }
+
+  // BRL
   if ((percentage.brlPercentage / totalValue) * 100 >= 0.1 && balance.brlBalance > 10000000) {
     barGroups.add(
       BarChartGroupData(
@@ -66,6 +64,8 @@ Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance 
       ),
     );
   }
+
+  // EUR
   if ((percentage.eurPercentage / totalValue) * 100 >= 0.1 && balance.eurBalance > 10000000) {
     barGroups.add(
       BarChartGroupData(
@@ -81,6 +81,8 @@ Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance 
       ),
     );
   }
+
+  // USD
   if ((percentage.usdPercentage / totalValue) * 100 >= 0.1 && balance.usdBalance > 10000000) {
     barGroups.add(
       BarChartGroupData(
@@ -137,11 +139,39 @@ Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance 
       barTouchData: BarTouchData(
         touchTooltipData: BarTouchTooltipData(
           tooltipHorizontalAlignment: FLHorizontalAlignment.center,
-            fitInsideVertically: true,
+          fitInsideVertically: true,
           getTooltipItem: (group, groupIndex, rod, rodIndex) {
+            String assetBalance = '';
+            String denomination = ref.watch(settingsProvider).btcFormat;
+
+            // Map the group index to the corresponding asset and balance, calculating percentage
+            switch (group.x) {
+              case 0:
+                assetBalance = btcInDenominationFormatted(balance.btcBalance, denomination) +
+                    ' (' + ((percentage.btcPercentage / totalValue) * 100).toStringAsFixed(2) + '%)';
+                break;
+              case 1:
+                assetBalance = btcInDenominationFormatted(balance.liquidBalance, denomination) +
+                    ' (' + ((percentage.liquidPercentage / totalValue) * 100).toStringAsFixed(2) + '%)';
+                break;
+              case 2:
+                assetBalance = btcInDenominationFormatted(balance.brlBalance, denomination, false) +
+                    ' (' + ((percentage.brlPercentage / totalValue) * 100).toStringAsFixed(2) + '%)';
+                break;
+              case 3:
+                assetBalance = btcInDenominationFormatted(balance.eurBalance, denomination, false) +
+                    ' (' + ((percentage.eurPercentage / totalValue) * 100).toStringAsFixed(2) + '%)';
+                break;
+              case 4:
+                assetBalance = btcInDenominationFormatted(balance.usdBalance, denomination, false) +
+                    ' (' + ((percentage.usdPercentage / totalValue) * 100).toStringAsFixed(2) + '%)';
+                break;
+            }
+
+            // Tooltip to display the balance and percentage in parentheses
             return BarTooltipItem(
-              '${rod.toY.toStringAsFixed(2)}%',
-              TextStyle(color: Colors.white),
+              assetBalance,
+              TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             );
           },
         ),

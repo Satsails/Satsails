@@ -7,10 +7,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 
-final selectedButtonProvider = StateProvider<String>((ref) => 'currency');
-
-final isBalanceVisibleProvider = StateProvider<bool>((ref) => false);
-
 Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProviderName, String balanceInFiatName) {
   final screenWidth = MediaQuery.of(context).size.width;
   final screenHeight = MediaQuery.of(context).size.height;
@@ -48,7 +44,7 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text('Total balance:'.i18n(ref), style: TextStyle(fontSize: titleFontSize * 0.7, color: Colors.black)),
+                        Text('Total bitcoin balance:'.i18n(ref), style: TextStyle(fontSize: titleFontSize * 0.6, color: Colors.black)),
                         _buildVisibilityToggleIcon(context, ref),
                       ],
                     ),
@@ -173,7 +169,7 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
 
 
 Widget _buildVisibilityToggleIcon(BuildContext context, WidgetRef ref) {
-  final isBalanceVisible = ref.watch(isBalanceVisibleProvider);
+  final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
 
   return IconButton(
     icon: Icon(
@@ -181,14 +177,14 @@ Widget _buildVisibilityToggleIcon(BuildContext context, WidgetRef ref) {
       color: Colors.black,
     ),
     onPressed: () {
-      ref.read(isBalanceVisibleProvider.notifier).state = !isBalanceVisible;
+      ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible);
     },
   );
 }
 
 Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName, String settingsName, FontWeight font) {
   final settings = ref.watch(settingsProvider);
-  final isBalanceVisible = ref.watch(isBalanceVisibleProvider);
+  final isBalanceVisible = settings.balanceVisible;
 
   String balance;
   switch (providerName) {

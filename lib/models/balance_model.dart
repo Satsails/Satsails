@@ -212,27 +212,15 @@ class WalletBalance {
     switch (currency) {
       case 'BTC':
         total += totalInBtc;
-        total += conversions.brlToBtc * brlBalance.toDouble() / 100000000;
-        total += conversions.eurToBtc * eurBalance.toDouble() / 100000000;
-        total += conversions.usdToBtc * usdBalance.toDouble() / 100000000;
         break;
       case 'USD':
-        total += usdBalance.toDouble() / 100000000;
-        total += conversions.brlToUsd * brlBalance.toDouble() / 100000000;
-        total += conversions.eurToUsd * eurBalance.toDouble() / 100000000;
         total += totalInBtc * conversions.btcToUsd;
         break;
       case 'EUR':
-        total += eurBalance.toDouble() / 100000000;
-        total += conversions.brlToEur * brlBalance.toDouble() / 100000000;
         total += totalInBtc * conversions.btcToEur;
-        total += conversions.usdToEur * usdBalance.toDouble() / 100000000;
         break;
       case 'BRL':
-        total += brlBalance.toDouble() / 100000000;
         total += totalInBtc * conversions.btcToBrl;
-        total += conversions.eurToBrl * eurBalance.toDouble() / 100000000;
-        total += conversions.usdToBrl * usdBalance.toDouble() / 100000000;
         break;
     }
     return total;

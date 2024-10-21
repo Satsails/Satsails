@@ -10,11 +10,12 @@ final initialSettingsProvider = FutureProvider<Settings>((ref) async {
       final language = box.get('language', defaultValue: languageIsPortuguese ? 'pt' : 'en');
       final btcFormat = box.get('btcFormat', defaultValue: 'BTC');
       final backup = box.get('backup', defaultValue: false);
+      final balanceVisible = box.get('balanceVisible', defaultValue: false);
       final bitcoinElectrumNode = box.get('bitcoinElectrumNode', defaultValue: 'electrum.bullbitcoin.com:50002');
       final liquidElectrumNode = box.get('liquidElectrumNode', defaultValue: 'les.bullbitcoin.com:995');
       final nodeType = box.get('nodeType', defaultValue: 'Bull Bitcoin');
 
-      return Settings(currency: currency, language: language, btcFormat: btcFormat, online: true, backup: backup, bitcoinElectrumNode: bitcoinElectrumNode, liquidElectrumNode: liquidElectrumNode, nodeType: nodeType);
+      return Settings(currency: currency, language: language, btcFormat: btcFormat, online: true, backup: backup, bitcoinElectrumNode: bitcoinElectrumNode, liquidElectrumNode: liquidElectrumNode, nodeType: nodeType, balanceVisible: balanceVisible);
 });
 
 final settingsProvider = StateNotifierProvider<SettingsModel, Settings>((ref) {
@@ -23,7 +24,7 @@ final settingsProvider = StateNotifierProvider<SettingsModel, Settings>((ref) {
 
       return SettingsModel(initialSettings.when(
             data: (settings) => settings,
-            loading: () => Settings(currency: 'USD', language: languageIsPortuguese ? 'pt' : 'en', btcFormat: 'BTC', online: true, backup: false, bitcoinElectrumNode: 'electrum.bullbitcoin.com:50002', liquidElectrumNode: 'les.bullbitcoin.com:995', nodeType: 'Bull Bitcoin'),
+            loading: () => Settings(currency: 'USD', language: languageIsPortuguese ? 'pt' : 'en', btcFormat: 'BTC', online: true, backup: false, bitcoinElectrumNode: 'electrum.bullbitcoin.com:50002', liquidElectrumNode: 'les.bullbitcoin.com:995', nodeType: 'Bull Bitcoin', balanceVisible: false),
             error: (Object error, StackTrace stackTrace) {
                   throw error;
             },

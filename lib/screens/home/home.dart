@@ -95,7 +95,7 @@ class Home extends ConsumerWidget {
       indicatorBottomPadding: 0,
       indicatorBackgroundColor: Colors.grey,
       children: [
-        buildBarChart(context, percentageOfEachCurrency, balance),
+        buildBarChart(context, percentageOfEachCurrency, balance, ref),
         const BitcoinPriceHistoryGraph(),
       ],
     );

@@ -929,8 +929,8 @@ extension Localization on String {
         'pt': 'Seja soberano e opte por sair do sistema livremente.'
       }  +
       {
-        'en': 'Total balance:',
-        'pt': 'Saldo total:'
+        'en': 'Total bitcoin balance:',
+        'pt': 'Saldo total de bitcoin:'
       } +
       {
         'en': 'Change',
