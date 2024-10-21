@@ -182,6 +182,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
 
     if (_router == null) {
       return const MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: Splash(),
       );
     }

@@ -2,6 +2,7 @@ import 'package:Satsails/screens/creation/components/logo.dart';
 import 'package:Satsails/screens/home/components/bitcoin_price_history_graph.dart';
 import 'package:Satsails/screens/shared/backup_warning.dart';
 import 'package:Satsails/screens/shared/depix_convert_warning.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,12 +36,20 @@ class Home extends ConsumerWidget {
               Positioned(
                 bottom: 80,
                 right: 16,
-                child: FloatingActionButton.small(
-                  onPressed: () {
-                    context.push('/support');
-                  },
-                  backgroundColor: Colors.orange,
-                  child: const Icon(Icons.contact_support, color: Colors.white),
+                child: Column(
+                  children: [
+                    FloatingActionButton.small(
+                      onPressed: () {
+                        context.push('/support');
+                      },
+                      backgroundColor: Colors.orange,
+                      child: Icon(BoxIcons.bx_support, color: Colors.white),
+                    ),
+                    Text(
+                      'Support'.i18n(ref),
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
                 ),
               ),
             ],

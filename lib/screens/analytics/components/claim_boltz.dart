@@ -36,7 +36,7 @@ class AllTransactions extends ConsumerWidget {
         if (transactions.isEmpty) {
           return Center(
             child: Text(
-              'All lightning transactions were complete'.i18n(ref),
+              'No transactions'.i18n(ref),
               style: const TextStyle(color: Colors.white),
             ),
           );

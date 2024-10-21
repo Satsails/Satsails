@@ -685,8 +685,8 @@ extension Localization on String {
         'pt': 'Completar transações lightning',
       }+
       {
-        'en': 'All lightning transactions were complete',
-        'pt': "Todas as transações lightning foram completadas",
+        'en': 'No transactions',
+        'pt': "Sem transações",
       }+
       {
         'en': 'Pay to complete',
@@ -1159,10 +1159,6 @@ extension Localization on String {
       {
         'en': 'Reset Chat Session',
         'pt': 'Reset da Sessão de Chat',
-      } +
-      {
-        'en': 'Support',
-        'pt': 'Suporte',
       } +
       {
         'en': 'Lightning transactions',
@@ -1749,6 +1745,10 @@ extension Localization on String {
       {
         'en': 'Please authenticate to view seed words',
         'pt': 'Por favor, autentique-se para ver as seeds'
+      } +
+      {
+        'en': 'Support',
+        'pt': 'Apoio'
       };
 
   String i18n(WidgetRef ref) {
