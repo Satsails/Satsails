@@ -157,6 +157,27 @@ class TransferService {
         return Result(error: 'Please wait a few minutes and try again');
       }
     } catch (e) {
+      return Result(
+          error: 'An error has occurred. Please check your internet connection or contact support');
+    }
+  }
+
+  static Future<Result<String>> getMinimumPurchase(String auth) async {
+    try {
+      final response = await http.get(
+        Uri.parse(dotenv.env['BACKEND']! + '/transfers/minimum_purchase'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: jsonDecode(response.body)['minimum_purchase']);
+      } else {
+        return Result(error: 'An error has occurred. Please check your internet connection or contact support');
+      }
+    } catch (e) {
       return Result(error: 'An error has occurred. Please check your internet connection or contact support');
     }
   }

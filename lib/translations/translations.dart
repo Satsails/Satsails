@@ -813,8 +813,8 @@ extension Localization on String {
         'pt': 'Verificar Transações Pix'
       } +
       {
-        'en': 'Minimum amount is 3 BRL',
-        'pt': 'O valor mínimo é de 3 BRL'
+        'en': 'Minimum amount is ',
+        'pt': 'O valor mínimo é '
       } +
       {
         'en': 'You have reached the daily limit',

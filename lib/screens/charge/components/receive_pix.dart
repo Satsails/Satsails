@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/models/user_model.dart';
@@ -23,7 +22,7 @@ import 'package:pusher_beams/pusher_beams.dart';
 import './pix_buttons.dart';
 
 class ReceivePix extends ConsumerStatefulWidget {
-  const ReceivePix({super.key});
+  const ReceivePix({Key? key}) : super(key: key);
 
   @override
   _ReceivePixState createState() => _ReceivePixState();
@@ -37,9 +36,16 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
   final double _dailyLimit = 5000.0;
   double _remainingLimit = 5000.0;
   bool _isLoading = false;
-  String _feeDescription = 'Fee: 2% + 1.98 BRL';
+  String _feeDescription = 'Fee: 2% + 2.97 BRL';
   Timer? _timer;
   Duration _timeLeft = const Duration(minutes: 4);
+  double _minimumPayment = 250.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMinimumPayment();
+  }
 
   @override
   void dispose() {
@@ -70,32 +76,73 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     });
   }
 
-  double calculateFee(double amountInDouble, bool hasInsertedAffiliateCode, bool hasCreatedAffiliate, int numberOfAffiliateInstalls) {
-    if (hasInsertedAffiliateCode) {
-      return amountInDouble * 0.015 + 1.98;
-    } else if (hasCreatedAffiliate) {
-      if (numberOfAffiliateInstalls > 1) {
-        return amountInDouble * 0.015 + 1.98;
+  Future<void> _fetchMinimumPayment() async {
+    final auth = ref.read(userProvider).recoveryCode;
+    try {
+      final result = await TransferService.getMinimumPurchase(auth);
+      if (result.error == null && result.data != null) {
+        setState(() {
+          _minimumPayment = double.tryParse(result.data!) ?? 3.0;
+        });
       } else {
-        return amountInDouble * 0.02 + 1.98;
+        Fluttertoast.showToast(
+          msg: result.error!.i18n(ref),
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
       }
-    } else {
-      return amountInDouble * 0.02 + 1.98;
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: e.toString().i18n(ref),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     }
   }
 
-  String getFeeDescription(bool hasInsertedAffiliateCode, bool hasCreatedAffiliate, int numberOfAffiliateInstalls) {
-    if (hasInsertedAffiliateCode || (hasCreatedAffiliate && numberOfAffiliateInstalls > 1)) {
-      return 'Fee: 1.5% + 1,98 BRL (Affiliate Discount)';
+  double calculateFee(
+      double amountInDouble,
+      bool hasInsertedAffiliateCode,
+      bool hasCreatedAffiliate,
+      int numberOfAffiliateInstalls,
+      ) {
+    if (hasInsertedAffiliateCode) {
+      return amountInDouble * 0.015 + 2.97;
+    } else if (hasCreatedAffiliate) {
+      if (numberOfAffiliateInstalls > 1) {
+        return amountInDouble * 0.015 + 2.97;
+      } else {
+        return amountInDouble * 0.02 + 2.97;
+      }
     } else {
-      return 'Fee: 2% + 1,98 BRL (No Affiliate Discount)';
+      return amountInDouble * 0.02 + 2.97;
+    }
+  }
+
+  String getFeeDescription(
+      bool hasInsertedAffiliateCode,
+      bool hasCreatedAffiliate,
+      int numberOfAffiliateInstalls,
+      ) {
+    if (hasInsertedAffiliateCode || (hasCreatedAffiliate && numberOfAffiliateInstalls > 1)) {
+      return 'Fee: 1.5% + 2,98 BRL (Affiliate Discount)';
+    } else {
+      return 'Fee: 2% + 2,98 BRL (No Affiliate Discount)';
     }
   }
 
   Future<void> _generateQRCode() async {
     final userID = ref.read(userProvider).paymentId;
     final auth = ref.read(userProvider).recoveryCode;
-    await PusherBeams.instance.setUserId(userID, UserService.getPusherAuth(auth, userID), (error) {});
+    await PusherBeams.instance.setUserId(
+      userID,
+      UserService.getPusherAuth(auth, userID),
+          (error) {},
+    );
     final amount = _amountController.text;
     final cpf = _cpfController.text;
 
@@ -127,12 +174,12 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     }
 
     final double amountInDouble = double.tryParse(amount.replaceAll(',', '.')) ?? 0.0;
-    if (amountInDouble < 3.0) {
+
+    if (amountInDouble < _minimumPayment) {
       Fluttertoast.showToast(
-        msg: 'Minimum amount is 3 BRL'.i18n(ref),
+        msg: 'Minimum amount is '.i18n(ref) + '${_minimumPayment.toStringAsFixed(2)} ' + 'BRL',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.TOP,
-        timeInSecForIosWeb: 1,
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: MediaQuery.of(context).size.height * 0.02,
@@ -171,7 +218,6 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       return;
     }
 
-
     try {
       final transfer = await TransferService.createTransactionRequest(cpf, auth, amountInDouble);
 
@@ -197,7 +243,6 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -249,7 +294,6 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       }
     });
 
-
     return amountTransferredAsyncValue.when(
       loading: () => Center(
         child: LoadingAnimationWidget.threeArchedCircle(
@@ -259,9 +303,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       ),
       error: (error, stack) => Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: ErrorDisplay(message: error.toString(), isCard: true)
-        ),
+        child: Center(child: ErrorDisplay(message: error.toString(), isCard: true)),
       ),
       data: (amountTransferred) {
         final double transferredAmount = double.tryParse(amountTransferred) ?? 0.0;
@@ -282,18 +324,25 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
             error: (_, __) => 0,
           );
 
-          fee = calculateFee(amountInDouble, hasInsertedAffiliateCode, hasCreatedAffiliate, numberOfAffiliateInstalls);
-          _feeDescription = getFeeDescription(hasInsertedAffiliateCode, hasCreatedAffiliate, numberOfAffiliateInstalls);
+          fee = calculateFee(
+            amountInDouble,
+            hasInsertedAffiliateCode,
+            hasCreatedAffiliate,
+            numberOfAffiliateInstalls,
+          );
+          _feeDescription = getFeeDescription(
+            hasInsertedAffiliateCode,
+            hasCreatedAffiliate,
+            numberOfAffiliateInstalls,
+          );
         }
 
         final double amountToReceive = amountInDouble - fee;
         _amountToReceive = amountToReceive;
 
-        return  FlutterKeyboardDoneWidget(
+        return FlutterKeyboardDoneWidget(
           doneWidgetBuilder: (context) {
-            return const Text(
-              'Done',
-            );
+            return const Text('Done');
           },
           child: SingleChildScrollView(
             child: Center(
@@ -310,7 +359,10 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                         const SizedBox(width: 1),
                         Text(
                           '${'You can transfer up to'.i18n(ref)} ${formatLimit(_remainingLimit)} BRL${' today'.i18n(ref)}',
-                          style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.red),
+                          style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.height * 0.02,
+                            color: Colors.red,
+                          ),
                         ),
                       ],
                     ),
@@ -319,19 +371,25 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
                     child: Text(
                       '${'Transferred Today:'.i18n(ref)} ${transferredAmount.toStringAsFixed(2)} BRL',
-                      style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.green),
+                      style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height * 0.015,
+                        color: Colors.green,
+                      ),
                     ),
                   ),
                   Padding(
                     padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
                     child: TextField(
                       controller: _amountController,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                       ],
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.white),
+                      style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height * 0.02,
+                        color: Colors.white,
+                      ),
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.grey, width: 1.0),
@@ -340,14 +398,29 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                           borderSide: BorderSide(color: Colors.grey, width: 2.0),
                         ),
                         labelText: 'Insert an amount'.i18n(ref),
-                        labelStyle: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.grey),
+                        labelStyle: TextStyle(
+                          fontSize: MediaQuery.of(context).size.height * 0.02,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                   ),
+                  if (_minimumPayment > 0)
+                    Padding(
+                      padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
+                      child: Text(
+                        'Minimum amount is '.i18n(ref) + '${_minimumPayment.toStringAsFixed(2)} ' + 'BRL',
+                        style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.height * 0.02,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
                   Padding(
                     padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
                     child: Text(
-                      'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix or the transfer may fail'.i18n(ref),
+                      'Please ensure the CPF/CNPJ you enter matches the CPF/CNPJ registered to your Pix or the transfer may fail'
+                          .i18n(ref),
                       style: TextStyle(
                         fontSize: MediaQuery.of(context).size.height * 0.015,
                         color: Colors.red,
@@ -361,7 +434,10 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     child: TextField(
                       controller: _cpfController,
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.white),
+                      style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height * 0.02,
+                        color: Colors.white,
+                      ),
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.grey, width: 1.0),
@@ -370,7 +446,10 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                           borderSide: BorderSide(color: Colors.grey, width: 2.0),
                         ),
                         labelText: 'CPF/CNPJ',
-                        labelStyle: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.02, color: Colors.grey),
+                        labelStyle: TextStyle(
+                          fontSize: MediaQuery.of(context).size.height * 0.02,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                   ),
@@ -381,11 +460,17 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                         children: [
                           Text(
                             '${'You will receive: '.i18n(ref)}${currencyFormat(_amountToReceive, 'BRL')}',
-                            style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.green),
+                            style: TextStyle(
+                              fontSize: MediaQuery.of(context).size.height * 0.015,
+                              color: Colors.green,
+                            ),
                           ),
                           Text(
                             _feeDescription.i18n(ref),
-                            style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.015, color: Colors.grey),
+                            style: TextStyle(
+                              fontSize: MediaQuery.of(context).size.height * 0.015,
+                              color: Colors.grey,
+                            ),
                           ),
                         ],
                       ),
@@ -397,9 +482,10 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                         color: Colors.orange,
                       ),
                     )
-                  else
-                    if (_pixQRCode.isEmpty)Padding(
-                      padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
+                  else if (_pixQRCode.isEmpty)
+                    Padding(
+                      padding:
+                      EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
                       child: CustomButton(
                         text: 'Generate Pix code'.i18n(ref),
                         primaryColor: Colors.orange,
@@ -407,15 +493,16 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                         textColor: Colors.black,
                         onPressed: () async {
                           await _generateQRCode();
-                        },),
+                        },
+                      ),
                     ),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                   if (_timeLeft.inSeconds > 0 && _pixQRCode.isNotEmpty)
                     Text(
-                      'Transaction will expire in:'.i18n(ref) +' ${_timeLeft.inMinutes}:${(_timeLeft.inSeconds % 60).toString().padLeft(2, '0')}',
+                      'Transaction will expire in:'.i18n(ref) +
+                          ' ${_timeLeft.inMinutes}:${(_timeLeft.inSeconds % 60).toString().padLeft(2, '0')}',
                       style: const TextStyle(color: Colors.orange),
                     ),
-
                   SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                   if (_pixQRCode.isNotEmpty) buildQrCode(_pixQRCode, context),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.01),
