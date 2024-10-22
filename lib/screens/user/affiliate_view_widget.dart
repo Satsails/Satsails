@@ -6,13 +6,13 @@ import 'package:Satsails/screens/receive/components/custom_elevated_button.dart'
 import 'package:Satsails/screens/shared/error_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:decimal/decimal.dart';
+import 'package:fl_chart/fl_chart.dart'; // Import fl_chart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 final loadingProvider = StateProvider.autoDispose<bool>((ref) => false);
 
@@ -28,7 +28,7 @@ Future<Map<String, dynamic>> fetchAllData(AutoDisposeFutureProviderRef ref) asyn
   };
 
   if (hasCreatedAffiliate) {
-    final totalValuePurchasedFuture =ref.read(getTotalValuePurchasedByAffiliateUsersProvider.future);
+    final totalValuePurchasedFuture = ref.read(getTotalValuePurchasedByAffiliateUsersProvider.future);
     final earningsFuture = ref.read(affiliateEarningsProvider.future);
     final numberOfInstallFuture = ref.read(numberOfAffiliateInstallsProvider.future);
     final allTransfersFuture = ref.read(getAllTransfersFromAffiliateUsersProvider.future);
@@ -51,51 +51,12 @@ Future<Map<String, dynamic>> fetchAllData(AutoDisposeFutureProviderRef ref) asyn
   return data;
 }
 
-
 final affiliateDataProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   return await fetchAllData(ref);
 });
 
-
 class AffiliateViewWidget extends ConsumerWidget {
   const AffiliateViewWidget({super.key});
-
-  Future<Map<String, dynamic>> fetchAllData(WidgetRef ref) async {
-    final user = ref.read(userProvider);
-    final hasCreatedAffiliate = user.hasCreatedAffiliate;
-    final hasInsertedAffiliate = user.hasInsertedAffiliate;
-
-    Map<String, dynamic> data = {
-      'hasCreatedAffiliate': hasCreatedAffiliate,
-      'hasInsertedAffiliate': hasInsertedAffiliate,
-      'affiliateData': ref.read(affiliateProvider),
-    };
-
-    if (hasCreatedAffiliate) {
-      final totalValuePurchasedFuture =
-      ref.read(getTotalValuePurchasedByAffiliateUsersProvider.future);
-      final earningsFuture = ref.read(affiliateEarningsProvider.future);
-      final numberOfInstallFuture = ref.read(numberOfAffiliateInstallsProvider.future);
-      final allTransfersFuture = ref.read(getAllTransfersFromAffiliateUsersProvider.future);
-
-      final results = await Future.wait([
-        totalValuePurchasedFuture,
-        earningsFuture,
-        numberOfInstallFuture,
-        allTransfersFuture,
-      ]);
-
-      data.addAll({
-        'totalValuePurchased': results[0],
-        'earnings': results[1],
-        'numberOfInstall': results[2],
-        'allTransfers': results[3],
-      });
-    }
-
-    return data;
-  }
-
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -283,7 +244,7 @@ class AffiliateViewWidget extends ConsumerWidget {
       isScrollControlled: true,
       backgroundColor: Colors.black,
       builder: (context) {
-        return SingleChildScrollView(  // Ensure scrollability in modal
+        return SingleChildScrollView( // Ensure scrollability in modal
           child: Padding(
             padding: EdgeInsets.only(
               bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -300,17 +261,17 @@ class AffiliateViewWidget extends ConsumerWidget {
                 ),
                 if (allTransfers.isEmpty)
                   Padding(
-                    padding: EdgeInsets.only(top: 16),
+                    padding: const EdgeInsets.only(top: 16),
                     child: Text(
                       'No earnings data available'.i18n(ref),
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                 if (allTransfers.isNotEmpty)
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.5,  // Set a fixed height for the chart
-                  child: _buildSyncfusionChart(allTransfers, MediaQuery.of(context).size.width, MediaQuery.of(context).size.height, ref),
-                ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.5, // Set a fixed height for the chart
+                    child: _buildFlChart(allTransfers, MediaQuery.of(context).size.width, MediaQuery.of(context).size.height, ref),
+                  ),
               ],
             ),
           ),
@@ -320,73 +281,142 @@ class AffiliateViewWidget extends ConsumerWidget {
   }
 
 
-  Widget _buildSyncfusionChart(List<ParsedTransfer> transfersData, double width, double height, WidgetRef ref) {
-    List<ChartData> chartData = transfersData.map((transfer) {
+
+  Widget _buildFlChart(List<ParsedTransfer> transfersData, double width, double height, WidgetRef ref) {
+    List<FlSpot> flSpots = transfersData.map((transfer) {
       final timestamp = DateTime.parse(transfer.timestamp);
-      final amount = Decimal.parse(transfer.amount_payed_to_affiliate);
-      return ChartData(timestamp, amount);
+      final xValue = timestamp.millisecondsSinceEpoch.toDouble();
+      final yValue = double.parse(transfer.amount_payed_to_affiliate);
+      return FlSpot(xValue, yValue);
     }).toList();
 
-    final DateTime minDate = chartData.isNotEmpty ? chartData.map((data) => data.x).reduce((a, b) => a.isBefore(b) ? a : b) : DateTime.now();
-    final DateTime maxDate = chartData.isNotEmpty ? chartData.map((data) => data.x).reduce((a, b) => a.isAfter(b) ? a : b) : DateTime.now();
+    // Sort the spots by x value (time)
+    flSpots.sort((a, b) => a.x.compareTo(b.x));
 
-    return SfCartesianChart(
-      backgroundColor: Colors.transparent,
-      primaryXAxis: DateTimeAxis(
-        isVisible: true,
-        minimum: minDate,
-        maximum: maxDate,
-        majorGridLines: const MajorGridLines(width: 0),
-        axisLine: const AxisLine(width: 0),
-        labelStyle: const TextStyle(color: Colors.white),
-      ),
-      primaryYAxis: NumericAxis(
-        isVisible: true,
-        majorGridLines: const MajorGridLines(width: 0),
-        axisLine: const AxisLine(width: 0),
-        labelStyle: const TextStyle(color: Colors.white),
-      ),
-      plotAreaBorderWidth: 0,
-      trackballBehavior: TrackballBehavior(
-        enable: true, // Ensure trackball is enabled
-        activationMode: ActivationMode.singleTap, // Trackball activates on single tap
-        lineType: TrackballLineType.none, // No vertical line
-        tooltipSettings: const InteractiveTooltip(
-          enable: true,
-          color: Colors.orangeAccent,
-          textStyle: TextStyle(color: Colors.white),
-          borderWidth: 0,
-          decimalPlaces: 2,
-        ),
-        builder: (BuildContext context, TrackballDetails trackballDetails) {
-          final DateFormat formatter = DateFormat('dd/MM/yyyy');
-          final DateTime date = trackballDetails.point!.x;
-          final num? value = trackballDetails.point!.y;
-          final String formattedDate = formatter.format(date);
-          final String affiliateValue = value!.toStringAsFixed(value == value.roundToDouble() ? 0 : 3);
+    // Calculate min and max dates for X axis
+    final minX = flSpots.isNotEmpty ? flSpots.first.x : DateTime.now().millisecondsSinceEpoch.toDouble();
+    final maxX = flSpots.isNotEmpty ? flSpots.last.x : DateTime.now().millisecondsSinceEpoch.toDouble();
 
-          return Text(
-            '$formattedDate\n $affiliateValue',
-            style: const TextStyle(color: Colors.white),
-          );
-        },
+    // Calculate minY and maxY for proper scaling and padding
+    double maxY = 0;
+    double minY = 0;
+
+    if (flSpots.isNotEmpty) {
+      maxY = flSpots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
+      minY = flSpots.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
+
+      // Add padding to maxY and minY
+      final double yRange = maxY - minY;
+      maxY += yRange * 0.1; // 10% padding at the top
+      minY -= yRange * 0.1; // 10% padding at the bottom
+    }
+
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(16),
       ),
-      series: <LineSeries<ChartData, DateTime>>[
-        LineSeries<ChartData, DateTime>(
-          dataSource: chartData,
-          xValueMapper: (ChartData sales, _) => sales.x,
-          yValueMapper: (ChartData sales, _) => sales.y.toDouble(),
-          color: Colors.orangeAccent,
-          markerSettings: const MarkerSettings(isVisible: false),
-          animationDuration: 0,
-          enableTooltip: true, // Enable tooltips for this series
+      child: LineChart(
+        LineChartData(
+          backgroundColor: Colors.transparent,
+          minX: minX,
+          maxX: maxX,
+          minY: minY,
+          maxY: maxY,
+          clipData: FlClipData.all(), // Ensures lines do not exit the chart area
+          lineTouchData: LineTouchData(
+            enabled: true,
+            handleBuiltInTouches: true,
+            touchTooltipData: LineTouchTooltipData(
+              tooltipBgColor: Colors.orangeAccent,
+              tooltipRoundedRadius: 8,
+              fitInsideHorizontally: true,
+              fitInsideVertically: true,
+              getTooltipItems: (touchedSpots) {
+                return touchedSpots.map((LineBarSpot spot) {
+                  final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
+                  final formattedDate = DateFormat('dd/MM/yyyy').format(date);
+                  final value = spot.y;
+                  final valueString = value.toStringAsFixed(value == value.roundToDouble() ? 0 : 2);
+
+                  return LineTooltipItem(
+                    '$formattedDate\n$valueString',
+                    const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  );
+                }).toList();
+              },
+            ),
+          ),
+          gridData: FlGridData(
+            show: false,
+          ),
+          titlesData: FlTitlesData(
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: false,
+                getTitlesWidget: (value, meta) {
+                  DateTime date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                  String formattedDate = DateFormat('dd/MM').format(date);
+                  return SideTitleWidget(
+                    axisSide: meta.axisSide,
+                    child: Text(
+                      formattedDate,
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  );
+                },
+                reservedSize: 40,
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  return SideTitleWidget(
+                    axisSide: meta.axisSide,
+                    child: Text(
+                      value.toStringAsFixed(2),
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  );
+                },
+                reservedSize: 50,
+              ),
+            ),
+            topTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+          borderData: FlBorderData(show: false),
+          lineBarsData: [
+            LineChartBarData(
+              spots: flSpots,
+              isCurved: false, // Lines are direct, not rounded
+              color: Colors.orangeAccent,
+              barWidth: 3,
+              dotData: FlDotData(show: false),
+              belowBarData: BarAreaData(
+                show: true,
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.orangeAccent.withOpacity(0.3),
+                    Colors.orangeAccent.withOpacity(0.1),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
-
-
-
 
 
   String _formatLiquidAddress(String address) {
