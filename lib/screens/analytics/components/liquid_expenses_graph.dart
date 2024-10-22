@@ -9,17 +9,6 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:intl/intl.dart';
 
-import 'package:Satsails/providers/analytics_provider.dart';
-import 'package:Satsails/providers/currency_conversions_provider.dart';
-import 'package:Satsails/screens/analytics/components/calendar.dart';
-import 'package:Satsails/translations/translations.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/providers/settings_provider.dart';
-import 'package:intl/intl.dart';
-
 class LiquidExpensesGraph extends StatelessWidget {
   final List<DateTime> selectedDays;
   final Map<DateTime, num> sentData;
@@ -137,7 +126,7 @@ class LiquidExpensesGraph extends StatelessWidget {
                   } else if (isBtc && isShowingMainData) {
                     displayString = '$formattedDate\n$valueString';
                   } else {
-                    displayString = '$formattedDate\n$valueString';
+                    displayString = '$valueString';
                   }
 
                   return LineTooltipItem(
