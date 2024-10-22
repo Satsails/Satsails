@@ -22,28 +22,22 @@ class BuildTransactions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-    return Padding(
-      padding: EdgeInsets.symmetric(
-          vertical: screenHeight * 0.02, horizontal: screenWidth * 0.2),
-      child: CustomButton(
-        onPressed: () {
-          // Show the TransactionListModalBottomSheet
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent, // Make background transparent
-            builder: (context) {
-              return TransactionListModalBottomSheet();
-            },
-          );
-        },
-        text: 'See Full History'.i18n(ref),
-        primaryColor: Colors.transparent,
-        secondaryColor: Colors.transparent,
-        textColor: Colors.white,
-      ),
+    return CustomButton(
+      onPressed: () {
+        // Show the TransactionListModalBottomSheet
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent, // Make background transparent
+          builder: (context) {
+            return TransactionListModalBottomSheet();
+          },
+        );
+      },
+      text: 'See Full History'.i18n(ref),
+      primaryColor: Colors.transparent,
+      secondaryColor: Colors.transparent,
+      textColor: Colors.white,
     );
   }
 }

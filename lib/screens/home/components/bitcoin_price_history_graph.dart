@@ -6,15 +6,12 @@ import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-final interactiveModeProvider = StateProvider<bool>((ref) => false);
 class LineChartSample extends StatelessWidget {
   final List<MarketChartData> marketData;
-  final bool isInteractive;
 
   const LineChartSample({
     super.key,
     required this.marketData,
-    required this.isInteractive,
   });
 
   @override
@@ -40,7 +37,7 @@ class LineChartSample extends StatelessWidget {
         LineChartData(
           backgroundColor: Colors.transparent,
           lineTouchData: LineTouchData(
-            enabled: isInteractive,
+            enabled: true,
             handleBuiltInTouches: true,
             touchTooltipData: LineTouchTooltipData(
               tooltipBgColor: Colors.orangeAccent,
@@ -149,7 +146,6 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final marketDataAsync = ref.watch(coinGeckoBitcoinMarketDataProvider);
-    final isInteractiveMode = ref.watch(interactiveModeProvider);
 
     return marketDataAsync.when(
       data: (data) {
@@ -157,7 +153,7 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
           children: [
             _buildDateRangeButtons(ref),
             Expanded(
-              child: LineChartSample(marketData: data, isInteractive: isInteractiveMode),
+              child: LineChartSample(marketData: data),
             ),
           ],
         );
@@ -176,8 +172,6 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
   }
 
   Widget _buildDateRangeButtons(WidgetRef ref) {
-    final isInteractiveMode = ref.watch(interactiveModeProvider);
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -187,12 +181,6 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
           _buildDateRangeButton(ref, 7, '7D'),
           _buildDateRangeButton(ref, 30, '1M'),
           _buildDateRangeButton(ref, 365, '1Y'),
-          IconButton(
-            onPressed: () {
-              ref.read(interactiveModeProvider.notifier).state = !isInteractiveMode;
-            },
-            icon: Icon(Icons.touch_app, color: isInteractiveMode ? Colors.orangeAccent : Colors.white),
-          ),
         ],
       ),
     );

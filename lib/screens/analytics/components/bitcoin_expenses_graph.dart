@@ -3,10 +3,10 @@ import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/analytics/components/calendar.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 class LineChartSample extends StatelessWidget {
   final List<DateTime> selectedDays;
@@ -32,113 +32,210 @@ class LineChartSample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SfCartesianChart(
-      primaryXAxis: const DateTimeAxis(
-        isVisible: true,
-        labelStyle: TextStyle(color: Colors.white),
-        majorGridLines: MajorGridLines(width: 0),
-        minorGridLines: MinorGridLines(width: 0),
-        axisLine: AxisLine(width: 0),
-      ),
-      primaryYAxis: NumericAxis(
-        isVisible: true,
-        decimalPlaces: balanceInCurrency.values.isNotEmpty
-            ? decimalPlacesBtcFormat(balanceInCurrency.values.reduce((value, element) => value > element ? value : element))
-            : 0, // Default value when balanceInCurrency.values is empty
-        majorGridLines: const MajorGridLines(width: 0),
-        minorGridLines: const MinorGridLines(width: 0),
-        labelStyle: const TextStyle(color: Colors.white),
-      ),
-      plotAreaBorderWidth: 0,
-      trackballBehavior: TrackballBehavior(
-        enable: true,
-        activationMode: ActivationMode.singleTap,
-        lineType: TrackballLineType.vertical,
-        tooltipSettings: const InteractiveTooltip(
-          enable: true,
-          color: Colors.orangeAccent,
-          textStyle: TextStyle(color: Colors.white),
-          borderWidth: 0,
-          decimalPlaces: 8,
-        ),
-        builder: (BuildContext context, TrackballDetails trackballDetails) {
-          final DateFormat formatter = DateFormat('dd/MM');
-          final DateTime date = trackballDetails.point!.x;
-          final num? value = trackballDetails.point!.y;
-          final String formattedDate = formatter.format(date);
-          final String bitcoinValue = value!.toStringAsFixed(value == value.roundToDouble() ? 0 : 8);
-          final String currencyValue = balanceInCurrency[date]?.toStringAsFixed(balanceInCurrency[date] == balanceInCurrency[date]!.roundToDouble() ? 0 : 2) ?? '0.00';
-          final displayString = '$formattedDate\nBitcoin: $bitcoinValue\n$selectedCurrency: $currencyValue';
-          final displayStringIfNotMainData = bitcoinValue;
+    List<FlSpot> mainDataSpots = [];
+    List<FlSpot> spendingDataSpots = [];
+    List<FlSpot> incomeDataSpots = [];
+    List<FlSpot> feeDataSpots = [];
 
-          return Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Text(
-              isShowingMainData ? displayString : displayStringIfNotMainData,
-              style: const TextStyle(color: Colors.black),
-            ),
-          );
-        },
+    if (mainData != null && isShowingMainData) {
+      mainDataSpots = mainData!.entries.map((entry) {
+        return FlSpot(entry.key.millisecondsSinceEpoch.toDouble(), entry.value.toDouble());
+      }).toList();
+    } else {
+      spendingDataSpots = spendingData.entries.map((entry) {
+        return FlSpot(entry.key.millisecondsSinceEpoch.toDouble(), entry.value.toDouble());
+      }).toList();
+
+      incomeDataSpots = incomeData.entries.map((entry) {
+        return FlSpot(entry.key.millisecondsSinceEpoch.toDouble(), entry.value.toDouble());
+      }).toList();
+
+      feeDataSpots = feeData.entries.map((entry) {
+        return FlSpot(entry.key.millisecondsSinceEpoch.toDouble(), entry.value.toDouble());
+      }).toList();
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(16),
       ),
-      series: _chartSeries(),
+      child: LineChart(
+        LineChartData(
+          clipData: FlClipData.all(), // Ensures lines do not exit the chart area
+          backgroundColor: Colors.transparent,
+          lineTouchData: LineTouchData(
+            enabled: true,
+            handleBuiltInTouches: true,
+            touchTooltipData: LineTouchTooltipData(
+              tooltipBgColor: Colors.orangeAccent,
+              tooltipRoundedRadius: 8,
+              fitInsideHorizontally: true,
+              fitInsideVertically: true, // Ensures tooltip stays within vertical bounds
+              getTooltipItems: (touchedSpots) {
+                return touchedSpots.map((LineBarSpot spot) {
+                  final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
+                  final formattedDate = DateFormat('dd/MM/yyyy').format(date);
+                  final value = spot.y;
+                  final bitcoinValue = value.toStringAsFixed(
+                      value == value.roundToDouble() ? 0 : 8);
+                  final currencyValue = balanceInCurrency[date]?.toStringAsFixed(
+                      balanceInCurrency[date] == balanceInCurrency[date]?.roundToDouble()
+                          ? 0
+                          : 2) ??
+                      '0.00';
+                  final displayString =
+                      '$formattedDate\n$bitcoinValue\n$selectedCurrency: $currencyValue';
+                  final displayStringIfNotMainData = bitcoinValue;
+
+                  return LineTooltipItem(
+                    isShowingMainData ? displayString : displayStringIfNotMainData,
+                    const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  );
+                }).toList();
+              },
+            ),
+          ),
+          gridData: FlGridData(
+            show: false,
+          ),
+          titlesData: FlTitlesData(
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: false, // Hiding titles for cleaner look
+                getTitlesWidget: bottomTitleWidgets,
+                reservedSize: 40,
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: false, // Hiding titles for cleaner look
+                getTitlesWidget: leftTitleWidgets,
+                reservedSize: 70,
+              ),
+            ),
+            topTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+          borderData: FlBorderData(show: false),
+          lineBarsData: [
+            if (mainDataSpots.isNotEmpty)
+              LineChartBarData(
+                spots: mainDataSpots,
+                isCurved: false,
+                color: Colors.orangeAccent,
+                barWidth: 3,
+                dotData: FlDotData(show: false),
+                belowBarData: BarAreaData(
+                  show: true,
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.orangeAccent.withOpacity(0.3),
+                      Colors.orangeAccent.withOpacity(0.1),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            if (spendingDataSpots.isNotEmpty)
+              LineChartBarData(
+                spots: spendingDataSpots,
+                isCurved: false,
+                color: Colors.blueAccent,
+                barWidth: 3,
+                dotData: FlDotData(show: false),
+                belowBarData: BarAreaData(
+                  show: true,
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.blueAccent.withOpacity(0.3),
+                      Colors.blueAccent.withOpacity(0.1),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            if (incomeDataSpots.isNotEmpty)
+              LineChartBarData(
+                spots: incomeDataSpots,
+                isCurved: false,
+                color: Colors.greenAccent,
+                barWidth: 3,
+                dotData: FlDotData(show: false),
+                belowBarData: BarAreaData(
+                  show: true,
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.greenAccent.withOpacity(0.3),
+                      Colors.greenAccent.withOpacity(0.1),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            if (feeDataSpots.isNotEmpty)
+              LineChartBarData(
+                spots: feeDataSpots,
+                isCurved: false,
+                color: Colors.orangeAccent,
+                barWidth: 3,
+                dotData: FlDotData(show: false),
+                belowBarData: BarAreaData(
+                  show: true,
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.orangeAccent.withOpacity(0.3),
+                      Colors.orangeAccent.withOpacity(0.1),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
-  List<LineSeries<MapEntry<DateTime, num>, DateTime>> _chartSeries() {
-    final seriesList = <LineSeries<MapEntry<DateTime, num>, DateTime>>[];
+  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+    String formattedDate = DateFormat('dd/MM').format(date);
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      child: Text(
+        formattedDate,
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+      ),
+    );
+  }
 
-    if (mainData != null && isShowingMainData) {
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
-        name: 'Main Data',
-        dataSource: mainData!.entries.toList(),
-        xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
-        color: Colors.orangeAccent,
-        markerSettings: const MarkerSettings(isVisible: false),
-        animationDuration: 0,
-        width: 3,
-      ));
-    } else {
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
-        name: 'Spending',
-        dataSource: spendingData.entries.toList(),
-        xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
-        color: Colors.blueAccent,
-        markerSettings: const MarkerSettings(isVisible: false),
-        animationDuration: 0,
-        width: 3,
-      ));
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
-        name: 'Income',
-        dataSource: incomeData.entries.toList(),
-        xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
-        color: Colors.greenAccent,
-        markerSettings: const MarkerSettings(isVisible: false),
-        animationDuration: 0,
-        width: 3,
-      ));
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
-        name: 'Fee',
-        dataSource: feeData.entries.toList(),
-        xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
-        color: Colors.orangeAccent,
-        markerSettings: const MarkerSettings(isVisible: false),
-        animationDuration: 0,
-        width: 3,
-      ));
-    }
+  Widget leftTitleWidgets(double value, TitleMeta meta) {
+    int decimalPlaces = decimalPlacesBtcFormat(value);
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      child: Text(
+        value.toStringAsFixed(decimalPlaces),
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+      ),
+    );
+  }
 
-    return seriesList;
+  int decimalPlacesBtcFormat(num value) {
+    if (value == value.roundToDouble()) return 0;
+    final String valueString = value.toString();
+    final int decimalPlaces = valueString.split('.').last.length;
+    return decimalPlaces;
   }
 }
-
 
 class ExpensesGraph extends ConsumerStatefulWidget {
   const ExpensesGraph({super.key});
@@ -148,7 +245,7 @@ class ExpensesGraph extends ConsumerStatefulWidget {
 }
 
 class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
-  bool isShowingMainData = false;
+  bool isShowingMainData = true;
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +263,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
         Center(
           child: TextButton(
             child: Text(
-              !isShowingMainData ? 'Show Statistics over period'.i18n(ref) : 'Show Balance'.i18n(ref),
+              !isShowingMainData ? 'Show Balance'.i18n(ref) : 'Show Statistics over period'.i18n(ref),
               style: const TextStyle(color: Colors.white),
             ),
             onPressed: () {
@@ -178,8 +275,10 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: !isShowingMainData
-              ? [_buildLegend('Balance'.i18n(ref), Colors.orangeAccent)]
+          children: isShowingMainData
+              ? [
+            _buildLegend('Balance'.i18n(ref), Colors.orangeAccent),
+          ]
               : [
             _buildLegend('Spending'.i18n(ref), Colors.blueAccent),
             _buildLegend('Income'.i18n(ref), Colors.greenAccent),
@@ -187,16 +286,16 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
           ],
         ),
         const Calendar(),
-        Expanded(  // This makes the LineChartSample expand to take up available space
+        Expanded(
           child: LineChartSample(
             selectedDays: selectedDays,
             feeData: feeData,
             incomeData: incomeData,
             spendingData: spendingData,
-            mainData: !isShowingMainData ? bitcoinBalanceByDay : null,
+            mainData: isShowingMainData ? bitcoinBalanceByDay : null,
             balanceInCurrency: calculateBalanceInCurrency(bitcoinBalanceByDayUnformatted, currencyRate),
             selectedCurrency: selectedCurrency,
-            isShowingMainData: !isShowingMainData,
+            isShowingMainData: isShowingMainData,
           ),
         ),
       ],
@@ -216,19 +315,12 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
       ],
     );
   }
-}
 
-Map<DateTime, num> calculateBalanceInCurrency(Map<DateTime, num> balanceByDay, num currencyRate) {
-  final Map<DateTime, num> balanceInCurrency = {};
-  balanceByDay.forEach((day, balance) {
-    balanceInCurrency[day] = (balance * currencyRate).toDouble();
-  });
-  return balanceInCurrency;
-}
-
-int decimalPlacesBtcFormat(num value) {
-  if (value == value.roundToDouble()) return 0;
-  final String valueString = value.toString();
-  final int decimalPlaces = valueString.split('.').last.length;
-  return decimalPlaces;
+  Map<DateTime, num> calculateBalanceInCurrency(Map<DateTime, num> balanceByDay, num currencyRate) {
+    final Map<DateTime, num> balanceInCurrency = {};
+    balanceByDay.forEach((day, balance) {
+      balanceInCurrency[day] = (balance * currencyRate).toDouble();
+    });
+    return balanceInCurrency;
+  }
 }

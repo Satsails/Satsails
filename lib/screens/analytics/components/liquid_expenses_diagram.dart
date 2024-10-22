@@ -126,8 +126,8 @@ class LiquidExpensesDiagram extends ConsumerWidget {
               ],
             ),
           if (!oneDay)
-            if (!bitcoinIsLoading) Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orange, size: screenHeight * 0.1)),
-            if (bitcoinIsLoading) Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.EUR))),
+            if (bitcoinIsLoading) Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orange, size: screenHeight * 0.1)),
+            if (!bitcoinIsLoading) Expanded(child: ExpensesGraph(assetId: AssetMapper.reverseMapTicker(AssetId.EUR))),
         ],
       ),
     ];
