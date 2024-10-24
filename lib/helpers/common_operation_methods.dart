@@ -1,12 +1,13 @@
-import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lwk_dart/lwk_dart.dart' as lwk;
 
-String confirmationStatus(TransactionDetails transaction, WidgetRef ref) {
+String confirmationStatus(bdk.TransactionDetails transaction, WidgetRef ref) {
   if (transaction.confirmationTime == null || transaction.confirmationTime!.height == 0) {
     return 'Unconfirmed'.i18n(ref);
   } else if (transaction.confirmationTime != null) {
@@ -16,7 +17,7 @@ String confirmationStatus(TransactionDetails transaction, WidgetRef ref) {
   }
 }
 
-String transactionTypeString(TransactionDetails transaction, WidgetRef ref) {
+String transactionTypeString(bdk.TransactionDetails transaction, WidgetRef ref) {
   if (transaction.sent - transaction.received > 0) {
     return 'Sent'.i18n(ref);
   } else {
@@ -24,7 +25,7 @@ String transactionTypeString(TransactionDetails transaction, WidgetRef ref) {
   }
 }
 
-Icon transactionTypeIcon(TransactionDetails transaction) {
+Icon transactionTypeIcon(bdk.TransactionDetails transaction) {
   if (transaction.sent - transaction.received > 0) {
     return const Icon(Icons.arrow_upward, color: Colors.red);
   } else {
@@ -32,7 +33,7 @@ Icon transactionTypeIcon(TransactionDetails transaction) {
   }
 }
 
-String transactionAmountInFiat(TransactionDetails transaction, WidgetRef ref) {
+String transactionAmountInFiat(bdk.TransactionDetails transaction, WidgetRef ref) {
   final sent = ref.watch(conversionToFiatProvider(transaction.sent));
   final received = ref.watch(conversionToFiatProvider(transaction.received));
   final currency = ref.watch(settingsProvider).currency;
@@ -47,7 +48,7 @@ String transactionAmountInFiat(TransactionDetails transaction, WidgetRef ref) {
   }
 }
 
-String transactionAmount(TransactionDetails transaction, WidgetRef ref) {
+String transactionAmount(bdk.TransactionDetails transaction, WidgetRef ref) {
   if (transaction.received == 0 && transaction.sent > 0) {
     return ref.watch(conversionProvider(transaction.sent));
   } else if (transaction.received > 0 && transaction.sent == 0) {
@@ -77,14 +78,14 @@ Icon transactionTypeLiquidIcon(String kind) {
   }
 }
 
-Icon confirmationStatusIcon(Tx transaction) {
+Icon confirmationStatusIcon(lwk.Tx transaction) {
   return transaction.outputs.isNotEmpty && transaction.outputs[0].height != null || transaction.inputs.isNotEmpty && transaction.inputs[0].height != null
       ? const Icon(Icons.check_circle_outlined, color: Colors.green)
       : const Icon(Icons.access_alarm_outlined, color: Colors.red);
 }
 
 
-String liquidTransactionType(Tx transaction, WidgetRef ref) {
+String liquidTransactionType(lwk.Tx transaction, WidgetRef ref) {
   switch (transaction.kind) {
     case 'incoming':
       return 'Received'.i18n(ref);
@@ -108,11 +109,11 @@ String timestampToDateTime(int? timestamp) {
     return 'Unconfirmed';
   }
   final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-  return "${date.day}/${date.month}/${date.year}";
+  return "${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute}";
 }
 
 
-void setTransactionSearchProvider(Tx transaction, WidgetRef ref) {
+void setTransactionSearchProvider(lwk.Tx transaction, WidgetRef ref) {
   ref.read(transactionSearchProvider).isLiquid = true;
   ref.read(transactionSearchProvider).txid = transaction.txid;
 
@@ -123,6 +124,7 @@ void setTransactionSearchProvider(Tx transaction, WidgetRef ref) {
     ref.read(transactionSearchProvider).assetBlinder = output.assetBf;
     ref.read(transactionSearchProvider).amount = output.value;
     ref.read(transactionSearchProvider).assetId = output.asset;
+    ref.read(transactionSearchProvider).unblindedUrl = transaction.unblindedUrl;
   } else {
     final inputs = transaction.inputs[0];
     final input = inputs.unblinded;
@@ -130,6 +132,7 @@ void setTransactionSearchProvider(Tx transaction, WidgetRef ref) {
     ref.read(transactionSearchProvider).assetBlinder = input.assetBf;
     ref.read(transactionSearchProvider).amount = input.value;
     ref.read(transactionSearchProvider).assetId = input.asset;
+    ref.read(transactionSearchProvider).unblindedUrl = transaction.unblindedUrl;
   }
 }
 

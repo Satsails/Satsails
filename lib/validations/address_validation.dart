@@ -26,7 +26,7 @@ Future<DecodedInvoice> isValidLightningAddress(String invoice) async {
   try {
     final res = await DecodedInvoice.fromString(
       s: invoice,
-      boltzUrl: 'https://api.boltz.exchange',
+      boltzUrl: 'https://api.boltz.exchange/v2',
     );
     return res;
   } catch (e) {

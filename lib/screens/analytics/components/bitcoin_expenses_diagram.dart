@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/expenses_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class BitcoinExpensesDiagram extends ConsumerWidget {
   const BitcoinExpensesDiagram({super.key});
@@ -14,9 +15,13 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bitcoinTransactions = ref.watch(bitcoinTransactionsByDate);
+    final bitcoinIsLoading = ref.watch(transactionNotifierProvider).bitcoinTransactions.isNotEmpty
+        ? ref.watch(transactionNotifierProvider).bitcoinTransactions.first.txid == ''
+        : false;
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormat));
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Expanded(
       child: Column(
@@ -54,9 +59,8 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
               ],
             ),
           if (!ref.watch(oneDayProvider))
-            const Expanded(  // Ensure ExpensesGraph expands to take all available space
-              child: ExpensesGraph(),
-            ),
+            if (bitcoinIsLoading) Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orange, size: screenHeight * 0.1)),
+            if (!bitcoinIsLoading) const Expanded(child: ExpensesGraph()),
         ],
       ),
     );

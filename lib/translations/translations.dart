@@ -685,8 +685,8 @@ extension Localization on String {
         'pt': 'Completar transações lightning',
       }+
       {
-        'en': 'All lightning transactions were complete',
-        'pt': "Todas as transações lightning foram completadas",
+        'en': 'No transactions',
+        'pt': "Sem transações",
       }+
       {
         'en': 'Pay to complete',
@@ -813,8 +813,8 @@ extension Localization on String {
         'pt': 'Verificar Transações Pix'
       } +
       {
-        'en': 'Minimum amount is 3 BRL',
-        'pt': 'O valor mínimo é de 3 BRL'
+        'en': 'Minimum amount is ',
+        'pt': 'O valor mínimo é '
       } +
       {
         'en': 'You have reached the daily limit',
@@ -929,8 +929,8 @@ extension Localization on String {
         'pt': 'Seja soberano e opte por sair do sistema livremente.'
       }  +
       {
-        'en': 'Total balance:',
-        'pt': 'Saldo total:'
+        'en': 'Total bitcoin balance:',
+        'pt': 'Saldo total de bitcoin:'
       } +
       {
         'en': 'Change',
@@ -1159,10 +1159,6 @@ extension Localization on String {
       {
         'en': 'Reset Chat Session',
         'pt': 'Reset da Sessão de Chat',
-      } +
-      {
-        'en': 'Support',
-        'pt': 'Suporte',
       } +
       {
         'en': 'Lightning transactions',
@@ -1640,12 +1636,24 @@ extension Localization on String {
         'pt': 'Aguarde alguns minutos e tente novamente'
       } +
       {
-        'en': "Invalid CPF",
-        'pt': 'CPF inválido'
+        'en': "Invalid CPF/CNPJ",
+        'pt': 'CPF/CNPJ inválido'
       } +
       {
         'en': "Please enter an amount",
         'pt': 'Por favor, insira uma quantia'
+      } +
+      {
+        'en': "Swap failed, please contact support",
+        'pt': 'Troca falhou, por favor, contate o suporte'
+      } +
+      {
+        'en': 'Send with Liquid Balance',
+        'pt': 'Enviar com Saldo Liquid'
+      } +
+      {
+        'en': 'Send with Bitcoin Balance',
+        'pt': 'Enviar com Saldo Bitcoin'
       }  +
       {
         'en': "Swap failed, please contact support",
@@ -1670,6 +1678,77 @@ extension Localization on String {
       {
         'en': 'Your balance will update soon',
         'pt': 'Seu saldo será atualizado em breve'
+      } +  {
+    'en': 'All Swaps',
+    'pt': 'Todas as trocas'
+  } +
+      {
+        'en': 'Fiat Swaps',
+        'pt': 'Trocas Fiat'
+      } +
+      {
+        'en': 'Layer Swaps',
+        'pt': 'Trocas de Camada'
+      } +
+      {
+        'en': 'Pix History',
+        'pt': 'Histórico Pix'
+      } +
+      {
+        'en': 'Transaction in progress, please wait.',
+        'pt': 'Transação em andamento, por favor, aguarde.'
+      } +
+      {
+        'en': 'Total fees',
+        'pt': 'Taxas totais'
+      } +
+      {
+        'en': 'Total amount to send',
+        'pt': 'Valor total a enviar'
+      } +
+      {
+        'en': 'Lightning swap',
+        'pt': 'Troca Lightning'
+      } +
+      {
+        'en': 'Receiving',
+        'pt': 'Recebendo'
+      } +
+      {
+        'en': 'Sending',
+        'pt': 'Enviando'
+      } +
+      {
+        'en': 'Expiry block',
+        'pt': 'Bloco de expiração'
+      } +
+      {
+        'en': 'Lightning Swaps',
+        'pt': 'Trocas Lightning'
+      } +
+      {
+        'en': 'Confirm PIN',
+        'pt': 'Confirmar PIN'
+      } +
+      {
+        'en': 'PINs do not match',
+        'pt': 'PINs não correspondem'
+      } +
+      {
+        'en': 'Choose a 6-digit PIN',
+        'pt': 'Escolha um PIN de 6 dígitos'
+      } +
+      {
+        'en': 'attempts remaining',
+        'pt': 'tentativas restantes'
+      } +
+      {
+        'en': 'Please authenticate to view seed words',
+        'pt': 'Por favor, autentique-se para ver as seeds'
+      } +
+      {
+        'en': 'Support',
+        'pt': 'Apoio'
       };
 
   String i18n(WidgetRef ref) {

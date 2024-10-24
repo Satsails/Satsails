@@ -6,16 +6,17 @@ import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 
 class BackupWallet extends ConsumerStatefulWidget {
-  const BackupWallet({super.key});
+  const BackupWallet({Key? key}) : super(key: key);
 
   @override
   _BackupWalletState createState() => _BackupWalletState();
 }
 
 class _BackupWalletState extends ConsumerState<BackupWallet> {
-  late List<String> mnemonicWords;
+  List<String>? mnemonicWords;
   List<int> selectedIndices = [];
   Map<int, List<String>> quizOptions = {};
   Map<int, String> userSelections = {};
@@ -26,28 +27,41 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
     fetchMnemonic();
   }
 
-  void fetchMnemonic() async {
+  Future<void> fetchMnemonic() async {
     final authModel = ref.read(authModelProvider);
     final mnemonic = await authModel.getMnemonic();
-    setState(() {
-      mnemonicWords = mnemonic!.split(' ');
-      generateQuiz();
-    });
+
+    if (mnemonic != null && mnemonic.isNotEmpty) {
+      setState(() {
+        mnemonicWords = mnemonic.split(' ');
+        generateQuiz();
+      });
+    } else {
+      Fluttertoast.showToast(
+        msg: 'Failed to load mnemonic.'.i18n(ref),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
   }
 
   void generateQuiz() {
     final random = Random();
+    final mnemonicLength = mnemonicWords!.length;
+
     while (selectedIndices.length < 4) {
-      int index = random.nextInt(mnemonicWords.length);
+      int index = random.nextInt(mnemonicLength);
       if (!selectedIndices.contains(index)) {
         selectedIndices.add(index);
       }
     }
 
     for (var index in selectedIndices) {
-      List<String> options = [mnemonicWords[index]];
+      List<String> options = [mnemonicWords![index]];
       while (options.length < 3) {
-        String word = mnemonicWords[random.nextInt(mnemonicWords.length)];
+        String word = mnemonicWords![random.nextInt(mnemonicLength)];
         if (!options.contains(word)) {
           options.add(word);
         }
@@ -59,7 +73,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
 
   bool checkAnswers() {
     for (var index in selectedIndices) {
-      if (userSelections[index] != mnemonicWords[index]) {
+      if (userSelections[index] != mnemonicWords![index]) {
         return false;
       }
     }
@@ -70,9 +84,10 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    if (mnemonicWords.isEmpty) {
+    if (mnemonicWords == null || mnemonicWords!.isEmpty) {
       return Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.black,
           title: Text('Backup Wallet'.i18n(ref)),
         ),
         body: const Center(
@@ -95,7 +110,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/settings');
+            context.pop();
           },
         ),
       ),
@@ -106,7 +121,11 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
           children: [
             Text(
               'Select the correct word for each position:'.i18n(ref),
-              style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: screenWidth * 0.05,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             SizedBox(height: screenWidth * 0.05),
             Expanded(
@@ -121,12 +140,21 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
                       children: [
                         Text(
                           '${'Word in position'.i18n(ref)} ${wordIndex + 1}:',
-                          style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.04),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: screenWidth * 0.04,
+                          ),
                         ),
                         Column(
                           children: quizOptions[wordIndex]!.map((option) {
                             return RadioListTile<String>(
-                              title: Text(option, style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.04)),
+                              title: Text(
+                                option,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: screenWidth * 0.04,
+                                ),
+                              ),
                               value: option,
                               groupValue: userSelections[wordIndex],
                               onChanged: (value) {
@@ -158,7 +186,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
                       backgroundColor: Colors.green,
                       textColor: Colors.white,
                     );
-                    Navigator.pushReplacementNamed(context, '/home');
+                    context.go('/home');
                   } else {
                     Fluttertoast.showToast(
                       msg: 'Incorrect selections. Please try again.'.i18n(ref),

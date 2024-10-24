@@ -7,8 +7,10 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
@@ -39,6 +41,8 @@ final tickerProvider = StateProvider.autoDispose<AssetId>((ref) {
   }
 });
 
+final transactionInProgressProvider = StateProvider.autoDispose<bool>((ref) => false);
+
 class LiquidSwapCards extends ConsumerStatefulWidget {
   const LiquidSwapCards({super.key});
 
@@ -61,6 +65,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final btcFormat = ref.read(settingsProvider).btcFormat;
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
+    final inProcessing = ref.watch(transactionInProgressProvider);
 
     List<Column> cards = [
       buildCard('Depix', 'BRL', const Color(0xFF009B3A), const Color(0xFF009B3A), ref, context, false, AssetId.BRL, titleFontSize),
@@ -95,30 +100,57 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
       swapCards = swapCards.reversed.toList();
     }
 
-    return
-      Column(
-        children: [
-          Text(
-            "Balance to Spend: ".i18n(ref),
-            style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+    return PopScope(
+      onPopInvoked: (pop) async {
+        if (inProcessing) {
+          Fluttertoast.showToast(
+            msg: "Transaction in progress, please wait.".i18n(ref),
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.orange,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+          return;
+        } else {
+          ref.read(sendTxProvider.notifier).resetToDefault();
+          ref.read(sendBlocksProvider.notifier).state = 1;
+          context.pop();
+        }
+      },
+      child: SafeArea(
+        child: FlutterKeyboardDoneWidget(
+                doneWidgetBuilder: (context) {
+                  return const Text(
+                    'Done',
+                  );
+                },
+            child: Column(
+              children: [
+                Text(
+                  "Balance to Spend: ".i18n(ref),
+                  style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      currentBalance,
+                      style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                    _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat, titleFontSize),
+                  ],
+                ),
+                SizedBox(height: dynamicPadding),
+                ...swapCards,
+                const Spacer(),
+                _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
+              ],
+            ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                currentBalance,
-                style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-              _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat, titleFontSize),
-            ],
-          ),
-          SizedBox(height: dynamicPadding),
-          ...swapCards,
-          const Spacer(),
-          _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
-        ],
-      );
+      ),
+    );
   }
 
   Widget buildCardSwiper(BuildContext context, WidgetRef ref, double dynamicCardHeight, List<Column> cards) {
@@ -311,7 +343,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                           return Text(btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin), style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center);
                         }
                       },
-                      loading: () => controller.text.isEmpty ?Text("0", style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center) : Center(child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
+                      loading: () => controller.text.isEmpty ?Text("0", style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center) : Center(child: LoadingAnimationWidget.progressiveDots(size: titleFontSize, color: Colors.white)),
                       error: (error, stack) => Text('Error: $error', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: titleFontSize)),
                     );
                   },
@@ -320,9 +352,9 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                 Column(
                   children: [
                     TextFormField(
-                      keyboardType: TextInputType.number,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       controller: controller,
-                      inputFormatters: isBitcoin ? [DecimalTextInputFormatter(decimalRange: 8), CommaTextInputFormatter()] : [DecimalTextInputFormatter(decimalRange: 2), CommaTextInputFormatter()],
+                      inputFormatters: isBitcoin ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)] : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
                         border: InputBorder.none,
@@ -366,22 +398,24 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
           backgroundColor: Colors.black,
           toggleColor: Colors.orange,
           action: (controller) async {
+            ref.read(transactionInProgressProvider.notifier).state = true;
             controller.loading();
             try {
               await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
-              controller.success();
-              Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
               Future.microtask(() {
               ref.read(topSelectedButtonProvider.notifier).state = "Swap";
               ref.read(groupButtonControllerProvider).selectIndex(2);
               ref.read(navigationProvider.notifier).state = 1;
              });
-              Navigator.pushReplacementNamed(context, '/home');
-              await ref.read(backgroundSyncNotifierProvider).performSync();
+              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+              controller.success();
+              context.go('/home');
+              Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
             } catch (e) {
+              ref.read(transactionInProgressProvider.notifier).state = false;
               controller.failure();
               Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
               controller.reset();
