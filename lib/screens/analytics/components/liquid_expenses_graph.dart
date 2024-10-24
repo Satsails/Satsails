@@ -185,7 +185,7 @@ class LiquidExpensesGraph extends StatelessWidget {
     if (mainDataSpots.isNotEmpty && isShowingMainData) {
       lineBars.add(LineChartBarData(
         spots: mainDataSpots,
-        isCurved: false, // Lines are direct, not rounded
+        isCurved: true, // Lines are direct, not rounded
         color: Colors.orangeAccent,
         barWidth: 3,
         dotData: FlDotData(show: false),
@@ -205,7 +205,7 @@ class LiquidExpensesGraph extends StatelessWidget {
       if (sentDataSpots.isNotEmpty) {
         lineBars.add(LineChartBarData(
           spots: sentDataSpots,
-          isCurved: false,
+          isCurved: true,
           color: Colors.blueAccent,
           barWidth: 3,
           dotData: FlDotData(show: false),
@@ -225,7 +225,7 @@ class LiquidExpensesGraph extends StatelessWidget {
       if (receivedDataSpots.isNotEmpty) {
         lineBars.add(LineChartBarData(
           spots: receivedDataSpots,
-          isCurved: false,
+          isCurved: true,
           color: Colors.greenAccent,
           barWidth: 3,
           dotData: FlDotData(show: false),
@@ -245,7 +245,7 @@ class LiquidExpensesGraph extends StatelessWidget {
       if (feeDataSpots.isNotEmpty && isBtc) {
         lineBars.add(LineChartBarData(
           spots: feeDataSpots,
-          isCurved: false,
+          isCurved: true,
           color: Colors.orangeAccent,
           barWidth: 3,
           dotData: FlDotData(show: false),

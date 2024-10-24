@@ -127,7 +127,7 @@ class LineChartSample extends StatelessWidget {
             if (mainDataSpots.isNotEmpty)
               LineChartBarData(
                 spots: mainDataSpots,
-                isCurved: false,
+                isCurved: true,
                 color: Colors.orangeAccent,
                 barWidth: 3,
                 dotData: FlDotData(show: false),
@@ -146,7 +146,7 @@ class LineChartSample extends StatelessWidget {
             if (spendingDataSpots.isNotEmpty)
               LineChartBarData(
                 spots: spendingDataSpots,
-                isCurved: false,
+                isCurved: true,
                 color: Colors.blueAccent,
                 barWidth: 3,
                 dotData: FlDotData(show: false),
@@ -165,7 +165,7 @@ class LineChartSample extends StatelessWidget {
             if (incomeDataSpots.isNotEmpty)
               LineChartBarData(
                 spots: incomeDataSpots,
-                isCurved: false,
+                isCurved: true,
                 color: Colors.greenAccent,
                 barWidth: 3,
                 dotData: FlDotData(show: false),
@@ -184,7 +184,7 @@ class LineChartSample extends StatelessWidget {
             if (feeDataSpots.isNotEmpty)
               LineChartBarData(
                 spots: feeDataSpots,
-                isCurved: false,
+                isCurved: true,
                 color: Colors.orangeAccent,
                 barWidth: 3,
                 dotData: FlDotData(show: false),
