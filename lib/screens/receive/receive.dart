@@ -1,4 +1,5 @@
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
+import 'package:Satsails/screens/receive/components/custodial_lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
 import 'package:flutter/material.dart';
@@ -91,7 +92,7 @@ class Receive extends ConsumerWidget {
               if (selectedIndex == "Liquid")
                 LiquidWidget(),
               if (selectedIndex == "Lightning")
-                LightningWidget(),
+                CustodialLightningWidget(),
             ],
           ),
         ),

@@ -88,6 +88,9 @@ class AuthModel {
     await _storage.delete(key: 'mnemonic');
     await _storage.delete(key: 'pin');
     await _storage.delete(key: 'pixPaymentCode');
+    await _storage.delete(key: 'coinosToken');
+    await _storage.delete(key: 'coinosUsername');
+    await _storage.delete(key: 'coinosPassword');
     await _storage.delete(key: 'recoveryCode');
     await Hive.deleteBoxFromDisk('bitcoin');
     await Hive.deleteBoxFromDisk('liquid');
