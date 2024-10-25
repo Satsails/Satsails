@@ -2,13 +2,15 @@ import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/coinos.provider.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
+import 'package:Satsails/screens/receive/components/lightning_widget.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CustodialLightningWidget extends ConsumerStatefulWidget {
   const CustodialLightningWidget({Key? key}) : super(key: key);
@@ -21,6 +23,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
   late TextEditingController controller;
   bool includeAmountInAddress = false;
   String invoice = '';
+  bool showLightningWidget = false;
 
   @override
   void initState() {
@@ -112,7 +115,12 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                           fontSize: 16,
                         ),
                       ),
-                      onPressed: () => context.pop(),
+                      onPressed: () {
+                        context.pop();
+                        setState(() {
+                          showLightningWidget = true; // Fallback to LightningWidget
+                        });
+                      },
                     ),
                     TextButton(
                       style: TextButton.styleFrom(
@@ -132,7 +140,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                       ),
                       onPressed: () async {
                         await ref.read(registerProvider({'username': username, 'password': 'default_password'}).future);
-                        Navigator.of(context).pop();
+                        context.pop();
                       },
                     ),
                   ],
@@ -155,13 +163,169 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     });
   }
 
+  void _showCustodialWarningModal(BuildContext context, WidgetRef ref) {
+    final coinosLn = ref.read(coinosLnProvider).value!;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Custodial Lightning Warning',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12.0),
+                const Text(
+                  'By using this custodial Lightning service, your funds are held by our partner Coinos. Satsails does not have control over these funds. You agree to have your funds held by Coinos.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black54,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24.0),
+                _buildCopyableField(
+                  label: 'Username',
+                  value: coinosLn.username,
+                ),
+                const SizedBox(height: 16.0),
+                _buildCopyableField(
+                  label: 'Password',
+                  value: coinosLn.password,
+                ),
+                const SizedBox(height: 24.0),
+                TextButton(
+                  onPressed: () => _launchURL('https://coinos.io/login'),
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0, vertical: 12.0),
+                  ),
+                  child: const Text(
+                    'Visit Coinos',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0, vertical: 12.0),
+                  ),
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+
+  Widget _buildCopyableField({required String label, required String value}) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black54,
+                ),
+              ),
+              const SizedBox(height: 4.0),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: SelectableText(
+                  value,
+                  style: const TextStyle(fontSize: 16, color: Colors.black87),
+                ),
+              ),
+            ],
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.copy, color: Colors.orange),
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: value));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('$label copied to clipboard!')),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (showLightningWidget) {
+      return const LightningWidget();
+    }
+
     final height = MediaQuery.of(context).size.height;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.info, color: Colors.orange, size: 30),
+              onPressed: () => _showCustodialWarningModal(context, ref),
+              tooltip: 'Custodial Lightning Info',
+            ),
+          ],
+        ),
         AmountInput(controller: controller),
         SizedBox(height: height * 0.02),
         includeAmountInAddress
@@ -182,7 +346,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
   Widget _buildDefaultAddress(String lnurl) {
     final height = MediaQuery.of(context).size.height;
 
-    return  Column(
+    return Column(
       children: [
         buildQrCode(lnurl, context),
         Padding(
@@ -207,5 +371,3 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     );
   }
 }
-
-

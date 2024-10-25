@@ -74,8 +74,7 @@ class DeleteWalletSection extends StatelessWidget {
                   context,
                   icon: Icons.smartphone,
                   title: 'Delete Local Wallet'.i18n(ref),
-                  description: 'Remove wallet data from this device only.'.i18n(
-                      ref),
+                  description: 'Remove wallet data from this device only.'.i18n(ref),
                   color: Colors.blueAccent,
                   onTap: () {
                     _showConfirmationDialog(
@@ -105,7 +104,7 @@ class DeleteWalletSection extends StatelessWidget {
                       icon: Icons.cloud_done,
                       iconColor: Colors.orangeAccent,
                       title: 'Delete Server Data?'.i18n(ref),
-                      message: 'Your server data will be permanently deleted.'.i18n(ref),
+                      message: 'Your server data will be permanently deleted, and you will not receive any more fees from any of your affiliates'.i18n(ref),
                       confirmButtonColor: Colors.orangeAccent,
                       confirmAction: () async {
                         await ref.read(deleteUserDataProvider.future);
