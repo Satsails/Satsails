@@ -127,16 +127,21 @@ class LineChartSample extends StatelessWidget {
             if (mainDataSpots.isNotEmpty)
               LineChartBarData(
                 spots: mainDataSpots,
-                isCurved: true,
+                isCurved: false,
                 color: Colors.orangeAccent,
                 barWidth: 3,
+                gradient: const LinearGradient(
+                  colors: [Colors.orangeAccent, Colors.deepOrange],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
                 dotData: FlDotData(show: false),
                 belowBarData: BarAreaData(
                   show: true,
                   gradient: LinearGradient(
                     colors: [
                       Colors.orangeAccent.withOpacity(0.3),
-                      Colors.orangeAccent.withOpacity(0.1),
+                      Colors.deepOrange.withOpacity(0.1),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -146,7 +151,7 @@ class LineChartSample extends StatelessWidget {
             if (spendingDataSpots.isNotEmpty)
               LineChartBarData(
                 spots: spendingDataSpots,
-                isCurved: true,
+                isCurved: false,
                 color: Colors.blueAccent,
                 barWidth: 3,
                 dotData: FlDotData(show: false),
@@ -165,7 +170,7 @@ class LineChartSample extends StatelessWidget {
             if (incomeDataSpots.isNotEmpty)
               LineChartBarData(
                 spots: incomeDataSpots,
-                isCurved: true,
+                isCurved: false,
                 color: Colors.greenAccent,
                 barWidth: 3,
                 dotData: FlDotData(show: false),
@@ -184,7 +189,7 @@ class LineChartSample extends StatelessWidget {
             if (feeDataSpots.isNotEmpty)
               LineChartBarData(
                 spots: feeDataSpots,
-                isCurved: true,
+                isCurved: false,
                 color: Colors.orangeAccent,
                 barWidth: 3,
                 dotData: FlDotData(show: false),

@@ -185,8 +185,13 @@ class LiquidExpensesGraph extends StatelessWidget {
     if (mainDataSpots.isNotEmpty && isShowingMainData) {
       lineBars.add(LineChartBarData(
         spots: mainDataSpots,
-        isCurved: true, // Lines are direct, not rounded
+        isCurved: false, // Lines are direct, not rounded
         color: Colors.orangeAccent,
+        gradient: const LinearGradient(
+          colors: [Colors.orangeAccent, Colors.deepOrange],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
         barWidth: 3,
         dotData: FlDotData(show: false),
         belowBarData: BarAreaData(
@@ -194,7 +199,7 @@ class LiquidExpensesGraph extends StatelessWidget {
           gradient: LinearGradient(
             colors: [
               Colors.orangeAccent.withOpacity(0.3),
-              Colors.orangeAccent.withOpacity(0.1),
+              Colors.deepOrange.withOpacity(0.1),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -205,7 +210,7 @@ class LiquidExpensesGraph extends StatelessWidget {
       if (sentDataSpots.isNotEmpty) {
         lineBars.add(LineChartBarData(
           spots: sentDataSpots,
-          isCurved: true,
+          isCurved: false,
           color: Colors.blueAccent,
           barWidth: 3,
           dotData: FlDotData(show: false),
@@ -225,7 +230,7 @@ class LiquidExpensesGraph extends StatelessWidget {
       if (receivedDataSpots.isNotEmpty) {
         lineBars.add(LineChartBarData(
           spots: receivedDataSpots,
-          isCurved: true,
+          isCurved: false,
           color: Colors.greenAccent,
           barWidth: 3,
           dotData: FlDotData(show: false),
@@ -245,7 +250,7 @@ class LiquidExpensesGraph extends StatelessWidget {
       if (feeDataSpots.isNotEmpty && isBtc) {
         lineBars.add(LineChartBarData(
           spots: feeDataSpots,
-          isCurved: true,
+          isCurved: false,
           color: Colors.orangeAccent,
           barWidth: 3,
           dotData: FlDotData(show: false),
