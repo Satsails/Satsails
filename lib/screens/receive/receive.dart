@@ -1,10 +1,10 @@
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
 import 'package:Satsails/screens/receive/components/custodial_lightning_widget.dart';
-import 'package:Satsails/screens/receive/components/lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:group_button/group_button.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
@@ -34,7 +34,7 @@ class Receive extends ConsumerWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, size: screenHeight * 0.03, color: Colors.white),
           onPressed: () {
-            Navigator.of(context).pop();
+            context.pop();
             ref.read(inputAmountProvider.notifier).state = '0.0';
           },
         ),
@@ -88,11 +88,11 @@ class Receive extends ConsumerWidget {
               ),
               SizedBox(height: screenHeight * 0.02),
               if (selectedIndex == 'Bitcoin')
-                BitcoinWidget(),
+                const BitcoinWidget(),
               if (selectedIndex == "Liquid")
-                LiquidWidget(),
+                const LiquidWidget(),
               if (selectedIndex == "Lightning")
-                CustodialLightningWidget(),
+                const CustodialLightningWidget(),
             ],
           ),
         ),

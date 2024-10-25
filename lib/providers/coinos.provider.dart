@@ -5,12 +5,12 @@ import 'package:Satsails/models/coinos_ln_model.dart';
 
 final coinosLnProvider = AsyncNotifierProvider<CoinosLnModel, CoinosLn>(CoinosLnModel.new);
 
-final loginProvider = FutureProvider.family<void, Map<String, String>>((ref, credentials) async {
+final loginProvider = FutureProvider.autoDispose.family<void, Map<String, String>>((ref, credentials) async {
   final password = ref.read(coinosLnProvider).value?.password ?? '';
   await ref.read(coinosLnProvider.notifier).login(credentials['username']!, password);
 });
 
-final registerProvider = FutureProvider.family<void, Map<String, String>>((ref, credentials) async {
+final registerProvider = FutureProvider.autoDispose.family<void, Map<String, String>>((ref, credentials) async {
   await ref.read(coinosLnProvider.notifier).register(credentials['username']!);
   ref.read(loginProvider(credentials));
 });
@@ -32,15 +32,15 @@ final createInvoiceProvider = FutureProvider.autoDispose<String>((ref) async {
   return invoice;
 });
 
-final getInvoicesProvider = FutureProvider<List<dynamic>?>((ref) async {
+final getInvoicesProvider = FutureProvider.autoDispose<List<dynamic>?>((ref) async {
   return await ref.read(coinosLnProvider.notifier).getInvoices();
 });
 
-final sendPaymentProvider = FutureProvider.family<void, Map<String, dynamic>>((ref, params) async {
+final sendPaymentProvider = FutureProvider.family.autoDispose<void, Map<String, dynamic>>((ref, params) async {
   await ref.read(coinosLnProvider.notifier).sendPayment(params['address'], params['amount']);
 });
 
-final getTransactionsProvider = FutureProvider<List<dynamic>?>((ref) async {
+final getTransactionsProvider = FutureProvider.autoDispose<List<dynamic>?>((ref) async {
   return await ref.read(coinosLnProvider.notifier).getTransactions();
 });
 

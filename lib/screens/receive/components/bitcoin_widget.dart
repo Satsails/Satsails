@@ -20,6 +20,7 @@ class BitcoinWidget extends ConsumerStatefulWidget {
 class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
   late TextEditingController controller;
   bool includeAmountInAddress = false;
+  String bitcoinAddressWithAmount = '';
 
   @override
   void initState() {
@@ -33,12 +34,14 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
     super.dispose();
   }
 
-  void _onCreateAddress() {
+  void _onCreateAddress() async {
     String inputValue = controller.text;
     ref.read(inputAmountProvider.notifier).state =
     inputValue.isEmpty ? '0.0' : inputValue;
+    final bitcoinAddressWithAmountFuture = await ref.watch(bitcoinReceiveAddressAmountProvider.future);
     setState(() {
       includeAmountInAddress = true;
+      bitcoinAddressWithAmount = bitcoinAddressWithAmountFuture;
     });
   }
 
@@ -47,14 +50,13 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
     final height = MediaQuery.of(context).size.height;
 
     final bitcoinAddressAsyncValue = ref.watch(bitcoinAddressProvider);
-    final bitcoinAddressWithAmountAsyncValue = ref.watch(bitcoinReceiveAddressAmountProvider);
 
     return Column(
       children: [
         AmountInput(controller: controller),
         SizedBox(height: height * 0.02),
         includeAmountInAddress
-            ? _buildAddressWithAmount(bitcoinAddressWithAmountAsyncValue)
+            ? _buildAddressWithAmount(bitcoinAddressWithAmount)
             : _buildDefaultAddress(bitcoinAddressAsyncValue),
         Padding(
           padding: EdgeInsets.all(height * 0.01),
@@ -98,34 +100,16 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
     );
   }
 
-  Widget _buildAddressWithAmount(
-      AsyncValue<String> bitcoinAddressWithAmountAsyncValue) {
+  Widget _buildAddressWithAmount(String bitcoinAddressWithAmountAsyncValue) {
     final height = MediaQuery.of(context).size.height;
-
-    return bitcoinAddressWithAmountAsyncValue.when(
-      data: (bitcoinAddressWithAmount) {
-        return Column(
-          children: [
-            buildQrCode(bitcoinAddressWithAmount, context),
-            Padding(
-              padding: EdgeInsets.all(height * 0.01),
-              child: buildAddressText(bitcoinAddressWithAmount, context, ref),
-            ),
-          ],
-        );
-      },
-      loading: () => Center(
-        child: LoadingAnimationWidget.threeArchedCircle(
-          size: MediaQuery.of(context).size.width * 0.6,
-          color: Colors.orange,
+    return Column(
+      children: [
+        buildQrCode(bitcoinAddressWithAmount, context),
+        Padding(
+          padding: EdgeInsets.all(height * 0.01),
+          child: buildAddressText(bitcoinAddressWithAmount, context, ref),
         ),
-      ),
-      error: (error, stack) => Center(
-        child: Text(
-          'Error loading address with amount',
-          style: const TextStyle(color: Colors.red),
-        ),
-      ),
+      ],
     );
   }
 }

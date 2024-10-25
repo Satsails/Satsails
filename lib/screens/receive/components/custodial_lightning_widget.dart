@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustodialLightningWidget extends ConsumerStatefulWidget {
@@ -24,6 +25,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
   bool includeAmountInAddress = false;
   String invoice = '';
   bool showLightningWidget = false;
+  bool isLoading = false; // Added loading flag
 
   @override
   void initState() {
@@ -154,12 +156,16 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
   }
 
   void _onCreateAddress() async {
+    setState(() {
+      isLoading = true;
+    });
     String inputValue = controller.text;
     ref.read(inputAmountProvider.notifier).state = inputValue.isEmpty ? '0.0' : inputValue;
     final lnurlAsyncValue = await ref.read(createInvoiceProvider.future);
     setState(() {
       includeAmountInAddress = true;
       invoice = lnurlAsyncValue;
+      isLoading = false; // Hide loading spinner after completion
     });
   }
 
@@ -261,7 +267,6 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     }
   }
 
-
   Widget _buildCopyableField({required String label, required String value}) {
     return Row(
       children: [
@@ -316,16 +321,6 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.info, color: Colors.orange, size: 30),
-              onPressed: () => _showCustodialWarningModal(context, ref),
-              tooltip: 'Custodial Lightning Info',
-            ),
-          ],
-        ),
         AmountInput(controller: controller),
         SizedBox(height: height * 0.02),
         includeAmountInAddress
@@ -333,11 +328,26 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
             : _buildDefaultAddress(ref.watch(lnurlProvider)),
         Padding(
           padding: EdgeInsets.all(height * 0.01),
-          child: CustomElevatedButton(
+          child: isLoading
+              ? LoadingAnimationWidget.threeArchedCircle(
+                  size: MediaQuery.of(context).size.width * 0.1,
+                  color: Colors.orange,
+                )
+              : CustomElevatedButton(
             onPressed: _onCreateAddress,
             text: 'Create Address'.i18n(ref),
             controller: controller,
           ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.info, color: Colors.orange, size: 40),
+              onPressed: () => _showCustodialWarningModal(context, ref),
+              tooltip: 'Custodial Lightning Info',
+            ),
+          ],
         ),
       ],
     );

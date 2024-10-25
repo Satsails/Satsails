@@ -21,6 +21,7 @@ class LiquidWidget extends ConsumerStatefulWidget {
 class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
   late TextEditingController controller;
   bool includeAmountInAddress = false;
+  String liquidAddressWithAmount = '';
 
   @override
   void initState() {
@@ -40,12 +41,14 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
     super.dispose();
   }
 
-  void _onCreateAddress() {
+  void _onCreateAddress() async {
     String inputValue = controller.text;
     ref.read(inputAmountProvider.notifier).state =
     inputValue.isEmpty ? '0.0' : inputValue;
+    final liquidAddressWithAmountAsyncValue = await ref.watch(liquidReceiveAddressAmountProvider.future);
     setState(() {
       includeAmountInAddress = true;
+      liquidAddressWithAmount = liquidAddressWithAmountAsyncValue;
     });
   }
 
@@ -54,15 +57,13 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
     final height = MediaQuery.of(context).size.height;
 
     final liquidAddressAsyncValue = ref.watch(liquidAddressProvider);
-    final liquidAddressWithAmountAsyncValue =
-    ref.watch(liquidReceiveAddressAmountProvider);
 
     return Column(
       children: [
         AmountInput(controller: controller),
         SizedBox(height: height * 0.02),
         includeAmountInAddress
-            ? _buildAddressWithAmount(liquidAddressWithAmountAsyncValue)
+            ? _buildAddressWithAmount(liquidAddressWithAmount)
             : _buildDefaultAddress(liquidAddressAsyncValue),
         Padding(
           padding: EdgeInsets.all(height * 0.01),
@@ -106,13 +107,10 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
     );
   }
 
-  Widget _buildAddressWithAmount(
-      AsyncValue<String> liquidAddressWithAmountAsyncValue) {
+  Widget _buildAddressWithAmount(String liquidAddressWithAmount) {
     final height = MediaQuery.of(context).size.height;
 
-    return liquidAddressWithAmountAsyncValue.when(
-      data: (liquidAddressWithAmount) {
-        return Column(
+      return Column(
           children: [
             buildQrCode(liquidAddressWithAmount, context),
             Padding(
@@ -121,19 +119,6 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
             ),
           ],
         );
-      },
-      loading: () => Center(
-        child: LoadingAnimationWidget.threeArchedCircle(
-          size: MediaQuery.of(context).size.width * 0.6,
-          color: Colors.orange,
-        ),
-      ),
-      error: (error, stack) => Center(
-        child: Text(
-          'Error loading address with amount',
-          style: const TextStyle(color: Colors.red),
-        ),
-      ),
-    );
   }
 }
+

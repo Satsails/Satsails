@@ -62,9 +62,9 @@ Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [do
                   Fluttertoast.showToast(
                     msg: 'Address copied to clipboard'.i18n(ref),
                     toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
+                    gravity: ToastGravity.TOP,
                     timeInSecForIosWeb: 1,
-                    backgroundColor: Colors.grey,
+                    backgroundColor: Colors.green,
                     textColor: Colors.white,
                     fontSize: 16.0,
                   );
