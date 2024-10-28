@@ -25,85 +25,126 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
 
     return Expanded(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Current Balance'.i18n(ref), style: TextStyle(fontSize: screenWidth / 20, color: Colors.white)),
-          Text(
-            '$btcBalanceInFormat $btcFormat',
-            style: TextStyle(fontSize: screenWidth / 20, color: Colors.white),
+          Column(
+            children: [
+              Text(
+                '$btcBalanceInFormat $btcFormat',
+                style: TextStyle(
+                  fontSize: screenWidth / 14,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
+          // Display Sent, Received, and Fee Cards or Expenses Graph
           if (ref.watch(oneDayProvider))
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildCard(
-                  'Sent'.i18n(ref),
-                  _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent,
-                  [Colors.orange, Colors.orange],
-                  context,
-                  btcFormat,
-                ),
-                _buildCard(
-                  'Received'.i18n(ref),
-                  _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received,
-                  [Colors.orange, Colors.orange],
-                  context,
-                  btcFormat,
-                ),
-                _buildCard(
-                  'Fee'.i18n(ref),
-                  _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee,
-                  [Colors.orange, Colors.orange],
-                  context,
-                  btcFormat,
-                ),
-              ],
-            ),
-          if (!ref.watch(oneDayProvider))
-            if (bitcoinIsLoading) Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orange, size: screenHeight * 0.1)),
-            if (!bitcoinIsLoading) const Expanded(child: ExpensesGraph()),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildExpenseCard(
+                    title: 'Sent'.i18n(ref),
+                    value: _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).sent,
+                    gradientColors: [Colors.deepOrangeAccent, Colors.orange],
+                    context: context,
+                    btcFormat: btcFormat,
+                    icon: Icons.arrow_upward,
+                  ),
+                  _buildExpenseCard(
+                    title: 'Received'.i18n(ref),
+                    value: _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).received,
+                    gradientColors: [Colors.lightGreenAccent, Colors.green],
+                    context: context,
+                    btcFormat: btcFormat,
+                    icon: Icons.arrow_downward,
+                  ),
+                  _buildExpenseCard(
+                    title: 'Fee'.i18n(ref),
+                    value: _calculateBitcoinExpenses(bitcoinTransactions).convertToDenomination(btcFormat).fee,
+                    gradientColors: [Colors.blueAccent, Colors.blue],
+                    context: context,
+                    btcFormat: btcFormat,
+                    icon: Icons.receipt,
+                  ),
+                ],
+              ),
+            )
+          else
+            bitcoinIsLoading
+                ? Center(
+              child: LoadingAnimationWidget.fourRotatingDots(
+                color: Colors.orangeAccent,
+                size: screenHeight * 0.08,
+              ),
+            )
+                : const Expanded(child: ExpensesGraph()),
         ],
       ),
     );
   }
 
-  Widget _buildCard(String title, double value, List<Color> gradientColors, BuildContext context, String btcFormat) {
-    final dynamicHeight = MediaQuery.of(context).size.height;
+  // Updated card widget for a modern look
+  Widget _buildExpenseCard({
+    required String title,
+    required double value,
+    required List<Color> gradientColors,
+    required BuildContext context,
+    required String btcFormat,
+    required IconData icon,
+  }) {
     final dynamicWidth = MediaQuery.of(context).size.width;
-    return SizedBox(
-      width: dynamicWidth / 3.5,
-      height: dynamicHeight / 7,
-      child: Card(
-        elevation: 10,
-        shape: RoundedRectangleBorder(
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           borderRadius: BorderRadius.circular(15),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: gradientColors,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+          boxShadow: [
+            BoxShadow(
+              color: gradientColors.last.withOpacity(0.4),
+              blurRadius: 10,
+              offset: Offset(0, 5),
             ),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: TextStyle(color: Colors.black, fontSize: dynamicWidth / 23, fontWeight: FontWeight.bold),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: dynamicWidth / 12),
+            SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: dynamicWidth / 22,
+                fontWeight: FontWeight.bold,
               ),
-              Text(
-                btcFormat == 'sats' ? value.toStringAsFixed(0) : value.toString(),
-                style: TextStyle(color: Colors.black, fontSize: dynamicWidth / 25),
+            ),
+            SizedBox(height: 4),
+            Text(
+              btcFormat == 'sats' ? value.toStringAsFixed(0) : value.toStringAsFixed(2),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: dynamicWidth / 28,
+                fontWeight: FontWeight.w600,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
+  // Helper to calculate Bitcoin expenses
   BitcoinExpenses _calculateBitcoinExpenses(List<dynamic> transactions) {
     int received = 0;
     int sent = 0;

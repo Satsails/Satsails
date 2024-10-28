@@ -18,12 +18,7 @@ class Analytics extends ConsumerWidget {
       onWillPop: () async => false,
       child: Scaffold(
         backgroundColor: Colors.black,
-        appBar: AppBar(
-          title: Center(child: Text('Analytics'.i18n(ref), style: const TextStyle(color: Colors.white))),
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.black,
-        ),
-        body: _buildBody(context, ref),
+        body: SafeArea(child: _buildBody(context, ref)),
         bottomNavigationBar: CustomBottomNavigationBar(
           currentIndex: ref.watch(navigationProvider),
           context: context,

@@ -32,7 +32,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
       Column(
         children: [
           Text(
-            '${'Current Balance'.i18n(ref)}: $liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white),
+            '$liquidBalanceInFormat $btcFormat', style: TextStyle(fontSize: screenWidth / 14, color: Colors.white, fontWeight: FontWeight.bold),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -58,7 +58,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
       Column(
         children: [
           Text(
-            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.brlBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white),
+            '${fiatInDenominationFormatted(balance.brlBalance)}',  style: TextStyle(fontSize: screenWidth / 14, color: Colors.white, fontWeight: FontWeight.bold),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -83,7 +83,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
       Column(
         children: [
           Text(
-            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.usdBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white),
+            '${fiatInDenominationFormatted(balance.usdBalance)}',  style: TextStyle(fontSize: screenWidth / 14, color: Colors.white, fontWeight: FontWeight.bold),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -108,7 +108,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
       Column(
         children: [
           Text(
-            '${'Current Balance'.i18n(ref)}: ${fiatInDenominationFormatted(balance.eurBalance)}', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white),
+            '${fiatInDenominationFormatted(balance.eurBalance)}',  style: TextStyle(fontSize: screenWidth / 14, color: Colors.white, fontWeight: FontWeight.bold),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
