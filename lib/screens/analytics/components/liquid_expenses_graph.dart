@@ -103,10 +103,12 @@ class LiquidExpensesGraph extends StatelessWidget {
             enabled: true,
             handleBuiltInTouches: true,
             touchTooltipData: LineTouchTooltipData(
-              tooltipBgColor: Colors.orangeAccent,
-              tooltipRoundedRadius: 8,
+              tooltipBgColor: Colors.black87,
+              tooltipRoundedRadius: 12,
+              tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              tooltipMargin: 10,
               fitInsideHorizontally: true,
-              fitInsideVertically: true, // Ensures tooltip stays within vertical bounds
+              fitInsideVertically: true, // Keeps the tooltip within vertical bounds
               getTooltipItems: (touchedSpots) {
                 return touchedSpots.map((LineBarSpot spot) {
                   final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
@@ -114,30 +116,41 @@ class LiquidExpensesGraph extends StatelessWidget {
                   final value = spot.y;
                   final int decimalPlaces = isBtc ? _decimalPlacesBtcFormat(value) : 2;
                   final valueString = value.toStringAsFixed(decimalPlaces);
-                  final currencyValue = balanceInCurrency[date]?.toStringAsFixed(
-                      balanceInCurrency[date] == balanceInCurrency[date]?.roundToDouble()
-                          ? 0
-                          : 2) ??
-                      '0.00';
 
+                  // Currency value or "0.00" if not available
+                  final currencyValue = balanceInCurrency[date]?.toStringAsFixed(
+                      balanceInCurrency[date] == balanceInCurrency[date]?.roundToDouble() ? 0 : 2) ?? '0.00';
+
+                  // Conditional display based on isBtc and isShowingMainData flags
                   String displayString;
                   if (isBtc && isShowingMainData) {
-                    displayString = '$formattedDate\n$valueString\n$selectedCurrency: $currencyValue';
-                  } else if (isBtc && isShowingMainData) {
-                    displayString = '$formattedDate\n$valueString';
+                    displayString = '$formattedDate\n $valueString\n$selectedCurrency: $currencyValue';
+                  } else if (isBtc) {
+                    displayString = '$valueString';
                   } else {
                     displayString = '$valueString';
                   }
 
                   return LineTooltipItem(
                     displayString,
-                    const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    const TextStyle(
+                      color: Colors.orangeAccent,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black45,
+                          offset: Offset(0, 1),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
                   );
                 }).toList();
               },
             ),
           ),
-          gridData: FlGridData(
+            gridData: FlGridData(
             show: false,
           ),
           titlesData: FlTitlesData(

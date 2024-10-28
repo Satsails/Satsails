@@ -1749,6 +1749,14 @@ extension Localization on String {
       {
         'en': 'Support',
         'pt': 'Apoio'
+      } +
+      {
+        'en': 'Price: ',
+        'pt': 'Preço: '
+      } +
+      {
+        'en': 'Fixed Fee: ',
+        'pt': 'Taxa Fixa: '
       };
 
   String i18n(WidgetRef ref) {

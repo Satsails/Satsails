@@ -68,36 +68,44 @@ class LineChartSample extends StatelessWidget {
             enabled: true,
             handleBuiltInTouches: true,
             touchTooltipData: LineTouchTooltipData(
-              tooltipBgColor: Colors.orangeAccent,
-              tooltipRoundedRadius: 8,
+              tooltipBgColor: Colors.black87,
+              tooltipRoundedRadius: 12,
+              tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              tooltipMargin: 10,
               fitInsideHorizontally: true,
               fitInsideVertically: true, // Ensures tooltip stays within vertical bounds
               getTooltipItems: (touchedSpots) {
                 return touchedSpots.map((LineBarSpot spot) {
                   final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
-                  final formattedDate = DateFormat('dd/MM/yyyy').format(date);
-                  final value = spot.y;
-                  final bitcoinValue = value.toStringAsFixed(
-                      value == value.roundToDouble() ? 0 : 8);
+                  final formattedDate = DateFormat('dd MMM, yyyy').format(date);
+                  final bitcoinValue = spot.y.toStringAsFixed(spot.y == spot.y.roundToDouble() ? 0 : 8);
                   final currencyValue = balanceInCurrency[date]?.toStringAsFixed(
-                      balanceInCurrency[date] == balanceInCurrency[date]?.roundToDouble()
-                          ? 0
-                          : 2) ??
-                      '0.00';
-                  final displayString =
-                      '$formattedDate\n$bitcoinValue\n$selectedCurrency: $currencyValue';
-                  final displayStringIfNotMainData = bitcoinValue;
+                      balanceInCurrency[date] == balanceInCurrency[date]?.roundToDouble() ? 0 : 2) ?? '0.00';
+
+                  // Display format for main data and other data
+                  final displayString = '$formattedDate\n $bitcoinValue\n$selectedCurrency: $currencyValue';
+                  final displayStringIfNotMainData = '$bitcoinValue';
 
                   return LineTooltipItem(
                     isShowingMainData ? displayString : displayStringIfNotMainData,
                     const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
+                      color: Colors.orangeAccent,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black45,
+                          offset: Offset(0, 1),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
                   );
                 }).toList();
               },
             ),
           ),
-          gridData: FlGridData(
+            gridData: FlGridData(
             show: false,
           ),
           titlesData: FlTitlesData(

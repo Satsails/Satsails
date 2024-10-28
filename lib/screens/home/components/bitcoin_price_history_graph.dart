@@ -20,7 +20,7 @@ class LineChartSample extends StatelessWidget {
       return const Center(child: Text('No data available', style: TextStyle(color: Colors.white)));
     }
 
-    // Map MarketChartData to FlSpot
+    // Map MarketChartData to FlSpot and get min/max prices for labels
     List<FlSpot> spots = marketData.map((data) {
       return FlSpot(
         data.date.millisecondsSinceEpoch.toDouble(),
@@ -28,113 +28,112 @@ class LineChartSample extends StatelessWidget {
       );
     }).toList();
 
+    final double maxPrice = spots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
+    final double minPrice = spots.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.black,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: LineChart(
-        LineChartData(
-          backgroundColor: Colors.transparent,
-          lineTouchData: LineTouchData(
-            enabled: true,
-            handleBuiltInTouches: true,
-            touchTooltipData: LineTouchTooltipData(
-              tooltipBgColor: Colors.orangeAccent,
-              tooltipRoundedRadius: 8,
-              fitInsideHorizontally: true, // Keep the tooltip inside the screen horizontally
-              getTooltipItems: (touchedSpots) {
-                return touchedSpots.map((LineBarSpot spot) {
-                  final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
-                  final formattedDate = DateFormat('dd/MM/yyyy').format(date);
-                  final bitcoinValue = spot.y.toStringAsFixed(2);
+      child: Stack(
+        children: [
+          LineChart(
+            LineChartData(
+              backgroundColor: Colors.transparent,
+              lineTouchData: LineTouchData(
+                enabled: true,
+                handleBuiltInTouches: true,
+                touchTooltipData: LineTouchTooltipData(
+                  tooltipBgColor: Colors.black87,
+                  tooltipRoundedRadius: 12,
+                  fitInsideHorizontally: true,
+                  tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  tooltipMargin: 10,
+                  getTooltipItems: (touchedSpots) {
+                    return touchedSpots.map((LineBarSpot spot) {
+                      final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
+                      final formattedDate = DateFormat('dd MMM, yyyy').format(date);
+                      final bitcoinValue = spot.y.toStringAsFixed(2);
 
-                  return LineTooltipItem(
-                    '$formattedDate\n\$ $bitcoinValue',
-                    const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  );
-                }).toList();
-              },
-            ),
-          ),
-          gridData: FlGridData(
-            show: false,
-            drawVerticalLine: false,
-            getDrawingHorizontalLine: (value) {
-              return FlLine(
-                color: Colors.white.withOpacity(0.1),
-                strokeWidth: 1,
-              );
-            },
-          ),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: false,
-                reservedSize: 40,
-                getTitlesWidget: (value, meta) {
-                  DateTime date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                  String formattedDate = DateFormat('dd/MM').format(date);
-                  return SideTitleWidget(
-                    axisSide: meta.axisSide,
-                    child: Text(
-                      formattedDate,
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  );
-                },
-              ),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  return SideTitleWidget(
-                    axisSide: meta.axisSide,
-                    child: Text(
-                      '\$${value.toStringAsFixed(0)}',
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  );
-                },
-                reservedSize: 50,
-              ),
-            ),
-            rightTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-          ),
-          borderData: FlBorderData(
-            show: false,
-          ),
-          lineBarsData: [
-            LineChartBarData(
-              spots: spots,
-              isCurved: true,
-              gradient: const LinearGradient(
-                colors: [Colors.orangeAccent, Colors.deepOrange],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              barWidth: 3,
-              dotData: FlDotData(show: false),
-              belowBarData: BarAreaData(
-                show: true,
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.orangeAccent.withOpacity(0.3),
-                    Colors.deepOrange.withOpacity(0.1),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+                      return LineTooltipItem(
+                        '$formattedDate\n\$ $bitcoinValue',
+                        TextStyle(
+                          color: Colors.orangeAccent,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.2),
+                              offset: const Offset(0, 1),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList();
+                  },
                 ),
               ),
+          gridData: FlGridData(show: false),
+              titlesData: FlTitlesData(
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: spots,
+                  isCurved: true,
+                  gradient: const LinearGradient(
+                    colors: [Colors.orangeAccent, Colors.deepOrange],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  barWidth: 3,
+                  dotData: FlDotData(show: false),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.orangeAccent.withOpacity(0.3),
+                        Colors.deepOrange.withOpacity(0.1),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          Positioned(
+            top: 10,
+            left: 20,
+            child: Text(
+              '\$${maxPrice.toStringAsFixed(0)}',
+              style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+          ),
+          Positioned(
+            bottom: 10,
+            left: 20,
+            child: Text(
+              '\$${minPrice.toStringAsFixed(0)}',
+              style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+          ),
+        ],
       ),
     );
   }

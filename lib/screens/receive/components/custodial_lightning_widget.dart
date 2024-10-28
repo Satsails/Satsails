@@ -12,6 +12,7 @@ import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class CustodialLightningWidget extends ConsumerStatefulWidget {
   const CustodialLightningWidget({Key? key}) : super(key: key);
@@ -25,13 +26,14 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
   bool includeAmountInAddress = false;
   String invoice = '';
   bool showLightningWidget = false;
-  bool isLoading = false; // Added loading flag
+  bool isLoading = false;
+  late Future<void> usernameCheckFuture;
 
   @override
   void initState() {
     super.initState();
     controller = TextEditingController();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkForUsername());
+    usernameCheckFuture = _checkForUsername();
   }
 
   @override
@@ -40,13 +42,11 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     super.dispose();
   }
 
-  void _checkForUsername() {
-    final coinosLn = ref.read(coinosLnProvider);
-    coinosLn.whenData((value) {
-      if (value.username.isEmpty) {
-        _showUsernameModal();
-      }
-    });
+  Future<void> _checkForUsername() async {
+    final lnurl = await ref.read(initialCoinosProvider.future).then((value) => value.username);
+    if (lnurl == "") {
+      _showUsernameModal();
+    }
   }
 
   void _showUsernameModal() {
@@ -141,8 +141,16 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                         ),
                       ),
                       onPressed: () async {
-                        await ref.read(registerProvider({'username': username, 'password': 'default_password'}).future);
-                        context.pop();
+                        try {
+                          await ref.read(registerProvider({'username': username, 'password': 'default_password'}).future);
+                          context.pop();
+                        } catch (e) {
+                          Fluttertoast.showToast(
+                            msg: 'Error during registration: $e',
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.BOTTOM,
+                          );
+                        }
                       },
                     ),
                   ],
@@ -161,16 +169,27 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     });
     String inputValue = controller.text;
     ref.read(inputAmountProvider.notifier).state = inputValue.isEmpty ? '0.0' : inputValue;
-    final lnurlAsyncValue = await ref.read(createInvoiceProvider.future);
-    setState(() {
-      includeAmountInAddress = true;
-      invoice = lnurlAsyncValue;
-      isLoading = false; // Hide loading spinner after completion
-    });
+    try {
+      final lnurlAsyncValue = await ref.read(createInvoiceProvider.future);
+      setState(() {
+        includeAmountInAddress = true;
+        invoice = lnurlAsyncValue;
+      });
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: 'Error creating address: $e',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   void _showCustodialWarningModal(BuildContext context, WidgetRef ref) {
-    final coinosLn = ref.read(coinosLnProvider).value!;
+    final coinosLn = ref.read(coinosLnProvider);
 
     showDialog(
       context: context,
@@ -263,7 +282,11 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     if (await canLaunch(url)) {
       await launch(url);
     } else {
-      throw 'Could not launch $url';
+      Fluttertoast.showToast(
+        msg: 'Could not launch $url',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
     }
   }
 
@@ -312,44 +335,58 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
 
   @override
   Widget build(BuildContext context) {
-    if (showLightningWidget) {
-      return const LightningWidget();
-    }
+    return FutureBuilder<void>(
+      future: usernameCheckFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: LoadingAnimationWidget.threeArchedCircle(
+              size: MediaQuery.of(context).size.width * 0.1,
+              color: Colors.orange,
+            ),
+          );
+        }
 
-    final height = MediaQuery.of(context).size.height;
+        if (showLightningWidget) {
+          return const LightningWidget();
+        }
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        AmountInput(controller: controller),
-        SizedBox(height: height * 0.02),
-        includeAmountInAddress
-            ? _buildAddressWithAmount(invoice)
-            : _buildDefaultAddress(ref.watch(lnurlProvider)),
-        Padding(
-          padding: EdgeInsets.all(height * 0.01),
-          child: isLoading
-              ? LoadingAnimationWidget.threeArchedCircle(
-                  size: MediaQuery.of(context).size.width * 0.1,
-                  color: Colors.orange,
-                )
-              : CustomElevatedButton(
-            onPressed: _onCreateAddress,
-            text: 'Create Address'.i18n(ref),
-            controller: controller,
-          ),
-        ),
-        Row(
+        final height = MediaQuery.of(context).size.height;
+
+        return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            IconButton(
-              icon: const Icon(Icons.info, color: Colors.orange, size: 40),
-              onPressed: () => _showCustodialWarningModal(context, ref),
-              tooltip: 'Custodial Lightning Info',
+            AmountInput(controller: controller),
+            SizedBox(height: height * 0.02),
+            includeAmountInAddress
+                ? _buildAddressWithAmount(invoice)
+                : _buildDefaultAddress(ref.watch(lnurlProvider)),
+            Padding(
+              padding: EdgeInsets.all(height * 0.01),
+              child: isLoading
+                  ? LoadingAnimationWidget.threeArchedCircle(
+                size: MediaQuery.of(context).size.width * 0.1,
+                color: Colors.orange,
+              )
+                  : CustomElevatedButton(
+                onPressed: _onCreateAddress,
+                text: 'Create Address'.i18n(ref),
+                controller: controller,
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.info, color: Colors.orange, size: 40),
+                  onPressed: () => _showCustodialWarningModal(context, ref),
+                  tooltip: 'Custodial Lightning Info',
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 

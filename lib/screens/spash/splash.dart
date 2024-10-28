@@ -16,8 +16,8 @@ class Splash extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image.asset(
-              'lib/assets/satsails.png',
+            SvgPicture.asset(
+              'lib/assets/satsails.svg',
             ),
             SizedBox(height: screenHeight * 0.03),
             LoadingAnimationWidget.threeArchedCircle(size: dynamicAnimationSize, color: Colors.orange),

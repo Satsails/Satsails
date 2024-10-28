@@ -546,6 +546,7 @@ class _PegState extends ConsumerState<Peg> {
                       Text(formattedValueToReceive, style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
                       Text('${valueInCurrency.toStringAsFixed(2)} $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
                       SizedBox(height: dynamicPadding / 2),
+                      if (double.parse(controller.text) * 100000000 < status.minPegOutAmount)
                       Text(
                         '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
                         style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
@@ -744,6 +745,7 @@ class _PegState extends ConsumerState<Peg> {
                       ),
                       Text('${valueInCurrency.toStringAsFixed(2)} $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey), textAlign: TextAlign.center),
                       SizedBox(height: dynamicPadding / 2),
+                      if (double.parse(controller.text) * 100000000 < status.minPegOutAmount)
                       Text(
                         '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
                         style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),

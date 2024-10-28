@@ -340,7 +340,13 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                           return Text(value.errorMsg!, style: TextStyle(color: Colors.orange, fontSize: titleFontSize), textAlign: TextAlign.center);
                         } else {
                           final valueToReceive = value.recvAmount!;
-                          return Text(btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin), style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center);
+                          return Column(
+                            children: [
+                              Text(btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin), style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center),
+                              Text('Price: '.i18n(ref) + '${value.price!.toStringAsFixed(0)}', style: TextStyle(color: Colors.grey, fontSize: titleFontSize / 2), textAlign: TextAlign.center),
+                              Text('Fixed Fee: '.i18n(ref) + btcInDenominationFormatted(value.fixedFee!.toDouble(), btcFormat, true), style: TextStyle(color: Colors.grey, fontSize: titleFontSize / 2), textAlign: TextAlign.center),
+                            ],
+                          );
                         }
                       },
                       loading: () => controller.text.isEmpty ?Text("0", style: TextStyle(color: Colors.white, fontSize: titleFontSize), textAlign: TextAlign.center) : Center(child: LoadingAnimationWidget.progressiveDots(size: titleFontSize, color: Colors.white)),

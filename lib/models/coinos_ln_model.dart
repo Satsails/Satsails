@@ -24,21 +24,8 @@ class CoinosLn {
   }
 }
 
-class CoinosLnModel extends AsyncNotifier<CoinosLn> {
-  @override
-  Future<CoinosLn> build() async {
-    return await _initializeUser();
-  }
-
-  Future<CoinosLn> _initializeUser() async {
-    final token = await _storage.read(key: 'coinosToken');
-    final username = await _storage.read(key: 'coinosUsername');
-    final password = await _storage.read(key: 'coinosPassword');
-    if (token != null && username != null && password != null) {
-      return CoinosLn(token: token, username: username, password: password);
-    }
-    return CoinosLn(token: '', username: '', password: '');
-  }
+class CoinosLnModel extends StateNotifier<CoinosLn> {
+  CoinosLnModel(super.state);
 
   Future<void> login(String username, String password) async {
     final result = await CoinosLnService.login(username, password);
@@ -46,7 +33,9 @@ class CoinosLnModel extends AsyncNotifier<CoinosLn> {
       await _storage.write(key: 'coinosToken', value: result.data);
       await _storage.write(key: 'coinosUsername', value: username);
       await _storage.write(key: 'coinosPassword', value: password);
-      state = AsyncData(state.value!.copyWith(token: result.data, username: username, password: password));
+      state = state.copyWith(token: result.data, username: username, password: password);
+    } else {
+      throw Exception(result.error ?? 'Login failed');
     }
   }
 
@@ -60,57 +49,64 @@ class CoinosLnModel extends AsyncNotifier<CoinosLn> {
     final password = generateSecurePassword(16);
     final result = await CoinosLnService.register(username, password);
     if (result.isSuccess) {
-      state = AsyncData(CoinosLn(token: result.data!, username: username, password: password));
+      state = state.copyWith(username: username, password: password);
+    } else {
+      throw Exception('Registration failed');
     }
   }
 
   Future<String> createInvoice(int amount) async {
-    final token = state.value?.token;
-    if (token != null && token.isNotEmpty) {
-      final result = await CoinosLnService.createInvoice(token, amount);
-      if (result.isSuccess) {
-        return result.data!;
-      } else {
-        print(result.error); // Handle error in UI
-      }
+    final token = state.token;
+    if (token == null || token.isEmpty) {
+      throw Exception('Token is missing or invalid');
     }
-    return '';
+
+    final result = await CoinosLnService.createInvoice(token, amount);
+    if (result.isSuccess) {
+      return result.data!;
+    } else {
+      throw Exception('Failed to create invoice');
+    }
   }
 
   Future<List<dynamic>?> getInvoices() async {
-    final token = state.value?.token;
-    if (token != null && token.isNotEmpty) {
-      final result = await CoinosLnService.getInvoices(token);
-      if (result.isSuccess) {
-        return result.data;
-      } else {
-        print(result.error); // Handle error in UI
-      }
+    final token = state.token;
+    if (token == null || token.isEmpty) {
+      throw Exception('Token is missing or invalid');
     }
-    return null;
+
+    final result = await CoinosLnService.getInvoices(token);
+    if (result.isSuccess) {
+      return result.data;
+    } else {
+      throw Exception('Failed to get invoices');
+    }
   }
 
   Future<void> sendPayment(String address, int amount) async {
-    final token = state.value?.token;
-    if (token != null && token.isNotEmpty) {
-      final result = await CoinosLnService.sendPayment(token, address, amount);
-      if (!result.isSuccess) {
-        print(result.error); // Handle error in UI
-      }
+    final token = state.token;
+    if (token == null || token.isEmpty) {
+      throw Exception('Token is missing or invalid');
+    }
+
+    final result = await CoinosLnService.sendPayment(token, address, amount);
+    if (!result.isSuccess) {
+      throw Exception('Failed to send payment');
     }
   }
 
   Future<List<dynamic>?> getTransactions() async {
-    final token = state.value?.token;
-    if (token != null && token.isNotEmpty) {
-      final result = await CoinosLnService.getTransactions(token);
-      if (result.isSuccess) {
-        return result.data;
-      } else {
-        print(result.error); // Handle error in UI
-      }
+    final token = state.token;
+    if (token == null || token.isEmpty) {
+      throw Exception('Token is missing or invalid');
     }
-    return null;
+
+    final result = await CoinosLnService.getTransactions(token);
+    if (result.isSuccess) {
+      return result.data;
+    } else {
+      throw Exception('Failed to get transactions');
+    }
   }
 }
 

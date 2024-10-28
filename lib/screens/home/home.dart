@@ -18,7 +18,6 @@ import 'package:Satsails/screens/shared/build_balance_card.dart';
 import 'package:Satsails/screens/shared/circular_button.dart';
 import 'package:Satsails/screens/shared/bar_chart.dart';
 
-
 class Home extends ConsumerWidget {
   const Home({super.key});
 
