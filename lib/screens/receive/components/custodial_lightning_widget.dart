@@ -142,7 +142,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                       ),
                       onPressed: () async {
                         try {
-                          await ref.read(registerProvider({'username': username, 'password': 'default_password'}).future);
+                          await ref.read(registerProvider({'username': username}).future);
                           context.pop();
                         } catch (e) {
                           Fluttertoast.showToast(
@@ -268,7 +268,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                       fontSize: 16,
                     ),
                   ),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => context.pop(),
                 ),
               ],
             ),
@@ -335,6 +335,29 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
 
   @override
   Widget build(BuildContext context) {
+    final payments = ref.watch(coinosPaymentStreamProvider);
+
+    payments.when(
+      data: (data) {
+        if (data['type'] == 'lightning' && data['confirmed'] == true) {
+          // Extract relevant payment information
+          final amount = data['amount'];
+
+          // Show the modal with payment information
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _showPaymentReceivedModal(context, amount);
+          });
+        }
+      },
+      loading: () {
+        // Optionally handle loading state
+      },
+      error: (error, stackTrace) {
+        // Handle error state
+        print('Error: $error');
+      },
+    );
+
     return FutureBuilder<void>(
       future: usernameCheckFuture,
       builder: (context, snapshot) {
@@ -383,6 +406,62 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                   tooltip: 'Custodial Lightning Info',
                 ),
               ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showPaymentReceivedModal(BuildContext context, int amount) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          title: const Text(
+            'Payment Received',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '$amount' + ' sats received!',
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Colors.black54,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.orange,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+              ),
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+              onPressed: () {
+                context.pop();
+              },
             ),
           ],
         );
