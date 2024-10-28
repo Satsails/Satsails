@@ -417,57 +417,75 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
-          title: const Text(
-            'Payment Received',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+          child: Container(
+            padding: const EdgeInsets.all(24.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.0),
             ),
-            textAlign: TextAlign.center,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '$amount' + ' sats received!',
-                style: const TextStyle(
-                  fontSize: 18,
-                  color: Colors.black54,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.greenAccent,
+                  size: 60,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.orange,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+                const SizedBox(height: 16.0),
+                const Text(
+                  'Payment Received!',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-              ),
-              child: const Text(
-                'OK',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
+                const SizedBox(height: 8.0),
+                Text(
+                  '$amount sats received!',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.black54,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              onPressed: () {
-                context.pop();
-              },
+                const SizedBox(height: 24.0),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    ),
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    onPressed: () {
+                      context.pop();
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
   }
+
 
   Widget _buildDefaultAddress(String lnurl) {
     final height = MediaQuery.of(context).size.height;
