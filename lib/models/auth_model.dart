@@ -92,17 +92,13 @@ class AuthModel {
 
     final hash = sha256.convert(utf8.encode(mnemonic)).bytes;
 
-    // Select a word from the list based on the first byte of the hash
     int wordIndex = hash[0] % list_english_words.length;
     String word = list_english_words[wordIndex];
 
-    // Generate a two-digit number from the next byte
-    int number = hash[1] % 100; // Ensures the number is between 0 and 99
+    int number = hash[1] % 100;
 
-    // Format the number to be two digits (e.g., 05 instead of 5)
     String numberStr = number.toString().padLeft(2, '0');
 
-    // Combine the word and number to create the username
     return "$word$numberStr";
   }
 
@@ -142,6 +138,7 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('sideswapSwapData');
     await Hive.deleteBoxFromDisk('pix');
     await Hive.deleteBoxFromDisk('user');
+    await Hive.deleteBoxFromDisk('coinosBalanceBox');
     await Hive.deleteBoxFromDisk('affiliate');
     await Hive.deleteBoxFromDisk('addresses');
     await SecureKeyManager.deleteKey();

@@ -67,7 +67,7 @@ final bitcoinFeeSpentPerDayProvider = StateProvider.autoDispose<Map<DateTime, nu
       final DateTime date = transaction.confirmationTime == null || transaction.confirmationTime!.timestamp == 0
           ? normalizeDate(DateTime.now())
           : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.confirmationTime!.timestamp * 1000));
-        valueSpentPerDay[date] = valueSpentPerDay[date] ?? 0  + transaction.fee!;
+        valueSpentPerDay[date] = valueSpentPerDay[date]!  + transaction.fee!;
     }
   }
 
@@ -122,7 +122,7 @@ final bitcoinSpentPerDayProvider = StateProvider.autoDispose<Map<DateTime, num>>
     final DateTime date = transaction.confirmationTime == null || transaction.confirmationTime!.timestamp == 0
         ? normalizeDate(DateTime.now())
         : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.confirmationTime!.timestamp * 1000));
-      valueSpentPerDay[date] = valueSpentPerDay[date] ?? 0  + transaction.sent;
+      valueSpentPerDay[date] = valueSpentPerDay[date]!  + transaction.sent;
   }
 
   num cumulativeSpent = 0;
@@ -261,7 +261,7 @@ final liquidFeePerDayProvider = StateProvider.autoDispose.family<Map<DateTime, n
       final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000));
       final hasSentFromAsset = transaction.balances.any((element) => element.assetId == asset && element.value < 0);
       if (hasSentFromAsset) {
-        valueSpentPerDay[date] = valueSpentPerDay[date] ?? 0 + transaction.fee.abs();
+        valueSpentPerDay[date] = valueSpentPerDay[date]! + transaction.fee.abs();
       }
     }
   }
@@ -331,7 +331,7 @@ final liquidSpentPerDayProvider = StateProvider.autoDispose.family<Map<DateTime,
 
       if (hasSentAsset) {
         num rawValue = transaction.balances.firstWhere((element) => element.assetId == asset).value.abs();
-        valueSpentPerDay[date] = valueSpentPerDay[date] ?? 0 + rawValue;  // Accumulate spent value
+        valueSpentPerDay[date] = valueSpentPerDay[date]! + rawValue;  // Accumulate spent value
       }
     }
   }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:Satsails/providers/coinos.provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/address_provider.dart';
@@ -100,14 +101,18 @@ class BackgroundSyncNotifier extends AsyncNotifier<void> {
     });
   }
 
-  /// Performs both Bitcoin and Liquid sync operations
+  /// Performs Bitcoin, Liquid, and transactions sync operations
   Future<void> performSync() async {
     setBackgroundSyncInProgress(true);
     try {
+      // Perform Bitcoin and Liquid sync concurrently
       await Future.wait([
         ref.read(liquidSyncNotifierProvider.notifier).performSync(),
         ref.read(bitcoinSyncNotifierProvider.notifier).performSync(),
       ]);
+
+      // Fetch transactions and update the balance
+      await ref.refresh(getTransactionsProvider.future);
     } catch (e, stackTrace) {
       state = AsyncError(e, stackTrace);
     } finally {
@@ -127,6 +132,7 @@ class BackgroundSyncNotifier extends AsyncNotifier<void> {
     _timer?.cancel();
   }
 }
+
 
 /// Providers for the sync notifiers
 final bitcoinSyncNotifierProvider =

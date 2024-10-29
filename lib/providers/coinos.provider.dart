@@ -52,12 +52,24 @@ final getInvoicesProvider = FutureProvider.autoDispose<List<dynamic>?>((ref) asy
   return await ref.read(coinosLnProvider.notifier).getInvoices();
 });
 
+
 final sendPaymentProvider = FutureProvider.family.autoDispose<void, Map<String, dynamic>>((ref, params) async {
   await ref.read(coinosLnProvider.notifier).sendPayment(params['address'], params['amount']);
 });
 
-final getTransactionsProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
-  return await ref.read(coinosLnProvider.notifier).getTransactions();
+final coinosBalanceProvider = StateNotifierProvider.autoDispose<CoinosBalanceNotifier, int>((ref) {
+  return CoinosBalanceNotifier();
+});
+
+final getTransactionsProvider = FutureProvider.autoDispose<Map<String, dynamic>?>((ref) async {
+  final response = await ref.read(coinosLnProvider.notifier).getTransactions();
+
+  if (response is Map<String, dynamic> && response.containsKey('balance')) {
+    final balance = response['balance'];
+    ref.read(coinosBalanceProvider.notifier).updateBalance(balance);
+  }
+
+  return response;
 });
 
 final lnurlProvider = StateProvider.autoDispose<String>((ref) {

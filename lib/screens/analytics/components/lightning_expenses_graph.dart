@@ -184,7 +184,8 @@ class _LightningExpensesGraphState extends ConsumerState<LightningExpensesGraph>
   Widget build(BuildContext context) {
     final selectedDays = ref.watch(selectedDaysDateArrayProvider);
 
-    final coinosBalanceAsync = ref.watch(getTransactionsProvider);
+    final coinosBalance = ref.watch(coinosBalanceProvider);
+
     final lightningBalanceByDayUnformattedAsync = ref.watch(lightningBalanceOverPeriodByDayProvider);
     final selectedCurrency = ref.watch(settingsProvider).currency;
     final btcFormat = ref.watch(settingsProvider).btcFormat;
@@ -192,48 +193,35 @@ class _LightningExpensesGraphState extends ConsumerState<LightningExpensesGraph>
     final screenHeight = MediaQuery.of(context).size.height;
     final currencyRate = ref.watch(selectedCurrencyProvider(selectedCurrency));
 
-    return coinosBalanceAsync.when(
-      data: (coinosData) {
-        final coinosBalance = coinosData?['balance'] ?? 0;
-        final formattedCoinosBalance = btcInDenominationFormatted(coinosBalance, btcFormat);
+    final formattedCoinosBalance = btcInDenominationFormatted(coinosBalance, btcFormat);
 
-        return lightningBalanceByDayUnformattedAsync.when(
-          data: (lightningBalanceByDayUnformatted) {
-            final balanceInCurrency = calculateBalanceInCurrency(
-              lightningBalanceByDayUnformatted,
-              currencyRate,
-            );
+    return lightningBalanceByDayUnformattedAsync.when(
+      data: (lightningBalanceByDayUnformatted) {
+        final balanceInCurrency = calculateBalanceInCurrency(
+          lightningBalanceByDayUnformatted,
+          currencyRate,
+        );
 
-            return Column(
-              children: <Widget>[
-                Text(
-                  '${formattedCoinosBalance} $btcFormat',
-                  style: TextStyle(
-                    fontSize: screenWidth / 14,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Calendar(),
-                Expanded(
-                  child: LightningLineChartSample(
-                    selectedDays: selectedDays,
-                    mainData: lightningBalanceByDayUnformatted,
-                    balanceInCurrency: balanceInCurrency,
-                    selectedCurrency: selectedCurrency,
-                  ),
-                ),
-              ],
-            );
-          },
-          loading: () => LoadingAnimationWidget.fourRotatingDots(
-            color: Colors.orangeAccent,
-            size: screenHeight * 0.08,
-          ),
-          error: (error, stack) => LoadingAnimationWidget.fourRotatingDots(
-            color: Colors.orangeAccent,
-            size: screenHeight * 0.08,
-          ),
+        return Column(
+          children: <Widget>[
+            Text(
+              '$formattedCoinosBalance $btcFormat',
+              style: TextStyle(
+                fontSize: screenWidth / 14,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Calendar(),
+            Expanded(
+              child: LightningLineChartSample(
+                selectedDays: selectedDays,
+                mainData: lightningBalanceByDayUnformatted,
+                balanceInCurrency: balanceInCurrency,
+                selectedCurrency: selectedCurrency,
+              ),
+            ),
+          ],
         );
       },
       loading: () => LoadingAnimationWidget.fourRotatingDots(
