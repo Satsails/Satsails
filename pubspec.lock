@@ -878,6 +878,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  list_english_words:
+    dependency: "direct main"
+    description:
+      name: list_english_words
+      sha256: ea7856916f1a51aee0f7f1c90085647b7e55b7627388f438d09c9897ee98267a
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   loading_animation_widget:
     dependency: "direct main"
     description:

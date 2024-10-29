@@ -1,10 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
-
+import 'package:crypto/crypto.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:hive/hive.dart';
 import 'dart:math';
 import 'package:convert/convert.dart';
+import 'package:list_english_words/list_english_words.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pusher_beams/pusher_beams.dart';
 
@@ -84,6 +86,42 @@ class AuthModel {
     return storedPin != null && storedPin == incomingPin;
   }
 
+  Future<String?> getUsername() async {
+    final mnemonic = await getMnemonic();
+    if (mnemonic == null) return null;
+
+    final hash = sha256.convert(utf8.encode(mnemonic)).bytes;
+
+    // Select a word from the list based on the first byte of the hash
+    int wordIndex = hash[0] % list_english_words.length;
+    String word = list_english_words[wordIndex];
+
+    // Generate a two-digit number from the next byte
+    int number = hash[1] % 100; // Ensures the number is between 0 and 99
+
+    // Format the number to be two digits (e.g., 05 instead of 5)
+    String numberStr = number.toString().padLeft(2, '0');
+
+    // Combine the word and number to create the username
+    return "$word$numberStr";
+  }
+
+  Future<String?> getBackendPassword() async {
+    final mnemonic = await getMnemonic();
+    if (mnemonic == null) return null;
+
+    final hash = sha256.convert(utf8.encode(mnemonic)).bytes;
+    return base64.encode(hash.sublist(10, 20));
+  }
+
+  Future<String?> getCoisosPassword() async {
+    final mnemonic = await getMnemonic();
+    if (mnemonic == null) return null;
+
+    final hash = sha256.convert(utf8.encode(mnemonic)).bytes;
+    return base64.encode(hash.sublist(20, 30));
+  }
+
   Future<void> deleteAuthentication() async {
     await _storage.delete(key: 'mnemonic');
     await _storage.delete(key: 'pin');
@@ -114,3 +152,5 @@ class AuthModel {
     await dbFile.delete();
   }
 }
+
+

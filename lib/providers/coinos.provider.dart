@@ -26,14 +26,13 @@ final coinosLnProvider = StateNotifierProvider.autoDispose<CoinosLnModel, Coinos
   );
 });
 
-final loginProvider = FutureProvider.autoDispose.family<void, Map<String, String>>((ref, credentials) async {
-  final password = ref.read(coinosLnProvider).password;
-  await ref.read(coinosLnProvider.notifier).login(credentials['username']!, password);
+final loginProvider = FutureProvider.autoDispose<void>((ref) async {
+  await ref.read(coinosLnProvider.notifier).login();
 });
 
-final registerProvider = FutureProvider.autoDispose.family<void, Map<String, String>>((ref, credentials) async {
-  await ref.read(coinosLnProvider.notifier).register(credentials['username']!);
-  await ref.read(loginProvider(credentials));
+final registerProvider = FutureProvider.autoDispose<void>((ref) async {
+  await ref.read(coinosLnProvider.notifier).register();
+  await ref.read(loginProvider.future);
 });
 
 final createInvoiceProvider = FutureProvider.autoDispose<String>((ref) async {

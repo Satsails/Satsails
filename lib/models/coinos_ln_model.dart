@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:Satsails/handlers/response_handlers.dart';
+import 'package:Satsails/models/auth_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -74,8 +75,10 @@ class CoinosLn {
 class CoinosLnModel extends StateNotifier<CoinosLn> {
   CoinosLnModel(super.state);
 
-  Future<void> login(String username, String password) async {
-    final result = await CoinosLnService.login(username, password);
+  Future<void> login() async {
+    final password = await AuthModel().getCoisosPassword();
+    final username = await AuthModel().getUsername();
+    final result = await CoinosLnService.login(username!, password!);
     if (result.isSuccess) {
       await _storage.write(key: 'coinosToken', value: result.data);
       await _storage.write(key: 'coinosUsername', value: username);
@@ -86,19 +89,14 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     }
   }
 
-  String generateSecurePassword(int length) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#\$%^&*()_+[]{}|;:,.<>?';
-    final rand = Random.secure();
-    return List.generate(length, (index) => chars[rand.nextInt(chars.length)]).join();
-  }
-
-  Future<void> register(String username) async {
-    final password = generateSecurePassword(16);
-    final result = await CoinosLnService.register(username, password);
+  Future<void> register() async {
+    final password = await AuthModel().getCoisosPassword();
+    final username = await AuthModel().getUsername();
+    final result = await CoinosLnService.register(username!, password!);
     if (result.isSuccess) {
-      state = state.copyWith(username: username, password: password);
+      state = state.copyWith(username: username, password: password!);
     } else {
-      throw Exception('Registration failed');
+      login();
     }
   }
 

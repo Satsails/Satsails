@@ -53,7 +53,6 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String username = '';
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
@@ -68,7 +67,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                  'Enter Your Preferred Username',
+                  'Register for Custodial Lightning',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -76,26 +75,13 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 12.0),
+                const SizedBox(height: 24.0),
                 const Text(
-                  'Please enter a username to proceed.',
+                  'A username and password will be derived from your private key. This will be used to access your custodial Lightning wallet.',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.black54,
                   ),
                   textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24.0),
-                TextField(
-                  onChanged: (value) => username = value,
-                  decoration: InputDecoration(
-                    hintText: "Username",
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 24.0),
                 Row(
@@ -142,7 +128,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                       ),
                       onPressed: () async {
                         try {
-                          await ref.read(registerProvider({'username': username}).future);
+                          await ref.read(registerProvider.future);
                           context.pop();
                         } catch (e) {
                           Fluttertoast.showToast(
