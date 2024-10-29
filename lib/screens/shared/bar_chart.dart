@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance balance, WidgetRef ref) {
   double totalValue = percentage.btcPercentage +
+      percentage.lightningPercentage +
       percentage.liquidPercentage +
       percentage.brlPercentage +
       percentage.eurPercentage +
@@ -31,11 +32,28 @@ Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance 
     );
   }
 
+  // Lightning
+  if ((percentage.lightningPercentage / totalValue) * 100 >= 0.1 && balance.lightningBalance! > 0) {
+    barGroups.add(
+      BarChartGroupData(
+        x: 1,
+        barRods: [
+          BarChartRodData(
+            toY: (percentage.lightningPercentage / totalValue) * 100,
+            color: Colors.yellow, // Choose an appropriate color for Lightning
+            width: 15,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ],
+      ),
+    );
+  }
+
   // Liquid
   if ((percentage.liquidPercentage / totalValue) * 100 >= 0.1 && balance.liquidBalance > 0) {
     barGroups.add(
       BarChartGroupData(
-        x: 1,
+        x: 2,
         barRods: [
           BarChartRodData(
             toY: (percentage.liquidPercentage / totalValue) * 100,
@@ -52,7 +70,7 @@ Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance 
   if ((percentage.brlPercentage / totalValue) * 100 >= 0.1 && balance.brlBalance > 10000000) {
     barGroups.add(
       BarChartGroupData(
-        x: 2,
+        x: 3,
         barRods: [
           BarChartRodData(
             toY: (percentage.brlPercentage / totalValue) * 100,
@@ -69,7 +87,7 @@ Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance 
   if ((percentage.eurPercentage / totalValue) * 100 >= 0.1 && balance.eurBalance > 10000000) {
     barGroups.add(
       BarChartGroupData(
-        x: 3,
+        x: 4,
         barRods: [
           BarChartRodData(
             toY: (percentage.eurPercentage / totalValue) * 100,
@@ -86,7 +104,7 @@ Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance 
   if ((percentage.usdPercentage / totalValue) * 100 >= 0.1 && balance.usdBalance > 10000000) {
     barGroups.add(
       BarChartGroupData(
-        x: 4,
+        x: 5,
         barRods: [
           BarChartRodData(
             toY: (percentage.usdPercentage / totalValue) * 100,
@@ -112,12 +130,14 @@ Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance 
                 case 0:
                   return Text('BTC', style: TextStyle(color: Colors.white));
                 case 1:
-                  return Text('Liquid', style: TextStyle(color: Colors.white));
+                  return Text('Lightning', style: TextStyle(color: Colors.white));
                 case 2:
-                  return Text('Depix', style: TextStyle(color: Colors.white));
+                  return Text('Liquid', style: TextStyle(color: Colors.white));
                 case 3:
-                  return Text('EURx', style: TextStyle(color: Colors.white));
+                  return Text('Depix', style: TextStyle(color: Colors.white));
                 case 4:
+                  return Text('EURx', style: TextStyle(color: Colors.white));
+                case 5:
                   return Text('USDT', style: TextStyle(color: Colors.white));
                 default:
                   return Text('', style: TextStyle(color: Colors.white));
@@ -151,20 +171,27 @@ Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance 
                     ' (' + ((percentage.btcPercentage / totalValue) * 100).toStringAsFixed(2) + '%)';
                 break;
               case 1:
+                assetBalance = btcInDenominationFormatted(balance.lightningBalance!, denomination) +
+                    ' (' + ((percentage.lightningPercentage / totalValue) * 100).toStringAsFixed(2) + '%)';
+                break;
+              case 2:
                 assetBalance = btcInDenominationFormatted(balance.liquidBalance, denomination) +
                     ' (' + ((percentage.liquidPercentage / totalValue) * 100).toStringAsFixed(2) + '%)';
                 break;
-              case 2:
+              case 3:
                 assetBalance = btcInDenominationFormatted(balance.brlBalance, denomination, false) +
                     ' (' + ((percentage.brlPercentage / totalValue) * 100).toStringAsFixed(2) + '%)';
                 break;
-              case 3:
+              case 4:
                 assetBalance = btcInDenominationFormatted(balance.eurBalance, denomination, false) +
                     ' (' + ((percentage.eurPercentage / totalValue) * 100).toStringAsFixed(2) + '%)';
                 break;
-              case 4:
+              case 5:
                 assetBalance = btcInDenominationFormatted(balance.usdBalance, denomination, false) +
                     ' (' + ((percentage.usdPercentage / totalValue) * 100).toStringAsFixed(2) + '%)';
+                break;
+              default:
+                assetBalance = '';
                 break;
             }
 

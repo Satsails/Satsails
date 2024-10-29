@@ -1,4 +1,5 @@
 import 'package:Satsails/providers/address_receive_provider.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/coinos.provider.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
@@ -328,6 +329,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
         if (data['type'] == 'lightning' && data['confirmed'] == true) {
           // Extract relevant payment information
           final amount = data['amount'];
+          ref.read(backgroundSyncNotifierProvider.notifier).performSync();
 
           // Show the modal with payment information
           WidgetsBinding.instance.addPostFrameCallback((_) {

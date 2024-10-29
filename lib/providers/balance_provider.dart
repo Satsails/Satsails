@@ -16,7 +16,7 @@ final initializeBalanceProvider = FutureProvider<WalletBalance>((ref) async {
 
   final bitcoinBalance = await ref.watch(getBitcoinBalanceProvider.future);
   final liquidBalances = await ref.watch(liquidBalanceProvider.future);
-  final lightningBalance = await ref.watch(coinosBalanceProvider.future);
+  final lightningBalance = await ref.refresh(coinosBalanceProvider.future);
 
   final balanceData = WalletBalance.updateFromAssets(liquidBalances, bitcoinBalance.total, lightningBalance);
 

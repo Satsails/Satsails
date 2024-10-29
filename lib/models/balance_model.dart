@@ -158,7 +158,7 @@ class WalletBalance {
 
 
   double totalBtcBalance() {
-    return btcBalance.toDouble() + liquidBalance.toDouble();
+    return btcBalance.toDouble() + liquidBalance.toDouble() + lightningBalance!.toDouble();
   }
 
 
@@ -168,6 +168,7 @@ class WalletBalance {
       eurPercentage: conversions.eurToBtc * eurBalance.toDouble() / total,
       usdPercentage: conversions.usdToBtc * usdBalance.toDouble() / total,
       brlPercentage: conversions.brlToBtc * brlBalance.toDouble() / total,
+      lightningPercentage: (lightningBalance!) / total,
       liquidPercentage: (liquidBalance) / total,
       btcPercentage: (btcBalance) / total,
       total: total,
@@ -238,6 +239,7 @@ class Percentage {
   final double usdPercentage;
   final double eurPercentage;
   final double brlPercentage;
+  final double lightningPercentage;
   final double total;
 
   Percentage({
@@ -246,6 +248,7 @@ class Percentage {
     required this.usdPercentage,
     required this.eurPercentage,
     required this.brlPercentage,
+    required this.lightningPercentage,
     required this.total,
   });
 }
