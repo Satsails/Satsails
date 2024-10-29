@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/models/auth_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,25 +7,16 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-
 class CoinosBalanceNotifier extends StateNotifier<int> {
-  static const _balanceBoxName = 'coinosBalanceBox';
-  static const _balanceKey = 'coinosBalance';
-  Box<int>? _balanceBox;
+  CoinosBalanceNotifier(super.state);
 
-  CoinosBalanceNotifier() : super(0);
-
-  // Initialize the box asynchronously
-  Future<void> initialize() async {
-    _balanceBox = await Hive.openBox<int>(_balanceBoxName);
-    state = _balanceBox?.get(_balanceKey, defaultValue: 0) ?? 0;
-  }
-
-  void updateBalance(int newBalance) {
+  void updateBalance(int newBalance) async {
+    final box = await Hive.openBox('coinosBalanceBox');
+    box.put('balance', newBalance);
     state = newBalance;
-    _balanceBox?.put(_balanceKey, newBalance);
   }
 }
+
 
 class CoinosPayment {
   final String? id;

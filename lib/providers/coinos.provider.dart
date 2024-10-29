@@ -4,6 +4,7 @@ import 'package:Satsails/services/coinos/coinos_push_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:hive/hive.dart';
 
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 
@@ -57,9 +58,24 @@ final sendPaymentProvider = FutureProvider.family.autoDispose<void, Map<String, 
   await ref.read(coinosLnProvider.notifier).sendPayment(params['address'], params['amount']);
 });
 
-final coinosBalanceProvider = StateNotifierProvider.autoDispose<CoinosBalanceNotifier, int>((ref) {
-  return CoinosBalanceNotifier();
+final initialCoinosBalanceProvider = FutureProvider.autoDispose<int>((ref) async {
+  final box = await Hive.openBox('coinosBalanceBox');
+  final balance = box.get('balance', defaultValue: 0);
+  return balance;
 });
+
+final coinosBalanceProvider = StateNotifierProvider.autoDispose<CoinosBalanceNotifier, int>((ref) {
+  final initialBalance = ref.watch(initialCoinosBalanceProvider);
+
+  return CoinosBalanceNotifier(initialBalance.when(data:
+    (balance) => balance,
+    loading: () => 0,
+    error: (error, stackTrace) {
+      throw error;
+    },
+  ));
+});
+
 
 final getTransactionsProvider = FutureProvider.autoDispose<Map<String, dynamic>?>((ref) async {
   final response = await ref.read(coinosLnProvider.notifier).getTransactions();
