@@ -2,7 +2,7 @@ import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
-import 'package:Satsails/screens/analytics/components/button_picker.dart';
+import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
@@ -412,8 +412,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
               Future.microtask(() {
-              ref.read(topSelectedButtonProvider.notifier).state = "Swap";
-              ref.read(groupButtonControllerProvider).selectIndex(2);
+              ref.read(selectedExpenseTypeProvider.notifier).state = "Swap";
               ref.read(navigationProvider.notifier).state = 1;
              });
               await ref.read(liquidSyncNotifierProvider.notifier).performSync();

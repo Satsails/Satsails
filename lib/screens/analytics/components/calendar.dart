@@ -8,7 +8,7 @@ import 'package:segmented_button_slide/segmented_button_slide.dart';
 
 final today = DateUtils.dateOnly(DateTime.now());
 
-final selectedButtonProvider = StateProvider.autoDispose<int>((ref) => 1);
+final selectedButtonProvider = StateProvider<int>((ref) => 1);
 
 class Calendar extends ConsumerStatefulWidget {
   const Calendar({super.key});

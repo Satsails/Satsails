@@ -2,7 +2,7 @@ import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
-import 'package:Satsails/screens/analytics/components/button_picker.dart';
+import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -246,8 +246,7 @@ class _PegState extends ConsumerState<Peg> {
                   ref.read(sendBlocksProvider.notifier).state = 1;
                   Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                   Future.microtask(() {
-                    ref.read(topSelectedButtonProvider.notifier).state = "Swap";
-                    ref.read(groupButtonControllerProvider).selectIndex(2);
+                    ref.read(selectedExpenseTypeProvider.notifier).state = "Swap";
                     ref.read(navigationProvider.notifier).state = 1;
                   });
                   await ref.read(liquidSyncNotifierProvider.notifier).performSync();
@@ -297,8 +296,7 @@ class _PegState extends ConsumerState<Peg> {
                   ref.read(sendBlocksProvider.notifier).state = 1;
                   Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                   Future.microtask(() {
-                    ref.read(topSelectedButtonProvider.notifier).state = "Swap";
-                    ref.read(groupButtonControllerProvider).selectIndex(2);
+                    ref.read(selectedExpenseTypeProvider.notifier).state = "Swap";
                     ref.read(navigationProvider.notifier).state = 1;
                   });
                   await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();

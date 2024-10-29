@@ -6,6 +6,53 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+class CoinosPayment {
+  final String? id;
+  final String? hash;
+  final int? amount;
+  final String? uid;
+  final double? rate;
+  final String? currency;
+  final String? memo;
+  final String? ref;
+  final int? tip;
+  final String? type;
+  final bool? confirmed;
+  final DateTime? created;
+
+  CoinosPayment({
+    this.id,
+    this.hash,
+    this.amount,
+    this.uid,
+    this.rate,
+    this.currency,
+    this.memo,
+    this.ref,
+    this.tip,
+    this.type,
+    this.confirmed,
+    this.created,
+  });
+
+  factory CoinosPayment.fromJson(Map<String, dynamic> json) {
+    return CoinosPayment(
+      id: json['id'] as String?,
+      hash: json['hash'] as String?,
+      amount: json['amount'] as int?,
+      uid: json['uid'] as String?,
+      rate: (json['rate'] as num?)?.toDouble(),
+      currency: json['currency'] as String?,
+      memo: json['memo'] as String?,
+      ref: json['ref'] as String?,
+      tip: json['tip'] as int?,
+      type: json['type'] as String?,
+      confirmed: json['confirmed'] as bool?,
+      created: json['created'] != null ? DateTime.fromMillisecondsSinceEpoch(json['created']) : null,
+    );
+  }
+}
+
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 
 class CoinosLn {
@@ -95,13 +142,13 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     }
   }
 
-  Future<List<dynamic>?> getTransactions() async {
+  Future<Map<String, dynamic>?> getTransactions() async {
     final token = state.token;
     if (token == null || token.isEmpty) {
       throw Exception('Token is missing or invalid');
     }
 
-    final result = await CoinosLnService.getTransactions(token);
+    final result = await CoinosLnService.getBalanceAndTransactions(token);
     if (result.isSuccess) {
       return result.data;
     } else {
@@ -131,12 +178,14 @@ class CoinosLnService {
     }
   }
 
-  static Future<Result<String>> register(String username, String password) async {
+  static Future<Result<String>> register(String username,
+      String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/register'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'user': {'username': username, 'password': password}}),
+        body: jsonEncode(
+            {'user': {'username': username, 'password': password}}),
       );
       if (response.statusCode == 200) {
         return Result(data: 'Registration successful');
@@ -187,10 +236,11 @@ class CoinosLnService {
     }
   }
 
-  static Future<Result<void>> sendPayment(String token, String address, int amount) async {
+  static Future<Result<void>> sendPayment(String token, String address,
+      int amount) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/payments'),
+        Uri.parse('$baseUrl/send'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -207,22 +257,40 @@ class CoinosLnService {
     }
   }
 
-  static Future<Result<List<dynamic>>> getTransactions(String token) async {
+  static Future<Result<Map<String, dynamic>>> getBalanceAndTransactions(String token) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/transactions'),
+        Uri.parse('$baseUrl/payments'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
+
       if (response.statusCode == 200) {
-        return Result(data: jsonDecode(response.body));
+        final data = jsonDecode(response.body);
+
+        // Extract balance
+        final List<dynamic> incomingPayments = (data['incoming'] as Map<String, dynamic>).values.toList();
+        final int incomingSats = incomingPayments.fold<int>(0, (sum, item) => sum + (item['sats'] as int));
+
+        final List<dynamic> outgoingPayments = (data['outgoing'] as Map<String, dynamic>).values.toList();
+        final int outgoingSats = outgoingPayments.fold<int>(0, (sum, item) => sum + (item['sats'] as int));
+
+        final int balance = incomingSats + outgoingSats;
+
+        // Convert payments to CoinosPayment instances
+        final List<CoinosPayment> payments = data['payments'].map<CoinosPayment>((json) => CoinosPayment.fromJson(json)).toList();
+
+        return Result(data: {
+          'balance': balance,
+          'payments': payments,
+        });
       } else {
-        return Result(error: 'Failed to get transactions: ${response.body}');
+        return Result(error: 'Failed to fetch balance and transactions: ${response.body}');
       }
     } catch (e) {
-      return Result(error: 'Error getting transactions: $e');
+      return Result(error: 'Error fetching balance and transactions: $e');
     }
   }
 }
