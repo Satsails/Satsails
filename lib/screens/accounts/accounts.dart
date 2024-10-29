@@ -105,9 +105,9 @@ class Accounts extends ConsumerWidget {
                     final format = ref.watch(settingsProvider).btcFormat;
                     String lightningBalanceInFormat = '';
                     if (hasLightning) {
-                      final coinosBalance = ref.watch(coinosBalanceProvider);
+                      final coinosBalance = ref.watch(balanceNotifierProvider).lightningBalance;
 
-                      lightningBalanceInFormat = btcInDenominationFormatted(coinosBalance, format);
+                      lightningBalanceInFormat = btcInDenominationFormatted(coinosBalance!, format);
                     }
                     return Card(
                       shape: RoundedRectangleBorder(

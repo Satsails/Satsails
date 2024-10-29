@@ -22,13 +22,14 @@ class WalletBalanceAdapter extends TypeAdapter<WalletBalance> {
       usdBalance: fields[2] as int,
       eurBalance: fields[3] as int,
       brlBalance: fields[4] as int,
+      lightningBalance: fields[5] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, WalletBalance obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.btcBalance)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class WalletBalanceAdapter extends TypeAdapter<WalletBalance> {
       ..writeByte(3)
       ..write(obj.eurBalance)
       ..writeByte(4)
-      ..write(obj.brlBalance);
+      ..write(obj.brlBalance)
+      ..writeByte(5)
+      ..write(obj.lightningBalance);
   }
 
   @override

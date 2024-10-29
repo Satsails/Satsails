@@ -1,4 +1,5 @@
 import 'package:Satsails/providers/bitcoin_provider.dart';
+import 'package:Satsails/providers/coinos.provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/balance_model.dart';
@@ -15,10 +16,11 @@ final initializeBalanceProvider = FutureProvider<WalletBalance>((ref) async {
 
   final bitcoinBalance = await ref.watch(getBitcoinBalanceProvider.future);
   final liquidBalances = await ref.watch(liquidBalanceProvider.future);
+  final lightningBalance = await ref.watch(coinosBalanceProvider.future);
 
-  final liquidBalanceData = WalletBalance.updateFromAssets(liquidBalances, bitcoinBalance.total);
+  final balanceData = WalletBalance.updateFromAssets(liquidBalances, bitcoinBalance.total, lightningBalance);
 
-  return liquidBalanceData;
+  return balanceData;
 });
 
 

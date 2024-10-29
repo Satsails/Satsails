@@ -58,32 +58,12 @@ final sendPaymentProvider = FutureProvider.family.autoDispose<void, Map<String, 
   await ref.read(coinosLnProvider.notifier).sendPayment(params['address'], params['amount']);
 });
 
-final initialCoinosBalanceProvider = FutureProvider.autoDispose<int>((ref) async {
-  final box = await Hive.openBox('coinosBalanceBox');
-  final balance = box.get('balance', defaultValue: 0);
-  return balance;
+final coinosBalanceProvider = FutureProvider<int>((ref) async {
+  return await ref.read(getTransactionsProvider.future).then((value) => value?['balance'] ?? 0);
 });
-
-final coinosBalanceProvider = StateNotifierProvider.autoDispose<CoinosBalanceNotifier, int>((ref) {
-  final initialBalance = ref.watch(initialCoinosBalanceProvider);
-
-  return CoinosBalanceNotifier(initialBalance.when(data:
-    (balance) => balance,
-    loading: () => 0,
-    error: (error, stackTrace) {
-      throw error;
-    },
-  ));
-});
-
 
 final getTransactionsProvider = FutureProvider.autoDispose<Map<String, dynamic>?>((ref) async {
   final response = await ref.read(coinosLnProvider.notifier).getTransactions();
-
-  if (response is Map<String, dynamic> && response.containsKey('balance')) {
-    final balance = response['balance'];
-    ref.read(coinosBalanceProvider.notifier).updateBalance(balance);
-  }
 
   return response;
 });

@@ -184,7 +184,7 @@ class _LightningExpensesGraphState extends ConsumerState<LightningExpensesGraph>
   Widget build(BuildContext context) {
     final selectedDays = ref.watch(selectedDaysDateArrayProvider);
 
-    final coinosBalance = ref.watch(coinosBalanceProvider);
+    final coinosBalance = ref.watch(balanceNotifierProvider).lightningBalance;
 
     final lightningBalanceByDayUnformattedAsync = ref.watch(lightningBalanceOverPeriodByDayProvider);
     final selectedCurrency = ref.watch(settingsProvider).currency;
@@ -193,7 +193,7 @@ class _LightningExpensesGraphState extends ConsumerState<LightningExpensesGraph>
     final screenHeight = MediaQuery.of(context).size.height;
     final currencyRate = ref.watch(selectedCurrencyProvider(selectedCurrency));
 
-    final formattedCoinosBalance = btcInDenominationFormatted(coinosBalance, btcFormat);
+    final formattedCoinosBalance = btcInDenominationFormatted(coinosBalance!, btcFormat);
 
     return lightningBalanceByDayUnformattedAsync.when(
       data: (lightningBalanceByDayUnformatted) {

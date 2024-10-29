@@ -3,20 +3,8 @@ import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/models/auth_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-class CoinosBalanceNotifier extends StateNotifier<int> {
-  CoinosBalanceNotifier(super.state);
-
-  void updateBalance(int newBalance) async {
-    final box = await Hive.openBox('coinosBalanceBox');
-    box.put('balance', newBalance);
-    state = newBalance;
-  }
-}
-
 
 class CoinosPayment {
   final String? id;

@@ -14,6 +14,7 @@ class BalanceNotifier extends StateNotifier<WalletBalance> {
         usdBalance: 0,
         eurBalance: 0,
         brlBalance: 0,
+        lightningBalance: 0,
       )) {
     _initialize();
   }
@@ -64,9 +65,11 @@ class WalletBalance {
   final int eurBalance;
   @HiveField(4)
   final int brlBalance;
+  @HiveField(5)
+  int? lightningBalance;
 
   bool get isEmpty {
-    return btcBalance == 0 && liquidBalance == 0 && usdBalance == 0 && eurBalance == 0 && brlBalance == 0;
+    return btcBalance == 0 && liquidBalance == 0 && usdBalance == 0 && eurBalance == 0 && brlBalance == 0 && lightningBalance == 0;
   }
 
   WalletBalance({
@@ -75,9 +78,10 @@ class WalletBalance {
     required this.usdBalance,
     required this.eurBalance,
     required this.brlBalance,
-  });
+    int? lightningBalance,
+  }) : lightningBalance = lightningBalance ?? 0;
 
-  factory WalletBalance.updateFromAssets(List<dynamic> balances, int bitcoinBalance) {
+  factory WalletBalance.updateFromAssets(List<dynamic> balances, int bitcoinBalance, int lightningBalance) {
     int usdBalance = 0;
     int eurBalance = 0;
     int brlBalance = 0;
@@ -108,6 +112,7 @@ class WalletBalance {
       usdBalance: usdBalance,
       eurBalance: eurBalance,
       brlBalance: brlBalance,
+      lightningBalance: lightningBalance,
     );
   }
 
