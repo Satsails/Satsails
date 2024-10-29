@@ -57,7 +57,7 @@ final sendPaymentProvider = FutureProvider.family.autoDispose<void, Map<String, 
   await ref.read(coinosLnProvider.notifier).sendPayment(params['address'], params['amount']);
 });
 
-final getTransactionsProvider = FutureProvider.autoDispose<Map<String, dynamic>?>((ref) async {
+final getTransactionsProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
   return await ref.read(coinosLnProvider.notifier).getTransactions();
 });
 

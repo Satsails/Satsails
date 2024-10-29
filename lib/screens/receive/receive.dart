@@ -5,26 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:group_button/group_button.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 
-final selectedButtonProvider = StateProvider.autoDispose<String>((ref) => "Bitcoin");
+final selectedReceiveTypeProvider = StateProvider<String>((ref) => "Bitcoin");
 
 class Receive extends ConsumerWidget {
-  Receive({super.key});
-  final groupButtonControllerProvider = Provider<GroupButtonController>((ref) {
-    return GroupButtonController(selectedIndex: 1);
-  });
-
+  const Receive({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    final selectedIndex = ref.watch(selectedButtonProvider);
-    final controller = ref.watch(groupButtonControllerProvider);
+    final selectedType = ref.watch(selectedReceiveTypeProvider);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -48,51 +42,58 @@ class Receive extends ConsumerWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              GroupButton(
-                isRadio: true,
-                controller: controller,
-                onSelected: (value, index, isSelected) {
-                  ref.read(selectedButtonProvider.notifier).state = value;
-                  ref.read(inputCurrencyProvider.notifier).state = 'BTC';
-                  ref.read(inputAmountProvider.notifier).state = '0.0';
-                  ref.read(isBitcoinInputProvider.notifier).state = true;
-                },
-                buttons: const ['Lightning', 'Bitcoin', 'Liquid'],
-                options: GroupButtonOptions(
-                  unselectedTextStyle: TextStyle(
-                    fontSize: screenWidth * 0.04,
-                    color: Colors.orange,
+              // DropdownButton to select the receive type
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: 16),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[900],
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.5),
+                        offset: const Offset(0, 4),
+                        blurRadius: 8,
+                      ),
+                    ],
                   ),
-                  selectedTextStyle: TextStyle(
-                    fontSize: screenWidth * 0.04,
-                    color: Colors.black,
+                  child: DropdownButton<String>(
+                    value: selectedType,
+                    isExpanded: true,
+                    dropdownColor: Colors.grey[900],
+                    icon: Icon(Icons.arrow_drop_down, color: Colors.orange, size: screenWidth * 0.08),
+                    underline: const SizedBox(),
+                    style: TextStyle(color: Colors.orange, fontSize: screenWidth * 0.05, fontWeight: FontWeight.w500),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        ref.read(selectedReceiveTypeProvider.notifier).state = newValue;
+                        // Reset other state if needed
+                        ref.read(inputCurrencyProvider.notifier).state = 'BTC';
+                        ref.read(inputAmountProvider.notifier).state = '0.0';
+                        ref.read(isBitcoinInputProvider.notifier).state = true;
+                      }
+                    },
+                    items: <String>['Bitcoin', 'Liquid', 'Lightning']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            value.i18n(ref),
+                            style: TextStyle(color: Colors.orange, fontSize: screenWidth * 0.045),
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
-                  selectedColor: Colors.orange,
-                  mainGroupAlignment: MainGroupAlignment.center,
-                  crossGroupAlignment: CrossGroupAlignment.center,
-                  groupRunAlignment: GroupRunAlignment.center,
-                  unselectedColor: Colors.black,
-                  groupingType: GroupingType.row,
-                  alignment: Alignment.center,
-                  elevation: 0,
-                  textPadding: EdgeInsets.zero,
-                  unselectedBorderColor: Colors.orange,
-                  selectedShadow: const <BoxShadow>[
-                    BoxShadow(color: Colors.transparent)
-                  ],
-                  unselectedShadow: const <BoxShadow>[
-                    BoxShadow(color: Colors.transparent)
-                  ],
-                  borderRadius: BorderRadius.circular(screenWidth * 0.01),
                 ),
               ),
               SizedBox(height: screenHeight * 0.02),
-              if (selectedIndex == 'Bitcoin')
-                const BitcoinWidget(),
-              if (selectedIndex == "Liquid")
-                const LiquidWidget(),
-              if (selectedIndex == "Lightning")
-                const CustodialLightningWidget(),
+              if (selectedType == 'Bitcoin') const BitcoinWidget(),
+              if (selectedType == 'Liquid') const LiquidWidget(),
+              if (selectedType == 'Lightning') const CustodialLightningWidget(),
             ],
           ),
         ),
