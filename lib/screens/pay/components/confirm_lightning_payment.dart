@@ -8,9 +8,8 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -30,11 +29,26 @@ final totalAmountProvider = FutureProvider.autoDispose.family<double, bool>((ref
   }
 });
 
-class ConfirmLightningPayment extends HookConsumerWidget {
-  ConfirmLightningPayment({super.key});
+class ConfirmLightningPayment extends ConsumerStatefulWidget {
+  ConfirmLightningPayment({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _ConfirmLightningPaymentState createState() => _ConfirmLightningPaymentState();
+}
+
+class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPayment> {
+  late String addressState;
+  bool isProcessing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final sendTxState = ref.read(sendTxProvider);
+    addressState = sendTxState.address;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final titleFontSize = MediaQuery.of(context).size.height * 0.03;
     final sendTxState = ref.read(sendTxProvider);
     final balance = ref.read(balanceNotifierProvider);
@@ -49,15 +63,12 @@ class ConfirmLightningPayment extends HookConsumerWidget {
     final sendAmount = ref.read(sendTxProvider).btcBalanceInDenominationFormatted(btcFormat);
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormat));
     final fees = ref.watch(boltzSubmarineFeesProvider);
-    final addressState = useState(sendTxState.address);
     final sendLiquid = ref.watch(sendLiquidProvider);
     final totalAmountAsyncValue = ref.watch(totalAmountProvider(sendLiquid));
 
-    final isProcessing = useState(false);
-
-    return PopScope(
-      onPopInvoked: (pop) async {
-        if (isProcessing.value) {
+    return WillPopScope(
+      onWillPop: () async {
+        if (isProcessing) {
           Fluttertoast.showToast(
             msg: "Transaction in progress, please wait.".i18n(ref),
             toastLength: Toast.LENGTH_SHORT,
@@ -66,11 +77,12 @@ class ConfirmLightningPayment extends HookConsumerWidget {
             textColor: Colors.white,
             fontSize: 16.0,
           );
-          return;
+          return false;
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
           ref.read(sendBlocksProvider.notifier).state = 1;
           context.replace('/home');
+          return true;
         }
       },
       child: SafeArea(
@@ -82,7 +94,6 @@ class ConfirmLightningPayment extends HookConsumerWidget {
             title: Text('Confirm lightning payment'.i18n(ref), style: const TextStyle(color: Colors.white, fontSize: 17)),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              color: Colors.white,
               onPressed: () {
                 context.pop();
               },
@@ -118,7 +129,7 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                             child: Padding(
                               padding: EdgeInsets.all(dynamicPadding / 2),
                               child: Text(
-                                addressState.value,
+                                addressState,
                                 style: TextStyle(
                                   fontSize: dynamicFontSize / 1.5,
                                   color: Colors.white,
@@ -138,11 +149,12 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                         data: (totalAmountToSendValue) {
                           final totalFeesValue = fees.when(
                             data: (feeData) {
-                              double percentageFee = sendLiquid ?
-                              feeData.lbtcFees.percentage / 100 * sendAmount :
-                              feeData.btcFees.percentage / 100 * sendAmount;
+                              double percentageFee = sendLiquid
+                                  ? feeData.lbtcFees.percentage / 100 * sendAmount
+                                  : feeData.btcFees.percentage / 100 * sendAmount;
                               return btcInDenominationFormatted(
-                                percentageFee + (sendLiquid ? feeData.lbtcFees.minerFees : feeData.btcFees.minerFees),
+                                percentageFee +
+                                    (sendLiquid ? feeData.lbtcFees.minerFees : feeData.btcFees.minerFees),
                                 btcFormat,
                               );
                             },
@@ -153,7 +165,9 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                           final minAmount = fees.when(
                             data: (feeData) => btcInDenominationFormatted(
                               double.parse(
-                                sendLiquid ? feeData.lbtcLimits.minimal.toString() : feeData.btcLimits.minimal.toString(),
+                                sendLiquid
+                                    ? feeData.lbtcLimits.minimal.toString()
+                                    : feeData.btcLimits.minimal.toString(),
                               ),
                               btcFormat,
                             ),
@@ -161,7 +175,8 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                             error: (error, stack) => 'Error',
                           );
 
-                          String formattedTotalAmountToSend = btcInDenominationFormatted(totalAmountToSendValue, btcFormat);
+                          String formattedTotalAmountToSend =
+                          btcInDenominationFormatted(totalAmountToSendValue, btcFormat);
 
                           return Column(
                             children: [
@@ -219,7 +234,9 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                     backgroundColor: Colors.black,
                     toggleColor: Colors.orange,
                     action: (controller) async {
-                      isProcessing.value = true;
+                      setState(() {
+                        isProcessing = true;
+                      });
                       controller.loading();
                       try {
                         if (sendAmount <= 0) {
@@ -236,7 +253,6 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                           msg: "Transaction Sent".i18n(ref),
                           toastLength: Toast.LENGTH_LONG,
                           gravity: ToastGravity.TOP,
-                          timeInSecForIosWeb: 1,
                           backgroundColor: Colors.green,
                           textColor: Colors.white,
                           fontSize: 16.0,
@@ -250,14 +266,15 @@ class ConfirmLightningPayment extends HookConsumerWidget {
                           msg: e.toString().i18n(ref),
                           toastLength: Toast.LENGTH_LONG,
                           gravity: ToastGravity.TOP,
-                          timeInSecForIosWeb: 1,
                           backgroundColor: Colors.red,
                           textColor: Colors.white,
                           fontSize: 16.0,
                         );
                         controller.reset();
                       } finally {
-                        isProcessing.value = false;
+                        setState(() {
+                          isProcessing = false;
+                        });
                       }
                     },
                     child: Text('Slide to send'.i18n(ref), style: const TextStyle(color: Colors.white)),

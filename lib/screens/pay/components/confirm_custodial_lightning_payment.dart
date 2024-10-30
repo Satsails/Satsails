@@ -6,6 +6,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
@@ -15,15 +16,34 @@ import 'package:Satsails/providers/coinos.provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-class ConfirmCustodialLightningPayment extends HookConsumerWidget {
-  ConfirmCustodialLightningPayment({super.key});
-  final controller = TextEditingController();
+class ConfirmCustodialLightningPayment extends ConsumerStatefulWidget {
+  ConfirmCustodialLightningPayment({Key? key}) : super(key: key);
 
-  // Function to shorten the address
+  @override
+  _ConfirmCustodialLightningPaymentState createState() =>
+      _ConfirmCustodialLightningPaymentState();
+}
+
+class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustodialLightningPayment> {
+  final TextEditingController controller = TextEditingController();
+  bool isProcessing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final btcFormat = ref.read(settingsProvider).btcFormat;
+    final sendAmount = ref.read(sendTxProvider).btcBalanceInDenominationFormatted(btcFormat);
+    controller.text = sendAmount == 0 ? '' : (btcFormat == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString());
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   String shortenAddress(String address, {int startLength = 6, int endLength = 6}) {
     if (address.length <= startLength + endLength) {
       return address;
@@ -33,7 +53,7 @@ class ConfirmCustodialLightningPayment extends HookConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final titleFontSize = screenHeight * 0.03;
     final sendTxState = ref.watch(sendTxProvider);
@@ -46,21 +66,14 @@ class ConfirmCustodialLightningPayment extends HookConsumerWidget {
     final valueInBtc = lightningBalance! / 100000000;
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
 
-    useEffect(() {
-      Future.microtask(() => controller.text = sendAmount == 0 ? '' : (btcFormat == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString()));
-      return null;
-    }, []);
-
-    final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
+    final dynamicFontSize = screenHeight * 0.02;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final dynamicMargin = MediaQuery.of(context).size.width * 0.05;
-    final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
+    final dynamicSizedBox = screenHeight * 0.01;
 
-    final isProcessing = useState(false);
-
-    return PopScope(
-      onPopInvoked: (pop) async {
-        if (isProcessing.value) {
+    return WillPopScope(
+      onWillPop: () async {
+        if (isProcessing) {
           Fluttertoast.showToast(
             msg: "Transaction in progress, please wait.".i18n(ref),
             toastLength: Toast.LENGTH_SHORT,
@@ -69,10 +82,11 @@ class ConfirmCustodialLightningPayment extends HookConsumerWidget {
             textColor: Colors.white,
             fontSize: 16.0,
           );
-          return;
+          return false;
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
           context.replace('/home');
+          return true;
         }
       },
       child: SafeArea(
@@ -139,7 +153,6 @@ class ConfirmCustodialLightningPayment extends HookConsumerWidget {
                               ),
                             ),
                           ),
-                          // Address Display with Shortened Address
                           GestureDetector(
                             onTap: () {
                               Clipboard.setData(ClipboardData(text: sendTxState.address));
@@ -170,7 +183,6 @@ class ConfirmCustodialLightningPayment extends HookConsumerWidget {
                             ),
                           ),
                           SizedBox(height: dynamicSizedBox * 2),
-                          // Amount Input and Max Button
                           Text(
                             'Amount'.i18n(ref),
                             style: TextStyle(
@@ -260,7 +272,6 @@ class ConfirmCustodialLightningPayment extends HookConsumerWidget {
                             ],
                           ),
                           SizedBox(height: dynamicSizedBox),
-                          // Currency Value Display
                           Text(
                             '${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
                             style: TextStyle(
@@ -271,7 +282,6 @@ class ConfirmCustodialLightningPayment extends HookConsumerWidget {
                             textAlign: TextAlign.left,
                           ),
                           SizedBox(height: dynamicSizedBox * 2),
-                          // Currency Selector
                           Text(
                             'Currency'.i18n(ref),
                             style: TextStyle(
@@ -333,7 +343,6 @@ class ConfirmCustodialLightningPayment extends HookConsumerWidget {
                     ),
                   ),
                 ),
-                // Action Slider at the bottom
                 Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Center(
@@ -343,11 +352,11 @@ class ConfirmCustodialLightningPayment extends HookConsumerWidget {
                       backgroundColor: Colors.black,
                       toggleColor: Colors.orange,
                       action: (controller) async {
-                        isProcessing.value = true;
+                        setState(() {
+                          isProcessing = true;
+                        });
                         controller.loading();
                         try {
-                          // await ref.watch(sendCoinosPaymentProvider.future);
-                          // await ref.read(coinosSyncNotifierProvider.notifier).performSync();
                           Fluttertoast.showToast(
                             msg: "Transaction Sent".i18n(ref),
                             toastLength: Toast.LENGTH_LONG,
@@ -370,7 +379,9 @@ class ConfirmCustodialLightningPayment extends HookConsumerWidget {
                           );
                           controller.reset();
                         } finally {
-                          isProcessing.value = false;
+                          setState(() {
+                            isProcessing = false;
+                          });
                         }
                       },
                       child: Text('Slide to send'.i18n(ref), style: const TextStyle(color: Colors.white)),

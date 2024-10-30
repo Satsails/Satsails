@@ -8,6 +8,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
@@ -16,20 +17,41 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-class ConfirmLiquidPayment extends HookConsumerWidget {
-  ConfirmLiquidPayment({super.key});
-  final controller = TextEditingController();
+class ConfirmLiquidPayment extends ConsumerStatefulWidget {
+  ConfirmLiquidPayment({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _ConfirmLiquidPaymentState createState() => _ConfirmLiquidPaymentState();
+}
+
+class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
+  final TextEditingController controller = TextEditingController();
+  bool isProcessing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final btcFormat = ref.read(settingsProvider).btcFormat;
+    final sendAmount = ref.read(sendTxProvider).btcBalanceInDenominationFormatted(btcFormat);
+    controller.text = sendAmount == 0
+        ? ''
+        : (btcFormat == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString());
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final titleFontSize = MediaQuery.of(context).size.height * 0.03;
     final sendTxState = ref.watch(sendTxProvider);
-    final liquidFormart = ref.watch(settingsProvider).btcFormat;
-    final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(liquidFormart));
+    final liquidFormat = ref.watch(settingsProvider).btcFormat;
+    final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(liquidFormat));
     final balance = ref.watch(balanceNotifierProvider);
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
@@ -37,24 +59,21 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
     final dynamicCardHeight = MediaQuery.of(context).size.height * 0.21;
     final showBitcoinRelatedWidgets = ref.watch(showBitcoinRelatedWidgetsProvider.notifier);
-    final btcFormart = ref.watch(settingsProvider).btcFormat;
-    final sendAmount = ref.watch(sendTxProvider).btcBalanceInDenominationFormatted(btcFormart);
+    final btcFormat = ref.watch(settingsProvider).btcFormat;
+    final sendAmount = ref.watch(sendTxProvider).btcBalanceInDenominationFormatted(btcFormat);
 
-    // State variable to track if a transaction is in progress
-    final isProcessing = useState(false);
+    // Update controller text when showBitcoinRelatedWidgets.state changes
+    ref.listen<bool>(showBitcoinRelatedWidgetsProvider, (previous, next) {
+      setState(() {
+        controller.text = sendAmount == 0
+            ? ''
+            : (btcFormat == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString());
+      });
+    });
 
-    useEffect(() {
-      controller.text = sendAmount == 0
-          ? ''
-          : (btcFormart == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString());
-      return null;
-    }, [showBitcoinRelatedWidgets.state]);
-
-    return PopScope(
-      onPopInvoked: (pop) async {
-        // Prevent navigation if a transaction is in progress
-        if (isProcessing.value) {
-          // Optionally, show a message to the user
+    return WillPopScope(
+      onWillPop: () async {
+        if (isProcessing) {
           Fluttertoast.showToast(
             msg: "Transaction in progress, please wait.".i18n(ref),
             toastLength: Toast.LENGTH_SHORT,
@@ -63,11 +82,12 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
             textColor: Colors.white,
             fontSize: 16.0,
           );
-          return;
+          return false;
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
           ref.read(sendBlocksProvider.notifier).state = 1;
           context.replace('/home');
+          return true;
         }
       },
       child: SafeArea(
@@ -85,7 +105,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
-                  if (!isProcessing.value) {
+                  if (!isProcessing) {
                     context.pop();
                   } else {
                     Fluttertoast.showToast(
@@ -109,7 +129,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                       children: [
                         LiquidCards(
                           titleFontSize: titleFontSize,
-                          liquidFormart: liquidFormart,
+                          liquidFormart: liquidFormat,
                           liquidBalanceInFormat: liquidBalanceInFormat,
                           balance: balance,
                           dynamicPadding: dynamicPadding,
@@ -146,7 +166,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                             child: TextFormField(
                               controller: controller,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              inputFormatters:ref.watch(inputCurrencyProvider) == 'Sats'
+                              inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats'
                                   ? [DecimalTextInputFormatter(decimalRange: 0)]
                                   : (showBitcoinRelatedWidgets.state
                                   ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)]
@@ -160,9 +180,10 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                               ),
                               onChanged: (value) async {
                                 if (showBitcoinRelatedWidgets.state) {
-                                  ref.read(inputAmountProvider.notifier).state = controller.text.isEmpty ? '0.0' : controller.text;
+                                  ref.read(inputAmountProvider.notifier).state =
+                                  controller.text.isEmpty ? '0.0' : controller.text;
                                   if (value.isEmpty) {
-                                    ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormart);
+                                    ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
                                     ref.read(sendTxProvider.notifier).updateDrain(false);
                                   }
                                   final amountInSats = calculateAmountInSatsToDisplay(
@@ -172,7 +193,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                                   );
                                   ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
                                 } else {
-                                  ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormart);
+                                  ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
                                 }
                                 ref.read(sendTxProvider.notifier).updateDrain(false);
                               },
@@ -231,7 +252,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                                   DropdownMenuItem(
                                     value: 'Sats',
                                     child: Center(
-                                      child: Text('Sats', style: TextStyle(color: Color(0xFFD98100))),  // Adjusted text style
+                                      child: Text('Sats', style: TextStyle(color: Color(0xFFD98100))),
                                     ),
                                   ),
                                 ],
@@ -249,7 +270,7 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                         Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: Colors.white,  // Change gradient to solid color
+                            color: Colors.white,
                           ),
                           child: Material(
                             color: Colors.transparent,
@@ -257,32 +278,49 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                               borderRadius: BorderRadius.circular(10),
                               onTap: () async {
                                 final assetId = ref.watch(sendTxProvider).assetId;
-                                try{
+                                try {
                                   if (assetId == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
                                     final pset = await ref.watch(liquidDrainWalletProvider.future);
                                     final sendingBalance = pset.balances[0].value + pset.absoluteFees;
                                     final controllerValue = sendingBalance.abs();
                                     final selectedCurrency = ref.watch(inputCurrencyProvider);
-                                    final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
-                                    controller.text = selectedCurrency == 'BTC' ? amountToSetInSelectedCurrency : selectedCurrency == 'Sats' ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0) : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
-                                    ref.read(sendTxProvider.notifier).updateAmountFromInput(controllerValue.toString(), 'sats');
+                                    final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(
+                                        controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
+                                    controller.text = selectedCurrency == 'BTC'
+                                        ? amountToSetInSelectedCurrency
+                                        : selectedCurrency == 'Sats'
+                                        ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
+                                        : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
+                                    ref.read(sendTxProvider.notifier).updateAmountFromInput(
+                                        controllerValue.toString(), 'sats');
                                     ref.read(sendTxProvider.notifier).updateDrain(true);
                                   } else {
                                     await ref.watch(liquidDrainWalletProvider.future);
                                     final sendingBalance = ref.watch(assetBalanceProvider);
                                     controller.text = fiatInDenominationFormatted(sendingBalance);
-                                    ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
-                                  }}catch(e) {
-                                  Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                                    ref.read(sendTxProvider.notifier).updateAmountFromInput(
+                                        controller.text, btcFormat);
+                                  }
+                                } catch (e) {
+                                  Fluttertoast.showToast(
+                                    msg: e.toString().i18n(ref),
+                                    toastLength: Toast.LENGTH_LONG,
+                                    gravity: ToastGravity.TOP,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0,
+                                  );
                                 }
                               },
                               child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 1, vertical: dynamicPadding / 2.5),  // Adjust padding
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: dynamicPadding / 1, vertical: dynamicPadding / 2.5),
                                 child: Text(
                                   'Max',
                                   style: TextStyle(
-                                    fontSize: dynamicFontSize / 1,  // Adjust font size
-                                    color: Colors.black,  // Change text color
+                                    fontSize: dynamicFontSize / 1,
+                                    color: Colors.black,
                                   ),
                                 ),
                               ),
@@ -304,24 +342,38 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                           data: (int fee) {
                             return Text(
                               '${'Fee:'.i18n(ref)} $fee${' sats'}',
-                              style:TextStyle(fontSize: dynamicFontSize / 1.5, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: TextStyle(
+                                  fontSize: dynamicFontSize / 1.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
                               textAlign: TextAlign.center,
                             );
                           },
-                          loading: () => LoadingAnimationWidget.progressiveDots(size: dynamicFontSize / 1.5, color: Colors.white),
-                          error: (error, stack) => TextButton(onPressed: () { ref.refresh(feeProvider); }, child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: dynamicFontSize / 1.5))),
+                          loading: () => LoadingAnimationWidget.progressiveDots(
+                              size: dynamicFontSize / 1.5, color: Colors.white),
+                          error: (error, stack) => TextButton(
+                              onPressed: () {
+                                ref.refresh(feeProvider);
+                              },
+                              child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n(ref),
+                                  style: TextStyle(color: Colors.white, fontSize: dynamicFontSize / 1.5))),
                         ),
                         SizedBox(height: dynamicSizedBox),
                         ref.watch(liquidFeeValueInCurrencyProvider).when(
                           data: (double feeValue) {
                             return Text(
                               '${feeValue.toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
-                              style: TextStyle(fontSize: dynamicFontSize / 1.5, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: TextStyle(
+                                  fontSize: dynamicFontSize / 1.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
                               textAlign: TextAlign.center,
                             );
                           },
-                          loading: () => LoadingAnimationWidget.progressiveDots(size: dynamicFontSize / 1.5, color: Colors.black),
-                          error: (error, stack) => Text('', style: TextStyle(color: Colors.black, fontSize: dynamicFontSize / 1.5)),
+                          loading: () => LoadingAnimationWidget.progressiveDots(
+                              size: dynamicFontSize / 1.5, color: Colors.black),
+                          error: (error, stack) => Text('',
+                              style: TextStyle(color: Colors.black, fontSize: dynamicFontSize / 1.5)),
                         ),
                       ],
                     ),
@@ -336,11 +388,13 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                       backgroundColor: Colors.black,
                       toggleColor: Colors.orange,
                       action: (controller) async {
-                        isProcessing.value = true;
+                        setState(() {
+                          isProcessing = true;
+                        });
                         controller.loading();
                         try {
                           await ref.watch(sendLiquidTransactionProvider.future);
-                          await ref.watch(liquidSyncNotifierProvider.notifier).performSync();
+                          await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                           Fluttertoast.showToast(
                             msg: "Transaction Sent".i18n(ref),
                             toastLength: Toast.LENGTH_LONG,
@@ -366,7 +420,9 @@ class ConfirmLiquidPayment extends HookConsumerWidget {
                           );
                           controller.reset();
                         } finally {
-                          isProcessing.value = false;
+                          setState(() {
+                            isProcessing = false;
+                          });
                         }
                       },
                       child: Text('Slide to send'.i18n(ref),
