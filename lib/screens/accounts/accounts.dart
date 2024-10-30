@@ -103,9 +103,13 @@ class Accounts extends ConsumerWidget {
                   builder: (context, ref, _) {
                     final hasLightning = ref.watch(coinosLnProvider).token.isNotEmpty;
                     final format = ref.watch(settingsProvider).btcFormat;
+                    String? coinosBalanceInCurrency;
                     String lightningBalanceInFormat = '';
                     if (hasLightning) {
                       final coinosBalance = ref.watch(balanceNotifierProvider).lightningBalance;
+                      coinosBalanceInCurrency = ref.watch(currentBitcoinPriceInCurrencyProvider(
+                        CurrencyParams(ref.watch(settingsProvider).currency, coinosBalance!),
+                      )).toStringAsFixed(2);
 
                       lightningBalanceInFormat = btcInDenominationFormatted(coinosBalance!, format);
                     }
@@ -117,7 +121,7 @@ class Accounts extends ConsumerWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFFFFD700), Color(0xFFFFD700)], // Lightning colors
+                            colors: [Color(0xFFF7931A), Color(0xFFFFA500)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -130,9 +134,9 @@ class Accounts extends ConsumerWidget {
                               lightningBalanceInFormat,
                               const Icon(Icons.flash_on, color: Colors.white),
                               context,
-                              null, // No address needed for Lightning
-                              '', // No balance in currency for Lightning
-                              '', // No denomination needed
+                              null,
+                              hasLightning ? coinosBalanceInCurrency! : '',
+                              hasLightning ? ref.watch(settingsProvider).currency : '',
                               format,
                               ref,
                               isLightning: true,
@@ -144,7 +148,6 @@ class Accounts extends ConsumerWidget {
                   },
                 ),
                 SizedBox(height: screenWidth * 0.02),
-
                 Text(
                   'Liquid Bitcoin',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),

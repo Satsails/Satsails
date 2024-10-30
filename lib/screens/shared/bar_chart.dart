@@ -40,7 +40,7 @@ Widget buildBarChart(BuildContext context, Percentage percentage, WalletBalance 
         barRods: [
           BarChartRodData(
             toY: (percentage.lightningPercentage / totalValue) * 100,
-            color: Colors.yellow, // Choose an appropriate color for Lightning
+            color: Color(0xFFF7931A),
             width: 15,
             borderRadius: BorderRadius.circular(4),
           ),

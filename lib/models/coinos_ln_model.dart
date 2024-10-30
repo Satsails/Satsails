@@ -142,7 +142,10 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
   Future<Map<String, dynamic>?> getTransactions() async {
     final token = state.token;
     if (token == null || token.isEmpty) {
-      throw Exception('Token is missing or invalid');
+      Result(data: {
+        'balance': 0,
+        'payments': [],
+      });
     }
 
     final result = await CoinosLnService.getBalanceAndTransactions(token);

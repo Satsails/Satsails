@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/coinos.provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -61,7 +62,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     }
   }
 
-  void onQRViewCreated(QRViewController controller, BuildContext context) {
+  void onQRViewCreated(QRViewController controller, BuildContext context, WidgetRef ref) {
     widget.onQRViewCreated?.call(controller);
     controller.scannedDataStream.listen((scanData) async {
       try {
@@ -72,7 +73,8 @@ class _QRViewWidgetState extends State<QRViewWidget> {
             context.push('home/pay/confirm_bitcoin_payment');
             break;
           case PaymentType.Lightning:
-            context.push('home/pay/confirm_lightning_payment');
+            final hasCustodialLn = ref.read(coinosLnProvider).token.isNotEmpty;
+            hasCustodialLn ? context.push('/home/pay/confirm_custodial_lightning_payment') : context.push('/home/pay/confirm_lightning_payment');
             break;
           case PaymentType.Liquid:
             context.push('home/pay/confirm_liquid_payment');
@@ -185,7 +187,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     if (_status.isGranted) {
       return QRView(
         key: widget.qrKey,
-        onQRViewCreated: (controller) => onQRViewCreated(controller, context),
+        onQRViewCreated: (controller) => onQRViewCreated(controller, context, widget.ref),
       );
     } else {
       return Scaffold(

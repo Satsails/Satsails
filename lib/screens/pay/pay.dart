@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/coinos.provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +26,8 @@ class Pay extends ConsumerWidget {
             context.push('/home/pay/confirm_bitcoin_payment');
             break;
           case PaymentType.Lightning:
-            context.push('/home/pay/confirm_lightning_payment');
+            final hasCustodialLn = ref.read(coinosLnProvider).token.isNotEmpty;
+            hasCustodialLn ? context.push('/home/pay/confirm_custodial_lightning_payment') : context.push('/home/pay/confirm_lightning_payment');
             break;
           case PaymentType.Liquid:
             context.push('/home/pay/confirm_liquid_payment');

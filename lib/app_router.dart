@@ -1,5 +1,6 @@
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/screens/login/seed_words_pin.dart';
+import 'package:Satsails/screens/pay/components/confirm_custodial_lightning_payment.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
 import 'package:bdk_flutter/bdk_flutter.dart';
@@ -136,6 +137,10 @@ class AppRouter {
                 GoRoute(
                   path: '/confirm_lightning_payment',
                   builder: (context, state) => ConfirmLightningPayment(),
+                ),
+                GoRoute(
+                  path: '/confirm_custodial_lightning_payment',
+                  builder: (context, state) => ConfirmCustodialLightningPayment(),
                 ),
               ],
             ),

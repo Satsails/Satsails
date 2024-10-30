@@ -175,15 +175,30 @@ class _CalendarState extends ConsumerState<Calendar> {
                 switch (selected) {
                   case 0:
                     startDate = now.subtract(const Duration(days: 7));
-                    ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: now));
+                    ref.read(dateTimeSelectProvider.notifier).update(
+                      DateTimeSelect(
+                        start: DateUtils.dateOnly(startDate),
+                        end: DateUtils.dateOnly(now).add(const Duration(hours: 23, minutes: 59, seconds: 59)),
+                      ),
+                    );
                     break;
                   case 1:
                     startDate = now.subtract(const Duration(days: 30));
-                    ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: now));
+                    ref.read(dateTimeSelectProvider.notifier).update(
+                      DateTimeSelect(
+                        start: DateUtils.dateOnly(startDate),
+                        end: DateUtils.dateOnly(now).add(const Duration(hours: 23, minutes: 59, seconds: 59)),
+                      ),
+                    );
                     break;
                   case 2:
                     startDate = DateTime(now.year, now.month - 6, now.day);
-                    ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: startDate, end: now));
+                    ref.read(dateTimeSelectProvider.notifier).update(
+                      DateTimeSelect(
+                        start: DateUtils.dateOnly(startDate),
+                        end: DateUtils.dateOnly(now).add(const Duration(hours: 23, minutes: 59, seconds: 59)),
+                      ),
+                    );
                     break;
                   case 3:
                   default:
@@ -201,9 +216,21 @@ class _CalendarState extends ConsumerState<Calendar> {
                       }
                       if (values.isNotEmpty) {
                         if (values.length == 1) {
-                          ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[0]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
+                          // Include the entire day by setting the end to the end of the day
+                          ref.read(dateTimeSelectProvider.notifier).update(
+                            DateTimeSelect(
+                              start: values[0]!,
+                              end: values[0]!.add(const Duration(hours: 23, minutes: 59, seconds: 59)),
+                            ),
+                          );
                         } else if (values.length == 2) {
-                          ref.read(dateTimeSelectProvider.notifier).update(DateTimeSelect(start: values[0]!, end: values[1]!.add(const Duration(hours: 23, minutes: 59, seconds: 59))));
+                          // Include the entire day by adding 23:59:59 to the end date
+                          ref.read(dateTimeSelectProvider.notifier).update(
+                            DateTimeSelect(
+                              start: values[0]!,
+                              end: values[1]!.add(const Duration(hours: 23, minutes: 59, seconds: 59)),
+                            ),
+                          );
                         }
                       }
                     }
