@@ -8,6 +8,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 
+final lnFeeProvider = StateProvider.autoDispose<int>((ref) => 0);
+
 final initialCoinosProvider = FutureProvider.autoDispose<CoinosLn>((ref) async {
   final token = await _storage.read(key: 'coinosToken') ?? '';
   final username = await _storage.read(key: 'coinosUsername') ?? '';
@@ -57,12 +59,13 @@ final getUsernameProvider = FutureProvider.autoDispose.family<String?, String>((
 final sendPaymentProvider = FutureProvider.autoDispose<void>((ref) async {
   final address = ref.watch(sendTxProvider).address;
   final amount = ref.watch(sendTxProvider).amount;
+  final lnFee = ref.watch(lnFeeProvider);
   final username = await ref.watch(getUsernameProvider(address).future);
-  await ref.read(coinosLnProvider.notifier).sendPayment(address, amount, username);
+  await ref.read(coinosLnProvider.notifier).sendPayment(address, amount, username, lnFee);
 });
 
 final coinosBalanceProvider = FutureProvider<int>((ref) async {
-  return await ref.read(getTransactionsProvider.future).then((value) => value?['balance'] ?? 0);
+  return await ref.refresh(getTransactionsProvider.future).then((value) => value?['balance'] ?? 0);
 });
 
 final getTransactionsProvider = FutureProvider.autoDispose<Map<String, dynamic>?>((ref) async {

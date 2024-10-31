@@ -310,8 +310,6 @@ class LbtcTransactionDetailsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),
-
-              // Claim or Refund Button based on transaction kind
               GestureDetector(
                 onTap: () async {
                   try {

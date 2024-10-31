@@ -332,9 +332,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
           ref.read(backgroundSyncNotifierProvider.notifier).performSync();
 
           // Show the modal with payment information
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _showPaymentReceivedModal(context, amount);
-          });
+          Future.microtask(() => _showPaymentReceivedModal(context, amount));
         }
       },
       loading: () {
@@ -462,6 +460,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                       ),
                     ),
                     onPressed: () {
+                      context.pop();
                       context.pop();
                     },
                   ),

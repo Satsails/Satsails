@@ -118,11 +118,11 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     if (result.isSuccess) {
       return result.data;
     } else {
-      throw Exception('Failed to get invoices');
+      return null;
     }
   }
 
-  Future<void> sendPayment(String address, int amount, String? username) async {
+  Future<void> sendPayment(String address, int amount, String? username, int fee) async {
     final token = state.token;
     if (token == null || token.isEmpty) {
       throw Exception('Token is missing or invalid');
@@ -136,7 +136,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
       return;
     }
 
-    final result = await CoinosLnService.sendPayment(token, address, amount);
+    final result = await CoinosLnService.sendPayment(token, address, amount, fee);
     if (!result.isSuccess) {
       throw Exception('Failed to send payment');
     }
@@ -239,7 +239,7 @@ class CoinosLnService {
     }
   }
 
-  static Future<Result<void>> sendPayment(String token, String address, int amount) async {
+  static Future<Result<void>> sendPayment(String token, String address, int amount, int maxFee) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/payments'),
@@ -247,7 +247,7 @@ class CoinosLnService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({'payreq': address, 'amount': amount}),
+        body: jsonEncode({'payreq': address, 'amount': amount, 'maxfee': 1}),
       );
       if (response.statusCode == 200) {
         return Result(data: null);

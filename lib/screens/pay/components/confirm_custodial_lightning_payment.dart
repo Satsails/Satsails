@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
@@ -61,7 +60,6 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final lightningBalance = ref.watch(balanceNotifierProvider).lightningBalance;
     final lightningBalanceInFormat = btcInDenominationFormatted(lightningBalance!, btcFormat);
-    final sendAmount = ref.watch(sendTxProvider).btcBalanceInDenominationFormatted(btcFormat);
     final currency = ref.read(settingsProvider).currency;
     final currencyRate = ref.read(selectedCurrencyProvider(currency));
     final valueInBtc = lightningBalance! / 100000000;
@@ -361,6 +359,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                           final invoice = await getLnInvoiceWithAmount(sendTxState.address, sendTxState.amount);
                           ref.read(sendTxProvider.notifier).updateAddress(invoice);
                           await ref.read(sendPaymentProvider.future);
+                          await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                           Fluttertoast.showToast(
                             msg: "Transaction Sent".i18n(ref),
                             toastLength: Toast.LENGTH_LONG,

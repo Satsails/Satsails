@@ -88,6 +88,15 @@ final boltzPayProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   await box.put(pay.swap.id, pay);
   sendTx.state = sendTx.state.copyWith(address: pay.swap.scriptAddress, amount: (pay.swap.outAmount).toInt());
   await ref.read(sendLiquidTransactionProvider.future).then((value) => value);
+  final updatedBoltz = LbtcBoltz(
+    swap: pay.swap,
+    keys: pay.keys,
+    preimage: pay.preimage,
+    swapScript: pay.swapScript,
+    timestamp: pay.timestamp,
+    completed: false,
+  );
+  await box.put(pay.swap.id, updatedBoltz);
   return pay;
 });
 
@@ -222,6 +231,15 @@ final bitcoinBoltzPayProvider = FutureProvider.autoDispose<BtcBoltz>((ref) async
   await box.put(pay.swap.id, pay);
   sendTx.state = sendTx.state.copyWith(address: pay.swap.scriptAddress, amount: (pay.swap.outAmount).toInt());
   await ref.read(sendBitcoinTransactionProvider.future).then((value) => value);
+  final updatedPay = BtcBoltz(
+    swap: pay.swap,
+    keys: pay.keys,
+    preimage: pay.preimage,
+    swapScript: pay.swapScript,
+    timestamp: pay.timestamp,
+    completed: true,
+  );
+  await box.put(pay.swap.id, updatedPay);
   return pay;
 });
 
