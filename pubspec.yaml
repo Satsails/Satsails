@@ -67,6 +67,7 @@ dependencies:
   flutter_local_notifications: ^17.2.3
   pusher_channels_flutter: ^2.2.1
   list_english_words: ^0.2.0
+  bech32: ^0.2.2
   pusher_beams:
     git:
       url: https://github.com/sokhorninit/push-notifications-flutter

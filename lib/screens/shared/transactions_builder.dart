@@ -117,7 +117,7 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
             lightningTransactions['payments'].length,
                 (index) =>
                 _buildLightningTransactionItem(
-                    lightningTransactions['payments'][index], context, ref),
+                    lightningTransactions['payments'].reversed.toList()[index], context, ref)
           );
         },
         loading: () => _buildLoadingIndicator(screenHeight),

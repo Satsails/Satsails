@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/coinos.provider.dart';
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
 import 'package:Satsails/screens/receive/components/custodial_lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
@@ -30,6 +31,7 @@ class Receive extends ConsumerWidget {
           onPressed: () {
             context.pop();
             ref.read(inputAmountProvider.notifier).state = '0.0';
+            ref.invalidate(initialCoinosProvider);
           },
         ),
       ),
@@ -68,10 +70,10 @@ class Receive extends ConsumerWidget {
                     onChanged: (String? newValue) {
                       if (newValue != null) {
                         ref.read(selectedReceiveTypeProvider.notifier).state = newValue;
-                        // Reset other state if needed
                         ref.read(inputCurrencyProvider.notifier).state = 'BTC';
                         ref.read(inputAmountProvider.notifier).state = '0.0';
                         ref.read(isBitcoinInputProvider.notifier).state = true;
+                        ref.invalidate(initialCoinosProvider);
                       }
                     },
                     items: <String>['Bitcoin', 'Liquid', 'Lightning']

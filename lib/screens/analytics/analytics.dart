@@ -10,6 +10,8 @@ import 'package:Satsails/screens/analytics/components/swaps_builder.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
 import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
 
+import 'components/calendar.dart';
+
 final selectedExpenseTypeProvider = StateProvider<String>((ref) => "Bitcoin");
 
 class Analytics extends ConsumerWidget {
@@ -64,6 +66,7 @@ class Analytics extends ConsumerWidget {
               style: TextStyle(color: Colors.orange, fontSize: screenWidth * 0.05, fontWeight: FontWeight.w500),
               onChanged: (String? newValue) {
                 if (newValue != null) {
+                  ref.read(selectedButtonProvider.notifier).state = 1;
                   ref.read(selectedExpenseTypeProvider.notifier).state = newValue;
                 }
               },

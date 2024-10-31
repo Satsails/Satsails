@@ -3,6 +3,7 @@ import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/validations/address_validation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
@@ -357,6 +358,9 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                         });
                         controller.loading();
                         try {
+                          final invoice = await getLnInvoiceWithAmount(sendTxState.address, sendTxState.amount);
+                          ref.read(sendTxProvider.notifier).updateAddress(invoice);
+                          await ref.read(sendPaymentProvider.future);
                           Fluttertoast.showToast(
                             msg: "Transaction Sent".i18n(ref),
                             toastLength: Toast.LENGTH_LONG,

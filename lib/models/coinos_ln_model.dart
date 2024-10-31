@@ -113,13 +113,8 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     }
   }
 
-  Future<List<dynamic>?> getInvoices() async {
-    final token = state.token;
-    if (token == null || token.isEmpty) {
-      throw Exception('Token is missing or invalid');
-    }
-
-    final result = await CoinosLnService.getInvoices(token);
+  Future<String?> getInvoice(String invoice) async {
+    final result = await CoinosLnService.getInvoice(invoice);
     if (result.isSuccess) {
       return result.data;
     } else {
@@ -127,10 +122,18 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     }
   }
 
-  Future<void> sendPayment(String address, int amount) async {
+  Future<void> sendPayment(String address, int amount, String? username) async {
     final token = state.token;
     if (token == null || token.isEmpty) {
       throw Exception('Token is missing or invalid');
+    }
+
+    if (username != null) {
+      final result = await CoinosLnService.sendInternalPayment(token, amount, username);
+      if (!result.isSuccess) {
+        throw Exception('Failed to send payment');
+      }
+      return;
     }
 
     final result = await CoinosLnService.sendPayment(token, address, amount);
@@ -142,10 +145,10 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
   Future<Map<String, dynamic>?> getTransactions() async {
     final token = state.token;
     if (token == null || token.isEmpty) {
-      Result(data: {
+      return {
         'balance': 0,
         'payments': [],
-      });
+      };
     }
 
     final result = await CoinosLnService.getBalanceAndTransactions(token);
@@ -217,17 +220,17 @@ class CoinosLnService {
     }
   }
 
-  static Future<Result<List<dynamic>>> getInvoices(String token) async {
+  static Future<Result<String>> getInvoice(String hash) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/invoices'),
+        Uri.parse('$baseUrl/invoice/$hash'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
         },
       );
       if (response.statusCode == 200) {
-        return Result(data: jsonDecode(response.body));
+        final username = jsonDecode(response.body)['user']['username'];
+        return Result(data: username ?? null);
       } else {
         return Result(error: 'Failed to get invoices: ${response.body}');
       }
@@ -236,16 +239,15 @@ class CoinosLnService {
     }
   }
 
-  static Future<Result<void>> sendPayment(String token, String address,
-      int amount) async {
+  static Future<Result<void>> sendPayment(String token, String address, int amount) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/send'),
+        Uri.parse('$baseUrl/payments'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({'address': address, 'amount': amount}),
+        body: jsonEncode({'payreq': address, 'amount': amount}),
       );
       if (response.statusCode == 200) {
         return Result(data: null);
@@ -256,6 +258,27 @@ class CoinosLnService {
       return Result(error: 'Error sending payment: $e');
     }
   }
+
+  static Future<Result<void>> sendInternalPayment(String token, int amount, String username) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/send'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'username': username, 'amount': amount}),
+      );
+      if (response.statusCode == 200) {
+        return Result(data: null);
+      } else {
+        return Result(error: 'Failed to send payment: ${response.body}');
+      }
+    } catch (e) {
+      return Result(error: 'Error sending payment: $e');
+    }
+  }
+
 
   static Future<Result<Map<String, dynamic>>> getBalanceAndTransactions(String token) async {
     try {
@@ -270,17 +293,15 @@ class CoinosLnService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        // Extract balance
-        final List<dynamic> incomingPayments = (data['incoming'] as Map<String, dynamic>).values.toList();
-        final int incomingSats = incomingPayments.fold<int>(0, (sum, item) => sum + (item['sats'] as int));
-
-        final List<dynamic> outgoingPayments = (data['outgoing'] as Map<String, dynamic>).values.toList();
-        final int outgoingSats = outgoingPayments.fold<int>(0, (sum, item) => sum + (item['sats'] as int));
-
-        final int balance = incomingSats + outgoingSats;
-
         // Convert payments to CoinosPayment instances
         final List<CoinosPayment> payments = data['payments'].map<CoinosPayment>((json) => CoinosPayment.fromJson(json)).toList();
+
+        int balance = 0;
+        for (var payment in payments) {
+          if (payment.amount != null) {
+            balance += payment.amount!;
+          }
+        }
 
         return Result(data: {
           'balance': balance,
@@ -293,4 +314,5 @@ class CoinosLnService {
       return Result(error: 'Error fetching balance and transactions: $e');
     }
   }
+
 }

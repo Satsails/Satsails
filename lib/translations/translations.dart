@@ -633,8 +633,8 @@ extension Localization on String {
         'pt': 'Não é possível trocar 0 quantidade',
       } +
       {
-        'en': 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported. Lnurl is not supported currently.',
-        'pt': 'Endereço inválido, apenas enderecos Bitcoin, Liquid e lightning são suportados. Lnurl não é suportado atualmente.',
+        'en': 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported.',
+        'pt': 'Endereço inválido, apenas enderecos Bitcoin, Liquid e lightning são suportados.',
       } +
       {
         'en': 'Address copied to clipboard',

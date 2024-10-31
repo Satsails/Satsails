@@ -1,10 +1,10 @@
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/services/coinos/coinos_push_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:hive/hive.dart';
 
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 
@@ -49,13 +49,16 @@ final createInvoiceProvider = FutureProvider.autoDispose<String>((ref) async {
   return await ref.read(coinosLnProvider.notifier).createInvoice(amountToDisplay);
 });
 
-final getInvoicesProvider = FutureProvider.autoDispose<List<dynamic>?>((ref) async {
-  return await ref.read(coinosLnProvider.notifier).getInvoices();
+final getUsernameProvider = FutureProvider.autoDispose.family<String?, String>((ref, username) async {
+  return await ref.read(coinosLnProvider.notifier).getInvoice(username).then((value) => value);
 });
 
 
-final sendPaymentProvider = FutureProvider.family.autoDispose<void, Map<String, dynamic>>((ref, params) async {
-  await ref.read(coinosLnProvider.notifier).sendPayment(params['address'], params['amount']);
+final sendPaymentProvider = FutureProvider.autoDispose<void>((ref) async {
+  final address = ref.watch(sendTxProvider).address;
+  final amount = ref.watch(sendTxProvider).amount;
+  final username = await ref.watch(getUsernameProvider(address).future);
+  await ref.read(coinosLnProvider.notifier).sendPayment(address, amount, username);
 });
 
 final coinosBalanceProvider = FutureProvider<int>((ref) async {
