@@ -70,7 +70,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final lightningBalance = ref.watch(balanceNotifierProvider).lightningBalance;
     final lightningBalanceInFormat = btcInDenominationFormatted(lightningBalance!, btcFormat);
-    int maxAmount = (lightningBalance * 0.95).toInt();
+    int maxAmount = (lightningBalance * 0.90).toInt();
 
     final currency = ref.read(settingsProvider).currency;
     final currencyRate = ref.read(selectedCurrencyProvider(currency));
@@ -162,41 +162,20 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                               ),
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              Clipboard.setData(ClipboardData(text: sendTxState.address));
-                              Fluttertoast.showToast(
-                                msg: "Address copied to clipboard".i18n(ref),
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.TOP,
-                                backgroundColor: Colors.orange,
-                                textColor: Colors.white,
-                                fontSize: 16.0,
-                              );
-                            },
-                            child: Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5.0),
-                                border: Border.all(color: Colors.grey, width: 1),
-                              ),
-                              padding: EdgeInsets.all(dynamicPadding / 2),
-                              child: Text(
-                                shortenAddress(sendTxState.address),
-                                style: TextStyle(
-                                  fontSize: titleFontSize / 1.5,
-                                  color: Colors.white,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5.0),
+                              border: Border.all(color: Colors.grey, width: 1),
                             ),
-                          ),
-                          SizedBox(height: dynamicSizedBox * 2),
-                          Text(
-                            'Amount'.i18n(ref),
-                            style: TextStyle(
-                              fontSize: dynamicFontSize,
-                              color: Colors.white,
+                            padding: EdgeInsets.all(dynamicPadding / 2),
+                            child: Text(
+                              shortenAddress(sendTxState.address),
+                              style: TextStyle(
+                                fontSize: titleFontSize / 1.5,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
                           ),
                           SizedBox(height: dynamicSizedBox),
@@ -218,8 +197,12 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                                     hintStyle: TextStyle(color: Colors.white),
                                   ),
                                   onChanged: (value) async {
-                                    final inputAmount = double.tryParse(value) ?? 0;
-                                    if (inputAmount * 1.05 > maxAmount) {
+                                    final amountInSats = calculateAmountInSatsToDisplay(
+                                      value,
+                                      ref.watch(inputCurrencyProvider),
+                                      ref.watch(currencyNotifierProvider),
+                                    );
+                                    if (amountInSats > maxAmount) {
                                       Fluttertoast.showToast(
                                         msg: "Balance insufficient to cover fees".i18n(ref),
                                         toastLength: Toast.LENGTH_SHORT,
@@ -227,136 +210,140 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                                         backgroundColor: Colors.red,
                                         textColor: Colors.white,
                                       );
-                                      final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(maxAmount, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
-                                      final amountInSats = calculateAmountInSatsToDisplay(
-                                        amountToSetInSelectedCurrency,
-                                        ref.watch(inputCurrencyProvider),
-                                        ref.watch(currencyNotifierProvider),
-                                      );
-                                      ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
-                                      controller.text = ref.watch(inputCurrencyProvider) == 'BTC'
-                                          ? amountToSetInSelectedCurrency
-                                          : ref.watch(inputCurrencyProvider) == 'Sats'
-                                          ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
-                                          : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
                                     } else {
-                                      final amountInSats = calculateAmountInSatsToDisplay(
-                                        value,
-                                        ref.watch(inputCurrencyProvider),
-                                        ref.watch(currencyNotifierProvider),
-                                      );
                                       ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
                                     }
                                   },
                                 ),
                               ),
-                              if (!isInputBlocked) // Only show Max button if input is not blocked
-                                SizedBox(width: dynamicPadding / 2),
-                              if (!isInputBlocked)
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.orange,
-                                  ),
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
+                            ],
+                          ),
+                          Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(dynamicPadding / 2),
+                              child: Text(
+                                '${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
+                                style: TextStyle(
+                                  fontSize: dynamicFontSize,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                          if (!isInputBlocked)
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: Container(
+                                    margin: EdgeInsets.only(top: dynamicSizedBox),
+                                    decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10),
-                                      onTap: () async {
-                                        final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(maxAmount, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
-                                        final amountInSats = calculateAmountInSatsToDisplay(
-                                          amountToSetInSelectedCurrency,
-                                          ref.watch(inputCurrencyProvider),
-                                          ref.watch(currencyNotifierProvider),
-                                        );
-                                        ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
-                                        controller.text = ref.watch(inputCurrencyProvider) == 'BTC'
-                                            ? amountToSetInSelectedCurrency
-                                            : ref.watch(inputCurrencyProvider) == 'Sats'
-                                            ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
-                                            : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
-                                      },
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: dynamicPadding / 1.5, vertical: dynamicPadding / 2.5),
-                                        child: Text(
-                                          'Max',
-                                          style: TextStyle(
-                                            fontSize: dynamicFontSize,
-                                            color: Colors.black,
+                                      color: Colors.white,
+                                    ),
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(10),
+                                        onTap: () async {
+                                          final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(maxAmount, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
+                                          final amountInSats = calculateAmountInSatsToDisplay(
+                                            amountToSetInSelectedCurrency,
+                                            ref.watch(inputCurrencyProvider),
+                                            ref.watch(currencyNotifierProvider),
+                                          );
+                                          ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
+                                          controller.text = ref.watch(inputCurrencyProvider) == 'BTC'
+                                              ? amountToSetInSelectedCurrency
+                                              : ref.watch(inputCurrencyProvider) == 'Sats'
+                                              ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
+                                              : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
+                                        },
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: dynamicPadding / 1.5, vertical: dynamicPadding / 2.5),
+                                          child: Text(
+                                            'Max',
+                                            style: TextStyle(
+                                              fontSize: dynamicFontSize,
+                                              color: Colors.black,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                            ],
-                          ),
-                          SizedBox(height: dynamicSizedBox),
-                          Text(
-                            '${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
-                            style: TextStyle(
-                              fontSize: dynamicFontSize,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
-                          SizedBox(height: dynamicSizedBox * 2),
-                          Text(
-                            'Currency'.i18n(ref),
-                            style: TextStyle(
-                              fontSize: dynamicFontSize,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(height: dynamicSizedBox),
-                          DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              hint: Text(
-                                "Select Currency",
-                                style: TextStyle(fontSize: dynamicFontSize, color: Colors.white),
-                              ),
-                              dropdownColor: const Color(0xFF2B2B2B),
-                              value: ref.watch(inputCurrencyProvider),
-                              isExpanded: true,
-                              items: const [
-                                DropdownMenuItem(
-                                  value: 'BTC',
-                                  child: Center(
-                                    child: Text('BTC', style: TextStyle(color: Color(0xFFD98100))),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'USD',
-                                  child: Center(
-                                    child: Text('USD', style: TextStyle(color: Color(0xFFD98100))),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'EUR',
-                                  child: Center(
-                                    child: Text('EUR', style: TextStyle(color: Color(0xFFD98100))),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'BRL',
-                                  child: Center(
-                                    child: Text('BRL', style: TextStyle(color: Color(0xFFD98100))),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'Sats',
-                                  child: Center(
-                                    child: Text('Sats', style: TextStyle(color: Color(0xFFD98100))),
-                                  ),
+                                IconButton(
+                                  icon: Icon(Icons.info, color: Colors.orange),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          backgroundColor: Colors.black,
+                                          title: Text("Lightning Fee Information", style: TextStyle(color: Colors.orange)),
+                                          content: Text(
+                                            "Lightning fees are dynamic. We must store at least 10% of the transaction value for routing fees. Any unused amount will be returned to your wallet.",
+                                            style: TextStyle(color: Colors.white),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              child: Text("Close", style: TextStyle(color: Colors.orange)),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
                                 ),
                               ],
-                              onChanged: (value) {
-                                ref.read(inputCurrencyProvider.notifier).state = value.toString();
-                                controller.text = '';
-                                ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
-                              },
+                            ),
+                          SizedBox(height: dynamicSizedBox),
+                          Container(
+                            width: double.infinity,
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                hint: Text(
+                                  "Select Currency",
+                                  style: TextStyle(fontSize: dynamicFontSize, color: Colors.white),
+                                ),
+                                dropdownColor: const Color(0xFF2B2B2B),
+                                value: ref.watch(inputCurrencyProvider),
+                                isExpanded: true,
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'BTC',
+                                    child: Center(child: Text('BTC', style: TextStyle(color: Color(0xFFD98100)))),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'USD',
+                                    child: Center(child: Text('USD', style: TextStyle(color: Color(0xFFD98100)))),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'EUR',
+                                    child: Center(child: Text('EUR', style: TextStyle(color: Color(0xFFD98100)))),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'BRL',
+                                    child: Center(child: Text('BRL', style: TextStyle(color: Color(0xFFD98100)))),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Sats',
+                                    child: Center(child: Text('Sats', style: TextStyle(color: Color(0xFFD98100)))),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  ref.read(inputCurrencyProvider.notifier).state = value.toString();
+                                  controller.text = '';
+                                  ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
+                                },
+                              ),
                             ),
                           ),
                         ],
@@ -373,6 +360,18 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                       backgroundColor: Colors.black,
                       toggleColor: Colors.orange,
                       action: (controller) async {
+                        if (sendTxState.amount == 0) {
+                          Fluttertoast.showToast(
+                            msg: "Amount cannot be zero".i18n(ref),
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.TOP,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                          );
+                          controller.reset();
+                          return;
+                        }
                         setState(() {
                           isProcessing = true;
                         });
@@ -394,7 +393,6 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           context.replace('/home');
                         } catch (e) {
-                          // Restore the initial address if transaction fails
                           ref.read(sendTxProvider.notifier).updateAddress(initialAddress);
                           controller.failure();
                           Fluttertoast.showToast(

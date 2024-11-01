@@ -233,6 +233,8 @@ class CoinosLnService {
 
   static Future<Result<void>> sendPayment(String token, String address, int amount) async {
     try {
+      // final int maxFee = (amount * 0.1).toInt().clamp(1, double.infinity).toInt();
+
       final response = await http.post(
         Uri.parse('$baseUrl/payments'),
         headers: {
@@ -246,9 +248,9 @@ class CoinosLnService {
         return Result(data: null);
       } else {
         if (response.body.contains('Insufficient funds')) {
-          return Result(error: 'Insufficient funds');
+          return Result(error: 'Insufficient funds to pay for fees');
         } else {
-          return Result(error: 'Failed to send payment: ${response.body}');
+          return Result(error: '${response.body}');
         }
       }
     } catch (e) {
