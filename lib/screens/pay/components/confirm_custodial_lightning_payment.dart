@@ -29,13 +29,23 @@ class ConfirmCustodialLightningPayment extends ConsumerStatefulWidget {
 class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustodialLightningPayment> {
   final TextEditingController controller = TextEditingController();
   bool isProcessing = false;
+  bool isInputBlocked = false;
+  late String initialAddress;
 
   @override
   void initState() {
     super.initState();
     final btcFormat = ref.read(settingsProvider).btcFormat;
     final sendAmount = ref.read(sendTxProvider).btcBalanceInDenominationFormatted(btcFormat);
+
+    // Block input if sendAmount is different from 0 on page load
+    isInputBlocked = sendAmount != 0;
+
+    // Set initial amount in the controller
     controller.text = sendAmount == 0 ? '' : (btcFormat == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString());
+
+    // Store initial address for rollback if needed
+    initialAddress = ref.read(sendTxProvider).address;
   }
 
   @override
@@ -45,7 +55,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
   }
 
   String shortenAddress(String address, {int startLength = 6, int endLength = 6}) {
-    if (address.length <= startLength + endLength) {
+    if (address.length <= startLength + endLength + 70) {
       return address;
     } else {
       return address.substring(0, startLength) + '...' + address.substring(address.length - endLength);
@@ -60,6 +70,8 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final lightningBalance = ref.watch(balanceNotifierProvider).lightningBalance;
     final lightningBalanceInFormat = btcInDenominationFormatted(lightningBalance!, btcFormat);
+    int maxAmount = (lightningBalance * 0.95).toInt();
+
     final currency = ref.read(settingsProvider).currency;
     final currencyRate = ref.read(selectedCurrencyProvider(currency));
     final valueInBtc = lightningBalance! / 100000000;
@@ -91,9 +103,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
       child: SafeArea(
         child: FlutterKeyboardDoneWidget(
           doneWidgetBuilder: (context) {
-            return const Text(
-              'Done',
-            );
+            return const Text('Done');
           },
           child: Scaffold(
             resizeToAvoidBottomInset: false,
@@ -195,6 +205,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                               Expanded(
                                 child: TextFormField(
                                   controller: controller,
+                                  enabled: !isInputBlocked, // Disable if input should be blocked
                                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                   inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats'
                                       ? [DecimalTextInputFormatter(decimalRange: 0)]
@@ -207,67 +218,78 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                                     hintStyle: TextStyle(color: Colors.white),
                                   ),
                                   onChanged: (value) async {
-                                    ref.read(inputAmountProvider.notifier).state = controller.text.isEmpty ? '0.0' : controller.text;
-                                    if (value.isEmpty) {
-                                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                                    final inputAmount = double.tryParse(value) ?? 0;
+                                    if (inputAmount * 1.05 > maxAmount) {
+                                      Fluttertoast.showToast(
+                                        msg: "Balance insufficient to cover fees".i18n(ref),
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.TOP,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                      );
+                                      final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(maxAmount, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
+                                      final amountInSats = calculateAmountInSatsToDisplay(
+                                        amountToSetInSelectedCurrency,
+                                        ref.watch(inputCurrencyProvider),
+                                        ref.watch(currencyNotifierProvider),
+                                      );
+                                      ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
+                                      controller.text = ref.watch(inputCurrencyProvider) == 'BTC'
+                                          ? amountToSetInSelectedCurrency
+                                          : ref.watch(inputCurrencyProvider) == 'Sats'
+                                          ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
+                                          : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
+                                    } else {
+                                      final amountInSats = calculateAmountInSatsToDisplay(
+                                        value,
+                                        ref.watch(inputCurrencyProvider),
+                                        ref.watch(currencyNotifierProvider),
+                                      );
+                                      ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
                                     }
-                                    final amountInSats = calculateAmountInSatsToDisplay(
-                                      value,
-                                      ref.watch(inputCurrencyProvider),
-                                      ref.watch(currencyNotifierProvider),
-                                    );
-                                    ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
                                   },
                                 ),
                               ),
-                              SizedBox(width: dynamicPadding / 2),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.orange,
-                                ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
+                              if (!isInputBlocked) // Only show Max button if input is not blocked
+                                SizedBox(width: dynamicPadding / 2),
+                              if (!isInputBlocked)
+                                Container(
+                                  decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    onTap: () async {
-                                      try {
-                                        final balance = ref.watch(balanceNotifierProvider).lightningBalance;
-                                        final amountToSet = balance;
-                                        final selectedCurrency = ref.watch(inputCurrencyProvider);
-                                        final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(
-                                            amountToSet!, selectedCurrency, ref.watch(currencyNotifierProvider));
-                                        ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), 'sats');
-                                        controller.text = selectedCurrency == 'BTC'
+                                    color: Colors.orange,
+                                  ),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(10),
+                                      onTap: () async {
+                                        final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(maxAmount, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
+                                        final amountInSats = calculateAmountInSatsToDisplay(
+                                          amountToSetInSelectedCurrency,
+                                          ref.watch(inputCurrencyProvider),
+                                          ref.watch(currencyNotifierProvider),
+                                        );
+                                        ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
+                                        controller.text = ref.watch(inputCurrencyProvider) == 'BTC'
                                             ? amountToSetInSelectedCurrency
-                                            : selectedCurrency == 'Sats'
+                                            : ref.watch(inputCurrencyProvider) == 'Sats'
                                             ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
                                             : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
-                                      } catch (e) {
-                                        Fluttertoast.showToast(
-                                          msg: e.toString().i18n(ref),
-                                          toastLength: Toast.LENGTH_LONG,
-                                          gravity: ToastGravity.TOP,
-                                          backgroundColor: Colors.red,
-                                          textColor: Colors.white,
-                                          fontSize: 16.0,
-                                        );
-                                      }
-                                    },
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: dynamicPadding / 1.5, vertical: dynamicPadding / 2.5),
-                                      child: Text(
-                                        'Max',
-                                        style: TextStyle(
-                                          fontSize: dynamicFontSize,
-                                          color: Colors.black,
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: dynamicPadding / 1.5, vertical: dynamicPadding / 2.5),
+                                        child: Text(
+                                          'Max',
+                                          style: TextStyle(
+                                            fontSize: dynamicFontSize,
+                                            color: Colors.black,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
                             ],
                           ),
                           SizedBox(height: dynamicSizedBox),
@@ -355,8 +377,9 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                           isProcessing = true;
                         });
                         controller.loading();
+                        final currentAddress = ref.read(sendTxProvider).address;
                         try {
-                          final invoice = await getLnInvoiceWithAmount(sendTxState.address, sendTxState.amount);
+                          final invoice = await getLnInvoiceWithAmount(currentAddress, sendTxState.amount);
                           ref.read(sendTxProvider.notifier).updateAddress(invoice);
                           await ref.read(sendPaymentProvider.future);
                           await ref.read(liquidSyncNotifierProvider.notifier).performSync();
@@ -371,6 +394,8 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           context.replace('/home');
                         } catch (e) {
+                          // Restore the initial address if transaction fails
+                          ref.read(sendTxProvider.notifier).updateAddress(initialAddress);
                           controller.failure();
                           Fluttertoast.showToast(
                             msg: e.toString().i18n(ref),
