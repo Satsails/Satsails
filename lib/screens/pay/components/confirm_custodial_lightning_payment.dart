@@ -70,7 +70,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final lightningBalance = ref.watch(balanceNotifierProvider).lightningBalance;
     final lightningBalanceInFormat = btcInDenominationFormatted(lightningBalance!, btcFormat);
-    int maxAmount = (lightningBalance * 0.90).toInt();
+    int maxAmount = (lightningBalance * 0.995).toInt();
 
     final currency = ref.read(settingsProvider).currency;
     final currencyRate = ref.read(selectedCurrencyProvider(currency));
@@ -286,7 +286,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                                           backgroundColor: Colors.black,
                                           title: Text("Lightning Fee Information", style: TextStyle(color: Colors.orange)),
                                           content: Text(
-                                            "Lightning fees are dynamic. We must store at least 10% of the transaction value for routing fees. Any unused amount will be returned to your wallet.",
+                                            "Lightning fees are dynamic. We must store at least 0.5% of the transaction value for routing fees. Any unused amount will be returned to your wallet.",
                                             style: TextStyle(color: Colors.white),
                                           ),
                                           actions: [
@@ -379,8 +379,11 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                         final currentAddress = ref.read(sendTxProvider).address;
                         try {
                           final invoice = await getLnInvoiceWithAmount(currentAddress, sendTxState.amount);
+                          final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
                           ref.read(sendTxProvider.notifier).updateAddress(invoice);
                           await ref.read(sendPaymentProvider.future);
+                          final lnBalance = await ref.read(coinosBalanceProvider.future);
+                          balanceNotifier.updateLightningBalance(lnBalance);
                           await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                           Fluttertoast.showToast(
                             msg: "Transaction Sent".i18n(ref),

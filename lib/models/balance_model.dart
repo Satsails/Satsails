@@ -51,6 +51,17 @@ class BalanceNotifier extends StateNotifier<WalletBalance> {
       });
     });
   }
+
+  void updateLightningBalance(int newLightningBalance) {
+    state = WalletBalance(
+      btcBalance: state.btcBalance,
+      liquidBalance: state.liquidBalance,
+      usdBalance: state.usdBalance,
+      eurBalance: state.eurBalance,
+      brlBalance: state.brlBalance,
+      lightningBalance: newLightningBalance,
+    );
+  }
 }
 
 @HiveType(typeId: 26)
