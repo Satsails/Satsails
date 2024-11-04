@@ -74,7 +74,6 @@ class _PegState extends ConsumerState<Peg> {
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
           ref.read(sendBlocksProvider.notifier).state = 1;
-          context.pop();
         }
       },
       child: SafeArea(

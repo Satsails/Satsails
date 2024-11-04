@@ -114,7 +114,6 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
           ref.read(sendBlocksProvider.notifier).state = 1;
-          context.pop();
         }
       },
       child: SafeArea(

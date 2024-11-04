@@ -38,7 +38,6 @@ class Exchange extends ConsumerWidget {
           ref.read(sendTxProvider.notifier).resetToDefault();
           ref.read(sendBlocksProvider.notifier).state = 1;
           ref.read(selectedExchangeTypeProvider.notifier).state = "Stable ⇄ Liquid";
-          context.pop();
         }
       },
       child: Scaffold(
