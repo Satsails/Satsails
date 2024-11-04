@@ -11,7 +11,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/coinos.provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -295,9 +294,9 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                                       builder: (BuildContext context) {
                                         return AlertDialog(
                                           backgroundColor: Colors.black,
-                                          title: Text("Lightning Fee Information", style: TextStyle(color: Colors.orange)),
+                                          title: Text("Lightning Fee Information".i18n(ref), style: TextStyle(color: Colors.orange)),
                                           content: Text(
-                                            "Lightning fees are dynamic. We must store at least 0.5% of the transaction value for routing fees. Any unused amount will be returned to your wallet.",
+                                            "Lightning fees are dynamic. We must store at least 0.5% of the transaction value for routing fees. Any unused amount will be returned to your wallet.".i18n(ref),
                                             style: TextStyle(color: Colors.white),
                                           ),
                                           actions: [

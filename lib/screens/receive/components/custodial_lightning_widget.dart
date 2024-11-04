@@ -67,8 +67,8 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Register for Custodial Lightning',
+                Text(
+                  'Register for Custodial Lightning'.i18n(ref),
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -77,8 +77,8 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24.0),
-                const Text(
-                  'A username and password will be derived from your private key. This will be used to access your custodial Lightning wallet.',
+                Text(
+                  'A username and password will be derived from your private key. This will be used to access your custodial Lightning wallet.'.i18n(ref),
                   style: TextStyle(
                     fontSize: 16,
                   ),
@@ -97,8 +97,8 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24.0, vertical: 12.0),
                       ),
-                      child: const Text(
-                        'Cancel',
+                      child:Text(
+                        'Cancel'.i18n(ref),
                         style: TextStyle(
                           color: Colors.black87,
                           fontSize: 16,
@@ -120,8 +120,8 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24.0, vertical: 12.0),
                       ),
-                      child: const Text(
-                        'Register',
+                      child: Text(
+                        'Register'.i18n(ref),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -194,8 +194,8 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Custodial Lightning Warning',
+                Text(
+                  'Custodial Lightning Warning'.i18n(ref),
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -204,8 +204,8 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12.0),
-                const Text(
-                  'By using this custodial Lightning service, your funds are held by our partner Coinos. Satsails does not have control over these funds. You agree to have your funds held by Coinos.',
+                Text(
+                  'By using this custodial Lightning service, your funds are held by our partner Coinos. Satsails does not have control over these funds. You agree to have your funds held by Coinos.'.i18n(ref),
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.black54,
@@ -214,7 +214,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                 ),
                 const SizedBox(height: 24.0),
                 _buildCopyableField(
-                  label: 'Username',
+                  label: 'Username'.i18n(ref),
                   value: coinosLn.username,
                 ),
                 const SizedBox(height: 16.0),
@@ -233,8 +233,8 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24.0, vertical: 12.0),
                   ),
-                  child: const Text(
-                    'Visit Coinos',
+                  child: Text(
+                    'Visit Coinos'.i18n(ref),
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
@@ -389,7 +389,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                 IconButton(
                   icon: const Icon(Icons.info, color: Colors.orange, size: 40),
                   onPressed: () => _showCustodialWarningModal(context, ref),
-                  tooltip: 'Custodial Lightning Info',
+                  tooltip: 'Custodial Lightning Info'.i18n(ref),
                 ),
               ],
             ),
@@ -422,8 +422,8 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                   size: 60,
                 ),
                 const SizedBox(height: 16.0),
-                const Text(
-                  'Payment Received!',
+                Text(
+                  'Payment Received!'.i18n(ref),
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -433,7 +433,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                 ),
                 const SizedBox(height: 8.0),
                 Text(
-                  '$amount sats received!',
+                  '$amount' + 'sats received!'.i18n(ref),
                   style: const TextStyle(
                     fontSize: 18,
                     color: Colors.black54,

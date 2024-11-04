@@ -1757,7 +1757,96 @@ extension Localization on String {
       {
         'en': 'Fixed Fee: ',
         'pt': 'Taxa Fixa: '
+      } +
+      {
+        'en': 'Delete Wallet?',
+        'pt': 'Excluir Carteira?'
+      } +
+      {
+        'en': 'Select an option below to proceed.',
+        'pt': 'Selecione uma opção abaixo para continuar.'
+      } +
+      {
+        'en': 'Delete Local Wallet',
+        'pt': 'Excluir Carteira Local'
+      } +
+      {
+        'en': 'Remove wallet data from this device only.',
+        'pt': 'Remover dados da carteira apenas deste dispositivo.'
+      } +
+      {
+        'en': 'Delete Server Data',
+        'pt': 'Excluir Dados do Servidor'
+      } +
+      {
+        'en': 'Remove your data from the server only.',
+        'pt': 'Remover seus dados apenas do servidor.'
+      } +
+      {
+        'en': 'Delete Local Wallet?',
+        'pt': 'Excluir Carteira Local?'
+      } +
+      {
+        'en': 'Are you sure you want to delete the local wallet?',
+        'pt': 'Tem certeza de que deseja excluir a carteira local?'
+      } +
+      {
+        'en': 'Delete Server Data?',
+        'pt': 'Excluir Dados do Servidor?'
+      } +
+      {
+        'en': 'Your server data will be permanently deleted, and you will not receive any more fees from any of your affiliates.',
+        'pt': 'Seus dados do servidor serão excluídos permanentemente, e você não receberá mais taxas de nenhum dos seus afiliados.'
+      } +
+      {
+        'en': 'Register for Custodial Lightning',
+        'pt': 'Registrar para Lightning Custodial'
+      } +
+      {
+        'en': 'A username and password will be derived from your private key. This will be used to access your custodial Lightning wallet.',
+        'pt': 'Um nome de usuário e senha serão derivados de sua chave privada. Isso será usado para acessar sua carteira Lightning custodial.'
+      } +
+      {
+        'en': 'Register',
+        'pt': 'Registrar'
+      } +
+      {
+        'en': 'Bitcoin',
+        'pt': 'Bitcoin'
+      } +
+      {
+        'en': 'Custodial Lightning Info',
+        'pt': 'Informações sobre Lightning Custodial'
+      }+
+      {
+        'en': 'Custodial Lightning Warning',
+        'pt': 'Aviso sobre Lightning Custodial'
+      } +
+      {
+        'en': 'By using this custodial Lightning service, your funds are held by our partner Coinos. Satsails does not have control over these funds. You agree to have your funds held by Coinos.',
+        'pt': 'Ao usar este serviço Lightning custodial, seus fundos são mantidos por nosso parceiro Coinos. A Satsails não tem controle sobre esses fundos. Você concorda que seus fundos serão mantidos pela Coinos.'
+      } +
+      {
+        'en': 'Username',
+        'pt': 'Nome de usuário'
+      } +
+      {
+        'en': 'Visit Coinos',
+        'pt': 'Visite a Coinos'
+      } +
+      {
+        'en': 'Lightning Balance',
+        'pt': 'Saldo Lightning'
+      }  +
+      {
+        'en': 'Lightning Fee Information',
+        'pt': 'Informações sobre Taxas Lightning'
+      } +
+      {
+        'en': 'Lightning fees are dynamic. We must store at least 0.5% of the transaction value for routing fees. Any unused amount will be returned to your wallet.',
+        'pt': 'As taxas Lightning são dinâmicas. Precisamos armazenar pelo menos 0,5% do valor da transação para taxas de roteamento. Qualquer valor não utilizado será retornado à sua carteira.'
       };
+
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;
