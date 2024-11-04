@@ -133,7 +133,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                           context.pop();
                         } catch (e) {
                           Fluttertoast.showToast(
-                            msg: 'Error during registration: $e',
+                            msg: '$e'.i18n(ref),
                             toastLength: Toast.LENGTH_LONG,
                             gravity: ToastGravity.BOTTOM,
                           );
@@ -164,7 +164,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
       });
     } catch (e) {
       Fluttertoast.showToast(
-        msg: 'Error creating address: $e',
+        msg: '$e'.i18n(ref),
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
       );

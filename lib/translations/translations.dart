@@ -1845,7 +1845,41 @@ extension Localization on String {
       {
         'en': 'Lightning fees are dynamic. We must store at least 0.5% of the transaction value for routing fees. Any unused amount will be returned to your wallet.',
         'pt': 'As taxas Lightning são dinâmicas. Precisamos armazenar pelo menos 0,5% do valor da transação para taxas de roteamento. Qualquer valor não utilizado será retornado à sua carteira.'
+      } +
+      {
+        'en': 'Token is missing or invalid',
+        'pt': 'Token está faltando ou é inválido'
+      } +
+      {
+        'en': 'Failed to create invoice',
+        'pt': 'Falha ao criar fatura'
+      } +
+      {
+        'en': 'Failed to send payment',
+        'pt': 'Falha ao enviar pagamento'
+      } +
+      {
+        'en': 'Failed to fetch balance and transactions',
+        'pt': 'Falha ao buscar saldo e transações'
+      } +
+      {
+        'en': 'balance',
+        'pt': 'saldo'
+      } +
+      {
+        'en': 'payments',
+        'pt': 'pagamentos'
+      }    +
+      {
+        'en': 'Balance insufficient to cover fees',
+        'pt': 'Saldo insuficiente para cobrir taxas'
+      } +
+      {
+        'en': 'Amount cannot be zero',
+        'pt': 'O valor não pode ser zero'
       };
+
+
 
 
   String i18n(WidgetRef ref) {
