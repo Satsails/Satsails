@@ -291,7 +291,9 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
               ref.read(transactionInProgressProvider.notifier).state = false;
               context.go('/home');
             } catch (e) {
-              ref.read(deleteBoltzTransactionProvider(id).future);
+              if (id != null) {
+                ref.read(deleteBoltzTransactionProvider(id).future);
+              }
               ref.read(transactionInProgressProvider.notifier).state = false;
               controller.failure();
               Fluttertoast.showToast(
@@ -358,7 +360,9 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
               ref.read(transactionInProgressProvider.notifier).state = false;
               context.go('/home');
             } catch (e) {
-              ref.read(deleteBoltzTransactionProvider(id).future);
+              if (id != null) {
+                ref.read(deleteBoltzTransactionProvider(id).future);
+              }
               ref.read(transactionInProgressProvider.notifier).state = false;
               controller.failure();
               Fluttertoast.showToast(
