@@ -73,7 +73,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
 
     return PopScope(
       canPop: !isProcessing, // Determines if the screen can be popped
-      onPopInvokedWithResult: (didPop, result) async {
+      onPopInvoked: (bool canPop) {
         if (isProcessing) {
           Fluttertoast.showToast(
             msg: "Transaction in progress, please wait.".i18n(ref),

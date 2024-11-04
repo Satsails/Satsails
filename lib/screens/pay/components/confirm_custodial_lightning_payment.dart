@@ -83,7 +83,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
 
     return PopScope(
       canPop: !isProcessing,
-      onPopInvokedWithResult: (didPop, result) async {
+      onPopInvoked: (bool canPop) {
         if (isProcessing) {
           Fluttertoast.showToast(
             msg: "Transaction in progress, please wait.".i18n(ref),

@@ -50,3 +50,5 @@ app.*.map.json
 # FVM Version Cache
 .fvm/
 /.env
+/private_key.pem
+/public_key.pem
