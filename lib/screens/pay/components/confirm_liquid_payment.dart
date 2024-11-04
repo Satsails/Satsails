@@ -71,8 +71,9 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
       });
     });
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: !isProcessing, // Determines if the screen can be popped
+      onPopInvokedWithResult: (didPop, result) async {
         if (isProcessing) {
           Fluttertoast.showToast(
             msg: "Transaction in progress, please wait.".i18n(ref),
@@ -82,12 +83,10 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
             textColor: Colors.white,
             fontSize: 16.0,
           );
-          return false;
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
           ref.read(sendBlocksProvider.notifier).state = 1;
           context.replace('/home');
-          return true;
         }
       },
       child: SafeArea(

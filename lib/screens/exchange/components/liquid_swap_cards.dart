@@ -3,6 +3,7 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
+import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
@@ -40,8 +41,6 @@ final tickerProvider = StateProvider.autoDispose<AssetId>((ref) {
     return AssetId.LBTC;
   }
 });
-
-final transactionInProgressProvider = StateProvider.autoDispose<bool>((ref) => false);
 
 class LiquidSwapCards extends ConsumerStatefulWidget {
   const LiquidSwapCards({super.key});

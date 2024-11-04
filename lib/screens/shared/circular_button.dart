@@ -52,16 +52,16 @@ Widget buildActionButtons(BuildContext context, WidgetRef ref) {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        buildCircularButton(context, Clarity.add_line, 'Add Money'.i18n(ref), () {
+        buildCircularButton(context, Icons.add, 'Add Money'.i18n(ref), () {
           context.push('/home/charge');
         }, Colors.black),
-        buildCircularButton(context, Clarity.two_way_arrows_line, 'Swaps'.i18n(ref), () {
+        buildCircularButton(context, Icons.compare_arrows, 'Swaps'.i18n(ref), () {
           context.push('/home/exchange');
         }, Colors.black),
-        buildCircularButton(context, Clarity.credit_card_line, 'Pay'.i18n(ref), () {
+        buildCircularButton(context, Icons.credit_card, 'Pay'.i18n(ref), () {
           context.push('/home/pay');
         }, Colors.black),
-        buildCircularButton(context, TeenyIcons.arrow_down, 'Receive'.i18n(ref), () {
+        buildCircularButton(context, Icons.arrow_downward_outlined, 'Receive'.i18n(ref), () {
           context.push('/home/receive');
         }, Colors.black),
       ],

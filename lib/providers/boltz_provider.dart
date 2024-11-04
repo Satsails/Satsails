@@ -35,7 +35,7 @@ final boltzReceiveProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   final authModel = ref.read(authModelProvider);
   final mnemonic = await authModel.getMnemonic();
   final address = await ref.read(liquidAddressProvider.future);
-  final amount = await ref.watch(lnAmountProvider.future);
+  final amount = ref.watch(sendTxProvider).amount == 0 ? await ref.watch(lnAmountProvider.future) : ref.watch(sendTxProvider).amount;
   final electrumUrl = await ref.read(settingsProvider).liquidElectrumNode;
   final receive = await LbtcBoltz.createBoltzReceive(fees: fees, mnemonic: mnemonic!, index: address.index, address: address.confidential, amount: amount, electrumUrl: electrumUrl);
   final box = await SecureKeyManager.openEncryptedBox('receiveBoltz');
@@ -94,7 +94,7 @@ final boltzPayProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
     preimage: pay.preimage,
     swapScript: pay.swapScript,
     timestamp: pay.timestamp,
-    completed: false,
+    completed: true,
   );
   await box.put(pay.swap.id, updatedBoltz);
   return pay;
@@ -173,7 +173,7 @@ final bitcoinBoltzReceiveProvider = FutureProvider.autoDispose<BtcBoltz>((ref) a
   final mnemonic = await authModel.getMnemonic();
   final address = await ref.read(bitcoinAddressProvider.future);
   final addressInfo = await ref.read(bitcoinAddressInfoProvider.future);
-  final amount = await ref.watch(lnAmountProvider.future);
+  final amount = ref.watch(sendTxProvider).amount == 0 ? await ref.watch(lnAmountProvider.future) : ref.watch(sendTxProvider).amount;
   final electrumUrl = await ref.read(settingsProvider).bitcoinElectrumNode;
   final receive = await BtcBoltz.createBoltzReceive(
       fees: fees, mnemonic: mnemonic!, index: addressInfo.index, address: address, amount: amount, electrumUrl: electrumUrl);
@@ -323,4 +323,15 @@ final allTransactionsProvider = FutureProvider.autoDispose<List<dynamic>>((ref) 
     ...liquidSent.map((tx) => {'tx': tx, 'isBitcoin': false, 'isSending': true}),
     ...bitcoinSent.map((tx) => {'tx': tx, 'isBitcoin': true, 'isSending': true}),
   ];
+});
+
+final deleteBoltzTransactionProvider = FutureProvider.autoDispose.family<void, String>((ref, id) async {
+  final box = await SecureKeyManager.openEncryptedBox('receiveBoltz');
+  final bitcoinBox = await SecureKeyManager.openEncryptedBox('bitcoinReceiveBoltz');
+  final payBox = await SecureKeyManager.openEncryptedBox('payBoltz');
+  final bitcoinPayBox = await SecureKeyManager.openEncryptedBox('bitcoinPayBoltz');
+  await box.delete(id);
+  await bitcoinBox.delete(id);
+  await payBox.delete(id);
+  await bitcoinPayBox.delete(id);
 });

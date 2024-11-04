@@ -63,8 +63,9 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
     final dynamicMargin = MediaQuery.of(context).size.width * 0.05;
     final dynamicSizedBox = screenHeight * 0.01;
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: !isProcessing, // Determines if the screen can be popped
+      onPopInvokedWithResult: (didPop, result) async {
         if (isProcessing) {
           Fluttertoast.showToast(
             msg: "Transaction in progress, please wait.".i18n(ref),
@@ -74,12 +75,10 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
             textColor: Colors.white,
             fontSize: 16.0,
           );
-          return false;
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
           ref.read(sendBlocksProvider.notifier).state = 1;
           context.replace('/home');
-          return true;
         }
       },
       child: SafeArea(
@@ -98,7 +97,18 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
-                  context.pop();
+                  if (!isProcessing) {
+                    context.pop();
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: "Transaction in progress, please wait.".i18n(ref),
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.TOP,
+                      backgroundColor: Colors.orange,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                  }
                 },
               ),
             ),

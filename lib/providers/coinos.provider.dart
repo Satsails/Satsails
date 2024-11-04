@@ -86,3 +86,14 @@ final coinosPaymentStreamProvider = StreamProvider.autoDispose<Map<String, dynam
 });
 
 
+final sendSwapToProvider = FutureProvider.autoDispose<void>((ref) async {
+  final amount = ref.watch(sendTxProvider).amount;
+  final address = ref.watch(sendTxProvider).address;
+  await ref.read(coinosLnProvider.notifier).sendPayment(address, amount);
+});
+
+final receiveSwapFromProvider = FutureProvider.autoDispose<void>((ref) async {
+  final amount = ref.watch(sendTxProvider).amount;
+  final address = await ref.read(coinosLnProvider.notifier).createInvoice(amount);
+  ref.read(sendTxProvider.notifier).updateAddress(address);
+});

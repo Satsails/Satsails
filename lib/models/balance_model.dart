@@ -167,6 +167,21 @@ class WalletBalance {
     }
   }
 
+  String lightningBalanceInDenominationFormatted(String denomination) {
+    double balance;
+
+    switch (denomination) {
+      case 'sats':
+        balance = lightningBalance!.toDouble();
+        return balance.toInt().toString();
+      case 'BTC':
+        balance = lightningBalance! / 100000000;
+        return balance.toStringAsFixed(8);
+      default:
+        return "0";
+    }
+  }
+
 
   double totalBtcBalance() {
     return btcBalance.toDouble() + liquidBalance.toDouble() + lightningBalance!.toDouble();

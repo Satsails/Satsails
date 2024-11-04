@@ -62,3 +62,8 @@ final liquidBalanceInFormatProvider = StateProvider.family.autoDispose<String, S
   final balance = ref.watch(balanceNotifierProvider);
   return balance.liquidBalanceInDenominationFormatted(denomination);
 });
+
+final lightningBalanceInFormatProvider = StateProvider.family.autoDispose<String, String>((ref, denomination) {
+  final balance = ref.watch(balanceNotifierProvider);
+  return balance.lightningBalanceInDenominationFormatted(denomination);
+});

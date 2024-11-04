@@ -3,6 +3,7 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
+import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,6 @@ import 'package:Satsails/providers/sideswap_provider.dart';
 final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');
 final inputInFiatProvider = StateProvider.autoDispose<bool>((ref) => false);
 final precisionFiatValueProvider = StateProvider<String>((ref) => "0.00");
-final transactionInProgressProvider = StateProvider.autoDispose<bool>((ref) => false);
 
 class Peg extends ConsumerStatefulWidget {
   const Peg({super.key});

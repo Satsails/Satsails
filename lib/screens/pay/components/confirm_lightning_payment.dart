@@ -66,8 +66,9 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
     final sendLiquid = ref.watch(sendLiquidProvider);
     final totalAmountAsyncValue = ref.watch(totalAmountProvider(sendLiquid));
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: !isProcessing, // Determines if the screen can be popped
+      onPopInvokedWithResult: (didPop, result) async {
         if (isProcessing) {
           Fluttertoast.showToast(
             msg: "Transaction in progress, please wait.".i18n(ref),
@@ -77,12 +78,10 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
             textColor: Colors.white,
             fontSize: 16.0,
           );
-          return false;
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
           ref.read(sendBlocksProvider.notifier).state = 1;
           context.replace('/home');
-          return true;
         }
       },
       child: SafeArea(
@@ -95,7 +94,18 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
-                context.pop();
+                if (!isProcessing) {
+                  context.pop();
+                } else {
+                  Fluttertoast.showToast(
+                    msg: "Transaction in progress, please wait.".i18n(ref),
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.TOP,
+                    backgroundColor: Colors.orange,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                }
               },
             ),
           ),

@@ -82,8 +82,9 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
     final dynamicMargin = MediaQuery.of(context).size.width * 0.05;
     final dynamicSizedBox = screenHeight * 0.01;
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: !isProcessing,
+      onPopInvokedWithResult: (didPop, result) async {
         if (isProcessing) {
           Fluttertoast.showToast(
             msg: "Transaction in progress, please wait.".i18n(ref),
@@ -93,11 +94,10 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
             textColor: Colors.white,
             fontSize: 16.0,
           );
-          return false;
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
+          ref.read(sendBlocksProvider.notifier).state = 1;
           context.replace('/home');
-          return true;
         }
       },
       child: SafeArea(
@@ -114,7 +114,18 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
-                  context.pop();
+                  if (!isProcessing) {
+                    context.pop();
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: "Transaction in progress, please wait.".i18n(ref),
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.TOP,
+                      backgroundColor: Colors.orange,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                  }
                 },
               ),
             ),
@@ -384,7 +395,6 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                           await ref.read(sendPaymentProvider.future);
                           final lnBalance = await ref.read(coinosBalanceProvider.future);
                           balanceNotifier.updateLightningBalance(lnBalance);
-                          await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                           Fluttertoast.showToast(
                             msg: "Transaction Sent".i18n(ref),
                             toastLength: Toast.LENGTH_LONG,

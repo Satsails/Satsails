@@ -16,6 +16,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
     required this.context,
   });
 
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -26,7 +27,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
         icon: GestureDetector(
           onTapDown: (_) => onTap(0), // Trigger on tap down immediately
           onLongPress: () {}, // Disable long press by doing nothing
-          child: Icon(AntDesign.home_outline, size: math.min(screenHeight * 0.03, 25.0)),
+          child: Icon(Icons.dashboard, size: math.min(screenHeight * 0.03, 25.0)),
         ),
         label: 'Home'.i18n(ref),
       ),
@@ -34,7 +35,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
         icon: GestureDetector(
           onTapDown: (_) => onTap(1), // Trigger on tap down immediately
           onLongPress: () {}, // Disable long press by doing nothing
-          child: Icon(AntDesign.bar_chart_outline, size: math.min(screenHeight * 0.03, 25.0)),
+          child: Icon(Icons.analytics, size: math.min(screenHeight * 0.03, 25.0)),
         ),
         label: 'Analytics'.i18n(ref),
       ),
@@ -42,7 +43,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
         icon: GestureDetector(
           onTapDown: (_) => onTap(2), // Trigger on tap down immediately
           onLongPress: () {}, // Disable long press by doing nothing
-          child: Icon(AntDesign.bulb_outline, size: math.min(screenHeight * 0.03, 25.0)),
+          child: Icon(Icons.lightbulb, size: math.min(screenHeight * 0.03, 25.0)),
         ),
         label: 'Services'.i18n(ref),
       ),
@@ -50,7 +51,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
         icon: GestureDetector(
           onTapDown: (_) => onTap(3), // Trigger on tap down immediately
           onLongPress: () {}, // Disable long press by doing nothing
-          child: Icon(AntDesign.wallet_outline, size: math.min(screenHeight * 0.03, 25.0)),
+          child: Icon(Icons.account_balance_wallet, size: math.min(screenHeight * 0.03, 25.0)),
         ),
         label: 'Wallets'.i18n(ref),
       ),
