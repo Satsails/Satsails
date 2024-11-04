@@ -26,7 +26,6 @@ PODS:
     - Flutter
   - lwk_dart (0.1.5)
   - MTBBarcodeScanner (5.0.11)
-  - NWWebSocket (0.5.4)
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -35,12 +34,6 @@ PODS:
   - pusher_beams_ios (0.0.1):
     - Flutter
     - PushNotifications (~> 4.0)
-  - pusher_channels_flutter (0.0.1):
-    - Flutter
-    - PusherSwift (~> 10.1.5)
-  - PusherSwift (10.1.5):
-    - NWWebSocket (~> 0.5.4)
-    - TweetNacl (~> 1.0.0)
   - PushNotifications (4.0.0)
   - qr_code_scanner (0.2.0):
     - Flutter
@@ -48,7 +41,6 @@ PODS:
   - share_plus (0.0.1):
     - Flutter
   - Toast (4.1.1)
-  - TweetNacl (1.0.2)
   - url_launcher_ios (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
@@ -70,7 +62,6 @@ DEPENDENCIES:
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - pusher_beams_ios (from `.symlinks/plugins/pusher_beams_ios/ios`)
-  - pusher_channels_flutter (from `.symlinks/plugins/pusher_channels_flutter/ios`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
@@ -80,11 +71,8 @@ SPEC REPOS:
   trunk:
     - Crisp
     - MTBBarcodeScanner
-    - NWWebSocket
-    - PusherSwift
     - PushNotifications
     - Toast
-    - TweetNacl
 
 EXTERNAL SOURCES:
   bdk_flutter:
@@ -117,8 +105,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   pusher_beams_ios:
     :path: ".symlinks/plugins/pusher_beams_ios/ios"
-  pusher_channels_flutter:
-    :path: ".symlinks/plugins/pusher_channels_flutter/ios"
   qr_code_scanner:
     :path: ".symlinks/plugins/qr_code_scanner/ios"
   share_plus:
@@ -143,17 +129,13 @@ SPEC CHECKSUMS:
   local_auth_darwin: 4d56c90c2683319835a61274b57620df9c4520ab
   lwk_dart: 898084320a2ce8ea206010c0dc3e3eead1b2c881
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
-  NWWebSocket: 040d22f23438cc09aaeabf537beff67699c3c76d
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
   pusher_beams_ios: 3991e6c6186aa392e2c82687f727ffd5075ea268
-  pusher_channels_flutter: 01297e6e420e0ad61a6e5901e27bb272a6f58ec2
-  PusherSwift: cad631bad86cfff4b8458dce1310a7774e469b1f
   PushNotifications: 2b2174b28bf48b1fe552686d1f95c53d62a4781d
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
   share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
   Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
-  TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   webview_flutter_wkwebview: be0f0d33777f1bfd0c9fdcb594786704dbf65f36
 

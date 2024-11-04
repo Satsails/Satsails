@@ -246,7 +246,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
   @override
   Widget build(BuildContext context) {
-    final txReceived = ref.watch(pixTransactionReceivedProvider);
+    // final txReceived = ref.watch(pixTransactionReceivedProvider);
     final amountTransferredAsyncValue = ref.watch(getAmountTransferredProvider);
 
     final hasInsertedAffiliateCode = ref.watch(userProvider).hasInsertedAffiliate;
@@ -254,45 +254,45 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     double fee = 0;
     double amountInDouble = 0;
 
-    txReceived.whenData((data) {
-      if (data.isNotEmpty) {
-        final messageType = data['type'];
-        final messageText = data['message'];
-        Color backgroundColor;
-
-        switch (messageType) {
-          case 'success':
-            backgroundColor = Colors.green;
-            break;
-          case 'delayed':
-            backgroundColor = Colors.orange;
-            break;
-          case 'failed':
-          default:
-            backgroundColor = Colors.red;
-            break;
-        }
-
-        _pixQRCode = '';
-        _feeDescription = '';
-        _amountToReceive = 0.0;
-        _amountController.clear();
-
-        Future.microtask(() {
-          ref.read(topSelectedButtonProvider.notifier).state = "History";
-          ref.read(groupButtonControllerProvider).selectIndex(1);
-          Fluttertoast.showToast(
-            msg: messageText.i18n(ref),
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.TOP,
-            timeInSecForIosWeb: 1,
-            backgroundColor: backgroundColor,
-            textColor: Colors.white,
-            fontSize: MediaQuery.of(context).size.height * 0.02,
-          );
-        });
-      }
-    });
+    // txReceived.whenData((data) {
+    //   if (data.isNotEmpty) {
+    //     final messageType = data['type'];
+    //     final messageText = data['message'];
+    //     Color backgroundColor;
+    //
+    //     switch (messageType) {
+    //       case 'success':
+    //         backgroundColor = Colors.green;
+    //         break;
+    //       case 'delayed':
+    //         backgroundColor = Colors.orange;
+    //         break;
+    //       case 'failed':
+    //       default:
+    //         backgroundColor = Colors.red;
+    //         break;
+    //     }
+    //
+    //     _pixQRCode = '';
+    //     _feeDescription = '';
+    //     _amountToReceive = 0.0;
+    //     _amountController.clear();
+    //
+    //     Future.microtask(() {
+    //       ref.read(topSelectedButtonProvider.notifier).state = "History";
+    //       ref.read(groupButtonControllerProvider).selectIndex(1);
+    //       Fluttertoast.showToast(
+    //         msg: messageText.i18n(ref),
+    //         toastLength: Toast.LENGTH_SHORT,
+    //         gravity: ToastGravity.TOP,
+    //         timeInSecForIosWeb: 1,
+    //         backgroundColor: backgroundColor,
+    //         textColor: Colors.white,
+    //         fontSize: MediaQuery.of(context).size.height * 0.02,
+    //       );
+    //     });
+    //   }
+    // });
 
     return amountTransferredAsyncValue.when(
       loading: () => Center(
