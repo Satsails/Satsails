@@ -1775,12 +1775,12 @@ extension Localization on String {
         'pt': 'Remover dados da carteira apenas deste dispositivo.'
       } +
       {
-        'en': 'Delete Server Data',
-        'pt': 'Excluir Dados do Servidor'
+        'en': 'Delete Server Data and Local Wallet',
+        'pt': 'Excluir Dados do Servidor e Carteira Local'
       } +
       {
-        'en': 'Remove your data from the server only.',
-        'pt': 'Remover seus dados apenas do servidor.'
+        'en': 'Remove your data from the server and this device.',
+        'pt': 'Remova seus dados do servidor e deste dispositivo.'
       } +
       {
         'en': 'Delete Local Wallet?',
@@ -1791,12 +1791,12 @@ extension Localization on String {
         'pt': 'Tem certeza de que deseja excluir a carteira local?'
       } +
       {
-        'en': 'Delete Server Data?',
-        'pt': 'Excluir Dados do Servidor?'
+        'en': 'Delete Server Data and Local Wallet?',
+        'pt': 'Excluir Dados do Servidor e Carteira Local?'
       } +
       {
-        'en': 'Your server data will be permanently deleted, and you will not receive any more fees from any of your affiliates.',
-        'pt': 'Seus dados do servidor serão excluídos permanentemente, e você não receberá mais taxas de nenhum dos seus afiliados.'
+        'en': 'Your server data and local wallet will be permanently deleted, and you will not receive any more fees from any of your affiliates.',
+        'pt': 'Seus dados do servidor e carteira local serão excluídos permanentemente, e você não receberá mais taxas de nenhum de seus afiliados.'
       } +
       {
         'en': 'Register for Custodial Lightning',

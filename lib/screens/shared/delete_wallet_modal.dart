@@ -95,21 +95,21 @@ class DeleteWalletSection extends StatelessWidget {
                 if (recovery_code != '') _buildOptionCard(
                   context,
                   icon: Icons.cloud_done,
-                  title: 'Delete Server Data'.i18n(ref),
-                  description: 'Remove your data from the server only.'.i18n(ref),
+                  title: 'Delete Server Data and Local Wallet'.i18n(ref),
+                  description: 'Remove your data from the server and this device.'.i18n(ref),
                   color: Colors.orangeAccent,
                   onTap: () {
                     _showConfirmationDialog(
                       context,
                       icon: Icons.cloud_done,
                       iconColor: Colors.orangeAccent,
-                      title: 'Delete Server Data?'.i18n(ref),
-                      message: 'Your server data will be permanently deleted, and you will not receive any more fees from any of your affiliates'.i18n(ref),
+                      title: 'Delete Server Data and Local Wallet?'.i18n(ref),
+                      message: 'Your server data and local wallet will be permanently deleted, and you will not receive any more fees from any of your affiliates.'.i18n(ref),
                       confirmButtonColor: Colors.orangeAccent,
                       confirmAction: () async {
                         await ref.read(deleteUserDataProvider.future);
-                        context.pop();
-                        context.pop();
+                        await authModel.deleteAuthentication();
+                        RestartWidget.restartApp(context);
                       },
                     );
                   },

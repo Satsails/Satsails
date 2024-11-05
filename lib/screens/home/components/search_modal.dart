@@ -31,8 +31,11 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
     final uri = (isLiquid == null || transactionHash == null)
         ? 'https://mempool.space'
         : (isLiquid
-        ? 'https://liquid.network/$unblindedUrl'
+        ? (unblindedUrl == null
+        ? 'https://liquid.network/tx/$transactionHash'
+        : 'https://liquid.network/$unblindedUrl')
         : 'https://mempool.space/tx/$transactionHash');
+
     controller.loadRequest(Uri.parse(uri));
   }
 
