@@ -1,4 +1,5 @@
 import 'package:Satsails/models/boltz/boltz_model.dart';
+import 'package:Satsails/screens/creation/confirm_pin.dart';
 import 'package:Satsails/screens/login/seed_words_pin.dart';
 import 'package:Satsails/screens/pay/components/confirm_custodial_lightning_payment.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
@@ -105,6 +106,11 @@ class AppRouter {
           path: '/analytics',
           name: 'analytics',
           builder: (context, state) => const Analytics(),
+        ),
+        GoRoute(
+          path: '/confirm_pin',
+          name: 'confirm_pin',
+          builder: (context, state) => const ConfirmPin(),
         ),
         GoRoute(
           path: '/set_pin',

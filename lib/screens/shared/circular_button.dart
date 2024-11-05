@@ -47,24 +47,21 @@ Widget buildCircularButton(BuildContext context, icon, String subtitle, VoidCall
 }
 
 Widget buildActionButtons(BuildContext context, WidgetRef ref) {
-  return SizedBox(
-    height: MediaQuery.of(context).padding.top + kToolbarHeight * 1.1,
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        buildCircularButton(context, Icons.add, 'Add Money'.i18n(ref), () {
-          context.push('/home/charge');
-        }, Colors.black),
-        buildCircularButton(context, Icons.compare_arrows, 'Swaps'.i18n(ref), () {
-          context.push('/home/exchange');
-        }, Colors.black),
-        buildCircularButton(context, Icons.credit_card, 'Pay'.i18n(ref), () {
-          context.push('/home/pay');
-        }, Colors.black),
-        buildCircularButton(context, Icons.arrow_downward_outlined, 'Receive'.i18n(ref), () {
-          context.push('/home/receive');
-        }, Colors.black),
-      ],
-    ),
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+      buildCircularButton(context, Icons.add, 'Add Money'.i18n(ref), () {
+        context.push('/home/charge');
+      }, Colors.black),
+      buildCircularButton(context, Icons.compare_arrows, 'Swaps'.i18n(ref), () {
+        context.push('/home/exchange');
+      }, Colors.black),
+      buildCircularButton(context, Icons.credit_card, 'Pay'.i18n(ref), () {
+        context.push('/home/pay');
+      }, Colors.black),
+      buildCircularButton(context, Icons.arrow_downward_outlined, 'Receive'.i18n(ref), () {
+        context.push('/home/receive');
+      }, Colors.black),
+    ],
   );
 }

@@ -1,38 +1,41 @@
+import 'package:Satsails/screens/creation/set_pin.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-final pinProvider = StateProvider<String>((ref) => '');
-
-class SetPin extends ConsumerStatefulWidget {
-  const SetPin({super.key});
+class ConfirmPin extends ConsumerStatefulWidget {
+  const ConfirmPin({super.key});
 
   @override
-  _SetPinState createState() => _SetPinState();
+  _ConfirmPinState createState() => _ConfirmPinState();
 }
 
-class _SetPinState extends ConsumerState<SetPin> {
+class _ConfirmPinState extends ConsumerState<ConfirmPin> {
   final formKey = GlobalKey<FormState>();
-  final TextEditingController pinController = TextEditingController();
+  final TextEditingController confirmPinController = TextEditingController();
 
   @override
   void dispose() {
-    pinController.dispose();
+    confirmPinController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Read the original PIN from pinProvider
+    final originalPin = ref.read(pinProvider);
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
-          'Set PIN'.i18n(ref),
+          'Confirm PIN'.i18n(ref),
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
@@ -51,7 +54,7 @@ class _SetPinState extends ConsumerState<SetPin> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  'Choose a 6-digit PIN'.i18n(ref),
+                  'Confirm your 6-digit PIN'.i18n(ref),
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
                 const SizedBox(height: 10),
@@ -61,7 +64,7 @@ class _SetPinState extends ConsumerState<SetPin> {
                     appContext: context,
                     length: 6,
                     obscureText: true,
-                    controller: pinController, // Use controller here
+                    controller: confirmPinController, // Use controller here
                     keyboardType: TextInputType.number,
                     textStyle: const TextStyle(color: Colors.white),
                     pinTheme: PinTheme(
@@ -73,6 +76,9 @@ class _SetPinState extends ConsumerState<SetPin> {
                       if (value == null || value.isEmpty || value.length != 6) {
                         return '';
                       }
+                      if (value != originalPin) {
+                        return 'PINs do not match'.i18n(ref); // Custom error message
+                      }
                       return null;
                     },
                     onChanged: (value) {},
@@ -82,17 +88,27 @@ class _SetPinState extends ConsumerState<SetPin> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 106),
                   child: CustomButton(
-                    text: 'Next'.i18n(ref),
-                    onPressed: () {
+                    text: 'Set PIN'.i18n(ref),
+                    onPressed: () async {
                       if (formKey.currentState!.validate()) {
-                        // Store the PIN in pinProvider
-                        ref.read(pinProvider.notifier).state = pinController.text;
+                        final authModel = ref.read(authModelProvider);
 
-                        // Navigate to ConfirmPin screen
-                        context.push('/confirm_pin');
+                        // Set the PIN (using the stored original PIN)
+                        await authModel.setPin(originalPin);
+
+                        // Optionally handle mnemonic
+                        final mnemonic = await authModel.getMnemonic();
+                        if (mnemonic == null || mnemonic.isEmpty) {
+                          await authModel.setMnemonic(await authModel.generateMnemonic());
+                        }
+
+                        // Clear the PIN from the provider after use
+                        ref.read(pinProvider.notifier).state = '';
+
+                        context.go('/home');
                       } else {
                         Fluttertoast.showToast(
-                          msg: 'Please enter a 6-digit PIN'.i18n(ref),
+                          msg: 'PINs do not match'.i18n(ref),
                           toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.TOP,
                           timeInSecForIosWeb: 1,

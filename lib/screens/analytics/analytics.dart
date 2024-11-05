@@ -70,7 +70,7 @@ class Analytics extends ConsumerWidget {
                   ref.read(selectedExpenseTypeProvider.notifier).state = newValue;
                 }
               },
-              items: <String>["Bitcoin", "Liquid", "Swap", if (hasLightning) "Lightning"]
+              items: <String>["Bitcoin", "Liquid", "Swaps", if (hasLightning) "Lightning"]
                   .map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
@@ -88,7 +88,7 @@ class Analytics extends ConsumerWidget {
         ),
         if (transactionType == 'Bitcoin') const BitcoinExpensesDiagram(),
         if (transactionType == 'Liquid') const LiquidExpensesDiagram(),
-        if (transactionType == 'Swap') const Expanded(child: SwapsBuilder()),
+        if (transactionType == 'Swaps') const Expanded(child: SwapsBuilder()),
         if (transactionType == 'Lightning' && hasLightning) const LightningExpensesDiagram(),
         if (transactionType == 'Bitcoin' || transactionType == 'Liquid' || transactionType == 'Lightning')
           const BuildTransactions(showAllTransactions: false),

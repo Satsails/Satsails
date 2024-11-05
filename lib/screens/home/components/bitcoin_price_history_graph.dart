@@ -172,7 +172,7 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
 
   Widget _buildDateRangeButtons(WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.only(top: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [

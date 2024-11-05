@@ -16,9 +16,12 @@ class ClaimBoltz extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: false,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: const Expanded(child: AllTransactions()),
+      body: Column(
+        children: [
+          const Expanded(
+            child: AllTransactions(),
+          ),
+        ],
       ),
     );
   }
@@ -78,7 +81,6 @@ Widget buildBoltzItem({
   required bool isBitcoin,
   required bool isSending,
 }) {
-  // Safely cast the correct type
   final amount = isBitcoin ? bitcoinTx!.swap.outAmount : liquidTx!.swap.outAmount;
   final timestamp = isBitcoin ? bitcoinTx!.timestamp : liquidTx!.timestamp;
   final network = isBitcoin ? 'Bitcoin' : 'Liquid Bitcoin';
