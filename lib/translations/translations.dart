@@ -1881,7 +1881,17 @@ extension Localization on String {
       {
         'en': 'Insufficient funds to pay for fees',
         'pt': 'Fundos insuficientes para pagar taxas'
+      } +
+      {
+        'en': 'Payment Received!',
+        'pt': 'Pagamento Recebido!'
+      } +
+      {
+        'en': 'sats received!',
+        'pt': 'sats recebidos!'
       };
+
+
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;

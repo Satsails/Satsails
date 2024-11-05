@@ -29,6 +29,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
   bool showLightningWidget = false;
   bool isLoading = false;
   late Future<void> usernameCheckFuture;
+  String? lastProcessedPaymentId;
 
   @override
   void initState() {
@@ -94,10 +95,9 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24.0, vertical: 12.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
                       ),
-                      child:Text(
+                      child: Text(
                         'Cancel'.i18n(ref),
                         style: TextStyle(
                           color: Colors.black87,
@@ -117,8 +117,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24.0, vertical: 12.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
                       ),
                       child: Text(
                         'Register'.i18n(ref),
@@ -230,8 +229,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0, vertical: 12.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
                   ),
                   child: Text(
                     'Visit Coinos'.i18n(ref),
@@ -245,8 +243,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0, vertical: 12.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
                   ),
                   child: const Text(
                     'OK',
@@ -327,19 +324,20 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     payments.when(
       data: (data) {
         if (data['type'] == 'lightning' && data['confirmed'] == true) {
-          // Extract relevant payment information
           final amount = data['amount'];
-          ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+          final paymentId = data['id'];
 
-          // Show the modal with payment information
-          Future.microtask(() => _showPaymentReceivedModal(context, amount));
+          if (lastProcessedPaymentId != paymentId) {
+            lastProcessedPaymentId = paymentId;
+            ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+            Future.microtask(() => _showPaymentReceivedModal(context, amount));
+          }
         }
       },
       loading: () {
         // Optionally handle loading state
       },
       error: (error, stackTrace) {
-        // Handle error state
         print('Error: $error');
       },
     );
@@ -472,7 +470,6 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
       },
     );
   }
-
 
   Widget _buildDefaultAddress(String lnurl) {
     final height = MediaQuery.of(context).size.height;

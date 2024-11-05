@@ -81,7 +81,7 @@ class Home extends ConsumerWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        const BackupWarning(),
+        // const BackupWarning(),
         buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
         const DepixConvertWarning(),
         SizedBox(height: screenHeight * 0.01),
@@ -103,7 +103,10 @@ class Home extends ConsumerWidget {
       indicatorBottomPadding: 0,
       indicatorBackgroundColor: Colors.grey,
       children: [
-        buildBarChart(context, percentageOfEachCurrency, balance, ref),
+        Padding(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05),
+          child: buildBarChart(context, percentageOfEachCurrency, balance, ref),
+        ),
         const BitcoinPriceHistoryGraph(),
       ],
     );
