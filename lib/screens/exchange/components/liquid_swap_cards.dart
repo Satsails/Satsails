@@ -393,7 +393,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
               Future.microtask(() {
-                ref.read(selectedExpenseTypeProvider.notifier).state = "Swap";
+                ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
                 ref.read(navigationProvider.notifier).state = 1;
               });
               await ref.read(liquidSyncNotifierProvider.notifier).performSync();

@@ -351,7 +351,7 @@ class Accounts extends ConsumerWidget {
             Text(
               title,
               style: TextStyle(
-                fontSize: screenWidth * 0.045,
+                fontSize: screenWidth * 0.04,
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
