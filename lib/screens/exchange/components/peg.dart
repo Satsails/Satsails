@@ -47,7 +47,6 @@ class _PegState extends ConsumerState<Peg> {
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormart));
     final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(btcFormart));
     final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
-    final inProcessing = ref.watch(transactionInProgressProvider);
 
     List<Widget> cards = [
       _buildBitcoinCard(ref, dynamicPadding, titleFontSize, pegIn),
@@ -59,95 +58,77 @@ class _PegState extends ConsumerState<Peg> {
       cards = cards.reversed.toList();
     }
 
-    return PopScope(
-      onPopInvoked: (pop) async {
-        if (inProcessing) {
-          Fluttertoast.showToast(
-            msg: "Transaction in progress, please wait.".i18n(ref),
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.TOP,
-            backgroundColor: Colors.orange,
-            textColor: Colors.white,
-            fontSize: 16.0,
+    return SafeArea(
+      child: FlutterKeyboardDoneWidget(
+        doneWidgetBuilder: (context) {
+          return const Text(
+            'Done',
           );
-          return;
-        } else {
-          ref.read(sendTxProvider.notifier).resetToDefault();
-          ref.read(sendBlocksProvider.notifier).state = 1;
-        }
-      },
-      child: SafeArea(
-        child: FlutterKeyboardDoneWidget(
-          doneWidgetBuilder: (context) {
-            return const Text(
-              'Done',
-            );
-          },
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Text(
-                        "Balance to Spend: ".i18n(ref),
-                        style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(
-                            pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
-                            style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                            textAlign: TextAlign.center,
-                          ),
-                          _buildBitcoinMaxButton(ref, dynamicPadding, titleFontSize, btcFormart, pegIn),
-                        ],
-                      ),
-                      SizedBox(height: dynamicSizedBox * 2),
-                      Stack(
-                        alignment: Alignment.center,
-                        clipBehavior: Clip.none,
-                        children: [
-                          Column(
-                            children: cards,
-                          ),
-                          Positioned(
-                            top: titleFontSize / 2,
-                            bottom: titleFontSize / 2,
-                            child: GestureDetector(
-                              onTap: () {
-                                ref.read(pegInProvider.notifier).state = !pegIn;
-                                ref.read(sendTxProvider.notifier).updateAddress('');
-                                ref.read(sendTxProvider.notifier).updateAmount(0);
-                                ref.read(sendTxProvider.notifier).updateDrain(false);
-                            ref.read(inputInFiatProvider.notifier).state = false;ref.read(sendBlocksProvider.notifier).state = 1;
-                                ref.read(inputInFiatProvider.notifier).state = false;
-                            ref.read(precisionFiatValueProvider.notifier).state = "0.00";controller.text = '';
-                              },
-                              child: CircleAvatar(
-                                radius: titleFontSize,
-                                backgroundColor: Colors.orange,
-                                child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.black),
-                              ),
+        },
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Text(
+                      "Balance to Spend: ".i18n(ref),
+                      style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text(
+                          pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
+                          style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
+                        _buildBitcoinMaxButton(ref, dynamicPadding, titleFontSize, btcFormart, pegIn),
+                      ],
+                    ),
+                    SizedBox(height: dynamicSizedBox * 2),
+                    Stack(
+                      alignment: Alignment.center,
+                      clipBehavior: Clip.none,
+                      children: [
+                        Column(
+                          children: cards,
+                        ),
+                        Positioned(
+                          top: titleFontSize / 2,
+                          bottom: titleFontSize / 2,
+                          child: GestureDetector(
+                            onTap: () {
+                              ref.read(pegInProvider.notifier).state = !pegIn;
+                              ref.read(sendTxProvider.notifier).updateAddress('');
+                              ref.read(sendTxProvider.notifier).updateAmount(0);
+                              ref.read(sendTxProvider.notifier).updateDrain(false);
+                              ref.read(inputInFiatProvider.notifier).state = false;ref.read(sendBlocksProvider.notifier).state = 1;
+                              ref.read(inputInFiatProvider.notifier).state = false;
+                              ref.read(precisionFiatValueProvider.notifier).state = "0.00";controller.text = '';
+                            },
+                            child: CircleAvatar(
+                              radius: titleFontSize,
+                              backgroundColor: Colors.orange,
+                              child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.black),
                             ),
                           ),
-                        ],
-                      ),
-                      pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _bitcoinFeeSuggestionsModal(ref, dynamicPadding, titleFontSize),
-                      pegIn ? _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize) : _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                    pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _bitcoinFeeSuggestionsModal(ref, dynamicPadding, titleFontSize),
+                    pegIn ? _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize) : _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
+                  ],
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(bottom: dynamicSizedBox * 2),
-                child: pegIn
-                    ? _bitcoinSlideToSend(ref, dynamicPadding, titleFontSize, context)
-                    : _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context),
-              ),
-            ],
-          ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(bottom: dynamicSizedBox * 2),
+              child: pegIn
+                  ? _bitcoinSlideToSend(ref, dynamicPadding, titleFontSize, context)
+                  : _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context),
+            ),
+          ],
         ),
       ),
     );
@@ -250,6 +231,7 @@ class _PegState extends ConsumerState<Peg> {
                   });
                   await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                   controller.success();
+                  ref.read(transactionInProgressProvider.notifier).state = false;
                   context.go('/home');
                 } catch (e) {
                   controller.failure();
@@ -300,6 +282,7 @@ class _PegState extends ConsumerState<Peg> {
                   });
                   await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
                   controller.success();
+                  ref.read(transactionInProgressProvider.notifier).state = false;
                   context.go('/home');
                 } catch (e) {
                   ref.read(transactionInProgressProvider.notifier).state = false;
@@ -543,7 +526,6 @@ class _PegState extends ConsumerState<Peg> {
                       Text(formattedValueToReceive, style: TextStyle(fontSize: titleFontSize, color: Colors.white), textAlign: TextAlign.center),
                       Text('${valueInCurrency.toStringAsFixed(2)} $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white), textAlign: TextAlign.center),
                       SizedBox(height: dynamicPadding / 2),
-                      if (double.parse(controller.text) * 100000000 < status.minPegOutAmount)
                       Text(
                         '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
                         style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),
@@ -742,7 +724,6 @@ class _PegState extends ConsumerState<Peg> {
                       ),
                       Text('${valueInCurrency.toStringAsFixed(2)} $currency', style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey), textAlign: TextAlign.center),
                       SizedBox(height: dynamicPadding / 2),
-                      if (double.parse(controller.text) * 100000000 < status.minPegOutAmount)
                       Text(
                         '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormart)} $btcFormart',
                         style: TextStyle(fontSize: titleFontSize / 2, color: Colors.grey),

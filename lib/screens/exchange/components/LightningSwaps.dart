@@ -55,7 +55,6 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
     final titleFontSize = MediaQuery.of(context).size.height * 0.03;
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
-    final inProcessing = ref.watch(transactionInProgressProvider);
     final sendLn = ref.watch(sendLightningProvider);
     final sendLbtc = ref.watch(sendLbtcProvider);
 
@@ -87,63 +86,46 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
       ),
     ];
 
-    return PopScope(
-      onPopInvoked: (pop) async {
-        if (inProcessing) {
-          Fluttertoast.showToast(
-            msg: "Transaction in progress, please wait.".i18n(ref),
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.TOP,
-            backgroundColor: Colors.orange,
-            textColor: Colors.white,
-            fontSize: 16.0,
+    return SafeArea(
+      child: FlutterKeyboardDoneWidget(
+        doneWidgetBuilder: (context) {
+          return const Text(
+            'Done',
           );
-          return;
-        } else {
-          ref.read(sendTxProvider.notifier).resetToDefault();
-          ref.read(sendBlocksProvider.notifier).state = 1;
-        }
-      },
-      child: SafeArea(
-        child: FlutterKeyboardDoneWidget(
-          doneWidgetBuilder: (context) {
-            return const Text(
-              'Done',
-            );
-          },
-          child: Column(
-            children: [
-              Text(
-                "Balance to Spend: ".i18n(ref),
-                style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text(
-                    currentBalance,
-                    style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-              SizedBox(height: dynamicPadding),
-              ...swapCards,
-              if (!sendLn)
-                DisplayFeesWidget()
-              else
-                ReceiveFeesWidget(),
-              const Spacer(),
-              if(sendLbtc)
-                _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context)
-              else
-                _bitcoinSlideToSend(ref, dynamicPadding, titleFontSize, context)
-            ],
-          ),
+        },
+        child: Column(
+          children: [
+            Text(
+              "Balance to Spend: ".i18n(ref),
+              style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  currentBalance,
+                  style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            SizedBox(height: dynamicPadding),
+            ...swapCards,
+            if (!sendLn)
+              DisplayFeesWidget()
+            else
+              ReceiveFeesWidget(),
+            const Spacer(),
+            if(sendLbtc)
+              _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context)
+            else
+              _bitcoinSlideToSend(ref, dynamicPadding, titleFontSize, context)
+          ],
         ),
       ),
     );
   }
+
 
   Widget buildCardSwiper(BuildContext context, WidgetRef ref, double dynamicCardHeight, List<Column> cards) {
     return SizedBox(

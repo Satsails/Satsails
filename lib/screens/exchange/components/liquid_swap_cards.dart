@@ -64,7 +64,6 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final btcFormat = ref.read(settingsProvider).btcFormat;
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
-    final inProcessing = ref.watch(transactionInProgressProvider);
 
     List<Column> cards = [
       buildCard('Depix', 'BRL', const Color(0xFF009B3A), const Color(0xFF009B3A), ref, context, false, AssetId.BRL, titleFontSize),
@@ -99,57 +98,41 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
       swapCards = swapCards.reversed.toList();
     }
 
-    return PopScope(
-      onPopInvoked: (pop) async {
-        if (inProcessing) {
-          Fluttertoast.showToast(
-            msg: "Transaction in progress, please wait.".i18n(ref),
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.TOP,
-            backgroundColor: Colors.orange,
-            textColor: Colors.white,
-            fontSize: 16.0,
+    return SafeArea(
+      child: FlutterKeyboardDoneWidget(
+        doneWidgetBuilder: (context) {
+          return const Text(
+            'Done',
           );
-          return;
-        } else {
-          ref.read(sendTxProvider.notifier).resetToDefault();
-          ref.read(sendBlocksProvider.notifier).state = 1;
-        }
-      },
-      child: SafeArea(
-        child: FlutterKeyboardDoneWidget(
-                doneWidgetBuilder: (context) {
-                  return const Text(
-                    'Done',
-                  );
-                },
-            child: Column(
+        },
+        child: Column(
+          children: [
+            Text(
+              "Balance to Spend: ".i18n(ref),
+              style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                  "Balance to Spend: ".i18n(ref),
-                  style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+                  currentBalance,
+                  style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                  textAlign: TextAlign.center,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      currentBalance,
-                      style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                      textAlign: TextAlign.center,
-                    ),
-                    _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat, titleFontSize),
-                  ],
-                ),
-                SizedBox(height: dynamicPadding),
-                ...swapCards,
-                const Spacer(),
-                _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
+                _buildMaxButton(ref, dynamicPadding, titleFontSize, btcFormat, titleFontSize),
               ],
             ),
-          ),
+            SizedBox(height: dynamicPadding),
+            ...swapCards,
+            const Spacer(),
+            _liquidSlideToSend(ref, dynamicFontSize, titleFontSize, context),
+          ],
+        ),
       ),
     );
   }
+
+
 
   Widget buildCardSwiper(BuildContext context, WidgetRef ref, double dynamicCardHeight, List<Column> cards) {
     return SizedBox(
@@ -410,11 +393,12 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
               Future.microtask(() {
-              ref.read(selectedExpenseTypeProvider.notifier).state = "Swap";
-              ref.read(navigationProvider.notifier).state = 1;
-             });
+                ref.read(selectedExpenseTypeProvider.notifier).state = "Swap";
+                ref.read(navigationProvider.notifier).state = 1;
+              });
               await ref.read(liquidSyncNotifierProvider.notifier).performSync();
               controller.success();
+              ref.read(transactionInProgressProvider.notifier).state = false;
               context.go('/home');
               Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
             } catch (e) {
