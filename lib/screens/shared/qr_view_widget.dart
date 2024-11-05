@@ -65,9 +65,9 @@ class _QRViewWidgetState extends State<QRViewWidget> {
   void onQRViewCreated(QRViewController controller, BuildContext context, WidgetRef ref) {
     widget.onQRViewCreated?.call(controller);
     controller.scannedDataStream.listen((scanData) async {
+      controller.pauseCamera();
       try {
         await widget.ref.refresh(setAddressAndAmountProvider(scanData.code ?? '').future);
-        controller.pauseCamera();
         switch (widget.ref.read(sendTxProvider.notifier).state.type) {
           case PaymentType.Bitcoin:
             context.push('/home/pay/confirm_bitcoin_payment');

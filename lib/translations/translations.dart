@@ -1877,10 +1877,11 @@ extension Localization on String {
       {
         'en': 'Amount cannot be zero',
         'pt': 'O valor não pode ser zero'
+      } +
+      {
+        'en': 'Insufficient funds to pay for fees',
+        'pt': 'Fundos insuficientes para pagar taxas'
       };
-
-
-
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;
