@@ -104,7 +104,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
       context.push('/set_pin');
     } else {
       Fluttertoast.showToast(
-        msg: 'Invalid mnemonic',
+        msg: 'Invalid mnemonic'.i18n(ref),
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.TOP,
         timeInSecForIosWeb: 1,
