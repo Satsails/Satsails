@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
+import 'package:faker/faker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:hive/hive.dart';
 import 'dart:math';
 import 'package:convert/convert.dart';
-import 'package:list_english_words/list_english_words.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pusher_beams/pusher_beams.dart';
+
 
 class SecureKeyManager {
   static const String _keyId = 'boltz_key';
@@ -90,16 +91,29 @@ class AuthModel {
     final mnemonic = await getMnemonic();
     if (mnemonic == null) return null;
 
+    // Hash the mnemonic using SHA-256
     final hash = sha256.convert(utf8.encode(mnemonic)).bytes;
 
-    int wordIndex = hash[0] % list_english_words.length;
-    String word = list_english_words[wordIndex];
+    // Generate a seed from the hash
+    int seed = hash.sublist(0, 4).fold(0, (prev, elem) => (prev << 8) + elem);
 
-    int number = hash[1] % 100;
+    // Initialize Faker with the seed using the factory constructor
+    final faker = Faker(seed: seed);
 
-    String numberStr = number.toString().padLeft(2, '0');
+    // Generate two words that make sense
+    String word1 = faker.person.firstName().toLowerCase(); // First name
+    String word2 = faker.person.lastName().toLowerCase(); // Last name
 
-    return "$word$numberStr";
+    // Use another part of the hash for the number
+    int number = hash.sublist(4, 6).fold(0, (prev, elem) => (prev << 8) + elem) % 10000;
+    String numberStr = number.toString().padLeft(4, '0');
+
+    // Combine words and number to form the username
+    String username = "$word1$word2$numberStr";
+
+    // Optionally, implement collision detection here
+
+    return username;
   }
 
   Future<String?> getBackendPassword() async {
@@ -110,7 +124,7 @@ class AuthModel {
     return base64.encode(hash.sublist(10, 20));
   }
 
-  Future<String?> getCoisosPassword() async {
+  Future<String?> getCoinosPassword() async {
     final mnemonic = await getMnemonic();
     if (mnemonic == null) return null;
 

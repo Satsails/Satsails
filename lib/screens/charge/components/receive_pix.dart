@@ -82,7 +82,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       final result = await TransferService.getMinimumPurchase(auth);
       if (result.error == null && result.data != null) {
         setState(() {
-          _minimumPayment = double.tryParse(result.data!) ?? 3.0;
+          _minimumPayment = double.tryParse(result.data!) ?? 10.0;
         });
       } else {
         Fluttertoast.showToast(

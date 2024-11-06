@@ -75,7 +75,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
   CoinosLnModel(super.state);
 
   Future<void> login() async {
-    final password = await AuthModel().getCoisosPassword();
+    final password = await AuthModel().getCoinosPassword();
     final username = await AuthModel().getUsername();
     final result = await CoinosLnService.login(username!, password!);
     if (result.isSuccess) {
@@ -89,7 +89,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
   }
 
   Future<void> register() async {
-    final password = await AuthModel().getCoisosPassword();
+    final password = await AuthModel().getCoinosPassword();
     final username = await AuthModel().getUsername();
     final result = await CoinosLnService.register(username!, password!);
     if (result.isSuccess) {

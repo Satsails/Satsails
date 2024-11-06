@@ -67,7 +67,7 @@ dependencies:
   flutter_local_notifications: ^17.2.3
 #  incompatible with latest flutter version, commenting for now, will be redundant once eulen releases api
 #  pusher_channels_flutter: ^2.2.1
-  list_english_words: ^0.2.0
+  faker: ^2.2.0
   bech32: ^0.2.2
   pusher_beams:
     git:
