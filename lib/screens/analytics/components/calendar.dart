@@ -178,7 +178,7 @@ class _CalendarState extends ConsumerState<Calendar> {
                     ref.read(dateTimeSelectProvider.notifier).update(
                       DateTimeSelect(
                         start: DateUtils.dateOnly(startDate),
-                        end: DateUtils.dateOnly(now).add(const Duration(hours: 23, minutes: 59, seconds: 59)),
+                        end: today.add(const Duration(hours: 23, minutes: 59, seconds: 59)),
                       ),
                     );
                     break;
@@ -187,7 +187,7 @@ class _CalendarState extends ConsumerState<Calendar> {
                     ref.read(dateTimeSelectProvider.notifier).update(
                       DateTimeSelect(
                         start: DateUtils.dateOnly(startDate),
-                        end: DateUtils.dateOnly(now).add(const Duration(hours: 23, minutes: 59, seconds: 59)),
+                        end:today.add(const Duration(hours: 23, minutes: 59, seconds: 59)),
                       ),
                     );
                     break;
@@ -196,7 +196,7 @@ class _CalendarState extends ConsumerState<Calendar> {
                     ref.read(dateTimeSelectProvider.notifier).update(
                       DateTimeSelect(
                         start: DateUtils.dateOnly(startDate),
-                        end: DateUtils.dateOnly(now).add(const Duration(hours: 23, minutes: 59, seconds: 59)),
+                        end:today.add(const Duration(hours: 23, minutes: 59, seconds: 59)),
                       ),
                     );
                     break;

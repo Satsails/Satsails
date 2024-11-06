@@ -44,6 +44,19 @@ class AllTransactions extends ConsumerWidget {
             ),
           );
         }
+
+        // Sort transactions by timestamp in descending order
+        transactions.sort((a, b) {
+          final timestampA = a['tx'] is BtcBoltz
+              ? (a['tx'] as BtcBoltz).timestamp
+              : (a['tx'] as LbtcBoltz).timestamp;
+          final timestampB = b['tx'] is BtcBoltz
+              ? (b['tx'] as BtcBoltz).timestamp
+              : (b['tx'] as LbtcBoltz).timestamp;
+
+          return timestampB.compareTo(timestampA);
+        });
+
         return ListView.builder(
           itemCount: transactions.length,
           itemBuilder: (context, index) {

@@ -41,7 +41,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
     isInputBlocked = sendAmount != 0;
 
     // Set initial amount in the controller
-    controller.text = sendAmount == 0 ? '' : (btcFormat == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString());
+    controller.text = sendAmount == 0 ? '' : (btcFormat == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toStringAsFixed(8));
 
     // Store initial address for rollback if needed
     initialAddress = ref.read(sendTxProvider).address;

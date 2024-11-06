@@ -40,7 +40,11 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
               size: screenHeight * 0.08,
             ),
           )
-              : const Expanded(child: ExpensesGraph()),
+              : const Expanded(child:
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: ExpensesGraph(),
+          )),
         ],
       ),
     );

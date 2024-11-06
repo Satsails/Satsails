@@ -1,8 +1,9 @@
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/providers/coinos.provider.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
+import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/exchange/components/ln_receive_fees.dart';
 import 'package:Satsails/screens/exchange/components/ln_send_fees.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
@@ -251,12 +252,10 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
                 ref.read(sendTxProvider.notifier).updateAddress(address);
                 await ref.read(sendSwapToProvider.future);
                 await ref.read(claimSingleBoltzTransactionProvider(receiveBoltz.swap.id).future);
-                await ref.read(liquidSyncNotifierProvider.notifier).performSync();
               } else {
                 await ref.read(receiveSwapFromProvider.future);
                 final pay = await ref.read(boltzPayProvider.future);
                 id = pay.swap.id;
-                await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                 final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
                 final lnBalance = await ref.read(coinosBalanceProvider.future);
                 balanceNotifier.updateLightningBalance(lnBalance);
@@ -270,6 +269,10 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
                 fontSize: 16.0,
               );
               ref.read(transactionInProgressProvider.notifier).state = false;
+              Future.microtask(() {
+                ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
+                ref.read(navigationProvider.notifier).state = 1;
+              });
               context.go('/home');
             } catch (e) {
               if (id != null) {
@@ -320,12 +323,10 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
                 ref.read(sendTxProvider.notifier).updateAddress(address);
                 await ref.read(sendSwapToProvider.future);
                 await ref.read(claimSingleBitcoinBoltzTransactionProvider(receiveBoltz.swap.id).future);
-                await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
               } else {
                 await ref.read(receiveSwapFromProvider.future);
                 final pay = await ref.read(bitcoinBoltzPayProvider.future);
                 id = pay.swap.id;
-                await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
                 final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
                 final lnBalance = await ref.read(coinosBalanceProvider.future);
                 balanceNotifier.updateLightningBalance(lnBalance);
@@ -339,6 +340,10 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
                 fontSize: 16.0,
               );
               ref.read(transactionInProgressProvider.notifier).state = false;
+              Future.microtask(() {
+                ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
+                ref.read(navigationProvider.notifier).state = 1;
+              });
               context.go('/home');
             } catch (e) {
               if (id != null) {

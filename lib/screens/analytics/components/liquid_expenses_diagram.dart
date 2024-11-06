@@ -187,12 +187,15 @@ class LiquidExpensesDiagram extends ConsumerWidget {
     ];
 
     return Expanded(
-      child: ImageSlideshow(
-        initialPage: 0,
-        indicatorBottomPadding: 0,
-        indicatorColor: Colors.orangeAccent,
-        indicatorBackgroundColor: Colors.grey,
-        children: cards,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ImageSlideshow(
+          initialPage: 0,
+          indicatorBottomPadding: 0,
+          indicatorColor: Colors.orangeAccent,
+          indicatorBackgroundColor: Colors.grey,
+          children: cards,
+        ),
       ),
     );
   }

@@ -8,7 +8,10 @@ class LightningExpensesDiagram extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return const Expanded(
-      child: LightningExpensesGraph(),
+      child: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: LightningExpensesGraph(),
+      ),
     );
   }
 }

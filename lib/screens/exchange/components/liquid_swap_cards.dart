@@ -396,7 +396,6 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
                 ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
                 ref.read(navigationProvider.notifier).state = 1;
               });
-              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
               controller.success();
               ref.read(transactionInProgressProvider.notifier).state = false;
               context.go('/home');

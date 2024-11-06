@@ -1,5 +1,4 @@
 import 'package:Satsails/providers/address_receive_provider.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
@@ -229,7 +228,6 @@ class _PegState extends ConsumerState<Peg> {
                     ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
                     ref.read(navigationProvider.notifier).state = 1;
                   });
-                  await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                   controller.success();
                   ref.read(transactionInProgressProvider.notifier).state = false;
                   context.go('/home');
@@ -280,7 +278,6 @@ class _PegState extends ConsumerState<Peg> {
                     ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
                     ref.read(navigationProvider.notifier).state = 1;
                   });
-                  await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
                   controller.success();
                   ref.read(transactionInProgressProvider.notifier).state = false;
                   context.go('/home');

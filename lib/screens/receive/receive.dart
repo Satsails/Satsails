@@ -29,9 +29,10 @@ class Receive extends ConsumerWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, size: screenHeight * 0.03, color: Colors.white),
           onPressed: () {
-            context.pop();
             ref.read(inputAmountProvider.notifier).state = '0.0';
             ref.invalidate(initialCoinosProvider);
+            ref.read(selectedReceiveTypeProvider.notifier).state = "Bitcoin";
+            context.pop();
           },
         ),
       ),

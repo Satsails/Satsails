@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:Satsails/services/lnurl_parser/dart_lnurl_parser.dart';
+import 'package:Satsails/services/lnurl_parser/src/lnurl.dart';
 import 'package:boltz_dart/boltz_dart.dart';
 import 'package:lwk_dart/lwk_dart.dart' as lwk;
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
@@ -28,7 +29,15 @@ Future<bool> isValidBitcoinAddress(String address) async {
 
 final RegExp _regExpForLnAddressConversion = RegExp(r'([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})');
 
-String? convertLnAddressToWellKnown(String lightningAddress) {
+Uri? convertLnAddressToWellKnown(String lightningAddress) {
+  try {
+    if (findLnUrl(lightningAddress).isNotEmpty) {
+      return decodeLnurlUri(lightningAddress);
+    }
+  } catch (_) {
+    // Ignore the error and continue 
+  }
+
   final match = _regExpForLnAddressConversion.firstMatch(lightningAddress);
   if (match != null && match.groupCount == 2) {
     String user = match.group(1)!;
@@ -36,15 +45,14 @@ String? convertLnAddressToWellKnown(String lightningAddress) {
 
     // Construct the .well-known/lnurlp URL
     String lnurlp = 'https://$domain/.well-known/lnurlp/$user';
-    return lnurlp;
+    return Uri.parse(lnurlp);
   } else {
     return null;
   }
 }
 
-Future<String?> lnUrlHasWellKnown(String invoice) async {
-  Uri uri = Uri.parse(invoice);
-  final lnParams = await getParamsFromLnurlServer(uri);
+Future<String?> lnUrlHasWellKnown(Uri invoice) async {
+  final lnParams = await getParamsFromLnurlServer(invoice);
   final lnuriCallback = lnParams.payParams?.callback;
   return lnuriCallback;
 }

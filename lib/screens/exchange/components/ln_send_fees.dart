@@ -2,7 +2,7 @@ import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/screens/exchange/components/LightningSwaps.dart';
+import 'package:Satsails/screens/exchange/components/lightningSwaps.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
