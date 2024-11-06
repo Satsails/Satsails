@@ -22,7 +22,7 @@ class BtcTransactionDetailsScreen extends ConsumerWidget {
     final amount = transaction.swap.outAmount;
     final expiry = transaction.swapScript.locktime;
     final timestamp = transaction.timestamp;
-    final completed = transaction.completed ? 'Completed' : 'Pending';
+    final completed = transaction.completed ?? false ? 'Completed' : 'Pending';
     final kind = transaction.swap.kind.name;
     final network = 'Bitcoin';
     final swapId = transaction.swap.id;
@@ -226,7 +226,7 @@ class LbtcTransactionDetailsScreen extends ConsumerWidget {
     final amount = transaction.swap.outAmount;
     final expiry = transaction.swapScript.locktime;
     final timestamp = transaction.timestamp;
-    final completed = transaction.completed ? 'Completed' : 'Pending';
+    final completed = transaction.completed ?? false ? 'Completed' : 'Pending';
     final kind = transaction.swap.kind.name;
     final network = 'Liquid';
     final swapId = transaction.swap.id;

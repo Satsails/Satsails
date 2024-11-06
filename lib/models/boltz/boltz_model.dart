@@ -204,7 +204,7 @@ class LbtcBoltz {
   @HiveField(4)
   final int timestamp;
   @HiveField(5)
-  final bool completed;
+  final bool? completed;
 
   LbtcBoltz({
     required this.swap,
@@ -495,7 +495,7 @@ class BtcBoltz {
   @HiveField(4)
   final int timestamp;
   @HiveField(5)
-  final bool completed;
+  final bool? completed;
 
   BtcBoltz({
     required this.swap,

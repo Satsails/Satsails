@@ -89,7 +89,7 @@ class LbtcBoltzAdapter extends TypeAdapter<LbtcBoltz> {
       preimage: fields[2] as PreImage,
       swapScript: fields[3] as LBtcSwapScriptStr,
       timestamp: fields[4] as int,
-      completed: fields[5] as bool,
+      completed: fields[5] as bool?,
     );
   }
 
@@ -228,7 +228,7 @@ class BtcBoltzAdapter extends TypeAdapter<BtcBoltz> {
       preimage: fields[2] as PreImage,
       swapScript: fields[3] as BtcSwapScriptStr,
       timestamp: fields[4] as int,
-      completed: fields[5] as bool,
+      completed: fields[5] as bool?,
     );
   }
 

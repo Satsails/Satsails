@@ -152,7 +152,7 @@ final claimAndDeleteAllBoltzProvider = FutureProvider.autoDispose<void>((ref) as
 
     for (var item in receive) {
       try {
-        if (item.swapScript.locktime < currentLiquidTip || item.completed) {
+        if (item.swapScript.locktime < currentLiquidTip || (item.completed ?? false)) {
           continue;
         } else {
           await ref.read(claimSingleBoltzTransactionProvider(item.swap.id).future).then((value) => value);
@@ -297,7 +297,7 @@ final claimAndDeleteAllBitcoinBoltzProvider = FutureProvider.autoDispose<void>((
 
     for (var item in receive) {
       try {
-        if (item.swapScript.locktime < currentBitcoinTip || item.completed) {
+        if (item.swapScript.locktime < currentBitcoinTip || (item.completed ?? false)) {
           continue;
         } else {
           await ref.read(claimSingleBitcoinBoltzTransactionProvider(item.swap.id).future).then((value) => value);
