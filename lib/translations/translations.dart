@@ -1771,8 +1771,8 @@ extension Localization on String {
         'pt': 'Excluir Carteira Local'
       } +
       {
-        'en': 'Remove wallet data from this device only.',
-        'pt': 'Remover dados da carteira apenas deste dispositivo.'
+        'en': 'Remove wallet data from this device',
+        'pt': 'Remover dados da carteira deste dispositivo'
       } +
       {
         'en': 'Delete Server Data and Local Wallet',
@@ -1787,8 +1787,8 @@ extension Localization on String {
         'pt': 'Excluir Carteira Local?'
       } +
       {
-        'en': 'Are you sure you want to delete the local wallet?',
-        'pt': 'Tem certeza de que deseja excluir a carteira local?'
+        'en': 'Are you sure you want to delete the wallet?',
+        'pt': 'Tem certeza de que deseja excluir a carteira?'
       } +
       {
         'en': 'Delete Server Data and Local Wallet?',
