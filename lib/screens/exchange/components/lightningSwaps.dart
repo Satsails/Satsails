@@ -5,8 +5,6 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/coinos.provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
-import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
@@ -115,6 +113,10 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
             ),
             SizedBox(height: dynamicPadding),
             ...swapCards,
+            if(sendLn)
+              _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize)
+            else
+              _liquidFeeSlider(ref, dynamicPadding, titleFontSize),
             const Spacer(),
             if(sendLbtc)
               _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context)
@@ -138,19 +140,15 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
           borderRadius: BorderRadius.circular(10),
           onTap: () async {
             final balance = ref.watch(currentBalanceProvider);
+            ref.watch(sendTxProvider.notifier).updateDrain(true);
             if (sendLn) {
-              final maxAmount = (double.parse(balance) * 0.98);
-              controller.text = btcInDenominationFormatted(maxAmount, btcFormat);
+              controller.text = btcFormat == 'BTC' ? balance : btcInDenominationFormatted(double.parse(balance), btcFormat);
             } else {
               if (!sendLbtc) {
                 final address = await ref.read(createInvoiceForSwapProvider('bitcoin').future);
                 ref.read(sendTxProvider.notifier).updateAddress(address);
-                final transactionBuilderParams = await ref
-                    .watch(bitcoinTransactionBuilderProvider(int.parse(balance)).future)
-                    .then((value) => value);
-                final transaction = await ref
-                    .watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future)
-                    .then((value) => value);
+                final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(int.parse(balance)).future).then((value) => value);
+                final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future).then((value) => value);
                 final fee = await transaction.$1.feeAmount().then((value) => value);
                 final amountToSet = (double.parse(balance) - fee!);
                 controller.text = btcInDenominationFormatted(amountToSet, btcFormat);
@@ -407,6 +405,44 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
     );
   }
 }
+
+Widget _bitcoinFeeSlider(WidgetRef ref, double dynamicPadding, double titleFontSize) {
+  return Column(
+    children: [
+      SizedBox(height: dynamicPadding / 2),
+      Text("Choose your fee:".i18n(ref), style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white)),
+      Slider(
+        value: 6 - ref.watch(sendBlocksProvider).toDouble(),
+        onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = 6 - value,
+        min: 1,
+        max: 5,
+        divisions: 4,
+        label: ref.watch(sendBlocksProvider).toInt().toString(),
+        activeColor: Colors.orange,
+      ),
+    ],
+  );
+}
+
+Widget _liquidFeeSlider(WidgetRef ref, double dynamicPadding, double titleFontSize) {
+  return Column(
+    children: [
+      SizedBox(height: dynamicPadding / 2),
+      Text("Choose your fee:".i18n(ref), style: TextStyle(fontSize:  titleFontSize / 2, color: Colors.white)),
+      Slider(
+        value: 16 - ref.watch(sendBlocksProvider).toDouble(),
+        onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = 16 - value,
+        min: 1,
+        max: 15,
+        divisions: 14,
+        label: ref.watch(sendBlocksProvider).toInt().toString(),
+        activeColor: Colors.orange,
+      )
+    ],
+  );
+}
+
+
 
 
 

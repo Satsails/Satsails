@@ -1,5 +1,7 @@
 import 'package:Satsails/providers/address_receive_provider.dart';
+import 'package:Satsails/providers/bitcoin_provider.dart' as bdk;
 import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:Satsails/providers/liquid_provider.dart' as lwk;
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/services/coinos/coinos_push_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -63,13 +65,15 @@ final sendPaymentProvider = FutureProvider.autoDispose<void>((ref) async {
 final sendCoinosBitcoinProvider = FutureProvider.autoDispose<void>((ref) async {
   final address = ref.watch(sendTxProvider).address;
   final amount = ref.watch(sendTxProvider).amount;
-  await ref.read(coinosLnProvider.notifier).sendBitcoinPayment(address, amount);
+  final fee = await ref.watch(bdk.getCustomFeeRateProvider.future);
+  await ref.read(coinosLnProvider.notifier).sendBitcoinPayment(address, amount, fee);
 });
 
 final sendCoinosLiquidProvider = FutureProvider.autoDispose<void>((ref) async {
   final address = ref.watch(sendTxProvider).address;
   final amount = ref.watch(sendTxProvider).amount;
-  await ref.read(coinosLnProvider.notifier).sendLiquidPayment(address, amount);
+  final fee = await ref.watch(lwk.getCustomFeeRateProvider.future);
+  await ref.read(coinosLnProvider.notifier).sendLiquidPayment(address, amount, fee);
 });
 
 final coinosBalanceProvider = FutureProvider<int>((ref) async {

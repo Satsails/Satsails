@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/models/liquid_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -134,25 +135,25 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     }
   }
 
-  Future<void> sendBitcoinPayment(String address, int amount) async {
+  Future<void> sendBitcoinPayment(String address, int amount, double fee) async {
     final token = state.token;
     if (token == null || token.isEmpty) {
       throw 'Token is missing or invalid';
     }
 
-    final result = await CoinosLnService.sendBitcoinPayment(token, address, amount);
+    final result = await CoinosLnService.sendBitcoinPayment(token, address, amount, fee);
     if (!result.isSuccess) {
       throw result.error ?? 'Failed to send payment';
     }
   }
 
-  Future<void> sendLiquidPayment(String address, int amount) async {
+  Future<void> sendLiquidPayment(String address, int amount, double fee) async {
     final token = state.token;
     if (token == null || token.isEmpty) {
       throw 'Token is missing or invalid';
     }
 
-    final result = await CoinosLnService.sendLiquidPayment(token, address, amount);
+    final result = await CoinosLnService.sendLiquidPayment(token, address, amount, fee);
     if (!result.isSuccess) {
       throw result.error ?? 'Failed to send payment';
     }
@@ -282,7 +283,7 @@ class CoinosLnService {
     }
   }
 
-  static Future<Result<void>> sendBitcoinPayment(String token, String address, int amount) async {
+  static Future<Result<void>> sendBitcoinPayment(String token, String address, int amount, double fee) async {
     try {
       // final int maxFee = (amount * 0.1).toInt().clamp(1, double.infinity).toInt();
 
@@ -292,7 +293,7 @@ class CoinosLnService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({'address': address, 'amount': amount}),
+        body: jsonEncode({'address': address, 'amount': amount, 'subtract': true, 'feeRate': fee}),
       );
 
       if (response.statusCode == 200) {
@@ -309,17 +310,15 @@ class CoinosLnService {
     }
   }
 
-  static Future<Result<void>> sendLiquidPayment(String token, String address, int amount) async {
+  static Future<Result<void>> sendLiquidPayment(String token, String address, int amount, double fee) async {
     try {
-      // final int maxFee = (amount * 0.1).toInt().clamp(1, double.infinity).toInt();
-
       final response = await http.post(
         Uri.parse('$baseUrl/bitcoin/send'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({'address': address, 'amount': amount}),
+        body: jsonEncode({'address': address, 'amount': amount, 'subtract': true, 'feeRate': 0.1}),
       );
 
       if (response.statusCode == 200) {
@@ -376,7 +375,9 @@ class CoinosLnService {
         int balance = 0;
         for (var payment in payments) {
           if (payment.amount != null) {
-            balance += payment.amount!;
+            if (payment.confirmed == true) {
+              balance += payment.amount!;
+            }
           }
         }
 
