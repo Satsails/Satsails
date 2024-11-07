@@ -81,7 +81,7 @@ class Home extends ConsumerWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        // const BackupWarning(),
+        const BackupWarning(),
         buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
         const DepixConvertWarning(),
         SizedBox(height: screenHeight * 0.01),
