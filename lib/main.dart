@@ -58,8 +58,8 @@ Future<void> main() async {
 
       await flutterLocalNotificationsPlugin.show(
         0,
-        'New Payment',
-        'You have received a PIX payment',
+        'Depósito de Depix',
+        'Você recebeu um novo depósito de Depix.',
         platformChannelSpecifics,
       );
       final container = ProviderContainer();
