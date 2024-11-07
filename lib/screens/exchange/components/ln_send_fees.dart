@@ -6,6 +6,7 @@ import 'package:Satsails/screens/exchange/components/lightningSwaps.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 final totalAmountProvider = FutureProvider.autoDispose.family<double, bool>((ref, sendLiquid) async {
   final fees = await ref.watch(boltzSubmarineFeesProvider.future);
@@ -92,7 +93,9 @@ class DisplayFeesWidget extends ConsumerWidget {
           ],
         );
       },
-      loading: () => const CircularProgressIndicator(color: Colors.grey),
+      loading: () => Center(
+      child: LoadingAnimationWidget.threeRotatingDots(color: Colors.grey, size: 20),
+    ),
       error: (error, stack) => Text(
         'Error: $error',
         style: const TextStyle(color: Colors.white),

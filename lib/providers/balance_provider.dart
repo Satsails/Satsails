@@ -1,6 +1,3 @@
-import 'package:Satsails/providers/bitcoin_provider.dart';
-import 'package:Satsails/providers/coinos.provider.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
@@ -8,19 +5,10 @@ import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 
 final initializeBalanceProvider = FutureProvider<WalletBalance>((ref) async {
-  final online = ref.watch(settingsProvider).online;
-  if (online) {
-    await ref.read(backgroundSyncNotifierProvider.future);
-    await ref.read(updateCurrencyProvider.future);
-  }
-
-  final bitcoinBalance = await ref.watch(getBitcoinBalanceProvider.future);
-  final liquidBalances = await ref.watch(liquidBalanceProvider.future);
-  final lightningBalance = await ref.refresh(coinosBalanceProvider.future);
-
-  final balanceData = WalletBalance.updateFromAssets(liquidBalances, bitcoinBalance.total, lightningBalance);
-
-  return balanceData;
+  ref.watch(settingsProvider).online;
+  await ref.read(backgroundSyncNotifierProvider.future);
+  await ref.read(updateCurrencyProvider.future);
+  return await ref.read(backgroundSyncNotifierProvider.notifier).performSync();
 });
 
 

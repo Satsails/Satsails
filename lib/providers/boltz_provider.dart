@@ -325,13 +325,13 @@ final allTransactionsProvider = FutureProvider.autoDispose<List<dynamic>>((ref) 
   ];
 });
 
-final deleteBoltzTransactionProvider = FutureProvider.autoDispose.family<void, String>((ref, id) async {
-  final box = await SecureKeyManager.openEncryptedBox('receiveBoltz');
-  final bitcoinBox = await SecureKeyManager.openEncryptedBox('bitcoinReceiveBoltz');
-  final payBox = await SecureKeyManager.openEncryptedBox('payBoltz');
-  final bitcoinPayBox = await SecureKeyManager.openEncryptedBox('bitcoinPayBoltz');
-  await box.delete(id);
-  await bitcoinBox.delete(id);
-  await payBox.delete(id);
-  await bitcoinPayBox.delete(id);
-});
+// final deleteBoltzTransactionProvider = FutureProvider.autoDispose.family<void, String>((ref, id) async {
+//   final box = await SecureKeyManager.openEncryptedBox('receiveBoltz');
+//   final bitcoinBox = await SecureKeyManager.openEncryptedBox('bitcoinReceiveBoltz');
+//   final payBox = await SecureKeyManager.openEncryptedBox('payBoltz');
+//   final bitcoinPayBox = await SecureKeyManager.openEncryptedBox('bitcoinPayBoltz');
+//   await box.delete(id);
+//   await bitcoinBox.delete(id);
+//   await payBox.delete(id);
+//   await bitcoinPayBox.delete(id);
+// });

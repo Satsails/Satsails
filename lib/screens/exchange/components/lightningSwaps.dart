@@ -242,7 +242,7 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
           toggleColor: Colors.orange,
           action: (controller) async {
             ref.read(transactionInProgressProvider.notifier).state = true;
-            controller.loading();
+          controller.loading();
             var id;
             try {
               if (sendLn) {
@@ -251,7 +251,6 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
                 final address = receiveBoltz.swap.invoice;
                 ref.read(sendTxProvider.notifier).updateAddress(address);
                 await ref.read(sendSwapToProvider.future);
-                await ref.read(claimSingleBoltzTransactionProvider(receiveBoltz.swap.id).future);
               } else {
                 await ref.read(receiveSwapFromProvider.future);
                 final pay = await ref.read(boltzPayProvider.future);
@@ -268,6 +267,7 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
                 textColor: Colors.white,
                 fontSize: 16.0,
               );
+              controller.success();
               ref.read(transactionInProgressProvider.notifier).state = false;
               Future.microtask(() {
                 ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
@@ -275,9 +275,6 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
               });
               context.go('/home');
             } catch (e) {
-              if (id != null) {
-                ref.read(deleteBoltzTransactionProvider(id).future);
-              }
               ref.read(transactionInProgressProvider.notifier).state = false;
               controller.failure();
               Fluttertoast.showToast(
@@ -322,7 +319,6 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
                 id = receiveBoltz.swap.id;
                 ref.read(sendTxProvider.notifier).updateAddress(address);
                 await ref.read(sendSwapToProvider.future);
-                await ref.read(claimSingleBitcoinBoltzTransactionProvider(receiveBoltz.swap.id).future);
               } else {
                 await ref.read(receiveSwapFromProvider.future);
                 final pay = await ref.read(bitcoinBoltzPayProvider.future);
@@ -339,6 +335,7 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
                 textColor: Colors.white,
                 fontSize: 16.0,
               );
+              controller.success();
               ref.read(transactionInProgressProvider.notifier).state = false;
               Future.microtask(() {
                 ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
@@ -346,9 +343,6 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
               });
               context.go('/home');
             } catch (e) {
-              if (id != null) {
-                ref.read(deleteBoltzTransactionProvider(id).future);
-              }
               ref.read(transactionInProgressProvider.notifier).state = false;
               controller.failure();
               Fluttertoast.showToast(
