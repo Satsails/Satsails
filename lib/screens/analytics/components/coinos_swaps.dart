@@ -25,9 +25,9 @@ class CoinosPaymentsList extends ConsumerWidget {
         itemBuilder: (context, index) => _buildPaymentItem(payments[index], context, ref, screenWidth),
       ),
       loading: () => Center(
-        child: LoadingAnimationWidget.threeArchedCircle(
-          size: screenWidth * 0.2,
+        child: LoadingAnimationWidget.fourRotatingDots(
           color: Colors.orange,
+          size: screenWidth * 0.1,
         ),
       ),
       error: (error, stackTrace) => Center(
