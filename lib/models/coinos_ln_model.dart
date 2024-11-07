@@ -375,9 +375,7 @@ class CoinosLnService {
         int balance = 0;
         for (var payment in payments) {
           if (payment.amount != null) {
-            if (payment.confirmed == true) {
-              balance += payment.amount!;
-            }
+            balance += payment.amount!;
           }
         }
 

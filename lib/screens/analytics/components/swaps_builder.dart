@@ -5,6 +5,7 @@ import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/analytics/components/claim_boltz.dart';
+import 'package:Satsails/screens/analytics/components/coinos_swaps.dart';
 import 'package:Satsails/screens/charge/components/pix_history.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/screens/analytics/components/peg_details.dart';
+
 
 class SwapsBuilder extends ConsumerStatefulWidget {
   const SwapsBuilder({super.key});
@@ -31,16 +33,16 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
     final allSwaps = ref.watch(sideswapAllPegsProvider);
     final swapsToFiat = ref.watch(sideswapGetSwapsProvider);
     final paymentId = ref.watch(userProvider).paymentId;
-    final coinosIsNotEnabled = ref.watch(coinosLnProvider).token.isEmpty;
+    final coinosIsEnabled = ref.watch(coinosLnProvider).token.isNotEmpty;
 
     return Column(
       children: [
-        _buildSwapTypeFilter(context, paymentId, coinosIsNotEnabled),
+        _buildSwapTypeFilter(context, paymentId),
         Expanded(
           child: selectedSwapType == 'Pix History' && paymentId.isNotEmpty
               ? Builder(builder: (context) => const PixHistory())
               : selectedSwapType == 'Lightning Swaps'
-              ? ClaimBoltz()
+              ? coinosIsEnabled ? CoinosPaymentsList() : ClaimBoltz()
               : allSwaps.when(
             data: (swaps) {
               return swapsToFiat.when(
@@ -87,11 +89,11 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
     );
   }
 
-  Widget _buildSwapTypeFilter(BuildContext context, String paymentId, bool coinosIsNotEnabled) {
+  Widget _buildSwapTypeFilter(BuildContext context, String paymentId) {
     final List<String> swapTypes = [
       'Fiat Swaps',
       'Layer Swaps',
-      if (coinosIsNotEnabled) 'Lightning Swaps', // Only add Lightning Swaps if coinosIsNotEnabled is true
+      'Lightning Swaps', // Add Lightning Swaps to the dropdown
       if (paymentId.isNotEmpty) 'Pix History',
     ];
 
@@ -254,7 +256,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
               ),
             ),
             subtitle: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Text(
                   swap.pegIn! ? "Bitcoin" : "Liquid Bitcoin",
