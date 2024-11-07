@@ -142,8 +142,26 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
               final maxAmount = (double.parse(balance) * 0.98);
               controller.text = btcInDenominationFormatted(maxAmount, btcFormat);
             } else {
-              controller.text = btcInDenominationFormatted(double.parse(balance), btcFormat);
-              ref.read(sendTxProvider.notifier).updateDrain(true);
+              if (!sendLbtc) {
+                final address = await ref.read(createInvoiceForSwapProvider('bitcoin').future);
+                ref.read(sendTxProvider.notifier).updateAddress(address);
+                final transactionBuilderParams = await ref
+                    .watch(bitcoinTransactionBuilderProvider(int.parse(balance)).future)
+                    .then((value) => value);
+                final transaction = await ref
+                    .watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future)
+                    .then((value) => value);
+                final fee = await transaction.$1.feeAmount().then((value) => value);
+                final amountToSet = (double.parse(balance) - fee!);
+                controller.text = btcInDenominationFormatted(amountToSet, btcFormat);
+              } else {
+                final address = await ref.read(createInvoiceForSwapProvider('liquid').future);
+                ref.read(sendTxProvider.notifier).updateAddress(address);
+                final pset = await ref.watch(liquidDrainWalletProvider.future);
+                final sendingBalance = pset.balances[0].value + pset.absoluteFees;
+                final controllerValue = sendingBalance.abs();
+                controller.text = btcInDenominationFormatted(controllerValue, btcFormat);
+              }
             }
             ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
           },
