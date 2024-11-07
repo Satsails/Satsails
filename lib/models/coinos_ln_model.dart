@@ -99,13 +99,13 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     }
   }
 
-  Future<String> createInvoice(int amount) async {
+  Future<String> createInvoice(int amount, {String type = 'lightning'}) async {
     final token = state.token;
     if (token == null || token.isEmpty) {
       throw 'Token is missing or invalid';
     }
 
-    final result = await CoinosLnService.createInvoice(token, amount);
+    final result = await CoinosLnService.createInvoice(token, amount, type: type);
     if (result.isSuccess) {
       return result.data!;
     } else {
@@ -129,6 +129,30 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     }
 
     final result = await CoinosLnService.sendPayment(token, address, amount);
+    if (!result.isSuccess) {
+      throw result.error ?? 'Failed to send payment';
+    }
+  }
+
+  Future<void> sendBitcoinPayment(String address, int amount) async {
+    final token = state.token;
+    if (token == null || token.isEmpty) {
+      throw 'Token is missing or invalid';
+    }
+
+    final result = await CoinosLnService.sendBitcoinPayment(token, address, amount);
+    if (!result.isSuccess) {
+      throw result.error ?? 'Failed to send payment';
+    }
+  }
+
+  Future<void> sendLiquidPayment(String address, int amount) async {
+    final token = state.token;
+    if (token == null || token.isEmpty) {
+      throw 'Token is missing or invalid';
+    }
+
+    final result = await CoinosLnService.sendLiquidPayment(token, address, amount);
     if (!result.isSuccess) {
       throw result.error ?? 'Failed to send payment';
     }
@@ -192,7 +216,7 @@ class CoinosLnService {
     }
   }
 
-  static Future<Result<String>> createInvoice(String token, int amount) async {
+  static Future<Result<String>> createInvoice(String token, int amount, {String type = 'lightning'}) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/invoice'),
@@ -200,7 +224,7 @@ class CoinosLnService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({'invoice': {'amount': amount, 'type': 'lightning'}}),
+        body: jsonEncode({'invoice': {'amount': amount, 'type': type}}),
       );
       if (response.statusCode == 200) {
         return Result(data: jsonDecode(response.body)['hash']);
@@ -242,6 +266,60 @@ class CoinosLnService {
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({'payreq': address, 'amount': amount}),
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: null);
+      } else {
+        if (response.body.contains('Insufficient funds')) {
+          return Result(error: 'Insufficient funds to pay for fees');
+        } else {
+          return Result(error: '${response.body}');
+        }
+      }
+    } catch (e) {
+      return Result(error: 'Error sending payment: $e');
+    }
+  }
+
+  static Future<Result<void>> sendBitcoinPayment(String token, String address, int amount) async {
+    try {
+      // final int maxFee = (amount * 0.1).toInt().clamp(1, double.infinity).toInt();
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/bitcoin/send'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'address': address, 'amount': amount}),
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: null);
+      } else {
+        if (response.body.contains('Insufficient funds')) {
+          return Result(error: 'Insufficient funds to pay for fees');
+        } else {
+          return Result(error: '${response.body}');
+        }
+      }
+    } catch (e) {
+      return Result(error: 'Error sending payment: $e');
+    }
+  }
+
+  static Future<Result<void>> sendLiquidPayment(String token, String address, int amount) async {
+    try {
+      // final int maxFee = (amount * 0.1).toInt().clamp(1, double.infinity).toInt();
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/bitcoin/send'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'address': address, 'amount': amount}),
       );
 
       if (response.statusCode == 200) {

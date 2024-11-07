@@ -1,11 +1,12 @@
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
-import 'package:Satsails/providers/boltz_provider.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/coinos.provider.dart';
+import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
-import 'package:Satsails/screens/exchange/components/ln_receive_fees.dart';
-import 'package:Satsails/screens/exchange/components/ln_send_fees.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
@@ -57,6 +58,7 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
     final dynamicPadding = MediaQuery.of(context).size.width * 0.05;
     final dynamicSizedBox = MediaQuery.of(context).size.height * 0.01;
     final sendLn = ref.watch(sendLightningProvider);
+    final btcFormat = ref.read(settingsProvider).btcFormat;
     final sendLbtc = ref.watch(sendLbtcProvider);
 
     List<Column> cards = [
@@ -108,14 +110,11 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
                   style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
+                _buildMaxButton(ref, dynamicPadding, dynamicFontSize, btcFormat, titleFontSize, sendLn, sendLbtc),
               ],
             ),
             SizedBox(height: dynamicPadding),
             ...swapCards,
-            if (!sendLn)
-              DisplayFeesWidget()
-            else
-              ReceiveFeesWidget(),
             const Spacer(),
             if(sendLbtc)
               _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context)
@@ -127,6 +126,41 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
     );
   }
 
+  Widget _buildMaxButton(WidgetRef ref, double dynamicPadding, double dynamicFontSize, String btcFormat, double titleFontSize, bool sendLn, bool sendLbtc) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white, // Applied the same background color
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: () async {
+            final balance = ref.watch(currentBalanceProvider);
+            if (sendLn) {
+              final maxAmount = (double.parse(balance) * 0.98);
+              controller.text = btcInDenominationFormatted(maxAmount, btcFormat);
+            } else {
+              controller.text = btcInDenominationFormatted(double.parse(balance), btcFormat);
+              ref.read(sendTxProvider.notifier).updateDrain(true);
+            }
+            ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: dynamicPadding, vertical: dynamicPadding / 2.5), // Adjusted padding to match the other button
+            child: Text(
+              'Max',
+              style: TextStyle(
+                fontSize: titleFontSize / 2,
+                color: Colors.black, // Applied the same text color
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget buildCardSwiper(BuildContext context, WidgetRef ref, double dynamicCardHeight, List<Column> cards) {
     return SizedBox(
@@ -243,21 +277,20 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
           action: (controller) async {
             ref.read(transactionInProgressProvider.notifier).state = true;
             controller.loading();
-            var id;
             try {
               if (sendLn) {
-                final receiveBoltz = await ref.read(boltzReceiveProvider.future);
-                id = receiveBoltz.swap.id;
-                final address = receiveBoltz.swap.invoice;
-                ref.read(sendTxProvider.notifier).updateAddress(address);
-                ref.read(sendSwapToProvider.future);
+                final liquidAddress = await ref.read(liquidAddressProvider.future);
+                ref.read(sendTxProvider.notifier).updateAddress(liquidAddress.confidential);
+                await ref.read(sendCoinosLiquidProvider.future);
+                await ref.read(liquidSyncNotifierProvider.notifier).performSync();
               } else {
-                await ref.read(receiveSwapFromProvider.future);
-                final pay = await ref.read(boltzPayProvider.future);
-                id = pay.swap.id;
+                final addressFromCoinos = await ref.read(createInvoiceForSwapProvider('liquid').future);
+                ref.read(sendTxProvider.notifier).updateAddress(addressFromCoinos);
+                await ref.read(sendLiquidTransactionProvider.future);
                 final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
                 final lnBalance = await ref.read(coinosBalanceProvider.future);
                 balanceNotifier.updateLightningBalance(lnBalance);
+                await ref.read(liquidSyncNotifierProvider.notifier).performSync();
               }
               Fluttertoast.showToast(
                 msg: "Swap done!".i18n(ref),
@@ -269,10 +302,6 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
               );
               controller.success();
               ref.read(transactionInProgressProvider.notifier).state = false;
-              Future.microtask(() {
-                ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
-                ref.read(navigationProvider.notifier).state = 1;
-              });
               context.go('/home');
             } catch (e) {
               ref.read(transactionInProgressProvider.notifier).state = false;
@@ -311,21 +340,20 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
           action: (controller) async {
             ref.read(transactionInProgressProvider.notifier).state = true;
             controller.loading();
-            var id;
             try {
               if (sendLn) {
-                final receiveBoltz = await ref.read(bitcoinBoltzReceiveProvider.future);
-                final address = receiveBoltz.swap.invoice;
-                id = receiveBoltz.swap.id;
-                ref.read(sendTxProvider.notifier).updateAddress(address);
-                ref.read(sendSwapToProvider.future);
+                final btcAddress = await ref.read(bitcoinAddressProvider.future);
+                ref.read(sendTxProvider.notifier).updateAddress(btcAddress);
+                await ref.read(sendCoinosBitcoinProvider.future);
+                await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
               } else {
-                await ref.read(receiveSwapFromProvider.future);
-                final pay = await ref.read(bitcoinBoltzPayProvider.future);
-                id = pay.swap.id;
+                final addressFromCoinos = await ref.read(createInvoiceForSwapProvider('bitcoin').future);
+                ref.read(sendTxProvider.notifier).updateAddress(addressFromCoinos);
+                await ref.read(sendBitcoinTransactionProvider.future);
                 final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
                 final lnBalance = await ref.read(coinosBalanceProvider.future);
                 balanceNotifier.updateLightningBalance(lnBalance);
+                await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
               }
               Fluttertoast.showToast(
                 msg: "Swap done!".i18n(ref),
@@ -337,10 +365,6 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
               );
               controller.success();
               ref.read(transactionInProgressProvider.notifier).state = false;
-              Future.microtask(() {
-                ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
-                ref.read(navigationProvider.notifier).state = 1;
-              });
               context.go('/home');
             } catch (e) {
               ref.read(transactionInProgressProvider.notifier).state = false;

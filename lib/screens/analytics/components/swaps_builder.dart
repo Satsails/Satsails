@@ -1,5 +1,6 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
+import 'package:Satsails/providers/coinos.provider.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
@@ -13,7 +14,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/screens/analytics/components/peg_details.dart';
-
 
 class SwapsBuilder extends ConsumerStatefulWidget {
   const SwapsBuilder({super.key});
@@ -31,10 +31,11 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
     final allSwaps = ref.watch(sideswapAllPegsProvider);
     final swapsToFiat = ref.watch(sideswapGetSwapsProvider);
     final paymentId = ref.watch(userProvider).paymentId;
+    final coinosIsNotEnabled = ref.watch(coinosLnProvider).token.isEmpty;
 
     return Column(
       children: [
-        _buildSwapTypeFilter(context, paymentId),
+        _buildSwapTypeFilter(context, paymentId, coinosIsNotEnabled),
         Expanded(
           child: selectedSwapType == 'Pix History' && paymentId.isNotEmpty
               ? Builder(builder: (context) => const PixHistory())
@@ -86,11 +87,11 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
     );
   }
 
-  Widget _buildSwapTypeFilter(BuildContext context, String paymentId) {
+  Widget _buildSwapTypeFilter(BuildContext context, String paymentId, bool coinosIsNotEnabled) {
     final List<String> swapTypes = [
       'Fiat Swaps',
       'Layer Swaps',
-      'Lightning Swaps', // Add Lightning Swaps to the dropdown
+      if (coinosIsNotEnabled) 'Lightning Swaps', // Only add Lightning Swaps if coinosIsNotEnabled is true
       if (paymentId.isNotEmpty) 'Pix History',
     ];
 
@@ -253,7 +254,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
               ),
             ),
             subtitle: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Text(
                   swap.pegIn! ? "Bitcoin" : "Liquid Bitcoin",

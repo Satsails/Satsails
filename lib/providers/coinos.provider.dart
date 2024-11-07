@@ -49,10 +49,27 @@ final createInvoiceProvider = FutureProvider.autoDispose<String>((ref) async {
   return await ref.read(coinosLnProvider.notifier).createInvoice(amountToDisplay);
 });
 
+final createInvoiceForSwapProvider = FutureProvider.autoDispose.family<String, String>((ref, type) async {
+  final amount = ref.watch(sendTxProvider).amount;
+  return await ref.read(coinosLnProvider.notifier).createInvoice(amount, type: type);
+});
+
 final sendPaymentProvider = FutureProvider.autoDispose<void>((ref) async {
   final address = ref.watch(sendTxProvider).address;
   final amount = ref.watch(sendTxProvider).amount;
   await ref.read(coinosLnProvider.notifier).sendPayment(address, amount);
+});
+
+final sendCoinosBitcoinProvider = FutureProvider.autoDispose<void>((ref) async {
+  final address = ref.watch(sendTxProvider).address;
+  final amount = ref.watch(sendTxProvider).amount;
+  await ref.read(coinosLnProvider.notifier).sendBitcoinPayment(address, amount);
+});
+
+final sendCoinosLiquidProvider = FutureProvider.autoDispose<void>((ref) async {
+  final address = ref.watch(sendTxProvider).address;
+  final amount = ref.watch(sendTxProvider).amount;
+  await ref.read(coinosLnProvider.notifier).sendLiquidPayment(address, amount);
 });
 
 final coinosBalanceProvider = FutureProvider<int>((ref) async {
@@ -83,17 +100,4 @@ final loginIntoWebsocketProvider = FutureProvider.autoDispose<CoisosPushNotifica
 final coinosPaymentStreamProvider = StreamProvider.autoDispose<Map<String, dynamic>>((ref) async* {
   final pushNotificationsService = await ref.watch(loginIntoWebsocketProvider.future);
   yield* pushNotificationsService.paymentStream;
-});
-
-
-final sendSwapToProvider = FutureProvider.autoDispose<void>((ref) async {
-  final amount = ref.watch(sendTxProvider).amount;
-  final address = ref.watch(sendTxProvider).address;
-  await ref.read(coinosLnProvider.notifier).sendPayment(address, amount);
-});
-
-final receiveSwapFromProvider = FutureProvider.autoDispose<void>((ref) async {
-  final amount = ref.watch(sendTxProvider).amount;
-  final address = await ref.read(coinosLnProvider.notifier).createInvoice(amount);
-  ref.read(sendTxProvider.notifier).updateAddress(address);
 });

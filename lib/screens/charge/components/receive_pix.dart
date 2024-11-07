@@ -246,53 +246,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
   @override
   Widget build(BuildContext context) {
-    // final txReceived = ref.watch(pixTransactionReceivedProvider);
     final amountTransferredAsyncValue = ref.watch(getAmountTransferredProvider);
-
-    final hasInsertedAffiliateCode = ref.watch(userProvider).hasInsertedAffiliate;
-    final hasCreatedAffiliate = ref.watch(userProvider).hasCreatedAffiliate;
-    double fee = 0;
-    double amountInDouble = 0;
-
-    // txReceived.whenData((data) {
-    //   if (data.isNotEmpty) {
-    //     final messageType = data['type'];
-    //     final messageText = data['message'];
-    //     Color backgroundColor;
-    //
-    //     switch (messageType) {
-    //       case 'success':
-    //         backgroundColor = Colors.green;
-    //         break;
-    //       case 'delayed':
-    //         backgroundColor = Colors.orange;
-    //         break;
-    //       case 'failed':
-    //       default:
-    //         backgroundColor = Colors.red;
-    //         break;
-    //     }
-    //
-    //     _pixQRCode = '';
-    //     _feeDescription = '';
-    //     _amountToReceive = 0.0;
-    //     _amountController.clear();
-    //
-    //     Future.microtask(() {
-    //       ref.read(topSelectedButtonProvider.notifier).state = "History";
-    //       ref.read(groupButtonControllerProvider).selectIndex(1);
-    //       Fluttertoast.showToast(
-    //         msg: messageText.i18n(ref),
-    //         toastLength: Toast.LENGTH_SHORT,
-    //         gravity: ToastGravity.TOP,
-    //         timeInSecForIosWeb: 1,
-    //         backgroundColor: backgroundColor,
-    //         textColor: Colors.white,
-    //         fontSize: MediaQuery.of(context).size.height * 0.02,
-    //       );
-    //     });
-    //   }
-    // });
 
     return amountTransferredAsyncValue.when(
       loading: () => Center(
@@ -306,6 +260,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
         child: Center(child: ErrorDisplay(message: error.toString(), isCard: true)),
       ),
       data: (amountTransferred) {
+        // Calculate remaining limit and other necessary variables
         final double transferredAmount = double.tryParse(amountTransferred) ?? 0.0;
         _remainingLimit = _dailyLimit - transferredAmount;
 
@@ -314,31 +269,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
           _remainingLimit = 0;
         }
 
-        final amount = _amountController.text;
-        if (amount.isNotEmpty) {
-          amountInDouble = double.tryParse(amount.replaceAll(',', '.')) ?? 0.0;
-
-          final int numberOfAffiliateInstalls = ref.watch(numberOfAffiliateInstallsProvider).when(
-            data: (data) => data,
-            loading: () => 0,
-            error: (_, __) => 0,
-          );
-
-          fee = calculateFee(
-            amountInDouble,
-            hasInsertedAffiliateCode,
-            hasCreatedAffiliate,
-            numberOfAffiliateInstalls,
-          );
-          _feeDescription = getFeeDescription(
-            hasInsertedAffiliateCode,
-            hasCreatedAffiliate,
-            numberOfAffiliateInstalls,
-          );
-        }
-
-        final double amountToReceive = amountInDouble - fee;
-        _amountToReceive = amountToReceive;
+        // Calculate fee, amount to receive, etc.
 
         return FlutterKeyboardDoneWidget(
           doneWidgetBuilder: (context) {
@@ -350,6 +281,22 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+
+                  // Conditionally display the low-value purchases notice
+                  if (_minimumPayment == 10)
+                    Padding(
+                      padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
+                      child: Text(
+                        'The first 3 purchases with only 10 brl. After that, the minimum value will be 250 brl'.i18n(ref),
+                        style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.height * 0.015,
+                          color: Colors.orange,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+
+                  // Display remaining daily limit
                   Padding(
                     padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
                     child: Row(
@@ -367,6 +314,8 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       ],
                     ),
                   ),
+
+                  // Display transferred amount today
                   Padding(
                     padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
                     child: Text(
@@ -377,6 +326,8 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       ),
                     ),
                   ),
+
+                  // Amount input field
                   Padding(
                     padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
                     child: TextField(
@@ -405,6 +356,8 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       ),
                     ),
                   ),
+
+                  // Minimum payment amount message
                   if (_minimumPayment > 0)
                     Padding(
                       padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
@@ -416,6 +369,8 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                         ),
                       ),
                     ),
+
+                  // CPF/CNPJ input instructions
                   Padding(
                     padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
                     child: Text(
@@ -429,6 +384,8 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       overflow: TextOverflow.clip,
                     ),
                   ),
+
+                  // CPF/CNPJ input field
                   Padding(
                     padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
                     child: TextField(
@@ -453,6 +410,8 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                       ),
                     ),
                   ),
+
+                  // QR code and transaction details
                   if (_amountToReceive > 0 && _pixQRCode.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -475,6 +434,8 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                         ],
                       ),
                     ),
+
+                  // Loading animation or button to generate Pix code
                   if (_isLoading)
                     Center(
                       child: LoadingAnimationWidget.threeArchedCircle(
@@ -484,8 +445,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     )
                   else if (_pixQRCode.isEmpty)
                     Padding(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
+                      padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
                       child: CustomButton(
                         text: 'Generate Pix code'.i18n(ref),
                         primaryColor: Colors.orange,
@@ -496,6 +456,8 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                         },
                       ),
                     ),
+
+                  // Countdown timer for transaction expiration
                   SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                   if (_timeLeft.inSeconds > 0 && _pixQRCode.isNotEmpty)
                     Text(
@@ -503,8 +465,12 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                           ' ${_timeLeft.inMinutes}:${(_timeLeft.inSeconds % 60).toString().padLeft(2, '0')}',
                       style: const TextStyle(color: Colors.orange),
                     ),
+
+                  // QR code display
                   SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                   if (_pixQRCode.isNotEmpty) buildQrCode(_pixQRCode, context),
+
+                  // QR code address text display
                   SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                   if (_pixQRCode.isNotEmpty) buildAddressText(_pixQRCode, context, ref),
                 ],
@@ -516,3 +482,4 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     );
   }
 }
+
