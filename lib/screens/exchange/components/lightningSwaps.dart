@@ -242,7 +242,7 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
           toggleColor: Colors.orange,
           action: (controller) async {
             ref.read(transactionInProgressProvider.notifier).state = true;
-          controller.loading();
+            controller.loading();
             var id;
             try {
               if (sendLn) {
@@ -250,7 +250,7 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
                 id = receiveBoltz.swap.id;
                 final address = receiveBoltz.swap.invoice;
                 ref.read(sendTxProvider.notifier).updateAddress(address);
-                await ref.read(sendSwapToProvider.future);
+                ref.read(sendSwapToProvider.future);
               } else {
                 await ref.read(receiveSwapFromProvider.future);
                 final pay = await ref.read(boltzPayProvider.future);
@@ -318,7 +318,7 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
                 final address = receiveBoltz.swap.invoice;
                 id = receiveBoltz.swap.id;
                 ref.read(sendTxProvider.notifier).updateAddress(address);
-                await ref.read(sendSwapToProvider.future);
+                ref.read(sendSwapToProvider.future);
               } else {
                 await ref.read(receiveSwapFromProvider.future);
                 final pay = await ref.read(bitcoinBoltzPayProvider.future);

@@ -93,11 +93,10 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
   Future<void> _recoverAccount(BuildContext context) async {
     final authModel = ref.read(authModelProvider);
     final screenWidth = MediaQuery.of(context).size.width;
-    final mnemonic = 'near angle old frequent only pair banana giggle armed penalty torch boat';
-    // final mnemonic = _controllers
-    //     .take(_totalWords)
-    //     .map((controller) => controller.text.trim())
-    //     .join(' ');
+    final mnemonic = _controllers
+        .take(_totalWords)
+        .map((controller) => controller.text.trim())
+        .join(' ');
 
     if (await authModel.validateMnemonic(mnemonic)) {
       await authModel.setMnemonic(mnemonic);
