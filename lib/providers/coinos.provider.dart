@@ -72,8 +72,8 @@ final sendCoinosBitcoinProvider = FutureProvider.autoDispose<void>((ref) async {
 final sendCoinosLiquidProvider = FutureProvider.autoDispose<void>((ref) async {
   final address = ref.watch(sendTxProvider).address;
   final amount = ref.watch(sendTxProvider).amount;
-  final fee = await ref.watch(lwk.getCustomFeeRateProvider.future);
-  await ref.read(coinosLnProvider.notifier).sendLiquidPayment(address, amount, fee);
+  // final fee = await ref.watch(lwk.getCustomFeeRateProvider.future);
+  await ref.read(coinosLnProvider.notifier).sendLiquidPayment(address, amount, 0.1);
 });
 
 final coinosBalanceProvider = FutureProvider<int>((ref) async {

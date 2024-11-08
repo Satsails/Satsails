@@ -139,18 +139,20 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
           onTap: () async {
-            final balance = ref.watch(currentBalanceProvider);
             ref.watch(sendTxProvider.notifier).updateDrain(true);
             if (sendLn) {
-              controller.text = btcFormat == 'BTC' ? balance : btcInDenominationFormatted(double.parse(balance), btcFormat);
+              final balance = ref.read(balanceNotifierProvider).lightningBalance;
+              int maxAmount = (balance! * 0.995).toInt();
+              controller.text = btcInDenominationFormatted(maxAmount, btcFormat);
             } else {
               if (!sendLbtc) {
+                final balance = ref.read(balanceNotifierProvider).btcBalance;
                 final address = await ref.read(createInvoiceForSwapProvider('bitcoin').future);
                 ref.read(sendTxProvider.notifier).updateAddress(address);
-                final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(int.parse(balance)).future).then((value) => value);
+                final transactionBuilderParams = await ref.watch(bitcoinTransactionBuilderProvider(balance).future).then((value) => value);
                 final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future).then((value) => value);
                 final fee = await transaction.$1.feeAmount().then((value) => value);
-                final amountToSet = (double.parse(balance) - fee!);
+                final amountToSet = (balance - fee!);
                 controller.text = btcInDenominationFormatted(amountToSet, btcFormat);
               } else {
                 final address = await ref.read(createInvoiceForSwapProvider('liquid').future);

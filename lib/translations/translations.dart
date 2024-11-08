@@ -1891,8 +1891,8 @@ extension Localization on String {
         'pt': 'sats recebidos!'
       } +
       {
-        'en': 'The first 3 purchases with only 10 brl. After that, the minimum value will be 250 brl',
-        'pt': 'As 3 primeiras compras com apenas 10 brl. Depois disso, o valor mínimo será de 250 brl'
+        'en': 'The first 3 purchases have a minimum of 10 brl, after that the minimum is 250 brl',
+        'pt': 'As 3 primeiras compras têm um mínimo de 10 brl, após isso o mínimo é 250 brl'
       };
 
 

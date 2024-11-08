@@ -392,8 +392,8 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                           final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
                           ref.read(sendTxProvider.notifier).updateAddress(invoice);
                           await ref.read(sendPaymentProvider.future);
-                          final lnBalance = await ref.read(coinosBalanceProvider.future);
-                          balanceNotifier.updateLightningBalance(lnBalance);
+                          final currentLnBalance = ref.read(balanceNotifierProvider).lightningBalance;
+                          balanceNotifier.updateLightningBalance(currentLnBalance! - sendTxState.amount);
                           Fluttertoast.showToast(
                             msg: "Transaction Sent".i18n(ref),
                             toastLength: Toast.LENGTH_LONG,

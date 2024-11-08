@@ -318,7 +318,7 @@ class CoinosLnService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({'address': address, 'amount': amount, 'subtract': true, 'feeRate': 0.1}),
+        body: jsonEncode({'address': address, 'amount': amount, 'subtract': true, 'feeRate': fee}),
       );
 
       if (response.statusCode == 200) {
@@ -369,15 +369,20 @@ class CoinosLnService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        // Convert payments to CoinosPayment instances
         final List<CoinosPayment> payments = data['payments'].map<CoinosPayment>((json) => CoinosPayment.fromJson(json)).toList();
+        int incomingBalance = data['incoming']?.values
+            .map((currencyData) {
+          return currencyData['sats'] != null ? int.tryParse(currencyData['sats'].toString()) ?? 0 : 0;
+        }).reduce((a, b) => a + b) ?? 0;
 
-        int balance = 0;
-        for (var payment in payments) {
-          if (payment.amount != null) {
-            balance += payment.amount!;
-          }
-        }
+
+        int outgoingBalance = data['outgoing']?.values
+            .map((currencyData) {
+          return currencyData['sats'] != null ? int.tryParse(currencyData['sats'].toString()) ?? 0 : 0;
+        }).reduce((a, b) => a + b) ?? 0;
+
+
+        int balance = incomingBalance + outgoingBalance;
 
         return Result(data: {
           'balance': balance,

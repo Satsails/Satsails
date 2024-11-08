@@ -287,7 +287,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     Padding(
                       padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
                       child: Text(
-                        'The first 3 purchases with only 10 brl. After that, the minimum value will be 250 brl'.i18n(ref),
+                        'The first 3 purchases have a minimum of 10 brl, after that the minimum is 250 brl'.i18n(ref),
                         style: TextStyle(
                           fontSize: MediaQuery.of(context).size.height * 0.015,
                           color: Colors.orange,
