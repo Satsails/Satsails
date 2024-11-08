@@ -94,24 +94,21 @@ class AuthModel {
     // Hash the mnemonic using SHA-256
     final hash = sha256.convert(utf8.encode(mnemonic)).bytes;
 
-    // Generate a seed from the hash
+    // Generate a seed from part of the hash for consistency
     int seed = hash.sublist(0, 4).fold(0, (prev, elem) => (prev << 8) + elem);
 
-    // Initialize Faker with the seed using the factory constructor
+    // Initialize Faker with the seed
     final faker = Faker(seed: seed);
 
-    // Generate two words that make sense
-    String word1 = faker.person.firstName().toLowerCase(); // First name
-    String word2 = faker.person.lastName().toLowerCase(); // Last name
+    // Generate a single word
+    String word = faker.person.firstName().toLowerCase();
 
-    // Use another part of the hash for the number
+    // Use another part of the hash for a 4-digit number suffix
     int number = hash.sublist(4, 6).fold(0, (prev, elem) => (prev << 8) + elem) % 10000;
     String numberStr = number.toString().padLeft(4, '0');
 
-    // Combine words and number to form the username
-    String username = "$word1$word2$numberStr";
-
-    // Optionally, implement collision detection here
+    // Combine word and number to form the username
+    String username = "$word$numberStr";
 
     return username;
   }
