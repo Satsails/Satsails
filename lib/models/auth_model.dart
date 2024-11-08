@@ -110,6 +110,11 @@ class AuthModel {
     // Combine word and number to form the username
     String username = "$word$numberStr";
 
+    // Check for problematic names and adjust if necessary
+    if (username.contains("d'angelo")) {
+      username = username.replaceAll("d'angelo", "unlucky"); // Predictable replacement
+    }
+
     return username;
   }
 
