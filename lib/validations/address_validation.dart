@@ -112,6 +112,7 @@ Future<String> getLnInvoiceWithAmount(String invoice, int amount) async {
 
 
 Future<DecodedInvoice> isValidLightningAddress(String invoice) async {
+
   try {
     final res = await DecodedInvoice.fromString(
       s: invoice,
@@ -128,10 +129,14 @@ Future<AddressAndAmount> parseAddressAndAmount(String data) async {
   if (data.isEmpty) {
     throw const FormatException('Data cannot be null or empty');
   }
+
   var parts = data.split('?');
   var address = parts[0];
   int amount = 0;
-  var lightningInvoice = '';
+  var lightningInvoice = data;
+  if (data.startsWith('lightning:')) {
+    lightningInvoice = data.substring('lightning:'.length);
+  }
   var assetId = AssetMapper.reverseMapTicker(AssetId.LBTC);
 
   if (address.startsWith('bitcoin:')) {
@@ -142,7 +147,7 @@ Future<AddressAndAmount> parseAddressAndAmount(String data) async {
     address = address.substring(14);
   }
 
-  if ((await isValidBitcoinAddress(address).then((value) => !value)) && (await isValidLiquidAddress(address).then((value) => !value)) && (await isValidLightningAddress(address).then((value) => false))) {
+  if ((await isValidBitcoinAddress(address).then((value) => !value)) && (await isValidLiquidAddress(address).then((value) => !value)) && (await isValidLightningAddress(lightningInvoice).then((value) => false))) {
     throw const FormatException('Invalid address');
   }
 
@@ -172,9 +177,9 @@ Future<AddressAndAmount> parseAddressAndAmount(String data) async {
     return AddressAndAmount(address, amount, assetId, type: type);
   } else {
     try {
-      DecodedInvoice decodedInvoice = await isValidLightningAddress(address);
+      DecodedInvoice decodedInvoice = await isValidLightningAddress(lightningInvoice);
       type = PaymentType.Lightning;
-      address = address;
+      address = lightningInvoice;
       amount = decodedInvoice.msats ~/ 1000;
       return AddressAndAmount(address, amount, assetId, type: type);
     } catch (e) {
