@@ -151,3 +151,20 @@ final checkIfAccountBelongsToSetPrivateKeyProvider = FutureProvider.autoDispose<
     return false;
   }
 });
+
+final deleteUserDataProvider = FutureProvider.autoDispose<void>((ref) async {
+  final auth = ref.read(userProvider).recoveryCode;
+  final result = await UserService.deleteUser(auth);
+
+  if (result.isSuccess) {
+    await ref.read(userProvider.notifier).setPaymentId('');
+    await ref.read(userProvider.notifier).setRecoveryCode('');
+    await ref.read(userProvider.notifier).setDepixLiquidAddress('');
+    await ref.read(affiliateProvider.notifier).setCreatedAffiliateCode('');
+    await ref.read(affiliateProvider.notifier).setInsertedAffiliateCode('');
+    await ref.read(userProvider.notifier).setHasCreatedAffiliate(false);
+    await ref.read(userProvider.notifier).setHasInsertedAffiliate(false);
+  } else {
+    throw result.error!;
+  }
+});

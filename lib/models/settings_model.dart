@@ -49,6 +49,12 @@ class SettingsModel extends StateNotifier<Settings> {
     box.put('nodeType', newNodeType);
     state = state.copyWith(nodeType: newNodeType);
   }
+
+  Future<void> setBalanceVisible(bool balanceVisible) async {
+    final box = await Hive.openBox('settings');
+    box.put('balanceVisible', balanceVisible);
+    state = state.copyWith(balanceVisible: balanceVisible);
+  }
 }
 
 class Settings {
@@ -56,6 +62,7 @@ class Settings {
   final String language;
   late final String btcFormat;
   late bool online;
+  final bool balanceVisible;
   final bool backup;
   final String bitcoinElectrumNode;
   final String liquidElectrumNode;
@@ -68,6 +75,7 @@ class Settings {
     required String btcFormat,
     required this.online,
     required this.backup,
+    required this.balanceVisible,
     required this.bitcoinElectrumNode,
     required this.liquidElectrumNode,
     required this.nodeType,
@@ -79,6 +87,7 @@ class Settings {
     String? language,
     String? btcFormat,
     bool? online,
+    bool? balanceVisible,
     bool? backup,
     bool? pixOnboarding,
     String? pixPaymentCode,
@@ -90,6 +99,7 @@ class Settings {
       currency: currency ?? this.currency,
       language: language ?? this.language,
       btcFormat: btcFormat ?? this.btcFormat,
+      balanceVisible: balanceVisible ?? this.balanceVisible,
       online: online ?? this.online,
       backup: backup ?? this.backup,
       bitcoinElectrumNode: bitcoinElectrumNode ?? this.bitcoinElectrumNode,

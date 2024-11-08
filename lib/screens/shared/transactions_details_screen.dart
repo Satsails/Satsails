@@ -1,10 +1,13 @@
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
-import 'package:Satsails/models/adapters/transaction_adapters.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
+import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:go_router/go_router.dart';
 
 class TransactionDetailsScreen extends ConsumerWidget {
   final TransactionDetails transaction;
@@ -15,6 +18,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     const double dynamicMargin = 16.0;
     const double dynamicRadius = 12.0;
+    final denomination = ref.read(settingsProvider).btcFormat;
 
     return Scaffold(
       appBar: AppBar(
@@ -25,7 +29,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
       ),
       backgroundColor: Colors.black,
@@ -98,16 +102,16 @@ class TransactionDetailsScreen extends ConsumerWidget {
               const SizedBox(height: 16.0),
               TransactionDetailRow(
                 label: "Received".i18n(ref),
-                value: "${transaction.received}",
+                value: "${btcInDenominationFormatted(transaction.received, denomination)} $denomination",
               ),
               TransactionDetailRow(
                 label: "Sent".i18n(ref),
-                value: "${transaction.sent}",
+                value: "${btcInDenominationFormatted(transaction.sent, denomination)} $denomination",
               ),
               if (transaction.fee != null)
                 TransactionDetailRow(
                   label: "Fee".i18n(ref),
-                  value: "${transaction.fee}",
+                  value: "${btcInDenominationFormatted(transaction.fee!, denomination)} $denomination",
                 ),
               const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),
@@ -116,8 +120,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
                 onTap: () async {
                   ref.read(transactionSearchProvider).isLiquid = false;
                   ref.read(transactionSearchProvider).txid = transaction.txid;
-                  Navigator.pushNamed(context, '/search_modal');
-
+                  context.push('/search_modal');
                 },
                 child: Container(
                   margin: const EdgeInsets.only(top: 12.0),

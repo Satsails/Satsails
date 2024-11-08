@@ -1,5 +1,6 @@
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
@@ -25,16 +26,16 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
   void _loadUrl() {
     final isLiquid = ref.read(transactionSearchProvider).isLiquid;
     final transactionHash = ref.read(transactionSearchProvider).txid;
-    final amount = ref.read(transactionSearchProvider).amount;
-    final assetId = ref.read(transactionSearchProvider).assetId;
-    final amountBlinder = ref.read(transactionSearchProvider).amountBlinder;
-    final assetBlinder = ref.read(transactionSearchProvider).assetBlinder;
+    final unblindedUrl = ref.read(transactionSearchProvider).unblindedUrl;
 
     final uri = (isLiquid == null || transactionHash == null)
         ? 'https://mempool.space'
         : (isLiquid
-        ? 'https://liquid.network/tx/$transactionHash#blinded=$amount,$assetId,$amountBlinder,$assetBlinder'
+        ? (unblindedUrl == null
+        ? 'https://liquid.network/tx/$transactionHash'
+        : 'https://liquid.network/$unblindedUrl')
         : 'https://mempool.space/tx/$transactionHash');
+
     controller.loadRequest(Uri.parse(uri));
   }
 
@@ -44,6 +45,7 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      backgroundColor: Color.fromRGBO(29, 31, 49, 1.0),
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(29, 31, 49, 1.0),
         title: Text(
@@ -52,7 +54,7 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white, size: screenHeight * 0.03),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
       ),
       body: WebViewWidget(

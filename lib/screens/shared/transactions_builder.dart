@@ -1,19 +1,23 @@
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
-import 'package:Satsails/screens/analytics/components/button_picker.dart';
+import 'package:Satsails/models/coinos_ln_model.dart';
+import 'package:Satsails/providers/coinos.provider.dart';
+import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
-import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
-import 'package:Satsails/screens/shared/transactions_details_screen.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/models/adapters/transaction_adapters.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:lwk_dart/lwk_dart.dart' as lwk;
+import 'package:intl/intl.dart';
 
 class BuildTransactions extends ConsumerWidget {
   final bool showAllTransactions;
@@ -22,125 +26,253 @@ class BuildTransactions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02, horizontal: screenWidth * 0.2),
-      child: CustomButton(
-        onPressed: () => _showTransactionModal(context, ref),
-        text: 'See Full History'.i18n(ref),
-        primaryColor: Colors.transparent,
-        secondaryColor: Colors.transparent,
-        textColor: Colors.white,
-      ),
+    return CustomButton(
+      onPressed: () {
+        // Show the TransactionListModalBottomSheet
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent, // Make background transparent
+          builder: (context) {
+            return const TransactionListModalBottomSheet();
+          },
+        );
+      },
+      text: 'See Full History'.i18n(ref),
+      primaryColor: Colors.transparent,
+      secondaryColor: Colors.transparent,
+      textColor: Colors.white,
     );
   }
+}
 
-  void _showTransactionModal(BuildContext context, WidgetRef ref) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
+class TransactionListModalBottomSheet extends ConsumerWidget {
+  const TransactionListModalBottomSheet({Key? key}) : super(key: key);
 
-    final List bitcoinTransactions;
-    final List liquidTransactions;
-    bitcoinTransactions = ref.watch(bitcoinTransactionsByDate);
-    liquidTransactions = ref.watch(liquidTransactionsByDate);
-    final transationType = ref.watch(transactionTypeShowProvider);
-    final allTx = <dynamic>[];
-    allTx.addAll(bitcoinTransactions);
-    allTx.addAll(liquidTransactions);
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+    final liquidIsLoading = ref
+        .watch(transactionNotifierProvider)
+        .liquidTransactions
+        .isNotEmpty
+        ? ref
+        .watch(transactionNotifierProvider)
+        .liquidTransactions
+        .first
+        .balances
+        .isEmpty
+        : false;
+    final bitcoinIsLoading = ref
+        .watch(transactionNotifierProvider)
+        .bitcoinTransactions
+        .isNotEmpty
+        ? ref
+        .watch(transactionNotifierProvider)
+        .bitcoinTransactions
+        .first
+        .txid == ''
+        : false;
+    final bitcoinTransactions = ref.watch(bitcoinTransactionsByDate);
+    final liquidTransactions = ref.watch(liquidTransactionsByDate);
+    final transactionType = ref.watch(selectedExpenseTypeProvider);
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true, // Makes the modal sheet full screen if needed
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
-        return Container(
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            color: Color.fromARGB(255, 29, 29, 29),
-          ),
-          child: SizedBox(
-            width: screenWidth,
-            height: screenHeight * 0.75, // Use 75% of screen height for the modal sheet
-            child: LiquidPullToRefresh(
-              onRefresh: () async {
-                await ref.read(backgroundSyncNotifierProvider).performSync();
-                ref.refresh(bitcoinTransactionsByDate);
-                ref.refresh(liquidTransactionsByDate);
-              },
-              color: Colors.orange,
-              showChildOpacityTransition: false,
-              child: ListView.builder(
-                itemCount: txLength(bitcoinTransactions, liquidTransactions, ref),
-                itemBuilder: (BuildContext context, int index) {
-                  switch (transationType) {
-                    case 'Bitcoin':
-                      if (index < bitcoinTransactions.length) {
-                        return _buildTransactionItem(bitcoinTransactions[index], context, ref);
-                      } else if (bitcoinTransactions.isEmpty) {
-                        return Center(
-                            child: Text('Pull up to refresh'.i18n(ref),
-                                style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey)));
-                      }
-                    case 'Liquid':
-                      if (index < liquidTransactions.length) {
-                        return _buildTransactionItem(liquidTransactions[index], context, ref);
-                      } else if (liquidTransactions.isEmpty) {
-                        return Center(
-                            child: Text('Pull up to refresh'.i18n(ref),
-                                style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey)));
-                      }
-                    default:
-                      if (index < allTx.length) {
-                        return _buildTransactionItem(allTx[index], context, ref);
-                      } else {
-                        return Center(
-                            child: Text('Pull up to refresh'.i18n(ref),
-                                style: TextStyle(fontSize: screenHeight * 0.02, color: Colors.grey)));
-                      }
-                  }
-                  return null;
-                },
-              ),
-            ),
-          ),
-        );
+    // Include all transactions for 'All' type
+    final allTransactions = <dynamic>[
+      ...bitcoinTransactions,
+      ...liquidTransactions,
+    ];
+
+    // Check if transactions are loading
+    if (liquidIsLoading && bitcoinIsLoading) {
+      return Container(
+        height: screenHeight * 0.9, // Adjust the height as needed
+        decoration: const BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Center(
+          child: LoadingAnimationWidget.fourRotatingDots(
+              color: Colors.orange, size: screenHeight * 0.1),
+        ),
+      );
+    }
+
+    if (transactionType == 'Lightning') {
+      // Watch the getTransactionsProvider
+      final coinosTransactionsAsync = ref.watch(getTransactionsProvider);
+
+      return coinosTransactionsAsync.when(
+        data: (lightningTransactions) {
+          if (lightningTransactions == null || lightningTransactions['payments'].isEmpty) {
+            return _buildNoTransactionsFound(screenHeight, ref);
+          }
+
+          return _buildTransactionList(
+            context,
+            ref,
+            lightningTransactions['payments'].length,
+                (index) =>
+                _buildLightningTransactionItem(
+                    lightningTransactions['payments'].reversed.toList()[index], context, ref)
+          );
+        },
+        loading: () => _buildLoadingIndicator(screenHeight),
+        error: (error, stack) => _buildErrorIndicator(screenHeight, error),
+      );
+    }
+
+    // Existing code for Bitcoin and Liquid transactions
+    // Determine the total number of transactions
+    final totalTransactions = txLength(
+        bitcoinTransactions, liquidTransactions, ref);
+
+    // If no transactions, display message
+    if (totalTransactions == 0) {
+      return _buildNoTransactionsFound(screenHeight, ref);
+    }
+
+    return _buildTransactionList(
+      context,
+      ref,
+      totalTransactions,
+          (index) {
+        switch (transactionType) {
+          case 'Bitcoin':
+            if (index < bitcoinTransactions.length) {
+              return _buildTransactionItem(
+                  bitcoinTransactions[index], context, ref);
+            }
+            break;
+          case 'Liquid':
+            if (index < liquidTransactions.length) {
+              return _buildTransactionItem(
+                  liquidTransactions[index], context, ref);
+            }
+            break;
+          default:
+            if (index < allTransactions.length) {
+              return _buildTransactionItem(
+                  allTransactions[index], context, ref);
+            }
+        }
+        return const SizedBox();
       },
     );
   }
 
+  Widget _buildTransactionList(BuildContext context, WidgetRef ref,
+      int itemCount,
+      Widget Function(int) itemBuilder) {
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
 
-  int txLength(List<dynamic> bitcoinTransactions, List<dynamic> liquidTransactions, ref) {
-    final transationType = ref.watch(transactionTypeShowProvider);
-    switch (transationType) {
+    return Container(
+      height: screenHeight * 0.9, // Adjust the height as needed
+      decoration: const BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: LiquidPullToRefresh(
+          onRefresh: () async {
+            await ref
+                .read(backgroundSyncNotifierProvider.notifier)
+                .performSync();
+          },
+          color: Colors.orange,
+          showChildOpacityTransition: false,
+          child: ListView.builder(
+            itemCount: itemCount,
+            itemBuilder: (BuildContext context, int index) {
+              return itemBuilder(index);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoTransactionsFound(double screenHeight, WidgetRef ref) {
+    return Container(
+      height: screenHeight * 0.9,
+      decoration: const BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Center(
+        child: Text(
+          'No transactions found. Check back later.'.i18n(ref),
+          style: const TextStyle(color: Colors.white, fontSize: 18),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingIndicator(double screenHeight) {
+    return Container(
+      height: screenHeight * 0.9,
+      decoration: const BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Center(
+        child: LoadingAnimationWidget.fourRotatingDots(
+            color: Colors.orange, size: screenHeight * 0.1),
+      ),
+    );
+  }
+
+  Widget _buildErrorIndicator(double screenHeight, Object error) {
+    return Container(
+      height: screenHeight * 0.9,
+      decoration: const BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Center(
+        child: Text(
+          'Error loading transactions: $error',
+          style: const TextStyle(color: Colors.white, fontSize: 18),
+        ),
+      ),
+    );
+  }
+
+  int txLength(List<dynamic> bitcoinTransactions,
+      List<dynamic> liquidTransactions, WidgetRef ref) {
+    final transactionType = ref.watch(selectedExpenseTypeProvider);
+    switch (transactionType) {
       case 'Bitcoin':
-        if (bitcoinTransactions.isEmpty) {
-          return 1;
-        }
         return bitcoinTransactions.length;
       case 'Liquid':
-        if (liquidTransactions.isEmpty) {
-          return 1;
-        }
         return liquidTransactions.length;
       default:
-        if (bitcoinTransactions.isEmpty && liquidTransactions.isEmpty) {
-          return 1;
-        }
         return bitcoinTransactions.length + liquidTransactions.length;
     }
   }
 
-  Widget _buildTransactionItem(transaction, BuildContext context, WidgetRef ref) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
+  Widget _buildTransactionItem(dynamic transaction, BuildContext context,
+      WidgetRef ref) {
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+    final screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
 
     final dynamicMargin = screenHeight * 0.01; // 1% of screen height
     final dynamicRadius = screenWidth * 0.03; // 3% of screen width
 
-    if (transaction is TransactionDetails) {
+    if (transaction is bdk.TransactionDetails) {
       return Container(
         margin: EdgeInsets.all(dynamicMargin),
         decoration: BoxDecoration(
@@ -149,7 +281,7 @@ class BuildTransactions extends ConsumerWidget {
         ),
         child: _buildBitcoinTransactionItem(transaction, context, ref),
       );
-    } else if (transaction is Tx) {
+    } else if (transaction is lwk.Tx) {
       return Container(
         margin: EdgeInsets.all(dynamicMargin),
         decoration: BoxDecoration(
@@ -163,50 +295,67 @@ class BuildTransactions extends ConsumerWidget {
     }
   }
 
-  Widget _buildBitcoinTransactionItem(TransactionDetails transaction, BuildContext context, WidgetRef ref) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
+  Widget _buildBitcoinTransactionItem(bdk.TransactionDetails transaction,
+      BuildContext context, WidgetRef ref) {
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
     final dynamicFontSize = screenHeight * 0.015;
 
     return Column(
       children: [
         GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => TransactionDetailsScreen(transaction: transaction),
-              ),
+            context.pushNamed(
+              'transactionDetails',
+              extra: transaction,
             );
           },
           child: ListTile(
             leading: Column(
               children: [
                 transactionTypeIcon(transaction),
-                Text(transactionAmountInFiat(transaction, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
+                Text(transactionAmountInFiat(transaction, ref),
+                    style: TextStyle(
+                        fontSize: dynamicFontSize, color: Colors.white)),
               ],
             ),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(transactionTypeString(transaction, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
-                Text(transactionAmount(transaction, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
+                Text(transactionTypeString(transaction, ref),
+                    style: TextStyle(
+                        fontSize: dynamicFontSize, color: Colors.white)),
+                Text(transactionAmount(transaction, ref),
+                    style: TextStyle(
+                        fontSize: dynamicFontSize, color: Colors.grey)),
               ],
             ),
-            subtitle: Text(timestampToDateTime(transaction.confirmationTime?.timestamp).i18n(ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
-            trailing: confirmationStatus(transaction, ref) == 'Confirmed'.i18n(ref)
-                ? const Icon(Icons.check_circle_outlined, color: Colors.green)
-                : const Icon(Icons.access_alarm_outlined, color: Colors.red),
+            subtitle: Text(
+                timestampToDateTime(
+                    transaction.confirmationTime?.timestamp)
+                    .i18n(ref),
+                style: TextStyle(
+                    fontSize: dynamicFontSize, color: Colors.grey)),
+            trailing:
+            confirmationStatus(transaction, ref) == 'Confirmed'.i18n(ref)
+                ? const Icon(Icons.check_circle_outlined,
+                color: Colors.green)
+                : const Icon(Icons.access_alarm_outlined,
+                color: Colors.red),
           ),
         ),
       ],
     );
   }
 
-
-  Widget _buildLiquidTransactionItem(Tx transaction, BuildContext context, WidgetRef ref) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
+  Widget _buildLiquidTransactionItem(lwk.Tx transaction, BuildContext context,
+      WidgetRef ref) {
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
     final dynamicFontSize = screenHeight * 0.015;
 
     return Column(
@@ -214,38 +363,68 @@ class BuildTransactions extends ConsumerWidget {
         StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Theme(
-              data: Theme.of(context).copyWith(
-                  dividerColor: Colors.transparent),
+              data: Theme.of(context)
+                  .copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 leading: transactionTypeLiquidIcon(transaction.kind),
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(liquidTransactionType(transaction, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
-                    transaction.balances.length == 1 ? Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(transaction.balances[0].assetId), transaction.balances[0].value, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)) : Text('Multiple'.i18n(ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
+                    Text(liquidTransactionType(transaction, ref),
+                        style: TextStyle(
+                            fontSize: dynamicFontSize, color: Colors.white)),
+                    transaction.balances.length == 1
+                        ? Text(
+                        _valueOfLiquidSubTransaction(
+                            AssetMapper.mapAsset(
+                                transaction.balances[0].assetId),
+                            transaction.balances[0].value,
+                            ref),
+                        style: TextStyle(
+                            fontSize: dynamicFontSize,
+                            color: Colors.white))
+                        : Text('Multiple'.i18n(ref),
+                        style: TextStyle(
+                            fontSize: dynamicFontSize,
+                            color: Colors.white)),
                   ],
                 ),
-                subtitle: Text(timestampToDateTime(transaction.timestamp).i18n(ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
+                subtitle: Text(
+                    timestampToDateTime(transaction.timestamp).i18n(ref),
+                    style: TextStyle(
+                        fontSize: dynamicFontSize, color: Colors.grey)),
                 trailing: confirmationStatusIcon(transaction),
                 children: transaction.balances.map((balance) {
                   return GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LiquidTransactionDetailsScreen(transaction: transaction),
-                        ),
+                      context.pushNamed(
+                        'liquidTransactionDetails',
+                        extra: transaction,
                       );
                     },
                     child: ListTile(
                       trailing: Column(
                         children: [
                           subTransactionIcon(balance.value),
-                          Text(_liquidTransactionAmountInFiat(balance, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
+                          Text(_liquidTransactionAmountInFiat(balance, ref),
+                              style: TextStyle(
+                                  fontSize: dynamicFontSize,
+                                  color: Colors.white)),
                         ],
                       ),
-                      title: Text(AssetMapper.mapAsset(balance.assetId).name, style: TextStyle(fontSize: dynamicFontSize, color: Colors.white)),
-                      subtitle: Text(_valueOfLiquidSubTransaction(AssetMapper.mapAsset(balance.assetId), balance.value, ref), style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey)),
+                      title: Text(
+                          AssetMapper
+                              .mapAsset(balance.assetId)
+                              .name,
+                          style: TextStyle(
+                              fontSize: dynamicFontSize, color: Colors.white)),
+                      subtitle: Text(
+                          _valueOfLiquidSubTransaction(
+                              AssetMapper.mapAsset(balance.assetId),
+                              balance.value,
+                              ref),
+                          style: TextStyle(
+                              fontSize: dynamicFontSize, color: Colors.grey)),
                     ),
                   );
                 }).toList(),
@@ -259,34 +438,89 @@ class BuildTransactions extends ConsumerWidget {
 
 
 
-  String _liquidTransactionAmountInFiat(transaction, WidgetRef ref) {
+  Widget _buildLightningTransactionItem(CoinosPayment transaction,
+      BuildContext context, WidgetRef ref) {
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+    final screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
+    final dynamicFontSize = screenHeight * 0.015;
+
+    int amount = transaction.amount ?? 0;
+    bool isReceived = amount > 0;
+
+    final btcFormat = ref
+        .watch(settingsProvider)
+        .btcFormat;
+    final formattedAmount = btcInDenominationFormatted(amount, btcFormat);
+
+    return Container(
+        margin: EdgeInsets.all(screenHeight * 0.01), // 1% of screen height
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(
+              screenWidth * 0.03), // 3% of screen width
+        ),
+        child: ListTile(
+          leading: Column(
+            children: [
+              Icon(
+                isReceived ? Icons.arrow_downward : Icons.arrow_upward,
+                color: isReceived ? Colors.green : Colors.red,
+              ),
+            ],
+          ),
+          title: Text(
+            formattedAmount,
+            style: TextStyle(
+              fontSize: dynamicFontSize,
+              color: Colors.white,
+            ),
+          ),
+          subtitle: Text(
+            transaction.created != null
+                ? DateFormat('yyyy-MM-dd HH:mm:ss').format(transaction.created!)
+                : '',
+            style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
+          ),
+          trailing: transaction.confirmed == true
+              ? const Icon(Icons.check_circle_outlined, color: Colors.green)
+              : const Icon(Icons.access_alarm_outlined, color: Colors.red),
+        ));
+  }
+
+
+
+  String _liquidTransactionAmountInFiat(
+      dynamic transaction, WidgetRef ref) {
     if (AssetMapper.mapAsset(transaction.assetId) == AssetId.LBTC) {
       final currency = ref.watch(settingsProvider).currency;
-      final value = ref.watch(conversionToFiatProvider(transaction.value));
+      final value =
+      ref.watch(conversionToFiatProvider(transaction.value));
 
-      if (transaction.value < 0) {
-        return '${(double.parse(value) / 100000000).toStringAsFixed(2)} $currency';
-      } else {
-        return '${(double.parse(value) / 100000000).toStringAsFixed(2)} $currency';
-      }
+      return '${(double.parse(value) / 100000000).toStringAsFixed(2)} $currency';
     } else {
       return '';
     }
   }
 
-
-  String _valueOfLiquidSubTransaction(AssetId asset, int value, WidgetRef ref) {
+  String _valueOfLiquidSubTransaction(
+      AssetId asset, int value, WidgetRef ref) {
     switch (asset) {
       case AssetId.USD:
+      case AssetId.EUR:
+      case AssetId.BRL:
         return (value / 100000000).toStringAsFixed(2);
       case AssetId.LBTC:
         return ref.watch(conversionProvider(value));
-      case AssetId.EUR:
-        return (value / 100000000).toStringAsFixed(2);
-      case AssetId.BRL:
-        return (value / 100000000).toStringAsFixed(2);
       default:
         return (value / 100000000).toStringAsFixed(2);
     }
   }
 }
+
+

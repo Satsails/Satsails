@@ -633,8 +633,8 @@ extension Localization on String {
         'pt': 'Não é possível trocar 0 quantidade',
       } +
       {
-        'en': 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported. Lnurl is not supported currently.',
-        'pt': 'Endereço inválido, apenas enderecos Bitcoin, Liquid e lightning são suportados. Lnurl não é suportado atualmente.',
+        'en': 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported.',
+        'pt': 'Endereço inválido, apenas enderecos Bitcoin, Liquid e lightning são suportados.',
       } +
       {
         'en': 'Address copied to clipboard',
@@ -685,8 +685,8 @@ extension Localization on String {
         'pt': 'Completar transações lightning',
       }+
       {
-        'en': 'All lightning transactions were complete',
-        'pt': "Todas as transações lightning foram completadas",
+        'en': 'No transactions',
+        'pt': "Sem transações",
       }+
       {
         'en': 'Pay to complete',
@@ -813,8 +813,8 @@ extension Localization on String {
         'pt': 'Verificar Transações Pix'
       } +
       {
-        'en': 'Minimum amount is 3 BRL',
-        'pt': 'O valor mínimo é de 3 BRL'
+        'en': 'Minimum amount is ',
+        'pt': 'O valor mínimo é '
       } +
       {
         'en': 'You have reached the daily limit',
@@ -929,8 +929,8 @@ extension Localization on String {
         'pt': 'Seja soberano e opte por sair do sistema livremente.'
       }  +
       {
-        'en': 'Total balance:',
-        'pt': 'Saldo total:'
+        'en': 'Total bitcoin balance:',
+        'pt': 'Saldo total de bitcoin:'
       } +
       {
         'en': 'Change',
@@ -1159,10 +1159,6 @@ extension Localization on String {
       {
         'en': 'Reset Chat Session',
         'pt': 'Reset da Sessão de Chat',
-      } +
-      {
-        'en': 'Support',
-        'pt': 'Suporte',
       } +
       {
         'en': 'Lightning transactions',
@@ -1640,12 +1636,24 @@ extension Localization on String {
         'pt': 'Aguarde alguns minutos e tente novamente'
       } +
       {
-        'en': "Invalid CPF",
-        'pt': 'CPF inválido'
+        'en': "Invalid CPF/CNPJ",
+        'pt': 'CPF/CNPJ inválido'
       } +
       {
         'en': "Please enter an amount",
         'pt': 'Por favor, insira uma quantia'
+      } +
+      {
+        'en': "Swap failed, please contact support",
+        'pt': 'Troca falhou, por favor, contate o suporte'
+      } +
+      {
+        'en': 'Send with Liquid Balance',
+        'pt': 'Enviar com Saldo Liquid'
+      } +
+      {
+        'en': 'Send with Bitcoin Balance',
+        'pt': 'Enviar com Saldo Bitcoin'
       }  +
       {
         'en': "Swap failed, please contact support",
@@ -1670,7 +1678,224 @@ extension Localization on String {
       {
         'en': 'Your balance will update soon',
         'pt': 'Seu saldo será atualizado em breve'
+      } +  {
+    'en': 'All Swaps',
+    'pt': 'Todas as trocas'
+  } +
+      {
+        'en': 'Fiat Swaps',
+        'pt': 'Trocas Fiat'
+      } +
+      {
+        'en': 'Layer Swaps',
+        'pt': 'Trocas de Camada'
+      } +
+      {
+        'en': 'Pix History',
+        'pt': 'Histórico Pix'
+      } +
+      {
+        'en': 'Transaction in progress, please wait.',
+        'pt': 'Transação em andamento, por favor, aguarde.'
+      } +
+      {
+        'en': 'Total fees',
+        'pt': 'Taxas totais'
+      } +
+      {
+        'en': 'Total amount to send',
+        'pt': 'Valor total a enviar'
+      } +
+      {
+        'en': 'Lightning swap',
+        'pt': 'Troca Lightning'
+      } +
+      {
+        'en': 'Receiving',
+        'pt': 'Recebendo'
+      } +
+      {
+        'en': 'Sending',
+        'pt': 'Enviando'
+      } +
+      {
+        'en': 'Expiry block',
+        'pt': 'Bloco de expiração'
+      } +
+      {
+        'en': 'Lightning Swaps',
+        'pt': 'Trocas Lightning'
+      } +
+      {
+        'en': 'Confirm PIN',
+        'pt': 'Confirmar PIN'
+      } +
+      {
+        'en': 'PINs do not match',
+        'pt': 'PINs não correspondem'
+      } +
+      {
+        'en': 'Choose a 6-digit PIN',
+        'pt': 'Escolha um PIN de 6 dígitos'
+      } +
+      {
+        'en': 'attempts remaining',
+        'pt': 'tentativas restantes'
+      } +
+      {
+        'en': 'Please authenticate to view seed words',
+        'pt': 'Por favor, autentique-se para ver as seeds'
+      } +
+      {
+        'en': 'Support',
+        'pt': 'Apoio'
+      } +
+      {
+        'en': 'Price: ',
+        'pt': 'Preço: '
+      } +
+      {
+        'en': 'Fixed Fee: ',
+        'pt': 'Taxa Fixa: '
+      } +
+      {
+        'en': 'Delete Wallet?',
+        'pt': 'Excluir Carteira?'
+      } +
+      {
+        'en': 'Select an option below to proceed.',
+        'pt': 'Selecione uma opção abaixo para continuar.'
+      } +
+      {
+        'en': 'Delete Local Wallet',
+        'pt': 'Excluir Carteira Local'
+      } +
+      {
+        'en': 'Remove wallet data from this device',
+        'pt': 'Remover dados da carteira deste dispositivo'
+      } +
+      {
+        'en': 'Delete Server Data and Local Wallet',
+        'pt': 'Excluir Dados do Servidor e Carteira Local'
+      } +
+      {
+        'en': 'Remove your data from the server and this device.',
+        'pt': 'Remova seus dados do servidor e deste dispositivo.'
+      } +
+      {
+        'en': 'Delete Local Wallet?',
+        'pt': 'Excluir Carteira Local?'
+      } +
+      {
+        'en': 'Are you sure you want to delete the wallet?',
+        'pt': 'Tem certeza de que deseja excluir a carteira?'
+      } +
+      {
+        'en': 'Delete Server Data and Local Wallet?',
+        'pt': 'Excluir Dados do Servidor e Carteira Local?'
+      } +
+      {
+        'en': 'Your server data and local wallet will be permanently deleted, and you will not receive any more fees from any of your affiliates.',
+        'pt': 'Seus dados do servidor e carteira local serão excluídos permanentemente, e você não receberá mais taxas de nenhum de seus afiliados.'
+      } +
+      {
+        'en': 'Register for Custodial Lightning',
+        'pt': 'Registrar para Lightning Custodial'
+      } +
+      {
+        'en': 'A username and password will be derived from your private key. This will be used to access your custodial Lightning wallet.',
+        'pt': 'Um nome de usuário e senha serão derivados de sua chave privada. Isso será usado para acessar sua carteira Lightning custodial.'
+      } +
+      {
+        'en': 'Register',
+        'pt': 'Registrar'
+      } +
+      {
+        'en': 'Bitcoin',
+        'pt': 'Bitcoin'
+      } +
+      {
+        'en': 'Custodial Lightning Info',
+        'pt': 'Informações sobre Lightning Custodial'
+      }+
+      {
+        'en': 'Custodial Lightning Warning',
+        'pt': 'Aviso sobre Lightning Custodial'
+      } +
+      {
+        'en': 'By using this custodial Lightning service, your funds are held by our partner Coinos. Satsails does not have control over these funds. You agree to have your funds held by Coinos.',
+        'pt': 'Ao usar este serviço Lightning custodial, seus fundos são mantidos por nosso parceiro Coinos. A Satsails não tem controle sobre esses fundos. Você concorda que seus fundos serão mantidos pela Coinos.'
+      } +
+      {
+        'en': 'Username',
+        'pt': 'Nome de usuário'
+      } +
+      {
+        'en': 'Visit Coinos',
+        'pt': 'Visite a Coinos'
+      } +
+      {
+        'en': 'Lightning Balance',
+        'pt': 'Saldo Lightning'
+      }  +
+      {
+        'en': 'Lightning Fee Information',
+        'pt': 'Informações sobre Taxas Lightning'
+      } +
+      {
+        'en': 'Lightning fees are dynamic. We must store at least 0.5% of the transaction value for routing fees. Any unused amount will be returned to your wallet.',
+        'pt': 'As taxas Lightning são dinâmicas. Precisamos armazenar pelo menos 0,5% do valor da transação para taxas de roteamento. Qualquer valor não utilizado será retornado à sua carteira.'
+      } +
+      {
+        'en': 'Token is missing or invalid',
+        'pt': 'Token está faltando ou é inválido'
+      } +
+      {
+        'en': 'Failed to create invoice',
+        'pt': 'Falha ao criar fatura'
+      } +
+      {
+        'en': 'Failed to send payment',
+        'pt': 'Falha ao enviar pagamento'
+      } +
+      {
+        'en': 'Failed to fetch balance and transactions',
+        'pt': 'Falha ao buscar saldo e transações'
+      } +
+      {
+        'en': 'balance',
+        'pt': 'saldo'
+      } +
+      {
+        'en': 'payments',
+        'pt': 'pagamentos'
+      }    +
+      {
+        'en': 'Balance insufficient to cover fees',
+        'pt': 'Saldo insuficiente para cobrir taxas'
+      } +
+      {
+        'en': 'Amount cannot be zero',
+        'pt': 'O valor não pode ser zero'
+      } +
+      {
+        'en': 'Insufficient funds to pay for fees',
+        'pt': 'Fundos insuficientes para pagar taxas'
+      } +
+      {
+        'en': 'Payment Received!',
+        'pt': 'Pagamento Recebido!'
+      } +
+      {
+        'en': 'sats received!',
+        'pt': 'sats recebidos!'
+      } +
+      {
+        'en': 'The first 3 purchases have a minimum of 10 brl, after that the minimum is 250 brl',
+        'pt': 'As 3 primeiras compras têm um mínimo de 10 brl, após isso o mínimo é 250 brl'
       };
+
+
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;

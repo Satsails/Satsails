@@ -18,10 +18,8 @@ class Splash extends StatelessWidget {
           children: <Widget>[
             SvgPicture.asset(
               'lib/assets/satsails.svg',
-              width: 187.0,
-              height: 187.0,
             ),
-            SizedBox(height: screenHeight * 0.03), // 3% of screen height
+            SizedBox(height: screenHeight * 0.03),
             LoadingAnimationWidget.threeArchedCircle(size: dynamicAnimationSize, color: Colors.orange),
           ],
         ),

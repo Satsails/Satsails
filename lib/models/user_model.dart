@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:pusher_beams/pusher_beams.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 
@@ -114,7 +115,7 @@ class UserService {
   static Future<Result<User>> createUserRequest(String liquidAddress, int liquidAddressIndex) async {
     try {
       final response = await http.post(
-        Uri.parse('https://splitter.satsails.com/users'),
+        Uri.parse(dotenv.env['BACKEND']! + '/users'),
         body: jsonEncode({
           'user': {
             'liquid_address': liquidAddress,
@@ -142,7 +143,7 @@ class UserService {
       String pixPaymentCode, String auth) async {
     try {
       final uri = Uri.parse(
-          'https://splitter.satsails.com/users/user_transfers')
+          dotenv.env['BACKEND']! + '/users/user_transfers')
           .replace(queryParameters: {
         'payment_id': pixPaymentCode,
       });
@@ -175,7 +176,7 @@ class UserService {
       String auth) async {
     try {
       final uri = Uri.parse(
-          'https://splitter.satsails.com/users/amount_transfered_by_day')
+          dotenv.env['BACKEND']! + '/users/amount_transfered_by_day')
           .replace(queryParameters: {
         'payment_id': pixPaymentCode,
       });
@@ -203,7 +204,7 @@ class UserService {
     try {
       final response = await http.patch(
         Uri.parse(
-            'https://splitter.satsails.com/users/update_liquid_address'),
+            dotenv.env['BACKEND']! + '/users/update_liquid_address'),
         body: jsonEncode({
           'user': {
             'liquid_address': liquidAddress,
@@ -230,7 +231,7 @@ class UserService {
  static Future<Result<Map<String, dynamic>>> getLiquidAddressIndex(String auth) async {
     try {
       final response = await http.get(
-        Uri.parse('https://splitter.satsails.com/users/get_liquid_address'),
+        Uri.parse(dotenv.env['BACKEND']! + '/users/get_liquid_address'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
@@ -240,7 +241,7 @@ class UserService {
       if (response.statusCode == 200) {
         return Result(data: jsonDecode(response.body));
       } else {
-        return Result(error: 'Failed to get liquid address index');
+        return Result(error: 'An error has occurred. Please check your internet connection or contact support');
       }
     } catch (e) {
       return Result(error: 'An error has occurred. Please check your internet connection or contact support');
@@ -251,7 +252,7 @@ class UserService {
   static Future<Result<User>> showUser(String auth) async {
     try {
       final response = await http.get(
-        Uri.parse('https://splitter.satsails.com/users/show_user'),
+        Uri.parse(dotenv.env['BACKEND']! + '/users/show_user'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
@@ -272,7 +273,7 @@ class UserService {
   static BeamsAuthProvider getPusherAuth(String auth, String userId) {
     try {
       final BeamsAuthProvider response = BeamsAuthProvider()
-        ..authUrl = 'https://splitter.satsails.com/users/get_pusher_auth'
+        ..authUrl = dotenv.env['BACKEND']! + '/users/get_pusher_auth'
         ..headers = {
           'Content-Type': 'application/json',
           'Authorization': auth,
@@ -286,6 +287,26 @@ class UserService {
     } catch (e) {
       throw Exception(
           'An error has occurred. Please check your internet connection or contact support');
+    }
+  }
+
+  static Future<Result<void>> deleteUser(String auth) async {
+    try {
+      final response = await http.delete(
+        Uri.parse(dotenv.env['BACKEND']! + '/users/delete_user'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: null);
+      } else {
+        return Result(error: 'Failed to delete user');
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please check your internet connection or contact support');
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/coinos.provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
@@ -18,16 +19,18 @@ final setAddressAndAmountProvider = FutureProvider.autoDispose.family<AddressAnd
     });
     return addressAndAmount;
   } catch (e) {
-    throw 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported. Lnurl is not supported currently.';
+    if (ref.read(coinosLnProvider).token.isNotEmpty) {
+      try {
+        await checkForValidLnurl(address);
+        ref.read(sendTxProvider.notifier).updateAddress(address);
+        ref.read(sendTxProvider.notifier).updateAmount(0);
+        ref.read(sendTxProvider.notifier).updatePaymentType(PaymentType.Lightning);
+        return AddressAndAmount(address, 0, '', type: PaymentType.Lightning);
+      } catch (e) {
+        throw 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported.';
+      }
+    } else {
+      throw 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported.';
+    }
   }
-});
-
-final setAmountProvider = StateProvider.family<int, int>((ref, amount) {
-  ref.read(sendTxProvider.notifier).updateAmount(amount);
-  return amount;
-});
-
-final setAssetIdProvider = StateProvider.family<String, String>((ref, assetId) {
-  ref.read(sendTxProvider.notifier).updateAssetId(assetId);
-  return assetId;
 });

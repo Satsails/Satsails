@@ -4,6 +4,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:crisp_chat/crisp_chat.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class Support extends ConsumerStatefulWidget {
   const Support({super.key});
@@ -54,7 +55,7 @@ class _SupportState extends ConsumerState<Support> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context);
+            context.pop();
           },
         ),
       ),

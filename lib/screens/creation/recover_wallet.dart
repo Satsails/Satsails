@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:go_router/go_router.dart';
 
 class RecoverWallet extends ConsumerStatefulWidget {
   const RecoverWallet({super.key});
@@ -92,7 +93,6 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
   Future<void> _recoverAccount(BuildContext context) async {
     final authModel = ref.read(authModelProvider);
     final screenWidth = MediaQuery.of(context).size.width;
-
     final mnemonic = _controllers
         .take(_totalWords)
         .map((controller) => controller.text.trim())
@@ -101,10 +101,10 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
     if (await authModel.validateMnemonic(mnemonic)) {
       await authModel.setMnemonic(mnemonic);
       await ref.read(settingsProvider.notifier).setBackup(true);
-      Navigator.pushNamed(context, '/set_pin');
+      context.push('/set_pin');
     } else {
       Fluttertoast.showToast(
-        msg: 'Invalid mnemonic',
+        msg: 'Invalid mnemonic'.i18n(ref),
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.TOP,
         timeInSecForIosWeb: 1,
@@ -152,12 +152,12 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Recover Wallet'.i18n(ref), style: const TextStyle(color: Colors.white)),
+        title: Text('Recover wallet'.i18n(ref), style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context);
+            context.pop();
           },
         ),
       ),

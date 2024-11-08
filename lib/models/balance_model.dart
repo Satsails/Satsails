@@ -1,63 +1,129 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/currency_conversions.dart';
+import 'package:Satsails/providers/balance_provider.dart';
+import 'package:hive/hive.dart';
+import 'package:riverpod/riverpod.dart';
 
-class BalanceModel extends StateNotifier<Balance>{
-  BalanceModel(super.state);
+part 'balance_model.g.dart';
 
-  void updateBtcBalance(int newBtcBalance) {
-    state = state.copyWith(btcBalance: newBtcBalance);
+class BalanceNotifier extends StateNotifier<WalletBalance> {
+  BalanceNotifier(this.ref) : super(
+      WalletBalance(
+        btcBalance: 0,
+        liquidBalance: 0,
+        usdBalance: 0,
+        eurBalance: 0,
+        brlBalance: 0,
+        lightningBalance: 0,
+      )) {
+    _initialize();
   }
 
-  void updateLiquidBalance(int newLiquidBalance) {
-    state = state.copyWith(liquidBalance: newLiquidBalance);
+  final Ref ref;
+
+  void _initialize() {
+    Future.microtask(() async {
+      // Open Hive box
+      final hiveBox = await Hive.openBox<WalletBalance>('balanceBox');
+
+      // Load the cached balance
+      final cachedBalance = hiveBox.get('balance');
+
+      if (cachedBalance != null) {
+        // Update the state with the cached balance
+        state = cachedBalance;
+      }
+
+      // Listen for balance updates
+      ref.listen<AsyncValue<WalletBalance>>(initializeBalanceProvider, (previous, next) async {
+        next.when(
+          data: (balance) async {
+            state = balance; // Update state with new balance
+            await hiveBox.put('balance', balance); // Store new balance in Hive
+          },
+          loading: () {
+            // Do nothing, retain previous balance
+          },
+          error: (error, stackTrace) {
+            print('Error updating balance: $error');
+          },
+        );
+      });
+    });
   }
 
-  void updateUsdBalance(int newUsdBalance) {
-    state = state.copyWith(usdBalance: newUsdBalance);
+  void updateLightningBalance(int newLightningBalance) {
+    state = WalletBalance(
+      btcBalance: state.btcBalance,
+      liquidBalance: state.liquidBalance,
+      usdBalance: state.usdBalance,
+      eurBalance: state.eurBalance,
+      brlBalance: state.brlBalance,
+      lightningBalance: newLightningBalance,
+    );
   }
-
-  void updateEurBalance(int newEurBalance) {
-    state = state.copyWith(eurBalance: newEurBalance);
-  }
-
-  void updateBrlBalance(int newBrlBalance) {
-    state = state.copyWith(brlBalance: newBrlBalance);
-  }
-
 }
 
-class Balance {
-  late final int btcBalance;
+@HiveType(typeId: 26)
+class WalletBalance {
+  @HiveField(0)
+  final int btcBalance;
+  @HiveField(1)
   final int liquidBalance;
+  @HiveField(2)
   final int usdBalance;
+  @HiveField(3)
   final int eurBalance;
+  @HiveField(4)
   final int brlBalance;
+  @HiveField(5)
+  int? lightningBalance;
 
   bool get isEmpty {
-    return btcBalance == 0 && liquidBalance == 0 && usdBalance == 0 && eurBalance == 0 && brlBalance == 0;
+    return btcBalance == 0 && liquidBalance == 0 && usdBalance == 0 && eurBalance == 0 && brlBalance == 0 && lightningBalance == 0;
   }
 
-  Balance({
+  WalletBalance({
     required this.btcBalance,
     required this.liquidBalance,
     required this.usdBalance,
     required this.eurBalance,
     required this.brlBalance,
-  });
+    int? lightningBalance,
+  }) : lightningBalance = lightningBalance ?? 0;
 
-  Balance copyWith({
-    int? btcBalance,
-    int? liquidBalance,
-    int? usdBalance,
-    int? eurBalance,
-    int? brlBalance,
-  }) {
-    return Balance(
-      btcBalance: btcBalance ?? this.btcBalance,
-      liquidBalance: liquidBalance ?? this.liquidBalance,
-      usdBalance: usdBalance ?? this.usdBalance,
-      eurBalance: eurBalance ?? this.eurBalance,
-      brlBalance: brlBalance ?? this.brlBalance,
+  factory WalletBalance.updateFromAssets(List<dynamic> balances, int bitcoinBalance, int lightningBalance) {
+    int usdBalance = 0;
+    int eurBalance = 0;
+    int brlBalance = 0;
+    int liquidBalance = 0;
+
+    for (var balance in balances) {
+      switch (AssetMapper.mapAsset(balance.assetId)) {
+        case AssetId.USD:
+          usdBalance = balance.value;
+          break;
+        case AssetId.EUR:
+          eurBalance = balance.value;
+          break;
+        case AssetId.BRL:
+          brlBalance = balance.value;
+          break;
+        case AssetId.LBTC:
+          liquidBalance = balance.value;
+          break;
+        default:
+          break;
+      }
+    }
+
+    return WalletBalance(
+      btcBalance: bitcoinBalance,
+      liquidBalance: liquidBalance,
+      usdBalance: usdBalance,
+      eurBalance: eurBalance,
+      brlBalance: brlBalance,
+      lightningBalance: lightningBalance,
     );
   }
 
@@ -101,9 +167,24 @@ class Balance {
     }
   }
 
+  String lightningBalanceInDenominationFormatted(String denomination) {
+    double balance;
+
+    switch (denomination) {
+      case 'sats':
+        balance = lightningBalance!.toDouble();
+        return balance.toInt().toString();
+      case 'BTC':
+        balance = lightningBalance! / 100000000;
+        return balance.toStringAsFixed(8);
+      default:
+        return "0";
+    }
+  }
+
 
   double totalBtcBalance() {
-    return btcBalance.toDouble() + liquidBalance.toDouble();
+    return btcBalance.toDouble() + liquidBalance.toDouble() + lightningBalance!.toDouble();
   }
 
 
@@ -113,6 +194,7 @@ class Balance {
       eurPercentage: conversions.eurToBtc * eurBalance.toDouble() / total,
       usdPercentage: conversions.usdToBtc * usdBalance.toDouble() / total,
       brlPercentage: conversions.brlToBtc * brlBalance.toDouble() / total,
+      lightningPercentage: (lightningBalance!) / total,
       liquidPercentage: (liquidBalance) / total,
       btcPercentage: (btcBalance) / total,
       total: total,
@@ -162,27 +244,15 @@ class Balance {
     switch (currency) {
       case 'BTC':
         total += totalInBtc;
-        total += conversions.brlToBtc * brlBalance.toDouble() / 100000000;
-        total += conversions.eurToBtc * eurBalance.toDouble() / 100000000;
-        total += conversions.usdToBtc * usdBalance.toDouble() / 100000000;
         break;
       case 'USD':
-        total += usdBalance.toDouble() / 100000000;
-        total += conversions.brlToUsd * brlBalance.toDouble() / 100000000;
-        total += conversions.eurToUsd * eurBalance.toDouble() / 100000000;
         total += totalInBtc * conversions.btcToUsd;
         break;
       case 'EUR':
-        total += eurBalance.toDouble() / 100000000;
-        total += conversions.brlToEur * brlBalance.toDouble() / 100000000;
         total += totalInBtc * conversions.btcToEur;
-        total += conversions.usdToEur * usdBalance.toDouble() / 100000000;
         break;
       case 'BRL':
-        total += brlBalance.toDouble() / 100000000;
         total += totalInBtc * conversions.btcToBrl;
-        total += conversions.eurToBrl * eurBalance.toDouble() / 100000000;
-        total += conversions.usdToBrl * usdBalance.toDouble() / 100000000;
         break;
     }
     return total;
@@ -195,6 +265,7 @@ class Percentage {
   final double usdPercentage;
   final double eurPercentage;
   final double brlPercentage;
+  final double lightningPercentage;
   final double total;
 
   Percentage({
@@ -203,6 +274,7 @@ class Percentage {
     required this.usdPercentage,
     required this.eurPercentage,
     required this.brlPercentage,
+    required this.lightningPercentage,
     required this.total,
   });
 }

@@ -1,13 +1,15 @@
 import 'package:Satsails/providers/address_receive_provider.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
-import 'package:Satsails/screens/analytics/components/button_picker.dart';
+import 'package:Satsails/screens/analytics/analytics.dart';
+import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
@@ -55,72 +57,79 @@ class _PegState extends ConsumerState<Peg> {
       cards = cards.reversed.toList();
     }
 
-    return Column(
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Text(
-                  "Balance to Spend: ".i18n(ref),
-                  style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return SafeArea(
+      child: FlutterKeyboardDoneWidget(
+        doneWidgetBuilder: (context) {
+          return const Text(
+            'Done',
+          );
+        },
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
                   children: [
                     Text(
-                      pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
-                      style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                      textAlign: TextAlign.center,
+                      "Balance to Spend: ".i18n(ref),
+                      style: TextStyle(fontSize: dynamicFontSize, color: Colors.grey),
                     ),
-                    _buildBitcoinMaxButton(ref, dynamicPadding, titleFontSize, btcFormart, pegIn),
-                  ],
-                ),
-                SizedBox(height: dynamicSizedBox * 2),
-                Stack(
-                  alignment: Alignment.center,
-                  clipBehavior: Clip.none,
-                  children: [
-                    Column(
-                      children: cards,
-                    ),
-                    Positioned(
-                      top: titleFontSize / 2,
-                      bottom: titleFontSize / 2,
-                      child: GestureDetector(
-                        onTap: () {
-                          ref.read(pegInProvider.notifier).state = !pegIn;
-                          ref.read(sendTxProvider.notifier).updateAddress('');
-                          ref.read(sendTxProvider.notifier).updateAmount(0);
-                          ref.read(sendTxProvider.notifier).updateDrain(false);
-                          ref.read(inputInFiatProvider.notifier).state = false;
-                          ref.read(sendBlocksProvider.notifier).state = 1;
-                          ref.read(inputInFiatProvider.notifier).state = false;
-                          ref.read(precisionFiatValueProvider.notifier).state = "0.00";
-                          controller.text = '';
-                        },
-                        child: CircleAvatar(
-                          radius: titleFontSize,
-                          backgroundColor: Colors.orange,
-                          child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.black),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text(
+                          pegIn ? '$btcBalanceInFormat $btcFormart' : '$liquidBalanceInFormat $btcFormart',
+                          style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                          textAlign: TextAlign.center,
                         ),
-                      ),
+                        _buildBitcoinMaxButton(ref, dynamicPadding, titleFontSize, btcFormart, pegIn),
+                      ],
                     ),
+                    SizedBox(height: dynamicSizedBox * 2),
+                    Stack(
+                      alignment: Alignment.center,
+                      clipBehavior: Clip.none,
+                      children: [
+                        Column(
+                          children: cards,
+                        ),
+                        Positioned(
+                          top: titleFontSize / 2,
+                          bottom: titleFontSize / 2,
+                          child: GestureDetector(
+                            onTap: () {
+                              ref.read(pegInProvider.notifier).state = !pegIn;
+                              ref.read(sendTxProvider.notifier).updateAddress('');
+                              ref.read(sendTxProvider.notifier).updateAmount(0);
+                              ref.read(sendTxProvider.notifier).updateDrain(false);
+                              ref.read(inputInFiatProvider.notifier).state = false;ref.read(sendBlocksProvider.notifier).state = 1;
+                              ref.read(inputInFiatProvider.notifier).state = false;
+                              ref.read(precisionFiatValueProvider.notifier).state = "0.00";controller.text = '';
+                            },
+                            child: CircleAvatar(
+                              radius: titleFontSize,
+                              backgroundColor: Colors.orange,
+                              child: Icon(EvaIcons.swap, size: titleFontSize, color: Colors.black),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _bitcoinFeeSuggestionsModal(ref, dynamicPadding, titleFontSize),
+                    pegIn ? _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize) : _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
                   ],
                 ),
-                pegIn ? _bitcoinFeeSlider(ref, dynamicPadding, titleFontSize) : _bitcoinFeeSuggestionsModal(ref, dynamicPadding, titleFontSize),
-                pegIn ? _buildBitcoinFeeInfo(ref, dynamicPadding, titleFontSize) : _buildLiquidFeeInfo(ref, dynamicPadding, titleFontSize),
-              ],
+              ),
             ),
-          ),
+            Padding(
+              padding: EdgeInsets.only(bottom: dynamicSizedBox * 2),
+              child: pegIn
+                  ? _bitcoinSlideToSend(ref, dynamicPadding, titleFontSize, context)
+                  : _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context),
+            ),
+          ],
         ),
-        Padding(
-          padding: EdgeInsets.only(bottom: dynamicSizedBox * 2),
-          child: pegIn
-              ? _bitcoinSlideToSend(ref, dynamicPadding, titleFontSize, context)
-              : _liquidSlideToSend(ref, dynamicPadding, titleFontSize, context),
-        ),
-      ],
+      ),
     );
   }
 
@@ -177,7 +186,7 @@ class _PegState extends ConsumerState<Peg> {
       },
       loading: () => Padding(
         padding: EdgeInsets.all(dynamicPadding / 2),
-        child: LoadingAnimationWidget.prograssiveDots(size:  dynamicFontSize / 2, color: Colors.white),
+        child: LoadingAnimationWidget.progressiveDots(size:  dynamicFontSize / 2, color: Colors.white),
       ),
       error: (error, stack) => Padding(
           padding: EdgeInsets.all(dynamicPadding / 2),
@@ -202,27 +211,29 @@ class _PegState extends ConsumerState<Peg> {
               backgroundColor: Colors.black,
               toggleColor: Colors.orange,
               action: (controller) async {
+                ref.read(transactionInProgressProvider.notifier).state = true;
                 controller.loading();
                 try {
                   if (ref.watch(sendTxProvider).amount < status.minPegOutAmount) {
+                    ref.read(transactionInProgressProvider.notifier).state = false;
                     throw 'Amount is below minimum peg out amount'.i18n(ref);
                   }
                   await ref.watch(sendLiquidTransactionProvider.future);
                   await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-                  controller.success();
                   ref.read(sendTxProvider.notifier).updateAddress('');
                   ref.read(sendTxProvider.notifier).updateAmount(0);
                   ref.read(sendBlocksProvider.notifier).state = 1;
                   Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                   Future.microtask(() {
-                    ref.read(topSelectedButtonProvider.notifier).state = "Swap";
-                    ref.read(groupButtonControllerProvider).selectIndex(2);
+                    ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
                     ref.read(navigationProvider.notifier).state = 1;
                   });
-                  Navigator.pushReplacementNamed(context, '/home');
-                  await ref.read(backgroundSyncNotifierProvider).performSync();
+                  controller.success();
+                  ref.read(transactionInProgressProvider.notifier).state = false;
+                  context.go('/home');
                 } catch (e) {
                   controller.failure();
+                  ref.read(transactionInProgressProvider.notifier).state = false;
                   Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                   controller.reset();
                 }
@@ -231,7 +242,7 @@ class _PegState extends ConsumerState<Peg> {
           ),
         );
       },
-      loading: () => Center(child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize * 2, color: Colors.white)),
+      loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size:  titleFontSize * 2, color: Colors.white)),
       error: (error, stack) => Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize)),
     );
   }
@@ -250,26 +261,28 @@ class _PegState extends ConsumerState<Peg> {
               backgroundColor: Colors.black,
               toggleColor: Colors.orange,
               action: (controller) async {
+                ref.read(transactionInProgressProvider.notifier).state = true;
                 controller.loading();
                 try {
                   if (ref.watch(sendTxProvider).amount < ref.watch(sideswapStatusProvider).minPegInAmount) {
+                    ref.read(transactionInProgressProvider.notifier).state = false;
                     throw 'Amount is below minimum peg in amount'.i18n(ref);
                   }
                   await ref.watch(sendBitcoinTransactionProvider.future);
                   await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-                  controller.success();
                   ref.read(sendTxProvider.notifier).updateAddress('');
                   ref.read(sendTxProvider.notifier).updateAmount(0);
                   ref.read(sendBlocksProvider.notifier).state = 1;
                   Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
                   Future.microtask(() {
-                    ref.read(topSelectedButtonProvider.notifier).state = "Swap";
-                    ref.read(groupButtonControllerProvider).selectIndex(2);
+                    ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
                     ref.read(navigationProvider.notifier).state = 1;
                   });
-                  Navigator.pushReplacementNamed(context, '/home');
-                  await ref.read(backgroundSyncNotifierProvider).performSync();
+                  controller.success();
+                  ref.read(transactionInProgressProvider.notifier).state = false;
+                  context.go('/home');
                 } catch (e) {
+                  ref.read(transactionInProgressProvider.notifier).state = false;
                   controller.failure();
                   Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
                   controller.reset();
@@ -281,7 +294,7 @@ class _PegState extends ConsumerState<Peg> {
       },
       loading: () => Padding(
         padding: EdgeInsets.all(dynamicPadding / 2),
-        child: Center(child: LoadingAnimationWidget.prograssiveDots(size:  titleFontSize * 2, color: Colors.white)),
+        child: Center(child: LoadingAnimationWidget.progressiveDots(size:  titleFontSize * 2, color: Colors.white)),
       ),
       error: (error, stack) => Padding(
           padding: EdgeInsets.all(dynamicPadding / 2),
@@ -442,7 +455,7 @@ class _PegState extends ConsumerState<Peg> {
                 textAlign: TextAlign.center,
               );
             },
-            loading: () => LoadingAnimationWidget.prograssiveDots(size:  titleFontSize / 2, color: Colors.white),
+            loading: () => LoadingAnimationWidget.progressiveDots(size:  titleFontSize / 2, color: Colors.white),
             error: (error, stack) => TextButton(
                 onPressed: () { ref.refresh(feeProvider); },
                 child: Text(ref.watch(sendTxProvider).amount == 0 ? 'Enter a value to send'.i18n(ref) : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
@@ -463,7 +476,7 @@ class _PegState extends ConsumerState<Peg> {
                 textAlign: TextAlign.center,
               );
             },
-            loading: () => LoadingAnimationWidget.prograssiveDots(size:  titleFontSize / 2, color: Colors.white),
+            loading: () => LoadingAnimationWidget.progressiveDots(size:  titleFontSize / 2, color: Colors.white),
             error: (error, stack) => TextButton(
                 onPressed: () { ref.refresh(liquidFeeProvider); },
                 child: Text(ref.watch(sendTxProvider).amount == 0 ? 'Enter a value to send'.i18n(ref) : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
@@ -530,13 +543,13 @@ class _PegState extends ConsumerState<Peg> {
                         if (!ref.watch(inputInFiatProvider))
                           IntrinsicWidth(
                             child: TextFormField(
-                              keyboardType: TextInputType.number,
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
                               controller: controller,
                               inputFormatters: [
+                                CommaTextInputFormatter(),
                                 btcFormart == 'sats'
                                     ? DecimalTextInputFormatter(decimalRange: 0)
                                     : DecimalTextInputFormatter(decimalRange: 8),
-                                CommaTextInputFormatter()
                               ],
                               style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
                               textAlign: TextAlign.center,
@@ -560,11 +573,11 @@ class _PegState extends ConsumerState<Peg> {
                         if (ref.watch(inputInFiatProvider))
                           IntrinsicWidth(
                             child: TextFormField(
-                              keyboardType: TextInputType.number,
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
                               controller: controller,
                               inputFormatters: [
+                                CommaTextInputFormatter(),
                                 DecimalTextInputFormatter(decimalRange: 2),
-                                CommaTextInputFormatter()
                               ],
                               style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
                               textAlign: TextAlign.center,
@@ -651,7 +664,7 @@ class _PegState extends ConsumerState<Peg> {
                   ],
                 );
               },
-              loading: () => Center(child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
+              loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size: titleFontSize, color: Colors.white)),
               error: (error, stack) => Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: titleFontSize / 2)),
             ),
         ],
@@ -728,13 +741,13 @@ class _PegState extends ConsumerState<Peg> {
                         if (!ref.watch(inputInFiatProvider))
                           IntrinsicWidth(
                             child: TextFormField(
-                              keyboardType: TextInputType.number,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               controller: controller,
                               inputFormatters: [
+                                CommaTextInputFormatter(),
                                 btcFormart == 'sats'
                                     ? DecimalTextInputFormatter(decimalRange: 0)
                                     : DecimalTextInputFormatter(decimalRange: 8),
-                                CommaTextInputFormatter()
                               ],
                               style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
                               textAlign: TextAlign.center,
@@ -758,11 +771,11 @@ class _PegState extends ConsumerState<Peg> {
                         if (ref.watch(inputInFiatProvider))
                           IntrinsicWidth(
                             child: TextFormField(
-                              keyboardType: TextInputType.number,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               controller: controller,
                               inputFormatters: [
+                                CommaTextInputFormatter(),
                                 DecimalTextInputFormatter(decimalRange: 2),
-                                CommaTextInputFormatter()
                               ],
                               style: TextStyle(color: Colors.white, fontSize: titleFontSize, fontWeight: FontWeight.bold),
                               textAlign: TextAlign.center,
@@ -849,7 +862,7 @@ class _PegState extends ConsumerState<Peg> {
                   ],
                 );
               },
-              loading: () => Center(child: LoadingAnimationWidget.prograssiveDots(size: titleFontSize, color: Colors.white)),
+              loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size: titleFontSize, color: Colors.white)),
               error: (error, stack) => Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: titleFontSize / 2)),
             ),
         ],

@@ -2,11 +2,11 @@ import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/screens/analytics/components/calendar.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
 
 class LiquidExpensesGraph extends StatelessWidget {
@@ -35,133 +35,287 @@ class LiquidExpensesGraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SfCartesianChart(
-      primaryXAxis: const DateTimeAxis(
-        isVisible: true,
-        labelStyle: TextStyle(color: Colors.white),
-        majorGridLines: MajorGridLines(width: 0),
-        minorGridLines: MinorGridLines(width: 0),
-        axisLine: AxisLine(width: 0),
+    // Map data to FlSpot
+    List<FlSpot> mainDataSpots = [];
+    List<FlSpot> sentDataSpots = [];
+    List<FlSpot> receivedDataSpots = [];
+    List<FlSpot> feeDataSpots = [];
+
+    if (mainData != null && isShowingMainData) {
+      mainDataSpots = mainData!.entries.map((entry) {
+        return FlSpot(entry.key.millisecondsSinceEpoch.toDouble(), entry.value.toDouble());
+      }).toList();
+    } else {
+      sentDataSpots = sentData.entries.map((entry) {
+        return FlSpot(entry.key.millisecondsSinceEpoch.toDouble(), entry.value.toDouble());
+      }).toList();
+
+      receivedDataSpots = receivedData.entries.map((entry) {
+        return FlSpot(entry.key.millisecondsSinceEpoch.toDouble(), entry.value.toDouble());
+      }).toList();
+
+      if (isBtc) {
+        feeDataSpots = feeData.entries.map((entry) {
+          return FlSpot(entry.key.millisecondsSinceEpoch.toDouble(), entry.value.toDouble());
+        }).toList();
+      }
+    }
+
+    // Calculate maxY and minY for proper scaling and padding
+    double maxY = 0;
+    double minY = 0;
+
+    List<FlSpot> allSpots = [
+      ...mainDataSpots,
+      ...sentDataSpots,
+      ...receivedDataSpots,
+      ...feeDataSpots,
+    ];
+
+    if (allSpots.isNotEmpty) {
+      maxY = allSpots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
+      minY = allSpots.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
+
+      // Add padding to maxY and minY
+      final double yRange = maxY - minY;
+      maxY += yRange * 0.1; // 10% padding at the top
+      minY -= yRange * 0.1; // Optional: 10% padding at the bottom
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(16),
       ),
-      primaryYAxis: NumericAxis(
-        isVisible: true,
-        decimalPlaces: balanceInCurrency.values.isNotEmpty
-            ? decimalPlacesBtcFormat(balanceInCurrency.values.reduce((value, element) => value > element ? value : element))
-            : 0,
-        majorGridLines: const MajorGridLines(width: 0),
-        minorGridLines: const MinorGridLines(width: 0),
-        labelStyle: const TextStyle(color: Colors.white),
-      ),
-      plotAreaBorderWidth: 0,
-      trackballBehavior: TrackballBehavior(
-        enable: true,
-        activationMode: ActivationMode.singleTap,
-        lineType: TrackballLineType.vertical,
-        tooltipSettings: const InteractiveTooltip(
-          enable: true,
-          color: Colors.orange,
-          textStyle: TextStyle(color: Colors.white),
-          borderWidth: 0,
-          decimalPlaces: 8,
+      child: LineChart(
+        LineChartData(
+          clipData: FlClipData.all(), // Ensures lines do not exit the chart area
+          backgroundColor: Colors.transparent,
+          minX: selectedDays.isNotEmpty
+              ? selectedDays.first.millisecondsSinceEpoch.toDouble()
+              : null,
+          maxX: selectedDays.isNotEmpty
+              ? selectedDays.last.millisecondsSinceEpoch.toDouble()
+              : null,
+          minY: minY,
+          maxY: maxY,
+          lineTouchData: LineTouchData(
+            enabled: true,
+            handleBuiltInTouches: true,
+            touchTooltipData: LineTouchTooltipData(
+              tooltipBgColor: Colors.black87,
+              tooltipRoundedRadius: 12,
+              tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              tooltipMargin: 10,
+              fitInsideHorizontally: true,
+              fitInsideVertically: true, // Keeps the tooltip within vertical bounds
+              getTooltipItems: (touchedSpots) {
+                return touchedSpots.map((LineBarSpot spot) {
+                  final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
+                  final formattedDate = DateFormat('dd/MM/yyyy').format(date);
+                  final value = spot.y;
+                  final int decimalPlaces = isBtc ? _decimalPlacesBtcFormat(value) : 2;
+                  final valueString = value.toStringAsFixed(decimalPlaces);
+
+                  // Currency value or "0.00" if not available
+                  final currencyValue = balanceInCurrency[date]?.toStringAsFixed(
+                      balanceInCurrency[date] == balanceInCurrency[date]?.roundToDouble() ? 0 : 2) ?? '0.00';
+
+                  // Conditional display based on isBtc and isShowingMainData flags
+                  String displayString;
+                  if (isBtc && isShowingMainData) {
+                    displayString = '$formattedDate\n $valueString\n$selectedCurrency: $currencyValue';
+                  } else if (isBtc) {
+                    displayString = '$valueString';
+                  } else {
+                    displayString = '$valueString';
+                  }
+
+                  return LineTooltipItem(
+                    displayString,
+                    const TextStyle(
+                      color: Colors.orangeAccent,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black45,
+                          offset: Offset(0, 1),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList();
+              },
+            ),
+          ),
+            gridData: FlGridData(
+            show: false,
+          ),
+          titlesData: FlTitlesData(
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: false, // Hiding titles for cleaner look
+                getTitlesWidget: bottomTitleWidgets,
+                reservedSize: 40,
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: false, // Hiding titles for cleaner look
+                getTitlesWidget: leftTitleWidgets,
+                reservedSize: 70,
+              ),
+            ),
+            topTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+          borderData: FlBorderData(show: false),
+          lineBarsData: _lineBarsData(
+            mainDataSpots,
+            sentDataSpots,
+            receivedDataSpots,
+            feeDataSpots,
+          ),
         ),
-        builder: (BuildContext context, TrackballDetails trackballDetails) {
-          if (trackballDetails.point == null) return Container();
-
-          final DateFormat formatter = DateFormat('dd/MM');
-          final DateTime date = trackballDetails.point!.x;
-          final num? value = trackballDetails.point!.y;
-          final String formattedDate = formatter.format(date);
-          final String valueString = value!.toString();
-
-          String displayString;
-          if (isBtc && isShowingMainData) {
-            final num balance = balanceInCurrency[date]!;
-            displayString = '$formattedDate\n$valueString\n${balance.toStringAsFixed(2)} $selectedCurrency';
-          } else if (isBtc && isShowingMainData) {
-            displayString = '$formattedDate\n$valueString';
-          } else {
-            displayString = valueString;
-          }
-
-          return Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Text(
-              displayString,
-              style: const TextStyle(color: Colors.black),
-            ),
-          );
-        },
       ),
-      series: _chartSeries(),
     );
   }
 
-  List<LineSeries<MapEntry<DateTime, num>, DateTime>> _chartSeries() {
-    final seriesList = <LineSeries<MapEntry<DateTime, num>, DateTime>>[];
+  List<LineChartBarData> _lineBarsData(
+      List<FlSpot> mainDataSpots,
+      List<FlSpot> sentDataSpots,
+      List<FlSpot> receivedDataSpots,
+      List<FlSpot> feeDataSpots,
+      ) {
+    final List<LineChartBarData> lineBars = [];
 
-    if (mainData != null && isShowingMainData) {
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
-        name: 'Main Data',
-        dataSource: mainData!.entries.toList(),
-        xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
+    if (mainDataSpots.isNotEmpty && isShowingMainData) {
+      lineBars.add(LineChartBarData(
+        spots: mainDataSpots,
+        isCurved: false, // Lines are direct, not rounded
         color: Colors.orangeAccent,
-        markerSettings: const MarkerSettings(isVisible: false),
-        dashArray: _getDashArray(mainData!),
-        animationDuration: 0,
-        width: 3,
+        gradient: const LinearGradient(
+          colors: [Colors.orangeAccent, Colors.deepOrange],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        barWidth: 3,
+        dotData: FlDotData(show: false),
+        belowBarData: BarAreaData(
+          show: true,
+          gradient: LinearGradient(
+            colors: [
+              Colors.orangeAccent.withOpacity(0.3),
+              Colors.deepOrange.withOpacity(0.1),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
       ));
     } else {
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
-        name: 'Sent',
-        dataSource: sentData.entries.toList(),
-        xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
-        color: Colors.blueAccent,
-        markerSettings: const MarkerSettings(isVisible: false),
-        dashArray: _getDashArray(sentData),
-        animationDuration: 0,
-        width: 3,
-      ));
-      seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
-        name: 'Received',
-        dataSource: receivedData.entries.toList(),
-        xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-        yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value,
-        color: Colors.greenAccent,
-        markerSettings: const MarkerSettings(isVisible: false),
-        dashArray: _getDashArray(receivedData),
-        animationDuration: 0,
-        width: 3,
-      ));
-      if (isBtc) {
-        seriesList.add(LineSeries<MapEntry<DateTime, num>, DateTime>(
-          name: 'Fee',
-          dataSource: feeData.entries.toList(),
-          xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-          yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value.toDouble(),
+      if (sentDataSpots.isNotEmpty) {
+        lineBars.add(LineChartBarData(
+          spots: sentDataSpots,
+          isCurved: false,
+          color: Colors.blueAccent,
+          barWidth: 3,
+          dotData: FlDotData(show: false),
+          belowBarData: BarAreaData(
+            show: true,
+            gradient: LinearGradient(
+              colors: [
+                Colors.blueAccent.withOpacity(0.3),
+                Colors.blueAccent.withOpacity(0.1),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ));
+      }
+      if (receivedDataSpots.isNotEmpty) {
+        lineBars.add(LineChartBarData(
+          spots: receivedDataSpots,
+          isCurved: false,
+          color: Colors.greenAccent,
+          barWidth: 3,
+          dotData: FlDotData(show: false),
+          belowBarData: BarAreaData(
+            show: true,
+            gradient: LinearGradient(
+              colors: [
+                Colors.greenAccent.withOpacity(0.3),
+                Colors.greenAccent.withOpacity(0.1),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ));
+      }
+      if (feeDataSpots.isNotEmpty && isBtc) {
+        lineBars.add(LineChartBarData(
+          spots: feeDataSpots,
+          isCurved: false,
           color: Colors.orangeAccent,
-          markerSettings: const MarkerSettings(isVisible: false),
-          dashArray: _getDashArray(feeData),
-          animationDuration: 0,
-          width: 3,
+          barWidth: 3,
+          dotData: FlDotData(show: false),
+          belowBarData: BarAreaData(
+            show: true,
+            gradient: LinearGradient(
+              colors: [
+                Colors.orangeAccent.withOpacity(0.3),
+                Colors.orangeAccent.withOpacity(0.1),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
         ));
       }
     }
 
-    return seriesList;
+    return lineBars;
   }
 
-  List<double> _getDashArray(Map<DateTime, num> data) {
-    final DateTime now = DateTime.now();
-    final List<double> dashArray = data.keys.any((date) => date.isAfter(now)) ? [5, 5] : [];
-    return dashArray;
+  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+    String formattedDate = DateFormat('dd/MM').format(date);
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      child: Text(
+        formattedDate,
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+      ),
+    );
+  }
+
+  Widget leftTitleWidgets(double value, TitleMeta meta) {
+    int decimalPlaces = isBtc ? _decimalPlacesBtcFormat(value) : 2;
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      child: Text(
+        value.toStringAsFixed(decimalPlaces),
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+      ),
+    );
+  }
+
+  int _decimalPlacesBtcFormat(num value) {
+    if (value == value.roundToDouble()) return 0;
+    final String valueString = value.toString();
+    final int decimalPlaces = valueString.split('.').last.length;
+    return decimalPlaces;
   }
 }
+
 
 class ExpensesGraph extends ConsumerStatefulWidget {
   final String assetId;
@@ -173,7 +327,7 @@ class ExpensesGraph extends ConsumerStatefulWidget {
 }
 
 class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
-  bool isShowingBalanceData = false;
+  bool isShowingBalanceData = true;
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +347,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
         Center(
           child: TextButton(
             child: Text(
-              !isShowingBalanceData ? 'Show Statistics over period'.i18n(ref) : 'Show Balance'.i18n(ref),
+              !isShowingBalanceData ? 'Show Balance'.i18n(ref) : 'Show Statistics over period'.i18n(ref),
               style: const TextStyle(color: Colors.white),
             ),
             onPressed: () {
@@ -205,12 +359,14 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: !isShowingBalanceData
-              ? [_buildLegend('Balance'.i18n(ref), Colors.orangeAccent)]
+          children: isShowingBalanceData
+              ? [
+            _buildLegend('Balance'.i18n(ref), Colors.orangeAccent),
+          ]
               : [
-            _buildLegend('Spending'.i18n(ref), Colors.blueAccent),
-            _buildLegend('Income'.i18n(ref), Colors.greenAccent),
-            if( isBtc) _buildLegend('Fee'.i18n(ref), Colors.orangeAccent),
+            _buildLegend('Sent'.i18n(ref), Colors.blueAccent),
+            _buildLegend('Received'.i18n(ref), Colors.greenAccent),
+            if (isBtc) _buildLegend('Fee'.i18n(ref), Colors.orangeAccent),
           ],
         ),
         const Calendar(),
@@ -220,10 +376,10 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
             sentData: spendingData,
             receivedData: incomeData,
             feeData: feeData,
-            mainData: !isShowingBalanceData ? formattedBalanceData : null,
+            mainData: isShowingBalanceData ? formattedBalanceData : null,
             balanceInCurrency: balanceInCurrency,
             selectedCurrency: selectedCurrency,
-            isShowingMainData: !isShowingBalanceData,
+            isShowingMainData: isShowingBalanceData,
             isBtc: isBtc,
           ),
         ),

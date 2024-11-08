@@ -4,79 +4,138 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-
-final interactiveModeProvider = StateProvider<bool>((ref) => false);
+import 'package:fl_chart/fl_chart.dart';
 
 class LineChartSample extends StatelessWidget {
   final List<MarketChartData> marketData;
-  final bool isInteractive;
 
   const LineChartSample({
     super.key,
     required this.marketData,
-    required this.isInteractive,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SfCartesianChart(
-      primaryXAxis: const DateTimeAxis(
-        isVisible: true,
-        majorGridLines: MajorGridLines(width: 0),
-        minorGridLines: MinorGridLines(width: 0),
-        axisLine: AxisLine(width: 0),
-        labelStyle: TextStyle(color: Colors.white),
-      ),
-      primaryYAxis: const NumericAxis(
-        isVisible: true,
-        majorGridLines: MajorGridLines(width: 0),
-        minorGridLines: MinorGridLines(width: 0),
-        axisLine: AxisLine(width: 0),
-        labelStyle: TextStyle(color: Colors.white),
-      ),
-      plotAreaBorderWidth: 0,
-      trackballBehavior: TrackballBehavior(
-        enable: isInteractive,
-        activationMode: ActivationMode.singleTap,
-        lineType: TrackballLineType.none,
-        tooltipSettings: const InteractiveTooltip(
-          enable: true,
-          color: Colors.orangeAccent,
-          textStyle: TextStyle(color: Colors.white),
-          borderWidth: 0,
-          decimalPlaces: 8,
-        ),
-        builder: (BuildContext context, TrackballDetails trackballDetails) {
-          final DateFormat formatter = DateFormat('dd/MM/yyyy');
-          final DateTime date = trackballDetails.point!.x;
-          final num? value = trackballDetails.point!.y;
-          final String formattedDate = formatter.format(date);
-          final String bitcoinValue = value!.toStringAsFixed(value == value.roundToDouble() ? 0 : 2);
+    if (marketData.isEmpty) {
+      return const Center(child: Text('No data available', style: TextStyle(color: Colors.white)));
+    }
 
-          return Text(
-            '$formattedDate\n $bitcoinValue',
-            style: const TextStyle(color: Colors.white),
-          );
-        },
+    // Map MarketChartData to FlSpot and get min/max prices for labels
+    List<FlSpot> spots = marketData.map((data) {
+      return FlSpot(
+        data.date.millisecondsSinceEpoch.toDouble(),
+        data.price!,
+      );
+    }).toList();
+
+    final double maxPrice = spots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
+    final double minPrice = spots.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(16),
       ),
-      series: _chartSeries(),
+      child: Stack(
+        children: [
+          LineChart(
+            LineChartData(
+              backgroundColor: Colors.transparent,
+              lineTouchData: LineTouchData(
+                enabled: true,
+                handleBuiltInTouches: true,
+                touchTooltipData: LineTouchTooltipData(
+                  tooltipBgColor: Colors.black87,
+                  tooltipRoundedRadius: 12,
+                  fitInsideHorizontally: true,
+                  tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  tooltipMargin: 10,
+                  getTooltipItems: (touchedSpots) {
+                    return touchedSpots.map((LineBarSpot spot) {
+                      final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
+                      final formattedDate = DateFormat('dd MMM, yyyy').format(date);
+                      final bitcoinValue = spot.y.toStringAsFixed(2);
+
+                      return LineTooltipItem(
+                        '$formattedDate\n\$ $bitcoinValue',
+                        TextStyle(
+                          color: Colors.orangeAccent,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.2),
+                              offset: const Offset(0, 1),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList();
+                  },
+                ),
+              ),
+          gridData: FlGridData(show: false),
+              titlesData: FlTitlesData(
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: spots,
+                  isCurved: true,
+                  gradient: const LinearGradient(
+                    colors: [Colors.orangeAccent, Colors.deepOrange],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  barWidth: 3,
+                  dotData: FlDotData(show: false),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.orangeAccent.withOpacity(0.3),
+                        Colors.deepOrange.withOpacity(0.1),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 10,
+            left: 20,
+            child: Text(
+              '\$${maxPrice.toStringAsFixed(0)}',
+              style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+          ),
+          Positioned(
+            bottom: 10,
+            left: 20,
+            child: Text(
+              '\$${minPrice.toStringAsFixed(0)}',
+              style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+          ),
+        ],
+      ),
     );
-  }
-
-  List<SplineSeries<MarketChartData, DateTime>> _chartSeries() {
-    return [
-      SplineSeries<MarketChartData, DateTime>(
-        name: 'Market Data',
-        dataSource: marketData,
-        xValueMapper: (MarketChartData data, _) => data.date,
-        yValueMapper: (MarketChartData data, _) => data.price,
-        color: Colors.orangeAccent,
-        markerSettings: const MarkerSettings(isVisible: false),
-        animationDuration: 0,
-        width: 3,
-      ),
-    ];
   }
 }
 
@@ -85,16 +144,15 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final marketData = ref.watch(coinGeckoBitcoinMarketDataProvider);
-    final isInteractiveMode = ref.watch(interactiveModeProvider);
+    final marketDataAsync = ref.watch(coinGeckoBitcoinMarketDataProvider);
 
-    return marketData.when(
+    return marketDataAsync.when(
       data: (data) {
         return Column(
           children: [
             _buildDateRangeButtons(ref),
             Expanded(
-              child: LineChartSample(marketData: data, isInteractive: isInteractiveMode),
+              child: LineChartSample(marketData: data),
             ),
           ],
         );
@@ -106,37 +164,24 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
       },
       error: (error, stack) {
         return Center(
-          child: Text('Error: $error'),
+          child: Text('Error: $error', style: const TextStyle(color: Colors.white)),
         );
       },
     );
   }
 
   Widget _buildDateRangeButtons(WidgetRef ref) {
-    final isInteractiveMode = ref.watch(interactiveModeProvider);
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _buildDateRangeButton(ref, 1, '1D'),
-        _buildDateRangeButton(ref, 7, '7D'),
-        _buildDateRangeButton(ref, 30, '1M'),
-        _buildDateRangeButton(ref, 365, '1Y'),
-        Column(
-          children: [
-            TextButton(
-              onPressed: () {
-                ref.read(interactiveModeProvider.notifier).state = !isInteractiveMode;
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: isInteractiveMode ? Colors.orangeAccent : Colors.grey,
-              ),
-              child: Icon(Icons.touch_app, color: isInteractiveMode ? Colors.orangeAccent : Colors.white),
-            ),
-          ],
-        )
-
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildDateRangeButton(ref, 1, '1D'),
+          _buildDateRangeButton(ref, 7, '7D'),
+          _buildDateRangeButton(ref, 30, '1M'),
+          _buildDateRangeButton(ref, 365, '1Y'),
+        ],
+      ),
     );
   }
 
@@ -149,9 +194,9 @@ class BitcoinPriceHistoryGraph extends ConsumerWidget {
         text,
         style: TextStyle(
           color: selectedDateRange == range ? Colors.orangeAccent : Colors.white,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
   }
 }
-

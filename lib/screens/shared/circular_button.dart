@@ -1,6 +1,7 @@
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'dart:math' as math;
 
@@ -46,26 +47,21 @@ Widget buildCircularButton(BuildContext context, icon, String subtitle, VoidCall
 }
 
 Widget buildActionButtons(BuildContext context, WidgetRef ref) {
-  final screenHeight = MediaQuery.of(context).size.height;
-
-  return SizedBox(
-    height: MediaQuery.of(context).padding.top + kToolbarHeight * 1.1,
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        buildCircularButton(context, Clarity.add_line, 'Add Money'.i18n(ref), () {
-          Navigator.pushNamed(context, '/charge');
-        }, Colors.black),
-        buildCircularButton(context, Clarity.two_way_arrows_line, 'Swaps'.i18n(ref), () {
-          Navigator.pushNamed(context, '/exchange');
-        }, Colors.black),
-        buildCircularButton(context, Clarity.credit_card_line, 'Pay'.i18n(ref), () {
-          Navigator.pushNamed(context, '/pay');
-        }, Colors.black),
-        buildCircularButton(context, TeenyIcons.arrow_down, 'Receive'.i18n(ref), () {
-          Navigator.pushNamed(context, '/receive');
-        }, Colors.black),
-      ],
-    ),
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+      buildCircularButton(context, Icons.add, 'Add Money'.i18n(ref), () {
+        context.push('/home/charge');
+      }, Colors.black),
+      buildCircularButton(context, Icons.compare_arrows, 'Swaps'.i18n(ref), () {
+        context.push('/home/exchange');
+      }, Colors.black),
+      buildCircularButton(context, Icons.credit_card, 'Pay'.i18n(ref), () {
+        context.push('/home/pay');
+      }, Colors.black),
+      buildCircularButton(context, Icons.arrow_downward_outlined, 'Receive'.i18n(ref), () {
+        context.push('/home/receive');
+      }, Colors.black),
+    ],
   );
 }

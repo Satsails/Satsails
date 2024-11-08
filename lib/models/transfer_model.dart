@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:Satsails/handlers/response_handlers.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Transfer {
   final int id;
@@ -137,7 +138,7 @@ class TransferService {
   static Future<Result<Transfer>> createTransactionRequest(String cpf, String auth, double valueSetToReceive) async {
     try {
       final response = await http.post(
-        Uri.parse('https://splitter.satsails.com/transfers'),
+        Uri.parse(dotenv.env['BACKEND']! + '/transfers'),
         body: jsonEncode({
           'transfer': {
             'cpf': cpf,
@@ -154,6 +155,27 @@ class TransferService {
         return Result(data: Transfer.fromMultipleJson(jsonDecode(response.body)));
       } else {
         return Result(error: 'Please wait a few minutes and try again');
+      }
+    } catch (e) {
+      return Result(
+          error: 'An error has occurred. Please check your internet connection or contact support');
+    }
+  }
+
+  static Future<Result<String>> getMinimumPurchase(String auth) async {
+    try {
+      final response = await http.get(
+        Uri.parse(dotenv.env['BACKEND']! + '/transfers/minimum_purchase'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: jsonDecode(response.body)['minimum_purchase']);
+      } else {
+        return Result(error: 'An error has occurred. Please check your internet connection or contact support');
       }
     } catch (e) {
       return Result(error: 'An error has occurred. Please check your internet connection or contact support');

@@ -1,6 +1,8 @@
+import 'package:Satsails/providers/coinos.provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:Satsails/models/address_model.dart';
@@ -60,21 +62,22 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     }
   }
 
-  void onQRViewCreated(QRViewController controller, BuildContext context) {
+  void onQRViewCreated(QRViewController controller, BuildContext context, WidgetRef ref) {
     widget.onQRViewCreated?.call(controller);
     controller.scannedDataStream.listen((scanData) async {
+      controller.pauseCamera();
       try {
         await widget.ref.refresh(setAddressAndAmountProvider(scanData.code ?? '').future);
-        controller.pauseCamera();
         switch (widget.ref.read(sendTxProvider.notifier).state.type) {
           case PaymentType.Bitcoin:
-            Navigator.pushReplacementNamed(context, '/confirm_bitcoin_payment');
+            context.push('/home/pay/confirm_bitcoin_payment');
             break;
           case PaymentType.Lightning:
-            Navigator.pushReplacementNamed(context, '/confirm_lightning_payment');
+            final hasCustodialLn = ref.read(coinosLnProvider).token.isNotEmpty;
+            hasCustodialLn ? context.push('/home/pay/confirm_custodial_lightning_payment') : context.push('/home/pay/confirm_lightning_payment');
             break;
           case PaymentType.Liquid:
-            Navigator.pushReplacementNamed(context, '/confirm_liquid_payment');
+            context.push('/home/pay/confirm_liquid_payment');
             break;
           default:
             showDialog(
@@ -121,7 +124,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
                     IconButton(
                       icon: const Icon(Icons.close, color: Colors.black54),
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        context.pop();
                       },
                     ),
                   ],
@@ -167,7 +170,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.black54),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      context.pop();
                       controller.resumeCamera();
                     },
                   ),
@@ -179,13 +182,12 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     if (_status.isGranted) {
       return QRView(
         key: widget.qrKey,
-        onQRViewCreated: (controller) => onQRViewCreated(controller, context),
+        onQRViewCreated: (controller) => onQRViewCreated(controller, context, widget.ref),
       );
     } else {
       return Scaffold(

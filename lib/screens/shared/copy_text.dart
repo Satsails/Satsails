@@ -2,6 +2,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:share_plus/share_plus.dart';
 
 Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [double fontSize = 16.0]) {
@@ -58,6 +59,15 @@ Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [do
               TextButton.icon(
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: address));
+                  Fluttertoast.showToast(
+                    msg: 'Address copied to clipboard'.i18n(ref),
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.TOP,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.green,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
                 },
                 icon: Icon(Icons.copy, color: Colors.white.withOpacity(0.7)),
                 label: Text(

@@ -17,7 +17,7 @@ Widget buildQrCode(String address, BuildContext context) {
           size: MediaQuery.of(context).size.width * 0.5,
           eyeStyle: const QrEyeStyle(
             eyeShape: QrEyeShape.square,
-            color: Colors.orange,
+            color: Colors.black,
           ),
           dataModuleStyle: const QrDataModuleStyle(
             dataModuleShape: QrDataModuleShape.circle,

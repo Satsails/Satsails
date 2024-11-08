@@ -1,8 +1,10 @@
 import 'package:Satsails/providers/pix_transaction_details_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
+import 'package:Satsails/screens/shared/error_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:async';
@@ -77,7 +79,7 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
               child: InkWell(
                 onTap: () {
                   ref.read(singleTransactionDetailsProvider.notifier).setTransaction(pix);
-                  Navigator.of(context).pushNamed('/pix_transaction_details');
+                  context.push('/pix_transaction_details');
                 },
                 child: ListTile(
                   leading: Icon(
@@ -176,10 +178,7 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
       error: (error, stack) => Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: Text(
-            'An error has occurred. Please check your internet connection or contact support'.i18n(ref),
-            style: const TextStyle(color: Colors.red),
-          ),
+          child: ErrorDisplay(message: error.toString(), isCard: true),
         ),
       ),
     );

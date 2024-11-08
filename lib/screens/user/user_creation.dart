@@ -5,6 +5,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 final loadingProvider = StateProvider.autoDispose<bool>((ref) => false);
@@ -29,7 +30,7 @@ class UserCreation extends ConsumerWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context);
+            context.pop();
           },
         ),
         backgroundColor: Colors.black,
@@ -77,9 +78,9 @@ class UserCreation extends ConsumerWidget {
                       ref.read(loadingProvider.notifier).state = false;
                       if (ref.watch(onBoardingInProgressProvider.notifier).state) {
                         ref.read(onBoardingInProgressProvider.notifier).state = false;
-                        Navigator.pushNamed(context, '/pix_onboarding');
+                        context.go('/pix_onboarding');
                       } else {
-                        Navigator.pushNamed(context, '/user_view');
+                        context.go('/home/settings/user_view');
                       }
                     } catch (e) {
                       ref.read(loadingProvider.notifier).state = false;
@@ -155,7 +156,7 @@ class UserCreation extends ConsumerWidget {
                                       await ref.read(userProvider.notifier).setRecoveryCode(controller.text);
                                       await ref.read(setUserProvider.future);
                                       ref.read(loadingProvider.notifier).state = false;
-                                      Navigator.pushReplacementNamed(context, '/user_view');
+                                      context.go('/home/settings/user_view');
                                       Fluttertoast.showToast(
                                         msg: 'Account recovered successfully!'.i18n(ref),
                                         toastLength: Toast.LENGTH_LONG,
@@ -191,11 +192,13 @@ class UserCreation extends ConsumerWidget {
               ],
             ),
             if (isLoading) // Show CircularProgressIndicator when loading is true
-              Align(
-                alignment: Alignment.topCenter,
-                child: LoadingAnimationWidget.threeArchedCircle(
-                  color: Colors.orange,
-                  size: 50,
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: LoadingAnimationWidget.threeArchedCircle(
+                    color: Colors.orange,
+                    size: 50,
+                  ),
                 ),
               ),
           ],
