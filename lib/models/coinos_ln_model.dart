@@ -370,16 +370,22 @@ class CoinosLnService {
         final data = jsonDecode(response.body);
 
         final List<CoinosPayment> payments = data['payments'].map<CoinosPayment>((json) => CoinosPayment.fromJson(json)).toList();
-        int incomingBalance = data['incoming']?.values
+        int incomingBalance = (data['incoming']?.values.isNotEmpty ?? false)
+            ? data['incoming']!.values
             .map((currencyData) {
           return currencyData['sats'] != null ? int.tryParse(currencyData['sats'].toString()) ?? 0 : 0;
-        }).reduce((a, b) => a + b) ?? 0;
+        })
+            .reduce((a, b) => a + b)
+            : 0;
 
-
-        int outgoingBalance = data['outgoing']?.values
+        int outgoingBalance = (data['outgoing']?.values.isNotEmpty ?? false)
+            ? data['outgoing']!.values
             .map((currencyData) {
           return currencyData['sats'] != null ? int.tryParse(currencyData['sats'].toString()) ?? 0 : 0;
-        }).reduce((a, b) => a + b) ?? 0;
+        })
+            .reduce((a, b) => a + b)
+            : 0;
+
 
 
         int balance = incomingBalance + outgoingBalance;
