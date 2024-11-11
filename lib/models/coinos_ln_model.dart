@@ -124,6 +124,8 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     await updatePassword(password!);
     await updateUser(username!);
     state = state.copyWith(username: username, password: password);
+    await _storage.write(key: 'coinosUsername', value: username);
+    await _storage.write(key: 'coinosPassword', value: password);
   }
 
   Future<String> updateUser(String username) async {

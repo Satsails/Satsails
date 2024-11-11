@@ -29,15 +29,30 @@ class QRViewWidget extends StatefulWidget {
 
 class _QRViewWidgetState extends State<QRViewWidget> {
   PermissionStatus _status = PermissionStatus.denied;
+  QRViewController? _controller; // Reference to the controller
+  bool _isProcessing = false; // Flag to prevent multiple scans
+  bool _hasNavigated = false; // Flag to prevent multiple navigations
 
   @override
   void initState() {
     super.initState();
-    Permission.camera.status.then((status) {
-      setState(() {
-        _status = status;
-      });
+    _checkCameraPermission();
+  }
+
+  Future<void> _checkCameraPermission() async {
+    final status = await Permission.camera.status;
+    setState(() {
+      _status = status;
     });
+    if (!status.isGranted) {
+      await _requestCameraPermission();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose(); // Dispose the controller when the widget is disposed
+    super.dispose();
   }
 
   Future<void> _requestCameraPermission() async {
@@ -62,124 +77,162 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     }
   }
 
-  void onQRViewCreated(QRViewController controller, BuildContext context, WidgetRef ref) {
+  void _handleQRViewCreated(QRViewController controller, BuildContext context, WidgetRef ref) {
+    _controller = controller; // Store the controller reference
     widget.onQRViewCreated?.call(controller);
+
     controller.scannedDataStream.listen((scanData) async {
-      controller.pauseCamera();
+      if (_isProcessing || _hasNavigated) {
+        // Prevent processing if already handling a scan or navigating
+        return;
+      }
+      _isProcessing = true; // Set the processing flag
+
+      await controller.pauseCamera(); // Await pausing the camera
+      debugPrint('Camera paused');
+
       try {
+        // Refresh and set address and amount
         await widget.ref.refresh(setAddressAndAmountProvider(scanData.code ?? '').future);
-        switch (widget.ref.read(sendTxProvider.notifier).state.type) {
+        debugPrint('Data refreshed with scan data: ${scanData.code}');
+
+        // Determine payment type and navigate accordingly
+        final paymentType = widget.ref.read(sendTxProvider.notifier).state.type;
+        switch (paymentType) {
           case PaymentType.Bitcoin:
-            context.push('/home/pay/confirm_bitcoin_payment');
+            await controller.stopCamera(); // Await stopping the camera
+            debugPrint('Camera stopped for Bitcoin payment');
+            _hasNavigated = true; // Set navigation flag
+            await Future.delayed(Duration(milliseconds: 300)); // Slight delay to ensure camera stops
+            context.pushReplacement('/home/pay/confirm_bitcoin_payment'); // Replace current route
             break;
           case PaymentType.Lightning:
+            await controller.stopCamera(); // Await stopping the camera
+            debugPrint('Camera stopped for Lightning payment');
             final hasCustodialLn = ref.read(coinosLnProvider).token.isNotEmpty;
-            hasCustodialLn ? context.push('/home/pay/confirm_custodial_lightning_payment') : context.push('/home/pay/confirm_lightning_payment');
+            _hasNavigated = true; // Set navigation flag
+            await Future.delayed(Duration(milliseconds: 300)); // Slight delay
+            hasCustodialLn
+                ? context.pushReplacement('/home/pay/confirm_custodial_lightning_payment')
+                : context.pushReplacement('/home/pay/confirm_lightning_payment');
             break;
           case PaymentType.Liquid:
-            context.push('/home/pay/confirm_liquid_payment');
+            await controller.stopCamera(); // Await stopping the camera
+            debugPrint('Camera stopped for Liquid payment');
+            _hasNavigated = true; // Set navigation flag
+            await Future.delayed(Duration(milliseconds: 300)); // Slight delay
+            context.pushReplacement('/home/pay/confirm_liquid_payment'); // Replace current route
             break;
           default:
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
-                  backgroundColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 20.0, horizontal: 24.0),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.red.withOpacity(0.8),
-                        child: const Icon(
-                            Icons.close, size: 40, color: Colors.white),
-                      ),
-                      const SizedBox(height: 16.0),
-                      Text(
-                        'Scan failed!'.i18n(widget.ref),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        'Something went wrong, please try again.'.i18n(widget.ref),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black54,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.black54),
-                      onPressed: () {
-                        context.pop();
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
+            await _showScanFailedDialog(context, ref);
+            break;
         }
-      }
-      catch (e) {
-        controller.pauseCamera();
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                backgroundColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 20.0, horizontal: 24.0),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.red.withOpacity(0.8),
-                      child: const Icon(
-                          Icons.close, size: 40, color: Colors.white),
-                    ),
-                    const SizedBox(height: 16.0),
-                    Text(
-                      e.toString().i18n(widget.ref),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.black54),
-                    onPressed: () {
-                      context.pop();
-                      controller.resumeCamera();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
+      } catch (e) {
+        debugPrint('Error during scan processing: $e');
+        await _showErrorDialog(context, e.toString(), controller);
+      } finally {
+        _isProcessing = false; // Reset the processing flag
       }
     });
+  }
+
+  Future<void> _showScanFailedDialog(BuildContext context, WidgetRef ref) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          backgroundColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+              vertical: 20.0, horizontal: 24.0),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.red.withOpacity(0.8),
+                child: const Icon(Icons.close, size: 40, color: Colors.white),
+              ),
+              const SizedBox(height: 16.0),
+              Text(
+                'Scan failed!'.i18n(widget.ref),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8.0),
+              Text(
+                'Something went wrong, please try again.'.i18n(widget.ref),
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.black54),
+              onPressed: () {
+                context.pop();
+                _controller?.resumeCamera(); // Resume camera after dialog is dismissed
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showErrorDialog(BuildContext context, String errorMessage, QRViewController controller) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          backgroundColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+              vertical: 20.0, horizontal: 24.0),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.red.withOpacity(0.8),
+                child: const Icon(Icons.close, size: 40, color: Colors.white),
+              ),
+              const SizedBox(height: 16.0),
+              Text(
+                errorMessage.i18n(widget.ref),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.black54),
+              onPressed: () {
+                context.pop();
+                controller.resumeCamera(); // Resume camera after error
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -187,7 +240,14 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     if (_status.isGranted) {
       return QRView(
         key: widget.qrKey,
-        onQRViewCreated: (controller) => onQRViewCreated(controller, context, widget.ref),
+        onQRViewCreated: (controller) => _handleQRViewCreated(controller, context, widget.ref),
+        overlay: QrScannerOverlayShape(
+          borderColor: Colors.orange,
+          borderRadius: 10,
+          borderLength: 30,
+          borderWidth: 10,
+          cutOutSize: MediaQuery.of(context).size.width * 0.6,
+        ),
       );
     } else {
       return Scaffold(
@@ -203,7 +263,10 @@ class _QRViewWidgetState extends State<QRViewWidget> {
                 color: Colors.orange,
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1, vertical: MediaQuery.of(context).size.width * 0.05),
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.1,
+                  vertical: MediaQuery.of(context).size.width * 0.05,
+                ),
                 child: CustomButton(
                   text: 'Request camera permission'.i18n(widget.ref),
                   onPressed: () => _requestCameraPermission(),
