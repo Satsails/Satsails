@@ -83,7 +83,6 @@ class _QRViewWidgetState extends State<QRViewWidget> {
 
     controller.scannedDataStream.listen((scanData) async {
       if (_isProcessing || _hasNavigated) {
-        // Prevent processing if already handling a scan or navigating
         return;
       }
       _isProcessing = true; // Set the processing flag
@@ -92,43 +91,37 @@ class _QRViewWidgetState extends State<QRViewWidget> {
       debugPrint('Camera paused');
 
       try {
-        // Refresh and set address and amount
         await widget.ref.refresh(setAddressAndAmountProvider(scanData.code ?? '').future);
         debugPrint('Data refreshed with scan data: ${scanData.code}');
 
-        // Determine payment type and navigate accordingly
-        final paymentType = widget.ref.read(sendTxProvider.notifier).state.type;
+        final paymentType = widget.ref.read(sendTxProvider).type;
         switch (paymentType) {
           case PaymentType.Bitcoin:
             await controller.stopCamera(); // Await stopping the camera
-            debugPrint('Camera stopped for Bitcoin payment');
             _hasNavigated = true; // Set navigation flag
-            await Future.delayed(Duration(milliseconds: 300)); // Slight delay to ensure camera stops
-            context.pushReplacement('/home/pay/confirm_bitcoin_payment'); // Replace current route
+            await Future.delayed(Duration(milliseconds: 500)); // Slight delay to ensure camera stops
+            context.push('/home/pay/confirm_bitcoin_payment'); // Replace current route
             break;
           case PaymentType.Lightning:
             await controller.stopCamera(); // Await stopping the camera
-            debugPrint('Camera stopped for Lightning payment');
             final hasCustodialLn = ref.read(coinosLnProvider).token.isNotEmpty;
             _hasNavigated = true; // Set navigation flag
-            await Future.delayed(Duration(milliseconds: 300)); // Slight delay
+            await Future.delayed(Duration(milliseconds: 500)); // Slight delay
             hasCustodialLn
-                ? context.pushReplacement('/home/pay/confirm_custodial_lightning_payment')
-                : context.pushReplacement('/home/pay/confirm_lightning_payment');
+                ? context.push('/home/pay/confirm_custodial_lightning_payment')
+                : context.push('/home/pay/confirm_lightning_payment');
             break;
           case PaymentType.Liquid:
             await controller.stopCamera(); // Await stopping the camera
-            debugPrint('Camera stopped for Liquid payment');
             _hasNavigated = true; // Set navigation flag
-            await Future.delayed(Duration(milliseconds: 300)); // Slight delay
-            context.pushReplacement('/home/pay/confirm_liquid_payment'); // Replace current route
+            await Future.delayed(Duration(milliseconds: 500)); // Slight delay
+            context.push('/home/pay/confirm_liquid_payment'); // Replace current route
             break;
           default:
             await _showScanFailedDialog(context, ref);
             break;
         }
       } catch (e) {
-        debugPrint('Error during scan processing: $e');
         await _showErrorDialog(context, e.toString(), controller);
       } finally {
         _isProcessing = false; // Reset the processing flag

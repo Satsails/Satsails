@@ -41,10 +41,6 @@ final updateUserProvider = FutureProvider.autoDispose.family<void, String>((ref,
   await ref.read(coinosLnProvider.notifier).updateUser(username);
 });
 
-final updatePasswordProvider = FutureProvider.autoDispose.family<void, String>((ref, password) async {
-  await ref.read(coinosLnProvider.notifier).updatePassword(password);
-});
-
 final createInvoiceProvider = FutureProvider.autoDispose<String>((ref) async {
   final amount = ref.watch(inputAmountProvider);
   final currency = ref.watch(inputCurrencyProvider);
@@ -117,12 +113,4 @@ final loginIntoWebsocketProvider = FutureProvider.autoDispose<CoisosPushNotifica
 final coinosPaymentStreamProvider = StreamProvider.autoDispose<Map<String, dynamic>>((ref) async* {
   final pushNotificationsService = await ref.watch(loginIntoWebsocketProvider.future);
   yield* pushNotificationsService.paymentStream;
-});
-
-final checkForSecureMigrationNeededProvider = FutureProvider.autoDispose<bool>((ref) async {
-  return await ref.read(coinosLnProvider.notifier).checkForSecureMigration();
-});
-
-final secureMigrationProvider = FutureProvider.autoDispose<void>((ref) async {
-  await ref.read(coinosLnProvider.notifier).migrateSecureData();
 });

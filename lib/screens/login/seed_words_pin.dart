@@ -119,7 +119,7 @@ class _SeedWordsPinState extends ConsumerState<SeedWordsPin> {
       );
 
       if (authenticated) {
-        context.go('/seed_words');
+        context.push('/seed_words');
       }
     }
 

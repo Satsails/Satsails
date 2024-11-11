@@ -29,7 +29,6 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
   bool showLightningWidget = false;
   bool isLoading = false;
   late Future<void> usernameCheckFuture;
-  late Future<void> migrationCheckFuture;
   String? lastProcessedPaymentId;
 
   @override
@@ -37,7 +36,6 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     super.initState();
     controller = TextEditingController();
     usernameCheckFuture = _checkForUsername();
-    migrationCheckFuture = _checkForMigration();
   }
 
   @override
@@ -51,86 +49,6 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     if (lnurl == "") {
       _showUsernameModal();
     }
-  }
-
-  Future<void> _checkForMigration() async {
-    final showMigrationModal = await ref.read(checkForSecureMigrationNeededProvider.future);
-    if (showMigrationModal) {
-      _showMigrationModal();
-    }
-  }
-
-  void _showMigrationModal() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Migration Needed'.i18n(ref),
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24.0),
-                Text(
-                  'Your account needs to be migrated. Your lnurl will change'.i18n(ref),
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24.0),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0,
-                        vertical: 12.0),
-                  ),
-                  child: Text(
-                    'Migrate'.i18n(ref),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),
-
-                  onPressed: () async {
-                    try {
-                      await ref.read(secureMigrationProvider.future);
-                      context.pop();
-                    } catch (e) {
-                      Fluttertoast.showToast(
-                        msg: '$e'.i18n(ref),
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.BOTTOM,
-                      );
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
   }
 
   void _showUsernameModal() {
