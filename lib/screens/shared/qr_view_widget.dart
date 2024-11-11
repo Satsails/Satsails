@@ -29,9 +29,9 @@ class QRViewWidget extends StatefulWidget {
 
 class _QRViewWidgetState extends State<QRViewWidget> {
   PermissionStatus _status = PermissionStatus.denied;
-  QRViewController? _controller; // Reference to the controller
-  bool _isProcessing = false; // Flag to prevent multiple scans
-  bool _hasNavigated = false; // Flag to prevent multiple navigations
+  QRViewController? _controller;
+  bool _isProcessing = false;
+  bool _hasNavigated = false;
 
   @override
   void initState() {
@@ -51,82 +51,78 @@ class _QRViewWidgetState extends State<QRViewWidget> {
 
   @override
   void dispose() {
-    _controller?.dispose(); // Dispose the controller when the widget is disposed
+    _controller?.dispose();
     super.dispose();
   }
 
   Future<void> _requestCameraPermission() async {
-    final status = await Permission.camera.status;
-    if (!status.isGranted) {
-      PermissionStatus newStatus = await Permission.camera.request();
-      if (newStatus.isPermanentlyDenied) {
-        openAppSettings();
-      } else if (newStatus.isDenied) {
-        setState(() {
-          _status = PermissionStatus.denied;
-        });
-      } else if (newStatus.isGranted) {
-        setState(() {
-          _status = PermissionStatus.granted;
-        });
-      }
+    final status = await Permission.camera.request();
+    if (status.isPermanentlyDenied) {
+      openAppSettings();
     } else {
       setState(() {
-        _status = PermissionStatus.granted;
+        _status = status;
       });
     }
   }
 
   void _handleQRViewCreated(QRViewController controller, BuildContext context, WidgetRef ref) {
-    _controller = controller; // Store the controller reference
+    _controller = controller;
     widget.onQRViewCreated?.call(controller);
 
-    controller.scannedDataStream.listen((scanData) async {
-      if (_isProcessing || _hasNavigated) {
-        return;
-      }
-      _isProcessing = true; // Set the processing flag
-
-      await controller.pauseCamera(); // Await pausing the camera
-      debugPrint('Camera paused');
-
-      try {
-        await widget.ref.refresh(setAddressAndAmountProvider(scanData.code ?? '').future);
-        debugPrint('Data refreshed with scan data: ${scanData.code}');
-
-        final paymentType = widget.ref.read(sendTxProvider).type;
-        switch (paymentType) {
-          case PaymentType.Bitcoin:
-            await controller.stopCamera(); // Await stopping the camera
-            _hasNavigated = true; // Set navigation flag
-            await Future.delayed(Duration(milliseconds: 500)); // Slight delay to ensure camera stops
-            context.push('/home/pay/confirm_bitcoin_payment'); // Replace current route
-            break;
-          case PaymentType.Lightning:
-            await controller.stopCamera(); // Await stopping the camera
-            final hasCustodialLn = ref.read(coinosLnProvider).token.isNotEmpty;
-            _hasNavigated = true; // Set navigation flag
-            await Future.delayed(Duration(milliseconds: 500)); // Slight delay
-            hasCustodialLn
-                ? context.push('/home/pay/confirm_custodial_lightning_payment')
-                : context.push('/home/pay/confirm_lightning_payment');
-            break;
-          case PaymentType.Liquid:
-            await controller.stopCamera(); // Await stopping the camera
-            _hasNavigated = true; // Set navigation flag
-            await Future.delayed(Duration(milliseconds: 500)); // Slight delay
-            context.push('/home/pay/confirm_liquid_payment'); // Replace current route
-            break;
-          default:
-            await _showScanFailedDialog(context, ref);
-            break;
-        }
-      } catch (e) {
-        await _showErrorDialog(context, e.toString(), controller);
-      } finally {
-        _isProcessing = false; // Reset the processing flag
+    controller.scannedDataStream.listen((scanData) {
+      if (!_isProcessing && !_hasNavigated) {
+        _processScanData(scanData.code, context, ref);
       }
     });
+  }
+
+  Future<void> _processScanData(String? code, BuildContext context, WidgetRef ref) async {
+    if (code == null || _isProcessing || _hasNavigated) return;
+
+    _isProcessing = true;
+    await _controller?.pauseCamera();
+    debugPrint('Camera paused');
+
+    try {
+      await widget.ref.refresh(setAddressAndAmountProvider(code).future);
+      debugPrint('Data refreshed with scan data: $code');
+
+      final paymentType = widget.ref.read(sendTxProvider).type;
+      _navigateToPaymentScreen(paymentType, context, ref);
+    } catch (e) {
+      await _showErrorDialog(context, e.toString(), _controller!);
+    } finally {
+      _isProcessing = false;
+    }
+  }
+
+  Future<void> _navigateToPaymentScreen(PaymentType paymentType, BuildContext context, WidgetRef ref) async {
+    _hasNavigated = true;
+
+    switch (paymentType) {
+      case PaymentType.Bitcoin:
+        _controller = null;
+        context.pushReplacement('/home/pay/confirm_bitcoin_payment');
+        break;
+
+      case PaymentType.Lightning:
+        _controller = null;
+        final hasCustodialLn = ref.read(coinosLnProvider).token.isNotEmpty;
+          hasCustodialLn
+              ? context.pushReplacement('/home/pay/confirm_custodial_lightning_payment')
+              : context.pushReplacement('/home/pay/confirm_lightning_payment');
+        break;
+
+      case PaymentType.Liquid:
+        _controller = null;
+          context.pushReplacement('/home/pay/confirm_liquid_payment');
+        break;
+
+      default:
+        await _showScanFailedDialog(context, ref);
+        break;
+    }
   }
 
   Future<void> _showScanFailedDialog(BuildContext context, WidgetRef ref) async {
@@ -174,7 +170,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
               icon: const Icon(Icons.close, color: Colors.black54),
               onPressed: () {
                 context.pop();
-                _controller?.resumeCamera(); // Resume camera after dialog is dismissed
+                _controller?.resumeCamera();
               },
             ),
           ],
@@ -219,7 +215,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
               icon: const Icon(Icons.close, color: Colors.black54),
               onPressed: () {
                 context.pop();
-                controller.resumeCamera(); // Resume camera after error
+                controller.resumeCamera();
               },
             ),
           ],

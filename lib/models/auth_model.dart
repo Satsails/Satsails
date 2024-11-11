@@ -117,8 +117,8 @@ class AuthModel {
     final faker = Faker(seed: seed);
 
     // Generate a single word for the username
-    String word = faker.animal.name();
-    String color = faker.color.commonColor();
+    String word = faker.animal.name().toLowerCase();
+    String color = faker.color.commonColor().toLowerCase();
 
     int number = derivedKey.sublist(4, 6).fold(0, (prev, elem) => (prev << 8) + elem) % 10000;
     String numberStr = number.toString().padLeft(4, '0');

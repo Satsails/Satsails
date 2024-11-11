@@ -1901,7 +1901,13 @@ extension Localization on String {
       {
         'en': 'Your account needs to be migrated. Your lnurl will change',
         'pt': 'Sua conta precisa ser migrada. Seu lnurl mudará'
+      } +
+      {
+        'en': 'Confirm your 6-digit PIN',
+        'pt': 'Confirme seu PIN de 6 dígitos'
       };
+
+
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;
