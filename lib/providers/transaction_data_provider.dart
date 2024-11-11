@@ -1,4 +1,4 @@
-import 'package:Satsails/providers/coinos.provider.dart';
+import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';

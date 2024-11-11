@@ -1,6 +1,6 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
-import 'package:Satsails/providers/coinos.provider.dart';
+import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';

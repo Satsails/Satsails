@@ -1,4 +1,4 @@
-import 'package:Satsails/providers/coinos.provider.dart';
+import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/analytics/components/lightning_expenses_diagram.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';

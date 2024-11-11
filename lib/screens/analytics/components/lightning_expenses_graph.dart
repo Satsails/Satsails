@@ -1,7 +1,7 @@
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
-import 'package:Satsails/providers/coinos.provider.dart';
+import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/analytics/components/calendar.dart';

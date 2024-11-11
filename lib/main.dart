@@ -5,6 +5,7 @@ import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/spash/splash.dart';
@@ -166,6 +167,9 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   }
 
   Future<void> _lockApp() async {
+    ref.read(sendTxProvider.notifier).resetToDefault();
+    ref.read(sendBlocksProvider.notifier).state = 1;
+
     final authModel = ref.read(authModelProvider);
     final mnemonic = await authModel.getMnemonic();
 

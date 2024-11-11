@@ -1,7 +1,7 @@
 import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/providers/coinos.provider.dart';
+import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 

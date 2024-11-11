@@ -1,4 +1,4 @@
-import 'package:Satsails/providers/coinos.provider.dart';
+import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
 import 'package:Satsails/screens/receive/components/custodial_lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';

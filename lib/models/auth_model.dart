@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:conduit_password_hash/pbkdf2.dart';
 import 'package:crypto/crypto.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -87,33 +88,43 @@ class AuthModel {
     return storedPin != null && storedPin == incomingPin;
   }
 
+  Future<String> hashMnemonic(String mnemonic) async {
+    // Hash the mnemonic and convert it to a Base64 string
+    final hash = sha256.convert(utf8.encode(mnemonic));
+    return base64.encode(hash.bytes); // Convert Uint8List to Base64 String
+  }
+
+  Future<List<int>> deriveKeyWithSalt(String mnemonic) async {
+    // Get the Base64 string representation of the hash
+    final hashedMnemonic = await hashMnemonic(mnemonic);
+
+    final pbkdf2 = PBKDF2();
+    // Use a simple Base64 substring as salt
+    final salt = base64.encode(hashedMnemonic.codeUnits.sublist(0, 16).map((c) => c & 0xff).toList());
+    final derivedKey = pbkdf2.generateKey(hashedMnemonic, salt, 2048, 32);
+    return derivedKey;
+  }
+
   Future<String?> getUsername() async {
     final mnemonic = await getMnemonic();
     if (mnemonic == null) return null;
 
-    // Hash the mnemonic using SHA-256
-    final hash = sha256.convert(utf8.encode(mnemonic)).bytes;
+    // Derive a key from the mnemonic using PBKDF2 with the deterministic salt
+    final derivedKey = await deriveKeyWithSalt(mnemonic);
 
-    // Generate a seed from part of the hash for consistency
-    int seed = hash.sublist(0, 4).fold(0, (prev, elem) => (prev << 8) + elem);
-
-    // Initialize Faker with the seed
+    // Initialize Faker with the derived key for consistency
+    int seed = derivedKey.sublist(0, 4).fold(0, (prev, elem) => (prev << 8) + elem);
     final faker = Faker(seed: seed);
 
-    // Generate a single word
-    String word = faker.person.firstName().toLowerCase();
+    // Generate a single word for the username
+    String word = faker.animal.name();
+    String color = faker.color.commonColor();
 
-    // Use another part of the hash for a 4-digit number suffix
-    int number = hash.sublist(4, 6).fold(0, (prev, elem) => (prev << 8) + elem) % 10000;
+    int number = derivedKey.sublist(4, 6).fold(0, (prev, elem) => (prev << 8) + elem) % 10000;
     String numberStr = number.toString().padLeft(4, '0');
 
     // Combine word and number to form the username
-    String username = "$word$numberStr";
-
-    // Check for problematic names and adjust if necessary
-    if (username.contains("d'angelo")) {
-      username = username.replaceAll("d'angelo", "unlucky"); // Predictable replacement
-    }
+    String username = "$color$word$numberStr";
 
     return username;
   }
@@ -122,16 +133,18 @@ class AuthModel {
     final mnemonic = await getMnemonic();
     if (mnemonic == null) return null;
 
-    final hash = sha256.convert(utf8.encode(mnemonic)).bytes;
-    return base64.encode(hash.sublist(10, 20));
+    final derivedKey = await deriveKeyWithSalt(mnemonic);
+
+    return base64.encode(derivedKey.sublist(10, 20));
   }
 
   Future<String?> getCoinosPassword() async {
     final mnemonic = await getMnemonic();
     if (mnemonic == null) return null;
 
-    final hash = sha256.convert(utf8.encode(mnemonic)).bytes;
-    return base64.encode(hash.sublist(20, 30));
+    final derivedKey = await deriveKeyWithSalt(mnemonic);
+
+    return base64.encode(derivedKey.sublist(20, 30));
   }
 
   Future<void> deleteAuthentication() async {

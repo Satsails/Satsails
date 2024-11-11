@@ -1,7 +1,7 @@
 import 'package:Satsails/assets/lbtc_icon.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
-import 'package:Satsails/providers/coinos.provider.dart';
+import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/receive/components/custodial_lightning_widget.dart';
 import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';

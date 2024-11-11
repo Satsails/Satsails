@@ -1,7 +1,6 @@
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart' as bdk;
 import 'package:Satsails/providers/currency_conversions_provider.dart';
-import 'package:Satsails/providers/liquid_provider.dart' as lwk;
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/services/coinos/coinos_push_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,6 +35,14 @@ final loginProvider = FutureProvider.autoDispose<void>((ref) async {
 final registerProvider = FutureProvider.autoDispose<void>((ref) async {
   await ref.read(coinosLnProvider.notifier).register();
   await ref.read(loginProvider.future);
+});
+
+final updateUserProvider = FutureProvider.autoDispose.family<void, String>((ref, username) async {
+  await ref.read(coinosLnProvider.notifier).updateUser(username);
+});
+
+final updatePasswordProvider = FutureProvider.autoDispose.family<void, String>((ref, password) async {
+  await ref.read(coinosLnProvider.notifier).updatePassword(password);
 });
 
 final createInvoiceProvider = FutureProvider.autoDispose<String>((ref) async {
@@ -110,4 +117,12 @@ final loginIntoWebsocketProvider = FutureProvider.autoDispose<CoisosPushNotifica
 final coinosPaymentStreamProvider = StreamProvider.autoDispose<Map<String, dynamic>>((ref) async* {
   final pushNotificationsService = await ref.watch(loginIntoWebsocketProvider.future);
   yield* pushNotificationsService.paymentStream;
+});
+
+final checkForSecureMigrationNeededProvider = FutureProvider.autoDispose<bool>((ref) async {
+  return await ref.read(coinosLnProvider.notifier).checkForSecureMigration();
+});
+
+final secureMigrationProvider = FutureProvider.autoDispose<void>((ref) async {
+  await ref.read(coinosLnProvider.notifier).migrateSecureData();
 });

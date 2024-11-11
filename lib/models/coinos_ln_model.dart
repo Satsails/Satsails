@@ -100,6 +100,52 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     }
   }
 
+  Future<bool> checkForSecureMigration() async {
+    final password = await AuthModel().getCoinosPassword();
+    final username = await AuthModel().getUsername();
+    final token = state.token;
+    if (token == null || token.isEmpty) {
+      return false;
+    }
+
+    if (state.password != password || state.username != username) {
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> migrateSecureData() async {
+    final password = await AuthModel().getCoinosPassword();
+    final username = await AuthModel().getUsername();
+    final token = state.token;
+    if (token == null || token.isEmpty) {
+      return;
+    }
+    await updatePassword(password!);
+    await updateUser(username!);
+    state = state.copyWith(username: username, password: password);
+  }
+
+  Future<String> updateUser(String username) async {
+    final token = state.token;
+    final result = await CoinosLnService.updateUsername(username, token);
+    if (result.isSuccess) {
+      return username;
+    } else {
+      throw Exception(result.error ?? 'Failed to update user');
+    }
+  }
+
+  Future<String> updatePassword(String password) async {
+    final token = state.token;
+    final result = await CoinosLnService.updatePassword(password, token);
+    if (result.isSuccess) {
+      return password;
+    } else {
+      throw Exception(result.error ?? 'Failed to update password');
+    }
+  }
+
   Future<String> createInvoice(int amount, {String type = 'lightning'}) async {
     final token = state.token;
     if (token == null || token.isEmpty) {
@@ -198,8 +244,7 @@ class CoinosLnService {
     }
   }
 
-  static Future<Result<String>> register(String username,
-      String password) async {
+  static Future<Result<String>> register(String username,String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/register'),
@@ -214,6 +259,48 @@ class CoinosLnService {
       }
     } catch (e) {
       return Result(error: 'Error registering: $e');
+    }
+  }
+
+  static Future<Result<String>> updateUsername(String newUsername, String token) async {
+    try {
+      final uri = Uri.parse('https://coinos.io/settings/account');
+
+      final request = http.MultipartRequest('POST', uri)
+        ..fields['username'] = newUsername
+        ..headers['Cookie'] = 'lang=en; token=$token';
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        return Result(data: 'Username updated');
+      } else {
+        final responseBody = await response.stream.bytesToString();
+        throw 'Failed to update username: ${responseBody}';
+      }
+    } catch (e) {
+      throw 'Error updating username: $e';
+    }
+  }
+
+  static Future<Result<String>> updatePassword(String newPassword, String token) async {
+    try {
+      final uri = Uri.parse('https://coinos.io/settings/security');
+
+      final request = http.MultipartRequest('POST', uri)
+        ..fields['password'] = newPassword
+        ..headers['Cookie'] = 'lang=en; token=$token';
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        return Result(data: 'Password updated');
+      } else {
+        final responseBody = await response.stream.bytesToString();
+        throw 'Failed to update password: $responseBody';
+      }
+    } catch (e) {
+      throw 'Error updating password: $e';
     }
   }
 

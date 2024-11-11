@@ -3,7 +3,7 @@ import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dar
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
-import 'package:Satsails/providers/coinos.provider.dart';
+import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/translations/translations.dart';

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:Satsails/models/balance_model.dart';
-import 'package:Satsails/providers/coinos.provider.dart';
+import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/address_provider.dart';
