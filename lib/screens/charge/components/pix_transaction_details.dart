@@ -158,7 +158,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
               ? "Processing transfer".i18n(ref)
               : transaction.processingStatus && !transaction.sentToHotWallet
               ? "Waiting payment".i18n(ref)
-              : currencyFormat(transaction.receivedAmount, 'BRL', decimalPlaces: 3),
+              : currencyFormat(transaction.receivedAmount, 'BRL', decimalPlaces: 2),
           style: TextStyle(
             color: isFrontendExpired ? Colors.red : Colors.green,
             fontSize: MediaQuery.of(context).size.width * 0.045,
@@ -240,13 +240,13 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
       children: [
         TransactionDetailRow(
           label: "Original amount".i18n(ref),
-          value: currencyFormat(transaction.originalAmount, 'BRL', decimalPlaces: 3),
+          value: currencyFormat(transaction.originalAmount, 'BRL', decimalPlaces: 2),
         ),
         const SizedBox(height: 16.0),
         if (transaction.completedTransfer || transaction.sentToHotWallet)
           TransactionDetailRow(
             label: "Total fees".i18n(ref),
-            value: currencyFormat((transaction.originalAmount - transaction.receivedAmount), 'BRL', decimalPlaces: 3),
+            value: currencyFormat((transaction.originalAmount - transaction.receivedAmount), 'BRL', decimalPlaces: 2),
           ),
       ],
     );
