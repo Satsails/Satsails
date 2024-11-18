@@ -107,17 +107,17 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
 
       return coinosTransactionsAsync.when(
         data: (lightningTransactions) {
-          if (lightningTransactions == null || lightningTransactions['payments'].isEmpty) {
+          if (lightningTransactions == null || lightningTransactions.isEmpty) {
             return _buildNoTransactionsFound(screenHeight, ref);
           }
 
           return _buildTransactionList(
             context,
             ref,
-            lightningTransactions['payments'].length,
+            lightningTransactions.length,
                 (index) =>
                 _buildLightningTransactionItem(
-                    lightningTransactions['payments'].reversed.toList()[index], context, ref)
+                    lightningTransactions.reversed.toList()[index], context, ref)
           );
         },
         loading: () => _buildLoadingIndicator(screenHeight),

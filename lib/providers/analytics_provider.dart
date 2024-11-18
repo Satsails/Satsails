@@ -470,7 +470,7 @@ final liquidBalancePerDayInFormatProvider = StateProvider.autoDispose.family<Map
 // Provider to compute cumulative Lightning balance over time
 final lightningBalanceOverPeriod = FutureProvider.autoDispose<Map<DateTime, num>>((ref) async {
   final transactions = await ref.watch(getTransactionsProvider.future).then(
-        (value) => value?['payments'] as List<CoinosPayment>?,
+        (value) => value as List<CoinosPayment>?,
   );
 
   final Map<DateTime, num> balancePerDay = {};

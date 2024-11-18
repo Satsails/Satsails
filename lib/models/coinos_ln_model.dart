@@ -109,6 +109,20 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
       throw Exception(result.error ?? 'Failed to update user');
     }
   }
+  
+  Future<int> getBalance() async {
+    final token = state.token;
+    if (token == null || token.isEmpty) {
+      return 0;
+    }
+
+    final result = await CoinosLnService.getBalance(token);
+    if (result.isSuccess) {
+      return result.data!;
+    } else {
+      throw Exception(result.error ?? 'Failed to fetch balance');
+    }
+  }
 
   Future<String> createInvoice(int amount, {String type = 'lightning'}) async {
     final token = state.token;
@@ -169,20 +183,54 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     }
   }
 
-  Future<Map<String, dynamic>?> getTransactions() async {
+  Future<List<CoinosPayment>> getTransactions() async {
     final token = state.token;
     if (token == null || token.isEmpty) {
-      return {
-        'balance': 0,
-        'payments': [],
-      };
+      return [];
     }
 
-    final result = await CoinosLnService.getBalanceAndTransactions(token);
+    final result = await CoinosLnService.getTransactions(token);
     if (result.isSuccess) {
-      return result.data;
+      return result.data!;
     } else {
       throw 'Failed to fetch balance and transactions';
+    }
+  }
+
+  Future<bool> shouldMigrateUsernameAndPassword() async {
+    final token = state.token;
+    if (token == null || token.isEmpty) {
+      return false;
+    }
+
+    String newPassword = await AuthModel().getCoinosPassword() ?? '';
+
+    bool shouldMigrate = newPassword != state.password;
+
+    return shouldMigrate;
+  }
+
+  Future<bool> migrateUsernameAndPassword() async {
+    final token = state.token;
+    if (token == null || token.isEmpty) {
+      return false;
+    }
+
+    String username = await AuthModel().getUsername() ?? '';
+    String password = await AuthModel().getCoinosPassword() ?? '';
+
+    bool shouldMigrate = await shouldMigrateUsernameAndPassword();
+
+    if (shouldMigrate) {
+      final result = await CoinosLnService.migrateUsernameAndPassword(username, token, password);
+      if (result.isSuccess) {
+        state = state.copyWith(username: username, password: password);
+        return true;
+      } else {
+        throw Exception(result.error ?? 'Failed to migrate username and password');
+      }
+    } else {
+      return false;
     }
   }
 }
@@ -228,24 +276,51 @@ class CoinosLnService {
 
   static Future<Result<String>> updateUsername(String newUsername, String token) async {
     try {
-      final uri = Uri.parse('https://coinos.io/settings/account');
-
-      final request = http.MultipartRequest('POST', uri)
-        ..fields['username'] = newUsername
-        ..headers['Cookie'] = 'lang=en; token=$token';
-
-      final response = await request.send();
+      final response = await http.post(
+        Uri.parse('$baseUrl/user'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(
+            {'user': {'username': newUsername}}),
+      );
 
       if (response.statusCode == 200) {
-        return Result(data: 'Username updated');
+        return Result(data: 'Username updated and password changed');
       } else {
-        final responseBody = await response.stream.bytesToString();
-        throw 'Failed to update username: ${responseBody}';
+        return Result(error: 'Failed to update username: ${response.body}');
       }
     } catch (e) {
       throw 'Error updating username: $e';
     }
   }
+
+  static Future<Result<String>> migrateUsernameAndPassword(
+      String newUsername, String token, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/user'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'username': newUsername,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: 'Username updated and password changed');
+      } else if (response.statusCode == 400) {
+        final errorMessage = jsonDecode(response.body)['error'] ?? 'Unknown error';
+        return Result(error: 'Failed to update username: $errorMessage');
+      } else {
+        return Result(error: 'Unexpected error: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      return Result(error: 'Error updating username: $e');
+    }
+  }
+
 
   static Future<Result<String>> createInvoice(String token, int amount, {String type = 'lightning'}) async {
     try {
@@ -386,7 +461,7 @@ class CoinosLnService {
   }
 
 
-  static Future<Result<Map<String, dynamic>>> getBalanceAndTransactions(String token) async {
+  static Future<Result<List<CoinosPayment>>> getTransactions(String token) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/payments'),
@@ -400,30 +475,8 @@ class CoinosLnService {
         final data = jsonDecode(response.body);
 
         final List<CoinosPayment> payments = data['payments'].map<CoinosPayment>((json) => CoinosPayment.fromJson(json)).toList();
-        int incomingBalance = (data['incoming']?.values.isNotEmpty ?? false)
-            ? data['incoming']!.values
-            .map((currencyData) {
-          return currencyData['sats'] != null ? int.tryParse(currencyData['sats'].toString()) ?? 0 : 0;
-        })
-            .reduce((a, b) => a + b)
-            : 0;
 
-        int outgoingBalance = (data['outgoing']?.values.isNotEmpty ?? false)
-            ? data['outgoing']!.values
-            .map((currencyData) {
-          return currencyData['sats'] != null ? int.tryParse(currencyData['sats'].toString()) ?? 0 : 0;
-        })
-            .reduce((a, b) => a + b)
-            : 0;
-
-
-
-        int balance = incomingBalance + outgoingBalance;
-
-        return Result(data: {
-          'balance': balance,
-          'payments': payments,
-        });
+        return Result(data: payments);
       } else {
         return Result(error: 'Failed to fetch balance and transactions: ${response.body}');
       }
@@ -432,4 +485,24 @@ class CoinosLnService {
     }
   }
 
+  static Future<Result<int>> getBalance(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/me'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return Result(data: data['balance']);
+      } else {
+        return Result(error: 'Failed to fetch balance: ${response.body}');
+      }
+    } catch (e) {
+      return Result(error: 'Error fetching balance: $e');
+    }
+  }
 }

@@ -41,6 +41,14 @@ final updateUserProvider = FutureProvider.autoDispose.family<void, String>((ref,
   await ref.read(coinosLnProvider.notifier).updateUser(username);
 });
 
+final shouldMigrateProvider = FutureProvider.autoDispose<bool>((ref) async {
+  return await ref.read(coinosLnProvider.notifier).shouldMigrateUsernameAndPassword();
+});
+
+final migrateUsernameAndPasswordProvider = FutureProvider.autoDispose<void>((ref) async {
+  await ref.read(coinosLnProvider.notifier).migrateUsernameAndPassword();
+});
+
 final createInvoiceProvider = FutureProvider.autoDispose<String>((ref) async {
   final amount = ref.watch(inputAmountProvider);
   final currency = ref.watch(inputCurrencyProvider);
@@ -80,10 +88,10 @@ final sendCoinosLiquidProvider = FutureProvider.autoDispose<void>((ref) async {
 });
 
 final coinosBalanceProvider = FutureProvider<int>((ref) async {
-  return await ref.refresh(getTransactionsProvider.future).then((value) => value?['balance'] ?? 0);
+  return await ref.read(coinosLnProvider.notifier).getBalance();
 });
 
-final getTransactionsProvider = FutureProvider.autoDispose<Map<String, dynamic>?>((ref) async {
+final getTransactionsProvider = FutureProvider.autoDispose<List<CoinosPayment>>((ref) async {
   final response = await ref.read(coinosLnProvider.notifier).getTransactions();
 
   return response;
@@ -92,7 +100,7 @@ final getTransactionsProvider = FutureProvider.autoDispose<Map<String, dynamic>?
 final getPaymentsProvider = FutureProvider.autoDispose<List<CoinosPayment>>((ref) async {
   final response = await ref.read(coinosLnProvider.notifier).getTransactions();
 
-  return response!['payments'] as List<CoinosPayment>;
+  return response;
 });
 
 final lnurlProvider = StateProvider.autoDispose<String>((ref) {

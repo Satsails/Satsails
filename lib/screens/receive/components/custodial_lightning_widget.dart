@@ -28,14 +28,15 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
   String invoice = '';
   bool showLightningWidget = false;
   bool isLoading = false;
-  late Future<void> usernameCheckFuture;
+  late Future<void> initializationFuture;
+
   String? lastProcessedPaymentId;
 
   @override
   void initState() {
     super.initState();
     controller = TextEditingController();
-    usernameCheckFuture = _checkForUsername();
+    initializationFuture = _initialize();
   }
 
   @override
@@ -44,10 +45,22 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     super.dispose();
   }
 
+  Future<void> _initialize() async {
+    await _checkForUsername();
+    await _checkForMigration();
+  }
+
   Future<void> _checkForUsername() async {
     final lnurl = await ref.read(initialCoinosProvider.future).then((value) => value.username);
-    if (lnurl == "") {
+    if (lnurl.isEmpty) {
       _showUsernameModal();
+    }
+  }
+
+  Future<void> _checkForMigration() async {
+    final shouldMigrate = await ref.read(shouldMigrateProvider.future);
+    if (shouldMigrate) {
+      _showMigrationModal(context);
     }
   }
 
@@ -148,6 +161,123 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
       },
     );
   }
+
+  void _showMigrationModal(BuildContext context) {
+    final shouldMigrate = ref.watch(shouldMigrateProvider);
+
+    shouldMigrate.when(
+      data: (shouldMigrate) {
+        if (shouldMigrate) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(20.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Migrate Username and Password'.i18n(ref),
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12.0),
+                      Text(
+                        'To improve security and ensure you wont lose access to your funds, we recommend migrating your username and password to a new format'.i18n(ref),
+                        style: TextStyle(fontSize: 16, color: Colors.black54),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.grey.shade200,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                            ),
+                            child: Text(
+                              'Cancel'.i18n(ref),
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontSize: 16,
+                              ),
+                            ),
+                            onPressed: () {
+                              context.pop();
+                            },
+                          ),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                            ),
+                            child: Text(
+                              'Migrate'.i18n(ref),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                            onPressed: () async {
+                              try {
+                                await ref.read(migrateUsernameAndPasswordProvider.future);
+                                Fluttertoast.showToast(
+                                  msg: 'Migration completed successfully!'.i18n(ref),
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.BOTTOM,
+                                );
+                                context.pop();
+                              } catch (e) {
+                                Fluttertoast.showToast(
+                                  msg: 'Migration failed: $e'.i18n(ref),
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.BOTTOM,
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        }
+      },
+      loading: () {
+        // Handle loading state if necessary
+      },
+      error: (error, stackTrace) {
+        Fluttertoast.showToast(
+          msg: 'Error checking migration status: $error'.i18n(ref),
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+        );
+      },
+    );
+  }
+
 
   void _onCreateAddress() async {
     setState(() {
@@ -343,7 +473,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     );
 
     return FutureBuilder<void>(
-      future: usernameCheckFuture,
+      future: initializationFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
