@@ -2,11 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
-import 'package:Satsails/providers/settings_provider.dart';
 
 final initializeBalanceProvider = FutureProvider<WalletBalance>((ref) async {
-  ref.watch(settingsProvider).online;
-  await ref.read(backgroundSyncNotifierProvider.future);
   await ref.read(updateCurrencyProvider.future);
   return await ref.read(backgroundSyncNotifierProvider.notifier).performSync();
 });

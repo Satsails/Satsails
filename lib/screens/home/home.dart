@@ -115,10 +115,8 @@ class Home extends ConsumerWidget {
   PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {
     final settings = ref.read(settingsProvider);
     final screenWidth = MediaQuery.of(context).size.width;
-    final settingsNotifier = ref.read(settingsProvider.notifier);
 
     void toggleOnlineStatus() {
-      settingsNotifier.setOnline(true);
       ref.read(backgroundSyncNotifierProvider.notifier).performSync();
     }
 

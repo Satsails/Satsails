@@ -62,6 +62,65 @@ class BalanceNotifier extends StateNotifier<WalletBalance> {
       lightningBalance: newLightningBalance,
     );
   }
+
+  void updateBalance(WalletBalance newBalance) {
+    state = newBalance;
+  }
+
+  void updateBtcBalance(int newBtcBalance) {
+    state = WalletBalance(
+      btcBalance: newBtcBalance,
+      liquidBalance: state.liquidBalance,
+      usdBalance: state.usdBalance,
+      eurBalance: state.eurBalance,
+      brlBalance: state.brlBalance,
+      lightningBalance: state.lightningBalance,
+    );
+  }
+
+  void updateLiquidBalance(int newLiquidBalance) {
+    state = WalletBalance(
+      btcBalance: state.btcBalance,
+      liquidBalance: newLiquidBalance,
+      usdBalance: state.usdBalance,
+      eurBalance: state.eurBalance,
+      brlBalance: state.brlBalance,
+      lightningBalance: state.lightningBalance,
+    );
+  }
+
+  void updateUsdBalance(int newUsdBalance) {
+    state = WalletBalance(
+      btcBalance: state.btcBalance,
+      liquidBalance: state.liquidBalance,
+      usdBalance: newUsdBalance,
+      eurBalance: state.eurBalance,
+      brlBalance: state.brlBalance,
+      lightningBalance: state.lightningBalance,
+    );
+  }
+
+  void updateEurBalance(int newEurBalance) {
+    state = WalletBalance(
+      btcBalance: state.btcBalance,
+      liquidBalance: state.liquidBalance,
+      usdBalance: state.usdBalance,
+      eurBalance: newEurBalance,
+      brlBalance: state.brlBalance,
+      lightningBalance: state.lightningBalance,
+    );
+  }
+
+  void updateBrlBalance(int newBrlBalance) {
+    state = WalletBalance(
+      btcBalance: state.btcBalance,
+      liquidBalance: state.liquidBalance,
+      usdBalance: state.usdBalance,
+      eurBalance: state.eurBalance,
+      brlBalance: newBrlBalance,
+      lightningBalance: state.lightningBalance,
+    );
+  }
 }
 
 @HiveType(typeId: 26)
