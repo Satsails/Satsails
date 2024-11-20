@@ -33,7 +33,6 @@ import 'package:Satsails/screens/charge/components/pix.dart';
 import 'package:Satsails/screens/settings/components/backup_wallet.dart';
 import 'package:lwk_dart/lwk_dart.dart';
 
-import 'screens/analytics/components/boltz_transaction_details_screen.dart';
 
 
 class AppRouter {
@@ -54,25 +53,6 @@ class AppRouter {
             return TransactionDetailsScreen(transaction: transaction);
           },
         ),
-        GoRoute(
-          path: '/boltz_transaction_details',
-          builder: (context, state) {
-            final data = state.extra as Map<String, dynamic>;
-            final isBitcoin = data['isBitcoin'] as bool;
-            final transaction = data['transaction'];
-
-            if (isBitcoin) {
-              return BtcTransactionDetailsScreen(
-                transaction: transaction as BtcBoltz,
-              );
-            } else {
-              return LbtcTransactionDetailsScreen(
-                transaction: transaction as LbtcBoltz,
-              );
-            }
-          },
-        ),
-
         GoRoute(
           path: '/liquid-transaction-details',
           name: 'liquidTransactionDetails',
