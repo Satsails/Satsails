@@ -9,7 +9,6 @@ import 'package:go_router/go_router.dart';
 import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
 import 'package:Satsails/screens/charge/components/pix_transaction_details.dart';
 import 'package:Satsails/screens/home/main_screen.dart';
-import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
 import 'package:Satsails/screens/settings/components/support.dart';
 import 'package:Satsails/screens/user/start_affiliate.dart';
 import 'package:Satsails/screens/user/user_creation.dart';
@@ -117,7 +116,6 @@ class AppRouter {
           name: 'set_pin',
           builder: (context, state) => const SetPin(),
         ),
-
         GoRoute(
           path: '/apps',
           name: 'apps',
@@ -139,10 +137,6 @@ class AppRouter {
                 GoRoute(
                   path: '/confirm_liquid_payment',
                   builder: (context, state) => ConfirmLiquidPayment(),
-                ),
-                GoRoute(
-                  path: '/confirm_lightning_payment',
-                  builder: (context, state) => ConfirmLightningPayment(),
                 ),
                 GoRoute(
                   path: '/confirm_custodial_lightning_payment',

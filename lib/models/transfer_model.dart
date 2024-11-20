@@ -154,7 +154,7 @@ class TransferService {
       if (response.statusCode == 201) {
         return Result(data: Transfer.fromMultipleJson(jsonDecode(response.body)));
       } else {
-        return Result(error: 'Please wait a few minutes and try again');
+        return Result(error: response.body);
       }
     } catch (e) {
       return Result(

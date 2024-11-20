@@ -5,7 +5,7 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/validations/address_validation.dart';
 
 final addressAndAmountProvider = FutureProvider.autoDispose.family<AddressAndAmount, String>((ref, address) async {
-  return parseAddressAndAmount(address);
+  return parseAddressAndAmount(address, ref.read(coinosLnProvider).token.isNotEmpty);
 });
 
 final setAddressAndAmountProvider = FutureProvider.autoDispose.family<AddressAndAmount, String>((ref, address) async {
@@ -30,7 +30,7 @@ final setAddressAndAmountProvider = FutureProvider.autoDispose.family<AddressAnd
         throw 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported.';
       }
     } else {
-      throw 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported.';
+      throw 'Invalid address, only Bitcoin, Liquid addresses are supported. Activate Lightning to pay lightning invoices.';
     }
   }
 });

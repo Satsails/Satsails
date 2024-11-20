@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/models/auth_model.dart';
-import 'package:Satsails/models/liquid_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;

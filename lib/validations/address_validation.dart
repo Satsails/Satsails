@@ -125,7 +125,7 @@ Future<DecodedInvoice> isValidLightningAddress(String invoice) async {
 }
 
 
-Future<AddressAndAmount> parseAddressAndAmount(String data) async {
+Future<AddressAndAmount> parseAddressAndAmount(String data, bool lnEnabled) async {
   if (data.isEmpty) {
     throw const FormatException('Data cannot be null or empty');
   }
@@ -146,9 +146,18 @@ Future<AddressAndAmount> parseAddressAndAmount(String data) async {
   if(address.startsWith('liquidnetwork:')) {
     address = address.substring(14);
   }
-
-  if ((await isValidBitcoinAddress(address).then((value) => !value)) && (await isValidLiquidAddress(address).then((value) => !value)) && (await isValidLightningAddress(lightningInvoice).then((value) => false))) {
-    throw const FormatException('Invalid address');
+  if (lnEnabled) {
+    if ((await isValidBitcoinAddress(address).then((value) => !value)) &&
+        (await isValidLiquidAddress(address).then((value) => !value)) &&
+        (await isValidLightningAddress(lightningInvoice).then((
+            value) => false))) {
+      throw const FormatException('Invalid address');
+    }
+  } else {
+    if ((await isValidBitcoinAddress(address).then((value) => !value)) &&
+        (await isValidLiquidAddress(address).then((value) => !value))) {
+      throw const FormatException('Invalid address');
+    }
   }
 
   if (parts.length > 1) {

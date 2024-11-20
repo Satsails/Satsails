@@ -108,10 +108,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
 
       case PaymentType.Lightning:
         _controller = null;
-        final hasCustodialLn = ref.read(coinosLnProvider).token.isNotEmpty;
-          hasCustodialLn
-              ? context.pushReplacement('/home/pay/confirm_custodial_lightning_payment')
-              : context.pushReplacement('/home/pay/confirm_lightning_payment');
+        context.pushReplacement('/home/pay/confirm_custodial_lightning_payment');
         break;
 
       case PaymentType.Liquid:

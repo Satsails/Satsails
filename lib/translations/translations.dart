@@ -635,7 +635,12 @@ extension Localization on String {
       {
         'en': 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported.',
         'pt': 'Endereço inválido, apenas enderecos Bitcoin, Liquid e lightning são suportados.',
-      } +
+      }+
+      {
+        'en': 'Invalid address, only Bitcoin, Liquid addresses are supported. Activate Lightning to pay lightning invoices.',
+        'pt': 'Endereço inválido, apenas enderecos Bitcoin, Liquid são suportados. Ative o Lightning para pagar faturas lightning.',
+      }
+      +
       {
         'en': 'Address copied to clipboard',
         'pt': 'Endereço copiado para a área de transferência',
@@ -1803,8 +1808,8 @@ extension Localization on String {
         'pt': 'Registrar para Lightning Custodial'
       } +
       {
-        'en': 'A username and password will be derived from your private key. This will be used to access your custodial Lightning wallet.',
-        'pt': 'Um nome de usuário e senha serão derivados de sua chave privada. Isso será usado para acessar sua carteira Lightning custodial.'
+        'en': 'A username and password will be derived from your private key. This will be used to access your custodial Lightning wallet. Your funds will be custodied by coinos.',
+        'pt': 'Um nome de usuário e senha serão derivados de sua chave privada. Isso será usado para acessar sua carteira Lightning custodial. Seus fundos serão custodiados pela coinos.'
       } +
       {
         'en': 'Register',
@@ -1905,8 +1910,23 @@ extension Localization on String {
       {
         'en': 'Confirm your 6-digit PIN',
         'pt': 'Confirme seu PIN de 6 dígitos'
+      } +
+      {
+        'en': 'Your CPF is new and you can only do a max of 500',
+        'pt': 'Seu CPF é novo e você só pode fazer um máximo de 500'
+      } +
+      {
+        'en': 'Your CPF is new and you can only do a max of 1000',
+        'pt': 'Seu CPF é novo e você só pode fazer um máximo de 1000'
+      } +
+      {
+        'en': 'Your CPF is new and you can only do a max of 2000',
+        'pt': 'Seu CPF é novo e você só pode fazer um máximo de 2000'
+      } +
+      {
+        'en': 'Create Lightning Wallet',
+        'pt': 'Criar Carteira Lightning'
       };
-
 
 
   String i18n(WidgetRef ref) {
