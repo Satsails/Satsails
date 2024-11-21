@@ -10,9 +10,7 @@ import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
 import 'package:Satsails/screens/charge/components/pix_transaction_details.dart';
 import 'package:Satsails/screens/home/main_screen.dart';
 import 'package:Satsails/screens/settings/components/support.dart';
-import 'package:Satsails/screens/user/start_affiliate.dart';
 import 'package:Satsails/screens/user/user_creation.dart';
-import 'package:Satsails/screens/user/user_view.dart';
 import 'package:Satsails/screens/creation/start.dart';
 import 'package:Satsails/screens/pay/components/confirm_liquid_payment.dart';
 import 'package:Satsails/screens/settings/components/seed_words.dart';
@@ -143,12 +141,6 @@ class AppRouter {
             GoRoute(
               path: 'settings',
               builder: (context, state) => const Settings(),
-              routes: [
-                GoRoute(
-                  path: 'user_view',
-                  builder: (context, state) => const UserView(),
-                ),
-              ],
             )
           ],
         ),
@@ -172,11 +164,6 @@ class AppRouter {
           path: '/pix_onboarding',
           name: 'pix_onboarding',
           builder: (context, state) => const PixOnBoarding(),
-        ),
-        GoRoute(
-          path: '/start_affiliate',
-          name: 'start_affiliate',
-          builder: (context, state) => const StartAffiliate(),
         ),
         GoRoute(
           path: '/pix_transaction_details',

@@ -36,7 +36,6 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
   final double _dailyLimit = 5000.0;
   double _remainingLimit = 5000.0;
   bool _isLoading = false;
-  String _feeDescription = 'Fee: 2% + 2.97 BRL';
   Timer? _timer;
   Duration _timeLeft = const Duration(minutes: 4);
   double _minimumPayment = 250.0;
@@ -100,38 +99,28 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
         gravity: ToastGravity.TOP,
         backgroundColor: Colors.red,
         textColor: Colors.white,
+        timeInSecForIosWeb: 3,
       );
     }
   }
 
-  double calculateFee(
+  void calculateFee(
       double amountInDouble,
       bool hasInsertedAffiliateCode,
       bool hasCreatedAffiliate,
-      int numberOfAffiliateInstalls,
       ) {
     if (hasInsertedAffiliateCode) {
-      return amountInDouble * 0.015 + 2.97;
+      setState(() {
+        _amountToReceive = amountInDouble * 0.015 + 2.97;
+      });
     } else if (hasCreatedAffiliate) {
-      if (numberOfAffiliateInstalls > 1) {
-        return amountInDouble * 0.015 + 2.97;
-      } else {
-        return amountInDouble * 0.02 + 2.97;
-      }
+      setState(() {
+        _amountToReceive = amountInDouble * 0.02 + 2.97;
+      });
     } else {
-      return amountInDouble * 0.02 + 2.97;
-    }
-  }
-
-  String getFeeDescription(
-      bool hasInsertedAffiliateCode,
-      bool hasCreatedAffiliate,
-      int numberOfAffiliateInstalls,
-      ) {
-    if (hasInsertedAffiliateCode || (hasCreatedAffiliate && numberOfAffiliateInstalls > 1)) {
-      return 'Fee: 1.5% + 2,98 BRL (Affiliate Discount)';
-    } else {
-      return 'Fee: 2% + 2,98 BRL (No Affiliate Discount)';
+      setState(() {
+        _amountToReceive = amountInDouble * 0.02 + 2.97;
+      });
     }
   }
 
@@ -315,19 +304,6 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                     ),
                   ),
 
-                  // Display transferred amount today
-                  Padding(
-                    padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
-                    child: Text(
-                      '${'Transferred Today:'.i18n(ref)} ${transferredAmount.toStringAsFixed(2)} BRL',
-                      style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.height * 0.015,
-                        color: Colors.green,
-                      ),
-                    ),
-                  ),
-
-                  // Amount input field
                   Padding(
                     padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
                     child: TextField(
@@ -354,6 +330,13 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
                           color: Colors.grey,
                         ),
                       ),
+                      onChanged: (value) {
+                        calculateFee(
+                          double.tryParse(value.replaceAll(',', '.')) ?? 0.0,
+                          ref.read(userProvider).hasInsertedAffiliate,
+                          ref.read(userProvider).hasCreatedAffiliate,
+                        );
+                      },
                     ),
                   ),
 
@@ -413,25 +396,11 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
                   // QR code and transaction details
                   if (_amountToReceive > 0 && _pixQRCode.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          Text(
-                            '${'You will receive: '.i18n(ref)}${currencyFormat(_amountToReceive, 'BRL')}',
-                            style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.height * 0.015,
-                              color: Colors.green,
-                            ),
-                          ),
-                          Text(
-                            _feeDescription.i18n(ref),
-                            style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.height * 0.015,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
+                    Text(
+                      '${'You will pay in fees'.i18n(ref)} ${currencyFormat(_amountToReceive, 'BRL')}',
+                      style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height * 0.015,
+                        color: Colors.green,
                       ),
                     ),
 

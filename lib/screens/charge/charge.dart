@@ -8,7 +8,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 // Loading state provider
 final isLoadingProvider = StateProvider<bool>((ref) => false);
-final onBoardingInProgressProvider = StateProvider<bool>((ref) => false);
 
 class Charge extends ConsumerWidget {
   const Charge({super.key});
@@ -67,7 +66,6 @@ class Charge extends ConsumerWidget {
     ref.read(isLoadingProvider.notifier).state = true;
 
     if (paymentId.isEmpty) {
-      ref.read(onBoardingInProgressProvider.notifier).state = true;
       context.push('/user_creation');
       // Stop loading
       ref.read(isLoadingProvider.notifier).state = false;

@@ -16,7 +16,7 @@ class UserCreation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = TextEditingController();
-    final isLoading = ref.watch(loadingProvider); // Watch the loading provider
+    final isLoading = ref.watch(loadingProvider);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -76,12 +76,7 @@ class UserCreation extends ConsumerWidget {
                         fontSize: 16.0,
                       );
                       ref.read(loadingProvider.notifier).state = false;
-                      if (ref.watch(onBoardingInProgressProvider.notifier).state) {
-                        ref.read(onBoardingInProgressProvider.notifier).state = false;
-                        context.go('/pix_onboarding');
-                      } else {
-                        context.go('/home/settings/user_view');
-                      }
+                      context.go('/pix_onboarding');
                     } catch (e) {
                       ref.read(loadingProvider.notifier).state = false;
                       Fluttertoast.showToast(
@@ -97,9 +92,9 @@ class UserCreation extends ConsumerWidget {
                   },
                 ),
                 const SizedBox(height: 20),
-                CustomElevatedButton(
-                  text: 'Recover Account'.i18n(ref),
-                  onPressed: () {
+                // De-emphasized Recover Account section
+                GestureDetector(
+                  onTap: () {
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
@@ -121,8 +116,8 @@ class UserCreation extends ConsumerWidget {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                               Text(
-                                'Recover Account'.i18n(ref),
+                              Text(
+                                'Recover your legacy account'.i18n(ref),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -156,7 +151,7 @@ class UserCreation extends ConsumerWidget {
                                       await ref.read(userProvider.notifier).setRecoveryCode(controller.text);
                                       await ref.read(setUserProvider.future);
                                       ref.read(loadingProvider.notifier).state = false;
-                                      context.go('/home/settings/user_view');
+                                      context.go('/pix_onboarding');
                                       Fluttertoast.showToast(
                                         msg: 'Account recovered successfully!'.i18n(ref),
                                         toastLength: Toast.LENGTH_LONG,
@@ -188,10 +183,14 @@ class UserCreation extends ConsumerWidget {
                       },
                     );
                   },
+                  child: Text(
+                    'Legacy: Recover Account'.i18n(ref),
+                    style: const TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
                 ),
               ],
             ),
-            if (isLoading) // Show CircularProgressIndicator when loading is true
+            if (isLoading)
               SafeArea(
                 child: Align(
                   alignment: Alignment.topCenter,

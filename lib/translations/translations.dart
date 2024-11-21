@@ -1926,8 +1926,11 @@ extension Localization on String {
       {
         'en': 'Create Lightning Wallet',
         'pt': 'Criar Carteira Lightning'
+      } +
+      {
+        'en': 'Some metadata from your wallet is collected to generate an unique identifer so that we can process the payments',
+        'pt': 'Alguns metadados de sua carteira são coletados para gerar um identificador único para que possamos processar os pagamentos'
       };
-
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;

@@ -119,18 +119,6 @@ final setUserProvider = FutureProvider.autoDispose<void>((ref) async {
   }
 });
 
-final updateUserDataProvider = FutureProvider.autoDispose<void>((ref) async {
-  final auth = ref.read(userProvider).recoveryCode;
-  final result = await UserService.showUser(auth);
-
-  if (result.isSuccess && result.data != null) {
-    await ref.read(affiliateProvider.notifier).setCreatedAffiliateCode(result.data!.createdAffiliateCode ?? '');
-    await ref.read(affiliateProvider.notifier).setInsertedAffiliateCode(result.data!.insertedAffiliateCode ?? '');
-  } else {
-    throw result.error!;
-  }
-});
-
 final getLiquidAddressIndexProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final auth = ref.read(userProvider).recoveryCode;
   final result = await UserService.getLiquidAddressIndex(auth);
@@ -152,19 +140,19 @@ final checkIfAccountBelongsToSetPrivateKeyProvider = FutureProvider.autoDispose<
   }
 });
 
-final deleteUserDataProvider = FutureProvider.autoDispose<void>((ref) async {
-  final auth = ref.read(userProvider).recoveryCode;
-  final result = await UserService.deleteUser(auth);
-
-  if (result.isSuccess) {
-    await ref.read(userProvider.notifier).setPaymentId('');
-    await ref.read(userProvider.notifier).setRecoveryCode('');
-    await ref.read(userProvider.notifier).setDepixLiquidAddress('');
-    await ref.read(affiliateProvider.notifier).setCreatedAffiliateCode('');
-    await ref.read(affiliateProvider.notifier).setInsertedAffiliateCode('');
-    await ref.read(userProvider.notifier).setHasCreatedAffiliate(false);
-    await ref.read(userProvider.notifier).setHasInsertedAffiliate(false);
-  } else {
-    throw result.error!;
-  }
-});
+// final deleteUserDataProvider = FutureProvider.autoDispose<void>((ref) async {
+//   final auth = ref.read(userProvider).recoveryCode;
+//   final result = await UserService.deleteUser(auth);
+//
+//   if (result.isSuccess) {
+//     await ref.read(userProvider.notifier).setPaymentId('');
+//     await ref.read(userProvider.notifier).setRecoveryCode('');
+//     await ref.read(userProvider.notifier).setDepixLiquidAddress('');
+//     await ref.read(affiliateProvider.notifier).setCreatedAffiliateCode('');
+//     await ref.read(affiliateProvider.notifier).setInsertedAffiliateCode('');
+//     await ref.read(userProvider.notifier).setHasCreatedAffiliate(false);
+//     await ref.read(userProvider.notifier).setHasInsertedAffiliate(false);
+//   } else {
+//     throw result.error!;
+//   }
+// });

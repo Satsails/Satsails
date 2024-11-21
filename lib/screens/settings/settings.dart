@@ -1,10 +1,13 @@
+import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
+import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/screens/shared/delete_wallet_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -14,7 +17,6 @@ class Settings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final paymentId = ref.watch(userProvider).paymentId;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -40,7 +42,9 @@ class Settings extends ConsumerWidget {
             _buildDivider(),
             _buildElectrumNodeSection(context, ref),
             _buildDivider(),
-            _buildUserSection(context, ref, paymentId),
+            _buildAffiliateSection(context, ref),
+            _buildDivider(),
+            _buildCreatedAffiliateSection(context, ref),
             _buildDivider(),
             DeleteWalletSection(ref: ref),
           ],
@@ -88,21 +92,6 @@ class Settings extends ConsumerWidget {
             );
           },
         );
-      },
-    );
-  }
-
-  Widget _buildUserSection(BuildContext context, WidgetRef ref, String paymentId) {
-    return ListTile(
-      leading: const Icon(Icons.supervised_user_circle_sharp, color: Colors.white),
-      title: Text('User Section'.i18n(ref), style: const TextStyle(color: Colors.white)),
-      subtitle: Text('Manage your anonymous account'.i18n(ref), style: const TextStyle(color: Colors.grey)),
-      onTap: () {
-        if (paymentId == '') {
-          context.push('/user_creation');
-        } else {
-          context.push('/home/settings/user_view');
-        }
       },
     );
   }
@@ -156,6 +145,122 @@ class Settings extends ConsumerWidget {
           },
         );
       },
+    );
+  }
+
+  Widget _buildAffiliateSection(BuildContext context, WidgetRef ref) {
+    final hasInsertedAffiliate = ref.watch(userProvider).hasInsertedAffiliate;
+    final affiliateCode = ref.watch(affiliateProvider).insertedAffiliateCode;
+    final hasNotCreatedUser = ref.watch(userProvider).recoveryCode.isEmpty;
+
+    if (hasNotCreatedUser) {
+      return SizedBox.shrink();
+    }
+
+    return ListTile(
+      leading: const Icon(Icons.account_circle_sharp, color: Colors.white),
+      title: Text('Affiliate Section'.i18n(ref), style: const TextStyle(color: Colors.white)),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (hasInsertedAffiliate)
+            Text('Inserted Code: $affiliateCode', style: const TextStyle(color: Colors.grey))
+          else
+            GestureDetector(
+              onTap: () => _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref),
+              child: Text(
+                'Insert an affiliate code to get a discount'.i18n(ref),
+                style: const TextStyle(color: Colors.orange, decoration: TextDecoration.underline),
+              ),
+            ),
+        ],
+      ),
+      onTap: () {
+        if (!hasInsertedAffiliate) {
+          _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref);
+        }
+      },
+    );
+  }
+
+  void _showInsertAffiliateModal(BuildContext context, String title, WidgetRef ref) {
+    final TextEditingController controller = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.black,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              top: 16.0,
+              left: 16.0,
+              right: 16.0,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: controller,
+                  decoration: InputDecoration(
+                    labelText: 'Affiliate Code'.i18n(ref),
+                    labelStyle: TextStyle(color: Colors.white),
+                    border: OutlineInputBorder(),
+                    fillColor: Colors.black,
+                    filled: true,
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange),
+                    ),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: 20),
+                CustomElevatedButton(
+                  text: 'Insert',
+                  onPressed: () async {
+                    final affiliateCode = controller.text;
+                    if (affiliateCode.isNotEmpty) {
+                      try {
+                        await ref.read(addAffiliateCodeProvider(affiliateCode).future);
+                        Fluttertoast.showToast(msg: 'Affiliate code inserted successfully'.i18n(ref));
+                        context.pop();
+                      } catch (e) {
+                        Fluttertoast.showToast(msg: 'Error inserting affiliate code'.i18n(ref));
+                      }
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCreatedAffiliateSection(BuildContext context, WidgetRef ref) {
+    final hasCreatedAffiliate = ref.watch(userProvider).hasCreatedAffiliate;
+    final createdAffiliateCode = ref.watch(affiliateProvider).createdAffiliateCode;
+    final hasNotCreatedUser = ref.watch(userProvider).recoveryCode.isEmpty;
+
+    if (!hasCreatedAffiliate || hasNotCreatedUser) {
+      return SizedBox.shrink();
+    }
+
+    return ListTile(
+      leading: const Icon(Icons.monetization_on, color: Colors.white),
+      title: Text('Your affiliate code'.i18n(ref), style: const TextStyle(color: Colors.white)),
+      subtitle: Text('Created Code:'.i18n(ref) + ' $createdAffiliateCode', style: const TextStyle(color: Colors.grey)),
     );
   }
 
