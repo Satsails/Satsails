@@ -1,3 +1,4 @@
+import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/affiliate_provider.dart';
@@ -48,7 +49,9 @@ final userProvider = StateNotifierProvider<UserModel, User>((ref) {
 
 final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
   final liquidAddress = await ref.read(liquidAddressProvider.future);
-  final result = await UserService.createUserRequest(liquidAddress.confidential, liquidAddress.index);
+  final auth = await AuthModel().getBackendPassword();
+  ref.read(userProvider.notifier).setRecoveryCode(auth!);
+  final result = await UserService.createUserRequest(liquidAddress.confidential, liquidAddress.index, auth!);
 
   if (result.isSuccess && result.data != null) {
     final user = result.data!;
@@ -56,7 +59,7 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
     await ref.read(userProvider.notifier).setRecoveryCode(user.recoveryCode);
     await ref.read(userProvider.notifier).setDepixLiquidAddress(user.depixLiquidAddress);
   } else {
-    throw result.error!;
+    await ref.read(setUserProvider.future);
   }
 });
 
@@ -115,6 +118,7 @@ final setUserProvider = FutureProvider.autoDispose<void>((ref) async {
     await ref.read(userProvider.notifier).setHasCreatedAffiliate(user.hasCreatedAffiliate);
     await ref.read(userProvider.notifier).setHasInsertedAffiliate(user.hasInsertedAffiliate);
   } else {
+    await ref.read(userProvider.notifier).setRecoveryCode('');
     throw userResult.error!;
   }
 });

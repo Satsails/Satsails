@@ -112,7 +112,7 @@ class User {
 }
 
 class UserService {
-  static Future<Result<User>> createUserRequest(String liquidAddress, int liquidAddressIndex) async {
+  static Future<Result<User>> createUserRequest(String liquidAddress, int liquidAddressIndex, String auth) async {
     try {
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users'),
@@ -120,6 +120,7 @@ class UserService {
           'user': {
             'liquid_address': liquidAddress,
             'liquid_address_index': liquidAddressIndex,
+            'authentication_token': auth,
           }
         }),
         headers: {
