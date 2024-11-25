@@ -1,67 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-	<dict>
-		<key>CADisableMinimumFrameDurationOnPhone</key>
-		<true/>
-		<key>CFBundleDevelopmentRegion</key>
-		<string>$(DEVELOPMENT_LANGUAGE)</string>
-		<key>CFBundleDisplayName</key>
-		<string>Satsails</string>
-		<key>CFBundleExecutable</key>
-		<string>$(EXECUTABLE_NAME)</string>
-		<key>CFBundleIdentifier</key>
-		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-		<key>CFBundleInfoDictionaryVersion</key>
-		<string>6.0</string>
-		<key>CFBundleName</key>
-		<string>Satsails</string>
-		<key>CFBundlePackageType</key>
-		<string>APPL</string>
-		<key>CFBundleShortVersionString</key>
-		<string>$(FLUTTER_BUILD_NAME)</string>
-		<key>CFBundleSignature</key>
-		<string>????</string>
-		<key>CFBundleVersion</key>
-		<string>$(FLUTTER_BUILD_NUMBER)</string>
-		<key>LSApplicationQueriesSchemes</key>
-		<array>
-			<string>sms</string>
-			<string>tel</string>
-		</array>
-		<key>LSRequiresIPhoneOS</key>
-		<true/>
-		<key>NSCameraUsageDescription</key>
-		<string>Access to send live photos to our support</string>
-		<key>NSFaceIDUsageDescription</key>
-		<string>Allow face ID to unlock Satsails</string>
-		<key>NSMicrophoneUsageDescription</key>
-		<string>Access to send audio messages to our support</string>
-		<key>NSPhotoLibraryAddUsageDescription</key>
-		<string>Access to send photos to our support and scan QR codes</string>
-		<key>UIApplicationSupportsIndirectInputEvents</key>
-		<true/>
-		<key>UIBackgroundModes</key>
-		<array>
-			<string>fetch</string>
-			<string>remote-notification</string>
-		</array>
-		<key>UILaunchStoryboardName</key>
-		<string>LaunchScreen</string>
-		<key>UIMainStoryboardFile</key>
-		<string>Main</string>
-		<key>UIStatusBarHidden</key>
-		<false/>
-		<key>UISupportedInterfaceOrientations</key>
-		<array>
-			<string>UIInterfaceOrientationPortrait</string>
-		</array>
-		<key>UISupportedInterfaceOrientations~ipad</key>
-		<array>
-			<string>UIInterfaceOrientationLandscapeRight</string>
-			<string>UIInterfaceOrientationPortrait</string>
-		</array>
-		<key>io.flutter.embedded_views_preview</key>
-		<true/>
-	</dict>
+    <dict>
+        <key>branch_universal_link_domains</key>
+        <array>
+            <string>1zl8l.app.link</string>
+            <string>1zl8l-alternate.app.link</string>
+        </array>
+
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>satsails</string>
+        </array>
+
+        <key>CFBundleURLName</key>
+        <string>com.satsailswallet.satsails</string>
+
+        <key>branch_key</key>
+        <dict>
+            <key>live</key>
+            <string>key_live_mDl7ypAf3rPwbm6ShWPcbaalCqlAF8LM</string>
+        </dict>
+
+        <key>CADisableMinimumFrameDurationOnPhone</key>
+        <true/>
+
+        <key>CFBundleDevelopmentRegion</key>
+        <string>$(DEVELOPMENT_LANGUAGE)</string>
+
+        <key>CFBundleDisplayName</key>
+        <string>Satsails</string>
+
+        <key>CFBundleExecutable</key>
+        <string>$(EXECUTABLE_NAME)</string>
+
+        <key>CFBundleIdentifier</key>
+        <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+
+        <key>CFBundleInfoDictionaryVersion</key>
+        <string>6.0</string>
+
+        <key>CFBundleName</key>
+        <string>Satsails</string>
+
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+
+        <key>CFBundleShortVersionString</key>
+        <string>$(FLUTTER_BUILD_NAME)</string>
+
+        <key>CFBundleSignature</key>
+        <string>????</string>
+
+        <key>CFBundleVersion</key>
+        <string>$(FLUTTER_BUILD_NUMBER)</string>
+
+        <key>LSApplicationQueriesSchemes</key>
+        <array>
+            <string>sms</string>
+            <string>tel</string>
+        </array>
+
+        <key>LSRequiresIPhoneOS</key>
+        <true/>
+
+        <key>NSCameraUsageDescription</key>
+        <string>Access to send live photos to our support</string>
+
+        <key>NSFaceIDUsageDescription</key>
+        <string>Allow face ID to unlock Satsails</string>
+
+        <key>NSMicrophoneUsageDescription</key>
+        <string>Access to send audio messages to our support</string>
+
+        <key>NSPhotoLibraryAddUsageDescription</key>
+        <string>Access to send photos to our support and scan QR codes</string>
+
+        <key>UIApplicationSupportsIndirectInputEvents</key>
+        <true/>
+
+        <key>UIBackgroundModes</key>
+        <array>
+            <string>fetch</string>
+            <string>remote-notification</string>
+        </array>
+
+        <key>UILaunchStoryboardName</key>
+        <string>LaunchScreen</string>
+
+        <key>UIMainStoryboardFile</key>
+        <string>Main</string>
+
+        <key>UIStatusBarHidden</key>
+        <false/>
+
+        <key>UISupportedInterfaceOrientations</key>
+        <array>
+            <string>UIInterfaceOrientationPortrait</string>
+        </array>
+
+        <key>UISupportedInterfaceOrientations~ipad</key>
+        <array>
+            <string>UIInterfaceOrientationLandscapeRight</string>
+            <string>UIInterfaceOrientationPortrait</string>
+        </array>
+
+        <key>io.flutter.embedded_views_preview</key>
+        <true/>
+    </dict>
 </plist>

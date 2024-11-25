@@ -149,7 +149,6 @@ class Settings extends ConsumerWidget {
   }
 
   Widget _buildAffiliateSection(BuildContext context, WidgetRef ref) {
-    final hasInsertedAffiliate = ref.watch(userProvider).hasInsertedAffiliate;
     final affiliateCode = ref.watch(affiliateProvider).insertedAffiliateCode;
     final hasNotCreatedUser = ref.watch(userProvider).recoveryCode.isEmpty;
 
@@ -163,7 +162,7 @@ class Settings extends ConsumerWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (hasInsertedAffiliate)
+          if (affiliateCode.isNotEmpty)
             Text('Inserted Code: $affiliateCode', style: const TextStyle(color: Colors.grey))
           else
             GestureDetector(
@@ -176,7 +175,7 @@ class Settings extends ConsumerWidget {
         ],
       ),
       onTap: () {
-        if (!hasInsertedAffiliate) {
+        if (affiliateCode.isEmpty) {
           _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref);
         }
       },

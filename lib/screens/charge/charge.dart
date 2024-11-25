@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -62,7 +63,8 @@ class Charge extends ConsumerWidget {
   }
 
   Future<void> _handleOnPress(WidgetRef ref, BuildContext context, bool hasOnboarded, String paymentId) async {
-    // Start loading
+    final userHasInsertedAffiliate = ref.watch(userProvider).hasInsertedAffiliate;
+    final insertedAffiliateCode = ref.watch(affiliateProvider).insertedAffiliateCode;
     ref.read(isLoadingProvider.notifier).state = true;
 
     if (paymentId.isEmpty) {
@@ -88,6 +90,25 @@ class Charge extends ConsumerWidget {
         // Stop loading
         ref.read(isLoadingProvider.notifier).state = false;
         return;
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: e.toString().i18n(ref),
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 4,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      // Stop loading
+      ref.read(isLoadingProvider.notifier).state = false;
+      return;
+    }
+
+    try {
+      if (!userHasInsertedAffiliate && insertedAffiliateCode.isNotEmpty) {
+        await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
     } catch (e) {
       Fluttertoast.showToast(

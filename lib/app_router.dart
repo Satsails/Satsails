@@ -1,4 +1,3 @@
-import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/screens/creation/confirm_pin.dart';
 import 'package:Satsails/screens/login/seed_words_pin.dart';
 import 'package:Satsails/screens/pay/components/confirm_custodial_lightning_payment.dart';

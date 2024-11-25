@@ -34,9 +34,32 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <!-- If utilizing $deeplink_path please explicitly declare your hosts, or utilize a wildcard(*) -->
+                <!-- REPLACE `android:scheme` with your Android URI scheme -->
+                <data android:scheme="satsails" android:host="open" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- REPLACE `android:host` with your `app.link` domain -->
+                <data android:scheme="https" android:host="1zl8l.app.link" />
+                <!-- REPLACE `android:host` with your `-alternate` domain (required for proper functioning of App Links and Deepviews) -->
+                <data android:scheme="https" android:host="1zl8l-alternate.app.link" />
+            </intent-filter>
         </activity>
-        <!-- Don't delete the meta-data below.
-             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+
+        <meta-data android:name="io.branch.sdk.BranchKey" android:value="key_live_mDl7ypAf3rPwbm6ShWPcbaalCqlAF8LM" />
         <meta-data
                 android:name="flutterEmbedding"
                 android:value="2" />

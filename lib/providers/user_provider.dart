@@ -53,7 +53,14 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
   ref.read(userProvider.notifier).setRecoveryCode(auth!);
   final result = await UserService.createUserRequest(liquidAddress.confidential, liquidAddress.index, auth!);
 
+
+  // if has saved affiliate code passed from the link without an account created
   if (result.isSuccess && result.data != null) {
+    // add affilaite from link in case it was passed
+    final affiliateCodeFromLink = ref.read(affiliateProvider).insertedAffiliateCode;
+    if (affiliateCodeFromLink.isNotEmpty) {
+      await ref.read(addAffiliateCodeProvider(affiliateCodeFromLink).future);
+    }
     final user = result.data!;
     await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
     await ref.read(userProvider.notifier).setRecoveryCode(user.recoveryCode);
@@ -114,7 +121,13 @@ final setUserProvider = FutureProvider.autoDispose<void>((ref) async {
     await ref.read(userProvider.notifier).setDepixLiquidAddress(user.depixLiquidAddress);
     await ref.read(affiliateProvider.notifier).setCreatedAffiliateCode(user.createdAffiliateCode ?? '');
     await ref.read(affiliateProvider.notifier).setLiquidAddress(user.createdAffiliateLiquidAddress ?? '');
-    await ref.read(affiliateProvider.notifier).setInsertedAffiliateCode(user.insertedAffiliateCode ?? '');
+    // search for affiliate code from the link in this state to add if user already exists and add it
+    final affiliateCodeFromLink = ref.read(affiliateProvider).insertedAffiliateCode;
+    if (affiliateCodeFromLink.isNotEmpty) {
+      await ref.read(addAffiliateCodeProvider(affiliateCodeFromLink).future);
+    } else {
+      await ref.read(affiliateProvider.notifier).setInsertedAffiliateCode(user.insertedAffiliateCode ?? '');
+    }
     await ref.read(userProvider.notifier).setHasCreatedAffiliate(user.hasCreatedAffiliate);
     await ref.read(userProvider.notifier).setHasInsertedAffiliate(user.hasInsertedAffiliate);
   } else {
