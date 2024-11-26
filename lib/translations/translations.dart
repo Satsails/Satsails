@@ -1930,6 +1930,38 @@ extension Localization on String {
       {
         'en': 'Some metadata from your wallet is collected to generate an unique identifer so that we can process the payments',
         'pt': 'Alguns metadados de sua carteira são coletados para gerar um identificador único para que possamos processar os pagamentos'
+      } +
+      {
+        'en': 'You will pay in fees',
+        'pt': 'Você pagará em taxas'
+      } +
+      {
+        'en': 'Migrate Username and Password',
+        'pt': 'Migrar Nome de Usuário e Senha'
+      } +
+      {
+        'en': 'To improve security and ensure you wont lose access to your funds, we recommend migrating your username and password to a new format',
+        'pt': 'Para melhorar a segurança e garantir que você não perca o acesso aos seus fundos, recomendamos migrar seu nome de usuário e senha para um novo formato'
+      } +
+      {
+        'en': 'Migrate',
+        'pt': 'Migrar'
+      }+
+      {
+        'en': 'Migration completed successfully!',
+        'pt': 'Migração concluída com sucesso!'
+      }+
+      {
+        'en': 'Legacy: Recover Account',
+        'pt': 'Legado: Recuperar Conta'
+      }+
+      {
+        'en': 'Recover your legacy account',
+        'pt': 'Recupere sua conta legado'
+      }+
+      {
+        'en': 'Insert an affiliate code to get a discount',
+        'pt': 'Insira um código de afiliado para obter um desconto'
       };
 
   String i18n(WidgetRef ref) {

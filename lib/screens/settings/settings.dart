@@ -169,7 +169,7 @@ class Settings extends ConsumerWidget {
               onTap: () => _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref),
               child: Text(
                 'Insert an affiliate code to get a discount'.i18n(ref),
-                style: const TextStyle(color: Colors.orange, decoration: TextDecoration.underline),
+                style: const TextStyle(color: Colors.grey),
               ),
             ),
         ],
@@ -201,7 +201,7 @@ class Settings extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  title,
+                  title.i18n(ref),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
