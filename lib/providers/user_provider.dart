@@ -1,3 +1,4 @@
+// this screen needs some heavy refactoring. On version "Unyielding conviction" we shall totally redo this spaghetti code.
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/models/user_model.dart';

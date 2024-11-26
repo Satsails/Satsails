@@ -1,3 +1,4 @@
+// this screen needs some heavy refactoring. On version "Unyielding conviction" we shall totally redo this spaghetti code. We must use some better way to translate the app"
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:i18n_extension/i18n_extension.dart';
@@ -1896,8 +1897,8 @@ extension Localization on String {
         'pt': 'sats recebidos!'
       } +
       {
-        'en': 'The first 3 purchases have a minimum of 10 brl, after that the minimum is 250 brl',
-        'pt': 'As 3 primeiras compras têm um mínimo de 10 brl, após isso o mínimo é 250 brl'
+        'en': 'The first 3 purchases have a minimum of 10 BRL, after that the minimum is 250 BRL',
+        'pt': 'As 3 primeiras compras têm um mínimo de 10 BRL, após isso o mínimo é 250 BRL'
       } +
       {
         'en': 'Migration Needed',
@@ -1912,16 +1913,16 @@ extension Localization on String {
         'pt': 'Confirme seu PIN de 6 dígitos'
       } +
       {
-        'en': 'Your CPF is new and you can only do a max of 500',
-        'pt': 'Seu CPF é novo e você só pode fazer um máximo de 500'
+        'en': 'Your CPF is new on our systems and you can only do a max of 500 BRL until you complete 3 successful transactions',
+        'pt': 'Seu CPF é novo em nossos sistemas e você só pode fazer um máximo de 500 até completar 3 transações bem-sucedidas'
       } +
       {
-        'en': 'Your CPF is new and you can only do a max of 1000',
-        'pt': 'Seu CPF é novo e você só pode fazer um máximo de 1000'
+        'en': 'Your CPF is new on our systems and you can only do a max of 1000 BRL until you complete 3 successful transactions',
+        'pt': 'Seu CPF é novo em nossos sistemas e você só pode fazer um máximo de 1000 até completar 3 transações bem-sucedidas'
       } +
       {
-        'en': 'Your CPF is new and you can only do a max of 2000',
-        'pt': 'Seu CPF é novo e você só pode fazer um máximo de 2000'
+        'en': 'Your CPF is new on our systems and you can only do a max of 2000 BRL until you complete 3 successful transactions',
+        'pt': 'Seu CPF é novo e você só pode fazer um máximo de 2000 até completar 3 transações bem-sucedidas'
       } +
       {
         'en': 'Create Lightning Wallet',
@@ -1962,6 +1963,26 @@ extension Localization on String {
       {
         'en': 'Insert an affiliate code to get a discount',
         'pt': 'Insira um código de afiliado para obter um desconto'
+      }+
+      {
+        'en': 'Minimum Amount',
+        'pt': 'Quantia Mínima'
+      }+
+      {
+        'en': 'Invalid Input',
+        'pt': 'Entrada Inválida'
+      }+
+      {
+        'en': 'Warning',
+        'pt': 'Aviso'
+      }+
+      {
+        'en': 'Daily Limit Reached',
+        'pt': 'Limite Diário Atingido'
+      }+
+      {
+        'en': 'Information',
+        'pt': 'Informação'
       };
 
   String i18n(WidgetRef ref) {

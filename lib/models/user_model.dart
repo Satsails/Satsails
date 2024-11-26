@@ -1,3 +1,4 @@
+// this screen needs some heavy refactoring. On version "Unyielding conviction" we shall totally redo this spaghetti code.
 import 'dart:convert';
 import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/models/transfer_model.dart';
