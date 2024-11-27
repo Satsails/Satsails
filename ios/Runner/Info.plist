@@ -104,6 +104,8 @@
             <string>UIInterfaceOrientationLandscapeRight</string>
             <string>UIInterfaceOrientationPortrait</string>
         </array>
+        <key>UIRequiresFullScreen</key>
+        <true/>
 
         <key>io.flutter.embedded_views_preview</key>
         <true/>
