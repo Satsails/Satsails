@@ -99,16 +99,6 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     }
   }
 
-  Future<String> updateUser(String username) async {
-    final token = state.token;
-    final result = await CoinosLnService.updateUsername(username, token);
-    if (result.isSuccess) {
-      return username;
-    } else {
-      throw Exception(result.error ?? 'Failed to update user');
-    }
-  }
-  
   Future<int> getBalance() async {
     final token = state.token;
     if (token == null || token.isEmpty) {
@@ -208,30 +198,6 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
 
     return shouldMigrate;
   }
-
-  Future<bool> migrateUsernameAndPassword() async {
-    final token = state.token;
-    if (token == null || token.isEmpty) {
-      return false;
-    }
-
-    String username = await AuthModel().getUsername() ?? '';
-    String password = await AuthModel().getCoinosPassword() ?? '';
-
-    bool shouldMigrate = await shouldMigrateUsernameAndPassword();
-
-    if (shouldMigrate) {
-      final result = await CoinosLnService.migrateUsernameAndPassword(username, token, password);
-      if (result.isSuccess) {
-        state = state.copyWith(username: username, password: password);
-        return true;
-      } else {
-        throw Exception(result.error ?? 'Failed to migrate username and password');
-      }
-    } else {
-      return false;
-    }
-  }
 }
 
 class CoinosLnService {
@@ -272,54 +238,6 @@ class CoinosLnService {
       return Result(error: 'Error registering: $e');
     }
   }
-
-  static Future<Result<String>> updateUsername(String newUsername, String token) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/user'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(
-            {'user': {'username': newUsername}}),
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: 'Username updated and password changed');
-      } else {
-        return Result(error: 'Failed to update username: ${response.body}');
-      }
-    } catch (e) {
-      throw 'Error updating username: $e';
-    }
-  }
-
-  static Future<Result<String>> migrateUsernameAndPassword(
-      String newUsername, String token, String password) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/user'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          'username': newUsername,
-          'password': password,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: 'Username updated and password changed');
-      } else if (response.statusCode == 400) {
-        final errorMessage = jsonDecode(response.body)['error'] ?? 'Unknown error';
-        return Result(error: 'Failed to update username: $errorMessage');
-      } else {
-        return Result(error: 'Unexpected error: ${response.statusCode} - ${response.body}');
-      }
-    } catch (e) {
-      return Result(error: 'Error updating username: $e');
-    }
-  }
-
 
   static Future<Result<String>> createInvoice(String token, int amount, {String type = 'lightning'}) async {
     try {

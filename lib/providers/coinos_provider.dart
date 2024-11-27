@@ -37,16 +37,8 @@ final registerProvider = FutureProvider.autoDispose<void>((ref) async {
   await ref.read(loginProvider.future);
 });
 
-final updateUserProvider = FutureProvider.autoDispose.family<void, String>((ref, username) async {
-  await ref.read(coinosLnProvider.notifier).updateUser(username);
-});
-
 final shouldMigrateProvider = FutureProvider.autoDispose<bool>((ref) async {
   return await ref.read(coinosLnProvider.notifier).shouldMigrateUsernameAndPassword();
-});
-
-final migrateUsernameAndPasswordProvider = FutureProvider.autoDispose<void>((ref) async {
-  await ref.read(coinosLnProvider.notifier).migrateUsernameAndPassword();
 });
 
 final createInvoiceProvider = FutureProvider.autoDispose<String>((ref) async {
