@@ -188,6 +188,7 @@ class Settings extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.black,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return SafeArea(
           child: Padding(
@@ -197,49 +198,53 @@ class Settings extends ConsumerWidget {
               left: 16.0,
               right: 16.0,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title.i18n(ref),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: controller,
-                  decoration: InputDecoration(
-                    labelText: 'Affiliate Code'.i18n(ref),
-                    labelStyle: TextStyle(color: Colors.white),
-                    border: OutlineInputBorder(),
-                    fillColor: Colors.black,
-                    filled: true,
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.orange),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title.i18n(ref),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                  style: const TextStyle(color: Colors.white),
-                ),
-                const SizedBox(height: 20),
-                CustomElevatedButton(
-                  text: 'Insert',
-                  onPressed: () async {
-                    final affiliateCode = controller.text;
-                    if (affiliateCode.isNotEmpty) {
-                      try {
-                        await ref.read(addAffiliateCodeProvider(affiliateCode).future);
-                        Fluttertoast.showToast(msg: 'Affiliate code inserted successfully'.i18n(ref));
-                        context.pop();
-                      } catch (e) {
-                        Fluttertoast.showToast(msg: 'Error inserting affiliate code'.i18n(ref));
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      labelText: 'Affiliate Code'.i18n(ref),
+                      labelStyle: TextStyle(color: Colors.white),
+                      border: OutlineInputBorder(),
+                      fillColor: Colors.black,
+                      filled: true,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.orange),
+                      ),
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(height: 20),
+                  CustomElevatedButton(
+                    text: 'Insert',
+                    onPressed: () async {
+                      final affiliateCode = controller.text;
+                      if (affiliateCode.isNotEmpty) {
+                        try {
+                          await ref.read(addAffiliateCodeProvider(affiliateCode).future);
+                          Fluttertoast.showToast(msg: 'Affiliate code inserted successfully'.i18n(ref));
+                          // hammer fix
+                          ref.invalidate(initializeAffiliateProvider);
+                          context.pop();
+                        } catch (e) {
+                          Fluttertoast.showToast(msg: 'Error inserting affiliate code'.i18n(ref));
+                        }
                       }
-                    }
-                  },
-                ),
-              ],
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         );

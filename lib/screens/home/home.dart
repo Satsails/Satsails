@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/screens/creation/components/logo.dart';
 import 'package:Satsails/screens/home/components/bitcoin_price_history_graph.dart';
 import 'package:Satsails/screens/shared/backup_warning.dart';
@@ -157,6 +158,8 @@ class Home extends ConsumerWidget {
         IconButton(
           icon: const Icon(Clarity.settings_line, color: Colors.white),
           onPressed: () {
+            // only here for a hammer fix
+            ref.invalidate(initializeAffiliateProvider);
             context.push('/home/settings');
           },
         ),

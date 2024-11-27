@@ -124,7 +124,7 @@ final setUserProvider = FutureProvider.autoDispose<void>((ref) async {
     await ref.read(affiliateProvider.notifier).setLiquidAddress(user.createdAffiliateLiquidAddress ?? '');
     // search for affiliate code from the link in this state to add if user already exists and add it
     final affiliateCodeFromLink = ref.read(affiliateProvider).insertedAffiliateCode;
-    if (affiliateCodeFromLink.isNotEmpty) {
+    if (affiliateCodeFromLink.isNotEmpty && !user.hasInsertedAffiliate) {
       await ref.read(addAffiliateCodeProvider(affiliateCodeFromLink).future);
     } else {
       await ref.read(affiliateProvider.notifier).setInsertedAffiliateCode(user.insertedAffiliateCode ?? '');
