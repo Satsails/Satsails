@@ -164,11 +164,25 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
         setBackgroundSyncInProgress(true);
         try {
 
-          final results = await Future.wait([
-            ref.read(liquidSyncNotifierProvider.notifier).performSync(),
-            ref.read(bitcoinSyncNotifierProvider.notifier).performSync(),
-            ref.refresh(coinosBalanceProvider.future),
-          ]);
+          final futures = [
+            ref.read(liquidSyncNotifierProvider.notifier).performSync().catchError((e) {
+              // Handle liquid sync error
+              debugPrint('Liquid sync failed: $e');
+              return null; // Return null or a default Balances instance
+            }),
+            ref.read(bitcoinSyncNotifierProvider.notifier).performSync().catchError((e) {
+              // Handle bitcoin sync error
+              debugPrint('Bitcoin sync failed: $e');
+              return null; // Return null or a default value
+            }),
+            ref.refresh(coinosBalanceProvider.future).catchError((e) {
+              // Handle coinos balance error
+              debugPrint('Coinos balance fetch failed: $e');
+              return null; // Return null or a default value
+            }),
+          ];
+
+          final results = await Future.wait(futures);
 
           // Extract results from Future.wait
           final liquidBalances = results[0] as Balances;
