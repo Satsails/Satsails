@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:Satsails/models/balance_model.dart';
-import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
@@ -78,16 +77,6 @@ Future<void> main() async {
   Hive.registerAdapter(WalletBalanceAdapter());
   Hive.registerAdapter(SideswapPegStatusAdapter());
   Hive.registerAdapter(SideswapCompletedSwapAdapter());
-  Hive.registerAdapter(KeyPairAdapter());
-  Hive.registerAdapter(PreImageAdapter());
-  Hive.registerAdapter(LBtcSwapScriptV2StrAdapter());
-  Hive.registerAdapter(ExtendedLbtcLnV2SwapAdapter());
-  Hive.registerAdapter(LbtcBoltzAdapter());
-  Hive.registerAdapter(BtcBoltzAdapter());
-  Hive.registerAdapter(ExtendedBtcLnV2SwapAdapter());
-  Hive.registerAdapter(BtcSwapScriptV2StrAdapter());
-  Hive.registerAdapter(SwapTypeAdapter());
-  Hive.registerAdapter(ChainAdapter());
 
   await BoltzCore.init();
   await LwkCore.init();

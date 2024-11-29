@@ -6,7 +6,6 @@ import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/address_provider.dart';
-import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -68,9 +67,6 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
         // Retrieve the Bitcoin balance
         final balance = await ref.read(getBitcoinBalanceProvider.future);
 
-        // Update the online status
-        await ref.read(claimAndDeleteAllBitcoinBoltzProvider.future);
-
         ref.read(balanceNotifierProvider.notifier).updateBtcBalance(balance.total);
 
         return balance.total;
@@ -106,8 +102,6 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
 
         // Retrieve the Liquid balances
         final balances = await ref.read(liquidBalanceProvider.future);
-
-        await ref.read(claimAndDeleteAllBoltzProvider.future);
 
         for (var balance in balances) {
           switch (AssetMapper.mapAsset(balance.assetId)) {
