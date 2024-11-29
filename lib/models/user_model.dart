@@ -1,3 +1,4 @@
+// this screen needs some heavy refactoring. On version "Unyielding conviction" we shall totally redo this spaghetti code.
 import 'dart:convert';
 import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/models/transfer_model.dart';
@@ -112,7 +113,7 @@ class User {
 }
 
 class UserService {
-  static Future<Result<User>> createUserRequest(String liquidAddress, int liquidAddressIndex) async {
+  static Future<Result<User>> createUserRequest(String liquidAddress, int liquidAddressIndex, String auth) async {
     try {
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users'),
@@ -120,6 +121,7 @@ class UserService {
           'user': {
             'liquid_address': liquidAddress,
             'liquid_address_index': liquidAddressIndex,
+            'authentication_token': auth,
           }
         }),
         headers: {

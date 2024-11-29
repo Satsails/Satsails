@@ -24,6 +24,7 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pusher_beams/pusher_beams.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import './app_router.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -31,7 +32,10 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterL
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
   await dotenv.load(fileName: ".env");
 
   // Initialize Pusher Beams notifications
@@ -85,11 +89,22 @@ Future<void> main() async {
   Hive.registerAdapter(SwapTypeAdapter());
   Hive.registerAdapter(ChainAdapter());
 
-  // Initialize required libraries
   await BoltzCore.init();
   await LwkCore.init();
+  await FlutterBranchSdk.init(enableLogging: false, disableTracking: true);
 
-  // Start the Flutter app with ProviderScope
+  FlutterBranchSdk.listSession().listen((data) async {
+    if (data.containsKey("affiliateCode")) {
+      final insertedAffiliateCode = data["affiliateCode"];
+      final upperCaseCode = insertedAffiliateCode.toUpperCase();
+      final box = await Hive.openBox('affiliate');
+      final currentInsertedAffiliateCode = box.get('insertedAffiliateCode', defaultValue: '');
+      if (insertedAffiliateCode != null && currentInsertedAffiliateCode.isEmpty) {
+        box.put('insertedAffiliateCode', upperCaseCode);
+      }
+    }
+  });
+
   runApp(
     RestartWidget(
       child: ProviderScope(

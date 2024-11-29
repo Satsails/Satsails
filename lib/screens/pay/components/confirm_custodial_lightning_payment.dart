@@ -315,6 +315,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                               ],
                             ),
                           SizedBox(height: dynamicSizedBox),
+                          if(!isInputBlocked)
                           Container(
                             width: double.infinity,
                             child: DropdownButtonHideUnderline(

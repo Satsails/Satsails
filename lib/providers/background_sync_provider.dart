@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/balance_model.dart';
+import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,7 +50,8 @@ abstract class SyncNotifier<T> extends AsyncNotifier<T> {
 class BitcoinSyncNotifier extends SyncNotifier<int> {
   @override
   Future<int> build() async {
-    return await performSync();
+    final balance = await ref.read(getBitcoinBalanceProvider.future);
+    return balance.total;
   }
 
   @override
@@ -68,6 +71,8 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
         // Update the online status
         await ref.read(claimAndDeleteAllBitcoinBoltzProvider.future);
 
+        ref.read(balanceNotifierProvider.notifier).updateBtcBalance(balance.total);
+
         return balance.total;
       },
       onSuccess: () {
@@ -76,7 +81,6 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
       },
       onFailure: () {
         // Update the online status on failure
-        ref.read(settingsProvider.notifier).setOnline(false);
       },
     );
   }
@@ -85,7 +89,8 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
 class LiquidSyncNotifier extends SyncNotifier<Balances> {
   @override
   Future<Balances> build() async {
-    return await performSync();
+    final balances = await ref.read(liquidBalanceProvider.future);
+    return balances;
   }
 
   @override
@@ -104,7 +109,26 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
 
         await ref.read(claimAndDeleteAllBoltzProvider.future);
 
-        return balances; // Assuming balances is of type List<Balances>
+        for (var balance in balances) {
+          switch (AssetMapper.mapAsset(balance.assetId)) {
+            case AssetId.USD:
+              ref.read(balanceNotifierProvider.notifier).updateUsdBalance(balance.value);
+              break;
+            case AssetId.EUR:
+              ref.read(balanceNotifierProvider.notifier).updateEurBalance(balance.value);
+              break;
+            case AssetId.BRL:
+              ref.read(balanceNotifierProvider.notifier).updateBrlBalance(balance.value);
+              break;
+            case AssetId.LBTC:
+              ref.read(balanceNotifierProvider.notifier).updateLiquidBalance(balance.value);
+              break;
+            default:
+              break;
+          }
+        }
+
+        return balances;
       },
       onSuccess: () {
         // Optional: Actions on successful sync
@@ -112,7 +136,6 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
       },
       onFailure: () {
         // Update the online status on failure
-        ref.read(settingsProvider.notifier).setOnline(false);
       },
     );
   }
@@ -124,10 +147,10 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   @override
   Future<WalletBalance> build() async {
     // Perform the initial sync when the provider is built
-    final initialBalance = await performSync();
+    final initialBalance = ref.read(balanceNotifierProvider);
 
     // Set up periodic sync every 2 minutes
-    _timer = Timer.periodic(const Duration(minutes: 2), (timer) async {
+    _timer ??= Timer.periodic(const Duration(minutes: 2), (timer) async {
       await performSync();
     });
 
@@ -138,15 +161,28 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   Future<WalletBalance> performSync() async {
     return await handleSync(
       syncOperation: () async {
-        // Indicate that background sync is in progress
         setBackgroundSyncInProgress(true);
         try {
-          // Perform Bitcoin and Liquid sync concurrently
-          final results = await Future.wait([
-            ref.read(liquidSyncNotifierProvider.notifier).performSync(),
-            ref.read(bitcoinSyncNotifierProvider.notifier).performSync(),
-            ref.refresh(coinosBalanceProvider.future), // Assuming this returns LightningBalance
-          ]);
+
+          final futures = [
+            ref.read(liquidSyncNotifierProvider.notifier).performSync().catchError((e) {
+              // Handle liquid sync error
+              debugPrint('Liquid sync failed: $e');
+              return null; // Return null or a default Balances instance
+            }),
+            ref.read(bitcoinSyncNotifierProvider.notifier).performSync().catchError((e) {
+              // Handle bitcoin sync error
+              debugPrint('Bitcoin sync failed: $e');
+              return null; // Return null or a default value
+            }),
+            ref.refresh(coinosBalanceProvider.future).catchError((e) {
+              // Handle coinos balance error
+              debugPrint('Coinos balance fetch failed: $e');
+              return null; // Return null or a default value
+            }),
+          ];
+
+          final results = await Future.wait(futures);
 
           // Extract results from Future.wait
           final liquidBalances = results[0] as Balances;
@@ -160,22 +196,23 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
             lightningBalance ?? 0,
           );
 
+          ref.read(balanceNotifierProvider.notifier).updateBalance(balanceData);
+
           return balanceData;
         } catch (e, stackTrace) {
           // Capture and rethrow errors to be handled by handleSync
           state = AsyncError(e, stackTrace);
           rethrow;
         } finally {
-          // Indicate that background sync has completed
           setBackgroundSyncInProgress(false);
         }
       },
       onSuccess: () {
-        // Optional: Actions on successful sync
+        ref.read(settingsProvider.notifier).setOnline(true);
         debugPrint('Background sync successful.');
       },
       onFailure: () {
-        // Optional: Actions on sync failure
+        ref.read(settingsProvider.notifier).setOnline(false);
         debugPrint('Background sync failed.');
       },
     );

@@ -26,8 +26,7 @@ class Pay extends ConsumerWidget {
             context.push('/home/pay/confirm_bitcoin_payment');
             break;
           case PaymentType.Lightning:
-            final hasCustodialLn = ref.read(coinosLnProvider).token.isNotEmpty;
-            hasCustodialLn ? context.push('/home/pay/confirm_custodial_lightning_payment') : context.push('/home/pay/confirm_lightning_payment');
+            context.push('/home/pay/confirm_custodial_lightning_payment');
             break;
           case PaymentType.Liquid:
             context.push('/home/pay/confirm_liquid_payment');

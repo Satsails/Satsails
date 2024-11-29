@@ -1,3 +1,4 @@
+// this screen needs some heavy refactoring. On version "Unyielding conviction" we shall totally redo this spaghetti code. We must use some better way to translate the app"
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:i18n_extension/i18n_extension.dart';
@@ -635,7 +636,12 @@ extension Localization on String {
       {
         'en': 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported.',
         'pt': 'Endereço inválido, apenas enderecos Bitcoin, Liquid e lightning são suportados.',
-      } +
+      }+
+      {
+        'en': 'Invalid address, only Bitcoin, Liquid addresses are supported. Activate Lightning to pay lightning invoices.',
+        'pt': 'Endereço inválido, apenas enderecos Bitcoin, Liquid são suportados. Ative o Lightning para pagar faturas lightning.',
+      }
+      +
       {
         'en': 'Address copied to clipboard',
         'pt': 'Endereço copiado para a área de transferência',
@@ -1803,8 +1809,8 @@ extension Localization on String {
         'pt': 'Registrar para Lightning Custodial'
       } +
       {
-        'en': 'A username and password will be derived from your private key. This will be used to access your custodial Lightning wallet.',
-        'pt': 'Um nome de usuário e senha serão derivados de sua chave privada. Isso será usado para acessar sua carteira Lightning custodial.'
+        'en': 'A username and password will be derived from your private key. This will be used to access your custodial Lightning wallet. Your funds will be custodied by coinos.',
+        'pt': 'Um nome de usuário e senha serão derivados de sua chave privada. Isso será usado para acessar sua carteira Lightning custodial. Seus fundos serão custodiados pela coinos.'
       } +
       {
         'en': 'Register',
@@ -1891,8 +1897,8 @@ extension Localization on String {
         'pt': 'sats recebidos!'
       } +
       {
-        'en': 'The first 3 purchases have a minimum of 10 brl, after that the minimum is 250 brl',
-        'pt': 'As 3 primeiras compras têm um mínimo de 10 brl, após isso o mínimo é 250 brl'
+        'en': 'The first 3 purchases have a minimum of 10 BRL, after that the minimum is 250 BRL',
+        'pt': 'As 3 primeiras compras têm um mínimo de 10 BRL, após isso o mínimo é 250 BRL'
       } +
       {
         'en': 'Migration Needed',
@@ -1905,9 +1911,79 @@ extension Localization on String {
       {
         'en': 'Confirm your 6-digit PIN',
         'pt': 'Confirme seu PIN de 6 dígitos'
+      } +
+      {
+        'en': 'Your CPF is new on our systems and you can only do a max of 500 BRL until you complete 3 successful transactions',
+        'pt': 'Seu CPF é novo em nossos sistemas e você só pode fazer um máximo de 500 até completar 3 transações bem-sucedidas'
+      } +
+      {
+        'en': 'Your CPF is new on our systems and you can only do a max of 1000 BRL until you complete 3 successful transactions',
+        'pt': 'Seu CPF é novo em nossos sistemas e você só pode fazer um máximo de 1000 até completar 3 transações bem-sucedidas'
+      } +
+      {
+        'en': 'Your CPF is new on our systems and you can only do a max of 2000 BRL until you complete 3 successful transactions',
+        'pt': 'Seu CPF é novo e você só pode fazer um máximo de 2000 até completar 3 transações bem-sucedidas'
+      } +
+      {
+        'en': 'Create Lightning Wallet',
+        'pt': 'Criar Carteira Lightning'
+      } +
+      {
+        'en': 'Some metadata from your wallet is collected to generate an unique identifer so that we can process the payments',
+        'pt': 'Alguns metadados de sua carteira são coletados para gerar um identificador único para que possamos processar os pagamentos'
+      } +
+      {
+        'en': 'You will pay in fees',
+        'pt': 'Você pagará em taxas'
+      } +
+      {
+        'en': 'Migrate Username and Password',
+        'pt': 'Migrar Nome de Usuário e Senha'
+      } +
+      {
+        'en': 'To improve security and ensure you wont lose access to your funds, we recommend migrating your username and password to a new format',
+        'pt': 'Para melhorar a segurança e garantir que você não perca o acesso aos seus fundos, recomendamos migrar seu nome de usuário e senha para um novo formato'
+      } +
+      {
+        'en': 'Migrate',
+        'pt': 'Migrar'
+      }+
+      {
+        'en': 'Migration completed successfully!',
+        'pt': 'Migração concluída com sucesso!'
+      }+
+      {
+        'en': 'Legacy: Recover Account',
+        'pt': 'Legado: Recuperar Conta'
+      }+
+      {
+        'en': 'Recover your legacy account',
+        'pt': 'Recupere sua conta legado'
+      }+
+      {
+        'en': 'Insert an affiliate code to get a discount',
+        'pt': 'Insira um código de afiliado para obter um desconto'
+      }+
+      {
+        'en': 'Minimum Amount',
+        'pt': 'Quantia Mínima'
+      }+
+      {
+        'en': 'Invalid Input',
+        'pt': 'Entrada Inválida'
+      }+
+      {
+        'en': 'Warning',
+        'pt': 'Aviso'
+      }+
+      {
+        'en': 'Daily Limit Reached',
+        'pt': 'Limite Diário Atingido'
+      }+
+      {
+        'en': 'Information',
+        'pt': 'Informação'
       };
-
-
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;

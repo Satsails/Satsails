@@ -1,10 +1,8 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
-import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
-import 'package:Satsails/screens/analytics/components/claim_boltz.dart';
 import 'package:Satsails/screens/analytics/components/coinos_swaps.dart';
 import 'package:Satsails/screens/charge/components/pix_history.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -33,7 +31,6 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
     final allSwaps = ref.watch(sideswapAllPegsProvider);
     final swapsToFiat = ref.watch(sideswapGetSwapsProvider);
     final paymentId = ref.watch(userProvider).paymentId;
-    final coinosIsEnabled = ref.watch(coinosLnProvider).token.isNotEmpty;
 
     return Column(
       children: [
@@ -42,7 +39,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
           child: selectedSwapType == 'Pix History' && paymentId.isNotEmpty
               ? Builder(builder: (context) => const PixHistory())
               : selectedSwapType == 'Lightning Swaps'
-              ? coinosIsEnabled ? CoinosPaymentsList() : ClaimBoltz()
+              ? CoinosPaymentsList()
               : allSwaps.when(
             data: (swaps) {
               return swapsToFiat.when(

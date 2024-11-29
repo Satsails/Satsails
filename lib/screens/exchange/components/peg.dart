@@ -1,4 +1,5 @@
 import 'package:Satsails/providers/address_receive_provider.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
@@ -220,6 +221,7 @@ class _PegState extends ConsumerState<Peg> {
                   }
                   await ref.watch(sendLiquidTransactionProvider.future);
                   await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
+                  await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                   ref.read(sendTxProvider.notifier).updateAddress('');
                   ref.read(sendTxProvider.notifier).updateAmount(0);
                   ref.read(sendBlocksProvider.notifier).state = 1;
@@ -270,6 +272,7 @@ class _PegState extends ConsumerState<Peg> {
                   }
                   await ref.watch(sendBitcoinTransactionProvider.future);
                   await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
+                  await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
                   ref.read(sendTxProvider.notifier).updateAddress('');
                   ref.read(sendTxProvider.notifier).updateAmount(0);
                   ref.read(sendBlocksProvider.notifier).state = 1;

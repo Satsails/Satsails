@@ -3,7 +3,6 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
-import 'package:Satsails/screens/receive/components/lightning_widget.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +13,9 @@ import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+final showRegistrationProvider = StateProvider<bool>((ref) => false);
+
 
 class CustodialLightningWidget extends ConsumerStatefulWidget {
   const CustodialLightningWidget({Key? key}) : super(key: key);
@@ -26,16 +28,16 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
   late TextEditingController controller;
   bool includeAmountInAddress = false;
   String invoice = '';
-  bool showLightningWidget = false;
   bool isLoading = false;
-  late Future<void> usernameCheckFuture;
+  late Future<void> initializationFuture;
+
   String? lastProcessedPaymentId;
 
   @override
   void initState() {
     super.initState();
     controller = TextEditingController();
-    usernameCheckFuture = _checkForUsername();
+    initializationFuture = _initialize();
   }
 
   @override
@@ -44,109 +46,15 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     super.dispose();
   }
 
-  Future<void> _checkForUsername() async {
-    final lnurl = await ref.read(initialCoinosProvider.future).then((value) => value.username);
-    if (lnurl == "") {
-      _showUsernameModal();
-    }
+  Future<void> _initialize() async {
+    await _checkForUsername();
   }
 
-  void _showUsernameModal() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Register for Custodial Lightning'.i18n(ref),
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24.0),
-                Text(
-                  'A username and password will be derived from your private key. This will be used to access your custodial Lightning wallet.'.i18n(ref),
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.grey.shade200,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-                      ),
-                      child: Text(
-                        'Cancel'.i18n(ref),
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 16,
-                        ),
-                      ),
-                      onPressed: () {
-                        context.pop();
-                        setState(() {
-                          showLightningWidget = true; // Fallback to LightningWidget
-                        });
-                      },
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-                      ),
-                      child: Text(
-                        'Register'.i18n(ref),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                      onPressed: () async {
-                        try {
-                          await ref.read(registerProvider.future);
-                          context.pop();
-                        } catch (e) {
-                          Fluttertoast.showToast(
-                            msg: '$e'.i18n(ref),
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.BOTTOM,
-                          );
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+  Future<void> _checkForUsername() async {
+    final lnurl = await ref.read(initialCoinosProvider.future).then((value) => value.username);
+    if (lnurl.isEmpty) {
+      ref.read(showRegistrationProvider.notifier).state = true;
+    }
   }
 
   void _onCreateAddress() async {
@@ -319,6 +227,11 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
 
   @override
   Widget build(BuildContext context) {
+    final showRegistration = ref.watch(showRegistrationProvider);
+    if (showRegistration) {
+      return _showRegistration(ref);
+    }
+
     final payments = ref.watch(coinosPaymentStreamProvider);
 
     payments.when(
@@ -343,7 +256,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     );
 
     return FutureBuilder<void>(
-      future: usernameCheckFuture,
+      future: initializationFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
@@ -352,10 +265,6 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
               color: Colors.orange,
             ),
           );
-        }
-
-        if (showLightningWidget) {
-          return const LightningWidget();
         }
 
         final height = MediaQuery.of(context).size.height;
@@ -431,7 +340,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                 ),
                 const SizedBox(height: 8.0),
                 Text(
-                  '$amount' + 'sats received!'.i18n(ref),
+                  '$amount ' + 'sats received!'.i18n(ref),
                   style: const TextStyle(
                     fontSize: 18,
                     color: Colors.black54,
@@ -499,3 +408,76 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     );
   }
 }
+
+Widget _showRegistration(WidgetRef ref) {
+  return Padding(
+    padding: const EdgeInsets.all(20.0),
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10.0,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Create Lightning Wallet'.i18n(ref),
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12.0),
+          Text(
+            'A username and password will be derived from your private key. This will be used to access your custodial Lightning wallet. Your funds will be custodied by coinos.'.i18n(ref),
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black54,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24.0),
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.orange,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+            ),
+            child: Text(
+              'Register'.i18n(ref),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+            onPressed: () async {
+              try {
+                await ref.read(registerProvider.future);
+                ref.read(showRegistrationProvider.notifier).state = false;
+              } catch (e) {
+                Fluttertoast.showToast(
+                  msg: e.toString().i18n(ref),
+                  toastLength: Toast.LENGTH_LONG,
+                  gravity: ToastGravity.BOTTOM,
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    ),
+  );
+}
+

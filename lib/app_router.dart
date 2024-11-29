@@ -1,4 +1,3 @@
-import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/screens/creation/confirm_pin.dart';
 import 'package:Satsails/screens/login/seed_words_pin.dart';
 import 'package:Satsails/screens/pay/components/confirm_custodial_lightning_payment.dart';
@@ -9,11 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
 import 'package:Satsails/screens/charge/components/pix_transaction_details.dart';
 import 'package:Satsails/screens/home/main_screen.dart';
-import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
 import 'package:Satsails/screens/settings/components/support.dart';
-import 'package:Satsails/screens/user/start_affiliate.dart';
 import 'package:Satsails/screens/user/user_creation.dart';
-import 'package:Satsails/screens/user/user_view.dart';
 import 'package:Satsails/screens/creation/start.dart';
 import 'package:Satsails/screens/pay/components/confirm_liquid_payment.dart';
 import 'package:Satsails/screens/settings/components/seed_words.dart';
@@ -34,7 +30,6 @@ import 'package:Satsails/screens/charge/components/pix.dart';
 import 'package:Satsails/screens/settings/components/backup_wallet.dart';
 import 'package:lwk_dart/lwk_dart.dart';
 
-import 'screens/analytics/components/boltz_transaction_details_screen.dart';
 
 
 class AppRouter {
@@ -55,25 +50,6 @@ class AppRouter {
             return TransactionDetailsScreen(transaction: transaction);
           },
         ),
-        GoRoute(
-          path: '/boltz_transaction_details',
-          builder: (context, state) {
-            final data = state.extra as Map<String, dynamic>;
-            final isBitcoin = data['isBitcoin'] as bool;
-            final transaction = data['transaction'];
-
-            if (isBitcoin) {
-              return BtcTransactionDetailsScreen(
-                transaction: transaction as BtcBoltz,
-              );
-            } else {
-              return LbtcTransactionDetailsScreen(
-                transaction: transaction as LbtcBoltz,
-              );
-            }
-          },
-        ),
-
         GoRoute(
           path: '/liquid-transaction-details',
           name: 'liquidTransactionDetails',
@@ -117,7 +93,6 @@ class AppRouter {
           name: 'set_pin',
           builder: (context, state) => const SetPin(),
         ),
-
         GoRoute(
           path: '/apps',
           name: 'apps',
@@ -139,10 +114,6 @@ class AppRouter {
                 GoRoute(
                   path: '/confirm_liquid_payment',
                   builder: (context, state) => ConfirmLiquidPayment(),
-                ),
-                GoRoute(
-                  path: '/confirm_lightning_payment',
-                  builder: (context, state) => ConfirmLightningPayment(),
                 ),
                 GoRoute(
                   path: '/confirm_custodial_lightning_payment',
@@ -169,12 +140,6 @@ class AppRouter {
             GoRoute(
               path: 'settings',
               builder: (context, state) => const Settings(),
-              routes: [
-                GoRoute(
-                  path: 'user_view',
-                  builder: (context, state) => const UserView(),
-                ),
-              ],
             )
           ],
         ),
@@ -198,11 +163,6 @@ class AppRouter {
           path: '/pix_onboarding',
           name: 'pix_onboarding',
           builder: (context, state) => const PixOnBoarding(),
-        ),
-        GoRoute(
-          path: '/start_affiliate',
-          name: 'start_affiliate',
-          builder: (context, state) => const StartAffiliate(),
         ),
         GoRoute(
           path: '/pix_transaction_details',

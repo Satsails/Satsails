@@ -2,6 +2,7 @@ PODS:
   - bdk_flutter (0.31.2-dev.2):
     - Flutter
   - boltz_dart (0.1.6)
+  - BranchSDK (3.6.5)
   - Crisp (2.5.5):
     - Crisp/Crisp (= 2.5.5)
   - Crisp/Crisp (2.5.5)
@@ -9,6 +10,9 @@ PODS:
     - Crisp
     - Flutter
   - Flutter (1.0.0)
+  - flutter_branch_sdk (8.2.0):
+    - BranchSDK (~> 3.6.0)
+    - Flutter
   - flutter_keyboard_done (0.0.1):
     - Flutter
   - flutter_keyboard_visibility (0.0.1):
@@ -51,6 +55,7 @@ DEPENDENCIES:
   - boltz_dart (from `.symlinks/plugins/boltz_dart/ios`)
   - crisp_chat (from `.symlinks/plugins/crisp_chat/ios`)
   - Flutter (from `Flutter`)
+  - flutter_branch_sdk (from `.symlinks/plugins/flutter_branch_sdk/ios`)
   - flutter_keyboard_done (from `.symlinks/plugins/flutter_keyboard_done/ios`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
@@ -69,6 +74,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - BranchSDK
     - Crisp
     - MTBBarcodeScanner
     - PushNotifications
@@ -83,6 +89,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/crisp_chat/ios"
   Flutter:
     :path: Flutter
+  flutter_branch_sdk:
+    :path: ".symlinks/plugins/flutter_branch_sdk/ios"
   flutter_keyboard_done:
     :path: ".symlinks/plugins/flutter_keyboard_done/ios"
   flutter_keyboard_visibility:
@@ -117,9 +125,11 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   bdk_flutter: af166bdb3f24fa9bac1de94772973f76302cb1c1
   boltz_dart: 7ebb80d3776711efacb5823a3d9a9bb1221bac95
+  BranchSDK: ef7d89062afb08b20f65d5b1633b215ee77ab77f
   Crisp: dcf7d9e64be6614ceee71c5582f616212ed4a881
   crisp_chat: e0b3294cfd6cabd60673cad0ed9ba9e6b9d53714
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_branch_sdk: b3763b3d53a7cfbc87c51136bed66fcdc282bdf5
   flutter_keyboard_done: 8f25c02565f57c19eb31d11cfb9323afc33e4c9e
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086

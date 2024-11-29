@@ -189,7 +189,6 @@ class PixOnBoarding extends ConsumerWidget {
                 ],
                 onDone: () async {
                   ref.read(loadingProvider.notifier).state = true;
-                  ref.read(onBoardingInProgressProvider.notifier).state = false;
                   await ref.read(userProvider.notifier).serOnboarded(true);
                   context.go('/home/pix');
                   ref.read(loadingProvider.notifier).state = false;

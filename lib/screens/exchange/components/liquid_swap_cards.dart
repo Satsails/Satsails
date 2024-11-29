@@ -389,6 +389,7 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
             controller.loading();
             try {
               await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
+              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
