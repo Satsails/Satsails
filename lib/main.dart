@@ -8,7 +8,6 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/spash/splash.dart';
-import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -78,7 +77,6 @@ Future<void> main() async {
   Hive.registerAdapter(SideswapPegStatusAdapter());
   Hive.registerAdapter(SideswapCompletedSwapAdapter());
 
-  await BoltzCore.init();
   await LwkCore.init();
   await FlutterBranchSdk.init(enableLogging: false, disableTracking: true);
 

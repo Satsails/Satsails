@@ -181,19 +181,6 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
       throw 'Failed to fetch balance and transactions';
     }
   }
-
-  Future<bool> shouldMigrateUsernameAndPassword() async {
-    final token = state.token;
-    if (token == null || token.isEmpty) {
-      return false;
-    }
-
-    String newPassword = await AuthModel().getCoinosPassword() ?? '';
-
-    bool shouldMigrate = newPassword != state.password;
-
-    return shouldMigrate;
-  }
 }
 
 class CoinosLnService {

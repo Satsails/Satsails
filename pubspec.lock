@@ -81,15 +81,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.6"
-  boltz_dart:
+  bolt11_decoder:
     dependency: "direct main"
     description:
       path: "."
-      ref: trunk
-      resolved-ref: "887ecfc2fca9b6247e12c76f842d925c4365bc77"
-      url: "https://github.com/SatoshiPortal/boltz-dart"
+      ref: master
+      resolved-ref: "074a8338895d651c3e38c223dcd63344cd070058"
+      url: "https://github.com/mateusfsilva/dart_bolt11_decoder.git"
     source: git
-    version: "0.1.6"
+    version: "1.0.3"
   boolean_selector:
     dependency: transitive
     description:
@@ -246,10 +246,10 @@ packages:
     dependency: transitive
     description:
       name: convert
-      sha256: "0f08b14755d163f6e2134cb58222dd25ea2a2ee8a195e53983d57c075324d592"
+      sha256: b30acd5944035672bc15c6b7a8b47d773e41e2f17de064350988c5d02adb1c68
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.1"
+    version: "3.1.2"
   cpf_cnpj_validator:
     dependency: "direct main"
     description:
@@ -406,10 +406,10 @@ packages:
     dependency: transitive
     description:
       name: fixnum
-      sha256: "25517a4deb0c03aa0f32fd12db525856438902d9c16536311e76cdc57b31d7d1"
+      sha256: b6dc7065e46c974bc7c5f143080a6764ec7a4be6da1285ececdc37be96de53be
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
   fl_chart:
     dependency: "direct main"
     description:

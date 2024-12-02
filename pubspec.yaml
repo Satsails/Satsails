@@ -27,11 +27,11 @@ dependencies:
 #  Need windows linux and web compils
   bdk_flutter: ^0.31.2-dev.2
   flutter_i18n: ^0.35.1
-#  need windows linux ios and mac and web compils
-  boltz_dart:
+  bolt11_decoder:
     git:
-      url: https://github.com/SatoshiPortal/boltz-dart
-      ref: trunk
+      url: https://github.com/mateusfsilva/dart_bolt11_decoder.git
+      ref: master
+#  need windows linux ios and mac and web compils
   lwk_dart:
     git:
       url: https://github.com/SatoshiPortal/lwk-dart.git
