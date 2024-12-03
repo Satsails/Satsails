@@ -85,12 +85,6 @@ final getTransactionsProvider = FutureProvider.autoDispose<List<CoinosPayment>>(
   return response;
 });
 
-final getPaymentsProvider = FutureProvider.autoDispose<List<CoinosPayment>>((ref) async {
-  final response = await ref.read(coinosLnProvider.notifier).getTransactions();
-
-  return response;
-});
-
 final lnurlProvider = StateProvider.autoDispose<String>((ref) {
   final username = ref.watch(coinosLnProvider).username;
   return '$username@coinos.io';

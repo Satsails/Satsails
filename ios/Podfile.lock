@@ -1,7 +1,6 @@
 PODS:
   - bdk_flutter (0.31.2-dev.2):
     - Flutter
-  - boltz_dart (0.1.6)
   - BranchSDK (3.6.5)
   - Crisp (2.5.5):
     - Crisp/Crisp (= 2.5.5)
@@ -52,7 +51,6 @@ PODS:
 
 DEPENDENCIES:
   - bdk_flutter (from `.symlinks/plugins/bdk_flutter/ios`)
-  - boltz_dart (from `.symlinks/plugins/boltz_dart/ios`)
   - crisp_chat (from `.symlinks/plugins/crisp_chat/ios`)
   - Flutter (from `Flutter`)
   - flutter_branch_sdk (from `.symlinks/plugins/flutter_branch_sdk/ios`)
@@ -83,8 +81,6 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   bdk_flutter:
     :path: ".symlinks/plugins/bdk_flutter/ios"
-  boltz_dart:
-    :path: ".symlinks/plugins/boltz_dart/ios"
   crisp_chat:
     :path: ".symlinks/plugins/crisp_chat/ios"
   Flutter:
@@ -124,7 +120,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   bdk_flutter: af166bdb3f24fa9bac1de94772973f76302cb1c1
-  boltz_dart: 7ebb80d3776711efacb5823a3d9a9bb1221bac95
   BranchSDK: ef7d89062afb08b20f65d5b1633b215ee77ab77f
   Crisp: dcf7d9e64be6614ceee71c5582f616212ed4a881
   crisp_chat: e0b3294cfd6cabd60673cad0ed9ba9e6b9d53714
