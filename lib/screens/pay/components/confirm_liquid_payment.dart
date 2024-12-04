@@ -4,6 +4,7 @@ import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/screens/pay/components/liquid_cards.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,7 +18,6 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class ConfirmLiquidPayment extends ConsumerStatefulWidget {
   ConfirmLiquidPayment({Key? key}) : super(key: key);
@@ -75,13 +75,10 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
       canPop: !isProcessing, // Determines if the screen can be popped
       onPopInvoked: (bool canPop) {
         if (isProcessing) {
-          Fluttertoast.showToast(
-            msg: "Transaction in progress, please wait.".i18n(ref),
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.TOP,
-            backgroundColor: Colors.orange,
-            textColor: Colors.white,
-            fontSize: 16.0,
+          showMessageSnackBar(
+            message: "Transaction in progress, please wait.".i18n(ref),
+            error: false,
+            context: context,
           );
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
@@ -107,13 +104,10 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                   if (!isProcessing) {
                     context.pop();
                   } else {
-                    Fluttertoast.showToast(
-                      msg: "Transaction in progress, please wait.".i18n(ref),
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.TOP,
-                      backgroundColor: Colors.orange,
-                      textColor: Colors.white,
-                      fontSize: 16.0,
+                    showMessageSnackBar(
+                      message: "Transaction in progress, please wait.".i18n(ref),
+                      error: false,
+                      context: context,
                     );
                   }
                 },
@@ -301,14 +295,10 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                                         controller.text, btcFormat);
                                   }
                                 } catch (e) {
-                                  Fluttertoast.showToast(
-                                    msg: e.toString().i18n(ref),
-                                    toastLength: Toast.LENGTH_LONG,
-                                    gravity: ToastGravity.TOP,
-                                    timeInSecForIosWeb: 1,
-                                    backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0,
+                                  showMessageSnackBar(
+                                    message: e.toString().i18n(ref),
+                                    error: true,
+                                    context: context,
                                   );
                                 }
                               },
@@ -394,28 +384,20 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                         try {
                           await ref.watch(sendLiquidTransactionProvider.future);
                           await ref.read(liquidSyncNotifierProvider.notifier).performSync();
-                          Fluttertoast.showToast(
-                            msg: "Transaction Sent".i18n(ref),
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.TOP,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.green,
-                            textColor: Colors.white,
-                            fontSize: 16.0,
+                          showMessageSnackBar(
+                            message: "Transaction Sent".i18n(ref),
+                            error: false,
+                            context: context,
                           );
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           ref.read(sendBlocksProvider.notifier).state = 1;
                           context.replace('/home');
                         } catch (e) {
                           controller.failure();
-                          Fluttertoast.showToast(
-                            msg: e.toString().i18n(ref),
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.TOP,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0,
+                          showMessageSnackBar(
+                            message: e.toString().i18n(ref),
+                            error: true,
+                            context: context,
                           );
                           controller.reset();
                         } finally {

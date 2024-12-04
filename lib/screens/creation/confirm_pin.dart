@@ -1,5 +1,6 @@
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/creation/set_pin.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +8,6 @@ import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 // Add this line to define the loadingProvider
 final loadingProvider = StateProvider<bool>((ref) => false);
@@ -129,28 +129,21 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin> {
                                 context.go('/home');
                               }
                             } catch (e) {
-                              // Handle any unexpected errors
-                              Fluttertoast.showToast(
-                                msg: 'An error occurred'.i18n(ref),
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.TOP,
-                                backgroundColor: Colors.red,
-                                textColor: Colors.white,
-                                fontSize: 16.0,
+
+                              showMessageSnackBar(
+                                message: 'An error occurred'.i18n(ref),
+                                error: true,
+                                context: context,
                               );
                             } finally {
                               // Set the loading state back to false
                               ref.read(loadingProvider.notifier).state = false;
                             }
                           } else {
-                            Fluttertoast.showToast(
-                              msg: 'PINs do not match'.i18n(ref),
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.TOP,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                              fontSize: 16.0,
+                            showMessageSnackBar(
+                              message: 'PINs do not match'.i18n(ref),
+                              error: true,
+                              context: context,
                             );
                           }
                         },

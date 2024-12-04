@@ -6,6 +6,7 @@ import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/balance_provider.dart';
@@ -310,13 +310,10 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
                 balanceNotifier.updateLightningBalance(lnBalance);
                 await ref.read(liquidSyncNotifierProvider.notifier).performSync();
               }
-              Fluttertoast.showToast(
-                msg: "Swap done!".i18n(ref),
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.TOP,
-                backgroundColor: Colors.green,
-                textColor: Colors.white,
-                fontSize: 16.0,
+              showMessageSnackBar(
+                message: 'Swap done!'.i18n(ref),
+                error: false,
+                context: context,
               );
               controller.success();
               ref.read(transactionInProgressProvider.notifier).state = false;
@@ -324,13 +321,10 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
             } catch (e) {
               ref.read(transactionInProgressProvider.notifier).state = false;
               controller.failure();
-              Fluttertoast.showToast(
-                msg: e.toString().i18n(ref),
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.TOP,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0,
+              showMessageSnackBar(
+                message: e.toString().i18n(ref),
+                error: true,
+                context: context,
               );
               controller.reset();
             }
@@ -373,13 +367,10 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
                 balanceNotifier.updateLightningBalance(lnBalance);
                 await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
               }
-              Fluttertoast.showToast(
-                msg: "Swap done!".i18n(ref),
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.TOP,
-                backgroundColor: Colors.green,
-                textColor: Colors.white,
-                fontSize: 16.0,
+              showMessageSnackBar(
+                message: 'Swap done!'.i18n(ref),
+                error: false,
+                context: context,
               );
               controller.success();
               ref.read(transactionInProgressProvider.notifier).state = false;
@@ -387,13 +378,10 @@ class _LightningSwapsState extends ConsumerState<LightningSwaps> {
             } catch (e) {
               ref.read(transactionInProgressProvider.notifier).state = false;
               controller.failure();
-              Fluttertoast.showToast(
-                msg: e.toString().i18n(ref),
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.TOP,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0,
+              showMessageSnackBar(
+                message: e.toString().i18n(ref),
+                error: true,
+                context: context,
               );
               controller.reset();
             }

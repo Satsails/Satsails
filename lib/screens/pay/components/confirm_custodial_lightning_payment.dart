@@ -2,6 +2,7 @@ import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/validations/address_validation.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,6 @@ import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class ConfirmCustodialLightningPayment extends ConsumerStatefulWidget {
   ConfirmCustodialLightningPayment({Key? key}) : super(key: key);
@@ -85,13 +85,10 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
       canPop: !isProcessing,
       onPopInvoked: (bool canPop) {
         if (isProcessing) {
-          Fluttertoast.showToast(
-            msg: "Transaction in progress, please wait.".i18n(ref),
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.TOP,
-            backgroundColor: Colors.orange,
-            textColor: Colors.white,
-            fontSize: 16.0,
+          showMessageSnackBar(
+            message: "Transaction in progress, please wait.".i18n(ref),
+            error: false,
+            context: context,
           );
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
@@ -116,13 +113,10 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                   if (!isProcessing) {
                     context.pop();
                   } else {
-                    Fluttertoast.showToast(
-                      msg: "Transaction in progress, please wait.".i18n(ref),
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.TOP,
-                      backgroundColor: Colors.orange,
-                      textColor: Colors.white,
-                      fontSize: 16.0,
+                    showMessageSnackBar(
+                      message: "Transaction in progress, please wait.".i18n(ref),
+                      error: false,
+                      context: context,
                     );
                   }
                 },
@@ -213,12 +207,10 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                                       ref.watch(currencyNotifierProvider),
                                     );
                                     if (amountInSats > maxAmount) {
-                                      Fluttertoast.showToast(
-                                        msg: "Balance insufficient to cover fees".i18n(ref),
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.TOP,
-                                        backgroundColor: Colors.red,
-                                        textColor: Colors.white,
+                                      showMessageSnackBar(
+                                        message: "Balance insufficient to cover fees".i18n(ref),
+                                        error: true,
+                                        context: context,
                                       );
                                     } else {
                                       ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
@@ -372,13 +364,10 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                       toggleColor: Colors.orange,
                       action: (controller) async {
                         if (sendTxState.amount == 0) {
-                          Fluttertoast.showToast(
-                            msg: "Amount cannot be zero".i18n(ref),
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.TOP,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0,
+                          showMessageSnackBar(
+                            message: "Amount cannot be zero".i18n(ref),
+                            error: true,
+                            context: context,
                           );
                           controller.reset();
                           return;
@@ -395,26 +384,20 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                           await ref.read(sendPaymentProvider.future);
                           final currentLnBalance = ref.read(balanceNotifierProvider).lightningBalance;
                           balanceNotifier.updateLightningBalance(currentLnBalance! - sendTxState.amount);
-                          Fluttertoast.showToast(
-                            msg: "Transaction Sent".i18n(ref),
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.TOP,
-                            backgroundColor: Colors.green,
-                            textColor: Colors.white,
-                            fontSize: 16.0,
+                          showMessageSnackBar(
+                            message: "Transaction Sent".i18n(ref),
+                            error: false,
+                            context: context,
                           );
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           context.replace('/home');
                         } catch (e) {
                           ref.read(sendTxProvider.notifier).updateAddress(initialAddress);
                           controller.failure();
-                          Fluttertoast.showToast(
-                            msg: e.toString().i18n(ref),
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.TOP,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0,
+                          showMessageSnackBar(
+                            message: "Transaction failed".i18n(ref),
+                            error: true,
+                            context: context,
                           );
                           controller.reset();
                         } finally {

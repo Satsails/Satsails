@@ -1,10 +1,9 @@
 import 'package:Satsails/providers/user_provider.dart';
-import 'package:Satsails/screens/charge/charge.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -66,27 +65,19 @@ class UserCreation extends ConsumerWidget {
                     ref.read(loadingProvider.notifier).state = true;
                     try {
                       await ref.watch(createUserProvider.future);
-                      Fluttertoast.showToast(
-                        msg: 'Anonymous account created successfully!'.i18n(ref),
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.TOP,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.green,
-                        textColor: Colors.white,
-                        fontSize: 16.0,
+                      showMessageSnackBar(
+                        message: 'Anonymous account created successfully!'.i18n(ref),
+                        error: false,
+                        context: context,
                       );
                       ref.read(loadingProvider.notifier).state = false;
                       context.go('/pix_onboarding');
                     } catch (e) {
                       ref.read(loadingProvider.notifier).state = false;
-                      Fluttertoast.showToast(
-                        msg: 'There was an error saving your code. Please try again or contact support'.i18n(ref),
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.TOP,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.red,
-                        textColor: Colors.white,
-                        fontSize: 16.0,
+                      showMessageSnackBar(
+                        message: 'There was an error saving your code. Please try again or contact support'.i18n(ref),
+                        error: true,
+                        context: context,
                       );
                     }
                   },
@@ -152,26 +143,18 @@ class UserCreation extends ConsumerWidget {
                                       await ref.read(setUserProvider.future);
                                       ref.read(loadingProvider.notifier).state = false;
                                       context.go('/pix_onboarding');
-                                      Fluttertoast.showToast(
-                                        msg: 'Account recovered successfully!'.i18n(ref),
-                                        toastLength: Toast.LENGTH_LONG,
-                                        gravity: ToastGravity.TOP,
-                                        timeInSecForIosWeb: 1,
-                                        backgroundColor: Colors.green,
-                                        textColor: Colors.white,
-                                        fontSize: 16.0,
+                                      showMessageSnackBar(
+                                        message: 'Account recovered successfully!'.i18n(ref),
+                                        error: false,
+                                        context: context,
                                       );
                                     } catch (e) {
                                       ref.read(loadingProvider.notifier).state = false;
                                       await ref.read(userProvider.notifier).setRecoveryCode('');
-                                      Fluttertoast.showToast(
-                                        msg: 'The code you have inserted is not correct'.i18n(ref),
-                                        toastLength: Toast.LENGTH_LONG,
-                                        gravity: ToastGravity.TOP,
-                                        timeInSecForIosWeb: 1,
-                                        backgroundColor: Colors.red,
-                                        textColor: Colors.white,
-                                        fontSize: 16.0,
+                                      showMessageSnackBar(
+                                        message: 'The code you have inserted is not correct'.i18n(ref),
+                                        error: true,
+                                        context: context,
                                       );
                                     }
                                   },

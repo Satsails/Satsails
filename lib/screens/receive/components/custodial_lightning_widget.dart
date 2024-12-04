@@ -4,6 +4,7 @@ import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,8 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 final showRegistrationProvider = StateProvider<bool>((ref) => false);
 
@@ -70,10 +71,10 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
         invoice = lnurlAsyncValue;
       });
     } catch (e) {
-      Fluttertoast.showToast(
-        msg: '$e'.i18n(ref),
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
+      showMessageSnackBar(
+        message: '$e'.i18n(ref),
+        error: true,
+        context: context,
       );
     } finally {
       setState(() {
@@ -85,88 +86,40 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
   void _showCustodialWarningModal(BuildContext context, WidgetRef ref) {
     final coinosLn = ref.watch(coinosLnProvider);
 
-    showDialog(
+    QuickAlert.show(
       context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
+      type: QuickAlertType.info,
+      title: 'Custodial Lightning Warning'.i18n(ref),
+      text: 'By using this custodial Lightning service, your funds are held by our partner Coinos. Satsails does not have control over these funds. You agree to have your funds held by Coinos.'.i18n(ref),
+      backgroundColor: Colors.black,
+      titleColor: Colors.white,
+      textColor: Colors.white,
+      showCancelBtn: false,
+      confirmBtnText: 'OK',
+      confirmBtnColor: Colors.orange,
+      onConfirmBtnTap: () => context.pop(),
+      widget: Column(
+        children: [
+          const SizedBox(height: 16.0),
+          _buildCopyableField(
+            label: 'Username'.i18n(ref),
+            value: coinosLn.username,
           ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Custodial Lightning Warning'.i18n(ref),
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12.0),
-                Text(
-                  'By using this custodial Lightning service, your funds are held by our partner Coinos. Satsails does not have control over these funds. You agree to have your funds held by Coinos.'.i18n(ref),
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black54,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24.0),
-                _buildCopyableField(
-                  label: 'Username'.i18n(ref),
-                  value: coinosLn.username,
-                ),
-                const SizedBox(height: 16.0),
-                _buildCopyableField(
-                  label: 'Password',
-                  value: coinosLn.password,
-                ),
-                const SizedBox(height: 24.0),
-                TextButton(
-                  onPressed: () => _launchURL('https://coinos.io/login'),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-                  ),
-                  child: Text(
-                    'Visit Coinos'.i18n(ref),
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-                  ),
-                  child: const Text(
-                    'OK',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),
-                  onPressed: () => context.pop(),
-                ),
-              ],
+          const SizedBox(height: 16.0),
+          _buildCopyableField(
+            label: 'Password',
+            value: coinosLn.password,
+          ),
+          const SizedBox(height: 24.0),
+          TextButton(
+            onPressed: () => _launchURL('https://coinos.io/login'),
+            child: Text(
+              'Visit Coinos'.i18n(ref),
+              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
@@ -174,10 +127,10 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     if (await canLaunch(url)) {
       await launch(url);
     } else {
-      Fluttertoast.showToast(
-        msg: 'Could not launch $url',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
+      showMessageSnackBar(
+        message: 'Could not launch $url',
+        error: true,
+        context: context,
       );
     }
   }
@@ -194,20 +147,13 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black54,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 4.0),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: SelectableText(
-                  value,
-                  style: const TextStyle(fontSize: 16, color: Colors.black87),
-                ),
+              SelectableText(
+                value,
+                style: const TextStyle(fontSize: 16, color: Colors.white),
               ),
             ],
           ),
@@ -216,9 +162,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
           icon: const Icon(Icons.copy, color: Colors.orange),
           onPressed: () {
             Clipboard.setData(ClipboardData(text: value));
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('$label copied to clipboard!')),
-            );
+            showMessageSnackBar(context: context, message: '$label copied to clipboard!', error: false);
           },
         ),
       ],
@@ -229,7 +173,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
   Widget build(BuildContext context) {
     final showRegistration = ref.watch(showRegistrationProvider);
     if (showRegistration) {
-      return _showRegistration(ref);
+      return _showRegistration(ref, context);
     }
 
     final payments = ref.watch(coinosPaymentStreamProvider);
@@ -409,7 +353,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
   }
 }
 
-Widget _showRegistration(WidgetRef ref) {
+Widget _showRegistration(WidgetRef ref, BuildContext context) {
   return Padding(
     padding: const EdgeInsets.all(20.0),
     child: Container(
@@ -467,10 +411,10 @@ Widget _showRegistration(WidgetRef ref) {
                 await ref.read(registerProvider.future);
                 ref.read(showRegistrationProvider.notifier).state = false;
               } catch (e) {
-                Fluttertoast.showToast(
-                  msg: e.toString().i18n(ref),
-                  toastLength: Toast.LENGTH_LONG,
-                  gravity: ToastGravity.BOTTOM,
+                showMessageSnackBar(
+                  message: '$e'.i18n(ref),
+                  error: true,
+                  context: context,
                 );
               }
             },

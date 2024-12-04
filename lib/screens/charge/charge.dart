@@ -1,9 +1,9 @@
 import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -78,28 +78,21 @@ class Charge extends ConsumerWidget {
       final walletBelongsToUser = await ref.watch(checkIfAccountBelongsToSetPrivateKeyProvider.future);
 
       if (!walletBelongsToUser) {
-        Fluttertoast.showToast(
-          msg: 'Your wallet does not belong to the account you are trying to charge'.i18n(ref),
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.TOP,
-          timeInSecForIosWeb: 4,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
+        showMessageSnackBar(
+          message: 'Wallet does not belong to the user'.i18n(ref),
+          error: true,
+          context: context,
         );
         // Stop loading
         ref.read(isLoadingProvider.notifier).state = false;
         return;
       }
     } catch (e) {
-      Fluttertoast.showToast(
-        msg: e.toString().i18n(ref),
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.TOP,
-        timeInSecForIosWeb: 4,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
+      showMessageSnackBar(
+        message: e.toString(),
+        context: context,
+        error: true,
+
       );
       // Stop loading
       ref.read(isLoadingProvider.notifier).state = false;
@@ -111,14 +104,10 @@ class Charge extends ConsumerWidget {
         await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
     } catch (e) {
-      Fluttertoast.showToast(
-        msg: e.toString().i18n(ref),
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.TOP,
-        timeInSecForIosWeb: 4,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
+      showMessageSnackBar(
+        message: e.toString(),
+        context: context,
+        error: true,
       );
       // Stop loading
       ref.read(isLoadingProvider.notifier).state = false;

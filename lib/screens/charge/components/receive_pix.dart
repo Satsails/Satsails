@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/models/user_model.dart';
-import 'package:Satsails/screens/shared/error_display.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:cpf_cnpj_validator/cnpj_validator.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
@@ -61,11 +61,10 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
           timer.cancel();
           _pixQRCode = '';
           _amountToReceive = 0.0;
-          _showStyledDialog(
-            context,
-            ref,
-            title: 'Transaction failed'.i18n(ref),
-            message: '',
+          showMessageSnackBar(
+            context: context,
+            message: 'Transaction expired'.i18n(ref),
+            error: true,
           );
         }
       });
@@ -81,20 +80,10 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
           _minimumPayment = double.tryParse(result.data!) ?? 10.0;
         });
       } else {
-        _showStyledDialog(
-          context,
-          ref,
-          title: 'Error'.i18n(ref),
-          message: result.error!.i18n(ref),
-        );
+        showMessageSnackBar(context: context, message: result.error!, error: true);
       }
     } catch (e) {
-      _showStyledDialog(
-        context,
-        ref,
-        title: 'Error'.i18n(ref),
-        message: e.toString().i18n(ref),
-      );
+      showMessageSnackBar(context: context, message: e.toString(), error: true);
     }
   }
 
@@ -131,22 +120,12 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
     // Validate amount input
     if (amount.isEmpty) {
-      _showStyledDialog(
-        context,
-        ref,
-        title: 'Warning'.i18n(ref),
-        message: 'Please enter an amount'.i18n(ref),
-      );
+      showMessageSnackBar(context: context, message: 'Amount cannot be empty'.i18n(ref), error: true);
       return;
     }
 
     if (!CPFValidator.isValid(cpf) && !CNPJValidator.isValid(cpf)) {
-      _showStyledDialog(
-        context,
-        ref,
-        title: 'Invalid Input'.i18n(ref),
-        message: 'Invalid CPF/CNPJ'.i18n(ref),
-      );
+      showMessageSnackBar(context: context, message: 'Invalid CPF/CNPJ'.i18n(ref), error: true);
       return;
     }
 
@@ -154,13 +133,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
         double.tryParse(amount.replaceAll(',', '.')) ?? 0.0;
 
     if (amountInDouble < _minimumPayment) {
-      _showStyledDialog(
-        context,
-        ref,
-        title: 'Minimum Amount'.i18n(ref),
-        message:
-        'Minimum amount is '.i18n(ref) + '${_minimumPayment.toStringAsFixed(2)} BRL',
-      );
+      showMessageSnackBar(context: context, message: 'Minimum amount is $_minimumPayment BRL'.i18n(ref), error: true);
       return;
     }
 
@@ -180,12 +153,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     }
 
     if (amountInDouble > _remainingLimit) {
-      _showStyledDialog(
-        context,
-        ref,
-        title: 'Daily Limit Reached'.i18n(ref),
-        message: 'You have reached the daily limit'.i18n(ref),
-      );
+      showMessageSnackBar(context: context, message: 'You have reached your daily limit'.i18n(ref), error: true);
       setState(() {
         _isLoading = false;
         _amountController.clear();
@@ -208,78 +176,12 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       setState(() {
         _isLoading = false;
       });
-      _showStyledDialog(
-        context,
-        ref,
-        title: 'Error'.i18n(ref),
-        message: '${e.toString().i18n(ref)}',
+      showMessageSnackBar(
+        context: context,
+        message: e.toString().i18n(ref),
+        error: true,
       );
     }
-  }
-
-  void _showStyledDialog(BuildContext context, WidgetRef ref,
-      {required String title, required String message}) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12.0),
-                if (message.isNotEmpty)
-                  Text(
-                    message,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                const SizedBox(height: 24.0),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0, vertical: 12.0),
-                  ),
-                  child: Text(
-                    'OK'.i18n(ref),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),
-                  onPressed: () => context.pop(),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
   }
 
   void _showInformationDialog(BuildContext context, WidgetRef ref) {
@@ -299,69 +201,10 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
           '${_minimumPayment.toStringAsFixed(2)} BRL');
     }
 
-    showDialog(
+    showInformationModal(
       context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Information'.i18n(ref),
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12.0),
-                for (var message in messages)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      message,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black54,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                const SizedBox(height: 24.0),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0, vertical: 12.0),
-                  ),
-                  child: Text(
-                    'OK'.i18n(ref),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),
-                  onPressed: () => context.pop(),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      title: 'Information'.i18n(ref),
+      message: messages,
     );
   }
 
@@ -379,7 +222,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       error: (error, stack) => Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-            child: ErrorDisplay(message: error.toString(), isCard: true)),
+            child: MessageDisplay(message: error.toString())),
       ),
       data: (amountTransferred) {
         // Calculate remaining limit and other necessary variables

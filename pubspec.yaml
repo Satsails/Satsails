@@ -17,6 +17,10 @@ dependencies:
   http: ^1.2.1
   local_auth: ^2.1.8
   hive: ^2.2.3
+  flutter_icon_snackbar: ^1.2.1
+  msh_checkbox: ^2.0.1
+  vibration: ^2.0.1
+  quickalert: ^1.1.0
   webview_flutter: ^4.5.0
   qr_flutter: ^4.1.0
   qr_code_scanner: ^1.0.1
@@ -42,8 +46,6 @@ dependencies:
   group_button: ^5.3.4
   liquid_pull_to_refresh: ^3.0.1
   action_slider: ^0.7.0
-  fluttertoast: ^8.2.5
-#  flutter_styled_toast: ^2.2.1 use to compil toas everywhere
   flutter_card_swiper: ^7.0.0
   calendar_date_picker2: ^0.5.6
   flutter_native_splash: ^2.4.0

@@ -2,10 +2,10 @@ import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/words_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:go_router/go_router.dart';
 
@@ -92,7 +92,6 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
 
   Future<void> _recoverAccount(BuildContext context) async {
     final authModel = ref.read(authModelProvider);
-    final screenWidth = MediaQuery.of(context).size.width;
     final mnemonic = _controllers
         .take(_totalWords)
         .map((controller) => controller.text.trim())
@@ -103,14 +102,10 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
       await ref.read(settingsProvider.notifier).setBackup(true);
       context.push('/set_pin');
     } else {
-      Fluttertoast.showToast(
-        msg: 'Invalid mnemonic'.i18n(ref),
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: screenWidth * 0.04,
+      showMessageSnackBar(
+        message: 'Invalid mnemonic'.i18n(ref),
+        error: true,
+        context: context,
       );
     }
   }

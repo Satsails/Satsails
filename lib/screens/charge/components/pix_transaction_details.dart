@@ -2,11 +2,11 @@ import 'dart:async'; // Import Timer
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/transfer_model.dart';
 import 'package:Satsails/providers/pix_transaction_details_provider.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -170,12 +170,10 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           GestureDetector(
             onTap: () {
               Clipboard.setData(ClipboardData(text: transaction.transferId));
-              Fluttertoast.showToast(
-                msg: 'Transfer ID copied'.i18n(ref),
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                backgroundColor: Colors.grey,
-                textColor: Colors.white,
+              showMessageSnackBar(
+                message: 'Transfer ID copied'.i18n(ref),
+                error: false,
+                context: context,
               );
             },
             child: Text(
@@ -217,12 +215,10 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
         GestureDetector(
           onTap: () {
             Clipboard.setData(ClipboardData(text: transaction.sentTxid ?? "N/A"));
-            Fluttertoast.showToast(
-              msg: 'Txid copied'.i18n(ref),
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              backgroundColor: Colors.grey,
-              textColor: Colors.white,
+            showMessageSnackBar(
+              message: 'Txid copied'.i18n(ref),
+              context: context,
+              error: false,
             );
           },
           child: TransactionDetailRow(
