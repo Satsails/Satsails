@@ -1,9 +1,11 @@
 
 # About Satsails
 
-Satsails is a self-custodial Bitcoin and Liquid Network platform that offers non-custodial atomic swaps across Bitcoin, Lightning, and Liquid. The philosophy of Satsails is to become a platform for everything and anything Bitcoin. Many more features are coming soon!
+Satsails is a self-custodial Bitcoin and Liquid Network platform that Bitcoin, Lightning, and Liquid. The philosophy of Satsails is to become a platform for everything and anything Bitcoin. Many more features are coming soon!
 
-We are committed to being open source and transparent, offering a non-custodial service.
+We are committed to being open source and transparent, offering a non-custodial service for bitcoin and liquid.
+
+Currently our Lightning is custodial and operated by Coinos. This was a decision made to focus on usability. News should be coming soon about other Lightning options
 
 **Everything we build is designed to be held and operated by you. We either use on-device technology or connect you to partner companies.**
 
@@ -23,8 +25,6 @@ When using PIX for payments, the metadata includes the **CPF** and the **name** 
 - [BDK-flutter](https://github.com/LtbLightning/bdk-flutter)
 - [LWK](https://github.com/Blockstream/lwk)
 - [LWK-dart (dart bindings)](https://github.com/SatoshiPortal/lwk-dart)
-- [Boltz-rust](https://github.com/SatoshiPortal/boltz-rust)
-- [Boltz-dart](https://github.com/SatoshiPortal/boltz-dart)
 
 ## Acknowledgements
 
