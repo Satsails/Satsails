@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 import 'package:vibration/vibration.dart';
 
@@ -71,7 +69,6 @@ class _AnimatedCheckboxWidgetState extends ConsumerState<AnimatedCheckboxWidget>
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Animated MSHCheckbox
         MSHCheckbox(
           size: 100,
           value: checked,
@@ -88,18 +85,9 @@ class _AnimatedCheckboxWidgetState extends ConsumerState<AnimatedCheckboxWidget>
         ),
         const SizedBox(height: 10),
         Text(
-          "Value",
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          "R\$ ${widget.amount.toStringAsFixed(2)}",
+          "${widget.amount}",
           style: const TextStyle(
             fontSize: 48,
-            fontWeight: FontWeight.bold,
             color: Colors.green,
           ),
         ),
@@ -111,63 +99,6 @@ class _AnimatedCheckboxWidgetState extends ConsumerState<AnimatedCheckboxWidget>
             color: Colors.white,
           ),
           textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 40),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // "Concluir" Button
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                  ),
-                  onPressed: () {
-                    context.pop();
-                  },
-                  child: const Text(
-                    "OK",
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // "Details" Button
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    side: const BorderSide(color: Colors.green),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                  ),
-                  onPressed: () {
-                    context.pop();
-                  },
-                  child: Text(
-                    "Details".i18n(ref),
-                    style: const TextStyle(fontSize: 18, color: Colors.green),
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
       ],
     );

@@ -176,28 +176,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
       return _showRegistration(ref, context);
     }
 
-    final payments = ref.watch(coinosPaymentStreamProvider);
 
-    payments.when(
-      data: (data) {
-        if (data['type'] == 'lightning' && data['confirmed'] == true) {
-          final amount = data['amount'];
-          final paymentId = data['id'];
-
-          if (lastProcessedPaymentId != paymentId) {
-            lastProcessedPaymentId = paymentId;
-            ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-            Future.microtask(() => _showPaymentReceivedModal(context, amount));
-          }
-        }
-      },
-      loading: () {
-        // Optionally handle loading state
-      },
-      error: (error, stackTrace) {
-        print('Error: $error');
-      },
-    );
 
     return FutureBuilder<void>(
       future: initializationFuture,
@@ -245,80 +224,6 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
               ],
             ),
           ],
-        );
-      },
-    );
-  }
-
-  void _showPaymentReceivedModal(BuildContext context, int amount) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(24.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  color: Colors.greenAccent,
-                  size: 60,
-                ),
-                const SizedBox(height: 16.0),
-                Text(
-                  'Payment Received!'.i18n(ref),
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8.0),
-                Text(
-                  '$amount ' + 'sats received!'.i18n(ref),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.black54,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24.0),
-                SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                    ),
-                    child: const Text(
-                      'OK',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    onPressed: () {
-                      context.pop();
-                      context.pop();
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
         );
       },
     );

@@ -89,18 +89,3 @@ final lnurlProvider = StateProvider.autoDispose<String>((ref) {
   final username = ref.watch(coinosLnProvider).username;
   return '$username@coinos.io';
 });
-
-final loginIntoWebsocketProvider = FutureProvider.autoDispose<CoisosPushNotifications>((ref) async {
-  final token = ref.watch(coinosLnProvider).token;
-  final service = CoisosPushNotifications();
-  service.connect(token);
-
-  ref.onDispose(() => service.close());
-
-  return service;
-});
-
-final coinosPaymentStreamProvider = StreamProvider.autoDispose<Map<String, dynamic>>((ref) async* {
-  final pushNotificationsService = await ref.watch(loginIntoWebsocketProvider.future);
-  yield* pushNotificationsService.paymentStream;
-});
