@@ -11,16 +11,15 @@ class CoinosPushNotifications {
   bool _isConnecting = false;
   bool _isConnected = false;
 
-  Timer? _pingTimer;
-  Timer? _pongTimeoutTimer;
+  Timer? _heartbeatTimer;
   Timer? _reconnectTimer;
 
-  final Duration _pingInterval = Duration(seconds: 30); // Adjust as needed
-  final Duration _pongTimeout = Duration(seconds: 10);  // Adjust as needed
+  final Duration _heartbeatInterval = Duration(seconds: 3); // Adjust as needed
   final Duration _reconnectDelay = Duration(seconds: 5);
 
   CoinosPushNotifications(this._token);
 
+  /// Establishes the WebSocket connection and initializes heartbeat.
   void connect() {
     if (_isConnecting || _isConnected) return;
 
@@ -42,7 +41,7 @@ class CoinosPushNotifications {
           _scheduleReconnect();
         },
         onDone: () {
-          print('WebSocket connection closed');
+          print('WebSocket connection closed.');
           _isConnected = false;
           _scheduleReconnect();
         },
@@ -52,9 +51,8 @@ class CoinosPushNotifications {
       _isConnected = true;
       _isConnecting = false;
 
-      // Start the ping timer
-      _startPingTimer();
-
+      // Start the heartbeat timer
+      _startHeartbeatTimer();
     } catch (e) {
       print('Error connecting to WebSocket: $e');
       _isConnecting = false;
@@ -63,60 +61,54 @@ class CoinosPushNotifications {
     }
   }
 
+  /// Handles incoming WebSocket messages.
   void _handleIncomingMessage(dynamic message) {
     var decodedMessage = json.decode(message);
 
-    if (decodedMessage['type'] == 'pong') {
-      // Received pong response
-      _pongTimeoutTimer?.cancel();
-    } else if (decodedMessage['type'] == 'payment') {
+    if (decodedMessage['type'] == 'payment') {
       _handlePaymentMessage(decodedMessage['data']);
     } else {
-      // Handle other message types if necessary
+      print('hearbeat');
     }
   }
 
+  /// Adds payment data to the payment stream.
   void _handlePaymentMessage(Map<String, dynamic> paymentData) {
     _paymentController.add(paymentData);
   }
 
-  void _startPingTimer() {
-    _pingTimer?.cancel();
-    _pingTimer = Timer.periodic(_pingInterval, (timer) {
+  /// Starts the periodic heartbeat timer.
+  void _startHeartbeatTimer() {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(_heartbeatInterval, (timer) {
       if (_isConnected) {
-        _sendPing();
-        _startPongTimeout();
+        _sendHeartbeat();
       } else {
         timer.cancel();
       }
     });
   }
 
-  void _sendPing() {
+  /// Sends a heartbeat message with the token.
+  void _sendHeartbeat() {
     try {
       _channel?.sink.add(json.encode({
-        'type': 'ping',
+        'type': 'heartbeat',
+        'data': _token,
       }));
+      print('Heartbeat sent.');
     } catch (e) {
-      print('Error sending ping: $e');
+      print('Error sending heartbeat: $e');
       _isConnected = false;
       _scheduleReconnect();
     }
   }
 
-  void _startPongTimeout() {
-    _pongTimeoutTimer?.cancel();
-    _pongTimeoutTimer = Timer(_pongTimeout, () {
-      print('Pong timeout, reconnecting...');
-      _isConnected = false;
-      _channel?.sink.close();
-      _scheduleReconnect();
-    });
-  }
-
+  /// Schedules a reconnection attempt after a delay.
   void _scheduleReconnect() {
     if (_reconnectTimer != null && _reconnectTimer!.isActive) return;
 
+    print('Scheduling reconnection in ${_reconnectDelay.inSeconds} seconds...');
     _reconnectTimer = Timer(_reconnectDelay, () {
       if (!_isConnected) {
         print('Attempting to reconnect...');
@@ -125,13 +117,14 @@ class CoinosPushNotifications {
     });
   }
 
+  /// Closes the WebSocket connection and all timers.
   void close() {
     _isConnected = false;
     _isConnecting = false;
-    _pingTimer?.cancel();
-    _pongTimeoutTimer?.cancel();
+    _heartbeatTimer?.cancel();
     _reconnectTimer?.cancel();
     _channel?.sink.close();
     _paymentController.close();
+    print('WebSocket connection closed and resources disposed.');
   }
 }

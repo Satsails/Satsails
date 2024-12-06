@@ -13,6 +13,7 @@ final balanceNotifierProvider = StateNotifierProvider<BalanceNotifier, WalletBal
   return BalanceNotifier(ref);
 });
 
+final balanceChangeProvider = StateProvider<BalanceChange?>((ref) => null);
 
 final totalBalanceInFiatProvider = StateProvider.family.autoDispose<String, String>((ref, currency)  {
   final balanceModel = ref.watch(balanceNotifierProvider);

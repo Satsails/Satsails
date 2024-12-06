@@ -98,7 +98,6 @@ flutter:
   assets:
     - lib/assets/app_icon.png
     - lib/assets/satsails.png
-    - lib/assets/affiliates.png
     - lib/assets/GraficoAnalise.svg
     - lib/assets/satsails.svg
     - lib/assets/click.png
@@ -110,6 +109,8 @@ flutter:
     - lib/assets/eurx.png
     - lib/assets/l-btc.png
     - lib/assets/tether.png
+    - lib/assets/bitcoin-logo.png
+    - lib/assets/Bitcoin_lightning_logo.png
     - lib/assets/bip39_english.txt
     - .env
 

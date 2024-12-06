@@ -1,48 +1,52 @@
 import 'dart:async';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 import 'package:vibration/vibration.dart';
 
-void showFullscreenTransactionModal(BuildContext context, double amount, String successMessage) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (BuildContext context) {
-      return Container(
-        color: Colors.black,
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top,
-        ),
-        child: SafeArea(
-          child: Center(
-            child: AnimatedCheckboxWidget(
-              amount: amount,
-              successMessage: successMessage,
-            ),
-          ),
-        ),
-      );
-    },
-  );
-}
+// void showFullscreenTransactionSendModal(BuildContext context, double amount, String successMessage) {
+//   showModalBottomSheet(
+//     context: context,
+//     isScrollControlled: true,
+//     backgroundColor: Colors.transparent,
+//     builder: (BuildContext context) {
+//       return Container(
+//         color: Colors.black,
+//         padding: EdgeInsets.only(
+//           top: MediaQuery.of(context).padding.top,
+//         ),
+//         child: SafeArea(
+//           child: Center(
+//             child: ReceiveTransactionOverlay(
+//               amount: amount.toInt(),
+//             ),
+//           ),
+//         ),
+//       );
+//     },
+//   );
+// }
 
-class AnimatedCheckboxWidget extends ConsumerStatefulWidget {
-  final double amount;
-  final String successMessage;
+class ReceiveTransactionOverlay extends ConsumerStatefulWidget {
+  final String amount;
+  final bool fiat;
+  final String? fiatAmount;
+  final String? asset;
 
-  const AnimatedCheckboxWidget({
+  const ReceiveTransactionOverlay({
     Key? key,
     required this.amount,
-    required this.successMessage,
+    this.fiat = false,
+    this.fiatAmount,
+    this.asset,
   }) : super(key: key);
 
   @override
-  _AnimatedCheckboxWidgetState createState() => _AnimatedCheckboxWidgetState();
+  _ReceiveTransactionOverlayState createState() => _ReceiveTransactionOverlayState();
 }
 
-class _AnimatedCheckboxWidgetState extends ConsumerState<AnimatedCheckboxWidget> {
+class _ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOverlay> {
   bool checked = false;
 
   @override
@@ -64,8 +68,66 @@ class _AnimatedCheckboxWidgetState extends ConsumerState<AnimatedCheckboxWidget>
     });
   }
 
+  Widget _getAssetImage(String? asset) {
+    if (asset == null) return Container(); // Return an empty container if asset is null
+
+    // Define asset images based on the asset type
+    switch (asset) {
+      case 'Bitcoin':
+        return Image.asset(
+          'lib/assets/bitcoin-logo.png',
+          width: 48,
+          height: 48,
+        );
+      case 'Liquid Bitcoin':
+        return Image.asset(
+          'lib/assets/l-btc.png',
+          width: 48,
+          height: 48,
+        );
+      case 'USDT':
+        return Image.asset(
+          'lib/assets/tether.png',
+          width: 48,
+          height: 48,
+        );
+      case 'EUROX':
+        return Image.asset(
+          'lib/assets/eurox.png',
+          width: 48,
+          height: 48,
+        );
+      case 'DEPIX':
+        return Image.asset(
+          'lib/assets/depix.png',
+          width: 48,
+          height: 48,
+        );
+      case 'Lightning':
+        return Image.asset(
+          'lib/assets/Bitcoin_lightning_logo.png',
+          width: 48,
+          height: 48,
+        );
+      default:
+        return Image.asset(
+          'lib/assets/app_icon.png',
+          width: 48,
+          height: 48,
+        ); // Default image for unknown assets
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    String amountText;
+
+    if (widget.fiat && widget.fiatAmount != null) {
+      amountText = '\$${widget.fiatAmount}';
+    } else {
+      amountText = widget.amount;
+    }
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -80,26 +142,30 @@ class _AnimatedCheckboxWidgetState extends ConsumerState<AnimatedCheckboxWidget>
           style: MSHCheckboxStyle.stroke,
           duration: const Duration(milliseconds: 500),
           onChanged: (_) {
-            // Do nothing when the checkbox is tapped
           },
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 20),
+        _getAssetImage(widget.asset), // Asset-specific image
+        const SizedBox(height: 20),
         Text(
-          "${widget.amount}",
+          amountText,
           style: const TextStyle(
             fontSize: 48,
             color: Colors.green,
           ),
         ),
-        const SizedBox(height: 10),
-        Text(
-          widget.successMessage,
-          style: const TextStyle(
-            fontSize: 18,
-            color: Colors.white,
+        if (widget.asset != null) ...[
+          const SizedBox(height: 20),
+          Text(
+            '${widget.asset}',
+            style: const TextStyle(
+              fontSize: 24,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-        ),
+        ],
       ],
     );
   }

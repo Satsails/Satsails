@@ -1983,6 +1983,10 @@ extension Localization on String {
       {
         'en': 'Information',
         'pt': 'Informação'
+      }+
+      {
+        'en': 'Payment received',
+        'pt': 'Pagamento recebido'
       };
 
   String i18n(WidgetRef ref) {
