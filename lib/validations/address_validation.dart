@@ -87,7 +87,7 @@ Future<String> getLnInvoiceWithAmount(String invoice, int amount) async {
       }
     }
 
-    final amountInMsats = amount * 100000000000;
+    final amountInMsats = amount * 1000;
 
     final callbackUri = Uri.parse(await checkForValidLnurl(invoice)).replace(
       queryParameters: {"amount": amountInMsats.toString()},

@@ -65,7 +65,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final titleFontSize = screenHeight * 0.03;
-    final sendTxState = ref.watch(sendTxProvider);
+    final sendTxState = ref.read(sendTxProvider);
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final lightningBalance = ref.watch(balanceNotifierProvider).lightningBalance;
     final lightningBalanceInFormat = btcInDenominationFormatted(lightningBalance!, btcFormat);
@@ -395,7 +395,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                           ref.read(sendTxProvider.notifier).updateAddress(initialAddress);
                           controller.failure();
                           showMessageSnackBar(
-                            message: "Transaction failed".i18n(ref),
+                            message: e.toString().i18n(ref),
                             error: true,
                             context: context,
                           );
