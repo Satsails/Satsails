@@ -1,3 +1,4 @@
+import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -142,23 +143,25 @@ class _OpenPinState extends ConsumerState<OpenPin> {
   Future<void> _showConfirmationDialog(BuildContext context, WidgetRef ref) async {
     QuickAlert.show(
       context: context,
-      type: QuickAlertType.warning,
+      type: QuickAlertType.error,
       title: 'Delete Account?'.i18n(ref),
       text: 'All information will be permanently deleted.'.i18n(ref),
-      confirmBtnText: 'Delete'.i18n(ref),
       titleColor: Colors.white,
       textColor: Colors.white,
       backgroundColor: Colors.black,
-      showCancelBtn: true,
-      cancelBtnTextStyle: const TextStyle(color: Colors.green, fontSize: 20),
-      confirmBtnColor: Colors.red,
-      onConfirmBtnTap: () async {
-        context.pop(); // Close the alert
-        await _forgotPin(context, ref); // Call the delete functionality
-      },
-      onCancelBtnTap: () {
-        context.pop(); // Close the alert
-      },
+      headerBackgroundColor: Colors.black,
+      showCancelBtn: false,
+      showConfirmBtn: false,
+      widget: Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: CustomElevatedButton(
+          onPressed: () async {
+            context.pop();
+            await _forgotPin(context, ref);
+          },
+          text: 'Delete wallet'.i18n(ref),
+        ),
+      ),
     );
   }
 

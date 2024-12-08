@@ -57,6 +57,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  awesome_snackbar_content:
+    dependency: "direct main"
+    description:
+      name: awesome_snackbar_content
+      sha256: a99f229d5e9404c69d172d9a6256961743eb9bc68b0a7905185eacd206b27984
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.4"
   bdk_flutter:
     dependency: "direct main"
     description:
@@ -479,14 +487,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.35.1"
-  flutter_icon_snackbar:
-    dependency: "direct main"
-    description:
-      name: flutter_icon_snackbar
-      sha256: bba7e238a7c8df2dfd1900fc9f58684ced906169fae1845605c1fcec1cda7e3b
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.1"
   flutter_image_slideshow:
     dependency: "direct main"
     description:
@@ -822,14 +822,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.6"
-  icon_animated:
-    dependency: transitive
-    description:
-      name: icon_animated
-      sha256: "0847039648c98e53ac9be16cac170c025461caeb4d890cf4f88c78578ef9e7aa"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.1"
   icons_plus:
     dependency: "direct main"
     description:

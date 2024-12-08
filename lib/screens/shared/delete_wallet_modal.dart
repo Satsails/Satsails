@@ -2,6 +2,7 @@ import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/restart_widget.dart';
+import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,101 +29,53 @@ class DeleteWalletSection extends StatelessWidget {
   }
 
   void _showDeleteDialog(BuildContext context, AuthModel authModel, WidgetRef ref) {
-
     QuickAlert.show(
       context: context,
-      type: QuickAlertType.warning,
+      type: QuickAlertType.error,
       title: 'Delete Wallet?'.i18n(ref),
-      text: 'Choose an option below:'.i18n(ref),
-      confirmBtnText: 'Delete Wallet'.i18n(ref),
+      text: 'Are you sure you want to delete the wallet?'.i18n(ref),
       titleColor: Colors.white,
       textColor: Colors.white,
       backgroundColor: Colors.black,
-      showCancelBtn: true,
-      cancelBtnTextStyle: const TextStyle(color: Colors.green, fontSize: 20),
-      confirmBtnColor: Colors.red,
-      onConfirmBtnTap: () {
-        Navigator.of(context).pop();
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.confirm,
-          title: 'Delete Wallet?'.i18n(ref),
-          text: 'Are you sure you want to delete the wallet?'.i18n(ref),
-          confirmBtnText: 'Delete'.i18n(ref),
-          titleColor: Colors.white,
-          textColor: Colors.white,
-          backgroundColor: Colors.black,
-          showCancelBtn: true,
-          cancelBtnTextStyle: const TextStyle(color: Colors.green, fontSize: 20),
-          confirmBtnColor: Colors.red,
-          onConfirmBtnTap: () async {
-            context.pop();
-            await authModel.deleteAuthentication();
-            RestartWidget.restartApp(context);
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildOptionCard(BuildContext context,
-      {required IconData icon,
-        required String title,
-        required String description,
-        required Color color,
-        required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12.0),
-          border: Border.all(color: color),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: color,
-              child: Icon(icon, color: Colors.white),
-            ),
-            const SizedBox(width: 16.0),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: color.darken(),
-                    ),
-                  ),
-                  const SizedBox(height: 4.0),
-                  Text(
-                    description,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ],
+      headerBackgroundColor: Colors.black,
+      showCancelBtn: false,
+      showConfirmBtn: false,
+      widget:
+      Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: CustomElevatedButton(
+          onPressed: () {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              title: 'Delete Wallet?'.i18n(ref),
+              text: 'Are you sure? This action cannot be undone.'.i18n(ref),
+              titleColor: Colors.white,
+              textColor: Colors.white,
+              backgroundColor: Colors.black,
+              headerBackgroundColor: Colors.black,
+              showCancelBtn: false,
+              showConfirmBtn: false,
+              widget:
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: CustomElevatedButton(
+                  onPressed: () async {
+                    context.pop();
+                    await authModel.deleteAuthentication();
+                    RestartWidget.restartApp(context);
+                  },
+                  text:
+                  'Delete wallet'.i18n(ref),
+                ),
               ),
-            ),
-            const Icon(Icons.chevron_right, color: Colors.black45),
-          ],
+            );
+          },
+          text:
+          'Delete wallet'.i18n(ref),
         ),
       ),
     );
   }
 }
 
-extension ColorExtension on Color {
-  Color darken([double amount = .1]) {
-    assert(amount >= 0 && amount <= 1);
-    final hsl = HSLColor.fromColor(this);
-    final hslDark = hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
-    return hslDark.toColor();
-  }
-}

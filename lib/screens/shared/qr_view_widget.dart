@@ -10,6 +10,7 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/transaction_data_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:quickalert/quickalert.dart';
 
 class QRViewWidget extends StatefulWidget {
   final GlobalKey qrKey;
@@ -91,7 +92,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
       final paymentType = widget.ref.read(sendTxProvider).type;
       _navigateToPaymentScreen(paymentType, context, ref);
     } catch (e) {
-      await _showErrorDialog(context, e.toString(), _controller!);
+      await _showErrorDialog(context, e.toString(), _controller!, ref);
     } finally {
       _isProcessing = false;
     }
@@ -176,50 +177,20 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     );
   }
 
-  Future<void> _showErrorDialog(BuildContext context, String errorMessage, QRViewController controller) async {
-    await showDialog(
+  Future<void> _showErrorDialog(BuildContext context, String message, QRViewController controller, dynamic ref) async {
+    await QuickAlert.show(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          backgroundColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(
-              vertical: 20.0, horizontal: 24.0),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.red.withOpacity(0.8),
-                child: const Icon(Icons.close, size: 40, color: Colors.white),
-              ),
-              const SizedBox(height: 16.0),
-              Text(
-                errorMessage.i18n(widget.ref),
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.close, color: Colors.black54),
-              onPressed: () {
-                context.pop();
-                controller.resumeCamera();
-              },
-            ),
-          ],
-        );
-      },
+      type: QuickAlertType.error,
+      title: 'Incorrect address'.i18n(ref),
+      text: message.i18n(ref),
+      textColor: Colors.white,
+      titleColor: Colors.white,
+      backgroundColor: Colors.black,
+      showCancelBtn: false,
+      showConfirmBtn: false,
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

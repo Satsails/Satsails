@@ -2,6 +2,7 @@ import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
+import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -406,15 +407,18 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                         });
                         controller.loading();
                         try {
-                          await ref.watch(sendBitcoinTransactionProvider.future);
+                          final tx = await ref.watch(sendBitcoinTransactionProvider.future);
                           await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
-                          showMessageSnackBar(
-                            message: "Transaction Sent".i18n(ref),
-                            error: false,
-                            context: context,
-                          );
+
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           ref.read(sendBlocksProvider.notifier).state = 1;
+                          showFullscreenTransactionSendModal(
+                            context: context,
+                            asset: 'Bitcoin',
+                            amount: sendTxState.amount,
+                            fiat: false,
+                            txid: tx,
+                          );
                           context.replace('/home');
                         } catch (e) {
                           controller.failure();

@@ -120,10 +120,10 @@ class BitcoinModel {
     return config.wallet.sign(psbt: txBuilderResult.$1);
   }
 
-  Future<void> broadcastBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) signedPsbt) async {
+  Future<String> broadcastBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) signedPsbt) async {
     try {
       final tx = await signedPsbt.$1.extractTx();
-      await config.blockchain!.broadcast(transaction: tx);
+      return await config.blockchain!.broadcast(transaction: tx);
     } on GenericException catch (e) {
       throw e.message!;
     } on InsufficientFundsException catch (_) {

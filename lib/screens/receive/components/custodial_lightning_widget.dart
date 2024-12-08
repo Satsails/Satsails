@@ -94,9 +94,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
       titleColor: Colors.white,
       textColor: Colors.white,
       showCancelBtn: false,
-      confirmBtnText: 'OK',
-      confirmBtnColor: Colors.orange,
-      onConfirmBtnTap: () => context.pop(),
+      showConfirmBtn: false,
       widget: Column(
         children: [
           const SizedBox(height: 16.0),

@@ -1,3 +1,4 @@
+import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
@@ -5,6 +6,7 @@ import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/screens/pay/components/liquid_cards.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
+import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -382,12 +384,16 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                         });
                         controller.loading();
                         try {
-                          await ref.watch(sendLiquidTransactionProvider.future);
+                          final tx = await ref.watch(sendLiquidTransactionProvider.future);
                           await ref.read(liquidSyncNotifierProvider.notifier).performSync();
-                          showMessageSnackBar(
-                            message: "Transaction Sent".i18n(ref),
-                            error: false,
+                          showFullscreenTransactionSendModal(
                             context: context,
+                            asset: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).name,
+                            amount: ref.watch(sendTxProvider).amount,
+                            fiat: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).isFiat,
+                            fiatAmount: ref.watch(sendTxProvider).amount.toString(),
+                            txid: tx,
+                            isLiquid: true,
                           );
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           ref.read(sendBlocksProvider.notifier).state = 1;

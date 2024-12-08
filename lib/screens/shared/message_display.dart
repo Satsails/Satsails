@@ -1,9 +1,9 @@
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icon_snackbar/flutter_icon_snackbar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 class MessageDisplay extends ConsumerWidget {
   final String message;
@@ -52,14 +52,22 @@ void showMessageSnackBar({
   required String message,
   required bool error,
 }) {
-  IconSnackBar.show(
-    context,
-    label: message,
-    iconColor: Colors.white,
-    backgroundColor: error ? Colors.redAccent : Colors.green,
-    snackBarType: error ? SnackBarType.fail : SnackBarType.success,
-    duration: const Duration(seconds: 5),
+  final snackBar = SnackBar(
+    elevation: 0,
+    behavior: SnackBarBehavior.floating,
+    backgroundColor: Colors.transparent,
+    duration: const Duration(seconds: 3),
+    content: AwesomeSnackbarContent(
+      title: error ? 'Oops' : 'Ok!',
+      message: message,
+      inMaterialBanner: true,
+      contentType: error ? ContentType.failure : ContentType.success,
+    ),
   );
+
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(snackBar);
 }
 
 void showInformationModal({
@@ -85,8 +93,8 @@ void showInformationModal({
     text: formattedMessage,
     textColor: Colors.white,
     titleColor: Colors.white,
-    confirmBtnText: 'OK',
-    confirmBtnColor: Colors.orange,
+    showCancelBtn: false,
+    showConfirmBtn: false,
     backgroundColor: Colors.black,
   );
 }

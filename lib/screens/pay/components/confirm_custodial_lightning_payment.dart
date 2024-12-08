@@ -3,6 +3,7 @@ import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
+import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/validations/address_validation.dart';
 import 'package:flutter/material.dart';
@@ -384,10 +385,11 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                           await ref.read(sendPaymentProvider.future);
                           final currentLnBalance = ref.read(balanceNotifierProvider).lightningBalance;
                           balanceNotifier.updateLightningBalance(currentLnBalance! - sendTxState.amount);
-                          showMessageSnackBar(
-                            message: "Transaction Sent".i18n(ref),
-                            error: false,
+                          showFullscreenTransactionSendModal(
                             context: context,
+                            asset: 'Lightning',
+                            amount: sendTxState.amount,
+                            fiat: false,
                           );
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           context.replace('/home');
