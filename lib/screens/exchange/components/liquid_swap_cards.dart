@@ -4,13 +4,13 @@ import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
@@ -400,11 +400,19 @@ class _LiquidSwapCardsState extends ConsumerState<LiquidSwapCards> {
               controller.success();
               ref.read(transactionInProgressProvider.notifier).state = false;
               context.go('/home');
-              Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+              showMessageSnackBar(
+                message: 'Swap done!'.i18n(ref),
+                error: false,
+                context: context,
+              );
             } catch (e) {
               ref.read(transactionInProgressProvider.notifier).state = false;
               controller.failure();
-              Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+              showMessageSnackBar(
+                message: e.toString().i18n(ref),
+                error: true,
+                context: context,
+              );
               controller.reset();
             }
           },

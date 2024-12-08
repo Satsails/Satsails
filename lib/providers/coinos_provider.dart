@@ -37,10 +37,6 @@ final registerProvider = FutureProvider.autoDispose<void>((ref) async {
   await ref.read(loginProvider.future);
 });
 
-final shouldMigrateProvider = FutureProvider.autoDispose<bool>((ref) async {
-  return await ref.read(coinosLnProvider.notifier).shouldMigrateUsernameAndPassword();
-});
-
 final createInvoiceProvider = FutureProvider.autoDispose<String>((ref) async {
   final amount = ref.watch(inputAmountProvider);
   final currency = ref.watch(inputCurrencyProvider);
@@ -89,28 +85,7 @@ final getTransactionsProvider = FutureProvider.autoDispose<List<CoinosPayment>>(
   return response;
 });
 
-final getPaymentsProvider = FutureProvider.autoDispose<List<CoinosPayment>>((ref) async {
-  final response = await ref.read(coinosLnProvider.notifier).getTransactions();
-
-  return response;
-});
-
 final lnurlProvider = StateProvider.autoDispose<String>((ref) {
   final username = ref.watch(coinosLnProvider).username;
   return '$username@coinos.io';
-});
-
-final loginIntoWebsocketProvider = FutureProvider.autoDispose<CoisosPushNotifications>((ref) async {
-  final token = ref.watch(coinosLnProvider).token;
-  final service = CoisosPushNotifications();
-  service.connect(token);
-
-  ref.onDispose(() => service.close());
-
-  return service;
-});
-
-final coinosPaymentStreamProvider = StreamProvider.autoDispose<Map<String, dynamic>>((ref) async* {
-  final pushNotificationsService = await ref.watch(loginIntoWebsocketProvider.future);
-  yield* pushNotificationsService.paymentStream;
 });

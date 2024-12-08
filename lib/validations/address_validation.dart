@@ -2,11 +2,12 @@ import 'dart:convert';
 
 import 'package:Satsails/services/lnurl_parser/dart_lnurl_parser.dart';
 import 'package:Satsails/services/lnurl_parser/src/lnurl.dart';
-import 'package:boltz_dart/boltz_dart.dart';
+import 'package:decimal/decimal.dart';
 import 'package:lwk_dart/lwk_dart.dart' as lwk;
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/address_model.dart';
+import 'package:bolt11_decoder/bolt11_decoder.dart';
 import 'package:http/http.dart' as http;
 
 Future<bool> isValidLiquidAddress(String address) async {
@@ -79,12 +80,9 @@ Future<String> checkForValidLnurl(String invoice) async {
 Future<String> getLnInvoiceWithAmount(String invoice, int amount) async {
   try {
     if (convertLnAddressToWellKnown(invoice) == null) {
-      final decodedInvoice = await DecodedInvoice.fromString(
-        s: invoice,
-        boltzUrl: 'https://api.boltz.exchange/v2',
-      );
+      final decodedInvoice = Bolt11PaymentRequest(invoice);
 
-      if (decodedInvoice.msats != null) {
+      if (decodedInvoice.amount != null) {
         return invoice;
       }
     }
@@ -111,19 +109,14 @@ Future<String> getLnInvoiceWithAmount(String invoice, int amount) async {
 }
 
 
-Future<DecodedInvoice> isValidLightningAddress(String invoice) async {
-
+Bolt11PaymentRequest isValidLightningAddress(String invoice) {
   try {
-    final res = await DecodedInvoice.fromString(
-      s: invoice,
-      boltzUrl: 'https://api.boltz.exchange/v2',
-    );
+    final res = Bolt11PaymentRequest(invoice);
     return res;
   } catch (e) {
     throw const FormatException('Invalid lightning address');
   }
 }
-
 
 Future<AddressAndAmount> parseAddressAndAmount(String data, bool lnEnabled) async {
   if (data.isEmpty) {
@@ -149,8 +142,7 @@ Future<AddressAndAmount> parseAddressAndAmount(String data, bool lnEnabled) asyn
   if (lnEnabled) {
     if ((await isValidBitcoinAddress(address).then((value) => !value)) &&
         (await isValidLiquidAddress(address).then((value) => !value)) &&
-        (await isValidLightningAddress(lightningInvoice).then((
-            value) => false))) {
+        (await isValidLightningAddress(lightningInvoice) == null)) {
       throw const FormatException('Invalid address');
     }
   } else {
@@ -186,10 +178,10 @@ Future<AddressAndAmount> parseAddressAndAmount(String data, bool lnEnabled) asyn
     return AddressAndAmount(address, amount, assetId, type: type);
   } else {
     try {
-      DecodedInvoice decodedInvoice = await isValidLightningAddress(lightningInvoice);
+      Bolt11PaymentRequest decodedInvoice = isValidLightningAddress(lightningInvoice);
       type = PaymentType.Lightning;
       address = lightningInvoice;
-      amount = decodedInvoice.msats ~/ 1000;
+      amount = (decodedInvoice.amount * Decimal.fromInt(100000000)).toBigInt().toInt();
       return AddressAndAmount(address, amount, assetId, type: type);
     } catch (e) {
       throw const FormatException('Invalid lightning address');

@@ -1,6 +1,6 @@
 import 'package:Satsails/providers/pix_transaction_details_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
-import 'package:Satsails/screens/shared/error_display.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -178,7 +178,7 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
       error: (error, stack) => Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: ErrorDisplay(message: error.toString(), isCard: true),
+          child: MessageDisplay(message: error.toString()),
         ),
       ),
     );

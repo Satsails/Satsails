@@ -17,6 +17,11 @@ dependencies:
   http: ^1.2.1
   local_auth: ^2.1.8
   hive: ^2.2.3
+  awesome_snackbar_content: ^0.1.4
+  msh_checkbox: ^2.0.1
+  vibration: ^2.0.1
+  quickalert: ^1.1.0
+  overlay_support: ^2.1.0
   webview_flutter: ^4.5.0
   qr_flutter: ^4.1.0
   qr_code_scanner: ^1.0.1
@@ -27,11 +32,11 @@ dependencies:
 #  Need windows linux and web compils
   bdk_flutter: ^0.31.2-dev.2
   flutter_i18n: ^0.35.1
-#  need windows linux ios and mac and web compils
-  boltz_dart:
+  bolt11_decoder:
     git:
-      url: https://github.com/SatoshiPortal/boltz-dart
-      ref: trunk
+      url: https://github.com/mateusfsilva/dart_bolt11_decoder.git
+      ref: master
+#  need windows linux ios and mac and web compils
   lwk_dart:
     git:
       url: https://github.com/SatoshiPortal/lwk-dart.git
@@ -42,8 +47,6 @@ dependencies:
   group_button: ^5.3.4
   liquid_pull_to_refresh: ^3.0.1
   action_slider: ^0.7.0
-  fluttertoast: ^8.2.5
-#  flutter_styled_toast: ^2.2.1 use to compil toas everywhere
   flutter_card_swiper: ^7.0.0
   calendar_date_picker2: ^0.5.6
   flutter_native_splash: ^2.4.0
@@ -95,7 +98,6 @@ flutter:
   assets:
     - lib/assets/app_icon.png
     - lib/assets/satsails.png
-    - lib/assets/affiliates.png
     - lib/assets/GraficoAnalise.svg
     - lib/assets/satsails.svg
     - lib/assets/click.png
@@ -107,6 +109,8 @@ flutter:
     - lib/assets/eurx.png
     - lib/assets/l-btc.png
     - lib/assets/tether.png
+    - lib/assets/bitcoin-logo.png
+    - lib/assets/Bitcoin_lightning_logo.png
     - lib/assets/bip39_english.txt
     - .env
 

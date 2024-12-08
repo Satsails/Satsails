@@ -4,12 +4,12 @@ import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -168,7 +168,11 @@ class _PegState extends ConsumerState<Peg> {
                     ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormart);
                   }
                 } catch (e) {
-                  Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                  showMessageSnackBar(
+                    message: e.toString(),
+                    error: true,
+                    context: context,
+                  );
                 }
               },
               child: Padding(
@@ -225,7 +229,11 @@ class _PegState extends ConsumerState<Peg> {
                   ref.read(sendTxProvider.notifier).updateAddress('');
                   ref.read(sendTxProvider.notifier).updateAmount(0);
                   ref.read(sendBlocksProvider.notifier).state = 1;
-                  Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                  showMessageSnackBar(
+                    message: 'Swap done!',
+                    error: false,
+                    context: context,
+                  );
                   Future.microtask(() {
                     ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
                     ref.read(navigationProvider.notifier).state = 1;
@@ -236,7 +244,11 @@ class _PegState extends ConsumerState<Peg> {
                 } catch (e) {
                   controller.failure();
                   ref.read(transactionInProgressProvider.notifier).state = false;
-                  Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                  showMessageSnackBar(
+                    message: e.toString(),
+                    error: true,
+                    context: context,
+                  );
                   controller.reset();
                 }
               },
@@ -276,7 +288,11 @@ class _PegState extends ConsumerState<Peg> {
                   ref.read(sendTxProvider.notifier).updateAddress('');
                   ref.read(sendTxProvider.notifier).updateAmount(0);
                   ref.read(sendBlocksProvider.notifier).state = 1;
-                  Fluttertoast.showToast(msg: "Swap done!".i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.green, textColor: Colors.white, fontSize: 16.0);
+                  showMessageSnackBar(
+                    message: 'Swap done!',
+                    error: false,
+                    context: context,
+                  );
                   Future.microtask(() {
                     ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
                     ref.read(navigationProvider.notifier).state = 1;
@@ -287,7 +303,11 @@ class _PegState extends ConsumerState<Peg> {
                 } catch (e) {
                   ref.read(transactionInProgressProvider.notifier).state = false;
                   controller.failure();
-                  Fluttertoast.showToast(msg: e.toString().i18n(ref), toastLength: Toast.LENGTH_LONG, gravity: ToastGravity.TOP, timeInSecForIosWeb: 1, backgroundColor: Colors.red, textColor: Colors.white, fontSize: 16.0);
+                  showMessageSnackBar(
+                    message: e.toString(),
+                    error: true,
+                    context: context,
+                  );
                   controller.reset();
                 }
               },

@@ -91,12 +91,8 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
   Future<void> register() async {
     final password = await AuthModel().getCoinosPassword();
     final username = await AuthModel().getUsername();
-    final result = await CoinosLnService.register(username!, password!);
-    if (result.isSuccess) {
-      state = state.copyWith(username: username, password: password!);
-    } else {
-      login();
-    }
+    await CoinosLnService.register(username!, password!);
+    login();
   }
 
   Future<int> getBalance() async {
@@ -184,19 +180,6 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     } else {
       throw 'Failed to fetch balance and transactions';
     }
-  }
-
-  Future<bool> shouldMigrateUsernameAndPassword() async {
-    final token = state.token;
-    if (token == null || token.isEmpty) {
-      return false;
-    }
-
-    String newPassword = await AuthModel().getCoinosPassword() ?? '';
-
-    bool shouldMigrate = newPassword != state.password;
-
-    return shouldMigrate;
   }
 }
 

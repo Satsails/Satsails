@@ -2,14 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:Satsails/models/balance_model.dart';
-import 'package:Satsails/models/boltz/boltz_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/restart_widget.dart';
+import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
 import 'package:Satsails/screens/spash/splash.dart';
-import 'package:boltz_dart/boltz_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -19,6 +18,7 @@ import 'package:lwk_dart/lwk_dart.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -38,7 +38,6 @@ Future<void> main() async {
 
   await dotenv.load(fileName: ".env");
 
-  // Initialize Pusher Beams notifications
   await PusherBeams.instance.start(dotenv.env['PUSHERINSTANCE']!);
   PusherBeams.instance.onMessageReceivedInTheForeground((message) async {
     if (Platform.isAndroid || Platform.isIOS) {
@@ -78,18 +77,7 @@ Future<void> main() async {
   Hive.registerAdapter(WalletBalanceAdapter());
   Hive.registerAdapter(SideswapPegStatusAdapter());
   Hive.registerAdapter(SideswapCompletedSwapAdapter());
-  Hive.registerAdapter(KeyPairAdapter());
-  Hive.registerAdapter(PreImageAdapter());
-  Hive.registerAdapter(LBtcSwapScriptV2StrAdapter());
-  Hive.registerAdapter(ExtendedLbtcLnV2SwapAdapter());
-  Hive.registerAdapter(LbtcBoltzAdapter());
-  Hive.registerAdapter(BtcBoltzAdapter());
-  Hive.registerAdapter(ExtendedBtcLnV2SwapAdapter());
-  Hive.registerAdapter(BtcSwapScriptV2StrAdapter());
-  Hive.registerAdapter(SwapTypeAdapter());
-  Hive.registerAdapter(ChainAdapter());
 
-  await BoltzCore.init();
   await LwkCore.init();
   await FlutterBranchSdk.init(enableLogging: false, disableTracking: true);
 
@@ -106,9 +94,13 @@ Future<void> main() async {
   });
 
   runApp(
-    RestartWidget(
-      child: ProviderScope(
-        child: MainApp(),
+      const OverlaySupport.global(
+      child: RestartWidget(
+        child: ProviderScope(
+          child: TransactionNotificationsListener(
+            child: MainApp(),
+          ),
+        ),
       ),
     ),
   );
