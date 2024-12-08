@@ -1,4 +1,5 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
@@ -384,15 +385,15 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                         });
                         controller.loading();
                         try {
-                          final tx = await ref.watch(sendLiquidTransactionProvider.future);
+                          // final tx = await ref.watch(sendLiquidTransactionProvider.future);
                           await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                           showFullscreenTransactionSendModal(
                             context: context,
                             asset: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).name,
-                            amount: ref.watch(sendTxProvider).amount,
+                            amount: btcInDenominationFormatted(ref.watch(sendTxProvider).amount, btcFormat),
                             fiat: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).isFiat,
                             fiatAmount: ref.watch(sendTxProvider).amount.toString(),
-                            txid: tx,
+                            txid: '123',
                             isLiquid: true,
                           );
                           ref.read(sendTxProvider.notifier).resetToDefault();

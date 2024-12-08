@@ -388,7 +388,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                           showFullscreenTransactionSendModal(
                             context: context,
                             asset: 'Lightning',
-                            amount: sendTxState.amount,
+                            amount: btcInDenominationFormatted(sendTxState.amount, btcFormat),
                             fiat: false,
                           );
                           ref.read(sendTxProvider.notifier).resetToDefault();

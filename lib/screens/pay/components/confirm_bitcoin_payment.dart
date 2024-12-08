@@ -1,3 +1,4 @@
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
@@ -415,7 +416,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                           showFullscreenTransactionSendModal(
                             context: context,
                             asset: 'Bitcoin',
-                            amount: sendTxState.amount,
+                            amount: btcInDenominationFormatted(sendTxState.amount, btcFormat),
                             fiat: false,
                             txid: tx,
                           );

@@ -11,7 +11,7 @@ import 'package:vibration/vibration.dart';
 
 void showFullscreenTransactionSendModal({
   required BuildContext context,
-  required int amount,
+  required String amount,
   String? asset,
   bool fiat = false,
   String? fiatAmount,
@@ -31,7 +31,7 @@ void showFullscreenTransactionSendModal({
         child: SafeArea(
           child: Center(
             child: PaymentTransactionOverlay(
-              amount: amount.toString(),
+              amount: amount,
               fiat: fiat,
               fiatAmount: fiatAmount,
               asset: asset,
@@ -238,93 +238,71 @@ class _PaymentTransactionOverlayState
       }
     }
 
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Checkbox with animation
-          ScaleTransition(
-            scale: scaleAnimation,
-            child: MSHCheckbox(
-              size: 100,
-              value: checked,
-              colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
-                checkedColor: Colors.green,
-                uncheckedColor: Colors.white,
-                disabledColor: Colors.grey,
-              ),
-              style: MSHCheckboxStyle.stroke,
-              duration: const Duration(milliseconds: 500),
-              onChanged: (_) {},
+    return Column(
+      children: [
+        Spacer(),
+        ScaleTransition(
+          scale: scaleAnimation,
+          child: MSHCheckbox(
+            size: 100,
+            value: checked,
+            colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
+              checkedColor: Colors.green,
+              uncheckedColor: Colors.white,
+              disabledColor: Colors.grey,
             ),
+            style: MSHCheckboxStyle.stroke,
+            duration: const Duration(milliseconds: 500),
+            onChanged: (_) {},
           ),
-          const SizedBox(height: 30),
-          getAssetImage(widget.asset),
-          const SizedBox(height: 20),
+        ),
+        const SizedBox(height: 30),
+        getAssetImage(widget.asset),
+        const SizedBox(height: 20),
+        Text(
+          amountText,
+          style: const TextStyle(
+            fontSize: 48,
+            fontWeight: FontWeight.bold,
+            color: Colors.green,
+          ),
+        ),
+        if (widget.asset != null) ...[
+          const SizedBox(height: 10),
           Text(
-            amountText,
+            '${widget.asset}',
             style: const TextStyle(
-              fontSize: 48,
+              fontSize: 24,
+              color: Colors.white,
               fontWeight: FontWeight.bold,
-              color: Colors.green,
             ),
+            textAlign: TextAlign.center,
           ),
-          if (widget.asset != null) ...[
-            const SizedBox(height: 10),
-            Text(
-              '${widget.asset}',
-              style: const TextStyle(
-                fontSize: 24,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-
-          const SizedBox(height: 30),
+        ],
+        Spacer(),
+        if (widget.txid != null && widget.txid!.isNotEmpty)
+          CustomElevatedButton(
+            onPressed: () {
+              ref.read(transactionSearchProvider).isLiquid = widget.isLiquid;
+              ref.read(transactionSearchProvider).txid = widget.txid!;
+              context.push('/search_modal');
+            },
+            text: 'View Details'.i18n(ref),
+            backgroundColor: Colors.green,
+          )
+        else
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Text(
-              'Payment sent successfully!'.i18n(ref),
+              'Transaction details not available'.i18n(ref),
               style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w400,
-                color: Colors.white70,
+                fontSize: 16,
+                color: Colors.redAccent,
               ),
               textAlign: TextAlign.center,
             ),
           ),
-
-          const SizedBox(height: 30),
-          if (widget.txid != null && widget.txid!.isNotEmpty)
-            CustomElevatedButton(
-              onPressed: () {
-                ref.read(transactionSearchProvider).isLiquid = widget.isLiquid;
-                ref.read(transactionSearchProvider).txid = widget.txid!;
-                context.push('/search_modal');
-              },
-              text: 'View Details'.i18n(ref),
-            )
-          else
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Text(
-                'Transaction details not available'.i18n(ref),
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.redAccent,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-        ],
-      ),
+      ],
     );
   }
 }
