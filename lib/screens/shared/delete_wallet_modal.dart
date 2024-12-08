@@ -34,10 +34,10 @@ class DeleteWalletSection extends StatelessWidget {
       type: QuickAlertType.error,
       title: 'Delete Wallet?'.i18n(ref),
       text: 'Are you sure you want to delete the wallet?'.i18n(ref),
-      titleColor: Colors.white,
-      textColor: Colors.white,
-      backgroundColor: Colors.black,
-      headerBackgroundColor: Colors.black,
+      titleColor: Colors.redAccent, // Consistent title color
+      textColor: Colors.white70,
+      backgroundColor: Colors.black87,
+      headerBackgroundColor: Colors.black87,
       showCancelBtn: false,
       showConfirmBtn: false,
       widget:
@@ -50,10 +50,10 @@ class DeleteWalletSection extends StatelessWidget {
               type: QuickAlertType.error,
               title: 'Delete Wallet?'.i18n(ref),
               text: 'Are you sure? This action cannot be undone.'.i18n(ref),
-              titleColor: Colors.white,
-              textColor: Colors.white,
-              backgroundColor: Colors.black,
-              headerBackgroundColor: Colors.black,
+              titleColor: Colors.redAccent, // Consistent title color
+              textColor: Colors.white70,
+              backgroundColor: Colors.black87,
+              headerBackgroundColor: Colors.black87,
               showCancelBtn: false,
               showConfirmBtn: false,
               widget:
@@ -67,12 +67,13 @@ class DeleteWalletSection extends StatelessWidget {
                   },
                   text:
                   'Delete wallet'.i18n(ref),
+                  backgroundColor: Colors.redAccent,
                 ),
               ),
             );
           },
-          text:
-          'Delete wallet'.i18n(ref),
+          text: 'Delete wallet'.i18n(ref),
+          backgroundColor: Colors.redAccent,
         ),
       ),
     );

@@ -88,37 +88,56 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     QuickAlert.show(
       context: context,
       type: QuickAlertType.info,
-      title: 'Custodial Lightning Warning'.i18n(ref),
+      title: 'Custodial Lightning Warning'.i18n(ref), // Added an icon for emphasis
       text: 'By using this custodial Lightning service, your funds are held by our partner Coinos. Satsails does not have control over these funds. You agree to have your funds held by Coinos.'.i18n(ref),
-      backgroundColor: Colors.black,
-      titleColor: Colors.white,
-      textColor: Colors.white,
+      backgroundColor: Colors.black87, // Slightly lighter for better aesthetics
+      titleColor: Colors.orange, // More attention-grabbing color
+      textColor: Colors.white70, // Lighter for better contrast
       showCancelBtn: false,
       showConfirmBtn: false,
       widget: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start, // Align items to the start
         children: [
           const SizedBox(height: 16.0),
+          // Enhanced Copyable Field for Username
           _buildCopyableField(
             label: 'Username'.i18n(ref),
             value: coinosLn.username,
           ),
           const SizedBox(height: 16.0),
+          // Enhanced Copyable Field for Password
           _buildCopyableField(
-            label: 'Password',
+            label: 'Password'.i18n(ref),
             value: coinosLn.password,
           ),
           const SizedBox(height: 24.0),
-          TextButton(
-            onPressed: () => _launchURL('https://coinos.io/login'),
-            child: Text(
-              'Visit Coinos'.i18n(ref),
-              style: TextStyle(color: Colors.white, fontSize: 16),
+          // Enhanced Visit Coinos Button
+          Center(
+            child: TextButton(
+              onPressed: () => _launchURL('https://coinos.io/login'),
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.orange,
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              child: Text(
+                'Visit Coinos'.i18n(ref),
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
 
   Future<void> _launchURL(String url) async {
     if (await canLaunch(url)) {

@@ -62,15 +62,27 @@ class _PayState extends ConsumerState<Pay> {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.error,
-      title: 'Incorrect address'.i18n(ref),
-      text: message.i18n(ref),
-      textColor: Colors.white,
-      titleColor: Colors.white,
-      backgroundColor: Colors.black,
+      title: 'Oops!', // Updated Title
+      textColor: Colors.white70, // Slightly lighter for better contrast
+      titleColor: Colors.redAccent, // More attention-grabbing color
+      backgroundColor: Colors.black87, // Softer black for aesthetics
       showCancelBtn: false,
       showConfirmBtn: false,
+      widget: Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: Text(
+          message.i18n(ref),
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

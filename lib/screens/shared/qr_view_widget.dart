@@ -92,7 +92,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
       final paymentType = widget.ref.read(sendTxProvider).type;
       _navigateToPaymentScreen(paymentType, context, ref);
     } catch (e) {
-      await _showErrorDialog(context, e.toString(), _controller!, ref);
+      await _showErrorDialog(context, e.toString(), ref);
     } finally {
       _isProcessing = false;
     }
@@ -177,17 +177,28 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     );
   }
 
-  Future<void> _showErrorDialog(BuildContext context, String message, QRViewController controller, dynamic ref) async {
-    await QuickAlert.show(
+  Future<void> _showErrorDialog(BuildContext context, String message, dynamic ref) async {
+    QuickAlert.show(
       context: context,
       type: QuickAlertType.error,
-      title: 'Incorrect address'.i18n(ref),
-      text: message.i18n(ref),
-      textColor: Colors.white,
-      titleColor: Colors.white,
-      backgroundColor: Colors.black,
+      title: 'Oops!', // Updated Title
+      textColor: Colors.white70, // Slightly lighter for better contrast
+      titleColor: Colors.redAccent, // More attention-grabbing color
+      backgroundColor: Colors.black87, // Softer black for aesthetics
       showCancelBtn: false,
       showConfirmBtn: false,
+      widget: Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: Text(
+          message.i18n(ref),
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
     );
   }
 

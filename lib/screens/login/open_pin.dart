@@ -146,10 +146,10 @@ class _OpenPinState extends ConsumerState<OpenPin> {
       type: QuickAlertType.error,
       title: 'Delete Account?'.i18n(ref),
       text: 'All information will be permanently deleted.'.i18n(ref),
-      titleColor: Colors.white,
-      textColor: Colors.white,
-      backgroundColor: Colors.black,
-      headerBackgroundColor: Colors.black,
+      titleColor: Colors.redAccent,
+      textColor: Colors.white70,
+      backgroundColor: Colors.black87,
+      headerBackgroundColor: Colors.black87,
       showCancelBtn: false,
       showConfirmBtn: false,
       widget: Padding(
@@ -160,6 +160,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
             await _forgotPin(context, ref);
           },
           text: 'Delete wallet'.i18n(ref),
+          backgroundColor: Colors.redAccent,
         ),
       ),
     );

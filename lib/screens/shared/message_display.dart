@@ -90,11 +90,26 @@ void showInformationModal({
     context: context,
     type: QuickAlertType.info,
     title: title,
-    text: formattedMessage,
-    textColor: Colors.white,
     titleColor: Colors.white,
+    backgroundColor: Colors.black87, // Slightly lighter for better aesthetics
     showCancelBtn: false,
     showConfirmBtn: false,
-    backgroundColor: Colors.black,
+    widget: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          formattedMessage,
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 24.0),
+        // Optional: Close Button or Additional Elements
+        // Since the user requested not to add buttons, we'll omit this.
+      ],
+    ),
   );
 }
