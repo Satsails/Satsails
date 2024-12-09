@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:Satsails/models/balance_model.dart';
+import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
@@ -77,6 +78,7 @@ Future<void> main() async {
   Hive.registerAdapter(WalletBalanceAdapter());
   Hive.registerAdapter(SideswapPegStatusAdapter());
   Hive.registerAdapter(SideswapCompletedSwapAdapter());
+  Hive.registerAdapter(CoinosPaymentAdapter());
 
   await LwkCore.init();
   await FlutterBranchSdk.init(enableLogging: false, disableTracking: true);

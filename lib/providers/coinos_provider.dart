@@ -6,22 +6,25 @@ import 'package:Satsails/services/coinos/coinos_push_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:hive/hive.dart';
 
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 
 final initialCoinosProvider = FutureProvider.autoDispose<CoinosLn>((ref) async {
+  final transactionBox = await Hive.openBox('transactions');
   final token = await _storage.read(key: 'coinosToken') ?? '';
   final username = await _storage.read(key: 'coinosUsername') ?? '';
   final password = await _storage.read(key: 'coinosPassword') ?? '';
-  return CoinosLn(token: token, username: username, password: password);
+  final transactions = transactionBox.get('transactions', defaultValue: <CoinosPayment>[]);
+  return CoinosLn(token: token, username: username, password: password, transactions: transactions);
 });
 
 final coinosLnProvider = StateNotifierProvider.autoDispose<CoinosLnModel, CoinosLn>((ref) {
   final initialCoinos = ref.watch(initialCoinosProvider);
 
   return initialCoinos.when(
-    data: (coinos) => CoinosLnModel(CoinosLn(token: coinos.token, username: coinos.username, password: coinos.password)),
-    loading: () => CoinosLnModel(CoinosLn(token: '', username: '', password: '')),
+    data: (coinos) => CoinosLnModel(CoinosLn(token: coinos.token, username: coinos.username, password: coinos.password, transactions: coinos.transactions)),
+    loading: () => CoinosLnModel(CoinosLn(token: '', username: '', password: '', transactions: [])),
     error: (error, stackTrace) {
       throw error;
     },
@@ -81,6 +84,7 @@ final coinosBalanceProvider = FutureProvider<int>((ref) async {
 
 final getTransactionsProvider = FutureProvider.autoDispose<List<CoinosPayment>>((ref) async {
   final response = await ref.read(coinosLnProvider.notifier).getTransactions();
+  await ref.read(coinosLnProvider.notifier).updateTransactions(response);
 
   return response;
 });

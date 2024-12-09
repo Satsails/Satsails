@@ -1,99 +1,154 @@
+import 'package:Satsails/models/coinos_ln_model.dart';
+import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
+import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
+import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/models/datetime_range_model.dart';
+import 'package:lwk_dart/lwk_dart.dart' as lwk;
 
-class TransactionModel extends StateNotifier<Transaction>{
-  TransactionModel(super.state);
+/// StateNotifier for managing the Transaction state.
+class TransactionModel extends StateNotifier<Transaction> {
+  TransactionModel(Transaction state) : super(state);
+}
 
-  void updateBitcoinTransactions(List<dynamic> bitcoinTransactions){
-    state = state.copyWith(bitcoinTransactions: bitcoinTransactions);
-  }
+abstract class BaseTransaction {
+  final String id;
+  final DateTime timestamp;
 
-  void updateLiquidTransactions(List<dynamic> liquidTransactions){
-    state = state.copyWith(liquidTransactions: liquidTransactions);
-  }
+  BaseTransaction({
+    required this.id,
+    required this.timestamp,
+  });
+}
+
+class BitcoinTransaction extends BaseTransaction {
+  final bdk.TransactionDetails btcDetails;
+
+  BitcoinTransaction({
+    required String id,
+    required DateTime timestamp,
+    required bool isConfirmed,
+    required this.btcDetails,
+  }) : super(id: id, timestamp: timestamp);
+}
+
+/// Represents a Liquid transaction.
+class LiquidTransaction extends BaseTransaction {
+  final lwk.Tx lwkDetails;
+
+  LiquidTransaction({
+    required String id,
+    required DateTime timestamp,
+    required this.lwkDetails,
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp);
+}
+
+class CoinosTransaction extends BaseTransaction {
+  final CoinosPayment coinosDetails;
+
+  CoinosTransaction({
+    required String id,
+    required DateTime timestamp,
+    required this.coinosDetails,
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp);
+}
+
+class SideswapPegTransaction extends BaseTransaction {
+  final SideswapPegStatus sideswapPegDetails;
+
+  SideswapPegTransaction({
+    required String id,
+    required DateTime timestamp,
+    required this.sideswapPegDetails,
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp);
+}
+
+class SideswapInstantSwapTransaction extends BaseTransaction {
+  final SideswapCompletedSwap sideswapInstantSwapDetails;
+
+  SideswapInstantSwapTransaction({
+    required String id,
+    required DateTime timestamp,
+    required this.sideswapInstantSwapDetails,
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp);
 }
 
 class Transaction {
-  List<dynamic> bitcoinTransactions;
-  List<dynamic> liquidTransactions;
+  final List<BitcoinTransaction> bitcoinTransactions;
+  final List<LiquidTransaction> liquidTransactions;
+  final List<CoinosTransaction> coinosTransactions;
+  final List<SideswapPegTransaction> sideswapPegTransactions;
+  final List<SideswapInstantSwapTransaction> sideswapInstantSwapTransactions;
 
   Transaction({
     required this.bitcoinTransactions,
     required this.liquidTransactions,
+    required this.coinosTransactions,
+    required this.sideswapPegTransactions,
+    required this.sideswapInstantSwapTransactions,
   });
 
   Transaction copyWith({
-    List<dynamic>? bitcoinTransactions,
-    List<dynamic>? liquidTransactions,
+    List<BitcoinTransaction>? bitcoinTransactions,
+    List<LiquidTransaction>? liquidTransactions,
+    List<CoinosTransaction>? coinosTransactions,
+    List<SideswapPegTransaction>? sideswapPegTransactions,
+    List<SideswapInstantSwapTransaction>? sideswapInstantSwapTransactions,
   }) {
     return Transaction(
       bitcoinTransactions: bitcoinTransactions ?? this.bitcoinTransactions,
       liquidTransactions: liquidTransactions ?? this.liquidTransactions,
+      coinosTransactions: coinosTransactions ?? this.coinosTransactions,
+      sideswapPegTransactions: sideswapPegTransactions ?? this.sideswapPegTransactions,
+      sideswapInstantSwapTransactions: sideswapInstantSwapTransactions ?? this.sideswapInstantSwapTransactions,
     );
   }
 
-  List<dynamic> get allTransactions {
+  /// Combines all transactions into a single list.
+  List<BaseTransaction> get allTransactions {
     return [
       ...bitcoinTransactions,
       ...liquidTransactions,
+      ...coinosTransactions,
+      ...sideswapPegTransactions,
+      ...sideswapInstantSwapTransactions,
     ];
   }
 
-  List<dynamic> get allTransactionsSorted {
-    final allTransactions = this.allTransactions;
-    allTransactions.sort((a, b) {
-      if (a['confirmationTime'] == null && b['confirmationTime'] != null) {
-        return -1;
-      } else if (a['confirmationTime'] != null && b['confirmationTime'] == null) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-    return allTransactions;
+  /// Sorts all transactions based on their timestamp.
+  List<BaseTransaction> get allTransactionsSorted {
+    List<BaseTransaction> sorted = List.from(allTransactions);
+    sorted.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    return sorted;
   }
 
-  List<dynamic> filterBitcoinTransactions(DateTimeSelect range) {
-    var filteredTransactions = bitcoinTransactions.where((transaction) {
-      final confirmationTime = transaction.confirmationTime;
-      if (confirmationTime == null || confirmationTime.timestamp == 0) {
-        return true;
-      }
-      return confirmationTime.timestamp > range.start && confirmationTime.timestamp < range.end;
-    }).toList();
-
-    filteredTransactions.sort((a, b) {
-      if (a.confirmationTime == null || a.confirmationTime.timestamp == 0) {
-        return -1;
-      } else if (b.confirmationTime == null || b.confirmationTime.timestamp == 0) {
-        return 1;
-      } else {
-        return b.confirmationTime.timestamp.compareTo(a.confirmationTime.timestamp);
-      }
-    });
-
-    return filteredTransactions;
+  List<BitcoinTransaction> filterBitcoinTransactions(DateTimeRange range) {
+    return bitcoinTransactions.where((tx) {
+      return tx.timestamp.isAfter(range.start) &&
+          tx.timestamp.isBefore(range.end);
+    }).toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
-  List<dynamic> filterLiquidTransactions(DateTimeSelect range) {
-    var filteredTransactions = liquidTransactions.where((transaction) {
-      final confirmationTime = transaction.timestamp;
-      if (confirmationTime == null) {
-        return true;
-      }
-      return confirmationTime > range.start && confirmationTime < range.end;
-    }).toList();
-
-    filteredTransactions.sort((a, b) {
-      if (a.timestamp == null) {
-        return -1;
-      } else if (b.timestamp == null) {
-        return 1;
-      } else {
-        return b.timestamp.compareTo(a.timestamp);
-      }
-    });
-
-    return filteredTransactions;
+  /// Filters Liquid transactions within a specific date range.
+  List<LiquidTransaction> filterLiquidTransactions(DateTimeRange range) {
+    return liquidTransactions.where((tx) {
+      return tx.timestamp.isAfter(range.start) &&
+          tx.timestamp.isBefore(range.end);
+    }).toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
+}
+
+class DateTimeRange {
+  final DateTime start;
+  final DateTime end;
+
+  DateTimeRange({
+    required this.start,
+    required this.end,
+  });
 }
