@@ -12,7 +12,7 @@ class CoinosPaymentsList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return ref.watch(getPaymentsProvider).when(
+    return ref.watch(getTransactionsProvider).when(
       data: (payments) => payments.isEmpty
           ? Center(
         child: Text(

@@ -1983,6 +1983,18 @@ extension Localization on String {
       {
         'en': 'Information',
         'pt': 'Informação'
+      }+
+      {
+        'en': 'Payment received',
+        'pt': 'Pagamento recebido'
+      }+
+      {
+        'en': 'Incorrect address',
+        'pt': 'Endereço incorreto'
+      }+
+      {
+        'en': 'Are you sure? This action cannot be undone.',
+        'pt': 'Tem certeza? Esta ação não pode ser desfeita.'
       };
 
   String i18n(WidgetRef ref) {

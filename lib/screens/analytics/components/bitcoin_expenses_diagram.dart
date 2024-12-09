@@ -12,7 +12,7 @@ class BitcoinExpensesDiagram extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bitcoinIsLoading = ref.watch(transactionNotifierProvider).bitcoinTransactions.isNotEmpty
-        ? ref.watch(transactionNotifierProvider).bitcoinTransactions.first.txid == ''
+        ? ref.watch(transactionNotifierProvider).bitcoinTransactions.first.btcDetails.txid == ''
         : false;
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormat));

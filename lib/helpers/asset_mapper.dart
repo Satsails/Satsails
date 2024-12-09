@@ -19,7 +19,19 @@ enum AssetId {
         return 'UNKNOWN';
     }
   }
+
+  bool get isFiat {
+    switch (this) {
+      case AssetId.USD:
+      case AssetId.EUR:
+      case AssetId.BRL:
+        return true;
+      default:
+        return false;
+    }
+  }
 }
+
 
 class AssetMapper {
   static AssetId mapAsset(String assetId) {

@@ -169,6 +169,7 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('user');
     await Hive.deleteBoxFromDisk('affiliate');
     await Hive.deleteBoxFromDisk('addresses');
+    await Hive.deleteBoxFromDisk('coinosPayments');
     await SecureKeyManager.deleteKey();
     await PusherBeams.instance.clearAllState();
     final appDocDir = await getApplicationDocumentsDirectory();

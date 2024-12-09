@@ -1,11 +1,11 @@
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
+import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,7 +16,6 @@ import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:lwk_dart/lwk_dart.dart' as lwk;
 import 'package:intl/intl.dart';
 
 class BuildTransactions extends ConsumerWidget {
@@ -63,6 +62,7 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
         .watch(transactionNotifierProvider)
         .liquidTransactions
         .first
+        .lwkDetails
         .balances
         .isEmpty
         : false;
@@ -74,6 +74,7 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
         .watch(transactionNotifierProvider)
         .bitcoinTransactions
         .first
+        .btcDetails
         .txid == ''
         : false;
     final bitcoinTransactions = ref.watch(bitcoinTransactionsByDate);
@@ -272,7 +273,7 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
     final dynamicMargin = screenHeight * 0.01; // 1% of screen height
     final dynamicRadius = screenWidth * 0.03; // 3% of screen width
 
-    if (transaction is bdk.TransactionDetails) {
+    if (transaction is BitcoinTransaction) {
       return Container(
         margin: EdgeInsets.all(dynamicMargin),
         decoration: BoxDecoration(
@@ -281,7 +282,7 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
         ),
         child: _buildBitcoinTransactionItem(transaction, context, ref),
       );
-    } else if (transaction is lwk.Tx) {
+    } else if (transaction is LiquidTransaction) {
       return Container(
         margin: EdgeInsets.all(dynamicMargin),
         decoration: BoxDecoration(
@@ -295,7 +296,7 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
     }
   }
 
-  Widget _buildBitcoinTransactionItem(bdk.TransactionDetails transaction,
+  Widget _buildBitcoinTransactionItem(BitcoinTransaction transaction,
       BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery
         .of(context)
@@ -315,8 +316,8 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
           child: ListTile(
             leading: Column(
               children: [
-                transactionTypeIcon(transaction),
-                Text(transactionAmountInFiat(transaction, ref),
+                transactionTypeIcon(transaction.btcDetails),
+                Text(transactionAmountInFiat(transaction.btcDetails, ref),
                     style: TextStyle(
                         fontSize: dynamicFontSize, color: Colors.white)),
               ],
@@ -324,22 +325,22 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(transactionTypeString(transaction, ref),
+                Text(transactionTypeString(transaction.btcDetails, ref),
                     style: TextStyle(
                         fontSize: dynamicFontSize, color: Colors.white)),
-                Text(transactionAmount(transaction, ref),
+                Text(transactionAmount(transaction.btcDetails, ref),
                     style: TextStyle(
                         fontSize: dynamicFontSize, color: Colors.grey)),
               ],
             ),
             subtitle: Text(
                 timestampToDateTime(
-                    transaction.confirmationTime?.timestamp)
+                    transaction.btcDetails.confirmationTime?.timestamp)
                     .i18n(ref),
                 style: TextStyle(
                     fontSize: dynamicFontSize, color: Colors.grey)),
             trailing:
-            confirmationStatus(transaction, ref) == 'Confirmed'.i18n(ref)
+            confirmationStatus(transaction.btcDetails, ref) == 'Confirmed'.i18n(ref)
                 ? const Icon(Icons.check_circle_outlined,
                 color: Colors.green)
                 : const Icon(Icons.access_alarm_outlined,
@@ -350,7 +351,7 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildLiquidTransactionItem(lwk.Tx transaction, BuildContext context,
+  Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext context,
       WidgetRef ref) {
     final screenHeight = MediaQuery
         .of(context)
@@ -366,19 +367,19 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
               data: Theme.of(context)
                   .copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                leading: transactionTypeLiquidIcon(transaction.kind),
+                leading: transactionTypeLiquidIcon(transaction.lwkDetails.kind),
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(liquidTransactionType(transaction, ref),
+                    Text(liquidTransactionType(transaction.lwkDetails, ref),
                         style: TextStyle(
                             fontSize: dynamicFontSize, color: Colors.white)),
-                    transaction.balances.length == 1
+                    transaction.lwkDetails.balances.length == 1
                         ? Text(
                         _valueOfLiquidSubTransaction(
                             AssetMapper.mapAsset(
-                                transaction.balances[0].assetId),
-                            transaction.balances[0].value,
+                                transaction.lwkDetails.balances[0].assetId),
+                            transaction.lwkDetails.balances[0].value,
                             ref),
                         style: TextStyle(
                             fontSize: dynamicFontSize,
@@ -390,11 +391,11 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
                   ],
                 ),
                 subtitle: Text(
-                    timestampToDateTime(transaction.timestamp).i18n(ref),
+                    timestampToDateTime(transaction.lwkDetails.timestamp).i18n(ref),
                     style: TextStyle(
                         fontSize: dynamicFontSize, color: Colors.grey)),
-                trailing: confirmationStatusIcon(transaction),
-                children: transaction.balances.map((balance) {
+                trailing: confirmationStatusIcon(transaction.lwkDetails),
+                children: transaction.lwkDetails.balances.map((balance) {
                   return GestureDetector(
                     onTap: () {
                       context.pushNamed(
