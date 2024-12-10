@@ -1,5 +1,4 @@
-import 'package:Satsails/providers/pix_transaction_details_provider.dart';
-import 'package:Satsails/providers/user_provider.dart';
+import 'package:Satsails/providers/purchase_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +43,7 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
 
   @override
   Widget build(BuildContext context) {
-    final pixHistory = ref.watch(getUserTransactionsProvider);
+    final pixHistory = ref.watch(getUserPurchasesProvider);
 
     return pixHistory.when(
       data: (history) {
@@ -78,7 +77,7 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
               ),
               child: InkWell(
                 onTap: () {
-                  ref.read(singleTransactionDetailsProvider.notifier).setTransaction(pix);
+                  ref.read(selectedPurchaseIdProvider.notifier).state = pix.id;
                   context.push('/pix_transaction_details');
                 },
                 child: ListTile(

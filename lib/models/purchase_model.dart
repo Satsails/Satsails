@@ -1,30 +1,84 @@
 import 'dart:convert';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class Transfer {
-  final int id;
-  final String transferId;
+part 'purchase_model.g.dart';
+
+class PurchaseParams{
   final String cpf;
+  final double amount;
+
+  PurchaseParams({required this.cpf, required this.amount });
+}
+
+class PurchaseNotifier extends StateNotifier<List<Purchase>> {
+  PurchaseNotifier(List<Purchase> initialPurchases) : super(initialPurchases);
+
+  Future<void> addPurchase(Purchase purchase) async {
+    state = [...state, purchase];
+    await _updateHive();
+  }
+
+  Future<void> setPurchases(List<Purchase> purchases) async {
+    state = purchases;
+    await _updateHive();
+  }
+
+  Purchase getPurchaseById(int id) {
+    return state.firstWhere((purchase) => purchase.id == id, orElse: () => Purchase.empty());
+  }
+
+  Future<void> _updateHive() async {
+    final purchaseBox = await Hive.openBox<Purchase>('purchasesBox');
+    await purchaseBox.clear();
+    await purchaseBox.addAll(state);
+  }
+}
+@HiveType(typeId: 28)
+class Purchase extends HiveObject {
+  @HiveField(0)
+  final int id;
+  @HiveField(1)
+  final String transferId;
+  @HiveField(2)
+  final String cpf;
+  @HiveField(3)
   final double sentAmount;
+  @HiveField(4)
   final double originalAmount;
+  @HiveField(5)
   final double mintFees;
+  @HiveField(6)
   final String paymentId;
+  @HiveField(7)
   final bool completedTransfer;
+  @HiveField(8)
   final bool processingStatus;
+  @HiveField(9)
   final bool failed;
+  @HiveField(10)
   final bool sentToHotWallet;
+  @HiveField(11)
   final String receivedTxid;
+  @HiveField(12)
   final String? sentTxid;
+  @HiveField(13)
   final String? receipt;
+  @HiveField(14)
   final int? userId;
+  @HiveField(15)
   final DateTime createdAt;
+  @HiveField(16)
   final DateTime updatedAt;
+  @HiveField(17)
   final double receivedAmount;
+  @HiveField(18)
   final String pixKey;
 
-  Transfer({
+  Purchase({
     required this.id,
     required this.transferId,
     required this.cpf,
@@ -46,8 +100,8 @@ class Transfer {
     this.pixKey = '',
   });
 
-  factory Transfer.fromMultipleJson(Map<String, dynamic> json) {
-    return Transfer(
+  factory Purchase.fromMultipleJson(Map<String, dynamic> json) {
+    return Purchase(
       id: json['transfer']['id'] ?? 0,
       transferId: json['transfer']['transfer_id'] ?? '',
       sentAmount: (json['transfer']['sent_amount'] != null) ? double.parse(json['transfer']['sent_amount']) : 0.0,
@@ -55,7 +109,7 @@ class Transfer {
       originalAmount: (json['transfer']['original_amount'] != null) ? double.parse(json['transfer']['original_amount']) : 0.0,
       mintFees: (json['transfer']['mint_fees'] != null) ? double.parse(json['transfer']['mint_fees']) : 0.0,
       paymentId: json['transfer']['payment_id'] ?? '',
-      completedTransfer: json['transfer']['completed_transfer'],
+      completedTransfer: json['transfer']['completed_transfer'] ?? false,
       receivedTxid: json['transfer']['received_txid'] ?? '',
       sentTxid: json['transfer']['sent_txid'],
       receipt: json['transfer']['receipt'],
@@ -63,15 +117,15 @@ class Transfer {
       receivedAmount: (json['transfer']['amount_received_by_user'] != null) ? double.parse(json['transfer']['amount_received_by_user']) : 0.0,
       createdAt: DateTime.parse(json['transfer']['created_at'] ?? DateTime.now().toIso8601String()).toLocal(),
       updatedAt: DateTime.parse(json['transfer']['updated_at'] ?? DateTime.now().toIso8601String()).toLocal(),
-      processingStatus: json['transfer']['processing_status'],
-      failed: json['transfer']['failed'],
-      sentToHotWallet: json['transfer']['sent_to_hot_wallet'],
+      processingStatus: json['transfer']['processing_status'] ?? false,
+      failed: json['transfer']['failed'] ?? false,
+      sentToHotWallet: json['transfer']['sent_to_hot_wallet'] ?? false,
       pixKey: json['pix'] ?? '',
     );
   }
 
-  factory Transfer.fromJson(Map<String, dynamic> json) {
-    return Transfer(
+  factory Purchase.fromJson(Map<String, dynamic> json) {
+    return Purchase(
       id: json['id'] ?? 0,
       transferId: json['transfer_id'] ?? '',
       cpf: json['cpf'] ?? '',
@@ -79,7 +133,7 @@ class Transfer {
       originalAmount: (json['original_amount'] != null) ? double.parse(json['original_amount']) : 0.0,
       mintFees: (json['mint_fees'] != null) ? double.parse(json['mint_fees']) : 0.0,
       paymentId: json['payment_id'] ?? '',
-      completedTransfer: json['completed_transfer'],
+      completedTransfer: json['completed_transfer'] ?? false,
       receivedTxid: json['received_txid'] ?? '',
       sentTxid: json['sent_txid'],
       receipt: json['receipt'],
@@ -87,14 +141,14 @@ class Transfer {
       receivedAmount: (json['amount_received_by_user'] != null) ? double.parse(json['amount_received_by_user']) : 0.0,
       createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()).toLocal(),
       updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()).toLocal(),
-      processingStatus: json['processing_status'],
-      sentToHotWallet: json['sent_to_hot_wallet'],
-      failed: json['failed'],
+      processingStatus: json['processing_status'] ?? false,
+      failed: json['failed'] ?? false,
+      sentToHotWallet: json['sent_to_hot_wallet'] ?? false,
       pixKey: json['pix'] ?? '',
     );
   }
 
-  Transfer.empty() : this(
+  Purchase.empty() : this(
     id: 0,
     transferId: '',
     sentAmount: 0.0,
@@ -104,9 +158,9 @@ class Transfer {
     paymentId: '',
     completedTransfer: false,
     receivedTxid: '',
-    sentTxid: '',
-    receipt: '',
-    userId: 0,
+    sentTxid: null,
+    receipt: null,
+    userId: null,
     createdAt: DateTime.now(),
     updatedAt: DateTime.now(),
     receivedAmount: 0.0,
@@ -117,32 +171,15 @@ class Transfer {
   );
 }
 
-class ParsedTransfer {
-  final String timestamp;
-  final String amount_payed_to_affiliate;
-
-  ParsedTransfer({
-    required this.timestamp,
-    required this.amount_payed_to_affiliate,
-  });
-
-  factory ParsedTransfer.fromJson(Map<String, dynamic> json) {
-    return ParsedTransfer(
-      timestamp: json['timestamp'],
-      amount_payed_to_affiliate: json['amount_payed_to_affiliate'] ?? '0',
-    );
-  }
-}
-
-class TransferService {
-  static Future<Result<Transfer>> createTransactionRequest(String cpf, String auth, double valueSetToReceive) async {
+class PurchaseService {
+  static Future<Result<Purchase>> createPurchaseRequest(String auth, PurchaseParams params) async {
     try {
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/transfers'),
         body: jsonEncode({
           'transfer': {
-            'cpf': cpf,
-            'value_set_to_receive': valueSetToReceive,
+            'cpf': params.cpf,
+            'value_set_to_receive': params.amount,
           }
         }),
         headers: {
@@ -152,13 +189,12 @@ class TransferService {
       );
 
       if (response.statusCode == 201) {
-        return Result(data: Transfer.fromMultipleJson(jsonDecode(response.body)));
+        return Result(data: Purchase.fromJson(jsonDecode(response.body)));
       } else {
         return Result(error: response.body);
       }
     } catch (e) {
-      return Result(
-          error: 'An error has occurred. Please check your internet connection or contact support');
+      return Result(error: 'An error has occurred. Please check your internet connection or contact support');
     }
   }
 
@@ -179,6 +215,60 @@ class TransferService {
       }
     } catch (e) {
       return Result(error: 'An error has occurred. Please check your internet connection or contact support');
+    }
+  }
+
+  static Future<Result<List<Purchase>>> getUserPurchases(String pixPaymentCode, String auth) async {
+    try {
+      final uri = Uri.parse(
+          dotenv.env['BACKEND']! + '/users/user_transfers').replace(queryParameters: {'payment_id': pixPaymentCode,});
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        List<Purchase> transfers = jsonResponse['transfer'].map((item) => Purchase.fromJson(item as Map<String, dynamic>)).toList().cast<Purchase>();
+        return Result(data: transfers);
+      } else {
+        return Result(
+            error: 'Failed to get user transactions: ${response.body}');
+      }
+    } catch (e) {
+      return Result(
+          error: 'An error has occurred. Please check your internet connection or contact support');
+    }
+  }
+
+  static Future<Result<String>> getAmountPurchased(String pixPaymentCode, String auth) async {
+    try {
+      final uri = Uri.parse(
+          dotenv.env['BACKEND']! + '/users/amount_transfered_by_day')
+          .replace(queryParameters: {
+        'payment_id': pixPaymentCode,
+      });
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: jsonDecode(response.body));
+      } else {
+        return Result(error: 'Failed to get amount transferred');
+      }
+    } catch (e) {
+      return Result(
+          error: 'An error has occurred. Please check your internet connection or contact support');
     }
   }
 }

@@ -1,11 +1,11 @@
 import 'package:Satsails/models/coinos_ln_model.dart';
+import 'package:Satsails/models/purchase_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk_dart/lwk_dart.dart' as lwk;
 
-/// StateNotifier for managing the Transaction state.
 class TransactionModel extends StateNotifier<Transaction> {
   TransactionModel(Transaction state) : super(state);
 }
@@ -31,7 +31,6 @@ class BitcoinTransaction extends BaseTransaction {
   }) : super(id: id, timestamp: timestamp);
 }
 
-/// Represents a Liquid transaction.
 class LiquidTransaction extends BaseTransaction {
   final lwk.Tx lwkDetails;
 
@@ -39,6 +38,17 @@ class LiquidTransaction extends BaseTransaction {
     required String id,
     required DateTime timestamp,
     required this.lwkDetails,
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp);
+}
+
+class PixPurchaseTransaction extends BaseTransaction {
+  final Purchase pixDetails;
+
+  PixPurchaseTransaction({
+    required String id,
+    required DateTime timestamp,
+    required this.pixDetails,
     required bool isConfirmed,
   }) : super(id: id, timestamp: timestamp);
 }
@@ -82,6 +92,7 @@ class Transaction {
   final List<CoinosTransaction> coinosTransactions;
   final List<SideswapPegTransaction> sideswapPegTransactions;
   final List<SideswapInstantSwapTransaction> sideswapInstantSwapTransactions;
+  final List<PixPurchaseTransaction> pixPurchaseTransactions;
 
   Transaction({
     required this.bitcoinTransactions,
@@ -89,6 +100,7 @@ class Transaction {
     required this.coinosTransactions,
     required this.sideswapPegTransactions,
     required this.sideswapInstantSwapTransactions,
+    required this.pixPurchaseTransactions,
   });
 
   Transaction copyWith({
@@ -97,6 +109,7 @@ class Transaction {
     List<CoinosTransaction>? coinosTransactions,
     List<SideswapPegTransaction>? sideswapPegTransactions,
     List<SideswapInstantSwapTransaction>? sideswapInstantSwapTransactions,
+    List<PixPurchaseTransaction>? pixPurchaseTransactions,
   }) {
     return Transaction(
       bitcoinTransactions: bitcoinTransactions ?? this.bitcoinTransactions,
@@ -104,6 +117,7 @@ class Transaction {
       coinosTransactions: coinosTransactions ?? this.coinosTransactions,
       sideswapPegTransactions: sideswapPegTransactions ?? this.sideswapPegTransactions,
       sideswapInstantSwapTransactions: sideswapInstantSwapTransactions ?? this.sideswapInstantSwapTransactions,
+      pixPurchaseTransactions: pixPurchaseTransactions ?? this.pixPurchaseTransactions,
     );
   }
 
@@ -133,11 +147,24 @@ class Transaction {
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
-  /// Filters Liquid transactions within a specific date range.
   List<LiquidTransaction> filterLiquidTransactions(DateTimeRange range) {
     return liquidTransactions.where((tx) {
       return tx.timestamp.isAfter(range.start) &&
           tx.timestamp.isBefore(range.end);
+    }).toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
+  List<LiquidTransaction> filterLiquidTransactionsByAssetId(String assetId) {
+    return liquidTransactions.where((tx) {
+      return tx.lwkDetails.balances.any((balance) => balance.assetId == assetId);
+    }).toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
+  List<LiquidTransaction> filterLiquidTransactionsByKind(String kind) {
+    return liquidTransactions.where((tx) {
+      return tx.lwkDetails.kind == kind;
     }).toList()
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }

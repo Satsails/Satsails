@@ -2,6 +2,7 @@ import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
+import 'package:Satsails/providers/purchase_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,7 +28,7 @@ FutureProvider.autoDispose<Transaction>((ref) async {
   }).toList();
 
   // Fetch Coinos Transactions
-  final coinosTxs = await ref.watch(coinosLnProvider).transactions;
+  final coinosTxs = ref.watch(coinosLnProvider).transactions;
   final coinosTransactions = coinosTxs.map((coinosTx) {
     return CoinosTransaction(
       id: coinosTx.id ?? '',
@@ -41,7 +42,7 @@ FutureProvider.autoDispose<Transaction>((ref) async {
   final sideswapPegTransactions = sideswapPegTxs.map((pegTx) {
     return SideswapPegTransaction(
       id: pegTx.orderId!,
-      timestamp: DateTime.fromMillisecondsSinceEpoch(pegTx.createdAt! * 1000),
+      timestamp: DateTime.fromMillisecondsSinceEpoch(pegTx.createdAt!),
       sideswapPegDetails: pegTx,
       isConfirmed: pegTx.list!.map((e) => e.status).contains('completed'),
     );
@@ -53,23 +54,32 @@ FutureProvider.autoDispose<Transaction>((ref) async {
   sideswapInstantSwapTxs.map((instantSwapTx) {
     return SideswapInstantSwapTransaction(
       id: instantSwapTx.orderId,
-      timestamp: DateTime.fromMillisecondsSinceEpoch(instantSwapTx.timestamp! * 1000),
+      timestamp: DateTime.fromMillisecondsSinceEpoch(instantSwapTx.timestamp!),
       sideswapInstantSwapDetails: instantSwapTx,
       isConfirmed: instantSwapTx.txid != null && instantSwapTx.txid!.isNotEmpty,
     );
   }).toList();
 
-  // Combine all transactions into the composite Transaction object
+  final purchases = ref.watch(purchaseProvider) ;
+  final pixPurchases = purchases.map((pixTx) {
+    return PixPurchaseTransaction(
+      id: pixTx.id.toString(),
+      timestamp: pixTx.createdAt,
+      pixDetails: pixTx,
+      isConfirmed: pixTx.completedTransfer,
+    );
+  }).toList();
+
   return Transaction(
     bitcoinTransactions: bitcoinTransactions,
     liquidTransactions: liquidTransactions,
     coinosTransactions: coinosTransactions,
     sideswapPegTransactions: sideswapPegTransactions,
     sideswapInstantSwapTransactions: sideswapInstantSwapTransactions,
+    pixPurchaseTransactions: pixPurchases,
   );
 });
 
-/// StateNotifierProvider for TransactionModel.
 final transactionNotifierProvider = StateNotifierProvider.autoDispose<TransactionModel, Transaction>((ref) {
   final initialTransactionsAsync = ref.watch(initializeTransactionsProvider);
 
@@ -82,6 +92,7 @@ final transactionNotifierProvider = StateNotifierProvider.autoDispose<Transactio
         coinosTransactions: [],
         sideswapPegTransactions: [],
         sideswapInstantSwapTransactions: [],
+        pixPurchaseTransactions: [],
       ),
     ),
     error: (error, stackTrace) {
@@ -92,13 +103,13 @@ final transactionNotifierProvider = StateNotifierProvider.autoDispose<Transactio
           coinosTransactions: [],
           sideswapPegTransactions: [],
           sideswapInstantSwapTransactions: [],
+          pixPurchaseTransactions: [],
         ),
       );
     },
   );
 });
 
-/// Provider to get Bitcoin transactions filtered by date.
 final bitcoinTransactionsByDate = StateProvider.autoDispose<List<BitcoinTransaction>>((ref) {
   final dateTimeRange = ref.watch(dateTimeSelectProvider);
   final transactionState = ref.watch(transactionNotifierProvider);
@@ -106,7 +117,6 @@ final bitcoinTransactionsByDate = StateProvider.autoDispose<List<BitcoinTransact
   return transactionState.filterBitcoinTransactions(dateTimeRange);
 });
 
-/// Provider to get Liquid transactions filtered by date.
 final liquidTransactionsByDate = StateProvider.autoDispose<List<LiquidTransaction>>((ref) {
   final dateTimeRange = ref.watch(dateTimeSelectProvider);
   final transactionState = ref.watch(transactionNotifierProvider);
@@ -114,13 +124,7 @@ final liquidTransactionsByDate = StateProvider.autoDispose<List<LiquidTransactio
   return transactionState.filterLiquidTransactions(dateTimeRange);
 });
 
-/// Similarly, you can add providers for other transaction types filtered by date.
-
-/// Example DateTimeSelect provider.
-/// You should define this according to your application's needs.
 final dateTimeSelectProvider = Provider<DateTimeRange>((ref) {
-  // Define how to select the date range, possibly from user input or a predefined range.
-  // For example, returning the last 30 days:
   final now = DateTime.now();
   return DateTimeRange(
     start: now.subtract(Duration(days: 30)),

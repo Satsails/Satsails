@@ -1,7 +1,7 @@
 import 'dart:async'; // Import Timer
 import 'package:Satsails/helpers/string_extension.dart';
-import 'package:Satsails/models/transfer_model.dart';
-import 'package:Satsails/providers/pix_transaction_details_provider.dart';
+import 'package:Satsails/models/purchase_model.dart';
+import 'package:Satsails/providers/purchase_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +24,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
   @override
   void initState() {
     super.initState();
-    final transaction = ref.read(singleTransactionDetailsProvider);
+    final transaction = ref.read(singlePurchaseDetailsProvider);
     _initializeExpirationTime(transaction.createdAt);
     _startCountdown();
   }
@@ -60,7 +60,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
 
   @override
   Widget build(BuildContext context) {
-    final transaction = ref.watch(singleTransactionDetailsProvider);
+    final transaction = ref.watch(singlePurchaseDetailsProvider);
     const double dynamicMargin = 16.0;
     const double dynamicRadius = 12.0;
 
@@ -128,7 +128,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     );
   }
 
-  Widget _buildTransactionHeader(WidgetRef ref, Transfer transaction, bool isFrontendExpired) {
+  Widget _buildTransactionHeader(WidgetRef ref, Purchase transaction, bool isFrontendExpired) {
     return Column(
       children: [
         Icon(
@@ -185,7 +185,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     );
   }
 
-  Widget _buildTransactionDetails(WidgetRef ref, Transfer transaction) {
+  Widget _buildTransactionDetails(WidgetRef ref, Purchase transaction) {
     return Column(
       children: [
         TransactionDetailRow(
@@ -231,7 +231,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     );
   }
 
-  Widget _buildFeeDetails(WidgetRef ref, Transfer transaction) {
+  Widget _buildFeeDetails(WidgetRef ref, Purchase transaction) {
     return Column(
       children: [
         TransactionDetailRow(
@@ -248,7 +248,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     );
   }
 
-  Widget _buildReceiptDownload(WidgetRef ref, Transfer transaction, double dynamicRadius) {
+  Widget _buildReceiptDownload(WidgetRef ref, Purchase transaction, double dynamicRadius) {
     return transaction.receipt != null
         ? GestureDetector(
       onTap: () async {

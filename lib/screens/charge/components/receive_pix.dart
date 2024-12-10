@@ -1,8 +1,9 @@
 // this screen needs some heavy refactoring. On version "Unyielding conviction" we shall totally redo this spaghetti code.
 import 'dart:async';
 import 'package:Satsails/helpers/string_extension.dart';
-import 'package:Satsails/models/transfer_model.dart';
+import 'package:Satsails/models/purchase_model.dart';
 import 'package:Satsails/models/user_model.dart';
+import 'package:Satsails/providers/purchase_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:cpf_cnpj_validator/cnpj_validator.dart';
@@ -11,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
@@ -72,20 +72,26 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
   }
 
   Future<void> _fetchMinimumPayment() async {
-    final auth = ref.read(userProvider).recoveryCode;
     try {
-      final result = await TransferService.getMinimumPurchase(auth);
-      if (result.error == null && result.data != null) {
-        setState(() {
-          _minimumPayment = double.tryParse(result.data!) ?? 10.0;
-        });
-      } else {
-        showMessageSnackBar(context: context, message: result.error!, error: true);
-      }
+      final minimumPaymentStr = await ref.read(getMinimumPurchaseProvider.future);
+      final minimumPayment = double.tryParse(minimumPaymentStr) ?? 10.0;
+
+      setState(() {
+        _minimumPayment = minimumPayment;
+        _isLoading = false;
+      });
     } catch (e) {
-      showMessageSnackBar(context: context, message: e.toString(), error: true);
+      setState(() {
+        _isLoading = false;
+      });
+      showMessageSnackBar(
+        context: context,
+        message: e.toString().i18n(ref),
+        error: true,
+      );
     }
   }
+
 
   void calculateFee(
       double amountInDouble,
@@ -144,7 +150,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
     });
 
     final amountTransferred =
-    await ref.watch(getAmountTransferredProvider.future);
+    await ref.watch(getAmountPurchasedProvider.future);
     final double transferredAmount = double.tryParse(amountTransferred) ?? 0.0;
     _remainingLimit = _dailyLimit - transferredAmount;
 
@@ -161,15 +167,16 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
       return;
     }
 
-    try {
-      final transfer = await TransferService.createTransactionRequest(
-          cpf, auth, amountInDouble);
 
+    try {
+      final purchaseParams = PurchaseParams(
+        cpf: cpf,
+        amount: amountInDouble,
+      );
+
+      final transfer = await ref.read(createPurchaseRequestProvider(purchaseParams).future);
       setState(() {
-        if (transfer.error != null) {
-          throw transfer.error!;
-        }
-        _pixQRCode = transfer.data!.pixKey;
+        _pixQRCode = transfer.pixKey;
         _isLoading = false;
       });
     } catch (e) {
@@ -210,7 +217,7 @@ class _ReceivePixState extends ConsumerState<ReceivePix> {
 
   @override
   Widget build(BuildContext context) {
-    final amountTransferredAsyncValue = ref.watch(getAmountTransferredProvider);
+    final amountTransferredAsyncValue = ref.watch(getAmountPurchasedProvider);
 
     return amountTransferredAsyncValue.when(
       loading: () => Center(

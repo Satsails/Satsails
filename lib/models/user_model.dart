@@ -1,7 +1,7 @@
 // this screen needs some heavy refactoring. On version "Unyielding conviction" we shall totally redo this spaghetti code.
 import 'dart:convert';
 import 'package:Satsails/handlers/response_handlers.dart';
-import 'package:Satsails/models/transfer_model.dart';
+import 'package:Satsails/models/purchase_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
@@ -133,68 +133,6 @@ class UserService {
         return Result(data: User.fromJson(jsonDecode(response.body)));
       } else {
         return Result(error: 'Failed to create user: ${response.body}');
-      }
-    } catch (e) {
-      return Result(
-          error: 'An error has occurred. Please check your internet connection or contact support');
-    }
-  }
-
-
-  static Future<Result<List<Transfer>>> getUserTransactions(
-      String pixPaymentCode, String auth) async {
-    try {
-      final uri = Uri.parse(
-          dotenv.env['BACKEND']! + '/users/user_transfers')
-          .replace(queryParameters: {
-        'payment_id': pixPaymentCode,
-      });
-
-      final response = await http.get(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        List<Transfer> transfers = jsonResponse['transfer'].map((item) =>
-            Transfer.fromJson(item as Map<String, dynamic>)).toList().cast<
-            Transfer>();
-        return Result(data: transfers);
-      } else {
-        return Result(
-            error: 'Failed to get user transactions: ${response.body}');
-      }
-    } catch (e) {
-      return Result(
-          error: 'An error has occurred. Please check your internet connection or contact support');
-    }
-  }
-
-  static Future<Result<String>> getAmountTransferred(String pixPaymentCode,
-      String auth) async {
-    try {
-      final uri = Uri.parse(
-          dotenv.env['BACKEND']! + '/users/amount_transfered_by_day')
-          .replace(queryParameters: {
-        'payment_id': pixPaymentCode,
-      });
-
-      final response = await http.get(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: jsonDecode(response.body));
-      } else {
-        return Result(error: 'Failed to get amount transferred');
       }
     } catch (e) {
       return Result(
