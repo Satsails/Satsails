@@ -65,11 +65,6 @@ class UserCreation extends ConsumerWidget {
                     ref.read(loadingProvider.notifier).state = true;
                     try {
                       await ref.watch(createUserProvider.future);
-                      showMessageSnackBar(
-                        message: 'Anonymous account created successfully!'.i18n(ref),
-                        error: false,
-                        context: context,
-                      );
                       ref.read(loadingProvider.notifier).state = false;
                       context.go('/pix_onboarding');
                     } catch (e) {

@@ -60,7 +60,7 @@ final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) asyn
 final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase, PurchaseParams>((ref, params) async {
   final auth = ref.read(userProvider).recoveryCode;
   final result = await PurchaseService.createPurchaseRequest(auth, params);
-  await ref.watch(getUserPurchasesProvider.future);
+  await ref.refresh(getUserPurchasesProvider.future);
   if (result.isSuccess && result.data != null) {
     return result.data!;
   } else {

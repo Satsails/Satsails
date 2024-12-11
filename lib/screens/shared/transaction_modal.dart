@@ -58,7 +58,7 @@ Widget getAssetImage(String? asset) {
       return Image.asset('lib/assets/tether.png', width: 48, height: 48);
     case 'EURx':
     case 'EUROX':
-      return Image.asset('lib/assets/eurox.png', width: 48, height: 48);
+      return Image.asset('lib/assets/eurx.png', width: 48, height: 48);
     case 'Depix':
     case 'DEPIX':
       return Image.asset('lib/assets/depix.png', width: 48, height: 48);
