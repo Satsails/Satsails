@@ -17,6 +17,7 @@ dependencies:
   http: ^1.2.1
   local_auth: ^2.1.8
   hive: ^2.2.3
+  encrypt: ^5.0.3
   awesome_snackbar_content: ^0.1.4
   msh_checkbox: ^2.0.1
   vibration: ^2.0.1

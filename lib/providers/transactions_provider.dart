@@ -1,4 +1,5 @@
 import 'package:Satsails/models/transactions_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
@@ -123,6 +124,17 @@ final liquidTransactionsByDate = StateProvider.autoDispose<List<LiquidTransactio
 
   return transactionState.filterLiquidTransactions(dateTimeRange);
 });
+
+// here for when we implement joltz and we must store transactions for later usage
+final encryptSideswapTransactionsProvider = FutureProvider.autoDispose<String>((ref) async {
+  final transactionState = ref.watch(transactionNotifierProvider);
+  final authModel = ref.watch(authModelProvider);
+
+  // Encrypt the transactions
+  return await transactionState.encryptSideswapTransactions(authModel);
+});
+
+
 
 final dateTimeSelectProvider = Provider<DateTimeRange>((ref) {
   final now = DateTime.now();

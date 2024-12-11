@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:conduit_password_hash/pbkdf2.dart';
 import 'package:crypto/crypto.dart';
+import 'package:encrypt/encrypt.dart' as encrypter;
 import 'package:faker/faker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -58,6 +60,43 @@ class AuthModel {
     final salt = base64.encode(hashedMnemonic.codeUnits.sublist(0, 16).map((c) => c & 0xff).toList());
     final derivedKey = pbkdf2.generateKey(hashedMnemonic, salt, 2048, 32);
     return derivedKey;
+  }
+
+  // here for when we implement joltz and we must store transactions for later usage
+  Future<encrypter.Key> deriveAESKey(String mnemonic) async {
+    final derivedKey = await deriveKeyWithSalt(mnemonic);
+    return encrypter.Key(Uint8List.fromList(derivedKey.sublist(0, 32)));
+  }
+
+  Future<encrypter.IV> deriveAESIV(String mnemonic) async {
+    final derivedKey = await deriveKeyWithSalt(mnemonic);
+    return encrypter.IV(Uint8List.fromList(derivedKey.sublist(32, 48)));
+  }
+
+  Future<String> encrypt(String plaintext) async {
+    final mnemonic = await getMnemonic();
+    if (mnemonic == null) throw Exception('Mnemonic not found');
+
+    final key = await deriveAESKey(mnemonic);
+    final iv = await deriveAESIV(mnemonic);
+
+    final encrypterInstance = encrypter.Encrypter(encrypter.AES(key, mode: encrypter.AESMode.cbc));
+    final encrypted = encrypterInstance.encrypt(plaintext, iv: iv);
+
+    return encrypted.base64;
+  }
+
+  Future<String> decrypt(String ciphertext) async {
+    final mnemonic = await getMnemonic();
+    if (mnemonic == null) throw Exception('Mnemonic not found');
+
+    final key = await deriveAESKey(mnemonic);
+    final iv = await deriveAESIV(mnemonic);
+
+    final encrypterInstance = encrypter.Encrypter(encrypter.AES(key, mode: encrypter.AESMode.cbc));
+    final decrypted = encrypterInstance.decrypt(encrypter.Encrypted.fromBase64(ciphertext), iv: iv);
+
+    return decrypted;
   }
 
   Future<String?> getUsername() async {
