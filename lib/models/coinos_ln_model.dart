@@ -3,21 +3,48 @@ import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/models/auth_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+part 'coinos_ln_model.g.dart';
+
+@HiveType(typeId: 27)
 class CoinosPayment {
+  @HiveField(0)
   final String? id;
+
+  @HiveField(1)
   final String? hash;
+
+  @HiveField(2)
   final int? amount;
+
+  @HiveField(3)
   final String? uid;
+
+  @HiveField(4)
   final double? rate;
+
+  @HiveField(5)
   final String? currency;
+
+  @HiveField(6)
   final String? memo;
+
+  @HiveField(7)
   final String? ref;
+
+  @HiveField(8)
   final int? tip;
+
+  @HiveField(9)
   final String? type;
+
+  @HiveField(10)
   final bool? confirmed;
+
+  @HiveField(11)
   final DateTime? created;
 
   CoinosPayment({
@@ -48,10 +75,13 @@ class CoinosPayment {
       tip: json['tip'] as int?,
       type: json['type'] as String?,
       confirmed: json['confirmed'] as bool?,
-      created: json['created'] != null ? DateTime.fromMillisecondsSinceEpoch(json['created']) : null,
+      created: json['created'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['created'])
+          : null,
     );
   }
 }
+
 
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 
@@ -59,14 +89,16 @@ class CoinosLn {
   final String token;
   final String username;
   final String password;
+  final List<CoinosPayment> transactions;
 
-  CoinosLn({required this.token, required this.username, this.password = ''});
+  CoinosLn({required this.token, required this.username, this.password = '', required this.transactions});
 
-  CoinosLn copyWith({String? token, String? username, String? password}) {
+  CoinosLn copyWith({String? token, String? username, String? password, List<CoinosPayment>? transactions}) {
     return CoinosLn(
       token: token ?? this.token,
       username: username ?? this.username,
       password: password ?? this.password,
+      transactions: transactions ?? this.transactions,
     );
   }
 }
@@ -88,15 +120,17 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     }
   }
 
+  Future<void> updateTransactions(List<CoinosPayment> transactions) async {
+    final box = await Hive.openBox<List<CoinosPayment>>('coinosPayments');
+    await box.put('transactions', transactions);
+    state = state.copyWith(transactions: transactions);
+  }
+
   Future<void> register() async {
     final password = await AuthModel().getCoinosPassword();
     final username = await AuthModel().getUsername();
-    final result = await CoinosLnService.register(username!, password!);
-    if (result.isSuccess) {
-      state = state.copyWith(username: username, password: password!);
-    } else {
-      login();
-    }
+    await CoinosLnService.register(username!, password!);
+    login();
   }
 
   Future<int> getBalance() async {
@@ -184,19 +218,6 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     } else {
       throw 'Failed to fetch balance and transactions';
     }
-  }
-
-  Future<bool> shouldMigrateUsernameAndPassword() async {
-    final token = state.token;
-    if (token == null || token.isEmpty) {
-      return false;
-    }
-
-    String newPassword = await AuthModel().getCoinosPassword() ?? '';
-
-    bool shouldMigrate = newPassword != state.password;
-
-    return shouldMigrate;
   }
 }
 

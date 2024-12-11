@@ -1,3 +1,5 @@
+import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +8,7 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:quickalert/quickalert.dart';
 
 class OpenPin extends ConsumerStatefulWidget {
   OpenPin({super.key});
@@ -107,13 +109,10 @@ class _OpenPinState extends ConsumerState<OpenPin> {
         await _forgotPin(context, ref); // Trigger wallet deletion
       } else {
         int remainingAttempts = 6 - _attempts;
-        Fluttertoast.showToast(
-          msg: 'Invalid PIN'.i18n(ref) + ' $remainingAttempts ' + 'attempts remaining'.i18n(ref),
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
+        showMessageSnackBar(
+          context: context,
+          message: 'Invalid PIN'.i18n(ref) + ' $remainingAttempts ' + 'attempts remaining'.i18n(ref),
+          error: true,
         );
       }
     }
@@ -142,92 +141,31 @@ class _OpenPinState extends ConsumerState<OpenPin> {
   }
 
   Future<void> _showConfirmationDialog(BuildContext context, WidgetRef ref) async {
-    showDialog(
+    QuickAlert.show(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 24.0),
-          backgroundColor: Colors.white,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CircleAvatar(
-                radius: 40,
-                backgroundColor: Colors.red,
-                child: Icon(Icons.warning, size: 40, color: Colors.white),
-              ),
-              const SizedBox(height: 16.0),
-              Text(
-                'Delete Account?'.i18n(ref),
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8.0),
-              Text(
-                'All information will be permanently deleted.'.i18n(ref),
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-                    ),
-                    child: Text(
-                      'Cancel'.i18n(ref),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                    onPressed: () {
-                      context.pop();
-                    },
-                  ),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-                    ),
-                    child: Text(
-                      'Delete'.i18n(ref),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                    onPressed: () async {
-                      await _forgotPin(context, ref);
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
+      type: QuickAlertType.error,
+      title: 'Delete Account?'.i18n(ref),
+      text: 'All information will be permanently deleted.'.i18n(ref),
+      titleColor: Colors.redAccent,
+      textColor: Colors.white70,
+      backgroundColor: Colors.black87,
+      headerBackgroundColor: Colors.black87,
+      showCancelBtn: false,
+      showConfirmBtn: false,
+      widget: Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: CustomElevatedButton(
+          onPressed: () async {
+            context.pop();
+            await _forgotPin(context, ref);
+          },
+          text: 'Delete wallet'.i18n(ref),
+          backgroundColor: Colors.redAccent,
+        ),
+      ),
     );
   }
+
 
   Future<void> _forgotPin(BuildContext context, WidgetRef ref) async {
     final authModel = ref.read(authModelProvider);

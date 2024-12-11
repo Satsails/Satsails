@@ -10,6 +10,7 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/transaction_data_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:quickalert/quickalert.dart';
 
 class QRViewWidget extends StatefulWidget {
   final GlobalKey qrKey;
@@ -91,7 +92,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
       final paymentType = widget.ref.read(sendTxProvider).type;
       _navigateToPaymentScreen(paymentType, context, ref);
     } catch (e) {
-      await _showErrorDialog(context, e.toString(), _controller!);
+      await _showErrorDialog(context, e.toString(), ref);
     } finally {
       _isProcessing = false;
     }
@@ -176,50 +177,31 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     );
   }
 
-  Future<void> _showErrorDialog(BuildContext context, String errorMessage, QRViewController controller) async {
-    await showDialog(
+  Future<void> _showErrorDialog(BuildContext context, String message, dynamic ref) async {
+    QuickAlert.show(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
+      type: QuickAlertType.error,
+      title: 'Oops!', // Updated Title
+      textColor: Colors.white70, // Slightly lighter for better contrast
+      titleColor: Colors.redAccent, // More attention-grabbing color
+      backgroundColor: Colors.black87, // Softer black for aesthetics
+      showCancelBtn: false,
+      showConfirmBtn: false,
+      widget: Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: Text(
+          message.i18n(ref),
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
           ),
-          backgroundColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(
-              vertical: 20.0, horizontal: 24.0),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.red.withOpacity(0.8),
-                child: const Icon(Icons.close, size: 40, color: Colors.white),
-              ),
-              const SizedBox(height: 16.0),
-              Text(
-                errorMessage.i18n(widget.ref),
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.close, color: Colors.black54),
-              onPressed: () {
-                context.pop();
-                controller.resumeCamera();
-              },
-            ),
-          ],
-        );
-      },
+          textAlign: TextAlign.center,
+        ),
+      ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

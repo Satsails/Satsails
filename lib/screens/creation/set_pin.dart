@@ -1,10 +1,10 @@
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 final pinProvider = StateProvider<String>((ref) => '');
 
@@ -91,15 +91,7 @@ class _SetPinState extends ConsumerState<SetPin> {
                         // Navigate to ConfirmPin screen
                         context.push('/confirm_pin');
                       } else {
-                        Fluttertoast.showToast(
-                          msg: 'Please enter a 6-digit PIN'.i18n(ref),
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.TOP,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0,
-                        );
+                        showMessageSnackBar(message: 'Please enter a 6-digit PIN'.i18n(ref), error: true, context: context);
                       }
                     },
                   ),

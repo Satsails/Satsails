@@ -1,12 +1,12 @@
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/exchange/components/lightningSwaps.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/screens/exchange/components/liquid_swap_cards.dart';
 import 'package:Satsails/screens/exchange/components/peg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 
 final selectedExchangeTypeProvider = StateProvider<String>((ref) => "Stable ⇄ Liquid");
@@ -25,13 +25,10 @@ class Exchange extends ConsumerWidget {
     return PopScope(
       onPopInvoked: (pop) async {
         if (ref.watch(transactionInProgressProvider)) {
-          Fluttertoast.showToast(
-            msg: "Transaction in progress, please wait.".i18n(ref),
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.TOP,
-            backgroundColor: Colors.orange,
-            textColor: Colors.white,
-            fontSize: 16.0,
+          showMessageSnackBar(
+            message: "Transaction in progress, please wait.".i18n(ref),
+            error: false,
+            context: context,
           );
           return;
         } else {

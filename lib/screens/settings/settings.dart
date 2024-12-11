@@ -4,10 +4,10 @@ import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/screens/shared/delete_wallet_modal.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -233,12 +233,20 @@ class Settings extends ConsumerWidget {
                       if (affiliateCode.isNotEmpty) {
                         try {
                           await ref.read(addAffiliateCodeProvider(affiliateCode).future);
-                          Fluttertoast.showToast(msg: 'Affiliate code inserted successfully'.i18n(ref));
+                          showMessageSnackBar(
+                            message: 'Affiliate code inserted successfully'.i18n(ref),
+                            error: false,
+                            context: context,
+                          );
                           // hammer fix
                           ref.invalidate(initializeAffiliateProvider);
                           context.pop();
                         } catch (e) {
-                          Fluttertoast.showToast(msg: 'Error inserting affiliate code'.i18n(ref));
+                          showMessageSnackBar(
+                            message: 'Error inserting affiliate code'.i18n(ref),
+                            error: true,
+                            context: context,
+                          );
                         }
                       }
                     },
