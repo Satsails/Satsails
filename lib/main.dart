@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
+import 'package:i18n_extension/default.i18n.dart';
 import 'package:lwk_dart/lwk_dart.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
@@ -93,6 +94,10 @@ Future<void> main() async {
       final currentInsertedAffiliateCode = box.get('insertedAffiliateCode', defaultValue: '');
       if (insertedAffiliateCode != null && currentInsertedAffiliateCode.isEmpty) {
         box.put('insertedAffiliateCode', upperCaseCode);
+        showSimpleNotification(
+          Text('Affiliate code $upperCaseCode inserted!'.i18n),
+          background: Colors.green,
+        );
       }
     }
   });

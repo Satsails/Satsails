@@ -70,8 +70,6 @@ dependencies:
   crisp_chat: ^2.0.4
   currency_formatter: ^2.2.1
   flutter_local_notifications: ^17.2.3
-#  incompatible with latest flutter version, commenting for now, will be redundant once eulen releases api
-#  pusher_channels_flutter: ^2.2.1
   faker: ^2.2.0
   conduit_password_hash: ^5.1.3
   bech32: ^0.2.2

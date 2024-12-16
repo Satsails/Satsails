@@ -1995,6 +1995,10 @@ extension Localization on String {
       {
         'en': 'Are you sure? This action cannot be undone.',
         'pt': 'Tem certeza? Esta ação não pode ser desfeita.'
+      }+
+      {
+        'en': 'Affiliate code inserted!',
+        'pt': 'Código de afiliado inserido!'
       };
 
   String i18n(WidgetRef ref) {
