@@ -23,9 +23,7 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 
-final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');
-final inputInFiatProvider = StateProvider.autoDispose<bool>((ref) => false);
-final precisionFiatValueProvider = StateProvider<String>((ref) => "0.00");
+
 
 class Peg extends ConsumerStatefulWidget {
   const Peg({super.key});

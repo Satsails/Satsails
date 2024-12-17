@@ -2,6 +2,7 @@ import 'package:Satsails/helpers/transaction_helpers.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -38,16 +39,21 @@ class _ExchangeState extends ConsumerState<Exchange> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            buildBalanceCardWithMaxButton(ref, 16, 20, controller),
-            SizedBox(height: 16),
-            buildExchangeCard(fromAsset, toAsset, context, ref, controller),
-            SizedBox(height: 16),
-            buildAdvancedOptionsCard(ref, 16, 20),
-            bitcoinFeeSlider(ref, 8.0, 20.0),
-          ],
+        child: SafeArea(
+          child: FlutterKeyboardDoneWidget(
+            doneWidgetBuilder: (context) {
+              return const Text('Done');
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                buildBalanceCardWithMaxButton(ref, 16, 20, controller),
+                SizedBox(height: 16),
+                buildExchangeCard(fromAsset, toAsset, context, ref, controller),
+                SizedBox(height: 16),
+              ],
+            ),
+          ),
         ),
       ),
     );
