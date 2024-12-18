@@ -1,12 +1,10 @@
 import 'dart:math' as math;
-import 'package:intl/intl.dart';
 
 String btcInDenominationFormatted(num amount, String denomination, [bool isBitcoin = true]) {
   num balance = 0;
 
   if (!isBitcoin) {
-    // Format fiat or other non-BTC denominations with 2 decimal places
-    return NumberFormat('#,##0.00').format(amount / 100000000);
+    return (amount / 100000000).toStringAsFixed(2);
   }
 
   switch (denomination) {
@@ -25,14 +23,12 @@ String btcInDenominationFormatted(num amount, String denomination, [bool isBitco
   } else {
     switch (denomination) {
       case 'BTC':
-      // Use NumberFormat to remove trailing zeros
-        return NumberFormat('#,##0.########').format(balance);
+        return balance.toStringAsFixed(8);
       default:
         return balance.toStringAsFixed(0);
     }
   }
 }
-
 
 num truncateToDecimalPlaces(num number, int decimalPlaces) {
   num mod = math.pow(10.0, decimalPlaces);
