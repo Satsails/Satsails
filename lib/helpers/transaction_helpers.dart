@@ -32,6 +32,24 @@ enum SwapType {
   sideswapLbtcToDepix,
 }
 
+const List<SwapType> fiatDisplayAllowedSwapTypes = [
+  SwapType.sideswapLbtcToUsdt,
+  SwapType.sideswapLbtcToEurox,
+  SwapType.sideswapLbtcToDepix,
+  SwapType.sideswapBtcToLbtc,
+  SwapType.sideswapLbtcToBtc,
+  SwapType.coinosLnToBTC,
+  SwapType.coinosLnToLBTC,
+  SwapType.coinosBtcToLn,
+  SwapType.coinosLbtcToLn,
+];
+
+const List<String> fiatAssets = [
+  'USDT',
+  'Eurox',
+  'Depix',
+];
+
 
 List<String> getAssets(WidgetRef ref) {
   final lightningAvailable = ref.watch(coinosLnProvider).token.isNotEmpty;
@@ -45,8 +63,6 @@ List<String> getAssets(WidgetRef ref) {
     'Depix'
   ];
 }
-
-
 
 final swapTypeProvider = StateProvider.autoDispose<SwapType?>((ref) {
   final fromAsset = ref.watch(fromAssetProvider);
@@ -106,36 +122,84 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
         ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(inputInFiatProvider.notifier).state = false;
         break;
 
       case SwapType.sideswapEuroxToLbtc:
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.EUR));
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.EUR);
         ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(inputInFiatProvider.notifier).state = false;
         break;
 
       case SwapType.sideswapDepixToLbtc:
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.BRL));
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.BRL);
         ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(inputInFiatProvider.notifier).state = false;
         break;
 
       case SwapType.sideswapLbtcToUsdt:
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
         ref.read(sendBitcoinProvider.notifier).state = true;
+        ref.read(inputInFiatProvider.notifier).state = false;
         break;
 
       case SwapType.sideswapLbtcToEurox:
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.EUR);
         ref.read(sendBitcoinProvider.notifier).state = true;
+        ref.read(inputInFiatProvider.notifier).state = false;
         break;
 
       case SwapType.sideswapLbtcToDepix:
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.BRL);
         ref.read(sendBitcoinProvider.notifier).state = true;
+        ref.read(inputInFiatProvider.notifier).state = false;
+        break;
+
+      case SwapType.sideswapBtcToLbtc:
+        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(inputInFiatProvider.notifier).state = false;
+        break;
+
+      case SwapType.sideswapLbtcToBtc:
+        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(inputInFiatProvider.notifier).state = false;
+        break;
+
+      case SwapType.coinosLnToBTC:
+        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(inputInFiatProvider.notifier).state = false;
+        break;
+
+      case SwapType.coinosLnToLBTC:
+        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(inputInFiatProvider.notifier).state = false;
+        break;
+
+      case SwapType.coinosBtcToLn:
+        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(inputInFiatProvider.notifier).state = false;
+        break;
+
+      case SwapType.coinosLbtcToLn:
+        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(inputInFiatProvider.notifier).state = false;
         break;
 
       default:
@@ -143,6 +207,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
     }
   }
 }
+
 
 final swapTypeNotifierProvider = StateNotifierProvider.autoDispose<SwapTypeNotifier, void>((ref) {
   return SwapTypeNotifier(ref);
@@ -229,7 +294,7 @@ final fromAssetProvider = StateProvider.autoDispose<String>((ref) => 'Depix');
 final toAssetProvider = StateProvider.autoDispose<String>((ref) => 'Liquid Bitcoin');
 final inputInFiatProvider = StateProvider.autoDispose<bool>((ref) => false);
 final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');
-final precisionFiatValueProvider = StateProvider<String>((ref) => "0.00");
+final precisionFiatValueProvider = StateProvider.autoDispose<String>((ref) => "0.00");
 
 
 
@@ -533,14 +598,12 @@ Future<void> handleLiquidBitcoinToLightning(WidgetRef ref, TextEditingController
 
 
 Widget buildExchangeCard(String fromAsset, String toAsset, BuildContext context, WidgetRef ref, TextEditingController controller) {
-  final swapType = ref.watch(swapTypeProvider)!;
-
   return Card(
     color: Colors.grey.shade900,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     elevation: 4,
     child: Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(30.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -598,7 +661,10 @@ Widget buildExchangeCard(String fromAsset, String toAsset, BuildContext context,
                   ),
                 ],
               ),
-              assetLogic(ref, 16, 20, context, controller, receiveAsset: false),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: assetLogic(ref, 16, 20, context, controller, receiveAsset: false),
+              ),
             ],
           ),
           SizedBox(height: 16),
@@ -694,7 +760,10 @@ Widget buildExchangeCard(String fromAsset, String toAsset, BuildContext context,
                   ),
                 ],
               ),
-              assetLogic(ref, 16, 20, context, controller, receiveAsset: true),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: assetLogic(ref, 16, 20, context, controller, receiveAsset: true),
+              ),
             ],
           ),
         ],
@@ -713,8 +782,10 @@ Widget assetLogic(WidgetRef ref, double dynamicPadding, double titleFontSize, Bu
       return buildLiquidPeg(ref, dynamicPadding, titleFontSize, receiveAsset, controller);
     case SwapType.coinosLnToBTC:
     case SwapType.coinosLnToLBTC:
+      return buildCoinosSwap(ref, context, controller, titleFontSize, receiveAsset);
     case SwapType.coinosBtcToLn:
     case SwapType.coinosLbtcToLn:
+      return buildCoinosSwap(ref, context, controller, titleFontSize, receiveAsset);
     case SwapType.sideswapUsdtToLbtc:
     case SwapType.sideswapEuroxToLbtc:
     case SwapType.sideswapDepixToLbtc:
@@ -722,45 +793,217 @@ Widget assetLogic(WidgetRef ref, double dynamicPadding, double titleFontSize, Bu
     case SwapType.sideswapLbtcToUsdt:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToDepix:
-      return buildSideswapInstantSwap(ref, context, !receiveAsset, titleFontSize, controller);
+      return buildSideswapInstantSwap(ref, context, receiveAsset, titleFontSize, controller);
     default:
       return Container();
   }
 }
 
-Widget buildSideswapInstantSwap(WidgetRef ref, BuildContext context, bool receiveAsset, double titleFontSize, TextEditingController controller) {
+Widget buildCoinosSwap(
+    WidgetRef ref,
+    BuildContext context,
+    TextEditingController controller,
+    double titleFontSize,
+    bool receiveAsset,
+    ) {
+  final btcFormat = ref.read(settingsProvider).btcFormat;
+  final inputInFiat = ref.watch(inputInFiatProvider);
+  final currency = ref.read(settingsProvider).currency;
+  final currencyRate = ref.read(selectedCurrencyProvider(currency));
+  final sideSwapStatus = ref.watch(sideswapStatusProvider);
+
+  final valueToReceive = ref.watch(sendTxProvider).amount *
+      (1 - (receiveAsset ? sideSwapStatus.serverFeePercentPegOut / 100 : 0.001));
+
+  final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormat);
+  final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
+  final valueInCurrency = currencyFormat(double.parse(formattedValueInBtc) * currencyRate, currency);
+  final valueToSendInCurrency =
+  currencyFormat(ref.watch(sendTxProvider).amount / 100000000 * currencyRate, currency);
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.end,
+    children: [
+      if (receiveAsset)
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            if (double.parse(formattedValueToReceive) <= 0)
+              Text(
+                "0",
+                style: TextStyle(fontSize: titleFontSize * 1.2, color: Colors.grey),
+              )
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    valueInCurrency,
+                    style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                  ),
+                  IntrinsicWidth(
+                    child: Text(
+                      formattedValueToReceive,
+                      style: TextStyle(fontSize: titleFontSize * 1.2, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        )
+      else
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            GestureDetector(
+              onTap: () {
+                ref.read(inputInFiatProvider.notifier).state = !inputInFiat;
+
+                if (inputInFiat) {
+                  String btcValue = btcFormat == 'sats'
+                      ? calculateAmountToDisplayFromFiatInSats(
+                    controller.text,
+                    currency,
+                    ref.watch(currencyNotifierProvider),
+                  )
+                      : calculateAmountToDisplayFromFiat(
+                    controller.text,
+                    currency,
+                    ref.watch(currencyNotifierProvider),
+                  );
+                  controller.text = btcFormat == 'sats'
+                      ? btcInDenominationFormatted(double.parse(btcValue), btcFormat)
+                      : btcValue;
+                } else {
+                  String fiatValue = calculateAmountInSelectedCurrency(
+                    ref.watch(sendTxProvider).amount,
+                    currency,
+                    ref.watch(currencyNotifierProvider),
+                  );
+                  ref.read(precisionFiatValueProvider.notifier).state = fiatValue;
+                  controller.text = double.parse(fiatValue) < 0.01
+                      ? ''
+                      : double.parse(fiatValue).toStringAsFixed(2);
+                }
+              },
+              child: inputInFiat
+                  ? Text(
+                btcInDenominationFormatted(
+                    ref.watch(sendTxProvider).amount.toDouble(), btcFormat),
+                style: TextStyle(fontSize: titleFontSize * 1.1, color: Colors.grey),
+              )
+                  : Text(
+                valueToSendInCurrency,
+                style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+              ),
+            ),
+            SizedBox(height: 8),
+            IntrinsicWidth(
+              child: TextFormField(
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                controller: controller,
+                inputFormatters: inputInFiat
+                    ? [
+                  CommaTextInputFormatter(),
+                  DecimalTextInputFormatter(decimalRange: 2, integerRange: 7),
+                ]
+                    : [
+                  CommaTextInputFormatter(),
+                  btcFormat == 'sats'
+                      ? DecimalTextInputFormatter(decimalRange: 0)
+                      : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),
+                ],
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: '0',
+                  hintStyle: TextStyle(
+                    color: Colors.grey,
+                    fontSize: titleFontSize * 1.2,
+                  ),
+                ),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: titleFontSize * 1.2,
+                ),
+                onChanged: (value) async {
+                  if (inputInFiat) {
+                    if (value.isEmpty) {
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                    } else {
+                      String send = btcFormat == 'sats'
+                          ? calculateAmountToDisplayFromFiatInSats(
+                          value, currency, ref.watch(currencyNotifierProvider))
+                          : calculateAmountToDisplayFromFiat(
+                          value, currency, ref.watch(currencyNotifierProvider));
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput(send, btcFormat);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                    }
+                  } else {
+                    if (value.isEmpty) {
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                    } else {
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                    }
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+    ],
+  );
+}
+
+
+Widget buildSideswapInstantSwap(
+    WidgetRef ref,
+    BuildContext context,
+    bool receiveAsset,
+    double titleFontSize,
+    TextEditingController controller,
+    ) {
   final btcFormat = ref.read(settingsProvider).btcFormat;
   final sendBitcoin = ref.watch(sendBitcoinProvider);
   final currency = ref.read(settingsProvider).currency;
   final currencyRate = ref.read(selectedCurrencyProvider(currency));
+  final inputInFiat = ref.watch(inputInFiatProvider);
 
   return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.end,
     children: [
-      if ((sendBitcoin && !receiveAsset) || (!sendBitcoin && receiveAsset))
+      if (receiveAsset)
         Consumer(
           builder: (context, watch, child) {
             final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
             return sideswapPriceStreamAsyncValue.when(
               data: (value) {
                 if (value.errorMsg != null) {
-                  return Text("0",
+                  return Text(
+                    "0",
                     style: TextStyle(color: Colors.grey, fontSize: titleFontSize * 1.2),
-                    textAlign: TextAlign.center,
                   );
                 } else {
                   final valueToReceive = value.recvAmount!;
                   final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
-                  final valueInCurrency = receiveAsset ? currencyFormat(double.parse(formattedValueInBtc) * currencyRate, currency) : '';
+                  final valueInCurrency = receiveAsset
+                      ? currencyFormat(double.parse(formattedValueInBtc) * currencyRate, currency)
+                      : '';
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(valueInCurrency, style: TextStyle(fontSize: titleFontSize, color: Colors.grey), textAlign: TextAlign.center),
+                      if (!fiatAssets.contains(ref.watch(toAssetProvider)))
+                      Text(
+                        valueInCurrency,
+                        style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                      ),
                       IntrinsicWidth(
                         child: Text(
                           btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin),
                           style: TextStyle(color: Colors.white, fontSize: titleFontSize * 1.2),
-                          textAlign: TextAlign.center,
                         ),
                       ),
                     ],
@@ -768,9 +1011,9 @@ Widget buildSideswapInstantSwap(WidgetRef ref, BuildContext context, bool receiv
                 }
               },
               loading: () => controller.text.isEmpty
-                  ? Text("0",
+                  ? Text(
+                "0",
                 style: TextStyle(color: Colors.grey, fontSize: titleFontSize * 1.2),
-                textAlign: TextAlign.center,
               )
                   : Center(
                 child: LoadingAnimationWidget.progressiveDots(
@@ -780,45 +1023,106 @@ Widget buildSideswapInstantSwap(WidgetRef ref, BuildContext context, bool receiv
               ),
               error: (error, stack) => Text(
                 'Error: $error',
-                textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white, fontSize: titleFontSize),
               ),
             );
           },
         )
       else
-        IntrinsicWidth(
-          child: TextFormField(
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            controller: controller,
-            inputFormatters: receiveAsset
-                ? [CommaTextInputFormatter(),btcFormat == 'sats'
-                ? DecimalTextInputFormatter(decimalRange: 0)
-                : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),]
-                : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
-            textAlign: TextAlign.center,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: '0',
-              hintStyle: TextStyle(
-                color: Colors.grey,
-                fontSize: titleFontSize * 1.2,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (fiatDisplayAllowedSwapTypes.contains(ref.watch(swapTypeProvider)))
+            GestureDetector(
+              onTap: () {
+                ref.read(inputInFiatProvider.notifier).state = !inputInFiat;
+
+                if (inputInFiat) {
+                  String btcValue = btcFormat == 'sats'
+                      ? calculateAmountToDisplayFromFiatInSats(controller.text, currency, ref.watch(currencyNotifierProvider))
+                      : calculateAmountToDisplayFromFiat(controller.text, currency, ref.watch(currencyNotifierProvider));
+                  controller.text = btcFormat == 'sats'
+                      ? btcInDenominationFormatted(double.parse(btcValue), btcFormat)
+                      : btcValue;
+                } else {
+                  // Switching to Fiat
+                  String fiatValue = calculateAmountInSelectedCurrency(
+                      ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
+                  ref.read(precisionFiatValueProvider.notifier).state = fiatValue;
+                  controller.text = double.parse(fiatValue) < 0.01
+                      ? ''
+                      : double.parse(fiatValue).toStringAsFixed(2);
+                }
+              },
+              child: inputInFiat
+                  ? Text(
+                '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat)}',
+                style: TextStyle(fontSize: titleFontSize * 1.1, color: Colors.grey),
+              )
+                  : Text(
+                currencyFormat(ref.watch(sendTxProvider).amount / 100000000 * currencyRate, currency),
+                style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
               ),
             ),
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: titleFontSize * 1.2,
+            SizedBox(height: 8),
+            IntrinsicWidth(
+              child: TextFormField(
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                controller: controller,
+                inputFormatters: inputInFiat
+                    ? [
+                  CommaTextInputFormatter(),
+                  DecimalTextInputFormatter(decimalRange: 2, integerRange: 7),
+                ]
+                    : fiatAssets.contains(ref.watch(fromAssetProvider))
+                    ? [
+                  CommaTextInputFormatter(),
+                  DecimalTextInputFormatter(decimalRange: 2, integerRange: 7),
+                ]
+                    : [
+                  CommaTextInputFormatter(),
+                  btcFormat == 'sats'
+                      ? DecimalTextInputFormatter(decimalRange: 0)
+                      : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),
+                ],
+                textAlign: TextAlign.right,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: '0',
+                  hintStyle: TextStyle(
+                    color: Colors.grey,
+                    fontSize: titleFontSize * 1.2,
+                  ),
+                ),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: titleFontSize * 1.2,
+                ),
+                onChanged: (value) async {
+                  if (inputInFiat) {
+                    if (value.isEmpty) {
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                    } else {
+                      String send = btcFormat == 'sats'
+                          ? calculateAmountToDisplayFromFiatInSats(value, currency, ref.watch(currencyNotifierProvider))
+                          : calculateAmountToDisplayFromFiat(value, currency, ref.watch(currencyNotifierProvider));
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput(send, btcFormat);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                    }
+                  } else {
+                    if (value.isEmpty) {
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                    } else {
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                    }
+                  }
+                },
+              ),
             ),
-            onChanged: (value) async {
-              if (value.isEmpty) {
-                ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
-                ref.read(sendTxProvider.notifier).updateDrain(false);
-              } else {
-                ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
-                ref.read(sendTxProvider.notifier).updateDrain(false);
-              }
-            },
-          ),
+          ],
         ),
     ],
   );
@@ -837,21 +1141,21 @@ Widget buildLiquidPeg(WidgetRef ref, double dynamicPadding, double titleFontSize
   final valueToSendInCurrency = currencyFormat(ref.watch(sendTxProvider).amount / 100000000 * currencyRate, currency);
 
   return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.end,
     children: [
       if (pegIn)
         Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (double.parse(formattedValueToReceive) <= 0)
-              Text("0", style: TextStyle(fontSize: titleFontSize * 1.2, color: Colors.grey), textAlign: TextAlign.center)
+              Text("0", style: TextStyle(fontSize: titleFontSize * 1.2, color: Colors.grey))
             else
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(valueInCurrency, style: TextStyle(fontSize: titleFontSize, color: Colors.grey), textAlign: TextAlign.center),
+                  Text(valueInCurrency, style: TextStyle(fontSize: titleFontSize, color: Colors.grey)),
                   IntrinsicWidth(
-                    child: Text(formattedValueToReceive, style: TextStyle(fontSize: titleFontSize * 1.2, color: Colors.white), textAlign: TextAlign.center),
+                    child: Text(formattedValueToReceive, style: TextStyle(fontSize: titleFontSize * 1.2, color: Colors.white)),
                   ),
                   // Text(
                   //   '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormat)} $btcFormat',
@@ -886,18 +1190,16 @@ Widget buildLiquidPeg(WidgetRef ref, double dynamicPadding, double titleFontSize
                   },
                   child: ref.watch(inputInFiatProvider)
                       ? Text(
-                    '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat)} $btcFormat',
+                    '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat)}',
                     style: TextStyle(fontSize: titleFontSize * 1.1, color: Colors.grey),
-                    textAlign: TextAlign.center,
                   )
                       : Text(
                     valueToSendInCurrency,
                     style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                    textAlign: TextAlign.center,
                   ),
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (!ref.watch(inputInFiatProvider))
                       IntrinsicWidth(
@@ -911,7 +1213,6 @@ Widget buildLiquidPeg(WidgetRef ref, double dynamicPadding, double titleFontSize
                                 : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),
                           ],
                           style: TextStyle(color: Colors.white, fontSize: titleFontSize * 1.2, fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: '0',
@@ -936,10 +1237,9 @@ Widget buildLiquidPeg(WidgetRef ref, double dynamicPadding, double titleFontSize
                           controller: controller,
                           inputFormatters: [
                             CommaTextInputFormatter(),
-                            DecimalTextInputFormatter(decimalRange: 2),
+                            DecimalTextInputFormatter(decimalRange: 2, integerRange: 7),
                           ],
                           style: TextStyle(color: Colors.white, fontSize: titleFontSize * 1.2, fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: '0',
@@ -960,12 +1260,6 @@ Widget buildLiquidPeg(WidgetRef ref, double dynamicPadding, double titleFontSize
                             ref.read(sendTxProvider.notifier).updateDrain(false);
                           },
                         ),
-                      ),
-                    SizedBox(width: 8),
-                    if (ref.watch(inputInFiatProvider))
-                      Text(
-                        currency,
-                        style: TextStyle(color: Colors.grey, fontSize: titleFontSize / 1.2),
                       ),
                   ],
                 ),
@@ -992,21 +1286,21 @@ Widget buildBitcoinPeg(WidgetRef ref, double dynamicPadding, double titleFontSiz
   final valueToSendInCurrency = currencyFormat(ref.watch(sendTxProvider).amount / 100000000 * currencyRate, currency);
 
   return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.end,
     children: [
       if (pegIn)
         Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (double.parse(formattedValueToReceive) <= 0)
-              Text("0", style: TextStyle(fontSize: titleFontSize * 1.2, color: Colors.grey), textAlign: TextAlign.center)
+              Text("0", style: TextStyle(fontSize: titleFontSize * 1.2, color: Colors.grey))
             else
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(valueInCurrency, style: TextStyle(fontSize: titleFontSize, color: Colors.grey), textAlign: TextAlign.center),
+                  Text(valueInCurrency, style: TextStyle(fontSize: titleFontSize, color: Colors.grey)),
                   IntrinsicWidth(
-                    child: Text(formattedValueToReceive, style: TextStyle(fontSize: titleFontSize * 1.2, color: Colors.white), textAlign: TextAlign.center),
+                    child: Text(formattedValueToReceive, style: TextStyle(fontSize: titleFontSize * 1.2, color: Colors.white)),
                   ),
                   // Text(
                   //   '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormat)} $btcFormat',
@@ -1041,18 +1335,16 @@ Widget buildBitcoinPeg(WidgetRef ref, double dynamicPadding, double titleFontSiz
                   },
                   child: ref.watch(inputInFiatProvider)
                       ? Text(
-                    '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat)} $btcFormat',
+                    '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat)}',
                     style: TextStyle(fontSize: titleFontSize * 1.1, color: Colors.grey),
-                    textAlign: TextAlign.center,
                   )
                       : Text(
                     valueToSendInCurrency,
                     style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                    textAlign: TextAlign.center,
                   ),
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (!ref.watch(inputInFiatProvider))
                       IntrinsicWidth(
@@ -1066,7 +1358,6 @@ Widget buildBitcoinPeg(WidgetRef ref, double dynamicPadding, double titleFontSiz
                                 : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),
                           ],
                           style: TextStyle(color: Colors.white, fontSize: titleFontSize * 1.2, fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: '0',
@@ -1091,10 +1382,9 @@ Widget buildBitcoinPeg(WidgetRef ref, double dynamicPadding, double titleFontSiz
                           controller: controller,
                           inputFormatters: [
                             CommaTextInputFormatter(),
-                            DecimalTextInputFormatter(decimalRange: 2),
+                            DecimalTextInputFormatter(decimalRange: 2, integerRange: 7),
                           ],
                           style: TextStyle(color: Colors.white, fontSize: titleFontSize * 1.2, fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: '0',
@@ -1115,12 +1405,6 @@ Widget buildBitcoinPeg(WidgetRef ref, double dynamicPadding, double titleFontSiz
                             ref.read(sendTxProvider.notifier).updateDrain(false);
                           },
                         ),
-                      ),
-                    SizedBox(width: 8),
-                    if (ref.watch(inputInFiatProvider))
-                      Text(
-                        currency,
-                        style: TextStyle(color: Colors.grey, fontSize: titleFontSize / 1.2),
                       ),
                   ],
                 ),
