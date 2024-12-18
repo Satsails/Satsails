@@ -990,11 +990,21 @@ Widget buildSideswapInstantSwap(
             final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
             return sideswapPriceStreamAsyncValue.when(
               data: (value) {
-                if (value.errorMsg != null) {
-                  return Text(
-                    "0",
-                    style: TextStyle(color: Colors.grey, fontSize: titleFontSize * 1.2),
-                  );
+              if (value.errorMsg != null && (value.errorMsg!.contains('Max') || value.errorMsg!.contains('Min'))) {
+                final parts = value.errorMsg!.split(' ');
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      parts[0], // "Max" or "Min"
+                      style: TextStyle(color: Colors.grey, fontSize: titleFontSize / 1.5),
+                    ),
+                    Text(
+                      parts.sublist(1).join(' '), // The rest of the message
+                      style: TextStyle(color: Colors.grey, fontSize: titleFontSize / 1.5),
+                    ),
+                  ],
+                );
                 } else {
                   final valueToReceive = value.recvAmount!;
                   final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
@@ -1005,10 +1015,10 @@ Widget buildSideswapInstantSwap(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       if (!fiatAssets.contains(ref.watch(toAssetProvider)))
-                      Text(
-                        valueInCurrency,
-                        style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                      ),
+                        Text(
+                          valueInCurrency,
+                          style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                        ),
                       IntrinsicWidth(
                         child: Text(
                           btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin),
@@ -1042,37 +1052,37 @@ Widget buildSideswapInstantSwap(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (fiatDisplayAllowedSwapTypes.contains(ref.watch(swapTypeProvider)))
-            GestureDetector(
-              onTap: () {
-                ref.read(inputInFiatProvider.notifier).state = !inputInFiat;
+              GestureDetector(
+                onTap: () {
+                  ref.read(inputInFiatProvider.notifier).state = !inputInFiat;
 
-                if (inputInFiat) {
-                  String btcValue = btcFormat == 'sats'
-                      ? calculateAmountToDisplayFromFiatInSats(controller.text, currency, ref.watch(currencyNotifierProvider))
-                      : calculateAmountToDisplayFromFiat(controller.text, currency, ref.watch(currencyNotifierProvider));
-                  controller.text = btcFormat == 'sats'
-                      ? btcInDenominationFormatted(double.parse(btcValue), btcFormat)
-                      : btcValue;
-                } else {
-                  // Switching to Fiat
-                  String fiatValue = calculateAmountInSelectedCurrency(
-                      ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
-                  ref.read(precisionFiatValueProvider.notifier).state = fiatValue;
-                  controller.text = double.parse(fiatValue) < 0.01
-                      ? ''
-                      : double.parse(fiatValue).toStringAsFixed(2);
-                }
-              },
-              child: inputInFiat
-                  ? Text(
-                '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat)}',
-                style: TextStyle(fontSize: titleFontSize * 1.1, color: Colors.grey),
-              )
-                  : Text(
-                currencyFormat(ref.watch(sendTxProvider).amount / 100000000 * currencyRate, currency),
-                style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                  if (inputInFiat) {
+                    String btcValue = btcFormat == 'sats'
+                        ? calculateAmountToDisplayFromFiatInSats(controller.text, currency, ref.watch(currencyNotifierProvider))
+                        : calculateAmountToDisplayFromFiat(controller.text, currency, ref.watch(currencyNotifierProvider));
+                    controller.text = btcFormat == 'sats'
+                        ? btcInDenominationFormatted(double.parse(btcValue), btcFormat)
+                        : btcValue;
+                  } else {
+                    // Switching to Fiat
+                    String fiatValue = calculateAmountInSelectedCurrency(
+                        ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
+                    ref.read(precisionFiatValueProvider.notifier).state = fiatValue;
+                    controller.text = double.parse(fiatValue) < 0.01
+                        ? ''
+                        : double.parse(fiatValue).toStringAsFixed(2);
+                  }
+                },
+                child: inputInFiat
+                    ? Text(
+                  '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat)}',
+                  style: TextStyle(fontSize: titleFontSize * 1.1, color: Colors.grey),
+                )
+                    : Text(
+                  currencyFormat(ref.watch(sendTxProvider).amount / 100000000 * currencyRate, currency),
+                  style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+                ),
               ),
-            ),
             SizedBox(height: 8),
             IntrinsicWidth(
               child: TextFormField(
@@ -1166,11 +1176,6 @@ Widget buildLiquidPeg(WidgetRef ref, double dynamicPadding, double titleFontSize
                   IntrinsicWidth(
                     child: Text(formattedValueToReceive, style: TextStyle(fontSize: titleFontSize * 1.2, color: Colors.white)),
                   ),
-                  // Text(
-                  //   '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormat)} $btcFormat',
-                  //   style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                  //   textAlign: TextAlign.center,
-                  // ),
                 ],
               ),
           ],
@@ -1311,11 +1316,6 @@ Widget buildBitcoinPeg(WidgetRef ref, double dynamicPadding, double titleFontSiz
                   IntrinsicWidth(
                     child: Text(formattedValueToReceive, style: TextStyle(fontSize: titleFontSize * 1.2, color: Colors.white)),
                   ),
-                  // Text(
-                  //   '${'Minimum amount:'.i18n(ref)} ${btcInDenominationFormatted(pegIn ? status.minPegInAmount.toDouble() : status.minPegOutAmount.toDouble(), btcFormat)} $btcFormat',
-                  //   style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
-                  //   textAlign: TextAlign.center,
-                  // ),
                 ],
               ),
           ],
@@ -1441,12 +1441,12 @@ Widget buildAdvancedOptionsCard(WidgetRef ref, double dynamicPadding, double tit
         childrenPadding: EdgeInsets.only(bottom: 16),
         maintainState: true,
         shape: Border(
-          top: BorderSide(color: Colors.transparent), // Change the top border color
-          bottom: BorderSide(color: Colors.transparent), // Change the bottom border color
+          top: BorderSide(color: Colors.transparent),
+          bottom: BorderSide(color: Colors.transparent),
         ),
         collapsedShape: Border(
-          top: BorderSide(color: Colors.transparent), // No border when collapsed
-          bottom: BorderSide(color: Colors.transparent), // No border when collapsed
+          top: BorderSide(color: Colors.transparent),
+          bottom: BorderSide(color: Colors.transparent),
         ),
         title: Text(
           'Transaction fees',
@@ -1458,7 +1458,7 @@ Widget buildAdvancedOptionsCard(WidgetRef ref, double dynamicPadding, double tit
         ),
         children: [
           Column(
-            children: _getFeeRows(ref), // Retorna uma lista de widgets
+            children: _getFeeRows(ref)
           ),
         ],
       ),
@@ -1469,41 +1469,141 @@ Widget buildAdvancedOptionsCard(WidgetRef ref, double dynamicPadding, double tit
 List<Widget> _getFeeRows(WidgetRef ref) {
   final sideswapStatus = ref.watch(sideswapStatusProvider);
   final swapType = ref.watch(swapTypeProvider);
+  final pegOutBlocks = ref.watch(pegOutBlocksProvider);
+  final bitcoinFeeRates = sideswapStatus.bitcoinFeeRates ?? [];
+  final indexFromBlocks = bitcoinFeeRates.indexWhere((item) => item["blocks"] == pegOutBlocks);
+  final btcFormat = ref.read(settingsProvider).btcFormat;
+  final bitcoinFee = ref.watch(feeProvider);
+  final liquidFee = ref.watch(liquidFeeProvider);
+  final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
 
   switch (swapType) {
     case SwapType.sideswapBtcToLbtc:
-      return [
-        _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegIn}%'),
-        _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegIn}%'),
-      ];
+      return bitcoinFee.when(data: (value) {
+        return [
+          _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegIn}%'),
+          _feeRow('Network fee', '$value sats/VByte'),
+          _feeRow('Min amount', '${sideswapStatus.minPegInAmount} sats'),
+        ];
+      }, loading: () {
+        return [
+          _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
+          _feeRow('Network fee', 'Loading...'),
+          _feeRow('Min amount', '${sideswapStatus.minPegInAmount} sats'),
+        ];
+      }, error: (error, stack) {
+        return [
+          _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
+          _feeRow('Network fee', 'Unknown'),
+          _feeRow('Min amount', '${sideswapStatus.minPegInAmount} sats'),
+        ];
+      });
     case SwapType.sideswapLbtcToBtc:
-      return [
-        _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
-      ];
+      return liquidFee.when(data: (value) {
+        return [
+          _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
+          _feeRow('Peg out fee', '${btcInDenominationFormatted(bitcoinFeeRates![indexFromBlocks]["value"] * sideswapStatus.pegOutBitcoinTxVsize, btcFormat)} $btcFormat'),
+          _feeRow('Network fee', '$value'),
+          _feeRow('Min amount', '${sideswapStatus.minPegOutAmount} sats'),
+        ];
+      }, loading: () {
+        return [
+          _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
+          _feeRow('Peg out fee', '${btcInDenominationFormatted(bitcoinFeeRates![indexFromBlocks]["value"] * sideswapStatus.pegOutBitcoinTxVsize, btcFormat)} $btcFormat'),
+          _feeRow('Network fee', 'Loading...'),
+          _feeRow('Min amount', '${sideswapStatus.minPegOutAmount} sats'),
+        ];
+      }, error: (error, stack) {
+        return [
+          _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
+          _feeRow('Peg out fee', '${btcInDenominationFormatted(bitcoinFeeRates![indexFromBlocks]["value"] * sideswapStatus.pegOutBitcoinTxVsize, btcFormat)} $btcFormat'),
+          _feeRow('Network fee', 'Unknown'),
+          _feeRow('Min amount', '${sideswapStatus.minPegOutAmount} sats'),
+        ];
+      });
+
     case SwapType.coinosLnToBTC:
     case SwapType.coinosLnToLBTC:
       return [
         _feeRow('Provider fee', '0.1%'),
       ];
     case SwapType.coinosBtcToLn:
+      return bitcoinFee.when(data: (value) {
+        return [
+          _feeRow('Network fee', '$value'),
+          _feeRow('Provider fee', '0.1%'),
+        ];
+      }, loading: () {
+        return [
+          _feeRow('Network fee', 'Loading...'),
+          _feeRow('Provider fee', '0.1%'),
+        ];
+      }, error: (error, stack) {
+        return [
+          _feeRow('Network fee', 'Unknown'),
+          _feeRow('Provider fee', '0.1%'),
+        ];
+      });
     case SwapType.coinosLbtcToLn:
-      return [
-        _feeRow('Provider fee', '0%'),
-      ];
+      return liquidFee.when(data: (value) {
+        return [
+          _feeRow('Network fee', '$value'),
+          _feeRow('Provider fee', '0.1%'),
+        ];
+      }, loading: () {
+        return [
+          _feeRow('Provider fee', '0.1%'),
+          _feeRow('Network fee', 'Loading...'),
+        ];
+      }, error: (error, stack) {
+        return [
+          _feeRow('Provider fee', '0.1%'),
+          _feeRow('Network fee', 'Unknown'),
+        ];
+      });
     case SwapType.sideswapUsdtToLbtc:
     case SwapType.sideswapEuroxToLbtc:
     case SwapType.sideswapDepixToLbtc:
-      return [
-        _feeRow('Network fee', '${sideswapStatus.elementsFeeRate} sats/VByte'),
-        _feeRow('Min Amount', '${sideswapStatus.minSubmitAmount} sats'),
-        _feeRow('Provider fee', '${sideswapStatus.priceBand}'),
-      ];
     case SwapType.sideswapLbtcToUsdt:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToDepix:
-      return [
-        _feeRow('Provider fee', '${sideswapStatus.minSubmitAmount}%'),
-      ];
+    return sideswapPriceStreamAsyncValue.when(
+      data: (value) {
+        if (value.errorMsg != null) {
+          return [
+            Text(
+              value.errorMsg!,
+              style: TextStyle(color: Colors.orange, fontSize: 14),
+              textAlign: TextAlign.center,
+            )
+          ];
+        } else {
+          final fixedFee = value.fixedFee ?? 0;
+
+          return [
+            _feeRow('Asset price', '${value.price?.toStringAsFixed(0) ?? "N/A"}'),
+            _feeRow(
+                'Fixed Fee',
+                btcInDenominationFormatted(fixedFee.toDouble(), btcFormat, true)
+            ),
+          ];
+        }
+      },
+      loading: () {
+        return [
+          _feeRow('Price', 'Unknown'),
+          _feeRow('Fixed Fee', 'Unknown'),
+          _feeRow('Total Fee', 'Unknown'),
+        ];
+      },
+      error: (error, stack) {
+        return [
+          _feeRow('Price', 'Unknown'),
+          _feeRow('Fixed Fee', 'Unknown'),
+          _feeRow('Total Fee', 'Unknown'),
+        ];
+      },
+    );
     default:
       return [
         _feeRow('Fee rate', '0%'),
@@ -1541,17 +1641,21 @@ Widget pickBitcoinFeeSuggestionsPegOut(WidgetRef ref, double dynamicPadding, dou
   final status = ref.watch(sideswapStatusProvider).bitcoinFeeRates ?? [];
   final selectedBlocks = ref.watch(pegOutBlocksProvider);
 
+  // Reverse the status list and calculate the index
   final reversedStatus = status.reversed.toList();
-  final initialIndex = reversedStatus.indexWhere((item) => item["blocks"] == selectedBlocks);
+  final indexFromBlocks = reversedStatus.indexWhere((item) => item["blocks"] == selectedBlocks);
+  final validInitialIndex = indexFromBlocks >= 0 ? indexFromBlocks : 0;
 
-  final labels = ["10 min", "30 min", "50 min", "days", "weeks"].reversed.toList();
+  // Define fixed labels for display
+  final labels = ["10 min", "30 min", "60 min", "days", "weeks"].reversed.toList();
 
   return Column(
     children: [
       Slider(
-        value: (initialIndex >= 0 ? initialIndex : 0).toDouble(),
+        value: validInitialIndex.toDouble(),
         onChanged: (value) {
-          final newValue = reversedStatus[value.round()];
+          final index = value.round();
+          final newValue = reversedStatus[index];
           ref.read(bitcoinReceiveSpeedProvider.notifier).state = "${newValue["value"]} sats/vbyte";
           ref.read(pegOutBlocksProvider.notifier).state = newValue["blocks"];
         },
@@ -1577,6 +1681,8 @@ Widget pickBitcoinFeeSuggestionsPegOut(WidgetRef ref, double dynamicPadding, dou
     ],
   );
 }
+
+
 
 Widget feeSelection(WidgetRef ref, double dynamicPadding, double titleFontSize) {
   final swapType = ref.watch(swapTypeProvider);
