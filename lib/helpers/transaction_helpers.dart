@@ -4,6 +4,7 @@ import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
+import 'package:Satsails/models/sideswap/sideswap_status_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
@@ -289,14 +290,15 @@ Widget getAssetImage(String? asset, double width, double height) {
   }
 }
 
-final transactionInProgressProvider = StateProvider<bool>((ref) => false);
+final transactionInProgressProvider = StateProvider.autoDispose<bool>((ref) => false);
 final fromAssetProvider = StateProvider.autoDispose<String>((ref) => 'Depix');
 final toAssetProvider = StateProvider.autoDispose<String>((ref) => 'Liquid Bitcoin');
 final inputInFiatProvider = StateProvider.autoDispose<bool>((ref) => false);
 final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');
 final precisionFiatValueProvider = StateProvider.autoDispose<String>((ref) => "0.00");
-
-
+final pegFee = StateProvider.autoDispose<String>((ref) => "0");
+final networkFee = StateProvider.autoDispose<String>((ref) => "0");
+final providerFee = StateProvider.autoDispose<String>((ref) => "0");
 
 Widget bitcoinFeeSlider(WidgetRef ref, double dynamicPadding, double titleFontSize) {
   final feeRateAsyncValue = ref.watch(bitcoinFeeRatePerBlockProvider);
@@ -362,26 +364,6 @@ Widget _simpleFeeText(String label, double fee, double fontSize, WidgetRef ref) 
     ],
   );
 }
-
-
-Widget liquidFeeSlider(WidgetRef ref, double dynamicPadding, double titleFontSize) {
-  return Column(
-    children: [
-      SizedBox(height: dynamicPadding / 2),
-      Text("How many blocks would you like to wait".i18n(ref), style: TextStyle(fontSize: titleFontSize, color: Colors.white)),
-      Slider(
-        value: 16 - ref.watch(sendBlocksProvider).toDouble(),
-        onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = 16 - value,
-        min: 1,
-        max: 15,
-        divisions: 14,
-        label: ref.watch(sendBlocksProvider).toInt().toString(),
-        activeColor: Colors.orange,
-      )
-    ],
-  );
-}
-
 
 Widget buildBalanceCardWithMaxButton(WidgetRef ref, double dynamicPadding, double titleFontSize, TextEditingController controller) {
   final balance = ref.watch(balanceFromAssetProvider);
@@ -597,7 +579,10 @@ Future<void> handleLiquidBitcoinToLightning(WidgetRef ref, TextEditingController
 }
 
 
-Widget buildExchangeCard(String fromAsset, String toAsset, BuildContext context, WidgetRef ref, TextEditingController controller) {
+Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingController controller) {
+  final fromAsset = ref.watch(fromAssetProvider);
+  final toAsset = ref.watch(toAssetProvider);
+
   return Card(
     color: Colors.grey.shade900,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -772,32 +757,56 @@ Widget buildExchangeCard(String fromAsset, String toAsset, BuildContext context,
   );
 }
 
-Widget assetLogic(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context, TextEditingController controller, {bool receiveAsset = true}) {
+Widget assetLogic(
+    WidgetRef ref,
+    double dynamicPadding,
+    double titleFontSize,
+    BuildContext context,
+    TextEditingController controller, {
+      bool receiveAsset = true,
+    }) {
   final swapType = ref.watch(swapTypeProvider)!;
 
+  // Define a consistent height for all widgets
+  const double widgetHeight = 70.0; // Adjust height as per your design
+
+  Widget child;
   switch (swapType) {
     case SwapType.sideswapBtcToLbtc:
-      return buildBitcoinPeg(ref, dynamicPadding, titleFontSize, receiveAsset, controller);
+      child = buildBitcoinPeg(ref, dynamicPadding, titleFontSize, receiveAsset, controller);
+      break;
     case SwapType.sideswapLbtcToBtc:
-      return buildLiquidPeg(ref, dynamicPadding, titleFontSize, receiveAsset, controller);
+      child = buildLiquidPeg(ref, dynamicPadding, titleFontSize, receiveAsset, controller);
+      break;
     case SwapType.coinosLnToBTC:
     case SwapType.coinosLnToLBTC:
-      return buildCoinosSwap(ref, context, controller, titleFontSize, receiveAsset);
+      child = buildCoinosSwap(ref, context, controller, titleFontSize, receiveAsset);
+      break;
     case SwapType.coinosBtcToLn:
     case SwapType.coinosLbtcToLn:
-      return buildCoinosSwap(ref, context, controller, titleFontSize, receiveAsset);
+      child = buildCoinosSwap(ref, context, controller, titleFontSize, receiveAsset);
+      break;
     case SwapType.sideswapUsdtToLbtc:
     case SwapType.sideswapEuroxToLbtc:
     case SwapType.sideswapDepixToLbtc:
-      return buildSideswapInstantSwap(ref, context, receiveAsset, titleFontSize, controller);
+      child = buildSideswapInstantSwap(ref, context, receiveAsset, titleFontSize, controller);
+      break;
     case SwapType.sideswapLbtcToUsdt:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToDepix:
-      return buildSideswapInstantSwap(ref, context, receiveAsset, titleFontSize, controller);
+      child = buildSideswapInstantSwap(ref, context, receiveAsset, titleFontSize, controller);
+      break;
     default:
-      return Container();
+      child = Container();
   }
+
+  // Wrap the child in a SizedBox to enforce consistent height
+  return SizedBox(
+    height: widgetHeight,
+    child: child,
+  );
 }
+
 
 Widget buildCoinosSwap(
     WidgetRef ref,
@@ -1418,17 +1427,7 @@ Widget buildBitcoinPeg(WidgetRef ref, double dynamicPadding, double titleFontSiz
   );
 }
 
-
-
 Widget buildAdvancedOptionsCard(WidgetRef ref, double dynamicPadding, double titleFontSize) {
-  final sideswapStatus = ref.watch(sideswapStatusProvider);
-  final selectedBlocks = ref.watch(sendBlocksProvider);
-  final feeRateAsyncValue = ref.watch(bitcoinFeeRatePerBlockProvider);
-
-  // Network Fee Calculation
-  int pegOutVsize = sideswapStatus.pegOutBitcoinTxVsize;
-  double selectedFeeRate = 0;
-
   return Card(
     color: Colors.grey.shade900,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -1441,65 +1440,25 @@ Widget buildAdvancedOptionsCard(WidgetRef ref, double dynamicPadding, double tit
         tilePadding: EdgeInsets.zero,
         childrenPadding: EdgeInsets.only(bottom: 16),
         maintainState: true,
+        shape: Border(
+          top: BorderSide(color: Colors.transparent), // Change the top border color
+          bottom: BorderSide(color: Colors.transparent), // Change the bottom border color
+        ),
+        collapsedShape: Border(
+          top: BorderSide(color: Colors.transparent), // No border when collapsed
+          bottom: BorderSide(color: Colors.transparent), // No border when collapsed
+        ),
         title: Text(
           'Transaction fees',
           style: TextStyle(
             color: Colors.white,
-            fontSize: titleFontSize,
+            fontSize: titleFontSize / 1.2,
             fontWeight: FontWeight.bold,
           ),
         ),
         children: [
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: dynamicPadding / 2),
-              feeRateAsyncValue.when(
-                data: (feeRate) {
-                  // Map block selection to the appropriate fee rate
-                  switch (selectedBlocks) {
-                    case 1:
-                      selectedFeeRate = feeRate.fastestFee;
-                      break;
-                    case 2:
-                      selectedFeeRate = feeRate.halfHourFee;
-                      break;
-                    case 3:
-                      selectedFeeRate = feeRate.hourFee;
-                      break;
-                    case 4:
-                      selectedFeeRate = feeRate.economyFee;
-                      break;
-                    default:
-                      selectedFeeRate = feeRate.minimumFee;
-                  }
-
-                  double networkFee = selectedFeeRate * pegOutVsize;
-
-                  return Column(
-                    children: [
-                      _feeRow("Provider fee", "${sideswapStatus.serverFeePercentPegOut}%"),
-                      SizedBox(height: 8),
-                      _feeRow("Network fee", "${networkFee.toStringAsFixed(2)} sats"),
-                      SizedBox(height: 8),
-                      _feeRow("Minimum Peg-In", "${sideswapStatus.minPegInAmount} sats"),
-                      SizedBox(height: 8),
-                      _feeRow("Minimum Peg-Out", "${sideswapStatus.minPegOutAmount} sats"),
-                    ],
-                  );
-                },
-                loading: () => Center(
-                  child: LoadingAnimationWidget.progressiveDots(
-                    size: titleFontSize / 2,
-                    color: Colors.white,
-                  ),
-                ),
-                error: (e, _) => Text(
-                  'Error loading fees',
-                  style: TextStyle(color: Colors.redAccent, fontSize: titleFontSize / 2),
-                ),
-              ),
-            ],
+            children: _getFeeRows(ref), // Retorna uma lista de widgets
           ),
         ],
       ),
@@ -1507,26 +1466,141 @@ Widget buildAdvancedOptionsCard(WidgetRef ref, double dynamicPadding, double tit
   );
 }
 
+List<Widget> _getFeeRows(WidgetRef ref) {
+  final sideswapStatus = ref.watch(sideswapStatusProvider);
+  final swapType = ref.watch(swapTypeProvider);
+
+  switch (swapType) {
+    case SwapType.sideswapBtcToLbtc:
+      return [
+        _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegIn}%'),
+        _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegIn}%'),
+      ];
+    case SwapType.sideswapLbtcToBtc:
+      return [
+        _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
+      ];
+    case SwapType.coinosLnToBTC:
+    case SwapType.coinosLnToLBTC:
+      return [
+        _feeRow('Provider fee', '0.1%'),
+      ];
+    case SwapType.coinosBtcToLn:
+    case SwapType.coinosLbtcToLn:
+      return [
+        _feeRow('Provider fee', '0%'),
+      ];
+    case SwapType.sideswapUsdtToLbtc:
+    case SwapType.sideswapEuroxToLbtc:
+    case SwapType.sideswapDepixToLbtc:
+      return [
+        _feeRow('Network fee', '${sideswapStatus.elementsFeeRate} sats/VByte'),
+        _feeRow('Min Amount', '${sideswapStatus.minSubmitAmount} sats'),
+        _feeRow('Provider fee', '${sideswapStatus.priceBand}'),
+      ];
+    case SwapType.sideswapLbtcToUsdt:
+    case SwapType.sideswapLbtcToEurox:
+    case SwapType.sideswapLbtcToDepix:
+      return [
+        _feeRow('Provider fee', '${sideswapStatus.minSubmitAmount}%'),
+      ];
+    default:
+      return [
+        _feeRow('Fee rate', '0%'),
+      ];
+  }
+}
+
 Widget _feeRow(String label, String value) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 14,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            color: Colors.orangeAccent,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget pickBitcoinFeeSuggestionsPegOut(WidgetRef ref, double dynamicPadding, double titleFontSize) {
+  final status = ref.watch(sideswapStatusProvider).bitcoinFeeRates ?? [];
+  final selectedBlocks = ref.watch(pegOutBlocksProvider);
+
+  final reversedStatus = status.reversed.toList();
+  final initialIndex = reversedStatus.indexWhere((item) => item["blocks"] == selectedBlocks);
+
+  final labels = ["10 min", "30 min", "50 min", "days", "weeks"].reversed.toList();
+
+  return Column(
     children: [
-      Text(
-        label,
-        style: TextStyle(
-          color: Colors.white70,
-          fontSize: 14,
-        ),
+      Slider(
+        value: (initialIndex >= 0 ? initialIndex : 0).toDouble(),
+        onChanged: (value) {
+          final newValue = reversedStatus[value.round()];
+          ref.read(bitcoinReceiveSpeedProvider.notifier).state = "${newValue["value"]} sats/vbyte";
+          ref.read(pegOutBlocksProvider.notifier).state = newValue["blocks"];
+        },
+        min: 0,
+        max: (reversedStatus.length - 1).toDouble(),
+        divisions: reversedStatus.length - 1,
+        activeColor: Colors.orange,
       ),
-      Text(
-        value,
-        style: TextStyle(
-          color: Colors.orangeAccent,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: List.generate(reversedStatus.length, (index) {
+          final value = reversedStatus[index];
+          final label = labels.length > index ? labels[index] : "";
+
+          return _simpleFeeText(
+            label,
+            value["value"].toDouble(),
+            titleFontSize / 1.1,
+            ref,
+          );
+        }),
       ),
     ],
   );
 }
 
+Widget feeSelection(WidgetRef ref, double dynamicPadding, double titleFontSize) {
+  final swapType = ref.watch(swapTypeProvider);
+
+  switch (swapType) {
+    case SwapType.sideswapBtcToLbtc:
+      return bitcoinFeeSlider(ref, dynamicPadding, titleFontSize);
+    case SwapType.sideswapLbtcToBtc:
+      return pickBitcoinFeeSuggestionsPegOut(ref, dynamicPadding, titleFontSize);
+    case SwapType.coinosLnToBTC:
+    case SwapType.coinosLnToLBTC:
+      return SizedBox.shrink();
+    case SwapType.coinosBtcToLn:
+      return pickBitcoinFeeSuggestionsPegOut(ref, dynamicPadding, titleFontSize);
+    case SwapType.coinosLbtcToLn:
+      return SizedBox.shrink();
+    case SwapType.sideswapUsdtToLbtc:
+    case SwapType.sideswapEuroxToLbtc:
+    case SwapType.sideswapDepixToLbtc:
+    case SwapType.sideswapLbtcToUsdt:
+    case SwapType.sideswapLbtcToEurox:
+    case SwapType.sideswapLbtcToDepix:
+      return SizedBox.shrink();
+    default:
+      return SizedBox.shrink();
+  }
+}

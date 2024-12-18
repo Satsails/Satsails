@@ -15,12 +15,18 @@ class Exchange extends ConsumerStatefulWidget {
 
 class _ExchangeState extends ConsumerState<Exchange> {
   final TextEditingController controller = TextEditingController();
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final swapType = ref.read(swapTypeProvider);
+      if (swapType != null) {
+        ref.read(swapTypeNotifierProvider.notifier).updateProviders(swapType);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final fromAsset = ref.watch(fromAssetProvider);
-    final toAsset = ref.watch(toAssetProvider);
-
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -38,7 +44,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: SafeArea(
           child: FlutterKeyboardDoneWidget(
             doneWidgetBuilder: (context) {
@@ -49,8 +55,11 @@ class _ExchangeState extends ConsumerState<Exchange> {
               children: [
                 buildBalanceCardWithMaxButton(ref, 16, 20, controller),
                 SizedBox(height: 16),
-                buildExchangeCard(fromAsset, toAsset, context, ref, controller),
+                buildExchangeCard(context, ref, controller),
                 SizedBox(height: 16),
+                buildAdvancedOptionsCard(ref, 16, 20),
+                SizedBox(height: 16),
+                feeSelection(ref, 16, 20),
               ],
             ),
           ),
