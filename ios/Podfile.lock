@@ -26,6 +26,7 @@ PODS:
     - Flutter
   - local_auth_darwin (0.0.1):
     - Flutter
+    - FlutterMacOS
   - lwk_dart (0.1.5)
   - MTBBarcodeScanner (5.0.11)
   - path_provider_foundation (0.0.1):
@@ -133,7 +134,7 @@ SPEC CHECKSUMS:
   flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
   flutter_native_splash: edf599c81f74d093a4daf8e17bd7a018854bc778
   flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
-  local_auth_darwin: 4d56c90c2683319835a61274b57620df9c4520ab
+  local_auth_darwin: 66e40372f1c29f383a314c738c7446e2f7fdadc3
   lwk_dart: 898084320a2ce8ea206010c0dc3e3eead1b2c881
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46

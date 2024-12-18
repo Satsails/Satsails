@@ -74,11 +74,31 @@ final getPsbtInputProvider = FutureProvider.autoDispose<Input>((ref) {
   });
 });
 
-final getCustomFeeRateProvider = FutureProvider.autoDispose<double>((ref) {
+final bitcoinFeeRatePerBlockProvider = FutureProvider<BitcoinFeeModel>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-    final blocks = ref.watch(sendBlocksProvider.notifier).state.toInt();
-    return bitcoinModel.estimateFeeRate(blocks);
+    return bitcoinModel.estimateFeeRate();
+  });
+});
+
+final getCustomFeeRateProvider = FutureProvider.autoDispose<double>((ref) {
+  final blocks = ref.watch(sendBlocksProvider).toInt();
+  final feeRate = ref.watch(bitcoinFeeRatePerBlockProvider.future);
+  return feeRate.then((value) {
+    switch (blocks) {
+      case 1:
+        return value.fastestFee;
+      case 2:
+        return value.halfHourFee;
+      case 3:
+        return value.hourFee;
+      case 4:
+        return value.economyFee;
+      case 5:
+        return value.minimumFee;
+      default:
+        return value.fastestFee;
+    }
   });
 });
 

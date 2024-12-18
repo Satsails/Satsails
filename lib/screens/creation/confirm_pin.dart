@@ -5,6 +5,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
@@ -158,9 +159,10 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin> {
           if (isLoading)
             Container(
               color: Colors.black54, // Optional: semi-transparent background
-              child: const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+              child: Center(
+                child: LoadingAnimationWidget.threeArchedCircle(
+                  color: Colors.orange,
+                  size: 50,
                 ),
               ),
             ),
