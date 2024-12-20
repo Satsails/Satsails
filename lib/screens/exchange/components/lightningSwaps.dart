@@ -1,4 +1,5 @@
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/helpers/transaction_helpers.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';

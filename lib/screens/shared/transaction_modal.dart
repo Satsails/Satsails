@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:Satsails/helpers/transaction_helpers.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
@@ -44,31 +45,6 @@ void showFullscreenTransactionSendModal({
     },
   );
 }
-
-Widget getAssetImage(String? asset) {
-  if (asset == null) return Container();
-
-  switch (asset) {
-    case 'Bitcoin':
-      return Image.asset('lib/assets/bitcoin-logo.png', width: 48, height: 48);
-    case 'Liquid Bitcoin':
-    case 'LBTC':
-      return Image.asset('lib/assets/l-btc.png', width: 48, height: 48);
-    case 'USDT':
-      return Image.asset('lib/assets/tether.png', width: 48, height: 48);
-    case 'EURx':
-    case 'EUROX':
-      return Image.asset('lib/assets/eurx.png', width: 48, height: 48);
-    case 'Depix':
-    case 'DEPIX':
-      return Image.asset('lib/assets/depix.png', width: 48, height: 48);
-    case 'Lightning':
-      return Image.asset('lib/assets/Bitcoin_lightning_logo.png', width: 48, height: 48);
-    default:
-      return Image.asset('lib/assets/app_icon.png', width: 48, height: 48);
-  }
-}
-
 
 class ReceiveTransactionOverlay extends ConsumerStatefulWidget {
   final String amount;
@@ -130,7 +106,7 @@ class _ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOv
           onChanged: (_) {},
         ),
         const SizedBox(height: 20),
-        getAssetImage(widget.asset),
+        getAssetImage(widget.asset, 48.0, 48.0),
         const SizedBox(height: 20),
         Text(
           amountText,
@@ -257,7 +233,7 @@ class _PaymentTransactionOverlayState
           ),
         ),
         const SizedBox(height: 30),
-        getAssetImage(widget.asset),
+        getAssetImage(widget.asset, 48.0, 48.0),
         const SizedBox(height: 20),
         Text(
           amountText,

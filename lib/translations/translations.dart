@@ -630,8 +630,8 @@ extension Localization on String {
         'pt': 'Adicionar dinheiro com EURx',
       } +
       {
-        'en': 'Cannot exchange 0 amount',
-        'pt': 'Não é possível trocar 0 quantidade',
+        'en': 'Cannot exchange 0',
+        'pt': 'Não é possível trocar 0',
       } +
       {
         'en': 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported.',
@@ -1995,6 +1995,10 @@ extension Localization on String {
       {
         'en': 'Are you sure? This action cannot be undone.',
         'pt': 'Tem certeza? Esta ação não pode ser desfeita.'
+      }+
+      {
+        'en': 'Affiliate code inserted!',
+        'pt': 'Código de afiliado inserido!'
       };
 
   String i18n(WidgetRef ref) {

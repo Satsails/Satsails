@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:bdk_flutter/bdk_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
 
 class BitcoinModel {
@@ -50,27 +52,21 @@ class BitcoinModel {
     return res;
   }
 
-  Future<double> estimateFeeRate(int blocks) async {
+  Future<BitcoinFeeModel> estimateFeeRate() async {
     try {
       Response response =
       await get(Uri.parse('https://mempool.space/api/v1/fees/recommended'));
       Map<String, dynamic> data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        switch (blocks) {
-          case 1:
-            return data['fastestFee'].toDouble();
-          case 2:
-            return data['halfHourFee'].toDouble();
-          case 3:
-            return data['hourFee'].toDouble();
-          case 4:
-            return data['economyFee'].toDouble();
-          case 5:
-            return data['minimumFee'].toDouble();
-          default:
-            throw Exception("Invalid number of blocks.");
-        }
+        final fastestFee = data['fastestFee'].toDouble();
+        final halfHourFee = data['halfHourFee'].toDouble();
+        final hourFee = data['hourFee'].toDouble();
+        final economyFee = data['economyFee'].toDouble();
+        final minimumFee = data['minimumFee'].toDouble();
+
+        return BitcoinFeeModel(fastestFee, halfHourFee, hourFee, economyFee, minimumFee);
+
       } else {
         throw Exception("Getting estimated fees is not successful.");
       }
@@ -150,4 +146,14 @@ class TransactionBuilder {
   final double fee;
 
   TransactionBuilder(this.amount, this.outAddress, this.fee);
+}
+
+class BitcoinFeeModel {
+  final double fastestFee;
+  final double halfHourFee;
+  final double hourFee;
+  final double economyFee;
+  final double minimumFee;
+
+  BitcoinFeeModel(this.fastestFee, this.halfHourFee, this.hourFee, this.economyFee, this.minimumFee);
 }

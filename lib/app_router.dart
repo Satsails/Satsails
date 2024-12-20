@@ -1,9 +1,9 @@
+import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/screens/creation/confirm_pin.dart';
 import 'package:Satsails/screens/login/seed_words_pin.dart';
 import 'package:Satsails/screens/pay/components/confirm_custodial_lightning_payment.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
-import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
 import 'package:Satsails/screens/charge/components/pix_transaction_details.dart';
@@ -28,9 +28,6 @@ import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/screens/home/components/search_modal.dart';
 import 'package:Satsails/screens/charge/components/pix.dart';
 import 'package:Satsails/screens/settings/components/backup_wallet.dart';
-import 'package:lwk_dart/lwk_dart.dart';
-
-
 
 class AppRouter {
   static GoRouter createRouter(String initialRoute) {
@@ -46,7 +43,7 @@ class AppRouter {
           path: '/transaction-details',
           name: 'transactionDetails',
           builder: (context, state) {
-            final transaction = state.extra as TransactionDetails;
+            final transaction = state.extra as BitcoinTransaction;
             return TransactionDetailsScreen(transaction: transaction);
           },
         ),
@@ -54,7 +51,7 @@ class AppRouter {
           path: '/liquid-transaction-details',
           name: 'liquidTransactionDetails',
           builder: (context, state) {
-            final transaction = state.extra as Tx;
+            final transaction = state.extra as LiquidTransaction;
             return LiquidTransactionDetailsScreen(transaction: transaction);
           },
         ),

@@ -1,16 +1,16 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
+import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lwk_dart/lwk_dart.dart';
 
 class LiquidTransactionDetailsScreen extends ConsumerWidget {
-  final Tx transaction;
+  final LiquidTransaction transaction;
 
   const LiquidTransactionDetailsScreen({super.key, required this.transaction});
 
@@ -57,13 +57,13 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        transactionTypeLiquidIcon(transaction.kind),
+                        transactionTypeLiquidIcon(transaction.lwkDetails.kind),
                         const SizedBox(width: 8.0),
-                        confirmationStatusIcon(transaction),
+                        confirmationStatusIcon(transaction.lwkDetails),
                       ],
                     ),
                     const SizedBox(height: 8.0),
-                    Text(liquidTransactionType(transaction, ref), style: const TextStyle(color: Colors.white, fontSize: 18)
+                    Text(liquidTransactionType(transaction.lwkDetails, ref), style: const TextStyle(color: Colors.white, fontSize: 18)
                     ),
                   ],
                 ),
@@ -78,7 +78,7 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
               const SizedBox(height: 16.0),
               TransactionDetailRow(
                 label: "Date".i18n(ref),
-                value: timestampToDateTime(transaction.timestamp),
+                value: timestampToDateTime(transaction.lwkDetails.timestamp),
               ),
               const SizedBox(height: 16.0),
               Text(
@@ -86,7 +86,7 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
                 style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16.0),
-              ...transaction.balances.map((balance) {
+              ...transaction.lwkDetails.balances.map((balance) {
                 return TransactionDetailRow(
                   label: AssetMapper.mapAsset(balance.assetId).name,
                   value: btcInDenominationFormatted(balance.value, denomination, AssetMapper.mapAsset(balance.assetId) == AssetId.LBTC),
@@ -95,13 +95,13 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
               }).toList(),
               TransactionDetailRow(
                 label: "Fee".i18n(ref),
-                value: "${btcInDenominationFormatted(transaction.fee, denomination)} $denomination",
+                value: "${btcInDenominationFormatted(transaction.lwkDetails.fee, denomination)} $denomination",
               ),
               const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),
               GestureDetector(
                 onTap: () async {
-                  setTransactionSearchProvider(transaction, ref);
+                  setTransactionSearchProvider(transaction.lwkDetails, ref);
                   context.push('/search_modal');
                 },
                 child: Container(

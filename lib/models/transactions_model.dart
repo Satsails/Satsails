@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
+import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/models/purchase_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
@@ -142,18 +143,18 @@ class Transaction {
     return sorted;
   }
 
-  List<BitcoinTransaction> filterBitcoinTransactions(DateTimeRange range) {
+  List<BitcoinTransaction> filterBitcoinTransactions(DateTimeSelect range) {
     return bitcoinTransactions.where((tx) {
-      return tx.timestamp.isAfter(range.start) &&
-          tx.timestamp.isBefore(range.end);
+      return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(range.start * 1000)) &&
+          tx.timestamp.isBefore(DateTime.fromMillisecondsSinceEpoch(range.end * 1000));
     }).toList()
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
-  List<LiquidTransaction> filterLiquidTransactions(DateTimeRange range) {
+  List<LiquidTransaction> filterLiquidTransactions(DateTimeSelect range) {
     return liquidTransactions.where((tx) {
-      return tx.timestamp.isAfter(range.start) &&
-          tx.timestamp.isBefore(range.end);
+      return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(range.start * 1000)) &&
+          tx.timestamp.isBefore(DateTime.fromMillisecondsSinceEpoch(range.end * 1000));
     }).toList()
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
@@ -226,14 +227,4 @@ class Transaction {
     final decrypted = await authModel.decrypt(encrypted);
     return decrypted;
   }
-}
-
-class DateTimeRange {
-  final DateTime start;
-  final DateTime end;
-
-  DateTimeRange({
-    required this.start,
-    required this.end,
-  });
 }

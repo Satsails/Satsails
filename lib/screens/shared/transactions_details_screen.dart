@@ -1,8 +1,8 @@
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
+import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
-import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +10,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:go_router/go_router.dart';
 
 class TransactionDetailsScreen extends ConsumerWidget {
-  final TransactionDetails transaction;
+  final BitcoinTransaction transaction;
 
   const TransactionDetailsScreen({super.key, required this.transaction});
 
@@ -57,18 +57,18 @@ class TransactionDetailsScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        transactionTypeIcon(transaction),
+                        transactionTypeIcon(transaction.btcDetails),
                         const SizedBox(width: 8.0),
-                        confirmationStatus(transaction, ref) == 'Confirmed'.i18n(ref)
+                        confirmationStatus(transaction.btcDetails, ref) == 'Confirmed'.i18n(ref)
                             ? const Icon(Icons.check_circle_outlined, color: Colors.green)
                             : const Icon(Icons.access_alarm_outlined, color: Colors.red),
                       ],
                     ),
                     const SizedBox(height: 8.0),
                     Text(
-                      confirmationStatus(transaction, ref) == 'Unconfirmed'.i18n(ref)
+                      confirmationStatus(transaction.btcDetails, ref) == 'Unconfirmed'.i18n(ref)
                           ? "Waiting".i18n(ref)
-                          : transactionAmount(transaction, ref),
+                          : transactionAmount(transaction.btcDetails, ref),
                       style: const TextStyle(color: Colors.green, fontSize: 36, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -84,15 +84,15 @@ class TransactionDetailsScreen extends ConsumerWidget {
               const SizedBox(height: 16.0),
               TransactionDetailRow(
                 label: "Date".i18n(ref),
-                value: _formatTimestamp(transaction.confirmationTime?.timestamp).i18n(ref)
+                value: _formatTimestamp(transaction.btcDetails.confirmationTime?.timestamp).i18n(ref)
               ),
               TransactionDetailRow(
                 label: "Status".i18n(ref),
-                value: transaction.confirmationTime != null ? "Confirmed".i18n(ref) : "Pending".i18n(ref),
+                value: transaction.btcDetails.confirmationTime != null ? "Confirmed".i18n(ref) : "Pending".i18n(ref),
               ),
               TransactionDetailRow(
                 label: "Confirmation block".i18n(ref),
-                value: transaction.confirmationTime != null ? transaction.confirmationTime!.height.toString() : "Unconfirmed".i18n(ref),
+                value: transaction.btcDetails.confirmationTime != null ? transaction.btcDetails.confirmationTime!.height.toString() : "Unconfirmed".i18n(ref),
               ),
               const SizedBox(height: 16.0),
               Text(
@@ -102,16 +102,16 @@ class TransactionDetailsScreen extends ConsumerWidget {
               const SizedBox(height: 16.0),
               TransactionDetailRow(
                 label: "Received".i18n(ref),
-                value: "${btcInDenominationFormatted(transaction.received, denomination)} $denomination",
+                value: "${btcInDenominationFormatted(transaction.btcDetails.received, denomination)} $denomination",
               ),
               TransactionDetailRow(
                 label: "Sent".i18n(ref),
-                value: "${btcInDenominationFormatted(transaction.sent, denomination)} $denomination",
+                value: "${btcInDenominationFormatted(transaction.btcDetails.sent, denomination)} $denomination",
               ),
-              if (transaction.fee != null)
+              if (transaction.btcDetails.fee != null)
                 TransactionDetailRow(
                   label: "Fee".i18n(ref),
-                  value: "${btcInDenominationFormatted(transaction.fee!, denomination)} $denomination",
+                  value: "${btcInDenominationFormatted(transaction.btcDetails.fee!, denomination)} $denomination",
                 ),
               const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),
@@ -119,7 +119,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
               GestureDetector(
                 onTap: () async {
                   ref.read(transactionSearchProvider).isLiquid = false;
-                  ref.read(transactionSearchProvider).txid = transaction.txid;
+                  ref.read(transactionSearchProvider).txid = transaction.btcDetails.txid;
                   context.push('/search_modal');
                 },
                 child: Container(
