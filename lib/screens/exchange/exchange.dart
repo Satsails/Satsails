@@ -60,6 +60,8 @@ class _ExchangeState extends ConsumerState<Exchange> {
                 buildAdvancedOptionsCard(ref, 16, 20),
                 SizedBox(height: 16),
                 feeSelection(ref, 16, 20),
+                SizedBox(height: 16),
+                slideToSend(ref, 16, 20, context),
               ],
             ),
           ),

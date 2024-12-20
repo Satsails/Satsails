@@ -6,16 +6,23 @@ import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.d
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/sideswap/sideswap_status_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:Satsails/providers/liquid_provider.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
+import 'package:Satsails/screens/analytics/analytics.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 enum SwapType {
@@ -342,6 +349,8 @@ Widget bitcoinFeeSlider(WidgetRef ref, double dynamicPadding, double titleFontSi
 }
 
 Widget _simpleFeeText(String label, double fee, double fontSize, WidgetRef ref) {
+  final wholeFee = fee.toInt();
+
   return Column(
     children: [
       Text(
@@ -354,7 +363,7 @@ Widget _simpleFeeText(String label, double fee, double fontSize, WidgetRef ref) 
       ),
       SizedBox(height: 2),
       Text(
-        "$fee sat/vB",
+        "$wholeFee sat/vB",
         style: TextStyle(
           color: Colors.white,
           fontSize: fontSize / 1.5,
@@ -404,8 +413,8 @@ Widget buildBalanceCardWithMaxButton(WidgetRef ref, double dynamicPadding, doubl
                 ),
                 // Max Button
                 TextButton(
-                  onPressed: () {
-                    handleMaxButtonPress(ref, swapType, controller, btcFormat);
+                  onPressed: () async {
+                    await handleMaxButtonPress(ref, swapType, controller, btcFormat);
                   },
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -432,7 +441,7 @@ Widget buildBalanceCardWithMaxButton(WidgetRef ref, double dynamicPadding, doubl
   );
 }
 
-void handleMaxButtonPress(
+Future<void> handleMaxButtonPress(
     WidgetRef ref,
     SwapType swapType,
     TextEditingController controller,
@@ -1149,7 +1158,7 @@ Widget buildSideswapInstantSwap(
 
 Widget buildLiquidPeg(WidgetRef ref, double dynamicPadding, double titleFontSize, bool pegIn, TextEditingController controller) {
   final sideSwapStatus = ref.watch(sideswapStatusProvider);
-  final valueToReceive = ref.watch(sendTxProvider).amount * (1 - sideSwapStatus.serverFeePercentPegOut / 100);
+  final valueToReceive = ref.watch(sendTxProvider).amount * (1 - sideSwapStatus.serverFeePercentPegOut / 100) -  ref.watch(pegOutBitcoinCostProvider);
   final btcFormat = ref.watch(settingsProvider).btcFormat;
   final currency = ref.read(settingsProvider).currency;
   final currencyRate = ref.read(selectedCurrencyProvider(currency));
@@ -1469,56 +1478,54 @@ Widget buildAdvancedOptionsCard(WidgetRef ref, double dynamicPadding, double tit
 List<Widget> _getFeeRows(WidgetRef ref) {
   final sideswapStatus = ref.watch(sideswapStatusProvider);
   final swapType = ref.watch(swapTypeProvider);
-  final pegOutBlocks = ref.watch(pegOutBlocksProvider);
-  final bitcoinFeeRates = sideswapStatus.bitcoinFeeRates ?? [];
-  final indexFromBlocks = bitcoinFeeRates.indexWhere((item) => item["blocks"] == pegOutBlocks);
   final btcFormat = ref.read(settingsProvider).btcFormat;
   final bitcoinFee = ref.watch(feeProvider);
   final liquidFee = ref.watch(liquidFeeProvider);
   final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
+  final pegOutCost = ref.watch(pegOutBitcoinCostProvider);
 
   switch (swapType) {
     case SwapType.sideswapBtcToLbtc:
       return bitcoinFee.when(data: (value) {
         return [
           _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegIn}%'),
-          _feeRow('Network fee', '$value sats/VByte'),
-          _feeRow('Min amount', '${sideswapStatus.minPegInAmount} sats'),
+          _feeRow('Network fee', '$value'),
+          _feeRow('Min amount', '${btcInDenominationFormatted(sideswapStatus.minPegInAmount, btcFormat)} $btcFormat'),
         ];
       }, loading: () {
         return [
           _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
           _feeRow('Network fee', 'Loading...'),
-          _feeRow('Min amount', '${sideswapStatus.minPegInAmount} sats'),
+          _feeRow('Min amount', '${btcInDenominationFormatted(sideswapStatus.minPegInAmount, btcFormat)} $btcFormat'),
         ];
       }, error: (error, stack) {
         return [
           _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
-          _feeRow('Network fee', 'Unknown'),
-          _feeRow('Min amount', '${sideswapStatus.minPegInAmount} sats'),
+          _feeRow('Network fee', '0'),
+          _feeRow('Min amount', '${btcInDenominationFormatted(sideswapStatus.minPegInAmount, btcFormat)} $btcFormat'),
         ];
       });
     case SwapType.sideswapLbtcToBtc:
       return liquidFee.when(data: (value) {
         return [
           _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
-          _feeRow('Peg out fee', '${btcInDenominationFormatted(bitcoinFeeRates![indexFromBlocks]["value"] * sideswapStatus.pegOutBitcoinTxVsize, btcFormat)} $btcFormat'),
+          _feeRow('Peg out fee', '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat'),
           _feeRow('Network fee', '$value'),
-          _feeRow('Min amount', '${sideswapStatus.minPegOutAmount} sats'),
+          _feeRow('Min amount', '${btcInDenominationFormatted(sideswapStatus.minPegOutAmount, btcFormat)} $btcFormat'),
         ];
       }, loading: () {
         return [
           _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
-          _feeRow('Peg out fee', '${btcInDenominationFormatted(bitcoinFeeRates![indexFromBlocks]["value"] * sideswapStatus.pegOutBitcoinTxVsize, btcFormat)} $btcFormat'),
+          _feeRow('Peg out fee', '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat'),
           _feeRow('Network fee', 'Loading...'),
-          _feeRow('Min amount', '${sideswapStatus.minPegOutAmount} sats'),
+          _feeRow('Min amount', '${btcInDenominationFormatted(sideswapStatus.minPegOutAmount, btcFormat)} $btcFormat'),
         ];
       }, error: (error, stack) {
         return [
           _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
-          _feeRow('Peg out fee', '${btcInDenominationFormatted(bitcoinFeeRates![indexFromBlocks]["value"] * sideswapStatus.pegOutBitcoinTxVsize, btcFormat)} $btcFormat'),
-          _feeRow('Network fee', 'Unknown'),
-          _feeRow('Min amount', '${sideswapStatus.minPegOutAmount} sats'),
+          _feeRow('Peg out fee', '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat'),
+          _feeRow('Network fee', '0'),
+          _feeRow('Min amount', '${btcInDenominationFormatted(sideswapStatus.minPegOutAmount, btcFormat)} $btcFormat'),
         ];
       });
 
@@ -1540,7 +1547,7 @@ List<Widget> _getFeeRows(WidgetRef ref) {
         ];
       }, error: (error, stack) {
         return [
-          _feeRow('Network fee', 'Unknown'),
+          _feeRow('Network fee', '0'),
           _feeRow('Provider fee', '0.1%'),
         ];
       });
@@ -1558,7 +1565,7 @@ List<Widget> _getFeeRows(WidgetRef ref) {
       }, error: (error, stack) {
         return [
           _feeRow('Provider fee', '0.1%'),
-          _feeRow('Network fee', 'Unknown'),
+          _feeRow('Network fee', '0'),
         ];
       });
     case SwapType.sideswapUsdtToLbtc:
@@ -1573,7 +1580,7 @@ List<Widget> _getFeeRows(WidgetRef ref) {
           return [
             Text(
               value.errorMsg!,
-              style: TextStyle(color: Colors.orange, fontSize: 14),
+              style: TextStyle(color: Colors.grey, fontSize: 14),
               textAlign: TextAlign.center,
             )
           ];
@@ -1591,16 +1598,14 @@ List<Widget> _getFeeRows(WidgetRef ref) {
       },
       loading: () {
         return [
-          _feeRow('Price', 'Unknown'),
-          _feeRow('Fixed Fee', 'Unknown'),
-          _feeRow('Total Fee', 'Unknown'),
+          _feeRow('Price', '0'),
+          _feeRow('Fixed Fee', '0'),
         ];
       },
       error: (error, stack) {
         return [
-          _feeRow('Price', 'Unknown'),
-          _feeRow('Fixed Fee', 'Unknown'),
-          _feeRow('Total Fee', 'Unknown'),
+          _feeRow('Price', '0'),
+          _feeRow('Fixed Fee', '0'),
         ];
       },
     );
@@ -1627,7 +1632,7 @@ Widget _feeRow(String label, String value) {
         Text(
           value,
           style: TextStyle(
-            color: Colors.orangeAccent,
+            color: Colors.grey,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -1641,13 +1646,24 @@ Widget pickBitcoinFeeSuggestionsPegOut(WidgetRef ref, double dynamicPadding, dou
   final status = ref.watch(sideswapStatusProvider).bitcoinFeeRates ?? [];
   final selectedBlocks = ref.watch(pegOutBlocksProvider);
 
-  // Reverse the status list and calculate the index
+  // Reverse the status list
   final reversedStatus = status.reversed.toList();
+
+  // If empty, show a placeholder message or return an empty widget
+  if (reversedStatus.isEmpty) {
+    return Center(
+      child: Text(
+        'No fee data available',
+        style: TextStyle(fontSize: titleFontSize),
+      ),
+    );
+  }
+
   final indexFromBlocks = reversedStatus.indexWhere((item) => item["blocks"] == selectedBlocks);
   final validInitialIndex = indexFromBlocks >= 0 ? indexFromBlocks : 0;
 
   // Define fixed labels for display
-  final labels = ["10 min", "30 min", "60 min", "days", "weeks"].reversed.toList();
+  final labels = ["10 min", "30 min", "60 min", "Days", "Weeks"].reversed.toList();
 
   return Column(
     children: [
@@ -1668,12 +1684,11 @@ Widget pickBitcoinFeeSuggestionsPegOut(WidgetRef ref, double dynamicPadding, dou
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(reversedStatus.length, (index) {
           final value = reversedStatus[index];
-          final label = labels.length > index ? labels[index] : "";
-
+          final label = (labels.length > index) ? labels[index] : "";
           return _simpleFeeText(
             label,
             value["value"].toDouble(),
-            titleFontSize / 1.1,
+            titleFontSize,
             ref,
           );
         }),
@@ -1681,6 +1696,7 @@ Widget pickBitcoinFeeSuggestionsPegOut(WidgetRef ref, double dynamicPadding, dou
     ],
   );
 }
+
 
 
 
@@ -1696,7 +1712,7 @@ Widget feeSelection(WidgetRef ref, double dynamicPadding, double titleFontSize) 
     case SwapType.coinosLnToLBTC:
       return SizedBox.shrink();
     case SwapType.coinosBtcToLn:
-      return pickBitcoinFeeSuggestionsPegOut(ref, dynamicPadding, titleFontSize);
+      return bitcoinFeeSlider(ref, dynamicPadding, titleFontSize);
     case SwapType.coinosLbtcToLn:
       return SizedBox.shrink();
     case SwapType.sideswapUsdtToLbtc:
@@ -1706,6 +1722,322 @@ Widget feeSelection(WidgetRef ref, double dynamicPadding, double titleFontSize) 
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToDepix:
       return SizedBox.shrink();
+    default:
+      return SizedBox.shrink();
+  }
+}
+
+
+
+Widget _liquidPegSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context) {
+  final status = ref.watch(sideswapStatusProvider);
+  final pegStatus = ref.watch(sideswapPegStatusProvider);
+
+  return pegStatus.when(
+    data: (peg) {
+      return Align(
+        alignment: Alignment.bottomCenter,
+        child: ActionSlider.standard(
+            sliderBehavior: SliderBehavior.stretch,
+            width: double.infinity,
+            backgroundColor: Colors.black,
+            toggleColor: Colors.orange,
+            action: (controller) async {
+              ref.read(transactionInProgressProvider.notifier).state = true;
+              controller.loading();
+              try {
+                if (ref.watch(sendTxProvider).amount < status.minPegOutAmount) {
+                  ref.read(transactionInProgressProvider.notifier).state = false;
+                  throw 'Amount is below minimum peg out amount'.i18n(ref);
+                }
+                await ref.watch(sendLiquidTransactionProvider.future);
+                await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
+                await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+                ref.read(sendTxProvider.notifier).updateAddress('');
+                ref.read(sendTxProvider.notifier).updateAmount(0);
+                ref.read(sendBlocksProvider.notifier).state = 1;
+                showMessageSnackBar(
+                  message: 'Swap done!',
+                  error: false,
+                  context: context,
+                );
+                Future.microtask(() {
+                  ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
+                  ref.read(navigationProvider.notifier).state = 1;
+                });
+                controller.success();
+                ref.read(transactionInProgressProvider.notifier).state = false;
+                context.go('/home');
+              } catch (e) {
+                controller.failure();
+                ref.read(transactionInProgressProvider.notifier).state = false;
+                showMessageSnackBar(
+                  message: e.toString(),
+                  error: true,
+                  context: context,
+                );
+                controller.reset();
+              }
+            },
+            child:Text('Slide to Swap'.i18n(ref), style: const TextStyle(color: Colors.white), textAlign: TextAlign.center)
+        ),
+      );
+    },
+    loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size:  titleFontSize * 2, color: Colors.white)),
+    error: (error, stack) => Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize)),
+  );
+}
+
+
+Widget _bitcoinPegSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context) {
+  final pegStatus = ref.watch(sideswapPegStatusProvider);
+
+  return pegStatus.when(
+    data: (peg) {
+      return Align(
+        alignment: Alignment.bottomCenter,
+        child: ActionSlider.standard(
+            sliderBehavior: SliderBehavior.stretch,
+            width: double.infinity,
+            backgroundColor: Colors.black,
+            toggleColor: Colors.orange,
+            action: (controller) async {
+              ref.read(transactionInProgressProvider.notifier).state = true;
+              controller.loading();
+              try {
+                if (ref.watch(sendTxProvider).amount < ref.watch(sideswapStatusProvider).minPegInAmount) {
+                  ref.read(transactionInProgressProvider.notifier).state = false;
+                  throw 'Amount is below minimum peg in amount'.i18n(ref);
+                }
+                await ref.watch(sendBitcoinTransactionProvider.future);
+                await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
+                await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
+                ref.read(sendTxProvider.notifier).updateAddress('');
+                ref.read(sendTxProvider.notifier).updateAmount(0);
+                ref.read(sendBlocksProvider.notifier).state = 1;
+                showMessageSnackBar(
+                  message: 'Swap done!',
+                  error: false,
+                  context: context,
+                );
+                Future.microtask(() {
+                  ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
+                  ref.read(navigationProvider.notifier).state = 1;
+                });
+                controller.success();
+                ref.read(transactionInProgressProvider.notifier).state = false;
+                context.go('/home');
+              } catch (e) {
+                ref.read(transactionInProgressProvider.notifier).state = false;
+                controller.failure();
+                showMessageSnackBar(
+                  message: e.toString(),
+                  error: true,
+                  context: context,
+                );
+                controller.reset();
+              }
+            },
+            child: Text('Slide to Swap'.i18n(ref), style: const TextStyle(color: Colors.white), textAlign: TextAlign.center)
+        ),
+      );
+    },
+    loading: () => Padding(
+      padding: EdgeInsets.all(dynamicPadding / 2),
+      child: Center(child: LoadingAnimationWidget.progressiveDots(size:  titleFontSize * 2, color: Colors.white)),
+    ),
+    error: (error, stack) => Padding(
+        padding: EdgeInsets.all(dynamicPadding / 2),
+        child: Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize:  titleFontSize / 2))
+    ),
+  );
+}
+
+
+Widget _instantSwapSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context) {
+  return Padding(
+    padding: EdgeInsets.only(bottom: dynamicPadding / 2),
+    child: Align(
+      alignment: Alignment.bottomCenter,
+      child: ActionSlider.standard(
+        sliderBehavior: SliderBehavior.stretch,
+        width: double.infinity,
+        backgroundColor: Colors.black,
+        toggleColor: Colors.orange,
+        action: (controller) async {
+          ref.read(transactionInProgressProvider.notifier).state = true;
+          controller.loading();
+          try {
+            await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
+            await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+            ref.read(sendTxProvider.notifier).updateAddress('');
+            ref.read(sendTxProvider.notifier).updateAmount(0);
+            ref.read(sendBlocksProvider.notifier).state = 1;
+            Future.microtask(() {
+              ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
+              ref.read(navigationProvider.notifier).state = 1;
+            });
+            controller.success();
+            ref.read(transactionInProgressProvider.notifier).state = false;
+            context.go('/home');
+            showMessageSnackBar(
+              message: 'Swap done!'.i18n(ref),
+              error: false,
+              context: context,
+            );
+          } catch (e) {
+            ref.read(transactionInProgressProvider.notifier).state = false;
+            controller.failure();
+            showMessageSnackBar(
+              message: e.toString().i18n(ref),
+              error: true,
+              context: context,
+            );
+            controller.reset();
+          }
+        },
+        child: Text('Slide to Swap'.i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white)),
+      ),
+    ),
+  );
+}
+
+
+Widget _liquidLnSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context, bool sendLn) {
+  return Padding(
+    padding: EdgeInsets.only(bottom: dynamicPadding / 2),
+    child: Align(
+      alignment: Alignment.bottomCenter,
+      child: ActionSlider.standard(
+        sliderBehavior: SliderBehavior.stretch,
+        width: double.infinity,
+        backgroundColor: Colors.black,
+        toggleColor: Colors.orange,
+        action: (controller) async {
+          ref.read(transactionInProgressProvider.notifier).state = true;
+          controller.loading();
+          try {
+            if (sendLn) {
+              final liquidAddress = await ref.read(liquidAddressProvider.future);
+              ref.read(sendTxProvider.notifier).updateAddress(liquidAddress.confidential);
+              await ref.read(sendCoinosLiquidProvider.future);
+              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+            } else {
+              final addressFromCoinos = await ref.read(createInvoiceForSwapProvider('liquid').future);
+              ref.read(sendTxProvider.notifier).updateAddress(addressFromCoinos);
+              await ref.read(sendLiquidTransactionProvider.future);
+              final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
+              final lnBalance = await ref.read(coinosBalanceProvider.future);
+              balanceNotifier.updateLightningBalance(lnBalance);
+              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+            }
+            showMessageSnackBar(
+              message: 'Swap done!'.i18n(ref),
+              error: false,
+              context: context,
+            );
+            controller.success();
+            ref.read(transactionInProgressProvider.notifier).state = false;
+            context.go('/home');
+          } catch (e) {
+            ref.read(transactionInProgressProvider.notifier).state = false;
+            controller.failure();
+            showMessageSnackBar(
+              message: e.toString().i18n(ref),
+              error: true,
+              context: context,
+            );
+            controller.reset();
+          }
+        },
+        child: Text(
+          'Slide to Swap'.i18n(ref),
+          style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _bitcoinLnSlideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context, bool sendLn) {
+  return Padding(
+    padding: EdgeInsets.only(bottom: dynamicPadding / 2),
+    child: Align(
+      alignment: Alignment.bottomCenter,
+      child: ActionSlider.standard(
+        sliderBehavior: SliderBehavior.stretch,
+        width: double.infinity,
+        backgroundColor: Colors.black,
+        toggleColor: Colors.orange,
+        action: (controller) async {
+          ref.read(transactionInProgressProvider.notifier).state = true;
+          controller.loading();
+          try {
+            if (sendLn) {
+              final btcAddress = await ref.read(bitcoinAddressProvider.future);
+              ref.read(sendTxProvider.notifier).updateAddress(btcAddress);
+              await ref.read(sendCoinosBitcoinProvider.future);
+              await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
+            } else {
+              final addressFromCoinos = await ref.read(createInvoiceForSwapProvider('bitcoin').future);
+              ref.read(sendTxProvider.notifier).updateAddress(addressFromCoinos);
+              await ref.read(sendBitcoinTransactionProvider.future);
+              final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
+              final lnBalance = await ref.read(coinosBalanceProvider.future);
+              balanceNotifier.updateLightningBalance(lnBalance);
+              await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
+            }
+            showMessageSnackBar(
+              message: 'Swap done!'.i18n(ref),
+              error: false,
+              context: context,
+            );
+            controller.success();
+            ref.read(transactionInProgressProvider.notifier).state = false;
+            context.go('/home');
+          } catch (e) {
+            ref.read(transactionInProgressProvider.notifier).state = false;
+            controller.failure();
+            showMessageSnackBar(
+              message: e.toString().i18n(ref),
+              error: true,
+              context: context,
+            );
+            controller.reset();
+          }
+        },
+        child: Text(
+          'Slide to Swap'.i18n(ref),
+          style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget slideToSend(WidgetRef ref, double dynamicPadding, double titleFontSize, BuildContext context) {
+  final swapType = ref.watch(swapTypeProvider);
+
+  switch (swapType) {
+    case SwapType.sideswapBtcToLbtc:
+      return _bitcoinPegSlideToSend(ref, dynamicPadding, titleFontSize, context);
+    case SwapType.sideswapLbtcToBtc:
+      return _liquidPegSlideToSend(ref, dynamicPadding, titleFontSize, context);
+    case SwapType.coinosLnToBTC:
+      return _bitcoinLnSlideToSend(ref, dynamicPadding, titleFontSize, context, true);
+    case SwapType.coinosLnToLBTC:
+      return _liquidLnSlideToSend(ref, dynamicPadding, titleFontSize, context, true);
+    case SwapType.coinosBtcToLn:
+      return _bitcoinLnSlideToSend(ref, dynamicPadding, titleFontSize, context, false);
+    case SwapType.coinosLbtcToLn:
+      return _liquidLnSlideToSend(ref, dynamicPadding, titleFontSize, context, false);
+    case SwapType.sideswapUsdtToLbtc:
+    case SwapType.sideswapEuroxToLbtc:
+    case SwapType.sideswapDepixToLbtc:
+    case SwapType.sideswapLbtcToUsdt:
+    case SwapType.sideswapLbtcToEurox:
+    case SwapType.sideswapLbtcToDepix:
+      return _instantSwapSlideToSend(ref, dynamicPadding, titleFontSize, context);
     default:
       return SizedBox.shrink();
   }
