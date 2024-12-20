@@ -43,15 +43,14 @@ class _ExchangeState extends ConsumerState<Exchange> {
           },
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: SafeArea(
-          child: FlutterKeyboardDoneWidget(
-            doneWidgetBuilder: (context) {
-              return const Text('Done');
-            },
+      body: SafeArea(
+        child: FlutterKeyboardDoneWidget(
+          doneWidgetBuilder: (context) {
+            return const Text('Done');
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 buildBalanceCardWithMaxButton(ref, 16, 20, controller),
                 SizedBox(height: 16),
@@ -60,7 +59,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
                 buildAdvancedOptionsCard(ref, 16, 20),
                 SizedBox(height: 16),
                 feeSelection(ref, 16, 20),
-                SizedBox(height: 16),
+                Spacer(),
                 slideToSend(ref, 16, 20, context),
               ],
             ),

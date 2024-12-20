@@ -131,6 +131,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
         ref.read(sendBitcoinProvider.notifier).state = false;
         ref.read(inputInFiatProvider.notifier).state = false;
+        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.sideswapEuroxToLbtc:
@@ -138,6 +139,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.EUR);
         ref.read(sendBitcoinProvider.notifier).state = false;
         ref.read(inputInFiatProvider.notifier).state = false;
+        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.sideswapDepixToLbtc:
@@ -145,12 +147,14 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.BRL);
         ref.read(sendBitcoinProvider.notifier).state = false;
         ref.read(inputInFiatProvider.notifier).state = false;
+        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.sideswapLbtcToUsdt:
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
         ref.read(sendBitcoinProvider.notifier).state = true;
+        ref.read(pegOutBlocksProvider.notifier).state = 2;
         ref.read(inputInFiatProvider.notifier).state = false;
         break;
 
@@ -159,6 +163,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.EUR);
         ref.read(sendBitcoinProvider.notifier).state = true;
         ref.read(inputInFiatProvider.notifier).state = false;
+        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.sideswapLbtcToDepix:
@@ -166,6 +171,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.BRL);
         ref.read(sendBitcoinProvider.notifier).state = true;
         ref.read(inputInFiatProvider.notifier).state = false;
+        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.sideswapBtcToLbtc:
@@ -173,6 +179,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendBitcoinProvider.notifier).state = false;
         ref.read(inputInFiatProvider.notifier).state = false;
+        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.sideswapLbtcToBtc:
@@ -180,6 +187,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendBitcoinProvider.notifier).state = false;
         ref.read(inputInFiatProvider.notifier).state = false;
+        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.coinosLnToBTC:
@@ -187,6 +195,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendBitcoinProvider.notifier).state = false;
         ref.read(inputInFiatProvider.notifier).state = false;
+        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.coinosLnToLBTC:
@@ -194,6 +203,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendBitcoinProvider.notifier).state = false;
         ref.read(inputInFiatProvider.notifier).state = false;
+        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.coinosBtcToLn:
@@ -201,6 +211,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendBitcoinProvider.notifier).state = false;
         ref.read(inputInFiatProvider.notifier).state = false;
+        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.coinosLbtcToLn:
@@ -208,6 +219,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendBitcoinProvider.notifier).state = false;
         ref.read(inputInFiatProvider.notifier).state = false;
+        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       default:
@@ -579,6 +591,7 @@ Future<void> handleBitcoinToLightning(WidgetRef ref, TextEditingController contr
 Future<void> handleLiquidBitcoinToLightning(WidgetRef ref, TextEditingController controller, String btcFormat) async {
   final address = await ref.read(createInvoiceForSwapProvider('liquid').future);
   ref.read(sendTxProvider.notifier).updateAddress(address);
+  ref.read(sendTxProvider.notifier).updateDrain(true);
 
   final pset = await ref.watch(liquidDrainWalletProvider.future);
   final sendingBalance = pset.balances[0].value + pset.absoluteFees;
@@ -1476,16 +1489,13 @@ Widget buildAdvancedOptionsCard(WidgetRef ref, double dynamicPadding, double tit
 }
 
 List<Widget> _getFeeRows(WidgetRef ref) {
-  final sideswapStatus = ref.watch(sideswapStatusProvider);
   final swapType = ref.watch(swapTypeProvider);
   final btcFormat = ref.read(settingsProvider).btcFormat;
-  final bitcoinFee = ref.watch(feeProvider);
-  final liquidFee = ref.watch(liquidFeeProvider);
-  final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
-  final pegOutCost = ref.watch(pegOutBitcoinCostProvider);
 
   switch (swapType) {
     case SwapType.sideswapBtcToLbtc:
+      final bitcoinFee = ref.watch(feeProvider);
+      final sideswapStatus = ref.watch(sideswapStatusProvider);
       return bitcoinFee.when(data: (value) {
         return [
           _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegIn}%'),
@@ -1506,6 +1516,9 @@ List<Widget> _getFeeRows(WidgetRef ref) {
         ];
       });
     case SwapType.sideswapLbtcToBtc:
+      final pegOutCost = ref.watch(pegOutBitcoinCostProvider);
+      final sideswapStatus = ref.watch(sideswapStatusProvider);
+      final liquidFee = ref.watch(liquidFeeProvider);
       return liquidFee.when(data: (value) {
         return [
           _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
@@ -1530,41 +1543,43 @@ List<Widget> _getFeeRows(WidgetRef ref) {
       });
 
     case SwapType.coinosLnToBTC:
+      final pegOutCost = ref.watch(pegOutBitcoinCostProvider);
+      return [
+        _feeRow('Peg out fee', '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat'),
+        _feeRow('Provider fee', '0.1%'),
+      ];
     case SwapType.coinosLnToLBTC:
       return [
         _feeRow('Provider fee', '0.1%'),
       ];
     case SwapType.coinosBtcToLn:
+      final bitcoinFee = ref.watch(feeProvider);
       return bitcoinFee.when(data: (value) {
         return [
           _feeRow('Network fee', '$value'),
-          _feeRow('Provider fee', '0.1%'),
         ];
       }, loading: () {
         return [
-          _feeRow('Network fee', 'Loading...'),
-          _feeRow('Provider fee', '0.1%'),
+          _feeRow('Network fee', '0'),
         ];
       }, error: (error, stack) {
         return [
           _feeRow('Network fee', '0'),
-          _feeRow('Provider fee', '0.1%'),
         ];
       });
     case SwapType.coinosLbtcToLn:
+      final liquidFee = ref.watch(liquidFeeProvider);
       return liquidFee.when(data: (value) {
         return [
           _feeRow('Network fee', '$value'),
-          _feeRow('Provider fee', '0.1%'),
         ];
       }, loading: () {
         return [
           _feeRow('Provider fee', '0.1%'),
-          _feeRow('Network fee', 'Loading...'),
+          _feeRow('Network fee', '0'),
         ];
       }, error: (error, stack) {
         return [
-          _feeRow('Provider fee', '0.1%'),
           _feeRow('Network fee', '0'),
         ];
       });
@@ -1574,6 +1589,7 @@ List<Widget> _getFeeRows(WidgetRef ref) {
     case SwapType.sideswapLbtcToUsdt:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToDepix:
+    final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
     return sideswapPriceStreamAsyncValue.when(
       data: (value) {
         if (value.errorMsg != null) {
@@ -1768,6 +1784,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, double dynamicPadding, double titleF
                 controller.success();
                 ref.read(transactionInProgressProvider.notifier).state = false;
                 context.go('/home');
+                ref.read(sendTxProvider.notifier).resetToDefault();
               } catch (e) {
                 controller.failure();
                 ref.read(transactionInProgressProvider.notifier).state = false;
@@ -1827,6 +1844,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, double dynamicPadding, double title
                 controller.success();
                 ref.read(transactionInProgressProvider.notifier).state = false;
                 context.go('/home');
+                ref.read(sendTxProvider.notifier).resetToDefault();
               } catch (e) {
                 ref.read(transactionInProgressProvider.notifier).state = false;
                 controller.failure();
@@ -1880,6 +1898,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, double dynamicPadding, double titl
             controller.success();
             ref.read(transactionInProgressProvider.notifier).state = false;
             context.go('/home');
+            ref.read(sendTxProvider.notifier).resetToDefault();
             showMessageSnackBar(
               message: 'Swap done!'.i18n(ref),
               error: false,
@@ -1939,6 +1958,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, double dynamicPadding, double titleFo
             controller.success();
             ref.read(transactionInProgressProvider.notifier).state = false;
             context.go('/home');
+            ref.read(sendTxProvider.notifier).resetToDefault();
           } catch (e) {
             ref.read(transactionInProgressProvider.notifier).state = false;
             controller.failure();
@@ -1995,6 +2015,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, double dynamicPadding, double titleF
             controller.success();
             ref.read(transactionInProgressProvider.notifier).state = false;
             context.go('/home');
+            ref.read(sendTxProvider.notifier).resetToDefault();
           } catch (e) {
             ref.read(transactionInProgressProvider.notifier).state = false;
             controller.failure();
