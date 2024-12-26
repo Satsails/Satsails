@@ -1545,7 +1545,7 @@ List<Widget> _getFeeRows(WidgetRef ref) {
     case SwapType.coinosLnToBTC:
       final pegOutCost = ref.watch(pegOutBitcoinCostProvider);
       return [
-        _feeRow('Peg out fee', '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat'),
+        _feeRow('Network fee', '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat'),
         _feeRow('Provider fee', '0.1%'),
       ];
     case SwapType.coinosLnToLBTC:
@@ -1796,7 +1796,15 @@ Widget _liquidPegSlideToSend(WidgetRef ref, double dynamicPadding, double titleF
                 controller.reset();
               }
             },
-            child:Text('Slide to Swap'.i18n(ref), style: const TextStyle(color: Colors.white), textAlign: TextAlign.center)
+            child:  Text(
+              'Slide to Swap'.i18n(ref),
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: titleFontSize,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
         ),
       );
     },
@@ -1856,7 +1864,15 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, double dynamicPadding, double title
                 controller.reset();
               }
             },
-            child: Text('Slide to Swap'.i18n(ref), style: const TextStyle(color: Colors.white), textAlign: TextAlign.center)
+            child: Text(
+              'Slide to Swap'.i18n(ref),
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: titleFontSize,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
         ),
       );
     },
@@ -1915,7 +1931,15 @@ Widget _instantSwapSlideToSend(WidgetRef ref, double dynamicPadding, double titl
             controller.reset();
           }
         },
-        child: Text('Slide to Swap'.i18n(ref), style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white)),
+        child: Text(
+          'Slide to Swap'.i18n(ref),
+          style: TextStyle(
+            color: Colors.grey,
+            fontWeight: FontWeight.bold,
+            fontSize: titleFontSize,
+          ),
+          textAlign: TextAlign.center,
+        ),
       ),
     ),
   );
@@ -1970,9 +1994,14 @@ Widget _liquidLnSlideToSend(WidgetRef ref, double dynamicPadding, double titleFo
             controller.reset();
           }
         },
-        child: Text(
+        child:  Text(
           'Slide to Swap'.i18n(ref),
-          style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white),
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: titleFontSize,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
         ),
       ),
     ),
@@ -2027,9 +2056,14 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, double dynamicPadding, double titleF
             controller.reset();
           }
         },
-        child: Text(
+        child:  Text(
           'Slide to Swap'.i18n(ref),
-          style: TextStyle(fontSize: titleFontSize / 2, color: Colors.white),
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: titleFontSize,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
         ),
       ),
     ),
