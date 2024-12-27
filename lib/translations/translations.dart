@@ -1999,6 +1999,14 @@ extension Localization on String {
       {
         'en': 'Affiliate code inserted!',
         'pt': 'Código de afiliado inserido!'
+      }+
+      {
+        'en': 'Transaction expired',
+        'pt': 'Transação expirada'
+      }+
+      {
+        'en': 'Amount cannot be empty',
+        'pt': 'A quantia não pode estar vazia'
       };
 
   String i18n(WidgetRef ref) {
