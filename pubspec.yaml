@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   flutter_secure_storage: ^9.0.0
   go_router: ^14.3.0
+  flutter_screenutil: ^5.9.3
   pin_code_fields: ^8.0.1
   http: ^1.2.1
   local_auth: ^2.1.8

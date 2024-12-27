@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Exchange extends ConsumerStatefulWidget {
   const Exchange({super.key});
@@ -15,6 +16,8 @@ class Exchange extends ConsumerStatefulWidget {
 
 class _ExchangeState extends ConsumerState<Exchange> {
   final TextEditingController controller = TextEditingController();
+
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -27,13 +30,14 @@ class _ExchangeState extends ConsumerState<Exchange> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
           'Exchange'.i18n(ref),
-          style: TextStyle(color: Colors.white, fontSize: 20),
+          style: TextStyle(color: Colors.white, fontSize: 20.sp), // Responsive font size
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -49,18 +53,18 @@ class _ExchangeState extends ConsumerState<Exchange> {
             return const Text('Done');
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView(
               children: [
-                buildBalanceCardWithMaxButton(ref, 16, 20, controller),
-                SizedBox(height: 16),
+                buildBalanceCardWithMaxButton(ref, controller),
+                SizedBox(height: 0.01.sh),
                 buildExchangeCard(context, ref, controller),
-                SizedBox(height: 16),
-                buildAdvancedOptionsCard(ref, 16, 20),
-                SizedBox(height: 16),
-                feeSelection(ref, 16, 20),
-                Spacer(),
-                slideToSend(ref, 16, 20, context),
+                SizedBox(height: 0.01.sh),
+                buildAdvancedOptionsCard(ref),
+                SizedBox(height: 0.01.sh),
+                feeSelection(ref),
+                SizedBox(height: 0.01.sh),
+                slideToSend(ref, context),
               ],
             ),
           ),
@@ -69,3 +73,4 @@ class _ExchangeState extends ConsumerState<Exchange> {
     );
   }
 }
+

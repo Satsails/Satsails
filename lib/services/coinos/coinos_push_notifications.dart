@@ -36,12 +36,10 @@ class CoinosPushNotifications {
       _channel!.stream.listen(
         _handleIncomingMessage,
         onError: (error) {
-          print('WebSocket error: $error');
           _isConnected = false;
           _scheduleReconnect();
         },
         onDone: () {
-          print('WebSocket connection closed.');
           _isConnected = false;
           _scheduleReconnect();
         },
@@ -54,7 +52,6 @@ class CoinosPushNotifications {
       // Start the heartbeat timer
       _startHeartbeatTimer();
     } catch (e) {
-      print('Error connecting to WebSocket: $e');
       _isConnecting = false;
       _isConnected = false;
       _scheduleReconnect();
@@ -68,7 +65,6 @@ class CoinosPushNotifications {
     if (decodedMessage['type'] == 'payment') {
       _handlePaymentMessage(decodedMessage['data']);
     } else {
-      print('hearbeat');
     }
   }
 
@@ -96,9 +92,7 @@ class CoinosPushNotifications {
         'type': 'heartbeat',
         'data': _token,
       }));
-      print('Heartbeat sent.');
     } catch (e) {
-      print('Error sending heartbeat: $e');
       _isConnected = false;
       _scheduleReconnect();
     }
@@ -108,10 +102,8 @@ class CoinosPushNotifications {
   void _scheduleReconnect() {
     if (_reconnectTimer != null && _reconnectTimer!.isActive) return;
 
-    print('Scheduling reconnection in ${_reconnectDelay.inSeconds} seconds...');
     _reconnectTimer = Timer(_reconnectDelay, () {
       if (!_isConnected) {
-        print('Attempting to reconnect...');
         connect();
       }
     });
@@ -125,6 +117,5 @@ class CoinosPushNotifications {
     _reconnectTimer?.cancel();
     _channel?.sink.close();
     _paymentController.close();
-    print('WebSocket connection closed and resources disposed.');
   }
 }

@@ -6,6 +6,7 @@ import 'package:Satsails/screens/receive/components/custom_elevated_button.dart'
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 import 'package:vibration/vibration.dart';
@@ -106,7 +107,7 @@ class _ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOv
           onChanged: (_) {},
         ),
         const SizedBox(height: 20),
-        getAssetImage(widget.asset, 48.0, 48.0),
+        getAssetImage(widget.asset, height: 48.sp, width: 48.sp),
         const SizedBox(height: 20),
         Text(
           amountText,
@@ -233,7 +234,7 @@ class _PaymentTransactionOverlayState
           ),
         ),
         const SizedBox(height: 30),
-        getAssetImage(widget.asset, 48.0, 48.0),
+        getAssetImage(widget.asset, height: 48.sp, width: 48.sp),
         const SizedBox(height: 20),
         Text(
           amountText,
