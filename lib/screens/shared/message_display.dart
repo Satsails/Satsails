@@ -79,6 +79,38 @@ void showTopOverlayMessage({
   });
 }
 
+void showBottomOverlayMessage({
+  required BuildContext context,
+  required String message,
+  required bool error,
+}) {
+  final overlay = Overlay.of(context);
+  if (overlay == null) return;
+
+  final overlayEntry = OverlayEntry(
+    builder: (context) => Positioned(
+      bottom: MediaQuery.of(context).padding.bottom + 8.0,
+      left: 8.0,
+      right: 8.0,
+      child: Material(
+        color: Colors.transparent,
+        child: AwesomeSnackbarContent(
+          title: error ? 'Oops' : 'Ok!',
+          message: message,
+          inMaterialBanner: false,
+          contentType: error ? ContentType.failure : ContentType.success,
+        ),
+      ),
+    ),
+  );
+
+  overlay.insert(overlayEntry);
+
+  Future.delayed(Duration(seconds: 3), () {
+    overlayEntry.remove();
+  });
+}
+
 
 void showMessageSnackBar({
   required BuildContext context,

@@ -1973,7 +1973,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
-              showMessageSnackBar(
+              showBottomOverlayMessage(
                 message: 'Swap done!',
                 error: false,
                 context: context,
@@ -1989,7 +1989,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
             } catch (e) {
               controller.failure();
               ref.read(transactionInProgressProvider.notifier).state = false;
-              showMessageSnackBar(
+              showBottomOverlayMessage(
                 message: e.toString(),
                 error: true,
                 context: context,
@@ -2042,7 +2042,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
-              showMessageSnackBar(
+              showBottomOverlayMessage(
                 message: 'Swap done!',
                 error: false,
                 context: context,
@@ -2058,7 +2058,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
             } catch (e) {
               ref.read(transactionInProgressProvider.notifier).state = false;
               controller.failure();
-              showMessageSnackBar(
+              showBottomOverlayMessage(
                 message: e.toString(),
                 error: true,
                 context: context,
@@ -2118,7 +2118,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
             ref.read(transactionInProgressProvider.notifier).state = false;
             context.go('/home');
             ref.read(sendTxProvider.notifier).resetToDefault();
-            showMessageSnackBar(
+            showBottomOverlayMessage(
               message: 'Swap done!'.i18n(ref),
               error: false,
               context: context,
@@ -2126,7 +2126,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
           } catch (e) {
             ref.read(transactionInProgressProvider.notifier).state = false;
             controller.failure();
-            showMessageSnackBar(
+            showBottomOverlayMessage(
               message: e.toString().i18n(ref),
               error: true,
               context: context,
@@ -2178,7 +2178,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               balanceNotifier.updateLightningBalance(lnBalance);
               await ref.read(liquidSyncNotifierProvider.notifier).performSync();
             }
-            showMessageSnackBar(
+            showBottomOverlayMessage(
               message: 'Swap done!'.i18n(ref),
               error: false,
               context: context,
@@ -2190,7 +2190,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
           } catch (e) {
             ref.read(transactionInProgressProvider.notifier).state = false;
             controller.failure();
-            showMessageSnackBar(
+            showBottomOverlayMessage(
               message: e.toString().i18n(ref),
               error: true,
               context: context,
@@ -2240,7 +2240,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               balanceNotifier.updateLightningBalance(lnBalance);
               await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
             }
-            showMessageSnackBar(
+            showBottomOverlayMessage(
               message: 'Swap done!'.i18n(ref),
               error: false,
               context: context,
@@ -2252,7 +2252,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
           } catch (e) {
             ref.read(transactionInProgressProvider.notifier).state = false;
             controller.failure();
-            showMessageSnackBar(
+            showBottomOverlayMessage(
               message: e.toString().i18n(ref),
               error: true,
               context: context,
