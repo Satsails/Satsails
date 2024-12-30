@@ -24,7 +24,7 @@ FutureProvider.autoDispose<Transaction>((ref) async {
   final liquidTransactions = liquidTxs.map((lwkTx) {
     return LiquidTransaction(
       id: lwkTx.txid,
-      timestamp: DateTime.fromMillisecondsSinceEpoch(lwkTx.timestamp! * 1000),
+      timestamp: lwkTx.timestamp != null && lwkTx.timestamp != 0 ? DateTime.fromMillisecondsSinceEpoch(lwkTx.timestamp! * 1000) : DateTime.now(),
       lwkDetails: lwkTx,
       isConfirmed: lwkTx.timestamp != null && lwkTx.timestamp != 0,
     );

@@ -63,9 +63,7 @@ final bitcoinFeeSpentPerDayProvider = StateProvider.autoDispose<Map<DateTime, nu
 
   for (BitcoinTransaction transaction in transactions) {
     if (transaction.btcDetails.sent > 0) {
-      final DateTime date = transaction.btcDetails.confirmationTime  == null || transaction!.btcDetails.confirmationTime  == 0
-          ? normalizeDate(DateTime.now())
-          : normalizeDate(transaction.timestamp!);
+      final DateTime date = normalizeDate(transaction.timestamp);
       valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + (transaction.btcDetails.fee ?? 0);
     }
   }
@@ -92,9 +90,7 @@ final bitcoinIncomePerDayProvider = StateProvider.autoDispose<Map<DateTime, num>
   }
 
   for (BitcoinTransaction transaction in transactions) {
-    final DateTime date = transaction.btcDetails.confirmationTime == null || transaction.btcDetails.confirmationTime !.timestamp == 0
-        ? normalizeDate(DateTime.now())
-        : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.btcDetails.confirmationTime !.timestamp * 1000));
+    final DateTime date = normalizeDate(transaction.timestamp);
     valueIncomePerDay[date] = (valueIncomePerDay[date] ?? 0) + transaction.btcDetails.received;
   }
 
@@ -119,9 +115,7 @@ final bitcoinSpentPerDayProvider = StateProvider.autoDispose<Map<DateTime, num>>
   }
 
   for (BitcoinTransaction transaction in transactions) {
-    final DateTime date = transaction.btcDetails.confirmationTime  == null || transaction.btcDetails.confirmationTime !.timestamp == 0
-        ? normalizeDate(DateTime.now())
-        : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.btcDetails.confirmationTime!.timestamp * 1000));
+    final DateTime date = normalizeDate(transaction.timestamp);
     valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + transaction.btcDetails.sent;
   }
 
@@ -258,7 +252,7 @@ final liquidFeePerDayProvider = StateProvider.autoDispose.family<Map<DateTime, n
 
   for (LiquidTransaction transaction in transactions) {
     if (transaction.lwkDetails.timestamp != 0 && transaction.lwkDetails.timestamp != null) {
-      final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.lwkDetails.timestamp! * 1000));
+      final DateTime date = normalizeDate(transaction.timestamp);
       final hasSentFromAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value < 0);
       if (hasSentFromAsset) {
         valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + transaction.lwkDetails.fee.abs();
@@ -288,7 +282,7 @@ final liquidIncomePerDayProvider = StateProvider.autoDispose.family<Map<DateTime
 
   for (LiquidTransaction transaction in transactions) {
     if (transaction.lwkDetails.timestamp != 0 && transaction.lwkDetails.timestamp != null) {
-      final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.lwkDetails.timestamp! * 1000));
+      final DateTime date = normalizeDate(transaction.timestamp);
       final hasReceivedAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value > 0);
 
       if (hasReceivedAsset) {
@@ -325,7 +319,7 @@ final liquidSpentPerDayProvider = StateProvider.autoDispose.family<Map<DateTime,
   // Process transactions and accumulate spent values
   for (LiquidTransaction transaction in transactions) {
     if (transaction.timestamp != 0 && transaction.timestamp != null) {
-      final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.lwkDetails.timestamp! * 1000));
+      final DateTime date = normalizeDate(transaction.timestamp);
       final hasSentAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value < 0);
 
       if (hasSentAsset) {
@@ -373,7 +367,7 @@ final liquidBalanceOverPeriod = StateProvider.autoDispose.family<Map<DateTime, n
       continue;
     }
 
-    final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.lwkDetails.timestamp! * 1000));
+    final DateTime date = normalizeDate(transaction.timestamp);
     final hasSentAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value < 0);
     final hasReceivedAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value > 0);
     if (hasSentAsset || hasReceivedAsset) {
