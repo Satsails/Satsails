@@ -4,7 +4,6 @@ import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
-import 'package:Satsails/models/sideswap/sideswap_status_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
@@ -481,6 +480,7 @@ Future<void> handleMaxButtonPress(
     case SwapType.sideswapLbtcToUsdt:
       balance = ref.read(balanceNotifierProvider).liquidBalance;
       controller.text = btcInDenominationFormatted(balance.toDouble(), btcFormat);
+      ref.read(inputInFiatProvider.notifier).state = false;
       ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
       ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
       ref.read(sendTxProvider.notifier).updateDrain(true);
@@ -556,6 +556,7 @@ Future<void> handlePegOut(
 }
 
 Future<void> handleLightningToAsset(WidgetRef ref, TextEditingController controller, String btcFormat) async {
+  ref.read(inputInFiatProvider.notifier).state = false;
   final balance = ref.read(balanceNotifierProvider).lightningBalance;
   int maxAmount = (balance! * 0.995).toInt();
   controller.text = btcInDenominationFormatted(maxAmount, btcFormat);
@@ -563,6 +564,7 @@ Future<void> handleLightningToAsset(WidgetRef ref, TextEditingController control
 }
 
 Future<void> handleBitcoinToLightning(WidgetRef ref, TextEditingController controller, String btcFormat) async {
+  ref.read(inputInFiatProvider.notifier).state = false;
   final balance = ref.read(balanceNotifierProvider).btcBalance;
   final address = await ref.read(createInvoiceForSwapProvider('bitcoin').future);
   ref.read(sendTxProvider.notifier).updateAddress(address);
@@ -579,6 +581,7 @@ Future<void> handleBitcoinToLightning(WidgetRef ref, TextEditingController contr
 }
 
 Future<void> handleLiquidBitcoinToLightning(WidgetRef ref, TextEditingController controller, String btcFormat) async {
+  ref.read(inputInFiatProvider.notifier).state = false;
   final address = await ref.read(createInvoiceForSwapProvider('liquid').future);
   ref.read(sendTxProvider.notifier).updateAddress(address);
   ref.read(sendTxProvider.notifier).updateDrain(true);
@@ -2178,6 +2181,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               balanceNotifier.updateLightningBalance(lnBalance);
               await ref.read(liquidSyncNotifierProvider.notifier).performSync();
             }
+            ref.read(sendBlocksProvider.notifier).state = 1;
             showBottomOverlayMessage(
               message: 'Swap done!'.i18n(ref),
               error: false,
@@ -2240,6 +2244,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               balanceNotifier.updateLightningBalance(lnBalance);
               await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
             }
+            ref.read(sendBlocksProvider.notifier).state = 1;
             showBottomOverlayMessage(
               message: 'Swap done!'.i18n(ref),
               error: false,

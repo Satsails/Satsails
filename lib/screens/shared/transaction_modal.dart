@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:Satsails/helpers/transaction_helpers.dart';
+import 'package:Satsails/helpers/swap_helpers.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
