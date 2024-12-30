@@ -19,67 +19,61 @@ class PurchaseAdapter extends TypeAdapter<Purchase> {
     return Purchase(
       id: fields[0] as int,
       transferId: fields[1] as String,
-      cpf: fields[2] as String,
-      sentAmount: fields[3] as double,
-      originalAmount: fields[4] as double,
-      mintFees: fields[5] as double,
-      processingStatus: fields[8] as bool,
-      failed: fields[9] as bool,
-      paymentId: fields[6] as String,
-      completedTransfer: fields[7] as bool,
-      receivedTxid: fields[11] as String,
-      sentToHotWallet: fields[10] as bool,
-      sentTxid: fields[12] as String?,
-      receipt: fields[13] as String?,
-      userId: fields[14] as int?,
-      createdAt: fields[15] as DateTime,
-      updatedAt: fields[16] as DateTime,
-      receivedAmount: fields[17] as double,
-      pixKey: fields[18] as String,
+      sentAmount: fields[2] as double,
+      originalAmount: fields[3] as double,
+      mintFees: fields[4] as double,
+      processingStatus: fields[7] as bool,
+      failed: fields[8] as bool,
+      paymentId: fields[5] as String,
+      completedTransfer: fields[6] as bool,
+      receivedTxid: fields[10] as String,
+      sentToHotWallet: fields[9] as bool,
+      sentTxid: fields[11] as String?,
+      userId: fields[12] as int?,
+      createdAt: fields[13] as DateTime,
+      updatedAt: fields[14] as DateTime,
+      receivedAmount: fields[15] as double,
+      pixKey: fields[16] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Purchase obj) {
     writer
-      ..writeByte(19)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.transferId)
       ..writeByte(2)
-      ..write(obj.cpf)
-      ..writeByte(3)
       ..write(obj.sentAmount)
-      ..writeByte(4)
+      ..writeByte(3)
       ..write(obj.originalAmount)
-      ..writeByte(5)
+      ..writeByte(4)
       ..write(obj.mintFees)
-      ..writeByte(6)
+      ..writeByte(5)
       ..write(obj.paymentId)
-      ..writeByte(7)
+      ..writeByte(6)
       ..write(obj.completedTransfer)
-      ..writeByte(8)
+      ..writeByte(7)
       ..write(obj.processingStatus)
-      ..writeByte(9)
+      ..writeByte(8)
       ..write(obj.failed)
-      ..writeByte(10)
+      ..writeByte(9)
       ..write(obj.sentToHotWallet)
-      ..writeByte(11)
+      ..writeByte(10)
       ..write(obj.receivedTxid)
-      ..writeByte(12)
+      ..writeByte(11)
       ..write(obj.sentTxid)
-      ..writeByte(13)
-      ..write(obj.receipt)
-      ..writeByte(14)
+      ..writeByte(12)
       ..write(obj.userId)
-      ..writeByte(15)
+      ..writeByte(13)
       ..write(obj.createdAt)
-      ..writeByte(16)
+      ..writeByte(14)
       ..write(obj.updatedAt)
-      ..writeByte(17)
+      ..writeByte(15)
       ..write(obj.receivedAmount)
-      ..writeByte(18)
+      ..writeByte(16)
       ..write(obj.pixKey);
   }
 
