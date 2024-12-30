@@ -142,13 +142,6 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                       Column(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(top: 8.0, left: 8.0),
-                            child: Text(
-                              "CPF: ${pix.pixDetails.cpf}",
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          ),
-                          Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Text(
                               DateFormat('yyyy-MM-dd HH:mm').format(pix.pixDetails.createdAt.toLocal()),

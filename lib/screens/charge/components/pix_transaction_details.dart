@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class PixTransactionDetails extends ConsumerStatefulWidget {
   const PixTransactionDetails({super.key});
@@ -119,7 +118,6 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
                 ),
                 const SizedBox(height: 16.0),
                 _buildFeeDetails(ref, transaction),
-                _buildReceiptDownload(ref, transaction, dynamicRadius),
               ]
             ],
           ),
@@ -207,11 +205,6 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
               : "Pending".i18n(ref),
         ),
         const SizedBox(height: 16.0),
-        TransactionDetailRow(
-          label: "CPF/CNPJ",
-          value: transaction.cpf,
-        ),
-        const SizedBox(height: 16.0),
         GestureDetector(
           onTap: () {
             Clipboard.setData(ClipboardData(text: transaction.sentTxid ?? "N/A"));
@@ -246,39 +239,6 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           ),
       ],
     );
-  }
-
-  Widget _buildReceiptDownload(WidgetRef ref, Purchase transaction, double dynamicRadius) {
-    return transaction.receipt != null
-        ? GestureDetector(
-      onTap: () async {
-        if (await canLaunch(transaction.receipt!)) {
-          await launch(transaction.receipt!);
-        } else {
-          throw 'Could not launch ${transaction.receipt}';
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.only(top: 12.0),
-        padding: const EdgeInsets.all(12.0),
-        decoration: BoxDecoration(
-          color: Colors.orange,
-          borderRadius: BorderRadius.circular(dynamicRadius),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.download, color: Colors.white),
-            const SizedBox(width: 8.0),
-            Text(
-              "Download document".i18n(ref),
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ],
-        ),
-      ),
-    )
-        : const SizedBox.shrink();
   }
 }
 

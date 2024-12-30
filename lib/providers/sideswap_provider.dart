@@ -116,8 +116,8 @@ final sideswapStatusDetailsItemProvider = StreamProvider.autoDispose<SideswapPeg
 
 // exchange tokens
 
-final sendBitcoinProvider = StateProvider.autoDispose<bool>((ref) => false);
-final assetExchangeProvider = StateProvider.autoDispose<String>((ref) => '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189');
+final sendBitcoinProvider = StateProvider<bool>((ref) => false);
+final assetExchangeProvider = StateProvider<String>((ref) => '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189');
 
 final sideswapPriceStreamProvider = StreamProvider.autoDispose<SideswapPrice>((ref) {
   final service = ref.watch(sideswapServiceProvider);
@@ -156,7 +156,7 @@ final sideswapStartExchangeProvider = StreamProvider.autoDispose<SideswapStartEx
       throw price.errorMsg!;
     }
     if (price.sendAmount == null) {
-      throw 'Cannot exchange 0 amount';
+      throw 'Cannot exchange 0';
     }
     service.startExchange(asset: asset, price: price.price!, sendBitcoins: sendBitcoin, sendAmount: price.sendAmount!, recvAmount: price.recvAmount!);
     return service.exchangeStream.map((event) => SideswapStartExchange.fromJson(event));

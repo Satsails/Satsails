@@ -14,8 +14,10 @@ import 'package:Satsails/screens/spash/splash.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
+import 'package:i18n_extension/default.i18n.dart';
 import 'package:lwk_dart/lwk_dart.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
@@ -93,6 +95,10 @@ Future<void> main() async {
       final currentInsertedAffiliateCode = box.get('insertedAffiliateCode', defaultValue: '');
       if (insertedAffiliateCode != null && currentInsertedAffiliateCode.isEmpty) {
         box.put('insertedAffiliateCode', upperCaseCode);
+        showSimpleNotification(
+          Text('Affiliate code $upperCaseCode inserted!'.i18n),
+          background: Colors.green,
+        );
       }
     }
   });
@@ -202,28 +208,38 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
       );
     }
 
-    return MaterialApp.router(
-      routerConfig: _router!,
-      locale: Locale(language),
-      themeMode: ThemeMode.dark,
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('pt'),
-      ],
+    return ScreenUtilInit(
+      designSize: const Size(430, 932), // Design size based on iPhone 16 Pro Max
+      minTextAdapt: true,
+      splitScreenMode: true,
       builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-          child: I18n(
-            child: child!,
-          ),
+        return MaterialApp.router(
+          routerConfig: _router!,
+          locale: Locale(language),
+          themeMode: ThemeMode.dark,
+          debugShowCheckedModeBanner: false,
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'),
+            Locale('pt'),
+          ],
+          builder: (context, child) {
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaleFactor: 1.0, // Prevent text scaling based on user settings
+              ),
+              child: I18n(
+                child: child!,
+              ),
+            );
+          },
         );
       },
     );
   }
 }
+

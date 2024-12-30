@@ -44,44 +44,39 @@ class Purchase extends HiveObject {
   @HiveField(1)
   final String transferId;
   @HiveField(2)
-  final String cpf;
-  @HiveField(3)
   final double sentAmount;
-  @HiveField(4)
+  @HiveField(3)
   final double originalAmount;
-  @HiveField(5)
+  @HiveField(4)
   final double mintFees;
-  @HiveField(6)
+  @HiveField(5)
   final String paymentId;
-  @HiveField(7)
+  @HiveField(6)
   final bool completedTransfer;
-  @HiveField(8)
+  @HiveField(7)
   final bool processingStatus;
-  @HiveField(9)
+  @HiveField(8)
   final bool failed;
-  @HiveField(10)
+  @HiveField(9)
   final bool sentToHotWallet;
-  @HiveField(11)
+  @HiveField(10)
   final String receivedTxid;
-  @HiveField(12)
+  @HiveField(11)
   final String? sentTxid;
-  @HiveField(13)
-  final String? receipt;
-  @HiveField(14)
+  @HiveField(12)
   final int? userId;
-  @HiveField(15)
+  @HiveField(13)
   final DateTime createdAt;
-  @HiveField(16)
+  @HiveField(14)
   final DateTime updatedAt;
-  @HiveField(17)
+  @HiveField(15)
   final double receivedAmount;
-  @HiveField(18)
+  @HiveField(16)
   final String pixKey;
 
   Purchase({
     required this.id,
     required this.transferId,
-    required this.cpf,
     required this.sentAmount,
     required this.originalAmount,
     required this.mintFees,
@@ -92,7 +87,6 @@ class Purchase extends HiveObject {
     required this.receivedTxid,
     required this.sentToHotWallet,
     this.sentTxid,
-    this.receipt,
     this.userId,
     required this.createdAt,
     required this.updatedAt,
@@ -105,14 +99,12 @@ class Purchase extends HiveObject {
       id: json['transfer']['id'] ?? 0,
       transferId: json['transfer']['transfer_id'] ?? '',
       sentAmount: (json['transfer']['sent_amount'] != null) ? double.parse(json['transfer']['sent_amount']) : 0.0,
-      cpf: json['transfer']['cpf'] ?? '',
       originalAmount: (json['transfer']['original_amount'] != null) ? double.parse(json['transfer']['original_amount']) : 0.0,
       mintFees: (json['transfer']['mint_fees'] != null) ? double.parse(json['transfer']['mint_fees']) : 0.0,
       paymentId: json['transfer']['payment_id'] ?? '',
       completedTransfer: json['transfer']['completed_transfer'] ?? false,
       receivedTxid: json['transfer']['received_txid'] ?? '',
       sentTxid: json['transfer']['sent_txid'],
-      receipt: json['transfer']['receipt'],
       userId: json['transfer']['user_id'],
       receivedAmount: (json['transfer']['amount_received_by_user'] != null) ? double.parse(json['transfer']['amount_received_by_user']) : 0.0,
       createdAt: DateTime.parse(json['transfer']['created_at'] ?? DateTime.now().toIso8601String()).toLocal(),
@@ -128,7 +120,6 @@ class Purchase extends HiveObject {
     return Purchase(
       id: json['id'] ?? 0,
       transferId: json['transfer_id'] ?? '',
-      cpf: json['cpf'] ?? '',
       sentAmount: (json['sent_amount'] != null) ? double.parse(json['sent_amount']) : 0.0,
       originalAmount: (json['original_amount'] != null) ? double.parse(json['original_amount']) : 0.0,
       mintFees: (json['mint_fees'] != null) ? double.parse(json['mint_fees']) : 0.0,
@@ -136,7 +127,6 @@ class Purchase extends HiveObject {
       completedTransfer: json['completed_transfer'] ?? false,
       receivedTxid: json['received_txid'] ?? '',
       sentTxid: json['sent_txid'],
-      receipt: json['receipt'],
       userId: json['user_id'],
       receivedAmount: (json['amount_received_by_user'] != null) ? double.parse(json['amount_received_by_user']) : 0.0,
       createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()).toLocal(),
@@ -153,13 +143,11 @@ class Purchase extends HiveObject {
     transferId: '',
     sentAmount: 0.0,
     originalAmount: 0.0,
-    cpf: '',
     mintFees: 0.0,
     paymentId: '',
     completedTransfer: false,
     receivedTxid: '',
     sentTxid: null,
-    receipt: null,
     userId: null,
     createdAt: DateTime.now(),
     updatedAt: DateTime.now(),
