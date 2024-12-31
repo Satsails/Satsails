@@ -385,7 +385,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                         });
                         controller.loading();
                         try {
-                          // final tx = await ref.watch(sendLiquidTransactionProvider.future);
+                          final tx = await ref.watch(sendLiquidTransactionProvider.future);
                           await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                           showFullscreenTransactionSendModal(
                             context: context,
@@ -393,7 +393,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                             amount: btcInDenominationFormatted(ref.watch(sendTxProvider).amount, btcFormat),
                             fiat: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).isFiat,
                             fiatAmount: ref.watch(sendTxProvider).amount.toString(),
-                            txid: '123',
+                            txid: tx,
                             isLiquid: true,
                           );
                           ref.read(sendTxProvider.notifier).resetToDefault();

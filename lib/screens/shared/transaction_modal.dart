@@ -208,7 +208,7 @@ class _PaymentTransactionOverlayState
           amountText = '${widget.amount} sats';
           break;
         case 'BTC':
-          amountText = '${widget.amount} BTC';
+          amountText = '${widget.amount}';
           break;
         default:
           amountText = widget.amount;
@@ -267,18 +267,6 @@ class _PaymentTransactionOverlayState
             text: 'View Details'.i18n(ref),
             backgroundColor: Colors.green,
           )
-        else
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Text(
-              'Transaction details not available'.i18n(ref),
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.redAccent,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
       ],
     );
   }
