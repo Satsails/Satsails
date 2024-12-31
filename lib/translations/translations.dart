@@ -2007,6 +2007,10 @@ extension Localization on String {
       {
         'en': 'Amount cannot be empty',
         'pt': 'A quantia não pode estar vazia'
+      }+
+      {
+        'en': 'View Details',
+        'pt': 'Ver Detalhes'
       };
 
   String i18n(WidgetRef ref) {
