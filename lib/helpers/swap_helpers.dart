@@ -614,7 +614,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'From Asset',
+                    'From Asset'.i18n(ref),
                     style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                   ),
                   SizedBox(height: 8.h),
@@ -711,7 +711,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'To Asset',
+                    'To Asset'.i18n(ref),
                     style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                   ),
                   SizedBox(height: 8.h),
@@ -1675,7 +1675,7 @@ Widget buildAdvancedOptionsCard(WidgetRef ref) {
           bottom: BorderSide(color: Colors.transparent),
         ),
         title: Text(
-          'Transaction fees',
+          'Transaction fees'.i18n(ref),
           style: TextStyle(
             color: Colors.white,
             fontSize: 14.sp,
@@ -1700,93 +1700,153 @@ List<Widget> _getFeeRows(WidgetRef ref) {
     case SwapType.sideswapBtcToLbtc:
       final bitcoinFee = ref.watch(feeProvider);
       final sideswapStatus = ref.watch(sideswapStatusProvider);
-      return bitcoinFee.when(data: (value) {
-        return [
-          _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegIn}%'),
-          _feeRow('Network fee', '$value'),
-          _feeRow('Min amount', '${btcInDenominationFormatted(sideswapStatus.minPegInAmount, btcFormat)} $btcFormat'),
-        ];
-      }, loading: () {
-        return [
-          _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
-          _feeRow('Network fee', 'Loading...'),
-          _feeRow('Min amount', '${btcInDenominationFormatted(sideswapStatus.minPegInAmount, btcFormat)} $btcFormat'),
-        ];
-      }, error: (error, stack) {
-        return [
-          _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
-          _feeRow('Network fee', '0'),
-          _feeRow('Min amount', '${btcInDenominationFormatted(sideswapStatus.minPegInAmount, btcFormat)} $btcFormat'),
-        ];
-      });
+      return bitcoinFee.when(
+        data: (value) {
+          return [
+            _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegIn}%', ref),
+            _feeRow('Network fee', '$value', ref),
+            _feeRow(
+              'Min amount',
+              '${btcInDenominationFormatted(sideswapStatus.minPegInAmount, btcFormat)} $btcFormat',
+              ref,
+            ),
+          ];
+        },
+        loading: () {
+          return [
+            _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%', ref),
+            _feeRow('Network fee', 'Loading...', ref),
+            _feeRow(
+              'Min amount',
+              '${btcInDenominationFormatted(sideswapStatus.minPegInAmount, btcFormat)} $btcFormat',
+              ref,
+            ),
+          ];
+        },
+        error: (error, stack) {
+          return [
+            _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%', ref),
+            _feeRow('Network fee', '0', ref),
+            _feeRow(
+              'Min amount',
+              '${btcInDenominationFormatted(sideswapStatus.minPegInAmount, btcFormat)} $btcFormat',
+              ref,
+            ),
+          ];
+        },
+      );
+
     case SwapType.sideswapLbtcToBtc:
       final pegOutCost = ref.watch(pegOutBitcoinCostProvider);
       final sideswapStatus = ref.watch(sideswapStatusProvider);
       final liquidFee = ref.watch(liquidFeeProvider);
-      return liquidFee.when(data: (value) {
-        return [
-          _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
-          _feeRow('Peg out fee', '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat'),
-          _feeRow('Network fee', '$value'),
-          _feeRow('Min amount', '${btcInDenominationFormatted(sideswapStatus.minPegOutAmount, btcFormat)} $btcFormat'),
-        ];
-      }, loading: () {
-        return [
-          _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
-          _feeRow('Peg out fee', '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat'),
-          _feeRow('Network fee', 'Loading...'),
-          _feeRow('Min amount', '${btcInDenominationFormatted(sideswapStatus.minPegOutAmount, btcFormat)} $btcFormat'),
-        ];
-      }, error: (error, stack) {
-        return [
-          _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%'),
-          _feeRow('Peg out fee', '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat'),
-          _feeRow('Network fee', '0'),
-          _feeRow('Min amount', '${btcInDenominationFormatted(sideswapStatus.minPegOutAmount, btcFormat)} $btcFormat'),
-        ];
-      });
+      return liquidFee.when(
+        data: (value) {
+          return [
+            _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%', ref),
+            _feeRow(
+              'Peg out fee',
+              '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat',
+              ref,
+            ),
+            _feeRow('Network fee', '$value', ref),
+            _feeRow(
+              'Min amount',
+              '${btcInDenominationFormatted(sideswapStatus.minPegOutAmount, btcFormat)} $btcFormat',
+              ref,
+            ),
+          ];
+        },
+        loading: () {
+          return [
+            _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%', ref),
+            _feeRow(
+              'Peg out fee',
+              '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat',
+              ref,
+            ),
+            _feeRow('Network fee', 'Loading...', ref),
+            _feeRow(
+              'Min amount',
+              '${btcInDenominationFormatted(sideswapStatus.minPegOutAmount, btcFormat)} $btcFormat',
+              ref,
+            ),
+          ];
+        },
+        error: (error, stack) {
+          return [
+            _feeRow('Provider fee', '${sideswapStatus.serverFeePercentPegOut}%', ref),
+            _feeRow(
+              'Peg out fee',
+              '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat',
+              ref,
+            ),
+            _feeRow('Network fee', '0', ref),
+            _feeRow(
+              'Min amount',
+              '${btcInDenominationFormatted(sideswapStatus.minPegOutAmount, btcFormat)} $btcFormat',
+              ref,
+            ),
+          ];
+        },
+      );
 
     case SwapType.coinosLnToBTC:
       final pegOutCost = ref.watch(pegOutBitcoinCostProvider);
       return [
-        _feeRow('Network fee', '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat'),
-        _feeRow('Provider fee', '0.1%'),
+        _feeRow(
+          'Network fee',
+          '${btcInDenominationFormatted(pegOutCost, btcFormat)} $btcFormat',
+          ref,
+        ),
+        _feeRow('Provider fee', '0.1%', ref),
       ];
+
     case SwapType.coinosLnToLBTC:
       return [
-        _feeRow('Provider fee', '0.1%'),
+        _feeRow('Provider fee', '0.1%', ref),
       ];
+
     case SwapType.coinosBtcToLn:
       final bitcoinFee = ref.watch(feeProvider);
-      return bitcoinFee.when(data: (value) {
-        return [
-          _feeRow('Network fee', '$value'),
-        ];
-      }, loading: () {
-        return [
-          _feeRow('Network fee', '0'),
-        ];
-      }, error: (error, stack) {
-        return [
-          _feeRow('Network fee', '0'),
-        ];
-      });
+      return bitcoinFee.when(
+        data: (value) {
+          return [
+            _feeRow('Network fee', '$value', ref),
+          ];
+        },
+        loading: () {
+          return [
+            _feeRow('Network fee', '0', ref),
+          ];
+        },
+        error: (error, stack) {
+          return [
+            _feeRow('Network fee', '0', ref),
+          ];
+        },
+      );
+
     case SwapType.coinosLbtcToLn:
       final liquidFee = ref.watch(liquidFeeProvider);
-      return liquidFee.when(data: (value) {
-        return [
-          _feeRow('Network fee', '$value'),
-        ];
-      }, loading: () {
-        return [
-          _feeRow('Provider fee', '0.1%'),
-          _feeRow('Network fee', '0'),
-        ];
-      }, error: (error, stack) {
-        return [
-          _feeRow('Network fee', '0'),
-        ];
-      });
+      return liquidFee.when(
+        data: (value) {
+          return [
+            _feeRow('Network fee', '$value', ref),
+          ];
+        },
+        loading: () {
+          return [
+            _feeRow('Network fee', '0', ref),
+          ];
+        },
+        error: (error, stack) {
+          return [
+            _feeRow('Network fee', '0', ref),
+          ];
+        },
+      );
+
     case SwapType.sideswapUsdtToLbtc:
     case SwapType.sideswapEuroxToLbtc:
     case SwapType.sideswapDepixToLbtc:
@@ -1808,42 +1868,44 @@ List<Widget> _getFeeRows(WidgetRef ref) {
             final fixedFee = value.fixedFee ?? 0;
 
             return [
-              _feeRow('Asset price', '${value.price?.toStringAsFixed(0) ?? "N/A"}'),
+              _feeRow('Asset price', '${value.price?.toStringAsFixed(0) ?? "N/A"}', ref),
               _feeRow(
-                  'Fixed Fee',
-                  btcInDenominationFormatted(fixedFee.toDouble(), btcFormat, true)
+                'Fixed Fee',
+                btcInDenominationFormatted(fixedFee.toDouble(), btcFormat, true),
+                ref,
               ),
             ];
           }
         },
         loading: () {
           return [
-            _feeRow('Price', '0'),
-            _feeRow('Fixed Fee', '0'),
+            _feeRow('Price', '0', ref),
+            _feeRow('Fixed Fee', '0', ref),
           ];
         },
         error: (error, stack) {
           return [
-            _feeRow('Price', '0'),
-            _feeRow('Fixed Fee', '0'),
+            _feeRow('Price', '0', ref),
+            _feeRow('Fixed Fee', '0', ref),
           ];
         },
       );
+
     default:
       return [
-        _feeRow('Fee rate', '0%'),
+        _feeRow('Fee rate', '0%', ref),
       ];
   }
 }
 
-Widget _feeRow(String label, String value) {
+Widget _feeRow(String label, String value, WidgetRef ref) {
   return Padding(
     padding: EdgeInsets.symmetric(vertical: 8.0.h),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          label,
+          label.i18n(ref),
           style: TextStyle(
             color: Colors.white70,
             fontSize: 14.sp,
@@ -1957,9 +2019,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
       return Align(
         alignment: Alignment.bottomCenter,
         child: ActionSlider.standard(
-          sliderBehavior: SliderBehavior.stretch,
           width: double.infinity,
-          height: 70.h,
           backgroundColor: Colors.black,
           toggleColor: Colors.orange,
           action: (controller) async {
@@ -2026,9 +2086,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
       return Align(
         alignment: Alignment.bottomCenter,
         child: ActionSlider.standard(
-          sliderBehavior: SliderBehavior.stretch,
           width: double.infinity,
-          height: 70.h,
           backgroundColor: Colors.black,
           toggleColor: Colors.orange,
           action: (controller) async {
@@ -2099,9 +2157,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
     child: Align(
       alignment: Alignment.bottomCenter,
       child: ActionSlider.standard(
-        sliderBehavior: SliderBehavior.stretch,
         width: double.infinity,
-        height: 70.h,
         backgroundColor: Colors.black,
         toggleColor: Colors.orange,
         action: (controller) async {
@@ -2158,10 +2214,8 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
     child: Align(
       alignment: Alignment.bottomCenter,
       child: ActionSlider.standard(
-        sliderBehavior: SliderBehavior.stretch,
         width: double.infinity,
         backgroundColor: Colors.black,
-        height: 70.h,
         toggleColor: Colors.orange,
         action: (controller) async {
           ref.read(transactionInProgressProvider.notifier).state = true;
@@ -2222,7 +2276,6 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
     child: Align(
       alignment: Alignment.bottomCenter,
       child: ActionSlider.standard(
-        sliderBehavior: SliderBehavior.stretch,
         width: double.infinity,
         backgroundColor: Colors.black,
         toggleColor: Colors.orange,

@@ -2011,7 +2011,56 @@ extension Localization on String {
       {
         'en': 'View Details',
         'pt': 'Ver Detalhes'
+      }+
+      {
+        'en': 'From Asset',
+        'pt': 'De'
+      } +
+      {
+        'en': 'To Asset',
+        'pt': 'Para'
+      } +
+      {
+        'en': 'Provider fee',
+        'pt': 'Taxa do provedor'
+      } +
+      {
+        'en': 'Network fee',
+        'pt': 'Taxa de rede'
+      } +
+      {
+        'en': 'Min amount',
+        'pt': 'Quantidade mínima'
+      } +
+      {
+        'en': 'Peg out fee',
+        'pt': 'Taxa de retirada'
+      } +
+      {
+        'en': 'Asset price',
+        'pt': 'Preço do ativo'
+      } +
+      {
+        'en': 'Fixed Fee',
+        'pt': 'Taxa fixa'
+      } +
+      {
+        'en': 'Price',
+        'pt': 'Preço'
+      } +
+      {
+        'en': 'Fee rate',
+        'pt': 'Taxa de comissão'
+      } +
+      {
+        'en': 'Loading...',
+        'pt': 'Carregando...'
+      } +
+      {
+        'en': 'Transaction fees',
+        'pt': 'Taxas de transação'
       };
+
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;
