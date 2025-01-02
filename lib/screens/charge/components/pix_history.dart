@@ -1,13 +1,14 @@
-import 'package:Satsails/providers/pix_transaction_details_provider.dart';
-import 'package:Satsails/providers/user_provider.dart';
-import 'package:Satsails/screens/shared/error_display.dart';
+import 'package:Satsails/providers/purchase_provider.dart';
+import 'package:Satsails/providers/transactions_provider.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:async';
+
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class PixHistory extends ConsumerStatefulWidget {
   const PixHistory({super.key});
@@ -44,11 +45,13 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
 
   @override
   Widget build(BuildContext context) {
-    final pixHistory = ref.watch(getUserTransactionsProvider);
+    final userPurchasesState = ref.watch(getUserPurchasesProvider);
 
-    return pixHistory.when(
-      data: (history) {
-        if (history.isEmpty) {
+    return userPurchasesState.when(
+      data: (_) {
+        final pixHistory = ref.watch(transactionNotifierProvider).pixPurchaseTransactions;
+
+        if (pixHistory.isEmpty) {
           return Center(
             child: Text(
               'No Pix transactions'.i18n(ref),
@@ -57,15 +60,15 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
           );
         }
 
-        history.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        pixHistory.sort((a, b) => b.pixDetails.createdAt.compareTo(a.pixDetails.createdAt));
 
         return ListView.builder(
-          itemCount: history.length,
+          itemCount: pixHistory.length,
           itemBuilder: (context, index) {
-            final pix = history[index];
+            final pix = pixHistory[index];
             const double dynamicMargin = 10.0;
             const double dynamicRadius = 10.0;
-            final remainingTime = _getRemainingTime(pix.createdAt);
+            final remainingTime = _getRemainingTime(pix.pixDetails.createdAt);
 
             // Check if the transaction is "expired" for the user (4 minutes timeout)
             final isFrontendExpired = remainingTime.inSeconds <= 0;
@@ -78,19 +81,19 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
               ),
               child: InkWell(
                 onTap: () {
-                  ref.read(singleTransactionDetailsProvider.notifier).setTransaction(pix);
+                  ref.read(selectedPurchaseIdProvider.notifier).state = pix.pixDetails.id;
                   context.push('/pix_transaction_details');
                 },
                 child: ListTile(
                   leading: Icon(
-                    isFrontendExpired && !pix.completedTransfer && !pix.sentToHotWallet
-                        ? Icons.error_rounded // Show error if frontend expired and not completed/sent to hot wallet
-                        : pix.completedTransfer
+                    isFrontendExpired && !pix.pixDetails.completedTransfer && !pix.pixDetails.sentToHotWallet
+                        ? Icons.error_rounded
+                        : pix.pixDetails.completedTransfer
                         ? Icons.check_circle_rounded
                         : Icons.arrow_downward_rounded,
-                    color: isFrontendExpired && !pix.completedTransfer && !pix.sentToHotWallet
+                    color: isFrontendExpired && !pix.pixDetails.completedTransfer && !pix.pixDetails.sentToHotWallet
                         ? Colors.red
-                        : pix.completedTransfer
+                        : pix.pixDetails.completedTransfer
                         ? Colors.green
                         : Colors.orange,
                   ),
@@ -98,24 +101,24 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isFrontendExpired && !pix.completedTransfer && !pix.sentToHotWallet
+                        isFrontendExpired && !pix.pixDetails.completedTransfer && !pix.pixDetails.sentToHotWallet
                             ? "Transaction failed".i18n(ref)
-                            : pix.sentToHotWallet
+                            : pix.pixDetails.sentToHotWallet
                             ? "Payment received".i18n(ref)
-                            : pix.completedTransfer
-                            ? "${"Received".i18n(ref)} ${pix.receivedAmount % 1 == 0 ? pix.receivedAmount.toInt() : pix.receivedAmount.toStringAsFixed(3)}"
-                            : pix.processingStatus && !pix.sentToHotWallet
+                            : pix.pixDetails.completedTransfer
+                            ? "${"Received".i18n(ref)} ${pix.pixDetails.receivedAmount % 1 == 0 ? pix.pixDetails.receivedAmount.toInt() : pix.pixDetails.receivedAmount.toStringAsFixed(3)}"
+                            : pix.pixDetails.processingStatus && !pix.pixDetails.sentToHotWallet
                             ? "Waiting payment".i18n(ref)
-                            : "${"Received".i18n(ref)} ${pix.receivedAmount % 1 == 0 ? pix.receivedAmount.toInt() : pix.receivedAmount.toStringAsFixed(3)}",
+                            : "${"Received".i18n(ref)} ${pix.pixDetails.receivedAmount % 1 == 0 ? pix.pixDetails.receivedAmount.toInt() : pix.pixDetails.receivedAmount.toStringAsFixed(3)}",
                         style: TextStyle(
-                          color: isFrontendExpired && !pix.completedTransfer && !pix.sentToHotWallet
+                          color: isFrontendExpired && !pix.pixDetails.completedTransfer && !pix.pixDetails.sentToHotWallet
                               ? Colors.red
-                              : pix.completedTransfer
+                              : pix.pixDetails.completedTransfer
                               ? Colors.green
                               : Colors.orange,
                         ),
                       ),
-                      if (!pix.completedTransfer && !pix.sentToHotWallet && remainingTime.inSeconds > 0)
+                      if (!pix.pixDetails.completedTransfer && !pix.pixDetails.sentToHotWallet && remainingTime.inSeconds > 0)
                         Text(
                           'Time left:'.i18n(ref) +
                               ' ${remainingTime.inMinutes}:${(remainingTime.inSeconds % 60).toString().padLeft(2, '0')}',
@@ -126,12 +129,12 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (pix.sentToHotWallet && pix.processingStatus)
+                      if (pix.pixDetails.sentToHotWallet && pix.pixDetails.processingStatus)
                         Text(
                           "Processing transfer".i18n(ref),
                           style: const TextStyle(color: Colors.orange),
                         ),
-                      if (pix.completedTransfer && !pix.sentToHotWallet)
+                      if (pix.pixDetails.completedTransfer && !pix.pixDetails.sentToHotWallet)
                         Text(
                           "Completed".i18n(ref),
                           style: const TextStyle(color: Colors.green),
@@ -139,16 +142,9 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                       Column(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(top: 8.0, left: 8.0),
-                            child: Text(
-                              "CPF: ${pix.cpf}",
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          ),
-                          Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Text(
-                              DateFormat('yyyy-MM-dd HH:mm').format(pix.createdAt.toLocal()),
+                              DateFormat('yyyy-MM-dd HH:mm').format(pix.pixDetails.createdAt.toLocal()),
                               style: const TextStyle(color: Colors.grey),
                             ),
                           ),
@@ -159,7 +155,7 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                   trailing: Column(
                     children: [
                       Text("ID: ${pix.id}", style: const TextStyle(color: Colors.grey)),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       const Icon(Icons.receipt_long, color: Colors.green, size: 30),
                     ],
                   ),
@@ -178,7 +174,7 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
       error: (error, stack) => Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: ErrorDisplay(message: error.toString(), isCard: true),
+          child: MessageDisplay(message: error.toString()),
         ),
       ),
     );

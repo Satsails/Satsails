@@ -246,7 +246,6 @@ class WalletBalance {
     return btcBalance.toDouble() + liquidBalance.toDouble() + lightningBalance!.toDouble();
   }
 
-
   Percentage percentageOfEachCurrency(CurrencyConversions conversions) {
     final total = totalBalanceInCurrency('BTC', conversions);
     return Percentage(
@@ -343,4 +342,12 @@ class CurrencyParams {
   final int amount;
 
   CurrencyParams(this.currency, this.amount);
+}
+
+
+class BalanceChange {
+  final String asset;
+  final int amount;
+
+  BalanceChange({required this.asset, required this.amount});
 }

@@ -1,13 +1,14 @@
 PODS:
   - bdk_flutter (0.31.2-dev.2):
     - Flutter
-  - boltz_dart (0.1.6)
   - BranchSDK (3.6.5)
   - Crisp (2.5.5):
     - Crisp/Crisp (= 2.5.5)
   - Crisp/Crisp (2.5.5)
   - crisp_chat (2.0.4):
     - Crisp
+    - Flutter
+  - device_info_plus (0.0.1):
     - Flutter
   - Flutter (1.0.0)
   - flutter_branch_sdk (8.2.0):
@@ -23,11 +24,9 @@ PODS:
     - Flutter
   - flutter_secure_storage (6.0.0):
     - Flutter
-  - fluttertoast (0.0.2):
-    - Flutter
-    - Toast
   - local_auth_darwin (0.0.1):
     - Flutter
+    - FlutterMacOS
   - lwk_dart (0.1.5)
   - MTBBarcodeScanner (5.0.11)
   - path_provider_foundation (0.0.1):
@@ -44,16 +43,17 @@ PODS:
     - MTBBarcodeScanner
   - share_plus (0.0.1):
     - Flutter
-  - Toast (4.1.1)
   - url_launcher_ios (0.0.1):
+    - Flutter
+  - vibration (1.7.5):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
 
 DEPENDENCIES:
   - bdk_flutter (from `.symlinks/plugins/bdk_flutter/ios`)
-  - boltz_dart (from `.symlinks/plugins/boltz_dart/ios`)
   - crisp_chat (from `.symlinks/plugins/crisp_chat/ios`)
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
   - flutter_branch_sdk (from `.symlinks/plugins/flutter_branch_sdk/ios`)
   - flutter_keyboard_done (from `.symlinks/plugins/flutter_keyboard_done/ios`)
@@ -61,7 +61,6 @@ DEPENDENCIES:
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
-  - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
   - lwk_dart (from `.symlinks/plugins/lwk_dart/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -70,6 +69,7 @@ DEPENDENCIES:
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+  - vibration (from `.symlinks/plugins/vibration/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
 
 SPEC REPOS:
@@ -78,15 +78,14 @@ SPEC REPOS:
     - Crisp
     - MTBBarcodeScanner
     - PushNotifications
-    - Toast
 
 EXTERNAL SOURCES:
   bdk_flutter:
     :path: ".symlinks/plugins/bdk_flutter/ios"
-  boltz_dart:
-    :path: ".symlinks/plugins/boltz_dart/ios"
   crisp_chat:
     :path: ".symlinks/plugins/crisp_chat/ios"
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
   Flutter:
     :path: Flutter
   flutter_branch_sdk:
@@ -101,8 +100,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_native_splash/ios"
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
-  fluttertoast:
-    :path: ".symlinks/plugins/fluttertoast/ios"
   local_auth_darwin:
     :path: ".symlinks/plugins/local_auth_darwin/darwin"
   lwk_dart:
@@ -119,15 +116,17 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/share_plus/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
+  vibration:
+    :path: ".symlinks/plugins/vibration/ios"
   webview_flutter_wkwebview:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
 
 SPEC CHECKSUMS:
   bdk_flutter: af166bdb3f24fa9bac1de94772973f76302cb1c1
-  boltz_dart: 7ebb80d3776711efacb5823a3d9a9bb1221bac95
   BranchSDK: ef7d89062afb08b20f65d5b1633b215ee77ab77f
   Crisp: dcf7d9e64be6614ceee71c5582f616212ed4a881
   crisp_chat: e0b3294cfd6cabd60673cad0ed9ba9e6b9d53714
+  device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_branch_sdk: b3763b3d53a7cfbc87c51136bed66fcdc282bdf5
   flutter_keyboard_done: 8f25c02565f57c19eb31d11cfb9323afc33e4c9e
@@ -135,8 +134,7 @@ SPEC CHECKSUMS:
   flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
   flutter_native_splash: edf599c81f74d093a4daf8e17bd7a018854bc778
   flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
-  fluttertoast: e9a18c7be5413da53898f660530c56f35edfba9c
-  local_auth_darwin: 4d56c90c2683319835a61274b57620df9c4520ab
+  local_auth_darwin: 66e40372f1c29f383a314c738c7446e2f7fdadc3
   lwk_dart: 898084320a2ce8ea206010c0dc3e3eead1b2c881
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
@@ -145,8 +143,8 @@ SPEC CHECKSUMS:
   PushNotifications: 2b2174b28bf48b1fe552686d1f95c53d62a4781d
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
   share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
-  Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
+  vibration: 7d883d141656a1c1a6d8d238616b2042a51a1241
   webview_flutter_wkwebview: be0f0d33777f1bfd0c9fdcb594786704dbf65f36
 
 PODFILE CHECKSUM: 60f516549d119c02f52ec7389c1af3c708e72b8f

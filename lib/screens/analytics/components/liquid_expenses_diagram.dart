@@ -15,7 +15,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bitcoinIsLoading = ref.watch(transactionNotifierProvider).liquidTransactions.isNotEmpty
-        ? ref.watch(transactionNotifierProvider).liquidTransactions.first.balances.isEmpty
+        ? ref.watch(transactionNotifierProvider).liquidTransactions.first.lwkDetails.balances.isEmpty
         : false;
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final screenHeight = MediaQuery.of(context).size.height;

@@ -1,14 +1,13 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
+import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
-import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:lwk_dart/lwk_dart.dart' as lwk;
-import 'package:lwk_dart/lwk_dart.dart';
 
 DateTimeSelect getCurrentMonthDateRange() {
   final DateTime now = DateTime.now();
@@ -62,12 +61,10 @@ final bitcoinFeeSpentPerDayProvider = StateProvider.autoDispose<Map<DateTime, nu
     valueSpentPerDay[normalizeDate(day)] = 0;
   }
 
-  for (TransactionDetails transaction in transactions) {
-    if (transaction.sent > 0) {
-      final DateTime date = transaction.confirmationTime == null || transaction.confirmationTime!.timestamp == 0
-          ? normalizeDate(DateTime.now())
-          : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.confirmationTime!.timestamp * 1000));
-      valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + (transaction.fee ?? 0);
+  for (BitcoinTransaction transaction in transactions) {
+    if (transaction.btcDetails.sent > 0) {
+      final DateTime date = normalizeDate(transaction.timestamp);
+      valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + (transaction.btcDetails.fee ?? 0);
     }
   }
 
@@ -92,11 +89,9 @@ final bitcoinIncomePerDayProvider = StateProvider.autoDispose<Map<DateTime, num>
     valueIncomePerDay[normalizeDate(day)] = 0;
   }
 
-  for (TransactionDetails transaction in transactions) {
-    final DateTime date = transaction.confirmationTime == null || transaction.confirmationTime!.timestamp == 0
-        ? normalizeDate(DateTime.now())
-        : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.confirmationTime!.timestamp * 1000));
-    valueIncomePerDay[date] = (valueIncomePerDay[date] ?? 0) + transaction.received;
+  for (BitcoinTransaction transaction in transactions) {
+    final DateTime date = normalizeDate(transaction.timestamp);
+    valueIncomePerDay[date] = (valueIncomePerDay[date] ?? 0) + transaction.btcDetails.received;
   }
 
   num cumulativeIncome = 0;
@@ -119,11 +114,9 @@ final bitcoinSpentPerDayProvider = StateProvider.autoDispose<Map<DateTime, num>>
     valueSpentPerDay[normalizeDate(day)] = 0;
   }
 
-  for (TransactionDetails transaction in transactions) {
-    final DateTime date = transaction.confirmationTime == null || transaction.confirmationTime!.timestamp == 0
-        ? normalizeDate(DateTime.now())
-        : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.confirmationTime!.timestamp * 1000));
-    valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + transaction.sent;
+  for (BitcoinTransaction transaction in transactions) {
+    final DateTime date = normalizeDate(transaction.timestamp);
+    valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + transaction.btcDetails.sent;
   }
 
   num cumulativeSpent = 0;
@@ -141,28 +134,28 @@ final bitcoinBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((
   final Map<DateTime, num> balancePerDay = {};
 
   transactions.sort((a, b) {
-    if (a.confirmationTime == null && b.confirmationTime == null) {
+    if (a.btcDetails.confirmationTime == null && b.btcDetails.confirmationTime  == null) {
       return 0;
-    } else if (a.confirmationTime == null) {
+    } else if (a.btcDetails.confirmationTime  == null) {
       return -1;
-    } else if (b.confirmationTime == null) {
+    } else if (b.btcDetails.confirmationTime  == null) {
       return 1;
     } else {
-      return a.confirmationTime!.timestamp.compareTo(b.confirmationTime!.timestamp);
+      return a.btcDetails.confirmationTime !.timestamp.compareTo(b.btcDetails.confirmationTime !.timestamp);
     }
   });
 
   num cumulativeBalance = 0;
 
-  for (TransactionDetails transaction in transactions) {
-    if (transaction.confirmationTime == null || transaction.confirmationTime!.timestamp == 0) {
+  for (BitcoinTransaction transaction in transactions) {
+    if (transaction.btcDetails.confirmationTime  == null || transaction.btcDetails.confirmationTime !.timestamp == 0) {
       continue;
     }
 
-    final DateTime date = transaction.confirmationTime == null || transaction.confirmationTime!.timestamp == 0
+    final DateTime date = transaction.btcDetails.confirmationTime  == null || transaction.btcDetails.confirmationTime !.timestamp == 0
         ? normalizeDate(DateTime.now())
-        : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.confirmationTime!.timestamp * 1000));
-    var netAmount = transaction.received - transaction.sent;
+        : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.btcDetails.confirmationTime !.timestamp * 1000));
+    var netAmount = transaction.btcDetails.received - transaction.btcDetails.sent;
 
     cumulativeBalance += netAmount;
     balancePerDay[date] = cumulativeBalance;
@@ -257,12 +250,12 @@ final liquidFeePerDayProvider = StateProvider.autoDispose.family<Map<DateTime, n
     valueSpentPerDay[normalizeDate(day)] = 0;
   }
 
-  for (Tx transaction in transactions) {
-    if (transaction.timestamp != 0 && transaction.timestamp != null) {
-      final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000));
-      final hasSentFromAsset = transaction.balances.any((element) => element.assetId == asset && element.value < 0);
+  for (LiquidTransaction transaction in transactions) {
+    if (transaction.lwkDetails.timestamp != 0 && transaction.lwkDetails.timestamp != null) {
+      final DateTime date = normalizeDate(transaction.timestamp);
+      final hasSentFromAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value < 0);
       if (hasSentFromAsset) {
-        valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + transaction.fee.abs();
+        valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + transaction.lwkDetails.fee.abs();
       }
     }
   }
@@ -287,13 +280,13 @@ final liquidIncomePerDayProvider = StateProvider.autoDispose.family<Map<DateTime
     valueIncomePerDay[normalizeDate(day)] = 0;
   }
 
-  for (Tx transaction in transactions) {
-    if (transaction.timestamp != 0 && transaction.timestamp != null) {
-      final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000));
-      final hasReceivedAsset = transaction.balances.any((element) => element.assetId == asset && element.value > 0);
+  for (LiquidTransaction transaction in transactions) {
+    if (transaction.lwkDetails.timestamp != 0 && transaction.lwkDetails.timestamp != null) {
+      final DateTime date = normalizeDate(transaction.timestamp);
+      final hasReceivedAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value > 0);
 
       if (hasReceivedAsset) {
-        num rawValue = transaction.balances.firstWhere((element) => element.assetId == asset).value;
+        num rawValue = transaction.lwkDetails.balances.firstWhere((element) => element.assetId == asset).value;
         valueIncomePerDay[date] = (valueIncomePerDay[date] ?? 0) + rawValue;
       }
     }
@@ -324,13 +317,13 @@ final liquidSpentPerDayProvider = StateProvider.autoDispose.family<Map<DateTime,
   }
 
   // Process transactions and accumulate spent values
-  for (Tx transaction in transactions) {
+  for (LiquidTransaction transaction in transactions) {
     if (transaction.timestamp != 0 && transaction.timestamp != null) {
-      final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000));
-      final hasSentAsset = transaction.balances.any((element) => element.assetId == asset && element.value < 0);
+      final DateTime date = normalizeDate(transaction.timestamp);
+      final hasSentAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value < 0);
 
       if (hasSentAsset) {
-        num rawValue = transaction.balances.firstWhere((element) => element.assetId == asset).value.abs();
+        num rawValue = transaction.lwkDetails.balances.firstWhere((element) => element.assetId == asset).value.abs();
         valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + rawValue;  // Accumulate spent value safely
       }
     }
@@ -369,17 +362,17 @@ final liquidBalanceOverPeriod = StateProvider.autoDispose.family<Map<DateTime, n
 
   num cumulativeBalance = 0;
 
-  for (Tx transaction in transactions) {
+  for (LiquidTransaction transaction in transactions) {
     if (transaction.timestamp == 0 || transaction.timestamp == null) {
       continue;
     }
 
-    final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp! * 1000));
-    final hasSentAsset = transaction.balances.any((element) => element.assetId == asset && element.value < 0);
-    final hasReceivedAsset = transaction.balances.any((element) => element.assetId == asset && element.value > 0);
+    final DateTime date = normalizeDate(transaction.timestamp);
+    final hasSentAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value < 0);
+    final hasReceivedAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value > 0);
     if (hasSentAsset || hasReceivedAsset) {
-      final sentValue = transaction.balances.firstWhere((element) => element.assetId == asset && element.value < 0, orElse: () => lwk.Balance(assetId: asset, value: 0)).value;
-      final receivedValue = transaction.balances.firstWhere((element) => element.assetId == asset && element.value > 0, orElse: () => lwk.Balance(assetId: asset, value: 0)).value;
+      final sentValue = transaction.lwkDetails.balances.firstWhere((element) => element.assetId == asset && element.value < 0, orElse: () => lwk.Balance(assetId: asset, value: 0)).value;
+      final receivedValue = transaction.lwkDetails.balances.firstWhere((element) => element.assetId == asset && element.value > 0, orElse: () => lwk.Balance(assetId: asset, value: 0)).value;
       final netAmount = receivedValue + sentValue;
 
       cumulativeBalance += netAmount;

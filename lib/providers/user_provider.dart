@@ -1,6 +1,6 @@
 // this screen needs some heavy refactoring. On version "Unyielding conviction" we shall totally redo this spaghetti code.
 import 'package:Satsails/models/auth_model.dart';
-import 'package:Satsails/models/transfer_model.dart';
+import 'package:Satsails/models/purchase_model.dart';
 import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
@@ -70,31 +70,6 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
     await ref.read(setUserProvider.future);
   }
 });
-
-final getUserTransactionsProvider = FutureProvider.autoDispose<List<Transfer>>((ref) async {
-  final paymentId = ref.read(userProvider).paymentId;
-  final auth = ref.read(userProvider).recoveryCode;
-  final transactions = await UserService.getUserTransactions(paymentId, auth);
-
-  if (transactions.isSuccess && transactions.data != null) {
-    return transactions.data!;
-  } else {
-    throw transactions.error!;
-  }
-});
-
-final getAmountTransferredProvider = FutureProvider.autoDispose<String>((ref) async {
-  final paymentId = ref.read(userProvider).paymentId;
-  final auth = ref.read(userProvider).recoveryCode;
-  final amountTransferred = await UserService.getAmountTransferred(paymentId, auth);
-
-  if (amountTransferred.isSuccess && amountTransferred.data != null) {
-    return amountTransferred.data!;
-  } else {
-    throw amountTransferred.error!;
-  }
-});
-
 
 final updateLiquidAddressProvider = FutureProvider.autoDispose<String>((ref) async {
   final liquidAddress = await ref.read(liquidAddressProvider.future);

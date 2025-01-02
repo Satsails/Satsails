@@ -1,3 +1,4 @@
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +7,6 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class SeedWordsPin extends ConsumerStatefulWidget {
   SeedWordsPin({super.key});
@@ -92,14 +92,10 @@ class _SeedWordsPinState extends ConsumerState<SeedWordsPin> {
     if (pinText == _pinController.text) {
       context.push('/seed_words'); // Redirect to the seed words screen on successful authentication
     } else {
-      // No limit on attempts, simply display an error message
-      Fluttertoast.showToast(
-        msg: 'Invalid PIN'.i18n(ref),
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
+      showMessageSnackBar(
+        message: 'Invalid PIN'.i18n(ref),
+        error: true,
+        context: context,
       );
     }
   }

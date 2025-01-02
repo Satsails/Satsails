@@ -630,8 +630,8 @@ extension Localization on String {
         'pt': 'Adicionar dinheiro com EURx',
       } +
       {
-        'en': 'Cannot exchange 0 amount',
-        'pt': 'Não é possível trocar 0 quantidade',
+        'en': 'Cannot exchange 0',
+        'pt': 'Não é possível trocar 0',
       } +
       {
         'en': 'Invalid address, only Bitcoin, Liquid and lightning invoices are supported.',
@@ -1983,7 +1983,84 @@ extension Localization on String {
       {
         'en': 'Information',
         'pt': 'Informação'
+      }+
+      {
+        'en': 'Payment received',
+        'pt': 'Pagamento recebido'
+      }+
+      {
+        'en': 'Incorrect address',
+        'pt': 'Endereço incorreto'
+      }+
+      {
+        'en': 'Are you sure? This action cannot be undone.',
+        'pt': 'Tem certeza? Esta ação não pode ser desfeita.'
+      }+
+      {
+        'en': 'Affiliate code inserted!',
+        'pt': 'Código de afiliado inserido!'
+      }+
+      {
+        'en': 'Transaction expired',
+        'pt': 'Transação expirada'
+      }+
+      {
+        'en': 'Amount cannot be empty',
+        'pt': 'A quantia não pode estar vazia'
+      }+
+      {
+        'en': 'View Details',
+        'pt': 'Ver Detalhes'
+      }+
+      {
+        'en': 'From Asset',
+        'pt': 'De'
+      } +
+      {
+        'en': 'To Asset',
+        'pt': 'Para'
+      } +
+      {
+        'en': 'Provider fee',
+        'pt': 'Taxa do provedor'
+      } +
+      {
+        'en': 'Network fee',
+        'pt': 'Taxa de rede'
+      } +
+      {
+        'en': 'Min amount',
+        'pt': 'Quantidade mínima'
+      } +
+      {
+        'en': 'Peg out fee',
+        'pt': 'Taxa de retirada'
+      } +
+      {
+        'en': 'Asset price',
+        'pt': 'Preço do ativo'
+      } +
+      {
+        'en': 'Fixed Fee',
+        'pt': 'Taxa fixa'
+      } +
+      {
+        'en': 'Price',
+        'pt': 'Preço'
+      } +
+      {
+        'en': 'Fee rate',
+        'pt': 'Taxa de comissão'
+      } +
+      {
+        'en': 'Loading...',
+        'pt': 'Carregando...'
+      } +
+      {
+        'en': 'Transaction fees',
+        'pt': 'Taxas de transação'
       };
+
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;

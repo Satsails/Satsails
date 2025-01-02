@@ -1,14 +1,13 @@
 import 'dart:async'; // Import Timer
 import 'package:Satsails/helpers/string_extension.dart';
-import 'package:Satsails/models/transfer_model.dart';
-import 'package:Satsails/providers/pix_transaction_details_provider.dart';
+import 'package:Satsails/models/purchase_model.dart';
+import 'package:Satsails/providers/purchase_provider.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class PixTransactionDetails extends ConsumerStatefulWidget {
   const PixTransactionDetails({super.key});
@@ -24,7 +23,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
   @override
   void initState() {
     super.initState();
-    final transaction = ref.read(singleTransactionDetailsProvider);
+    final transaction = ref.read(singlePurchaseDetailsProvider);
     _initializeExpirationTime(transaction.createdAt);
     _startCountdown();
   }
@@ -60,7 +59,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
 
   @override
   Widget build(BuildContext context) {
-    final transaction = ref.watch(singleTransactionDetailsProvider);
+    final transaction = ref.watch(singlePurchaseDetailsProvider);
     const double dynamicMargin = 16.0;
     const double dynamicRadius = 12.0;
 
@@ -119,7 +118,6 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
                 ),
                 const SizedBox(height: 16.0),
                 _buildFeeDetails(ref, transaction),
-                _buildReceiptDownload(ref, transaction, dynamicRadius),
               ]
             ],
           ),
@@ -128,7 +126,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     );
   }
 
-  Widget _buildTransactionHeader(WidgetRef ref, Transfer transaction, bool isFrontendExpired) {
+  Widget _buildTransactionHeader(WidgetRef ref, Purchase transaction, bool isFrontendExpired) {
     return Column(
       children: [
         Icon(
@@ -170,12 +168,10 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           GestureDetector(
             onTap: () {
               Clipboard.setData(ClipboardData(text: transaction.transferId));
-              Fluttertoast.showToast(
-                msg: 'Transfer ID copied'.i18n(ref),
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                backgroundColor: Colors.grey,
-                textColor: Colors.white,
+              showMessageSnackBar(
+                message: 'Transfer ID copied'.i18n(ref),
+                error: false,
+                context: context,
               );
             },
             child: Text(
@@ -187,7 +183,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     );
   }
 
-  Widget _buildTransactionDetails(WidgetRef ref, Transfer transaction) {
+  Widget _buildTransactionDetails(WidgetRef ref, Purchase transaction) {
     return Column(
       children: [
         TransactionDetailRow(
@@ -209,20 +205,13 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
               : "Pending".i18n(ref),
         ),
         const SizedBox(height: 16.0),
-        TransactionDetailRow(
-          label: "CPF/CNPJ",
-          value: transaction.cpf,
-        ),
-        const SizedBox(height: 16.0),
         GestureDetector(
           onTap: () {
             Clipboard.setData(ClipboardData(text: transaction.sentTxid ?? "N/A"));
-            Fluttertoast.showToast(
-              msg: 'Txid copied'.i18n(ref),
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              backgroundColor: Colors.grey,
-              textColor: Colors.white,
+            showMessageSnackBar(
+              message: 'Txid copied'.i18n(ref),
+              context: context,
+              error: false,
             );
           },
           child: TransactionDetailRow(
@@ -235,7 +224,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     );
   }
 
-  Widget _buildFeeDetails(WidgetRef ref, Transfer transaction) {
+  Widget _buildFeeDetails(WidgetRef ref, Purchase transaction) {
     return Column(
       children: [
         TransactionDetailRow(
@@ -250,39 +239,6 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           ),
       ],
     );
-  }
-
-  Widget _buildReceiptDownload(WidgetRef ref, Transfer transaction, double dynamicRadius) {
-    return transaction.receipt != null
-        ? GestureDetector(
-      onTap: () async {
-        if (await canLaunch(transaction.receipt!)) {
-          await launch(transaction.receipt!);
-        } else {
-          throw 'Could not launch ${transaction.receipt}';
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.only(top: 12.0),
-        padding: const EdgeInsets.all(12.0),
-        decoration: BoxDecoration(
-          color: Colors.orange,
-          borderRadius: BorderRadius.circular(dynamicRadius),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.download, color: Colors.white),
-            const SizedBox(width: 8.0),
-            Text(
-              "Download document".i18n(ref),
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ],
-        ),
-      ),
-    )
-        : const SizedBox.shrink();
   }
 }
 

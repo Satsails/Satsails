@@ -1,99 +1,230 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
+
+import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
+import 'package:Satsails/models/purchase_model.dart';
+import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
+import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
+import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lwk_dart/lwk_dart.dart' as lwk;
 
-class TransactionModel extends StateNotifier<Transaction>{
-  TransactionModel(super.state);
+class TransactionModel extends StateNotifier<Transaction> {
+  TransactionModel(Transaction state) : super(state);
+}
 
-  void updateBitcoinTransactions(List<dynamic> bitcoinTransactions){
-    state = state.copyWith(bitcoinTransactions: bitcoinTransactions);
-  }
+abstract class BaseTransaction {
+  final String id;
+  final DateTime timestamp;
 
-  void updateLiquidTransactions(List<dynamic> liquidTransactions){
-    state = state.copyWith(liquidTransactions: liquidTransactions);
-  }
+  BaseTransaction({
+    required this.id,
+    required this.timestamp,
+  });
+}
+
+class BitcoinTransaction extends BaseTransaction {
+  final bdk.TransactionDetails btcDetails;
+
+  BitcoinTransaction({
+    required String id,
+    required DateTime timestamp,
+    required bool isConfirmed,
+    required this.btcDetails,
+  }) : super(id: id, timestamp: timestamp);
+}
+
+class LiquidTransaction extends BaseTransaction {
+  final lwk.Tx lwkDetails;
+
+  LiquidTransaction({
+    required String id,
+    required DateTime timestamp,
+    required this.lwkDetails,
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp);
+}
+
+class PixPurchaseTransaction extends BaseTransaction {
+  final Purchase pixDetails;
+
+  PixPurchaseTransaction({
+    required String id,
+    required DateTime timestamp,
+    required this.pixDetails,
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp);
+}
+
+class CoinosTransaction extends BaseTransaction {
+  final CoinosPayment coinosDetails;
+
+  CoinosTransaction({
+    required String id,
+    required DateTime timestamp,
+    required this.coinosDetails,
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp);
+}
+
+class SideswapPegTransaction extends BaseTransaction {
+  final SideswapPegStatus sideswapPegDetails;
+
+  SideswapPegTransaction({
+    required String id,
+    required DateTime timestamp,
+    required this.sideswapPegDetails,
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp);
+}
+
+class SideswapInstantSwapTransaction extends BaseTransaction {
+  final SideswapCompletedSwap sideswapInstantSwapDetails;
+
+  SideswapInstantSwapTransaction({
+    required String id,
+    required DateTime timestamp,
+    required this.sideswapInstantSwapDetails,
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp);
 }
 
 class Transaction {
-  List<dynamic> bitcoinTransactions;
-  List<dynamic> liquidTransactions;
+  final List<BitcoinTransaction> bitcoinTransactions;
+  final List<LiquidTransaction> liquidTransactions;
+  final List<CoinosTransaction> coinosTransactions;
+  final List<SideswapPegTransaction> sideswapPegTransactions;
+  final List<SideswapInstantSwapTransaction> sideswapInstantSwapTransactions;
+  final List<PixPurchaseTransaction> pixPurchaseTransactions;
 
   Transaction({
     required this.bitcoinTransactions,
     required this.liquidTransactions,
+    required this.coinosTransactions,
+    required this.sideswapPegTransactions,
+    required this.sideswapInstantSwapTransactions,
+    required this.pixPurchaseTransactions,
   });
 
   Transaction copyWith({
-    List<dynamic>? bitcoinTransactions,
-    List<dynamic>? liquidTransactions,
+    List<BitcoinTransaction>? bitcoinTransactions,
+    List<LiquidTransaction>? liquidTransactions,
+    List<CoinosTransaction>? coinosTransactions,
+    List<SideswapPegTransaction>? sideswapPegTransactions,
+    List<SideswapInstantSwapTransaction>? sideswapInstantSwapTransactions,
+    List<PixPurchaseTransaction>? pixPurchaseTransactions,
   }) {
     return Transaction(
       bitcoinTransactions: bitcoinTransactions ?? this.bitcoinTransactions,
       liquidTransactions: liquidTransactions ?? this.liquidTransactions,
+      coinosTransactions: coinosTransactions ?? this.coinosTransactions,
+      sideswapPegTransactions: sideswapPegTransactions ?? this.sideswapPegTransactions,
+      sideswapInstantSwapTransactions: sideswapInstantSwapTransactions ?? this.sideswapInstantSwapTransactions,
+      pixPurchaseTransactions: pixPurchaseTransactions ?? this.pixPurchaseTransactions,
     );
   }
 
-  List<dynamic> get allTransactions {
+  /// Combines all transactions into a single list.
+  List<BaseTransaction> get allTransactions {
     return [
       ...bitcoinTransactions,
       ...liquidTransactions,
+      ...coinosTransactions,
+      ...sideswapPegTransactions,
+      ...sideswapInstantSwapTransactions,
     ];
   }
 
-  List<dynamic> get allTransactionsSorted {
-    final allTransactions = this.allTransactions;
-    allTransactions.sort((a, b) {
-      if (a['confirmationTime'] == null && b['confirmationTime'] != null) {
-        return -1;
-      } else if (a['confirmationTime'] != null && b['confirmationTime'] == null) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-    return allTransactions;
+  /// Sorts all transactions based on their timestamp.
+  List<BaseTransaction> get allTransactionsSorted {
+    List<BaseTransaction> sorted = List.from(allTransactions);
+    sorted.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    return sorted;
   }
 
-  List<dynamic> filterBitcoinTransactions(DateTimeSelect range) {
-    var filteredTransactions = bitcoinTransactions.where((transaction) {
-      final confirmationTime = transaction.confirmationTime;
-      if (confirmationTime == null || confirmationTime.timestamp == 0) {
-        return true;
-      }
-      return confirmationTime.timestamp > range.start && confirmationTime.timestamp < range.end;
-    }).toList();
-
-    filteredTransactions.sort((a, b) {
-      if (a.confirmationTime == null || a.confirmationTime.timestamp == 0) {
-        return -1;
-      } else if (b.confirmationTime == null || b.confirmationTime.timestamp == 0) {
-        return 1;
-      } else {
-        return b.confirmationTime.timestamp.compareTo(a.confirmationTime.timestamp);
-      }
-    });
-
-    return filteredTransactions;
+  List<BitcoinTransaction> filterBitcoinTransactions(DateTimeSelect range) {
+    return bitcoinTransactions.where((tx) {
+      return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(range.start * 1000)) &&
+          tx.timestamp.isBefore(DateTime.fromMillisecondsSinceEpoch(range.end * 1000));
+    }).toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
-  List<dynamic> filterLiquidTransactions(DateTimeSelect range) {
-    var filteredTransactions = liquidTransactions.where((transaction) {
-      final confirmationTime = transaction.timestamp;
-      if (confirmationTime == null) {
-        return true;
-      }
-      return confirmationTime > range.start && confirmationTime < range.end;
+  List<LiquidTransaction> filterLiquidTransactions(DateTimeSelect range) {
+    return liquidTransactions.where((tx) {
+      return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(range.start * 1000)) &&
+          tx.timestamp.isBefore(DateTime.fromMillisecondsSinceEpoch(range.end * 1000));
+    }).toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
+  List<LiquidTransaction> filterLiquidTransactionsByAssetId(String assetId) {
+    return liquidTransactions.where((tx) {
+      return tx.lwkDetails.balances.any((balance) => balance.assetId == assetId);
+    }).toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
+  List<LiquidTransaction> filterLiquidTransactionsByKind(String kind) {
+    return liquidTransactions.where((tx) {
+      return tx.lwkDetails.kind == kind;
+    }).toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
+  // here for when we implement joltz and we must store transactions for later usage
+  Future<String> encryptSideswapTransactions(AuthModel authModel) async {
+    final List<Map<String, dynamic>> sideswapPegData = sideswapPegTransactions.map((tx) {
+      return {
+        'orderId': tx.sideswapPegDetails.orderId,
+        'addr': tx.sideswapPegDetails.addr,
+        'addrRecv': tx.sideswapPegDetails.addrRecv,
+        'createdAt': tx.sideswapPegDetails.createdAt,
+        'expiresAt': tx.sideswapPegDetails.expiresAt,
+        'pegIn': tx.sideswapPegDetails.pegIn,
+        'list': tx.sideswapPegDetails.list?.map((item) {
+          return {
+            'amount': item.amount,
+            'createdAt': item.createdAt,
+            'detectedConfs': item.detectedConfs,
+            'payout': item.payout,
+            'payoutTxid': item.payoutTxid,
+            'status': item.status,
+            'totalConfs': item.totalConfs,
+            'txHash': item.txHash,
+            'txState': item.txState,
+            'txStateCode': item.txStateCode,
+            'vout': item.vout,
+          };
+        }).toList(),
+      };
     }).toList();
 
-    filteredTransactions.sort((a, b) {
-      if (a.timestamp == null) {
-        return -1;
-      } else if (b.timestamp == null) {
-        return 1;
-      } else {
-        return b.timestamp.compareTo(a.timestamp);
-      }
-    });
+    final List<Map<String, dynamic>> sideswapInstantSwapData = sideswapInstantSwapTransactions.map((tx) {
+      return {
+        'txid': tx.sideswapInstantSwapDetails.txid,
+        'sendAsset': tx.sideswapInstantSwapDetails.sendAsset,
+        'sendAmount': tx.sideswapInstantSwapDetails.sendAmount,
+        'recvAsset': tx.sideswapInstantSwapDetails.recvAsset,
+        'recvAmount': tx.sideswapInstantSwapDetails.recvAmount,
+        'orderId': tx.sideswapInstantSwapDetails.orderId,
+        'timestamp': tx.sideswapInstantSwapDetails.timestamp,
+      };
+    }).toList();
 
-    return filteredTransactions;
+    final Map<String, dynamic> combinedData = {
+      'sideswapPegTransactions': sideswapPegData,
+      'sideswapInstantSwapTransactions': sideswapInstantSwapData,
+    };
+
+    final jsonString = jsonEncode(combinedData);
+    final encrypted = await authModel.encrypt(jsonString);
+    return encrypted;
+  }
+
+  Future<String> decryptSideswapTransactions(AuthModel authModel, String encrypted) async {
+    final decrypted = await authModel.decrypt(encrypted);
+    return decrypted;
   }
 }

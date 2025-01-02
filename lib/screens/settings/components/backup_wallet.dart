@@ -1,11 +1,11 @@
 import 'dart:math';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/providers/auth_provider.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 
 class BackupWallet extends ConsumerStatefulWidget {
@@ -37,12 +37,10 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
         generateQuiz();
       });
     } else {
-      Fluttertoast.showToast(
-        msg: 'Failed to load mnemonic.'.i18n(ref),
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
+      showMessageSnackBar(
+        message: 'Failed to load mnemonic.'.i18n(ref),
+        error: true,
+        context: context,
       );
     }
   }
@@ -179,21 +177,17 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
                 onPressed: () {
                   if (checkAnswers()) {
                     ref.read(settingsProvider.notifier).setBackup(true);
-                    Fluttertoast.showToast(
-                      msg: 'Wallet successfully backed up!'.i18n(ref),
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.TOP,
-                      backgroundColor: Colors.green,
-                      textColor: Colors.white,
+                    showMessageSnackBar(
+                      message: 'Wallet successfully backed up!'.i18n(ref),
+                      error: false,
+                      context: context,
                     );
                     context.go('/home');
                   } else {
-                    Fluttertoast.showToast(
-                      msg: 'Incorrect selections. Please try again.'.i18n(ref),
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.TOP,
-                      backgroundColor: Colors.red,
-                      textColor: Colors.white,
+                    showMessageSnackBar(
+                      message: 'Incorrect selections. Please try again.'.i18n(ref),
+                      error: true,
+                      context: context,
                     );
                   }
                 },

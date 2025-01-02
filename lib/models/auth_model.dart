@@ -1,17 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:conduit_password_hash/pbkdf2.dart';
 import 'package:crypto/crypto.dart';
+import 'package:encrypt/encrypt.dart' as encrypter;
 import 'package:faker/faker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:hive/hive.dart';
-import 'dart:math';
-import 'package:convert/convert.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pusher_beams/pusher_beams.dart';
+import 'dart:math';
+import 'package:convert/convert.dart';
 
-
+// keep this in case we revert boltz
 class SecureKeyManager {
   static const String _keyId = 'boltz_key';
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
@@ -95,7 +97,6 @@ class AuthModel {
   }
 
   Future<List<int>> deriveKeyWithSalt(String mnemonic) async {
-    // Get the Base64 string representation of the hash
     final hashedMnemonic = await hashMnemonic(mnemonic);
 
     final pbkdf2 = PBKDF2();
@@ -103,6 +104,43 @@ class AuthModel {
     final salt = base64.encode(hashedMnemonic.codeUnits.sublist(0, 16).map((c) => c & 0xff).toList());
     final derivedKey = pbkdf2.generateKey(hashedMnemonic, salt, 2048, 32);
     return derivedKey;
+  }
+
+  // here for when we implement joltz and we must store transactions for later usage
+  Future<encrypter.Key> deriveAESKey(String mnemonic) async {
+    final derivedKey = await deriveKeyWithSalt(mnemonic);
+    return encrypter.Key(Uint8List.fromList(derivedKey.sublist(0, 32)));
+  }
+
+  Future<encrypter.IV> deriveAESIV(String mnemonic) async {
+    final derivedKey = await deriveKeyWithSalt(mnemonic);
+    return encrypter.IV(Uint8List.fromList(derivedKey.sublist(32, 48)));
+  }
+
+  Future<String> encrypt(String plaintext) async {
+    final mnemonic = await getMnemonic();
+    if (mnemonic == null) throw Exception('Mnemonic not found');
+
+    final key = await deriveAESKey(mnemonic);
+    final iv = await deriveAESIV(mnemonic);
+
+    final encrypterInstance = encrypter.Encrypter(encrypter.AES(key, mode: encrypter.AESMode.cbc));
+    final encrypted = encrypterInstance.encrypt(plaintext, iv: iv);
+
+    return encrypted.base64;
+  }
+
+  Future<String> decrypt(String ciphertext) async {
+    final mnemonic = await getMnemonic();
+    if (mnemonic == null) throw Exception('Mnemonic not found');
+
+    final key = await deriveAESKey(mnemonic);
+    final iv = await deriveAESIV(mnemonic);
+
+    final encrypterInstance = encrypter.Encrypter(encrypter.AES(key, mode: encrypter.AESMode.cbc));
+    final decrypted = encrypterInstance.decrypt(encrypter.Encrypted.fromBase64(ciphertext), iv: iv);
+
+    return decrypted;
   }
 
   Future<String?> getUsername() async {
@@ -166,9 +204,11 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('sideswapStatus');
     await Hive.deleteBoxFromDisk('sideswapSwapData');
     await Hive.deleteBoxFromDisk('pix');
+    await Hive.deleteBoxFromDisk('purchasesBox');
     await Hive.deleteBoxFromDisk('user');
     await Hive.deleteBoxFromDisk('affiliate');
     await Hive.deleteBoxFromDisk('addresses');
+    await Hive.deleteBoxFromDisk('coinosPayments');
     await SecureKeyManager.deleteKey();
     await PusherBeams.instance.clearAllState();
     final appDocDir = await getApplicationDocumentsDirectory();
