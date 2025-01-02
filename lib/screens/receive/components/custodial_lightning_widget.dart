@@ -70,7 +70,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
         invoice = lnurlAsyncValue;
       });
     } catch (e) {
-      showMessageSnackBar(
+      showBottomOverlayMessage(
         message: '$e'.i18n(ref),
         error: true,
         context: context,
@@ -332,7 +332,7 @@ Widget _showRegistration(WidgetRef ref, BuildContext context) {
                 await ref.read(registerProvider.future);
                 ref.read(showRegistrationProvider.notifier).state = false;
               } catch (e) {
-                showMessageSnackBar(
+                showBottomOverlayMessage(
                   message: '$e'.i18n(ref),
                   error: true,
                   context: context,
