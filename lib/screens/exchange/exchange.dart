@@ -42,6 +42,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
           );
           return false;
         }
+        ref.read(sendBlocksProvider.notifier).state = 1;
         ref.read(sendTxProvider.notifier).resetToDefault();
         return true;
       },
