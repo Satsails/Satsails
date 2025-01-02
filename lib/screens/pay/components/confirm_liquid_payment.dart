@@ -78,9 +78,8 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
       canPop: !isProcessing, // Determines if the screen can be popped
       onPopInvoked: (bool canPop) {
         if (isProcessing) {
-          showMessageSnackBar(
+          showBottomOverlayMessageInfo(
             message: "Transaction in progress, please wait.".i18n(ref),
-            error: false,
             context: context,
           );
         } else {
@@ -107,9 +106,8 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                   if (!isProcessing) {
                     context.pop();
                   } else {
-                    showMessageSnackBar(
+                    showBottomOverlayMessageInfo(
                       message: "Transaction in progress, please wait.".i18n(ref),
-                      error: false,
                       context: context,
                     );
                   }

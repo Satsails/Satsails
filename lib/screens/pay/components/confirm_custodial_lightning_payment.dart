@@ -86,9 +86,8 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
       canPop: !isProcessing,
       onPopInvoked: (bool canPop) {
         if (isProcessing) {
-          showMessageSnackBar(
+          showBottomOverlayMessageInfo(
             message: "Transaction in progress, please wait.".i18n(ref),
-            error: false,
             context: context,
           );
         } else {
@@ -114,9 +113,8 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                   if (!isProcessing) {
                     context.pop();
                   } else {
-                    showMessageSnackBar(
+                    showBottomOverlayMessageInfo(
                       message: "Transaction in progress, please wait.".i18n(ref),
-                      error: false,
                       context: context,
                     );
                   }
