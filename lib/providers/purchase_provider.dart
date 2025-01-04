@@ -57,9 +57,9 @@ final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) asyn
   }
 });
 
-final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase, PurchaseParams>((ref, params) async {
+final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase, int>((ref, amount) async {
   final auth = ref.read(userProvider).recoveryCode;
-  final result = await PurchaseService.createPurchaseRequest(auth, params);
+  final result = await PurchaseService.createPurchaseRequest(auth, amount);
   await ref.refresh(getUserPurchasesProvider.future);
   if (result.isSuccess && result.data != null) {
     return result.data!;
@@ -67,14 +67,3 @@ final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase
     throw result.error!;
   }
 });
-
-final getMinimumPurchaseProvider = FutureProvider.autoDispose<String>((ref) async {
-  final auth = ref.read(userProvider).recoveryCode;
-  final result = await PurchaseService.getMinimumPurchase(auth);
-  if (result.isSuccess && result.data != null) {
-    return result.data!;
-  } else {
-    throw result.error!;
-  }
-});
-

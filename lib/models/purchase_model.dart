@@ -7,13 +7,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 part 'purchase_model.g.dart';
 
-class PurchaseParams{
-  final String cpf;
-  final double amount;
-
-  PurchaseParams({required this.cpf, required this.amount });
-}
-
 class PurchaseNotifier extends StateNotifier<List<Purchase>> {
   PurchaseNotifier(List<Purchase> initialPurchases) : super(initialPurchases);
 
@@ -160,14 +153,13 @@ class Purchase extends HiveObject {
 }
 
 class PurchaseService {
-  static Future<Result<Purchase>> createPurchaseRequest(String auth, PurchaseParams params) async {
+  static Future<Result<Purchase>> createPurchaseRequest(String auth, int amount) async {
     try {
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/transfers'),
         body: jsonEncode({
           'transfer': {
-            'cpf': params.cpf,
-            'value_set_to_receive': params.amount,
+            'value_set_to_receive': amount,
           }
         }),
         headers: {
@@ -180,26 +172,6 @@ class PurchaseService {
         return Result(data: Purchase.fromJson(jsonDecode(response.body)));
       } else {
         return Result(error: response.body);
-      }
-    } catch (e) {
-      return Result(error: 'An error has occurred. Please check your internet connection or contact support');
-    }
-  }
-
-  static Future<Result<String>> getMinimumPurchase(String auth) async {
-    try {
-      final response = await http.get(
-        Uri.parse(dotenv.env['BACKEND']! + '/transfers/minimum_purchase'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: jsonDecode(response.body)['minimum_purchase']);
-      } else {
-        return Result(error: 'An error has occurred. Please check your internet connection or contact support');
       }
     } catch (e) {
       return Result(error: 'An error has occurred. Please check your internet connection or contact support');
