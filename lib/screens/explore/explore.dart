@@ -261,7 +261,7 @@ Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentI
       }
     }
 
-    context.push('/home/explore/deposit');
+    context.push('/home/explore/deposit_type');
     ref.read(isLoadingProvider.notifier).state = false;
   } catch (e) {
     showBottomOverlayMessage(

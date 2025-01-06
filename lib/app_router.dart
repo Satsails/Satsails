@@ -1,6 +1,7 @@
 import 'package:Satsails/models/transactions_model.dart';
-import 'package:Satsails/screens/explore/components/deposit.dart';
+import 'package:Satsails/screens/explore/components/deposit_method.dart';
 import 'package:Satsails/screens/explore/components/deposit_pix.dart';
+import 'package:Satsails/screens/explore/components/deposit_type.dart';
 import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/creation/confirm_pin.dart';
 import 'package:Satsails/screens/login/seed_words_pin.dart';
@@ -117,7 +118,11 @@ class AppRouter {
                 ),
               ],
             ),
-
+            GoRoute(
+              path: '/deposit_type',
+              builder: (context, state) => DepositType(),
+              routes: [],
+            ),
             GoRoute(
               path: '/receive',
               builder: (context, state) => Receive(),
@@ -127,14 +132,20 @@ class AppRouter {
               builder: (context, state) => const Explore(),
               routes: [
                 GoRoute(
-                    path: '/deposit',
-                    builder: (context, state) => Deposit(),
-                    routes: [
-                      GoRoute(
-                        path: '/deposit_pix',
-                        builder: (context, state) => DepositPix(),
-                      ),
-                    ]
+                  path: '/deposit_type',
+                  builder: (context, state) => DepositType(),
+                  routes: [
+                    GoRoute(
+                      path: '/deposit_method',
+                      builder: (context, state) => DepositMethod(),
+                      routes: [
+                        GoRoute(
+                          path: '/deposit_pix',
+                          builder: (context, state) => DepositPix(),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
