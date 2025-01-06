@@ -1,4 +1,5 @@
 import 'package:Satsails/models/purchase_model.dart';
+import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -59,7 +60,8 @@ final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) asyn
 
 final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase, int>((ref, amount) async {
   final auth = ref.read(userProvider).recoveryCode;
-  final result = await PurchaseService.createPurchaseRequest(auth, amount);
+  final liquidAddress = await ref.read(liquidAddressProvider.future);
+  final result = await PurchaseService.createPurchaseRequest(auth, amount, liquidAddress.confidential);
   await ref.refresh(getUserPurchasesProvider.future);
   if (result.isSuccess && result.data != null) {
     return result.data!;

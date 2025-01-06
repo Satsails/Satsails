@@ -153,13 +153,14 @@ class Purchase extends HiveObject {
 }
 
 class PurchaseService {
-  static Future<Result<Purchase>> createPurchaseRequest(String auth, int amount) async {
+  static Future<Result<Purchase>> createPurchaseRequest(String auth, int amount, String liquidAddress) async {
     try {
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/transfers'),
         body: jsonEncode({
           'transfer': {
             'value_set_to_receive': amount,
+            'liquid_address': liquidAddress,
           }
         }),
         headers: {

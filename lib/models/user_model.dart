@@ -31,31 +31,18 @@ class UserModel extends StateNotifier<User> {
     state = state.copyWith(paymentId: paymentCode);
   }
 
-  Future<void> serOnboarded(bool onboardingStatus) async {
-    final box = await Hive.openBox('user');
-    box.put('onboarding', onboardingStatus);
-    state = state.copyWith(onboarded: onboardingStatus);
-  }
-
   Future<void> setRecoveryCode(String recoveryCode) async {
     await _storage.write(key: 'recoveryCode', value: recoveryCode);
     state = state.copyWith(recoveryCode: recoveryCode);
   }
 
-  Future<void> setDepixLiquidAddress(String liquidAddress) async {
-    final box = await Hive.openBox('user');
-    box.put('depixLiquidAddress', liquidAddress);
-    state = state.copyWith(depixLiquidAddress: liquidAddress);
-  }
 }
 
 class User {
   final bool hasInsertedAffiliate;
   final bool hasCreatedAffiliate;
   final String recoveryCode;
-  final String depixLiquidAddress;
   final String paymentId;
-  final bool? onboarded;
   final String? createdAffiliateLiquidAddress;
   final String? insertedAffiliateCode;
   final String? createdAffiliateCode;
@@ -64,9 +51,7 @@ class User {
     this.hasInsertedAffiliate = false,
     this.hasCreatedAffiliate = false,
     required this.recoveryCode,
-    required this.depixLiquidAddress,
     required this.paymentId,
-    this.onboarded,
     this.createdAffiliateLiquidAddress = '',
     this.insertedAffiliateCode = '',
     this.createdAffiliateCode = '',
@@ -77,7 +62,6 @@ class User {
     bool? hasCreatedAffiliate,
     String? recoveryCode,
     String? paymentId,
-    bool? onboarded,
     String? depixLiquidAddress,
   }) {
     return User(
@@ -85,8 +69,6 @@ class User {
       hasCreatedAffiliate: hasCreatedAffiliate ?? this.hasCreatedAffiliate,
       recoveryCode: recoveryCode ?? this.recoveryCode,
       paymentId: paymentId ?? this.paymentId,
-      depixLiquidAddress: depixLiquidAddress ?? this.depixLiquidAddress,
-      onboarded: onboarded ?? this.onboarded,
     );
   }
 
@@ -94,7 +76,6 @@ class User {
     return User(
       recoveryCode: json['user']['authentication_token'],
       paymentId: json['user']['payment_id'],
-      depixLiquidAddress: json['user']['liquid_address'],
     );
   }
 
@@ -102,7 +83,6 @@ class User {
     return User(
       recoveryCode: json['user']['authentication_token'],
       paymentId: json['user']['payment_id'],
-      depixLiquidAddress: json['user']['liquid_address'],
       createdAffiliateCode: json['created_affiliate']['code'] ?? '',
       insertedAffiliateCode: json['inserted_affiliate']['code'] ?? '',
       hasCreatedAffiliate: json['has_created_affiliate'] ?? false,
@@ -113,14 +93,12 @@ class User {
 }
 
 class UserService {
-  static Future<Result<User>> createUserRequest(String liquidAddress, int liquidAddressIndex, String auth) async {
+  static Future<Result<User>> createUserRequest(String auth) async {
     try {
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users'),
         body: jsonEncode({
           'user': {
-            'liquid_address': liquidAddress,
-            'liquid_address_index': liquidAddressIndex,
             'authentication_token': auth,
           }
         }),
@@ -139,55 +117,6 @@ class UserService {
           error: 'An error has occurred. Please check your internet connection or contact support');
     }
   }
-
-  static Future<Result<String>> updateLiquidAddress(String liquidAddress, String auth, int liquidAddressIndex) async {
-    try {
-      final response = await http.patch(
-        Uri.parse(
-            dotenv.env['BACKEND']! + '/users/update_liquid_address'),
-        body: jsonEncode({
-          'user': {
-            'liquid_address': liquidAddress,
-            'liquid_address_index': liquidAddressIndex,
-          }
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: 'OK');
-      } else {
-        return Result(error: 'Failed to update liquid address');
-      }
-    } catch (e) {
-      return Result(
-          error: 'An error has occurred. Please check your internet connection or contact support');
-    }
-  }
-
- static Future<Result<Map<String, dynamic>>> getLiquidAddressIndex(String auth) async {
-    try {
-      final response = await http.get(
-        Uri.parse(dotenv.env['BACKEND']! + '/users/get_liquid_address'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: jsonDecode(response.body));
-      } else {
-        return Result(error: 'An error has occurred. Please check your internet connection or contact support');
-      }
-    } catch (e) {
-      return Result(error: 'An error has occurred. Please check your internet connection or contact support');
-    }
-  }
-
 
   static Future<Result<User>> showUser(String auth) async {
     try {

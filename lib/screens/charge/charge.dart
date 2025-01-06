@@ -1,13 +1,15 @@
+import 'dart:io';
+
 import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-// Loading state provider
 final isLoadingProvider = StateProvider<bool>((ref) => false);
 
 class Charge extends ConsumerWidget {
@@ -15,15 +17,20 @@ class Charge extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final hasOnboarded = ref.watch(userProvider).onboarded ?? false;
-    final paymentId = ref.watch(userProvider).paymentId ?? '';
+    final screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
+    final paymentId = ref
+        .watch(userProvider)
+        .paymentId ?? '';
     final isLoading = ref.watch(isLoadingProvider);
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black, // black app bar
-        title: Text('Charge Wallet'.i18n(ref), style: const TextStyle(color: Colors.white)),
+        title: Text('Charge Wallet'.i18n(ref),
+            style: const TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.pop(),
@@ -40,10 +47,11 @@ class Charge extends ConsumerWidget {
                 children: [
                   PaymentMethodCard(
                     title: 'Add Money with Pix'.i18n(ref),
-                    description: 'Send a pix and we will credit your wallet'.i18n(ref),
+                    description: 'Send a pix and we will credit your wallet'
+                        .i18n(ref),
                     icon: Icons.qr_code,
                     screenWidth: screenWidth,
-                    onPressed: () => _handleOnPress(ref, context, hasOnboarded, paymentId),
+                    onPressed: () => _handleOnPress(ref, context, paymentId),
                   ),
                 ],
               ),
@@ -53,7 +61,10 @@ class Charge extends ConsumerWidget {
           if (isLoading)
             Center(
               child: LoadingAnimationWidget.threeArchedCircle(
-                size: MediaQuery.of(context).size.height * 0.1,
+                size: MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.1,
                 color: Colors.orange,
               ),
             )
@@ -62,69 +73,49 @@ class Charge extends ConsumerWidget {
     );
   }
 
-  Future<void> _handleOnPress(WidgetRef ref, BuildContext context, bool hasOnboarded, String paymentId) async {
+  Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentId) async {
     final userHasInsertedAffiliate = ref.watch(userProvider).hasInsertedAffiliate;
     final insertedAffiliateCode = ref.watch(affiliateProvider).insertedAffiliateCode;
     ref.read(isLoadingProvider.notifier).state = true;
 
-    if (paymentId.isEmpty) {
-      context.push('/user_creation');
-      // Stop loading
-      ref.read(isLoadingProvider.notifier).state = false;
-      return;
-    }
-
     try {
-      final walletBelongsToUser = await ref.watch(checkIfAccountBelongsToSetPrivateKeyProvider.future);
+      if (paymentId.isEmpty) {
+        await ref.watch(createUserProvider.future);
 
-      if (!walletBelongsToUser) {
-        showMessageSnackBar(
-          message: 'Wallet does not belong to the user'.i18n(ref),
-          error: true,
-          context: context,
-        );
-        // Stop loading
-        ref.read(isLoadingProvider.notifier).state = false;
-        return;
+        FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+        if (Platform.isAndroid) {
+          flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()!.requestNotificationsPermission();
+        } else if (Platform.isIOS) {
+          await flutterLocalNotificationsPlugin
+              .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
+              ?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+        }
+
+      } else {
+        if (!userHasInsertedAffiliate && insertedAffiliateCode.isNotEmpty) {
+          await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
+        }
       }
-    } catch (e) {
-      showMessageSnackBar(
-        message: e.toString(),
-        context: context,
-        error: true,
 
-      );
-      // Stop loading
-      ref.read(isLoadingProvider.notifier).state = false;
-      return;
-    }
-
-    try {
-      if (!userHasInsertedAffiliate && insertedAffiliateCode.isNotEmpty) {
-        await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
-      }
-    } catch (e) {
-      showMessageSnackBar(
-        message: e.toString(),
-        context: context,
-        error: true,
-      );
-      // Stop loading
-      ref.read(isLoadingProvider.notifier).state = false;
-      return;
-    }
-
-    // Navigate based on the onboarding state
-    if (hasOnboarded) {
       context.push('/home/pix');
-    } else {
-      context.push('/pix_onboarding');
-    }
+      ref.read(isLoadingProvider.notifier).state = false;
+    } catch (e) {
+      showBottomOverlayMessage(
+        message: e.toString(),
+        context: context,
+        error: true,
+      );
 
-    // Stop loading after navigation
-    ref.read(isLoadingProvider.notifier).state = false;
+      ref.read(isLoadingProvider.notifier).state = false;
+    }
   }
 }
+
 
 class PaymentMethodCard extends StatelessWidget {
   final String title;

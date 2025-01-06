@@ -5,11 +5,9 @@ import 'package:Satsails/screens/pay/components/confirm_custodial_lightning_paym
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
 import 'package:go_router/go_router.dart';
-import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
 import 'package:Satsails/screens/charge/components/pix_transaction_details.dart';
 import 'package:Satsails/screens/home/main_screen.dart';
 import 'package:Satsails/screens/settings/components/support.dart';
-import 'package:Satsails/screens/user/user_creation.dart';
 import 'package:Satsails/screens/creation/start.dart';
 import 'package:Satsails/screens/pay/components/confirm_liquid_payment.dart';
 import 'package:Satsails/screens/settings/components/seed_words.dart';
@@ -155,21 +153,10 @@ class AppRouter {
           name: 'backup_wallet',
           builder: (context, state) => const BackupWallet(),
         ),
-
-        GoRoute(
-          path: '/pix_onboarding',
-          name: 'pix_onboarding',
-          builder: (context, state) => const PixOnBoarding(),
-        ),
         GoRoute(
           path: '/pix_transaction_details',
           name: 'pix_transaction_details',
           builder: (context, state) => const PixTransactionDetails(),
-        ),
-        GoRoute(
-          path: '/user_creation',
-          name: 'user_creation',
-          builder: (context, state) => const UserCreation(),
         ),
         GoRoute(
           path: '/support',
