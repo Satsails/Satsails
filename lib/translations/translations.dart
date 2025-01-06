@@ -1913,16 +1913,16 @@ extension Localization on String {
         'pt': 'Confirme seu PIN de 6 dígitos'
       } +
       {
-        'en': 'Your account is new on our systems and you can only do a max of 500 BRL until you complete 3 successful transactions',
-        'pt': 'Sua conta é nova em nossos sistemas e você só pode fazer um máximo de 500 até completar 3 transações bem-sucedidas'
+        'en': 'You can only do a max of 500 BRL until you complete 3 successful transactions',
+        'pt': 'Você só pode fazer um máximo de 500 até completar 3 transações bem-sucedidas'
       } +
       {
-        'en': 'Your account is new on our systems and you can only do a max of 1000 BRL until you complete 3 successful transactions',
-        'pt': 'Sua conta é nova em nossos sistemas e você só pode fazer um máximo de 1000 até completar 3 transações bem-sucedidas'
+        'en': 'You can only do a max of 1000 BRL until you complete 3 successful transactions',
+        'pt': 'Você só pode fazer um máximo de 1000 até completar 3 transações bem-sucedidas'
       } +
       {
-        'en': 'Your account is new on our systems and you can only do a max of 2000 BRL until you complete 3 successful transactions',
-        'pt': 'Sua conta é nova e você só pode fazer um máximo de 2000 até completar 3 transações bem-sucedidas'
+        'en': 'You can only do a max of 2000 BRL until you complete 3 successful transactions',
+        'pt': 'Você só pode fazer um máximo de 2000 até completar 3 transações bem-sucedidas'
       } +
       {
         'en': 'Create Lightning Wallet',

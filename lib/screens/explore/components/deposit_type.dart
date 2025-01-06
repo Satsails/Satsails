@@ -108,15 +108,6 @@ class _DepositOption extends StatelessWidget {
                 ],
               ),
             ),
-            if (!isAvailable)
-              Text(
-                "Coming soon",
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: Colors.orange,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
           ],
         ),
       ),

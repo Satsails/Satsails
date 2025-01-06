@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -31,11 +32,11 @@ class CustomButton extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(4),
         ),
-        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.015),
+        padding: EdgeInsets.symmetric(horizontal: 0.05.sw, vertical: 0.02.sh),
         alignment: Alignment.center,
         child: Text(
           text,
-          style: TextStyle(fontSize: 16, color: textColor),
+          style: TextStyle(fontSize: 16.sp, color: textColor),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
@@ -65,6 +66,7 @@ void showTopOverlayMessage({
         child: AwesomeSnackbarContent(
           title: error ? 'Oops' : 'Ok!',
           message: message,
+          messageTextStyle: TextStyle(fontSize: 16.sp, color: Colors.white),
           inMaterialBanner: false,
           contentType: error ? ContentType.failure : ContentType.success,
         ),
@@ -97,6 +99,7 @@ void showBottomOverlayMessage({
         child: AwesomeSnackbarContent(
           title: error ? 'Oops' : 'Ok!',
           message: message,
+          messageTextStyle: TextStyle(fontSize: 16.sp, color: Colors.white),
           inMaterialBanner: false,
           contentType: error ? ContentType.failure : ContentType.success,
         ),
@@ -128,6 +131,7 @@ void showBottomOverlayMessageInfo({
         child: AwesomeSnackbarContent(
           title: 'Oops',
           message: message,
+          messageTextStyle: TextStyle(fontSize: 16.sp),
           inMaterialBanner: false,
           contentType: ContentType.warning,
         ),
@@ -159,6 +163,7 @@ void showMessageSnackBar({
     content: AwesomeSnackbarContent(
       title: error ? 'Oops' : 'Ok!',
       message: message,
+      messageTextStyle: TextStyle(fontSize: 16.sp, color: Colors.white),
       inMaterialBanner: true,
       contentType: error ? ContentType.failure : ContentType.success,
     ),
@@ -200,12 +205,12 @@ void showInformationModal({
           formattedMessage,
           style: TextStyle(
             color: Colors.white70,
-            fontSize: 16,
+            fontSize: 16.sp,
             fontWeight: FontWeight.w500,
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 24.0),
+        SizedBox(height: 0.01.sh),
         // Optional: Close Button or Additional Elements
         // Since the user requested not to add buttons, we'll omit this.
       ],

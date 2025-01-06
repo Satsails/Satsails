@@ -107,8 +107,6 @@ class _ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOv
           onChanged: (_) {},
         ),
         const SizedBox(height: 20),
-        getAssetImage(widget.asset, height: 48.sp, width: 48.sp),
-        const SizedBox(height: 20),
         Text(
           amountText,
           style: const TextStyle(fontSize: 48, color: Colors.green),

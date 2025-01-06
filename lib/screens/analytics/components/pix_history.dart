@@ -86,12 +86,12 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                 },
                 child: ListTile(
                   leading: Icon(
-                    isFrontendExpired && !pix.pixDetails.completedTransfer && !pix.pixDetails.sentToHotWallet
+                    isFrontendExpired && !pix.pixDetails.completedTransfer
                         ? Icons.error_rounded
                         : pix.pixDetails.completedTransfer
                         ? Icons.check_circle_rounded
                         : Icons.arrow_downward_rounded,
-                    color: isFrontendExpired && !pix.pixDetails.completedTransfer && !pix.pixDetails.sentToHotWallet
+                    color: isFrontendExpired && !pix.pixDetails.completedTransfer
                         ? Colors.red
                         : pix.pixDetails.completedTransfer
                         ? Colors.green
@@ -101,40 +101,25 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isFrontendExpired && !pix.pixDetails.completedTransfer && !pix.pixDetails.sentToHotWallet
+                        pix.pixDetails.failed
                             ? "Transaction failed".i18n(ref)
-                            : pix.pixDetails.sentToHotWallet
-                            ? "Payment received".i18n(ref)
                             : pix.pixDetails.completedTransfer
                             ? "${"Received".i18n(ref)} ${pix.pixDetails.receivedAmount % 1 == 0 ? pix.pixDetails.receivedAmount.toInt() : pix.pixDetails.receivedAmount.toStringAsFixed(3)}"
-                            : pix.pixDetails.processingStatus && !pix.pixDetails.sentToHotWallet
-                            ? "Waiting payment".i18n(ref)
-                            : "${"Received".i18n(ref)} ${pix.pixDetails.receivedAmount % 1 == 0 ? pix.pixDetails.receivedAmount.toInt() : pix.pixDetails.receivedAmount.toStringAsFixed(3)}",
+                            : "Transaction in progress".i18n(ref),
                         style: TextStyle(
-                          color: isFrontendExpired && !pix.pixDetails.completedTransfer && !pix.pixDetails.sentToHotWallet
+                          color: isFrontendExpired && !pix.pixDetails.completedTransfer
                               ? Colors.red
                               : pix.pixDetails.completedTransfer
                               ? Colors.green
                               : Colors.orange,
                         ),
                       ),
-                      if (!pix.pixDetails.completedTransfer && !pix.pixDetails.sentToHotWallet && remainingTime.inSeconds > 0)
-                        Text(
-                          'Time left:'.i18n(ref) +
-                              ' ${remainingTime.inMinutes}:${(remainingTime.inSeconds % 60).toString().padLeft(2, '0')}',
-                          style: const TextStyle(color: Colors.orange, fontSize: 16),
-                        ),
                     ],
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (pix.pixDetails.sentToHotWallet && pix.pixDetails.processingStatus)
-                        Text(
-                          "Processing transfer".i18n(ref),
-                          style: const TextStyle(color: Colors.orange),
-                        ),
-                      if (pix.pixDetails.completedTransfer && !pix.pixDetails.sentToHotWallet)
+                      if (pix.pixDetails.completedTransfer )
                         Text(
                           "Completed".i18n(ref),
                           style: const TextStyle(color: Colors.green),

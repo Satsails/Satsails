@@ -64,7 +64,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     const double dynamicRadius = 12.0;
 
     // Check if the frontend has marked this transaction as "expired"
-    final isFrontendExpired = _expirationTime.inSeconds <= 0 && !transaction.completedTransfer && !transaction.sentToHotWallet;
+    final isFrontendExpired = _expirationTime.inSeconds <= 0 && !transaction.completedTransfer;
 
     return Scaffold(
       appBar: AppBar(
@@ -132,30 +132,20 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
         Icon(
           isFrontendExpired
               ? Icons.error_rounded
-              : transaction.completedTransfer || transaction.sentToHotWallet
+              : transaction.completedTransfer 
               ? Icons.check_circle_rounded
               : Icons.access_time_rounded,
           color: isFrontendExpired
               ? Colors.red
-              : transaction.completedTransfer || transaction.sentToHotWallet
+              : transaction.completedTransfer 
               ? Colors.green
               : Colors.orange,
           size: 40,
         ),
         const SizedBox(height: 8.0),
-        if (!transaction.completedTransfer && !transaction.sentToHotWallet && _expirationTime.inSeconds > 0)
-          Text(
-            'Time left:'.i18n(ref) +
-                ' ${_expirationTime.inMinutes}:${(_expirationTime.inSeconds % 60).toString().padLeft(2, '0')}',
-            style: const TextStyle(color: Colors.orange, fontSize: 16),
-          ),
         Text(
-          isFrontendExpired
+          transaction.failed
               ? "Transaction failed".i18n(ref)
-              : transaction.sentToHotWallet
-              ? "Processing transfer".i18n(ref)
-              : transaction.processingStatus && !transaction.sentToHotWallet
-              ? "Waiting payment".i18n(ref)
               : currencyFormat(transaction.receivedAmount, 'BRL', decimalPlaces: 2),
           style: TextStyle(
             color: isFrontendExpired ? Colors.red : Colors.green,
@@ -164,7 +154,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           ),
         ),
         const SizedBox(height: 8.0),
-        if (transaction.completedTransfer || transaction.sentToHotWallet)
+        if (transaction.completedTransfer )
           GestureDetector(
             onTap: () {
               Clipboard.setData(ClipboardData(text: transaction.transferId));
@@ -200,24 +190,9 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           label: "Status".i18n(ref),
           value: transaction.failed
               ? "Transaction failed".i18n(ref)
-              : transaction.completedTransfer || transaction.sentToHotWallet
+              : transaction.completedTransfer 
               ? "Completed".i18n(ref)
               : "Pending".i18n(ref),
-        ),
-        const SizedBox(height: 16.0),
-        GestureDetector(
-          onTap: () {
-            Clipboard.setData(ClipboardData(text: transaction.sentTxid ?? "N/A"));
-            showMessageSnackBar(
-              message: 'Txid copied'.i18n(ref),
-              context: context,
-              error: false,
-            );
-          },
-          child: TransactionDetailRow(
-            label: "Txid",
-            value: transaction.sentTxid ?? "N/A",
-          ),
         ),
         const SizedBox(height: 16.0),
       ],
@@ -232,7 +207,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           value: currencyFormat(transaction.originalAmount, 'BRL', decimalPlaces: 2),
         ),
         const SizedBox(height: 16.0),
-        if (transaction.completedTransfer || transaction.sentToHotWallet)
+        if (transaction.completedTransfer )
           TransactionDetailRow(
             label: "Total fees".i18n(ref),
             value: currencyFormat((transaction.originalAmount - transaction.receivedAmount), 'BRL', decimalPlaces: 2),

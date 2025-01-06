@@ -52,7 +52,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
           backgroundColor: Colors.black,
           title: Text(
             'Exchange'.i18n(ref),
-            style: TextStyle(color: Colors.white, fontSize: 20.sp),
+            style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
           ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
