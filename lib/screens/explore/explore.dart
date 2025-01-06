@@ -9,6 +9,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -19,7 +20,6 @@ class Explore extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery.of(context).size.width;
     final isLoading = ref.watch(isLoadingProvider);
 
     return Scaffold(
@@ -27,7 +27,7 @@ class Explore extends ConsumerWidget {
         backgroundColor: Colors.black, // black app bar
         title: Text(
           'Explore'.i18n(ref),
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -38,14 +38,13 @@ class Explore extends ConsumerWidget {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _BalanceDisplay(screenWidth: screenWidth),
-
-                const SizedBox(height: 20),
-                _ActionGrid(screenWidth: screenWidth),
+                _BalanceDisplay(),
+                SizedBox(height: 0.01.sh),
+                _ActionGrid(),
               ],
             ),
           ),
@@ -65,9 +64,6 @@ class Explore extends ConsumerWidget {
 }
 
 class _BalanceDisplay extends ConsumerWidget {
-  final double screenWidth;
-
-  const _BalanceDisplay({required this.screenWidth});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -80,31 +76,31 @@ class _BalanceDisplay extends ConsumerWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 2,
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: screenWidth * 0.05),
+        padding: EdgeInsets.symmetric(vertical: 0.02.sh, horizontal: 0.002.sw),
         child: Column(
           children: [
             Text(
               'Bitcoin balance'.i18n(ref),
               style: TextStyle(
-                fontSize: screenWidth * 0.05,
-                color: Colors.white,
+                fontSize: 20.sp,
+                color: Colors.grey,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 0.005.sh),
             Text(
               totalBtcBalance,
               style: TextStyle(
-                fontSize: screenWidth * 0.08,
+                fontSize: 25.sp,
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 0.005.sh),
             Text(
               currencyFormat(double.parse(totalBalanceInCurrency), currency),
               style: TextStyle(
-                fontSize: screenWidth * 0.045,
+                fontSize: 20.sp,
                 color: Colors.grey,
               ),
             ),
@@ -116,9 +112,6 @@ class _BalanceDisplay extends ConsumerWidget {
 }
 
 class _ActionGrid extends ConsumerWidget {
-  final double screenWidth;
-
-  const _ActionGrid({required this.screenWidth});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -129,7 +122,7 @@ class _ActionGrid extends ConsumerWidget {
         crossAxisCount: 2,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        childAspectRatio: 1.5, // Adjust ratio to fit buttons properly
+        childAspectRatio: 1.5,
       ),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -205,11 +198,11 @@ class _ActionButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null)
-                Icon(icon, color: Colors.white, size: 24),
-              if (icon != null) const SizedBox(width: 8),
+                Icon(icon, color: Colors.white, size: 25.sp),
+              if (icon != null) SizedBox(width: 0.01.sw),
               Text(
                 title,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp),
               ),
             ],
           ),

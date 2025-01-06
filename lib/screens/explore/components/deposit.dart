@@ -1,6 +1,7 @@
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:io' show Platform;
 
 import 'package:go_router/go_router.dart';
@@ -10,20 +11,19 @@ class Deposit extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Deposit".i18n(ref), style: const TextStyle(color: Colors.white)),
+        title: Text("Deposit".i18n(ref), style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
       ),
       backgroundColor: Colors.black,
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: 20),
+        padding: EdgeInsets.symmetric(vertical: 0.02.sh, horizontal: 0.02.sw),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -32,13 +32,13 @@ class Deposit extends ConsumerWidget {
               subtitle: "Transfer in minutes".i18n(ref),
               isAvailable: false,
             ),
-            const SizedBox(height: 15),
+            SizedBox(height: 0.02.sh),
             _DepositOption(
               title: Platform.isIOS ? "Apple Pay".i18n(ref) : "Google Pay".i18n(ref),
               subtitle: "Transfer in minutes".i18n(ref),
               isAvailable: false,
             ),
-            const SizedBox(height: 15),
+            SizedBox(height: 0.02.sh),
             _DepositOption(
               title: "PIX".i18n(ref),
               subtitle: "Transfer in minutes".i18n(ref),
@@ -76,31 +76,31 @@ class _DepositOption extends StatelessWidget {
           color: Colors.grey.shade900,
           borderRadius: BorderRadius.circular(10),
         ),
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.symmetric(vertical: 0.02.sh, horizontal: 0.02.sw),
         child: Row(
           children: [
             Icon(
               _getIconForTitle(),
-              size: 30,
+              size: 25.sp,
               color: Colors.white,
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 0.01.sw),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 18,
+                    style: TextStyle(
+                      fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: 15.sp,
                       color: Colors.grey,
                     ),
                   ),
@@ -108,10 +108,10 @@ class _DepositOption extends StatelessWidget {
               ),
             ),
             if (!isAvailable)
-              const Text(
+               Text(
                 "Coming soon",
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   color: Colors.orange,
                   fontStyle: FontStyle.italic,
                 ),
