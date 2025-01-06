@@ -60,7 +60,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
     if (amountInInt == null || amountInInt <= 0) {
       showBottomOverlayMessage(
         context: context,
-        message: 'Please enter a valid integer amount.'.i18n(ref),
+        message: 'Please enter a valid amount.'.i18n(ref),
         error: true,
       );
       return;
@@ -69,7 +69,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
     if (amountInInt > 5000) {
       showBottomOverlayMessage(
         context: context,
-        message: 'The maximum allowed transfer amount is 5000 BRL.'.i18n(ref),
+        message: 'The maximum allowed transfer amount is 5000 BRL'.i18n(ref),
         error: true,
       );
       return;
@@ -121,7 +121,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
               children: [
                 if (_pixQRCode.isEmpty)
                   Padding(
-                    padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
+                    padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
                     child: TextField(
                       controller: _amountController,
                       keyboardType: TextInputType.number,
@@ -130,51 +130,64 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                       ],
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.height * 0.02,
+                        fontSize: MediaQuery.of(context).size.height * 0.025,
                         color: Colors.white,
                       ),
                       decoration: InputDecoration(
-                        border: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                        filled: true,
+                        fillColor: Colors.grey.shade900,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: Colors.grey[600]!),
                         ),
-                        focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey, width: 2.0),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: Colors.transparent, width: 2.0),
                         ),
-                        labelText: 'Insert an amount'.i18n(ref),
+                        labelText: 'Insert amount'.i18n(ref),
                         labelStyle: TextStyle(
                           fontSize: MediaQuery.of(context).size.height * 0.02,
-                          color: Colors.grey,
+                          color: Colors.grey[400],
                         ),
                       ),
                     ),
                   ),
 
-                // QR code and address text display
-                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+
                 if (_pixQRCode.isNotEmpty) buildQrCode(_pixQRCode, context),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                 if (_pixQRCode.isNotEmpty) buildAddressText(_pixQRCode, context, ref),
 
-                // Copy text and amount to receive
                 if (_pixQRCode.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
+                    padding: const EdgeInsets.only(top: 12.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                         Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
                           decoration: BoxDecoration(
-                            color: Colors.black26,
-                            borderRadius: BorderRadius.circular(10),
+                            gradient: LinearGradient(
+                              colors: [Colors.orange, Colors.red],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                offset: Offset(0, 4),
+                                blurRadius: 10,
+                              ),
+                            ],
                           ),
                           child: Column(
                             children: [
                               Text(
-                                'Value to Receive'.i18n(ref),
+                                'Amount to Receive'.i18n(ref),
                                 style: TextStyle(
-                                  fontSize: MediaQuery.of(context).size.height * 0.018,
+                                  fontSize: MediaQuery.of(context).size.height * 0.02,
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -182,16 +195,16 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                               Text(
                                 '$_amountToReceive depix',
                                 style: TextStyle(
-                                  fontSize: MediaQuery.of(context).size.height * 0.022,
-                                  color: Colors.green,
+                                  fontSize: MediaQuery.of(context).size.height * 0.025,
+                                  color: Colors.green[300],
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
                                 'Fee: 2% + 2 depix',
                                 style: TextStyle(
-                                  fontSize: MediaQuery.of(context).size.height * 0.016,
-                                  color: Colors.grey,
+                                  fontSize: MediaQuery.of(context).size.height * 0.02,
+                                  color: Colors.grey[400],
                                 ),
                               ),
                             ],
@@ -204,7 +217,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                 if (_isLoading)
                   Center(
                     child: LoadingAnimationWidget.threeArchedCircle(
-                      size: MediaQuery.of(context).size.height * 0.1,
+                      size: MediaQuery.of(context).size.height * 0.12,
                       color: Colors.orange,
                     ),
                   )

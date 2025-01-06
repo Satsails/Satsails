@@ -117,55 +117,73 @@ class _ActionGrid extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final paymentId = ref.watch(userProvider).paymentId;
 
-    return GridView(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.5,
-      ),
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+    return Column(
       children: [
-        _ActionButton(
-          title: 'Buy'.i18n(ref),
-          color: Colors.green,
-          onTap: () => _handleOnPress(ref, context, paymentId),
+        GridView(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            childAspectRatio: 3,
+          ),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            _ActionButton(
+              title: 'Buy'.i18n(ref),
+              color: Colors.green,
+              fontSize: 18,
+              onTap: () => _handleOnPress(ref, context, paymentId),
+            ),
+            _ActionButton(
+              title: 'Sell'.i18n(ref),
+              color: Colors.red,
+              fontSize: 18,
+              onTap: () {
+                showBottomOverlayMessage(
+                  message: "Coming soon".i18n(ref),
+                  context: context,
+                  error: true,
+                );
+              },
+            ),
+          ],
         ),
-        _ActionButton(
-          title: 'Sell'.i18n(ref),
-          color: Colors.red,
-          onTap: () {
-            showBottomOverlayMessage(
-              message: "Coming soon".i18n(ref),
-              context: context,
-              error: true,
-            );
-          },
-        ),
-        _ActionButton(
-          title: 'Services'.i18n(ref),
-          color: Colors.grey.shade900,
-          onTap: () {
-            showBottomOverlayMessage(
-              message: "Coming soon".i18n(ref),
-              context: context,
-              error: true,
-            );
-          },
-          icon: Icons.lightbulb,
-        ),
-        _ActionButton(
-          title: 'Store'.i18n(ref),
-          color: Colors.grey.shade900,
-          onTap: () {
-            showBottomOverlayMessage(
-              message: "Coming soon".i18n(ref),
-              context: context,
-              error: true,
-            );
-          },
-          icon: Icons.shopping_cart,
+        GridView(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.2,
+          ),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            _ActionButton(
+              title: 'Services'.i18n(ref),
+              color: Colors.grey.shade900,
+              fontSize: 16,
+              onTap: () {
+                showBottomOverlayMessage(
+                  message: "Coming soon".i18n(ref),
+                  context: context,
+                  error: true,
+                );
+              },
+              icon: Icons.lightbulb,
+            ),
+            _ActionButton(
+              title: 'Store'.i18n(ref),
+              color: Colors.grey.shade900,
+              fontSize: 16,
+              onTap: () {
+                showBottomOverlayMessage(
+                  message: "Coming soon".i18n(ref),
+                  context: context,
+                  error: true,
+                );
+              },
+              icon: Icons.shopping_cart,
+            ),
+          ],
         ),
       ],
     );
@@ -177,12 +195,14 @@ class _ActionButton extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
   final IconData? icon;
+  final double fontSize;
 
   const _ActionButton({
     required this.title,
     required this.color,
     required this.onTap,
     this.icon,
+    required this.fontSize,
   });
 
   @override
@@ -198,11 +218,11 @@ class _ActionButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null)
-                Icon(icon, color: Colors.white, size: 25.sp),
+                Icon(icon, color: Colors.white, size: 20.sp),
               if (icon != null) SizedBox(width: 0.01.sw),
               Text(
                 title,
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: fontSize.sp),
               ),
             ],
           ),

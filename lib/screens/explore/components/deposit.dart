@@ -84,7 +84,7 @@ class _DepositOption extends StatelessWidget {
               size: 25.sp,
               color: Colors.white,
             ),
-            SizedBox(width: 0.01.sw),
+            SizedBox(width: 0.02.sw),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
