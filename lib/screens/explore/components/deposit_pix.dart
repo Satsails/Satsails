@@ -120,7 +120,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
               children: [
                 if (_pixQRCode.isEmpty)
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 0.02.sh, horizontal: 0.002.sw),
+                    padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 20.w),
                     child: TextField(
                       controller: _amountController,
                       keyboardType: TextInputType.number,
@@ -156,31 +156,33 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                 if (_pixQRCode.isNotEmpty) buildAddressText(_pixQRCode, context, ref),
                 if (_pixQRCode.isNotEmpty)
                   Padding(
-                    padding: EdgeInsets.only(top: 0.01.sh),
+                    padding: EdgeInsets.only(top: 0.02.sh),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Container(
-                          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 20.w),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade900,
-                            borderRadius: BorderRadius.circular(15.r),
-                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 20.w),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Amount to Receive'.i18n(ref),
-                                style: TextStyle(
-                                  fontSize: 20.sp,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Amount to Receive'.i18n(ref),
+                                      style: TextStyle(
+                                        fontSize: 20.sp,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(height: 8.h),
+                              SizedBox(height: 12.h),
                               Container(
                                 width: double.infinity,
-                                padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 15.w),
+                                padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 15.w),
                                 decoration: BoxDecoration(
                                   color: Colors.grey.shade900,
                                   borderRadius: BorderRadius.circular(12.r),
@@ -188,104 +190,47 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                                 child: Text(
                                   '$_amountToReceive Depix',
                                   style: TextStyle(
-                                    fontSize: 20.sp,
+                                    fontSize: 22.sp,
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 16.h),
-                              Text(
-                                feePercentage.toStringAsFixed(2) + ' % fee',
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: Colors.grey[400],
-                                ),
+                              SizedBox(height: 10.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Service Fee',
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      color: Colors.grey[400],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${feePercentage.toStringAsFixed(2)} %',
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      color: Colors.grey[400],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(height: 5.h),
-                              Text(
-                                'R\$ 1 Fixed fee',
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: Colors.grey[400],
-                                ),
-                              ),
+                              SizedBox(height: 10.h),
+                              Text('Awaiting Payment'.i18n(ref),
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    color: Colors.orangeAccent,
+                                    fontWeight: FontWeight.w500,
+                                  )),
                             ],
                           ),
                         ),
-
                       ],
                     ),
                   ),
-                // if (_pixQRCode.isNotEmpty)
-                //   Padding(
-                //     padding: EdgeInsets.only(top: 10.h),
-                //     child: Column(
-                //       crossAxisAlignment: CrossAxisAlignment.stretch,
-                //       children: [
-                //         Container(
-                //           padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 20.w),
-                //           decoration: BoxDecoration(
-                //             color: Colors.grey.shade900,
-                //             borderRadius: BorderRadius.circular(15.r),
-                //           ),
-                //           child: Column(
-                //             crossAxisAlignment: CrossAxisAlignment.start,
-                //             children: [
-                //               // Title
-                //               Text(
-                //                 'Valor a receber'.i18n(ref),
-                //                 style: TextStyle(
-                //                   fontSize: 18.sp,
-                //                   color: Colors.white,
-                //                   fontWeight: FontWeight.w600,
-                //                 ),
-                //               ),
-                //               SizedBox(height: 8.h),
-                //               // Amount in BRL
-                //               Container(
-                //                 width: double.infinity,
-                //                 padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
-                //                 decoration: BoxDecoration(
-                //                   color: Colors.grey.shade800,
-                //                   borderRadius: BorderRadius.circular(12.r),
-                //                 ),
-                //                 child: Text(
-                //                   'R\$${_amountToReceive.toStringAsFixed(2)}',
-                //                   style: TextStyle(
-                //                     fontSize: 22.sp,
-                //                     color: Colors.white,
-                //                     fontWeight: FontWeight.bold,
-                //                   ),
-                //                   textAlign: TextAlign.center,
-                //                 ),
-                //               ),
-                //               SizedBox(height: 16.h),
-                //               // "Você receberá" and fee details
-                //               Text(
-                //                 'Você receberá: ${(0.98 * _amountToReceive - 2).toStringAsFixed(2)} BRL',
-                //                 style: TextStyle(
-                //                   fontSize: 16.sp,
-                //                   color: Colors.white,
-                //                   fontWeight: FontWeight.bold,
-                //                 ),
-                //               ),
-                //               SizedBox(height: 8.h),
-                //               Text(
-                //                 'Fee: 2% + 2 BRL',
-                //                 style: TextStyle(
-                //                   fontSize: 14.sp,
-                //                   color: Colors.grey,
-                //                   fontStyle: FontStyle.italic,
-                //                 ),
-                //               ),
-                //             ],
-                //           ),
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-
                 if (_isLoading)
                   Center(
                     child: LoadingAnimationWidget.threeArchedCircle(
