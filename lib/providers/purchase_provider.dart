@@ -69,3 +69,14 @@ final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase
     throw result.error!;
   }
 });
+
+final getPixPaymentStateProvider = FutureProvider.autoDispose.family<bool, String>((ref, transactionId) async {
+  final auth = ref.read(userProvider).recoveryCode;
+  final paymentState = await PurchaseService.getPurchasePixPaymentState(transactionId, auth);
+
+  if (paymentState.isSuccess && paymentState.data != null) {
+    return paymentState.data!;
+  } else {
+    throw paymentState.error!;
+  }
+});

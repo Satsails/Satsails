@@ -145,6 +145,7 @@ class _ActionGrid extends ConsumerWidget {
             ),
           ],
         ),
+        SizedBox(height: 16.h),
         GridView(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,

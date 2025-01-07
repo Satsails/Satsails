@@ -180,5 +180,32 @@ class PurchaseService {
           error: 'An error has occurred. Please check your internet connection or contact support');
     }
   }
+
+  static Future<Result<bool>> getPurchasePixPaymentState(String transactionId, String auth) async {
+    try {
+      final uri = Uri.parse(
+          dotenv.env['BACKEND']! + '/transfers/check_purchase_state'
+      ).replace(queryParameters: {
+        'transfer[txid]': transactionId,
+      });
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: jsonDecode(response.body));
+      } else {
+        return Result(error: 'Failed to get amount transferred');
+      }
+    } catch (e) {
+      return Result(
+          error: 'An error has occurred. Please check your internet connection or contact support');
+    }
+  }
 }
 

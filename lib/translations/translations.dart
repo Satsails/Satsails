@@ -2127,6 +2127,18 @@ extension Localization on String {
       {
         'en': 'Insert amount',
         'pt': 'Insira uma quantia'
+      } +
+      {
+        'en': 'Amount Purchased Today',
+        'pt': 'Quantia Comprada Hoje'
+      } +
+      {
+        'en': 'Payment Status',
+        'pt': 'Status do Pagamento'
+      } +
+      {
+        'en': 'Paid',
+        'pt': 'Pago'
       };
 
 
