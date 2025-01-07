@@ -43,17 +43,16 @@ class Explore extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _BalanceDisplay(),
-                SizedBox(height: 0.01.sh),
+                SizedBox(height: 16.h),
                 _ActionGrid(),
               ],
             ),
           ),
 
-          // Show loading indicator if the isLoading state is true
           if (isLoading)
             Center(
               child: LoadingAnimationWidget.threeArchedCircle(
-                size: MediaQuery.of(context).size.height * 0.1,
+                size: 80.h, // Adjusted size with .h
                 color: Colors.orange,
               ),
             ),
@@ -64,7 +63,6 @@ class Explore extends ConsumerWidget {
 }
 
 class _BalanceDisplay extends ConsumerWidget {
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final denomination = ref.watch(settingsProvider).btcFormat;
@@ -76,7 +74,7 @@ class _BalanceDisplay extends ConsumerWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 2,
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 0.02.sh, horizontal: 0.002.sw),
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w), // Adjusted padding
         child: Column(
           children: [
             Text(
@@ -87,7 +85,7 @@ class _BalanceDisplay extends ConsumerWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(height: 0.005.sh),
+            SizedBox(height: 8.h),
             Text(
               totalBtcBalance,
               style: TextStyle(
@@ -96,7 +94,7 @@ class _BalanceDisplay extends ConsumerWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 0.005.sh),
+            SizedBox(height: 8.h),
             Text(
               currencyFormat(double.parse(totalBalanceInCurrency), currency),
               style: TextStyle(
@@ -112,7 +110,6 @@ class _BalanceDisplay extends ConsumerWidget {
 }
 
 class _ActionGrid extends ConsumerWidget {
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final paymentId = ref.watch(userProvider).paymentId;
@@ -120,9 +117,9 @@ class _ActionGrid extends ConsumerWidget {
     return Column(
       children: [
         GridView(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: 12,
+            crossAxisSpacing: 5,
             childAspectRatio: 3,
           ),
           shrinkWrap: true,
@@ -149,9 +146,9 @@ class _ActionGrid extends ConsumerWidget {
           ],
         ),
         GridView(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: 12,
+            crossAxisSpacing: 5,
             childAspectRatio: 1.2,
           ),
           shrinkWrap: true,
@@ -219,7 +216,7 @@ class _ActionButton extends StatelessWidget {
             children: [
               if (icon != null)
                 Icon(icon, color: Colors.white, size: 20.sp),
-              if (icon != null) SizedBox(width: 0.01.sw),
+              if (icon != null) SizedBox(width: 8.w),
               Text(
                 title,
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: fontSize.sp),
@@ -245,16 +242,12 @@ Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentI
       if (Platform.isAndroid) {
         flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()!.requestNotificationsPermission();
       } else if (Platform.isIOS) {
-        await flutterLocalNotificationsPlugin
-            .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-            ?.requestPermissions(
+        await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
           alert: true,
           badge: true,
           sound: true,
         );
       }
-
     } else {
       if (!userHasInsertedAffiliate && insertedAffiliateCode.isNotEmpty) {
         await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);

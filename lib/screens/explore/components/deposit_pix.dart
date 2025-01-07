@@ -120,7 +120,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
               children: [
                 if (_pixQRCode.isEmpty)
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 20.w),
+                    padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
                     child: TextField(
                       controller: _amountController,
                       keyboardType: TextInputType.number,
@@ -152,11 +152,11 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                     ),
                   ),
                 if (_pixQRCode.isNotEmpty) buildQrCode(_pixQRCode, context),
-                SizedBox(height: 0.02.sh),
+                SizedBox(height: 16.h),
                 if (_pixQRCode.isNotEmpty) buildAddressText(_pixQRCode, context, ref),
                 if (_pixQRCode.isNotEmpty)
                   Padding(
-                    padding: EdgeInsets.only(top: 0.02.sh),
+                    padding: EdgeInsets.only(top: 16.h),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -182,7 +182,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                               SizedBox(height: 12.h),
                               Container(
                                 width: double.infinity,
-                                padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 15.w),
+                                padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
                                 decoration: BoxDecoration(
                                   color: Colors.grey.shade900,
                                   borderRadius: BorderRadius.circular(12.r),

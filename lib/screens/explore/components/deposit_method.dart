@@ -50,7 +50,7 @@ class DepositMethod extends ConsumerWidget {
       ),
       backgroundColor: Colors.black,
       body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 0.02.sh, horizontal: 0.02.sw),
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: availableMethods.map((method) => Padding(
@@ -86,7 +86,7 @@ class _DepositMethodOption extends StatelessWidget {
           color: Colors.grey.shade900,
           borderRadius: BorderRadius.circular(10),
         ),
-        padding: EdgeInsets.symmetric(vertical: 0.02.sh, horizontal: 0.02.sw),
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
         child: Row(
           children: [
             Icon(
