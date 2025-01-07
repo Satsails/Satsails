@@ -139,7 +139,7 @@ class _ActionGrid extends ConsumerWidget {
               color: Colors.red,
               fontSize: 18,
               onTap: () {
-                showBottomOverlayMessage(
+                showMessageSnackBar(
                   message: "Coming soon".i18n(ref),
                   context: context,
                   error: true,
@@ -162,7 +162,7 @@ class _ActionGrid extends ConsumerWidget {
               color: Colors.grey.shade900,
               fontSize: 16,
               onTap: () {
-                showBottomOverlayMessage(
+                showMessageSnackBar(
                   message: "Coming soon".i18n(ref),
                   context: context,
                   error: true,
@@ -175,7 +175,7 @@ class _ActionGrid extends ConsumerWidget {
               color: Colors.grey.shade900,
               fontSize: 16,
               onTap: () {
-                showBottomOverlayMessage(
+                showMessageSnackBar(
                   message: "Coming soon".i18n(ref),
                   context: context,
                   error: true,
@@ -264,7 +264,7 @@ Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentI
     context.push('/home/explore/deposit_type');
     ref.read(isLoadingProvider.notifier).state = false;
   } catch (e) {
-    showBottomOverlayMessage(
+    showMessageSnackBar(
       message: e.toString(),
       context: context,
       error: true,

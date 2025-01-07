@@ -44,7 +44,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
     final amount = _amountController.text;
 
     if (amount.isEmpty) {
-      showBottomOverlayMessage(
+      showMessageSnackBar(
         context: context,
         message: 'Amount cannot be empty'.i18n(ref),
         error: true,
@@ -55,7 +55,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
     final int? amountInInt = int.tryParse(amount);
 
     if (amountInInt == null || amountInInt <= 0) {
-      showBottomOverlayMessage(
+      showMessageSnackBar(
         context: context,
         message: 'Please enter a valid amount.'.i18n(ref),
         error: true,
@@ -64,7 +64,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
     }
 
     if (amountInInt > 5000) {
-      showBottomOverlayMessage(
+      showMessageSnackBar(
         context: context,
         message: 'The maximum allowed transfer amount is 5000 BRL'.i18n(ref),
         error: true,
@@ -89,7 +89,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
       setState(() {
         _isLoading = false;
       });
-      showBottomOverlayMessage(
+      showMessageSnackBar(
         context: context,
         message: e.toString().i18n(ref),
         error: true,

@@ -233,19 +233,21 @@ class Settings extends ConsumerWidget {
                       if (affiliateCode.isNotEmpty) {
                         try {
                           await ref.read(addAffiliateCodeProvider(affiliateCode).future);
-                          showTopOverlayMessage(
+                          showMessageSnackBar(
                             message: 'Affiliate code inserted successfully'.i18n(ref),
                             error: false,
                             context: context,
+                            top: true,
                           );
                           // hammer fix
                           ref.invalidate(initializeAffiliateProvider);
                           context.pop();
                         } catch (e) {
-                          showTopOverlayMessage(
+                          showMessageSnackBar(
                             message: 'Error inserting affiliate code'.i18n(ref),
                             error: true,
                             context: context,
+                            top: true,
                           );
                         }
                       }

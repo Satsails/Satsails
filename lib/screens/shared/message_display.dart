@@ -1,10 +1,11 @@
 import 'package:Satsails/translations/translations.dart';
+import 'package:delightful_toast/toast/components/toast_card.dart';
+import 'package:delightful_toast/toast/utils/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:delightful_toast/delight_toast.dart';
 import 'package:quickalert/quickalert.dart';
-import 'package:quickalert/widgets/quickalert_dialog.dart';
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 class MessageDisplay extends ConsumerWidget {
   final String message;
@@ -26,7 +27,7 @@ class MessageDisplay extends ConsumerWidget {
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            Icon(
+            const Icon(
               Icons.error_outline,
               color: Colors.white,
             ),
@@ -48,130 +49,61 @@ class MessageDisplay extends ConsumerWidget {
   }
 }
 
-void showTopOverlayMessage({
-  required BuildContext context,
-  required String message,
-  required bool error,
-}) {
-  final overlay = Overlay.of(context);
-  if (overlay == null) return;
-
-  final overlayEntry = OverlayEntry(
-    builder: (context) => Positioned(
-      top: MediaQuery.of(context).padding.top + 8.0,
-      left: 8.0,
-      right: 8.0,
-      child: Material(
-        color: Colors.transparent,
-        child: AwesomeSnackbarContent(
-          title: error ? 'Oops' : 'Ok!',
-          message: message,
-          messageTextStyle: TextStyle(fontSize: 16.sp, color: Colors.white),
-          inMaterialBanner: false,
-          contentType: error ? ContentType.failure : ContentType.success,
-        ),
-      ),
-    ),
-  );
-
-  overlay.insert(overlayEntry);
-
-  Future.delayed(Duration(seconds: 3), () {
-    overlayEntry.remove();
-  });
-}
-
-void showBottomOverlayMessage({
-  required BuildContext context,
-  required String message,
-  required bool error,
-}) {
-  final overlay = Overlay.of(context);
-  if (overlay == null) return;
-
-  final overlayEntry = OverlayEntry(
-    builder: (context) => Positioned(
-      bottom: MediaQuery.of(context).padding.bottom + 8.0,
-      left: 8.0,
-      right: 8.0,
-      child: Material(
-        color: Colors.transparent,
-        child: AwesomeSnackbarContent(
-          title: error ? 'Oops' : 'Ok!',
-          message: message,
-          messageTextStyle: TextStyle(fontSize: 16.sp, color: Colors.white),
-          inMaterialBanner: false,
-          contentType: error ? ContentType.failure : ContentType.success,
-        ),
-      ),
-    ),
-  );
-
-  overlay.insert(overlayEntry);
-
-  Future.delayed(Duration(seconds: 3), () {
-    overlayEntry.remove();
-  });
-}
-
-void showBottomOverlayMessageInfo({
+void showMessageSnackBarInfo({
   required BuildContext context,
   required String message,
 }) {
-  final overlay = Overlay.of(context);
-  if (overlay == null) return;
-
-  final overlayEntry = OverlayEntry(
-    builder: (context) => Positioned(
-      bottom: MediaQuery.of(context).padding.bottom + 8.0,
-      left: 8.0,
-      right: 8.0,
-      child: Material(
-        color: Colors.transparent,
-        child: AwesomeSnackbarContent(
-          title: 'Oops',
-          message: message,
-          messageTextStyle: TextStyle(fontSize: 16.sp),
-          inMaterialBanner: false,
-          contentType: ContentType.warning,
+  DelightToastBar(
+    snackbarDuration: const Duration(seconds: 3),
+    builder: (context) => ToastCard(
+      color: Colors.grey.shade900,
+      leading: Icon(
+        Icons.info,
+        size: 28,
+        color: Colors.orange,
+      ),
+      title: Text(
+        message,
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 16.sp,
+          color: Colors.white,
         ),
       ),
     ),
-  );
-
-  overlay.insert(overlayEntry);
-
-  Future.delayed(Duration(seconds: 3), () {
-    overlayEntry.remove();
-  });
+    position: DelightSnackbarPosition.bottom,
+  ).show(context);
 }
 
 void showMessageSnackBar({
   required BuildContext context,
   required String message,
   required bool error,
+  bool info = false,
+  bool top = false,
 }) {
-  if (ScaffoldMessenger.maybeOf(context) == null) {
-    return;
-  }
-
-  final snackBar = SnackBar(
-    elevation: 0,
-    behavior: SnackBarBehavior.floating,
-    backgroundColor: Colors.transparent,
-    duration: const Duration(seconds: 3),
-    content: AwesomeSnackbarContent(
-      title: error ? 'Oops' : 'Ok!',
-      message: message,
-      messageTextStyle: TextStyle(fontSize: 16.sp, color: Colors.white),
-      inMaterialBanner: true,
-      contentType: error ? ContentType.failure : ContentType.success,
+  DelightToastBar(
+    snackbarDuration: const Duration(seconds: 3),
+    autoDismiss: true,
+    animationDuration: const Duration(milliseconds: 500),
+    builder: (context) => ToastCard(
+      color: error ? Colors.red : Colors.green,
+      leading: Icon(
+          error ? Icons.error : info ? Icons.info : Icons.check_circle,
+          color: Colors.white,
+          size: 28.sp
+      ),
+      title: Text(
+        message,
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 16.sp,
+          color: Colors.white,
+        ),
+      ),
     ),
-  );
-
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(snackBar);
+    position: top ? DelightSnackbarPosition.top : DelightSnackbarPosition.bottom,
+  ).show(context);
 }
 
 void showInformationModal({
@@ -182,7 +114,6 @@ void showInformationModal({
   String formattedMessage;
 
   if (message is List<String>) {
-    // Join array of messages into a single string with line breaks
     formattedMessage = message.join('\n');
   } else if (message is String) {
     formattedMessage = message;
