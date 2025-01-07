@@ -26,7 +26,7 @@ class Explore extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.black, // black app bar
         title: Text(
-          'Explore'.i18n(ref),
+          'Explore',
           style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(

@@ -2059,6 +2059,74 @@ extension Localization on String {
       {
         'en': 'Transaction fees',
         'pt': 'Taxas de transação'
+      } +
+      {
+        'en': 'Coming soon',
+        'pt': 'Em breve'
+      } +
+      {
+        'en': 'Transfer in minutes',
+        'pt': 'Transferencia em minutos'
+      } +
+      {
+        'en': 'Deposit Type',
+        'pt': 'Tipo de Depósito'
+      } +
+      {
+        'en': 'Buy',
+        'pt': 'Comprar'
+      } +
+      {
+        'en': 'Sell',
+        'pt': 'Vender'
+      } +
+      {
+        'en': 'Credit Card',
+        'pt': 'Cartão de Crédito'
+      } +
+      {
+        'en': 'Bank Transfer',
+        'pt': 'Transferência Bancária'
+      } +
+      {
+        'en': 'Deposit',
+        'pt': 'Depósito'
+      } +
+      {
+        'en': 'Amount to Receive',
+        'pt': 'Montante a Receber'
+      } +
+      {
+        'en': 'Service Fee',
+        'pt': 'Taxa de Serviço'
+      } +
+      {
+        'en': 'Awaiting Payment',
+        'pt': 'Aguardando Pagamento'
+      } +
+      {
+        'en': 'Generate QR Code',
+        'pt': 'Gerar Código QR'
+      } +
+      {
+        'en': 'You can only transfer R\$ 6000 per CPF per day.',
+        'pt': 'Você pode transferir apenas R\$ 6000 por CPF por dia.'
+      } +
+      {
+        'en': 'If you send anymore than that, the amount will be refunded to your bank account.',
+        'pt': 'Se você enviar mais do que isso, o valor será devolvido para a sua conta bancária.'
+      } +
+      {
+        'en': 'Please note that refunds are not immediate and may take up to 3 business days to be processed.',
+        'pt': 'Note que os reembolsos não são imediatos e podem levar até 3 dias úteis para serem processados.'
+      } +
+      {
+        'en': 'Store',
+        'pt': 'Loja'
+      } +
+      {
+        'en': 'Insert amount',
+        'pt': 'Insira uma quantia'
       };
 
 

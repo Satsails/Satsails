@@ -51,6 +51,12 @@ class DepositType extends ConsumerWidget {
               subtitle: "Coming soon".i18n(ref),
               isAvailable: false,
             ),
+            SizedBox(height: 0.02.sh),
+            _DepositOption(
+              title: "Liquid Bitcoin".i18n(ref),
+              subtitle: "Coming soon".i18n(ref),
+              isAvailable: false,
+            ),
           ],
         ),
       ),

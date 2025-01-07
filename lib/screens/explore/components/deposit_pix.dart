@@ -237,7 +237,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Service Fee',
+                                    'Service Fee'.i18n(ref),
                                     style: TextStyle(
                                       fontSize: 16.sp,
                                       color: Colors.grey[400],
@@ -311,7 +311,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'You can only transfer R\$ 6000 per CPF per day.',
+                                          'You can only transfer R\$ 6000 per CPF per day.'.i18n(ref),
                                           style: TextStyle(
                                             fontSize: 18.sp,
                                             color: Colors.white,
@@ -320,7 +320,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                                         ),
                                         SizedBox(height: 10.h),
                                         Text(
-                                          'If you send anymore than that, the amount will be refunded to your bank account.',
+                                          'If you send anymore than that, the amount will be refunded to your bank account.'.i18n(ref),
                                           style: TextStyle(
                                             fontSize: 16.sp,
                                             color: Colors.grey[400],
@@ -329,7 +329,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                                         ),
                                         SizedBox(height: 10.h),
                                         Text(
-                                          'Please note that refunds are not immediate and may take up to 3 business days to be processed',
+                                          'Please note that refunds are not immediate and may take up to 3 business days to be processed.'.i18n(ref),
                                           style: TextStyle(
                                             fontSize: 16.sp,
                                             color: Colors.grey[400],
