@@ -29,6 +29,28 @@ class _DepositPixState extends ConsumerState<DepositPix> {
   bool _isLoading = false;
   double _amountToReceive = 0;
   double feePercentage = 0;
+  // commented out in case we want to quickly renable max deposits
+  // String amountPurchasedToday = '0';
+
+  @override
+  void initState() {
+    super.initState();
+    // _fetchAmountPurchasedToday();
+  }
+
+  // Future<void> _fetchAmountPurchasedToday() async {
+  //   try {
+  //     final result = await ref.read(getAmountPurchasedProvider.future);
+  //     setState(() {
+  //       amountPurchasedToday = result;
+  //     });
+  //   } catch (e) {
+  //     setState(() {
+  //       amountPurchasedToday = '0';
+  //     });
+  //   }
+  // }
+
 
   @override
   void dispose() {
@@ -42,6 +64,15 @@ class _DepositPixState extends ConsumerState<DepositPix> {
     await PusherBeams.instance.setUserId(userID,UserService.getPusherAuth(auth, userID), (error) {},);
 
     final amount = _amountController.text;
+
+    // if (double.parse(amountPurchasedToday) + double.parse(amount) > 5000) {
+    //   showMessageSnackBar(
+    //     context: context,
+    //     message: 'You have reached the maximum amount you can transfer today.'.i18n(ref),
+    //     error: true,
+    //   );
+    //   return;
+    // }
 
     if (amount.isEmpty) {
       showMessageSnackBar(
@@ -99,6 +130,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -119,37 +151,41 @@ class _DepositPixState extends ConsumerState<DepositPix> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (_pixQRCode.isEmpty)
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
-                    child: TextField(
-                      controller: _amountController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 20.sp,
-                        color: Colors.white,
+                  Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
+                        child: TextField(
+                          controller: _amountController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 20.sp,
+                            color: Colors.white,
+                          ),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.grey.shade900,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(color: Colors.grey[600]!),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(color: Colors.transparent, width: 2.0),
+                            ),
+                            labelText: 'Insert amount'.i18n(ref),
+                            labelStyle: TextStyle(
+                              fontSize: 20.sp,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                        ),
                       ),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey.shade900,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: Colors.grey[600]!),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: Colors.transparent, width: 2.0),
-                        ),
-                        labelText: 'Insert amount'.i18n(ref),
-                        labelStyle: TextStyle(
-                          fontSize: 20.sp,
-                          color: Colors.grey[400],
-                        ),
-                      ),
-                    ),
+                    ],
                   ),
                 if (_pixQRCode.isNotEmpty) buildQrCode(_pixQRCode, context),
                 SizedBox(height: 16.h),
@@ -239,18 +275,78 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                     ),
                   )
                 else if (_pixQRCode.isEmpty)
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 0.2.sw,
-                    ),
-                    child: CustomButton(
-                      onPressed: _generateQRCode,
-                      primaryColor: Colors.orange,
-                      secondaryColor: Colors.orange,
-                      text: 'Generate QR Code'.i18n(ref),
-                      textColor: Colors.white,
-                    ),
-                  ),
+                  Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 0.2.sw,
+                        ),
+                        child: CustomButton(
+                          onPressed: _generateQRCode,
+                          primaryColor: Colors.orange,
+                          secondaryColor: Colors.orange,
+                          text: 'Generate QR Code'.i18n(ref),
+                          textColor: Colors.white,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 16.h),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 20.w),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 12.h),
+                                  Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade900,
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'You can only transfer R\$ 6000 per CPF per day.',
+                                          style: TextStyle(
+                                            fontSize: 18.sp,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        SizedBox(height: 10.h),
+                                        Text(
+                                          'If you send anymore than that, the amount will be refunded to your bank account.',
+                                          style: TextStyle(
+                                            fontSize: 16.sp,
+                                            color: Colors.grey[400],
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        SizedBox(height: 10.h),
+                                        Text(
+                                          'Please note that refunds are not immediate and may take up to 3 business days to be processed',
+                                          style: TextStyle(
+                                            fontSize: 16.sp,
+                                            color: Colors.grey[400],
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
               ],
             ),
           ),

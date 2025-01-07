@@ -79,7 +79,7 @@ dependencies:
       path: packages/pusher_beams
       ref: master
   flutter_keyboard_done: ^1.0.1
-  dart_pusher_channels: ^1.2.3
+#  dart_pusher_channels: ^1.2.3
 dev_dependencies:
   build_runner: ^2.4.11
   flutter_dotenv: ^5.1.0

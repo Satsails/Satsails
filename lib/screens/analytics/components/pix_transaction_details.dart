@@ -1,4 +1,3 @@
-import 'dart:async'; // Import Timer
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/purchase_model.dart';
 import 'package:Satsails/providers/purchase_provider.dart';
@@ -17,43 +16,15 @@ class PixTransactionDetails extends ConsumerStatefulWidget {
 }
 
 class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
-  Timer? _timer;
-  Duration _expirationTime = const Duration(minutes: 4);
 
   @override
   void initState() {
     super.initState();
-    final transaction = ref.read(singlePurchaseDetailsProvider);
-    _initializeExpirationTime(transaction.createdAt);
-    _startCountdown();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
     super.dispose();
-  }
-
-  void _initializeExpirationTime(DateTime createdAt) {
-    final timeSinceCreation = DateTime.now().difference(createdAt);
-    setState(() {
-      _expirationTime = const Duration(minutes: 4) - timeSinceCreation;
-      if (_expirationTime.isNegative) {
-        _expirationTime = Duration.zero;
-      }
-    });
-  }
-
-  void _startCountdown() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_expirationTime.inSeconds > 0) {
-        setState(() {
-          _expirationTime -= const Duration(seconds: 1);
-        });
-      } else {
-        timer.cancel();
-      }
-    });
   }
 
 
@@ -62,9 +33,6 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     final transaction = ref.watch(singlePurchaseDetailsProvider);
     const double dynamicMargin = 16.0;
     const double dynamicRadius = 12.0;
-
-    // Check if the frontend has marked this transaction as "expired"
-    final isFrontendExpired = _expirationTime.inSeconds <= 0 && !transaction.completedTransfer;
 
     return Scaffold(
       appBar: AppBar(
@@ -98,7 +66,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: _buildTransactionHeader(ref, transaction, isFrontendExpired),
+                child: _buildTransactionHeader(ref, transaction),
               ),
               const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),
@@ -126,16 +94,16 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     );
   }
 
-  Widget _buildTransactionHeader(WidgetRef ref, Purchase transaction, bool isFrontendExpired) {
+  Widget _buildTransactionHeader(WidgetRef ref, Purchase transaction) {
     return Column(
       children: [
         Icon(
-          isFrontendExpired
+          transaction.failed
               ? Icons.error_rounded
               : transaction.completedTransfer 
               ? Icons.check_circle_rounded
               : Icons.access_time_rounded,
-          color: isFrontendExpired
+          color: transaction.failed
               ? Colors.red
               : transaction.completedTransfer 
               ? Colors.green
@@ -148,7 +116,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
               ? "Transaction failed".i18n(ref)
               : currencyFormat(transaction.receivedAmount, 'BRL', decimalPlaces: 2),
           style: TextStyle(
-            color: isFrontendExpired ? Colors.red : Colors.green,
+            color: transaction.failed ? Colors.red : Colors.green,
             fontSize: MediaQuery.of(context).size.width * 0.045,
             fontWeight: FontWeight.bold,
           ),
@@ -239,7 +207,7 @@ class TransactionDetailRow extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.right,
-              overflow: TextOverflow.ellipsis, // This will handle long text by truncating it
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),

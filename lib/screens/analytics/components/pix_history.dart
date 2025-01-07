@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'dart:async';
-
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class PixHistory extends ConsumerStatefulWidget {
@@ -18,30 +16,17 @@ class PixHistory extends ConsumerStatefulWidget {
 }
 
 class _PixHistoryState extends ConsumerState<PixHistory> {
-  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _startCountdown();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
     super.dispose();
   }
 
-  void _startCountdown() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {});
-    });
-  }
-
-  Duration _getRemainingTime(DateTime createdAt) {
-    final timeSinceCreation = DateTime.now().difference(createdAt);
-    return const Duration(minutes: 4) - timeSinceCreation;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,10 +53,8 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
             final pix = pixHistory[index];
             const double dynamicMargin = 10.0;
             const double dynamicRadius = 10.0;
-            final remainingTime = _getRemainingTime(pix.pixDetails.createdAt);
 
             // Check if the transaction is "expired" for the user (4 minutes timeout)
-            final isFrontendExpired = remainingTime.inSeconds <= 0;
 
             return Container(
               margin: const EdgeInsets.all(dynamicMargin),
@@ -86,12 +69,12 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                 },
                 child: ListTile(
                   leading: Icon(
-                    isFrontendExpired && !pix.pixDetails.completedTransfer
+                    pix.pixDetails.failed
                         ? Icons.error_rounded
                         : pix.pixDetails.completedTransfer
                         ? Icons.check_circle_rounded
                         : Icons.arrow_downward_rounded,
-                    color: isFrontendExpired && !pix.pixDetails.completedTransfer
+                    color:pix.pixDetails.failed
                         ? Colors.red
                         : pix.pixDetails.completedTransfer
                         ? Colors.green
@@ -107,7 +90,7 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                             ? "${"Received".i18n(ref)} ${pix.pixDetails.receivedAmount % 1 == 0 ? pix.pixDetails.receivedAmount.toInt() : pix.pixDetails.receivedAmount.toStringAsFixed(3)}"
                             : "Transaction in progress".i18n(ref),
                         style: TextStyle(
-                          color: isFrontendExpired && !pix.pixDetails.completedTransfer
+                          color: pix.pixDetails.failed
                               ? Colors.red
                               : pix.pixDetails.completedTransfer
                               ? Colors.green
