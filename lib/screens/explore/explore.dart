@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:Satsails/helpers/string_extension.dart';
-import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
@@ -231,8 +230,7 @@ class _ActionButton extends StatelessWidget {
 }
 
 Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentId) async {
-  final userHasInsertedAffiliate = ref.watch(userProvider).hasInsertedAffiliate;
-  final insertedAffiliateCode = ref.watch(affiliateProvider).insertedAffiliateCode;
+  final insertedAffiliateCode = ref.watch(userProvider).affiliateCode ?? '';
   ref.read(isLoadingProvider.notifier).state = true;
 
   try {
@@ -250,7 +248,7 @@ Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentI
         );
       }
     } else {
-      if (!userHasInsertedAffiliate && insertedAffiliateCode.isNotEmpty) {
+      if (insertedAffiliateCode.isNotEmpty) {
         await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
     }

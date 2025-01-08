@@ -13,62 +13,44 @@ const FlutterSecureStorage _storage = FlutterSecureStorage();
 
 class UserModel extends StateNotifier<User> {
   UserModel(super.state);
-  Future<void> setHasInsertedAffiliate(bool hasInsertedAffiliate) async {
-    final box = await Hive.openBox('user');
-    box.put('hasInsertedAffiliate', hasInsertedAffiliate);
-    state = state.copyWith(hasInsertedAffiliate: hasInsertedAffiliate);
-  }
-
-  Future<void> setHasCreatedAffiliate(bool hasCreatedAffiliate) async {
-    final box = await Hive.openBox('user');
-    box.put('hasCreatedAffiliate', hasCreatedAffiliate);
-    state = state.copyWith(hasCreatedAffiliate: hasCreatedAffiliate);
-  }
-
   Future<void> setPaymentId(String paymentCode) async {
     final box = await Hive.openBox('user');
     box.put('paymentId', paymentCode);
     state = state.copyWith(paymentId: paymentCode);
   }
 
+  Future<void> setAffiliateCode(String affiliateCode) async {
+    final box = await Hive.openBox('user');
+    box.put('affiliateCode', affiliateCode);
+    state = state.copyWith(affiliateCode: affiliateCode);
+  }
+
   Future<void> setRecoveryCode(String recoveryCode) async {
     await _storage.write(key: 'recoveryCode', value: recoveryCode);
     state = state.copyWith(recoveryCode: recoveryCode);
   }
-
 }
 
 class User {
-  final bool hasInsertedAffiliate;
-  final bool hasCreatedAffiliate;
   final String recoveryCode;
   final String paymentId;
-  final String? createdAffiliateLiquidAddress;
-  final String? insertedAffiliateCode;
-  final String? createdAffiliateCode;
+  final String? affiliateCode;
 
   User({
-    this.hasInsertedAffiliate = false,
-    this.hasCreatedAffiliate = false,
     required this.recoveryCode,
     required this.paymentId,
-    this.createdAffiliateLiquidAddress = '',
-    this.insertedAffiliateCode = '',
-    this.createdAffiliateCode = '',
+    required this.affiliateCode,
   });
 
   User copyWith({
-    bool? hasInsertedAffiliate,
-    bool? hasCreatedAffiliate,
     String? recoveryCode,
     String? paymentId,
-    String? depixLiquidAddress,
+    String? affiliateCode,
   }) {
     return User(
-      hasInsertedAffiliate: hasInsertedAffiliate ?? this.hasInsertedAffiliate,
-      hasCreatedAffiliate: hasCreatedAffiliate ?? this.hasCreatedAffiliate,
       recoveryCode: recoveryCode ?? this.recoveryCode,
       paymentId: paymentId ?? this.paymentId,
+      affiliateCode: affiliateCode ?? this.affiliateCode,
     );
   }
 
@@ -76,18 +58,7 @@ class User {
     return User(
       recoveryCode: json['user']['authentication_token'],
       paymentId: json['user']['payment_id'],
-    );
-  }
-
-  factory User.fromShowUserJson(Map<String, dynamic> json) {
-    return User(
-      recoveryCode: json['user']['authentication_token'],
-      paymentId: json['user']['payment_id'],
-      createdAffiliateCode: json['created_affiliate']['code'] ?? '',
-      insertedAffiliateCode: json['inserted_affiliate']['code'] ?? '',
-      hasCreatedAffiliate: json['has_created_affiliate'] ?? false,
-      createdAffiliateLiquidAddress: json['created_affiliate']['liquid_address'] ?? '',
-      hasInsertedAffiliate: json['has_inserted_affiliate'] ?? false,
+      affiliateCode: json['inserted_affiliate']['code'] ?? '',
     );
   }
 }
@@ -129,7 +100,7 @@ class UserService {
       );
 
       if (response.statusCode == 200) {
-        return Result(data: User.fromShowUserJson(jsonDecode(response.body)));
+        return Result(data: User.fromJson(jsonDecode(response.body)));
       } else {
         return Result(error: 'Failed to show user');
       }
@@ -156,6 +127,33 @@ class UserService {
     } catch (e) {
       throw Exception(
           'An error has occurred. Please check your internet connection or contact support');
+    }
+  }
+
+  static Future<Result<bool>> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
+    try {
+      final response = await http.post(
+        Uri.parse(dotenv.env['BACKEND']! + '/users/add_affiliate'),
+        body: jsonEncode({
+          'user': {
+            'payment_id': paymentId,
+            'affiliate_code': affiliateCode,
+          }
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: true);
+      } else {
+        String errorMsg = jsonDecode(response.body)['error'] ?? 'Failed to add affiliate code';
+        return Result(error: errorMsg);
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please check your internet connection or contact support');
     }
   }
 }
