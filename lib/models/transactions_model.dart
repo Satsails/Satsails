@@ -174,57 +174,57 @@ class Transaction {
   }
 
   // here for when we implement joltz and we must store transactions for later usage
-  Future<String> encryptSideswapTransactions(AuthModel authModel) async {
-    final List<Map<String, dynamic>> sideswapPegData = sideswapPegTransactions.map((tx) {
-      return {
-        'orderId': tx.sideswapPegDetails.orderId,
-        'addr': tx.sideswapPegDetails.addr,
-        'addrRecv': tx.sideswapPegDetails.addrRecv,
-        'createdAt': tx.sideswapPegDetails.createdAt,
-        'expiresAt': tx.sideswapPegDetails.expiresAt,
-        'pegIn': tx.sideswapPegDetails.pegIn,
-        'list': tx.sideswapPegDetails.list?.map((item) {
-          return {
-            'amount': item.amount,
-            'createdAt': item.createdAt,
-            'detectedConfs': item.detectedConfs,
-            'payout': item.payout,
-            'payoutTxid': item.payoutTxid,
-            'status': item.status,
-            'totalConfs': item.totalConfs,
-            'txHash': item.txHash,
-            'txState': item.txState,
-            'txStateCode': item.txStateCode,
-            'vout': item.vout,
-          };
-        }).toList(),
-      };
-    }).toList();
-
-    final List<Map<String, dynamic>> sideswapInstantSwapData = sideswapInstantSwapTransactions.map((tx) {
-      return {
-        'txid': tx.sideswapInstantSwapDetails.txid,
-        'sendAsset': tx.sideswapInstantSwapDetails.sendAsset,
-        'sendAmount': tx.sideswapInstantSwapDetails.sendAmount,
-        'recvAsset': tx.sideswapInstantSwapDetails.recvAsset,
-        'recvAmount': tx.sideswapInstantSwapDetails.recvAmount,
-        'orderId': tx.sideswapInstantSwapDetails.orderId,
-        'timestamp': tx.sideswapInstantSwapDetails.timestamp,
-      };
-    }).toList();
-
-    final Map<String, dynamic> combinedData = {
-      'sideswapPegTransactions': sideswapPegData,
-      'sideswapInstantSwapTransactions': sideswapInstantSwapData,
-    };
-
-    final jsonString = jsonEncode(combinedData);
-    final encrypted = await authModel.encrypt(jsonString);
-    return encrypted;
-  }
-
-  Future<String> decryptSideswapTransactions(AuthModel authModel, String encrypted) async {
-    final decrypted = await authModel.decrypt(encrypted);
-    return decrypted;
-  }
+  // Future<String> encryptSideswapTransactions(AuthModel authModel) async {
+  //   final List<Map<String, dynamic>> sideswapPegData = sideswapPegTransactions.map((tx) {
+  //     return {
+  //       'orderId': tx.sideswapPegDetails.orderId,
+  //       'addr': tx.sideswapPegDetails.addr,
+  //       'addrRecv': tx.sideswapPegDetails.addrRecv,
+  //       'createdAt': tx.sideswapPegDetails.createdAt,
+  //       'expiresAt': tx.sideswapPegDetails.expiresAt,
+  //       'pegIn': tx.sideswapPegDetails.pegIn,
+  //       'list': tx.sideswapPegDetails.list?.map((item) {
+  //         return {
+  //           'amount': item.amount,
+  //           'createdAt': item.createdAt,
+  //           'detectedConfs': item.detectedConfs,
+  //           'payout': item.payout,
+  //           'payoutTxid': item.payoutTxid,
+  //           'status': item.status,
+  //           'totalConfs': item.totalConfs,
+  //           'txHash': item.txHash,
+  //           'txState': item.txState,
+  //           'txStateCode': item.txStateCode,
+  //           'vout': item.vout,
+  //         };
+  //       }).toList(),
+  //     };
+  //   }).toList();
+  //
+  //   final List<Map<String, dynamic>> sideswapInstantSwapData = sideswapInstantSwapTransactions.map((tx) {
+  //     return {
+  //       'txid': tx.sideswapInstantSwapDetails.txid,
+  //       'sendAsset': tx.sideswapInstantSwapDetails.sendAsset,
+  //       'sendAmount': tx.sideswapInstantSwapDetails.sendAmount,
+  //       'recvAsset': tx.sideswapInstantSwapDetails.recvAsset,
+  //       'recvAmount': tx.sideswapInstantSwapDetails.recvAmount,
+  //       'orderId': tx.sideswapInstantSwapDetails.orderId,
+  //       'timestamp': tx.sideswapInstantSwapDetails.timestamp,
+  //     };
+  //   }).toList();
+  //
+  //   final Map<String, dynamic> combinedData = {
+  //     'sideswapPegTransactions': sideswapPegData,
+  //     'sideswapInstantSwapTransactions': sideswapInstantSwapData,
+  //   };
+  //
+  //   final jsonString = jsonEncode(combinedData);
+  //   final encrypted = await authModel.encrypt(jsonString);
+  //   return encrypted;
+  // }
+  //
+  // Future<String> decryptSideswapTransactions(AuthModel authModel, String encrypted) async {
+  //   final decrypted = await authModel.decrypt(encrypted);
+  //   return decrypted;
+  // }
 }
