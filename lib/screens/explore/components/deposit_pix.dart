@@ -360,7 +360,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 20.w),
+                              padding: EdgeInsets.symmetric(horizontal: 8.w),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
