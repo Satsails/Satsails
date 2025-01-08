@@ -158,24 +158,4 @@ class UserService {
           'An error has occurred. Please check your internet connection or contact support');
     }
   }
-
-  static Future<Result<void>> deleteUser(String auth) async {
-    try {
-      final response = await http.delete(
-        Uri.parse(dotenv.env['BACKEND']! + '/users/delete_user'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: null);
-      } else {
-        return Result(error: 'Failed to delete user');
-      }
-    } catch (e) {
-      return Result(error: 'An error has occurred. Please check your internet connection or contact support');
-    }
-  }
 }
