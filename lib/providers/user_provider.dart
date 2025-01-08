@@ -8,6 +8,8 @@ const FlutterSecureStorage _storage = FlutterSecureStorage();
 
 final initializeUserProvider = FutureProvider<User>((ref) async {
   final box = await Hive.openBox('user');
+  final legacyBox = await Hive.openBox('affiliate');
+  final legacyAffiliateCode = legacyBox.get('insertedAffiliateCode', defaultValue: '');
   final paymentId = box.get('paymentId', defaultValue: '');
   final affiliateCode = box.get('affiliateCode', defaultValue: '');
 
@@ -16,7 +18,7 @@ final initializeUserProvider = FutureProvider<User>((ref) async {
   return User(
     recoveryCode: recoveryCode,
     paymentId: paymentId,
-    affiliateCode: affiliateCode,
+    affiliateCode: legacyAffiliateCode.isNotEmpty ? legacyAffiliateCode : affiliateCode,
   );
 });
 
