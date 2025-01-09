@@ -12,6 +12,7 @@ final initializeUserProvider = FutureProvider<User>((ref) async {
   final legacyAffiliateCode = legacyBox.get('insertedAffiliateCode', defaultValue: '');
   final paymentId = box.get('paymentId', defaultValue: '');
   final affiliateCode = box.get('affiliateCode', defaultValue: '');
+  final hasUploadedAffiliateCode = box.get('hasUploadedAffiliateCode', defaultValue: false);
 
   final recoveryCode = await _storage.read(key: 'recoveryCode') ?? '';
 
@@ -19,6 +20,7 @@ final initializeUserProvider = FutureProvider<User>((ref) async {
     recoveryCode: recoveryCode,
     paymentId: paymentId,
     affiliateCode: legacyAffiliateCode.isNotEmpty ? legacyAffiliateCode : affiliateCode,
+    hasUploadedAffiliateCode: hasUploadedAffiliateCode,
   );
 });
 
@@ -31,6 +33,7 @@ final userProvider = StateNotifierProvider<UserModel, User>((ref) {
       affiliateCode: '',
       recoveryCode: '',
       paymentId: '',
+      hasUploadedAffiliateCode: false,
     ),
     error: (Object error, StackTrace stackTrace) {
       throw error;
@@ -45,6 +48,7 @@ final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>
 
   if (result.isSuccess && result.data == true) {
     ref.read(userProvider.notifier).setAffiliateCode(affiliateCode);
+    ref.read(userProvider.notifier).setHasUploadedAffiliateCode(true);
   } else {
     throw result.error!;
   }

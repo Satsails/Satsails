@@ -231,6 +231,7 @@ class _ActionButton extends StatelessWidget {
 
 Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentId) async {
   final insertedAffiliateCode = ref.watch(userProvider).affiliateCode ?? '';
+  final hasUploadedAffiliateCode = ref.watch(userProvider).hasUploadedAffiliateCode;
   ref.read(isLoadingProvider.notifier).state = true;
 
   try {
@@ -248,7 +249,7 @@ Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentI
         );
       }
     } else {
-      if (insertedAffiliateCode.isNotEmpty) {
+      if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
         await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
     }

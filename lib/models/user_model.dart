@@ -29,28 +29,38 @@ class UserModel extends StateNotifier<User> {
     await _storage.write(key: 'recoveryCode', value: recoveryCode);
     state = state.copyWith(recoveryCode: recoveryCode);
   }
+
+  Future<void> setHasUploadedAffiliateCode(bool hasUploadedAffiliateCode) async {
+    final box = await Hive.openBox('user');
+    box.put('hasUploadedAffiliateCode', hasUploadedAffiliateCode);
+    state = state.copyWith(hasUploadedAffiliateCode: hasUploadedAffiliateCode);
+  }
 }
 
 class User {
   final String recoveryCode;
   final String paymentId;
   final String? affiliateCode;
+  final bool hasUploadedAffiliateCode;
 
   User({
     required this.recoveryCode,
     required this.paymentId,
     required this.affiliateCode,
+    required this.hasUploadedAffiliateCode,
   });
 
   User copyWith({
     String? recoveryCode,
     String? paymentId,
     String? affiliateCode,
+    bool? hasUploadedAffiliateCode,
   }) {
     return User(
       recoveryCode: recoveryCode ?? this.recoveryCode,
       paymentId: paymentId ?? this.paymentId,
       affiliateCode: affiliateCode ?? this.affiliateCode,
+      hasUploadedAffiliateCode: hasUploadedAffiliateCode ?? this.hasUploadedAffiliateCode,
     );
   }
 
@@ -59,6 +69,7 @@ class User {
       recoveryCode: json['user']['authentication_token'],
       paymentId: json['user']['payment_id'],
       affiliateCode: json['inserted_affiliate']['code'] ?? '',
+      hasUploadedAffiliateCode: false,
     );
   }
 }
