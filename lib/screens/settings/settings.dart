@@ -236,6 +236,8 @@ class Settings extends ConsumerWidget {
                             context: context,
                             top: true,
                           );
+                          // hammer fix
+                          ref.invalidate(initializeUserProvider);
                           context.pop();
                         } catch (e) {
                           showMessageSnackBar(
