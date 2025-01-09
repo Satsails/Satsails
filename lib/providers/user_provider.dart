@@ -65,6 +65,7 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
     final user = result.data!;
     await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
     await ref.read(userProvider.notifier).setRecoveryCode(user.recoveryCode);
+    await ref.read(userProvider.notifier).setAffiliateCode(user.affiliateCode ?? '');
   } else {
     await ref.read(setUserProvider.future);
   }
@@ -78,6 +79,7 @@ final setUserProvider = FutureProvider.autoDispose<void>((ref) async {
     final user = userResult.data!;
     await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
     await ref.read(userProvider.notifier).setRecoveryCode(user.recoveryCode);
+    await ref.read(userProvider.notifier).setAffiliateCode(user.affiliateCode ?? '');
     final affiliateCodeFromLink = ref.read(userProvider).affiliateCode ?? '';
     if (affiliateCodeFromLink.isNotEmpty && user.affiliateCode == null) {
       await ref.read(addAffiliateCodeProvider(affiliateCodeFromLink).future);
