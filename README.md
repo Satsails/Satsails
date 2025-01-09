@@ -11,13 +11,13 @@ Currently our Lightning is custodial and operated by Coinos. This was a decision
 
 ## Data Collection
 
-As part of our operations, we collect a **unique identifier** and register it on our server. This identifier is in no way related to your wallet. Additionally, we register a **public key**, which is used solely to direct your fiat payments and ensure that these payments are routed directly to your wallet.
+As part of our operations, we collect a **unique identifier** and register it on our server to allow for account creation and managment. Additionally, we register a **public key**, which is used solely to direct your fiat payments and ensure that these payments are routed directly to your wallet.
 
 This is the only data we ever collect on our systems.
 
 ### PIX Metadata
 
-When using PIX for payments, the metadata includes the **CPF** and the **name** of the person. This is collected by our partners. Currently, we also store this information on our servers due to the lack of a better solution. We are working on a solution to avoid storing this information.
+When using PIX for payments, the metadata includes the **CPF** and the **name** of the person. This is collected by our partners.
 
 ## Core Dependencies
 
