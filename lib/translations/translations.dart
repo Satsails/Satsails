@@ -2143,6 +2143,10 @@ extension Localization on String {
       {
         'en': 'Inserted Code:',
         'pt': 'Código Inserido:'
+      } +
+      {
+        'en': 'Pending payment',
+        'pt': 'Pending payment'
       };
 
 

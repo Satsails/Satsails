@@ -88,7 +88,7 @@ class _PixHistoryState extends ConsumerState<PixHistory> {
                             ? "Transaction failed".i18n(ref)
                             : pix.pixDetails.completedTransfer
                             ? "${"Received".i18n(ref)} ${pix.pixDetails.receivedAmount % 1 == 0 ? pix.pixDetails.receivedAmount.toInt() : pix.pixDetails.receivedAmount.toStringAsFixed(3)}"
-                            : "Transaction in progress".i18n(ref),
+                            : "Pending payment".i18n(ref),
                         style: TextStyle(
                           color: pix.pixDetails.failed
                               ? Colors.red
