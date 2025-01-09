@@ -160,7 +160,7 @@ class Settings extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (affiliateCode.isNotEmpty)
-            Text('Inserted Code: $affiliateCode', style: const TextStyle(color: Colors.grey))
+            Text('Inserted Code:'.i18n(ref) +' $affiliateCode', style: const TextStyle(color: Colors.grey))
           else
             GestureDetector(
               onTap: () => _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref),

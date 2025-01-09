@@ -101,7 +101,7 @@ class SideswapStartExchange {
         return SideswapPsetToSign.fromJson(responseData, orderId);
       } else {
         response.body.contains("UTXO amount") ? throw Exception('Balance insufficient.') :
-        throw 'Swap failed, please contact support';
+        throw 'Swap failed, please try again';
       }
   }
 
@@ -139,7 +139,7 @@ class SideswapStartExchange {
         timestamp: DateTime.now().millisecondsSinceEpoch,
       );
     } else {
-      throw 'Swap failed, please contact support';
+      throw 'Swap failed, please try again';
     }
   }
 }

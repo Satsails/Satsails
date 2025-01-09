@@ -1650,8 +1650,8 @@ extension Localization on String {
         'pt': 'Por favor, insira uma quantia'
       } +
       {
-        'en': "Swap failed, please contact support",
-        'pt': 'Troca falhou, por favor, contate o suporte'
+        'en': "Swap failed, please try again",
+        'pt': 'Troca falhou, por favor, tente novamente'
       } +
       {
         'en': 'Send with Liquid Balance',
@@ -1913,16 +1913,16 @@ extension Localization on String {
         'pt': 'Confirme seu PIN de 6 dígitos'
       } +
       {
-        'en': 'You can only do a max of 500 BRL until you complete 3 successful transactions',
-        'pt': 'Você só pode fazer um máximo de 500 até completar 3 transações bem-sucedidas'
+        'en': 'You can only do a max of 500 on your first transaction',
+        'pt': 'Você só pode fazer um máximo de 500 em sua primeira transação'
       } +
       {
-        'en': 'You can only do a max of 1000 BRL until you complete 3 successful transactions',
-        'pt': 'Você só pode fazer um máximo de 1000 até completar 3 transações bem-sucedidas'
+        'en': 'You can only do a max of 1000 on your second transaction',
+        'pt': 'Você só pode fazer um máximo de 1000 em sua segunda transação'
       } +
       {
-        'en': 'You can only do a max of 2000 BRL until you complete 3 successful transactions',
-        'pt': 'Você só pode fazer um máximo de 2000 até completar 3 transações bem-sucedidas'
+        'en': 'You can only do a max of 2000 on your third transaction',
+        'pt': 'Você só pode fazer um máximo de 2000 em sua terceira transação'
       } +
       {
         'en': 'Create Lightning Wallet',
@@ -2139,7 +2139,13 @@ extension Localization on String {
       {
         'en': 'Paid',
         'pt': 'Pago'
+      } +
+      {
+        'en': 'Inserted Code:',
+        'pt': 'Código Inserido:'
       };
+
+
 
 
   String i18n(WidgetRef ref) {
