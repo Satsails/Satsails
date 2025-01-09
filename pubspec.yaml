@@ -18,7 +18,6 @@ dependencies:
   http: ^1.2.1
   local_auth: ^2.1.8
   hive: ^2.2.3
-  encrypt: ^5.0.3
   delightful_toast: ^1.1.0
   msh_checkbox: ^2.0.1
   vibration: ^2.0.1
@@ -33,7 +32,6 @@ dependencies:
   flutter_riverpod: ^2.5.1
 #  Need windows linux and web compils
   bdk_flutter: ^0.31.2-dev.2
-  flutter_i18n: ^0.35.1
   bolt11_decoder:
     git:
       url: https://github.com/mateusfsilva/dart_bolt11_decoder.git
@@ -51,18 +49,15 @@ dependencies:
   action_slider: ^0.7.0
   flutter_card_swiper: ^7.0.0
   calendar_date_picker2: ^0.5.6
-  flutter_native_splash: ^2.4.0
   url_launcher: ^6.2.6
   i18n_extension: ^12.0.1
   path_provider: ^2.1.4
-  flutter_hooks: ^0.20.5
   decimal: ^3.0.2
   web_socket_channel: ^2.1.0
   permission_handler: ^9.0.1
   segmented_button_slide: ^1.0.4
   flutter_branch_sdk: ^8.2.0
   share_plus: ^10.0.0
-  introduction_screen: ^3.1.14
   flutter_svg: ^2.0.10+1
   intl: ^0.19.0
   coingecko_api: ^2.0.1
@@ -72,6 +67,7 @@ dependencies:
   flutter_local_notifications: ^17.2.3
   faker: ^2.2.0
   conduit_password_hash: ^5.1.3
+  flutter_keyboard_visibility: ^6.0.0
   bech32: ^0.2.2
   pusher_beams:
     git:
