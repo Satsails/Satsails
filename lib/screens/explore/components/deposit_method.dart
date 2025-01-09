@@ -77,7 +77,7 @@ class _DepositMethodOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         context.push('/home/explore/deposit_type/deposit_method/deposit_pix');
       },

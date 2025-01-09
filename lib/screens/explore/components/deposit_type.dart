@@ -80,7 +80,7 @@ class _DepositOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: isAvailable ? onTap : null,
       child: Container(
         decoration: BoxDecoration(

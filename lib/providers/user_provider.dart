@@ -1,5 +1,6 @@
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/models/user_model.dart';
+import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
@@ -57,7 +58,8 @@ final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>
 final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
   final auth = await AuthModel().getBackendPassword();
   ref.read(userProvider.notifier).setRecoveryCode(auth!);
-  final result = await UserService.createUserRequest(auth!);
+  final liquidAddress = await ref.read(liquidAddressProvider.future);
+  final result = await UserService.createUserRequest(auth!, liquidAddress.confidential, liquidAddress.index);
 
   // if has saved affiliate code passed from the link without an account created
   if (result.isSuccess && result.data != null) {
