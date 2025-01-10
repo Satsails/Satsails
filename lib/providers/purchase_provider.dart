@@ -1,4 +1,5 @@
 import 'package:Satsails/models/purchase_model.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -75,6 +76,9 @@ final getPixPaymentStateProvider = FutureProvider.autoDispose.family<bool, Strin
   final paymentState = await PurchaseService.getPurchasePixPaymentState(transactionId, auth);
 
   if (paymentState.isSuccess && paymentState.data != null) {
+    if (paymentState.data!) {
+      await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+    }
     return paymentState.data!;
   } else {
     throw paymentState.error!;

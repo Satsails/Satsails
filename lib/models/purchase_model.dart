@@ -145,8 +145,7 @@ class PurchaseService {
         List<Purchase> transfers = jsonResponse['transfer'].map((item) => Purchase.fromJson(item as Map<String, dynamic>)).toList().cast<Purchase>();
         return Result(data: transfers);
       } else {
-        return Result(
-            error: 'Failed to get user transactions: ${response.body}');
+        return Result(error: 'An error has occurred. Please try again later');
       }
     } catch (e) {
       return Result(
@@ -173,7 +172,7 @@ class PurchaseService {
       if (response.statusCode == 200) {
         return Result(data: jsonDecode(response.body));
       } else {
-        return Result(error: 'Failed to get amount transferred');
+        return Result(error: 'An error has occurred. Please try again later');
       }
     } catch (e) {
       return Result(
@@ -200,7 +199,7 @@ class PurchaseService {
       if (response.statusCode == 200) {
         return Result(data: jsonDecode(response.body));
       } else {
-        return Result(error: 'Failed to get amount transferred');
+        return Result(error: 'An error has occurred. Please try again later');
       }
     } catch (e) {
       return Result(

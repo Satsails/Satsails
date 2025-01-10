@@ -827,10 +827,6 @@ extension Localization on String {
         'pt': 'Você atingiu o limite diário'
       } +
       {
-        'en': 'An error has occurred. Please try again later',
-        'pt': 'Ocorreu um erro. Por favor, tente novamente mais tarde'
-      } +
-      {
         'en': 'You can transfer up to',
         'pt': 'Você pode transferir até '
       } +
@@ -1097,10 +1093,6 @@ extension Localization on String {
       {
         'en': 'Transaction still pending',
         'pt': 'Transação ainda pendente',
-      }+
-      {
-        'en': 'An error has occurred. Please try again later',
-        'pt': 'Ocorreu um erro. Por favor, verifique sua conexão com a internet ou contate o suporte',
       }+
       {
         'en': 'Transaction Details',
@@ -1375,7 +1367,7 @@ extension Localization on String {
       } +
       {
         'en': 'An error has occurred. Please try again later',
-        'pt': 'Ocorreu um erro. Verifique sua conexão com a internet ou entre em contato com o suporte',
+        'pt': 'Ocorreu um erro. Por favor, tente novamente mais tarde',
       } +
       {
         'en': 'Earnings Over Time',
