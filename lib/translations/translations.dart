@@ -2101,8 +2101,8 @@ extension Localization on String {
         'pt': 'Gerar Código QR'
       } +
       {
-        'en': 'You can only transfer R\$ 6000 per CPF per day.',
-        'pt': 'Você pode transferir apenas R\$ 6000 por CPF por dia.'
+        'en': 'You can only transfer R\$ 6000 per day.',
+        'pt': 'Você pode transferir apenas R\$ 6000 por dia.'
       } +
       {
         'en': 'If you send anymore than that, the amount will be refunded to your bank account.',
@@ -2140,9 +2140,6 @@ extension Localization on String {
         'en': 'Pending payment',
         'pt': 'Pending payment'
       };
-
-
-
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;

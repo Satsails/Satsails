@@ -95,15 +95,6 @@ class _DepositPixState extends ConsumerState<DepositPix> {
 
     final amount = _amountController.text;
 
-    // if (double.parse(amountPurchasedToday) + double.parse(amount) > 5000) {
-    //   showMessageSnackBar(
-    //     context: context,
-    //     message: 'You have reached the maximum amount you can transfer today.'.i18n(ref),
-    //     error: true,
-    //   );
-    //   return;
-    // }
-
     if (amount.isEmpty) {
       showMessageSnackBar(
         context: context,
@@ -376,29 +367,11 @@ class _DepositPixState extends ConsumerState<DepositPix> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'You can only transfer R\$ 6000 per CPF per day.'.i18n(ref),
+                                          'You can only transfer R\$ 6000 per day.'.i18n(ref),
                                           style: TextStyle(
-                                            fontSize: 18.sp,
+                                            fontSize: 16.sp,
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(height: 10.h),
-                                        Text(
-                                          'If you send anymore than that, the amount will be refunded to your bank account.'.i18n(ref),
-                                          style: TextStyle(
-                                            fontSize: 16.sp,
-                                            color: Colors.grey[400],
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        SizedBox(height: 10.h),
-                                        Text(
-                                          'Please note that refunds are not immediate and may take up to 3 business days to be processed.'.i18n(ref),
-                                          style: TextStyle(
-                                            fontSize: 16.sp,
-                                            color: Colors.grey[400],
-                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
                                       ],
