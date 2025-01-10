@@ -91,10 +91,10 @@ Future<void> main() async {
     if (data.containsKey("affiliateCode")) {
       final insertedAffiliateCode = data["affiliateCode"];
       final upperCaseCode = insertedAffiliateCode.toUpperCase();
-      final box = await Hive.openBox('affiliate');
-      final currentInsertedAffiliateCode = box.get('insertedAffiliateCode', defaultValue: '');
+      final box = await Hive.openBox('user');
+      final currentInsertedAffiliateCode = box.get('affiliateCode', defaultValue: '');
       if (insertedAffiliateCode != null && currentInsertedAffiliateCode.isEmpty) {
-        box.put('insertedAffiliateCode', upperCaseCode);
+        box.put('affiliateCode', upperCaseCode);
         showSimpleNotification(
           Text('Affiliate code $upperCaseCode inserted!'.i18n),
           background: Colors.green,

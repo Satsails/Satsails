@@ -3,14 +3,13 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:share_plus/share_plus.dart';
 
 Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [double fontSize = 16.0]) {
-  final height = MediaQuery.of(context).size.height;
-  final width = MediaQuery.of(context).size.width;
 
   return Padding(
-    padding: EdgeInsets.all(width * 0.02),
+    padding: EdgeInsets.all(8.w),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -24,7 +23,7 @@ Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [do
             border: Border.all(color: Colors.grey.withOpacity(0.5), width: 1.0),
           ),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: width * 0.02),
+            padding:EdgeInsets.symmetric(horizontal: 8.w),
             child: Center(
               child: Text(
                 address,
@@ -37,9 +36,9 @@ Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [do
             ),
           ),
         ),
-        SizedBox(height: height * 0.02),
+        SizedBox(height: 8.h),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: width * 0.02),
+          padding:EdgeInsets.symmetric(horizontal: 8.w),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -52,7 +51,7 @@ Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [do
                   'Share'.i18n(ref),
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
-                    fontSize: 16.0,
+                    fontSize: 16.sp,
                   ),
                 ),
               ),
@@ -70,7 +69,7 @@ Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [do
                   'Copy'.i18n(ref),
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
-                    fontSize: width * 0.04,
+                    fontSize: 16.sp,
                   ),
                 ),
               ),

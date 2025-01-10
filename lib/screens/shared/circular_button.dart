@@ -51,7 +51,7 @@ Widget buildActionButtons(BuildContext context, WidgetRef ref) {
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
       buildCircularButton(context, Icons.add, 'Add Money'.i18n(ref), () {
-        context.push('/home/charge');
+        context.push('/home/explore');
       }, Colors.black),
       buildCircularButton(context, Icons.compare_arrows, 'Swaps'.i18n(ref), () {
         context.push('/home/exchange');

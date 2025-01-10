@@ -1,4 +1,3 @@
-import 'dart:async'; // Import Timer
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/purchase_model.dart';
 import 'package:Satsails/providers/purchase_provider.dart';
@@ -17,43 +16,15 @@ class PixTransactionDetails extends ConsumerStatefulWidget {
 }
 
 class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
-  Timer? _timer;
-  Duration _expirationTime = const Duration(minutes: 4);
 
   @override
   void initState() {
     super.initState();
-    final transaction = ref.read(singlePurchaseDetailsProvider);
-    _initializeExpirationTime(transaction.createdAt);
-    _startCountdown();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
     super.dispose();
-  }
-
-  void _initializeExpirationTime(DateTime createdAt) {
-    final timeSinceCreation = DateTime.now().difference(createdAt);
-    setState(() {
-      _expirationTime = const Duration(minutes: 4) - timeSinceCreation;
-      if (_expirationTime.isNegative) {
-        _expirationTime = Duration.zero;
-      }
-    });
-  }
-
-  void _startCountdown() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_expirationTime.inSeconds > 0) {
-        setState(() {
-          _expirationTime -= const Duration(seconds: 1);
-        });
-      } else {
-        timer.cancel();
-      }
-    });
   }
 
 
@@ -62,9 +33,6 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     final transaction = ref.watch(singlePurchaseDetailsProvider);
     const double dynamicMargin = 16.0;
     const double dynamicRadius = 12.0;
-
-    // Check if the frontend has marked this transaction as "expired"
-    final isFrontendExpired = _expirationTime.inSeconds <= 0 && !transaction.completedTransfer && !transaction.sentToHotWallet;
 
     return Scaffold(
       appBar: AppBar(
@@ -98,7 +66,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: _buildTransactionHeader(ref, transaction, isFrontendExpired),
+                child: _buildTransactionHeader(ref, transaction),
               ),
               const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),
@@ -126,45 +94,35 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     );
   }
 
-  Widget _buildTransactionHeader(WidgetRef ref, Purchase transaction, bool isFrontendExpired) {
+  Widget _buildTransactionHeader(WidgetRef ref, Purchase transaction) {
     return Column(
       children: [
         Icon(
-          isFrontendExpired
+          transaction.failed
               ? Icons.error_rounded
-              : transaction.completedTransfer || transaction.sentToHotWallet
+              : transaction.completedTransfer 
               ? Icons.check_circle_rounded
               : Icons.access_time_rounded,
-          color: isFrontendExpired
+          color: transaction.failed
               ? Colors.red
-              : transaction.completedTransfer || transaction.sentToHotWallet
+              : transaction.completedTransfer 
               ? Colors.green
               : Colors.orange,
           size: 40,
         ),
         const SizedBox(height: 8.0),
-        if (!transaction.completedTransfer && !transaction.sentToHotWallet && _expirationTime.inSeconds > 0)
-          Text(
-            'Time left:'.i18n(ref) +
-                ' ${_expirationTime.inMinutes}:${(_expirationTime.inSeconds % 60).toString().padLeft(2, '0')}',
-            style: const TextStyle(color: Colors.orange, fontSize: 16),
-          ),
         Text(
-          isFrontendExpired
+          transaction.failed
               ? "Transaction failed".i18n(ref)
-              : transaction.sentToHotWallet
-              ? "Processing transfer".i18n(ref)
-              : transaction.processingStatus && !transaction.sentToHotWallet
-              ? "Waiting payment".i18n(ref)
               : currencyFormat(transaction.receivedAmount, 'BRL', decimalPlaces: 2),
           style: TextStyle(
-            color: isFrontendExpired ? Colors.red : Colors.green,
+            color: transaction.failed ? Colors.red : Colors.green,
             fontSize: MediaQuery.of(context).size.width * 0.045,
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 8.0),
-        if (transaction.completedTransfer || transaction.sentToHotWallet)
+        if (transaction.completedTransfer )
           GestureDetector(
             onTap: () {
               Clipboard.setData(ClipboardData(text: transaction.transferId));
@@ -200,24 +158,9 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           label: "Status".i18n(ref),
           value: transaction.failed
               ? "Transaction failed".i18n(ref)
-              : transaction.completedTransfer || transaction.sentToHotWallet
+              : transaction.completedTransfer 
               ? "Completed".i18n(ref)
               : "Pending".i18n(ref),
-        ),
-        const SizedBox(height: 16.0),
-        GestureDetector(
-          onTap: () {
-            Clipboard.setData(ClipboardData(text: transaction.sentTxid ?? "N/A"));
-            showMessageSnackBar(
-              message: 'Txid copied'.i18n(ref),
-              context: context,
-              error: false,
-            );
-          },
-          child: TransactionDetailRow(
-            label: "Txid",
-            value: transaction.sentTxid ?? "N/A",
-          ),
         ),
         const SizedBox(height: 16.0),
       ],
@@ -232,7 +175,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           value: currencyFormat(transaction.originalAmount, 'BRL', decimalPlaces: 2),
         ),
         const SizedBox(height: 16.0),
-        if (transaction.completedTransfer || transaction.sentToHotWallet)
+        if (transaction.completedTransfer )
           TransactionDetailRow(
             label: "Total fees".i18n(ref),
             value: currencyFormat((transaction.originalAmount - transaction.receivedAmount), 'BRL', decimalPlaces: 2),
@@ -264,7 +207,7 @@ class TransactionDetailRow extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.right,
-              overflow: TextOverflow.ellipsis, // This will handle long text by truncating it
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),

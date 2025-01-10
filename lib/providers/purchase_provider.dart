@@ -1,4 +1,6 @@
 import 'package:Satsails/models/purchase_model.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -57,9 +59,10 @@ final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) asyn
   }
 });
 
-final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase, PurchaseParams>((ref, params) async {
+final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase, int>((ref, amount) async {
   final auth = ref.read(userProvider).recoveryCode;
-  final result = await PurchaseService.createPurchaseRequest(auth, params);
+  final liquidAddress = await ref.read(liquidAddressProvider.future);
+  final result = await PurchaseService.createPurchaseRequest(auth, amount, liquidAddress.confidential);
   await ref.refresh(getUserPurchasesProvider.future);
   if (result.isSuccess && result.data != null) {
     return result.data!;
@@ -68,13 +71,16 @@ final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase
   }
 });
 
-final getMinimumPurchaseProvider = FutureProvider.autoDispose<String>((ref) async {
+final getPixPaymentStateProvider = FutureProvider.autoDispose.family<bool, String>((ref, transactionId) async {
   final auth = ref.read(userProvider).recoveryCode;
-  final result = await PurchaseService.getMinimumPurchase(auth);
-  if (result.isSuccess && result.data != null) {
-    return result.data!;
+  final paymentState = await PurchaseService.getPurchasePixPaymentState(transactionId, auth);
+
+  if (paymentState.isSuccess && paymentState.data != null) {
+    if (paymentState.data!) {
+      await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+    }
+    return paymentState.data!;
   } else {
-    throw result.error!;
+    throw paymentState.error!;
   }
 });
-

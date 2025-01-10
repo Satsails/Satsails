@@ -13,28 +13,16 @@ const FlutterSecureStorage _storage = FlutterSecureStorage();
 
 class UserModel extends StateNotifier<User> {
   UserModel(super.state);
-  Future<void> setHasInsertedAffiliate(bool hasInsertedAffiliate) async {
-    final box = await Hive.openBox('user');
-    box.put('hasInsertedAffiliate', hasInsertedAffiliate);
-    state = state.copyWith(hasInsertedAffiliate: hasInsertedAffiliate);
-  }
-
-  Future<void> setHasCreatedAffiliate(bool hasCreatedAffiliate) async {
-    final box = await Hive.openBox('user');
-    box.put('hasCreatedAffiliate', hasCreatedAffiliate);
-    state = state.copyWith(hasCreatedAffiliate: hasCreatedAffiliate);
-  }
-
   Future<void> setPaymentId(String paymentCode) async {
     final box = await Hive.openBox('user');
     box.put('paymentId', paymentCode);
     state = state.copyWith(paymentId: paymentCode);
   }
 
-  Future<void> serOnboarded(bool onboardingStatus) async {
+  Future<void> setAffiliateCode(String affiliateCode) async {
     final box = await Hive.openBox('user');
-    box.put('onboarding', onboardingStatus);
-    state = state.copyWith(onboarded: onboardingStatus);
+    box.put('affiliateCode', affiliateCode);
+    state = state.copyWith(affiliateCode: affiliateCode);
   }
 
   Future<void> setRecoveryCode(String recoveryCode) async {
@@ -42,51 +30,37 @@ class UserModel extends StateNotifier<User> {
     state = state.copyWith(recoveryCode: recoveryCode);
   }
 
-  Future<void> setDepixLiquidAddress(String liquidAddress) async {
+  Future<void> setHasUploadedAffiliateCode(bool hasUploadedAffiliateCode) async {
     final box = await Hive.openBox('user');
-    box.put('depixLiquidAddress', liquidAddress);
-    state = state.copyWith(depixLiquidAddress: liquidAddress);
+    box.put('hasUploadedAffiliateCode', hasUploadedAffiliateCode);
+    state = state.copyWith(hasUploadedAffiliateCode: hasUploadedAffiliateCode);
   }
 }
 
 class User {
-  final bool hasInsertedAffiliate;
-  final bool hasCreatedAffiliate;
   final String recoveryCode;
-  final String depixLiquidAddress;
   final String paymentId;
-  final bool? onboarded;
-  final String? createdAffiliateLiquidAddress;
-  final String? insertedAffiliateCode;
-  final String? createdAffiliateCode;
+  final String? affiliateCode;
+  final bool hasUploadedAffiliateCode;
 
   User({
-    this.hasInsertedAffiliate = false,
-    this.hasCreatedAffiliate = false,
     required this.recoveryCode,
-    required this.depixLiquidAddress,
     required this.paymentId,
-    this.onboarded,
-    this.createdAffiliateLiquidAddress = '',
-    this.insertedAffiliateCode = '',
-    this.createdAffiliateCode = '',
+    required this.affiliateCode,
+    required this.hasUploadedAffiliateCode,
   });
 
   User copyWith({
-    bool? hasInsertedAffiliate,
-    bool? hasCreatedAffiliate,
     String? recoveryCode,
     String? paymentId,
-    bool? onboarded,
-    String? depixLiquidAddress,
+    String? affiliateCode,
+    bool? hasUploadedAffiliateCode,
   }) {
     return User(
-      hasInsertedAffiliate: hasInsertedAffiliate ?? this.hasInsertedAffiliate,
-      hasCreatedAffiliate: hasCreatedAffiliate ?? this.hasCreatedAffiliate,
       recoveryCode: recoveryCode ?? this.recoveryCode,
       paymentId: paymentId ?? this.paymentId,
-      depixLiquidAddress: depixLiquidAddress ?? this.depixLiquidAddress,
-      onboarded: onboarded ?? this.onboarded,
+      affiliateCode: affiliateCode ?? this.affiliateCode,
+      hasUploadedAffiliateCode: hasUploadedAffiliateCode ?? this.hasUploadedAffiliateCode,
     );
   }
 
@@ -94,34 +68,22 @@ class User {
     return User(
       recoveryCode: json['user']['authentication_token'],
       paymentId: json['user']['payment_id'],
-      depixLiquidAddress: json['user']['liquid_address'],
-    );
-  }
-
-  factory User.fromShowUserJson(Map<String, dynamic> json) {
-    return User(
-      recoveryCode: json['user']['authentication_token'],
-      paymentId: json['user']['payment_id'],
-      depixLiquidAddress: json['user']['liquid_address'],
-      createdAffiliateCode: json['created_affiliate']['code'] ?? '',
-      insertedAffiliateCode: json['inserted_affiliate']['code'] ?? '',
-      hasCreatedAffiliate: json['has_created_affiliate'] ?? false,
-      createdAffiliateLiquidAddress: json['created_affiliate']['liquid_address'] ?? '',
-      hasInsertedAffiliate: json['has_inserted_affiliate'] ?? false,
+      affiliateCode: json['inserted_affiliate']['code'] ?? '',
+      hasUploadedAffiliateCode: false,
     );
   }
 }
 
 class UserService {
-  static Future<Result<User>> createUserRequest(String liquidAddress, int liquidAddressIndex, String auth) async {
+  static Future<Result<User>> createUserRequest(String auth, String liquidAddress, int liquidIndex) async {
     try {
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users'),
         body: jsonEncode({
           'user': {
-            'liquid_address': liquidAddress,
-            'liquid_address_index': liquidAddressIndex,
             'authentication_token': auth,
+            'liquid_address': liquidAddress,
+            'liquid_address_index': liquidIndex,
           }
         }),
         headers: {
@@ -136,58 +98,9 @@ class UserService {
       }
     } catch (e) {
       return Result(
-          error: 'An error has occurred. Please check your internet connection or contact support');
+          error: 'An error has occurred. Please try again later');
     }
   }
-
-  static Future<Result<String>> updateLiquidAddress(String liquidAddress, String auth, int liquidAddressIndex) async {
-    try {
-      final response = await http.patch(
-        Uri.parse(
-            dotenv.env['BACKEND']! + '/users/update_liquid_address'),
-        body: jsonEncode({
-          'user': {
-            'liquid_address': liquidAddress,
-            'liquid_address_index': liquidAddressIndex,
-          }
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: 'OK');
-      } else {
-        return Result(error: 'Failed to update liquid address');
-      }
-    } catch (e) {
-      return Result(
-          error: 'An error has occurred. Please check your internet connection or contact support');
-    }
-  }
-
- static Future<Result<Map<String, dynamic>>> getLiquidAddressIndex(String auth) async {
-    try {
-      final response = await http.get(
-        Uri.parse(dotenv.env['BACKEND']! + '/users/get_liquid_address'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: jsonDecode(response.body));
-      } else {
-        return Result(error: 'An error has occurred. Please check your internet connection or contact support');
-      }
-    } catch (e) {
-      return Result(error: 'An error has occurred. Please check your internet connection or contact support');
-    }
-  }
-
 
   static Future<Result<User>> showUser(String auth) async {
     try {
@@ -200,13 +113,13 @@ class UserService {
       );
 
       if (response.statusCode == 200) {
-        return Result(data: User.fromShowUserJson(jsonDecode(response.body)));
+        return Result(data: User.fromJson(jsonDecode(response.body)));
       } else {
         return Result(error: 'Failed to show user');
       }
     } catch (e) {
       return Result(
-          error: 'An error has occurred. Please check your internet connection or contact support');
+          error: 'An error has occurred. Please try again later');
     }
   }
 
@@ -226,14 +139,20 @@ class UserService {
       return response;
     } catch (e) {
       throw Exception(
-          'An error has occurred. Please check your internet connection or contact support');
+          'An error has occurred. Please try again later');
     }
   }
 
-  static Future<Result<void>> deleteUser(String auth) async {
+  static Future<Result<bool>> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
     try {
-      final response = await http.delete(
-        Uri.parse(dotenv.env['BACKEND']! + '/users/delete_user'),
+      final response = await http.post(
+        Uri.parse(dotenv.env['BACKEND']! + '/users/add_affiliate'),
+        body: jsonEncode({
+          'user': {
+            'payment_id': paymentId,
+            'affiliate_code': affiliateCode,
+          }
+        }),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
@@ -241,12 +160,13 @@ class UserService {
       );
 
       if (response.statusCode == 200) {
-        return Result(data: null);
+        return Result(data: true);
       } else {
-        return Result(error: 'Failed to delete user');
+        String errorMsg = jsonDecode(response.body)['error'] ?? 'Failed to add affiliate code';
+        return Result(error: errorMsg);
       }
     } catch (e) {
-      return Result(error: 'An error has occurred. Please check your internet connection or contact support');
+      return Result(error: 'An error has occurred. Please try again later');
     }
   }
 }

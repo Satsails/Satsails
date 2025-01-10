@@ -1,4 +1,3 @@
-import 'package:Satsails/providers/affiliate_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
@@ -43,8 +42,6 @@ class Settings extends ConsumerWidget {
             _buildElectrumNodeSection(context, ref),
             _buildDivider(),
             _buildAffiliateSection(context, ref),
-            _buildDivider(),
-            _buildCreatedAffiliateSection(context, ref),
             _buildDivider(),
             DeleteWalletSection(ref: ref),
           ],
@@ -149,7 +146,7 @@ class Settings extends ConsumerWidget {
   }
 
   Widget _buildAffiliateSection(BuildContext context, WidgetRef ref) {
-    final affiliateCode = ref.watch(affiliateProvider).insertedAffiliateCode;
+    final affiliateCode = ref.watch(userProvider).affiliateCode ?? '';
     final hasNotCreatedUser = ref.watch(userProvider).recoveryCode.isEmpty;
 
     if (hasNotCreatedUser) {
@@ -163,7 +160,7 @@ class Settings extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (affiliateCode.isNotEmpty)
-            Text('Inserted Code: $affiliateCode', style: const TextStyle(color: Colors.grey))
+            Text('Inserted Code:'.i18n(ref) +' $affiliateCode', style: const TextStyle(color: Colors.grey))
           else
             GestureDetector(
               onTap: () => _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref),
@@ -233,19 +230,21 @@ class Settings extends ConsumerWidget {
                       if (affiliateCode.isNotEmpty) {
                         try {
                           await ref.read(addAffiliateCodeProvider(affiliateCode).future);
-                          showTopOverlayMessage(
+                          showMessageSnackBar(
                             message: 'Affiliate code inserted successfully'.i18n(ref),
                             error: false,
                             context: context,
+                            top: true,
                           );
                           // hammer fix
-                          ref.invalidate(initializeAffiliateProvider);
+                          ref.invalidate(initializeUserProvider);
                           context.pop();
                         } catch (e) {
-                          showTopOverlayMessage(
+                          showMessageSnackBar(
                             message: 'Error inserting affiliate code'.i18n(ref),
                             error: true,
                             context: context,
+                            top: true,
                           );
                         }
                       }
@@ -257,22 +256,6 @@ class Settings extends ConsumerWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildCreatedAffiliateSection(BuildContext context, WidgetRef ref) {
-    final hasCreatedAffiliate = ref.watch(userProvider).hasCreatedAffiliate;
-    final createdAffiliateCode = ref.watch(affiliateProvider).createdAffiliateCode;
-    final hasNotCreatedUser = ref.watch(userProvider).recoveryCode.isEmpty;
-
-    if (!hasCreatedAffiliate || hasNotCreatedUser) {
-      return SizedBox.shrink();
-    }
-
-    return ListTile(
-      leading: const Icon(Icons.monetization_on, color: Colors.white),
-      title: Text('Your affiliate code'.i18n(ref), style: const TextStyle(color: Colors.white)),
-      subtitle: Text('Created Code:'.i18n(ref) + ' $createdAffiliateCode', style: const TextStyle(color: Colors.grey)),
     );
   }
 

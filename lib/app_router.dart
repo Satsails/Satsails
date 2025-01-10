@@ -1,15 +1,17 @@
 import 'package:Satsails/models/transactions_model.dart';
+import 'package:Satsails/screens/explore/components/deposit_method.dart';
+import 'package:Satsails/screens/explore/components/deposit_pix.dart';
+import 'package:Satsails/screens/explore/components/deposit_type.dart';
+import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/creation/confirm_pin.dart';
 import 'package:Satsails/screens/login/seed_words_pin.dart';
 import 'package:Satsails/screens/pay/components/confirm_custodial_lightning_payment.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
 import 'package:go_router/go_router.dart';
-import 'package:Satsails/screens/charge/components/pix_onboarding.dart';
-import 'package:Satsails/screens/charge/components/pix_transaction_details.dart';
+import 'package:Satsails/screens/analytics/components/pix_transaction_details.dart';
 import 'package:Satsails/screens/home/main_screen.dart';
 import 'package:Satsails/screens/settings/components/support.dart';
-import 'package:Satsails/screens/user/user_creation.dart';
 import 'package:Satsails/screens/creation/start.dart';
 import 'package:Satsails/screens/pay/components/confirm_liquid_payment.dart';
 import 'package:Satsails/screens/settings/components/seed_words.dart';
@@ -20,13 +22,11 @@ import 'package:Satsails/screens/creation/set_pin.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/login/open_pin.dart';
 import 'package:Satsails/screens/services/services.dart';
-import 'package:Satsails/screens/charge/charge.dart';
 import 'package:Satsails/screens/pay/pay.dart';
 import 'package:Satsails/screens/creation/recover_wallet.dart';
 import 'package:Satsails/screens/pay/components/confirm_bitcoin_payment.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/screens/home/components/search_modal.dart';
-import 'package:Satsails/screens/charge/components/pix.dart';
 import 'package:Satsails/screens/settings/components/backup_wallet.dart';
 
 class AppRouter {
@@ -119,16 +119,35 @@ class AppRouter {
               ],
             ),
             GoRoute(
-              path: '/pix',
-              builder: (context, state) => Pix(),
+              path: '/deposit_type',
+              builder: (context, state) => DepositType(),
+              routes: [],
             ),
             GoRoute(
               path: '/receive',
               builder: (context, state) => Receive(),
             ),
             GoRoute(
-              path: '/charge',
-              builder: (context, state) => const Charge(),
+              path: '/explore',
+              builder: (context, state) => const Explore(),
+              routes: [
+                GoRoute(
+                  path: '/deposit_type',
+                  builder: (context, state) => DepositType(),
+                  routes: [
+                    GoRoute(
+                      path: '/deposit_method',
+                      builder: (context, state) => DepositMethod(),
+                      routes: [
+                        GoRoute(
+                          path: '/deposit_pix',
+                          builder: (context, state) => DepositPix(),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
             GoRoute(
               path: '/exchange',
@@ -155,21 +174,10 @@ class AppRouter {
           name: 'backup_wallet',
           builder: (context, state) => const BackupWallet(),
         ),
-
-        GoRoute(
-          path: '/pix_onboarding',
-          name: 'pix_onboarding',
-          builder: (context, state) => const PixOnBoarding(),
-        ),
         GoRoute(
           path: '/pix_transaction_details',
           name: 'pix_transaction_details',
           builder: (context, state) => const PixTransactionDetails(),
-        ),
-        GoRoute(
-          path: '/user_creation',
-          name: 'user_creation',
-          builder: (context, state) => const UserCreation(),
         ),
         GoRoute(
           path: '/support',

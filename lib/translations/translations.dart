@@ -827,10 +827,6 @@ extension Localization on String {
         'pt': 'Você atingiu o limite diário'
       } +
       {
-        'en': 'An error has occurred. Please check your internet connection or contact support',
-        'pt': 'Ocorreu um erro. Por favor, verifique sua conexão com a internet ou contate o suporte'
-      } +
-      {
         'en': 'You can transfer up to',
         'pt': 'Você pode transferir até '
       } +
@@ -1097,10 +1093,6 @@ extension Localization on String {
       {
         'en': 'Transaction still pending',
         'pt': 'Transação ainda pendente',
-      }+
-      {
-        'en': 'An error has occurred. Please check your internet connection or contact support',
-        'pt': 'Ocorreu um erro. Por favor, verifique sua conexão com a internet ou contate o suporte',
       }+
       {
         'en': 'Transaction Details',
@@ -1374,8 +1366,8 @@ extension Localization on String {
         'pt': 'Código de afiliado criado com sucesso',
       } +
       {
-        'en': 'An error has occurred. Please check your internet connection or contact support',
-        'pt': 'Ocorreu um erro. Verifique sua conexão com a internet ou entre em contato com o suporte',
+        'en': 'An error has occurred. Please try again later',
+        'pt': 'Ocorreu um erro. Por favor, tente novamente mais tarde',
       } +
       {
         'en': 'Earnings Over Time',
@@ -1650,8 +1642,8 @@ extension Localization on String {
         'pt': 'Por favor, insira uma quantia'
       } +
       {
-        'en': "Swap failed, please contact support",
-        'pt': 'Troca falhou, por favor, contate o suporte'
+        'en': "Swap failed, please try again",
+        'pt': 'Troca falhou, por favor, tente novamente'
       } +
       {
         'en': 'Send with Liquid Balance',
@@ -1913,16 +1905,16 @@ extension Localization on String {
         'pt': 'Confirme seu PIN de 6 dígitos'
       } +
       {
-        'en': 'Your CPF is new on our systems and you can only do a max of 500 BRL until you complete 3 successful transactions',
-        'pt': 'Seu CPF é novo em nossos sistemas e você só pode fazer um máximo de 500 até completar 3 transações bem-sucedidas'
+        'en': 'You can only do a max of 500 on your first transaction',
+        'pt': 'Você só pode fazer um máximo de 500 em sua primeira transação'
       } +
       {
-        'en': 'Your CPF is new on our systems and you can only do a max of 1000 BRL until you complete 3 successful transactions',
-        'pt': 'Seu CPF é novo em nossos sistemas e você só pode fazer um máximo de 1000 até completar 3 transações bem-sucedidas'
+        'en': 'You can only do a max of 1000 on your second transaction',
+        'pt': 'Você só pode fazer um máximo de 1000 em sua segunda transação'
       } +
       {
-        'en': 'Your CPF is new on our systems and you can only do a max of 2000 BRL until you complete 3 successful transactions',
-        'pt': 'Seu CPF é novo e você só pode fazer um máximo de 2000 até completar 3 transações bem-sucedidas'
+        'en': 'You can only do a max of 2000 on your third transaction',
+        'pt': 'Você só pode fazer um máximo de 2000 em sua terceira transação'
       } +
       {
         'en': 'Create Lightning Wallet',
@@ -2059,8 +2051,95 @@ extension Localization on String {
       {
         'en': 'Transaction fees',
         'pt': 'Taxas de transação'
+      } +
+      {
+        'en': 'Coming soon',
+        'pt': 'Em breve'
+      } +
+      {
+        'en': 'Transfer in minutes',
+        'pt': 'Transferencia em minutos'
+      } +
+      {
+        'en': 'Deposit Type',
+        'pt': 'Tipo de Depósito'
+      } +
+      {
+        'en': 'Buy',
+        'pt': 'Comprar'
+      } +
+      {
+        'en': 'Sell',
+        'pt': 'Vender'
+      } +
+      {
+        'en': 'Credit Card',
+        'pt': 'Cartão de Crédito'
+      } +
+      {
+        'en': 'Bank Transfer',
+        'pt': 'Transferência Bancária'
+      } +
+      {
+        'en': 'Deposit',
+        'pt': 'Depósito'
+      } +
+      {
+        'en': 'Amount to Receive',
+        'pt': 'Montante a Receber'
+      } +
+      {
+        'en': 'Service Fee',
+        'pt': 'Taxa de Serviço'
+      } +
+      {
+        'en': 'Awaiting Payment',
+        'pt': 'Aguardando Pagamento'
+      } +
+      {
+        'en': 'Generate QR Code',
+        'pt': 'Gerar Código QR'
+      } +
+      {
+        'en': 'You can only transfer R\$ 6000 per day.',
+        'pt': 'Você pode transferir apenas R\$ 6000 por dia.'
+      } +
+      {
+        'en': 'If you send anymore than that, the amount will be refunded to your bank account.',
+        'pt': 'Se você enviar mais do que isso, o valor será devolvido para a sua conta bancária.'
+      } +
+      {
+        'en': 'Please note that refunds are not immediate and may take up to 3 business days to be processed.',
+        'pt': 'Note que os reembolsos não são imediatos e podem levar até 3 dias úteis para serem processados.'
+      } +
+      {
+        'en': 'Store',
+        'pt': 'Loja'
+      } +
+      {
+        'en': 'Insert amount',
+        'pt': 'Insira uma quantia'
+      } +
+      {
+        'en': 'Amount Purchased Today',
+        'pt': 'Quantia Comprada Hoje'
+      } +
+      {
+        'en': 'Payment Status',
+        'pt': 'Status do Pagamento'
+      } +
+      {
+        'en': 'Paid',
+        'pt': 'Pago'
+      } +
+      {
+        'en': 'Inserted Code:',
+        'pt': 'Código Inserido:'
+      } +
+      {
+        'en': 'Pending payment',
+        'pt': 'Pending payment'
       };
-
 
   String i18n(WidgetRef ref) {
     var currentLanguage = ref.read(settingsProvider).language;

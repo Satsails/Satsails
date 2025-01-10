@@ -4,7 +4,7 @@ import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/analytics/components/coinos_swaps.dart';
-import 'package:Satsails/screens/charge/components/pix_history.dart';
+import 'package:Satsails/screens/analytics/components/pix_history.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
