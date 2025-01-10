@@ -123,7 +123,7 @@ class PurchaseService {
         return Result(error: response.body);
       }
     } catch (e) {
-      return Result(error: 'An error has occurred. Please check your internet connection or contact support');
+      return Result(error: 'An error has occurred. Please try again later');
     }
   }
 
@@ -150,7 +150,7 @@ class PurchaseService {
       }
     } catch (e) {
       return Result(
-          error: 'An error has occurred. Please check your internet connection or contact support');
+          error: 'An error has occurred. Please try again later');
     }
   }
 
@@ -177,7 +177,7 @@ class PurchaseService {
       }
     } catch (e) {
       return Result(
-          error: 'An error has occurred. Please check your internet connection or contact support');
+          error: 'An error has occurred. Please try again later');
     }
   }
 
@@ -204,7 +204,7 @@ class PurchaseService {
       }
     } catch (e) {
       return Result(
-          error: 'An error has occurred. Please check your internet connection or contact support');
+          error: 'An error has occurred. Please try again later');
     }
   }
 }

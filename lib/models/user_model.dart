@@ -98,7 +98,7 @@ class UserService {
       }
     } catch (e) {
       return Result(
-          error: 'An error has occurred. Please check your internet connection or contact support');
+          error: 'An error has occurred. Please try again later');
     }
   }
 
@@ -119,7 +119,7 @@ class UserService {
       }
     } catch (e) {
       return Result(
-          error: 'An error has occurred. Please check your internet connection or contact support');
+          error: 'An error has occurred. Please try again later');
     }
   }
 
@@ -139,7 +139,7 @@ class UserService {
       return response;
     } catch (e) {
       throw Exception(
-          'An error has occurred. Please check your internet connection or contact support');
+          'An error has occurred. Please try again later');
     }
   }
 
@@ -166,7 +166,7 @@ class UserService {
         return Result(error: errorMsg);
       }
     } catch (e) {
-      return Result(error: 'An error has occurred. Please check your internet connection or contact support');
+      return Result(error: 'An error has occurred. Please try again later');
     }
   }
 }

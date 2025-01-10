@@ -827,8 +827,8 @@ extension Localization on String {
         'pt': 'Você atingiu o limite diário'
       } +
       {
-        'en': 'An error has occurred. Please check your internet connection or contact support',
-        'pt': 'Ocorreu um erro. Por favor, verifique sua conexão com a internet ou contate o suporte'
+        'en': 'An error has occurred. Please try again later',
+        'pt': 'Ocorreu um erro. Por favor, tente novamente mais tarde'
       } +
       {
         'en': 'You can transfer up to',
@@ -1099,7 +1099,7 @@ extension Localization on String {
         'pt': 'Transação ainda pendente',
       }+
       {
-        'en': 'An error has occurred. Please check your internet connection or contact support',
+        'en': 'An error has occurred. Please try again later',
         'pt': 'Ocorreu um erro. Por favor, verifique sua conexão com a internet ou contate o suporte',
       }+
       {
@@ -1374,7 +1374,7 @@ extension Localization on String {
         'pt': 'Código de afiliado criado com sucesso',
       } +
       {
-        'en': 'An error has occurred. Please check your internet connection or contact support',
+        'en': 'An error has occurred. Please try again later',
         'pt': 'Ocorreu um erro. Verifique sua conexão com a internet ou entre em contato com o suporte',
       } +
       {
