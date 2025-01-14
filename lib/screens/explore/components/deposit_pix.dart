@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/purchase_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -10,12 +9,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
-import 'package:pusher_beams/pusher_beams.dart';
 
 class DepositPix extends ConsumerStatefulWidget {
   const DepositPix({Key? key}) : super(key: key);
@@ -89,10 +86,6 @@ class _DepositPixState extends ConsumerState<DepositPix> {
   }
 
   Future<void> _generateQRCode() async {
-    final userID = ref.read(userProvider).paymentId;
-    final auth = ref.read(userProvider).recoveryCode;
-    await PusherBeams.instance.setUserId(userID,UserService.getPusherAuth(auth, userID), (error) {},);
-
     final amount = _amountController.text;
 
     if (amount.isEmpty) {
