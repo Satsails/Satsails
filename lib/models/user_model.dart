@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
-import 'package:pusher_beams/pusher_beams.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 const FlutterSecureStorage _storage = FlutterSecureStorage();
@@ -120,26 +119,6 @@ class UserService {
     } catch (e) {
       return Result(
           error: 'An error has occurred. Please try again later');
-    }
-  }
-
-  static BeamsAuthProvider getPusherAuth(String auth, String userId) {
-    try {
-      final BeamsAuthProvider response = BeamsAuthProvider()
-        ..authUrl = dotenv.env['BACKEND']! + '/users/get_pusher_auth'
-        ..headers = {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        }
-        ..queryParams = {
-          'user_id': userId
-        }
-        ..credentials = 'omit';
-
-      return response;
-    } catch (e) {
-      throw Exception(
-          'An error has occurred. Please try again later');
     }
   }
 

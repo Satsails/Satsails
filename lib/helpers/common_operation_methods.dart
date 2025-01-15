@@ -5,7 +5,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lwk_dart/lwk_dart.dart' as lwk;
+import 'package:lwk/lwk.dart' as lwk;
 
 String confirmationStatus(bdk.TransactionDetails transaction, WidgetRef ref) {
   if (transaction.confirmationTime == null || transaction.confirmationTime!.height == 0) {

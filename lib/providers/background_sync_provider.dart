@@ -12,7 +12,7 @@ import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:hive/hive.dart';
-import 'package:lwk_dart/lwk_dart.dart';
+import 'package:lwk/lwk.dart';
 
 final syncOnAppOpenProvider = StateProvider<bool>((ref) => false);
 

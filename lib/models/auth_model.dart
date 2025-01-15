@@ -9,7 +9,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pusher_beams/pusher_beams.dart';
 import 'dart:math';
 import 'package:convert/convert.dart';
 
@@ -211,7 +210,6 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('addresses');
     await Hive.deleteBoxFromDisk('coinosPayments');
     await SecureKeyManager.deleteKey();
-    await PusherBeams.instance.clearAllState();
     final appDocDir = await getApplicationDocumentsDirectory();
     final bitcoinDBPath = '${appDocDir.path}/bdk_wallet.sqlite';
     final dbFile = File(bitcoinDBPath);

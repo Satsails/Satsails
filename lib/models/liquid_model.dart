@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:lwk_dart/lwk_dart.dart';
+import 'package:lwk/lwk.dart';
 import 'package:Satsails/models/liquid_config_model.dart';
 import 'dart:convert';
 import 'package:http/http.dart';

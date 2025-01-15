@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:Satsails/services/lnurl_parser/dart_lnurl_parser.dart';
 import 'package:Satsails/services/lnurl_parser/src/lnurl.dart';
 import 'package:decimal/decimal.dart';
-import 'package:lwk_dart/lwk_dart.dart' as lwk;
+import 'package:lwk/lwk.dart' as lwk;
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/address_model.dart';

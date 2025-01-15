@@ -12,7 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:pusher_beams/pusher_beams.dart';
 
 final isLoadingProvider = StateProvider<bool>((ref) => false);
 
@@ -267,10 +266,6 @@ Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentI
           sound: true,
         );
       }
-      // make sure this works
-      final userID = ref.read(userProvider).paymentId;
-      final auth = ref.read(userProvider).recoveryCode;
-      await PusherBeams.instance.setUserId(userID,UserService.getPusherAuth(auth, userID), (error) {},);
     } else {
       if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
         await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);

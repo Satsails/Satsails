@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:lwk_dart/lwk_dart.dart';
+import 'package:lwk/lwk.dart';
 
 part 'sideswap_exchange_model.g.dart';
 

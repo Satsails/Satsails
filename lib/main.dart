@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
@@ -18,7 +17,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:i18n_extension/default.i18n.dart';
-import 'package:lwk_dart/lwk_dart.dart';
+import 'package:lwk/lwk.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +25,6 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:pusher_beams/pusher_beams.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import './app_router.dart';
@@ -41,39 +39,6 @@ Future<void> main() async {
   ]);
 
   await dotenv.load(fileName: ".env");
-
-  await PusherBeams.instance.start(dotenv.env['PUSHERINSTANCE']!);
-  PusherBeams.instance.onMessageReceivedInTheForeground((message) async {
-    if (Platform.isAndroid || Platform.isIOS) {
-      const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        'pix_payments_channel',
-        'PIX Payments',
-        channelDescription: 'Notifications for received PIX transactions.',
-        importance: Importance.max,
-        priority: Priority.high,
-        showWhen: false,
-      );
-      const DarwinNotificationDetails iOSPlatformChannelSpecifics = DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-        subtitle: 'PIX Payments',
-      );
-      const NotificationDetails platformChannelSpecifics = NotificationDetails(
-        android: androidPlatformChannelSpecifics,
-        iOS: iOSPlatformChannelSpecifics,
-      );
-
-      await flutterLocalNotificationsPlugin.show(
-        0,
-        'Depósito de Depix',
-        'Você recebeu um novo depósito de Depix.',
-        platformChannelSpecifics,
-      );
-      final container = ProviderContainer();
-      container.read(syncOnAppOpenProvider.notifier).state = true;
-    }
-  });
 
   // Initialize Hive for local storage
   final directory = await getApplicationDocumentsDirectory();
