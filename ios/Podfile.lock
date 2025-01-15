@@ -1,20 +1,18 @@
 PODS:
-  - bdk_flutter (0.31.2-dev.2):
+  - bdk_flutter (0.31.2):
     - Flutter
-  - BranchSDK (3.6.5)
-  - Crisp (2.5.5):
-    - Crisp/Crisp (= 2.5.5)
-  - Crisp/Crisp (2.5.5)
-  - crisp_chat (2.0.4):
-    - Crisp
+  - BranchSDK (3.7.0)
+  - Crisp (2.8.1):
+    - Crisp/Crisp (= 2.8.1)
+  - Crisp/Crisp (2.8.1)
+  - crisp_chat (2.2.3):
+    - Crisp (~> 2.8.1)
     - Flutter
   - device_info_plus (0.0.1):
     - Flutter
   - Flutter (1.0.0)
-  - flutter_branch_sdk (8.2.0):
-    - BranchSDK (~> 3.6.0)
-    - Flutter
-  - flutter_keyboard_done (0.0.1):
+  - flutter_branch_sdk (8.3.1):
+    - BranchSDK (~> 3.7.0)
     - Flutter
   - flutter_keyboard_visibility (0.0.1):
     - Flutter
@@ -22,23 +20,64 @@ PODS:
     - Flutter
   - flutter_secure_storage (6.0.0):
     - Flutter
+  - GoogleDataTransport (10.1.0):
+    - nanopb (~> 3.30910.0)
+    - PromisesObjC (~> 2.4)
+  - GoogleMLKit/BarcodeScanning (7.0.0):
+    - GoogleMLKit/MLKitCore
+    - MLKitBarcodeScanning (~> 6.0.0)
+  - GoogleMLKit/MLKitCore (7.0.0):
+    - MLKitCommon (~> 12.0.0)
+  - GoogleToolboxForMac/Defines (4.2.1)
+  - GoogleToolboxForMac/Logger (4.2.1):
+    - GoogleToolboxForMac/Defines (= 4.2.1)
+  - "GoogleToolboxForMac/NSData+zlib (4.2.1)":
+    - GoogleToolboxForMac/Defines (= 4.2.1)
+  - GoogleUtilities/Environment (8.0.2):
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/Logger (8.0.2):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/Privacy (8.0.2)
+  - GoogleUtilities/UserDefaults (8.0.2):
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Privacy
+  - GTMSessionFetcher/Core (3.5.0)
   - local_auth_darwin (0.0.1):
     - Flutter
     - FlutterMacOS
-  - lwk_dart (0.1.5)
-  - MTBBarcodeScanner (5.0.11)
+  - lwk (0.1.5)
+  - MLImage (1.0.0-beta6)
+  - MLKitBarcodeScanning (6.0.0):
+    - MLKitCommon (~> 12.0)
+    - MLKitVision (~> 8.0)
+  - MLKitCommon (12.0.0):
+    - GoogleDataTransport (~> 10.0)
+    - GoogleToolboxForMac/Logger (< 5.0, >= 4.2.1)
+    - "GoogleToolboxForMac/NSData+zlib (< 5.0, >= 4.2.1)"
+    - GoogleUtilities/Logger (~> 8.0)
+    - GoogleUtilities/UserDefaults (~> 8.0)
+    - GTMSessionFetcher/Core (< 4.0, >= 3.3.2)
+  - MLKitVision (8.0.0):
+    - GoogleToolboxForMac/Logger (< 5.0, >= 4.2.1)
+    - "GoogleToolboxForMac/NSData+zlib (< 5.0, >= 4.2.1)"
+    - GTMSessionFetcher/Core (< 4.0, >= 3.3.2)
+    - MLImage (= 1.0.0-beta6)
+    - MLKitCommon (~> 12.0)
+  - mobile_scanner (6.0.2):
+    - Flutter
+    - GoogleMLKit/BarcodeScanning (~> 7.0.0)
+  - nanopb (3.30910.0):
+    - nanopb/decode (= 3.30910.0)
+    - nanopb/encode (= 3.30910.0)
+  - nanopb/decode (3.30910.0)
+  - nanopb/encode (3.30910.0)
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - permission_handler_apple (9.1.1):
+  - permission_handler_apple (9.3.0):
     - Flutter
-  - pusher_beams_ios (0.0.1):
-    - Flutter
-    - PushNotifications (~> 4.0)
-  - PushNotifications (4.0.0)
-  - qr_code_scanner (0.2.0):
-    - Flutter
-    - MTBBarcodeScanner
+  - PromisesObjC (2.4.0)
   - share_plus (0.0.1):
     - Flutter
   - url_launcher_ios (0.0.1):
@@ -47,6 +86,7 @@ PODS:
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
+    - FlutterMacOS
 
 DEPENDENCIES:
   - bdk_flutter (from `.symlinks/plugins/bdk_flutter/ios`)
@@ -54,27 +94,34 @@ DEPENDENCIES:
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
   - flutter_branch_sdk (from `.symlinks/plugins/flutter_branch_sdk/ios`)
-  - flutter_keyboard_done (from `.symlinks/plugins/flutter_keyboard_done/ios`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
-  - lwk_dart (from `.symlinks/plugins/lwk_dart/ios`)
+  - lwk (from `.symlinks/plugins/lwk/ios`)
+  - mobile_scanner (from `.symlinks/plugins/mobile_scanner/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
-  - pusher_beams_ios (from `.symlinks/plugins/pusher_beams_ios/ios`)
-  - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - vibration (from `.symlinks/plugins/vibration/ios`)
-  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
   trunk:
     - BranchSDK
     - Crisp
-    - MTBBarcodeScanner
-    - PushNotifications
+    - GoogleDataTransport
+    - GoogleMLKit
+    - GoogleToolboxForMac
+    - GoogleUtilities
+    - GTMSessionFetcher
+    - MLImage
+    - MLKitBarcodeScanning
+    - MLKitCommon
+    - MLKitVision
+    - nanopb
+    - PromisesObjC
 
 EXTERNAL SOURCES:
   bdk_flutter:
@@ -87,8 +134,6 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_branch_sdk:
     :path: ".symlinks/plugins/flutter_branch_sdk/ios"
-  flutter_keyboard_done:
-    :path: ".symlinks/plugins/flutter_keyboard_done/ios"
   flutter_keyboard_visibility:
     :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
   flutter_local_notifications:
@@ -97,16 +142,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   local_auth_darwin:
     :path: ".symlinks/plugins/local_auth_darwin/darwin"
-  lwk_dart:
-    :path: ".symlinks/plugins/lwk_dart/ios"
+  lwk:
+    :path: ".symlinks/plugins/lwk/ios"
+  mobile_scanner:
+    :path: ".symlinks/plugins/mobile_scanner/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
-  pusher_beams_ios:
-    :path: ".symlinks/plugins/pusher_beams_ios/ios"
-  qr_code_scanner:
-    :path: ".symlinks/plugins/qr_code_scanner/ios"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   url_launcher_ios:
@@ -114,33 +157,40 @@ EXTERNAL SOURCES:
   vibration:
     :path: ".symlinks/plugins/vibration/ios"
   webview_flutter_wkwebview:
-    :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
-  bdk_flutter: af166bdb3f24fa9bac1de94772973f76302cb1c1
-  BranchSDK: ef7d89062afb08b20f65d5b1633b215ee77ab77f
-  Crisp: dcf7d9e64be6614ceee71c5582f616212ed4a881
-  crisp_chat: e0b3294cfd6cabd60673cad0ed9ba9e6b9d53714
+  bdk_flutter: fb57a7400a7f3f181c5977bcdc2a5ef347ae4e7f
+  BranchSDK: 1f63030d369197f4f33cb496a3c06ce997b5ec2f
+  Crisp: 0ff88141775c806ed3c8683595e1c10b06beb5d2
+  crisp_chat: 0d82d8a11d2119ec4ba173611c7c15885b05332d
   device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_branch_sdk: b3763b3d53a7cfbc87c51136bed66fcdc282bdf5
-  flutter_keyboard_done: 8f25c02565f57c19eb31d11cfb9323afc33e4c9e
+  flutter_branch_sdk: 9ffbfdd3d76638ac87ba007f6520135e30276e5f
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
   flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
+  GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
+  GoogleMLKit: eff9e23ec1d90ea4157a1ee2e32a4f610c5b3318
+  GoogleToolboxForMac: d1a2cbf009c453f4d6ded37c105e2f67a32206d8
+  GoogleUtilities: 26a3abef001b6533cf678d3eb38fd3f614b7872d
+  GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   local_auth_darwin: 66e40372f1c29f383a314c738c7446e2f7fdadc3
-  lwk_dart: 898084320a2ce8ea206010c0dc3e3eead1b2c881
-  MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
+  lwk: 22e06bc5664247d6b2dac91cfe209b63b70dd580
+  MLImage: 0ad1c5f50edd027672d8b26b0fee78a8b4a0fc56
+  MLKitBarcodeScanning: 0a3064da0a7f49ac24ceb3cb46a5bc67496facd2
+  MLKitCommon: 07c2c33ae5640e5380beaaa6e4b9c249a205542d
+  MLKitVision: 45e79d68845a2de77e2dd4d7f07947f0ed157b0e
+  mobile_scanner: fd0054c52ede661e80bf5a4dea477a2467356bee
+  nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
-  pusher_beams_ios: 3991e6c6186aa392e2c82687f727ffd5075ea268
-  PushNotifications: 2b2174b28bf48b1fe552686d1f95c53d62a4781d
-  qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
+  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
+  PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   vibration: 7d883d141656a1c1a6d8d238616b2042a51a1241
-  webview_flutter_wkwebview: be0f0d33777f1bfd0c9fdcb594786704dbf65f36
+  webview_flutter_wkwebview: 0982481e3d9c78fd5c6f62a002fcd24fc791f1e4
 
-PODFILE CHECKSUM: 60f516549d119c02f52ec7389c1af3c708e72b8f
+PODFILE CHECKSUM: 2aa96ada07e93c9e9b63a420d0411a8ed7efce0f
 
 COCOAPODS: 1.14.3
