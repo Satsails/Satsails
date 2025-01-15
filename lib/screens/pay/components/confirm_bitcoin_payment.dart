@@ -292,8 +292,8 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                   final transaction = await ref
                                       .watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future)
                                       .then((value) => value);
-                                  final fee = await transaction.$1.feeAmount().then((value) => value);
-                                  final amountToSet = (balance - fee!);
+                                  final fee = (transaction.$1.feeAmount() ?? BigInt.zero).toInt();
+                                  final amountToSet = (balance - fee);
                                   final selectedCurrency = ref.watch(inputCurrencyProvider);
                                   final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(
                                       amountToSet, selectedCurrency, ref.watch(currencyNotifierProvider));

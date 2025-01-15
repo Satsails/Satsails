@@ -335,7 +335,7 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
             ),
             subtitle: Text(
                 timestampToDateTime(
-                    transaction.btcDetails.confirmationTime?.timestamp)
+                    transaction.btcDetails.confirmationTime?.timestamp.toInt())
                     .i18n(ref),
                 style: TextStyle(
                     fontSize: dynamicFontSize, color: Colors.grey)),

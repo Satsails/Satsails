@@ -84,7 +84,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
               const SizedBox(height: 16.0),
               TransactionDetailRow(
                 label: "Date".i18n(ref),
-                value: _formatTimestamp(transaction.btcDetails.confirmationTime?.timestamp).i18n(ref)
+                value: _formatTimestamp(transaction.btcDetails.confirmationTime?.timestamp.toInt()).i18n(ref)
               ),
               TransactionDetailRow(
                 label: "Status".i18n(ref),
@@ -102,16 +102,16 @@ class TransactionDetailsScreen extends ConsumerWidget {
               const SizedBox(height: 16.0),
               TransactionDetailRow(
                 label: "Received".i18n(ref),
-                value: "${btcInDenominationFormatted(transaction.btcDetails.received, denomination)} $denomination",
+                value: "${btcInDenominationFormatted(transaction.btcDetails.received.toInt(), denomination)} $denomination",
               ),
               TransactionDetailRow(
                 label: "Sent".i18n(ref),
-                value: "${btcInDenominationFormatted(transaction.btcDetails.sent, denomination)} $denomination",
+                value: "${btcInDenominationFormatted(transaction.btcDetails.sent.toInt(), denomination)} $denomination",
               ),
               if (transaction.btcDetails.fee != null)
                 TransactionDetailRow(
                   label: "Fee".i18n(ref),
-                  value: "${btcInDenominationFormatted(transaction.btcDetails.fee!, denomination)} $denomination",
+                  value: "${btcInDenominationFormatted(transaction.btcDetails.fee!.toInt(), denomination)} $denomination",
                 ),
               const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),

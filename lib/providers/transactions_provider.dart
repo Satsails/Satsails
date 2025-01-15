@@ -15,7 +15,7 @@ FutureProvider.autoDispose<Transaction>((ref) async {
   final bitcoinTransactions = bitcoinTxs.map((btcTx) {
     return BitcoinTransaction(
       id: btcTx.txid,
-      timestamp: btcTx.confirmationTime != null &&btcTx.confirmationTime!.timestamp != 0 ? DateTime.fromMillisecondsSinceEpoch(btcTx.confirmationTime!.timestamp * 1000) : DateTime.now(),
+      timestamp: btcTx.confirmationTime != null &&btcTx.confirmationTime!.timestamp != 0 ? DateTime.fromMillisecondsSinceEpoch(btcTx.confirmationTime!.timestamp.toInt() * 1000) : DateTime.now(),
       btcDetails: btcTx,
       isConfirmed: btcTx.confirmationTime != null && btcTx.confirmationTime!.timestamp != 0,
     );

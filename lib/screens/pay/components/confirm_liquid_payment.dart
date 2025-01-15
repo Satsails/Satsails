@@ -275,7 +275,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                                 try {
                                   if (assetId == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
                                     final pset = await ref.watch(liquidDrainWalletProvider.future);
-                                    final sendingBalance = pset.balances[0].value + pset.absoluteFees;
+                                    final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
                                     final controllerValue = sendingBalance.abs();
                                     final selectedCurrency = ref.watch(inputCurrencyProvider);
                                     final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(

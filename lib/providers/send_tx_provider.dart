@@ -68,7 +68,7 @@ final feeProvider = FutureProvider.autoDispose<int>((ref) async {
   final FeeCalculationParams params = ref.watch(feeParamsProvider);
   final transactionBuilder = await ref.read(bitcoinTransactionBuilderProvider(params.amount).future).then((value) => value);
   final transaction =  await ref.read(bitcoinProvider.buildBitcoinTransactionProvider(transactionBuilder).future).then((value) => value);
-  return await transaction.$1.feeAmount().then((value) => value!);
+  return (transaction.$1.feeAmount() ?? BigInt.zero).toInt();
 });
 
 final bitcoinTransactionBuilderProvider =  FutureProvider.autoDispose.family<bitcoinModel.TransactionBuilder, int>((ref, amount) async {
@@ -86,15 +86,15 @@ if (asset == AssetMapper.reverseMapTicker(AssetId.LBTC)) {
   if (drain) {
     final transaction = await ref.read(liquidProvider.buildDrainLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
     final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
-    return decodedPset.absoluteFees;
+    return decodedPset.absoluteFees.toInt();
   }
   final transaction = await ref.read(liquidProvider.buildLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
   final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
-  return decodedPset.absoluteFees;
+  return decodedPset.absoluteFees.toInt();
 } else {
   final transaction = await ref.read(liquidProvider.buildLiquidAssetTransactionProvider(transactionBuilder).future).then((value) => value);
   final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
-  return decodedPset.absoluteFees;
+  return decodedPset.absoluteFees.toInt();
 }
 });
 
@@ -116,7 +116,7 @@ final liquidAssetFeeProvider = FutureProvider.autoDispose<int>((ref) async {
   final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(params.amount).future).then((value) => value);
   final transaction = await ref.read(liquidProvider.buildLiquidAssetTransactionProvider(transactionBuilder).future).then((value) => value);
   final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
-  return decodedPset.absoluteFees;
+  return decodedPset.absoluteFees.toInt();
 });
 
 final liquidTransactionBuilderProvider =  FutureProvider.autoDispose.family<liquidModel.TransactionBuilder, int>((ref, amount) async {

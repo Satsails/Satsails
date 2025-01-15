@@ -50,7 +50,7 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
   @override
   Future<int> build() async {
     final balance = await ref.read(getBitcoinBalanceProvider.future);
-    return balance.total;
+    return balance.total.toInt();
   }
 
   @override
@@ -67,9 +67,9 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
         // Retrieve the Bitcoin balance
         final balance = await ref.read(getBitcoinBalanceProvider.future);
 
-        ref.read(balanceNotifierProvider.notifier).updateBtcBalance(balance.total);
+        ref.read(balanceNotifierProvider.notifier).updateBtcBalance(balance.total.toInt());
 
-        return balance.total;
+        return balance.total.toInt();
       },
       onSuccess: () {
         // Optional: Actions on successful sync

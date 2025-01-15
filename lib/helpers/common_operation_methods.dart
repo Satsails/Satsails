@@ -18,15 +18,15 @@ String confirmationStatus(bdk.TransactionDetails transaction, WidgetRef ref) {
 }
 
 String transactionTypeString(bdk.TransactionDetails transaction, WidgetRef ref) {
-  if (transaction.sent - transaction.received > 0) {
-    return 'Sent'.i18n(ref);
+  if (transaction.sent.toInt() - transaction.received.toInt() > 0) {
+    return 'sent.toInt()'.i18n(ref);
   } else {
-    return 'Received'.i18n(ref);
+    return 'received.toInt()'.i18n(ref);
   }
 }
 
 Icon transactionTypeIcon(bdk.TransactionDetails transaction) {
-  if (transaction.sent - transaction.received > 0) {
+  if (transaction.sent.toInt() - transaction.received.toInt() > 0) {
     return const Icon(Icons.arrow_upward, color: Colors.red);
   } else {
     return const Icon(Icons.arrow_downward, color: Colors.green);
@@ -34,13 +34,13 @@ Icon transactionTypeIcon(bdk.TransactionDetails transaction) {
 }
 
 String transactionAmountInFiat(bdk.TransactionDetails transaction, WidgetRef ref) {
-  final sent = ref.watch(conversionToFiatProvider(transaction.sent));
-  final received = ref.watch(conversionToFiatProvider(transaction.received));
+  final sent = ref.watch(conversionToFiatProvider(transaction.sent.toInt()));
+  final received = ref.watch(conversionToFiatProvider(transaction.received.toInt()));
   final currency = ref.watch(settingsProvider).currency;
 
-  if (transaction.received == 0 && transaction.sent > 0) {
+  if (transaction.received.toInt() == 0 && transaction.sent.toInt() > 0) {
     return '${(double.parse(sent) / 100000000).toStringAsFixed(2)} $currency';
-  } else if (transaction.received > 0 && transaction.sent == 0) {
+  } else if (transaction.received.toInt() > 0 && transaction.sent.toInt() == 0) {
     return '${(double.parse(received) / 100000000).toStringAsFixed(2)} $currency';
   } else {
     double total = (double.parse(received) - double.parse(sent)).abs() / 100000000;
@@ -49,12 +49,12 @@ String transactionAmountInFiat(bdk.TransactionDetails transaction, WidgetRef ref
 }
 
 String transactionAmount(bdk.TransactionDetails transaction, WidgetRef ref) {
-  if (transaction.received == 0 && transaction.sent > 0) {
-    return ref.watch(conversionProvider(transaction.sent));
-  } else if (transaction.received > 0 && transaction.sent == 0) {
-    return ref.watch(conversionProvider(transaction.received));
+  if (transaction.received.toInt() == 0 && transaction.sent.toInt() > 0) {
+    return ref.watch(conversionProvider(transaction.sent.toInt()));
+  } else if (transaction.received.toInt() > 0 && transaction.sent.toInt() == 0) {
+    return ref.watch(conversionProvider(transaction.received.toInt()));
   } else {
-    int total = (transaction.received - transaction.sent).abs();
+    int total = (transaction.received.toInt() - transaction.sent.toInt()).abs();
     return ref.watch(conversionProvider(total));
   }
 }
@@ -88,9 +88,9 @@ Icon confirmationStatusIcon(lwk.Tx transaction) {
 String liquidTransactionType(lwk.Tx transaction, WidgetRef ref) {
   switch (transaction.kind) {
     case 'incoming':
-      return 'Received'.i18n(ref);
+      return 'received.toInt()'.i18n(ref);
     case 'outgoing':
-      return 'Sent'.i18n(ref);
+      return 'sent.toInt()'.i18n(ref);
     case 'burn':
       return 'Burn'.i18n(ref);
     case 'redeposit':
@@ -122,7 +122,7 @@ void setTransactionSearchProvider(lwk.Tx transaction, WidgetRef ref) {
     final output = outputs.unblinded;
     ref.read(transactionSearchProvider).amountBlinder = output.valueBf;
     ref.read(transactionSearchProvider).assetBlinder = output.assetBf;
-    ref.read(transactionSearchProvider).amount = output.value;
+    ref.read(transactionSearchProvider).amount = output.value.toInt();
     ref.read(transactionSearchProvider).assetId = output.asset;
     ref.read(transactionSearchProvider).unblindedUrl = transaction.unblindedUrl;
   } else {
@@ -130,7 +130,7 @@ void setTransactionSearchProvider(lwk.Tx transaction, WidgetRef ref) {
     final input = inputs.unblinded;
     ref.read(transactionSearchProvider).amountBlinder = input.valueBf;
     ref.read(transactionSearchProvider).assetBlinder = input.assetBf;
-    ref.read(transactionSearchProvider).amount = input.value;
+    ref.read(transactionSearchProvider).amount = input.value.toInt();
     ref.read(transactionSearchProvider).assetId = input.asset;
     ref.read(transactionSearchProvider).unblindedUrl = transaction.unblindedUrl;
   }

@@ -95,7 +95,7 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
               }).toList(),
               TransactionDetailRow(
                 label: "Fee".i18n(ref),
-                value: "${btcInDenominationFormatted(transaction.lwkDetails.fee, denomination)} $denomination",
+                value: "${btcInDenominationFormatted(transaction.lwkDetails.fee.toInt(), denomination)} $denomination",
               ),
               const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),

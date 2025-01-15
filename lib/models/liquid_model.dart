@@ -25,7 +25,7 @@ class LiquidModel {
   }
 
   Future<bool> sync() async {
-    await config.liquid.wallet.sync(electrumUrl: config.electrumUrl);
+    await config.liquid.wallet.sync(electrumUrl: config.electrumUrl, validateDomain: false);
     return true;
   }
 
@@ -47,7 +47,7 @@ class LiquidModel {
   Future<String> buildLbtcTx(TransactionBuilder params) async {
     try {
       final pset = await config.liquid.wallet.buildLbtcTx(
-        sats: params.amount,
+        sats: BigInt.from(params.amount),
         outAddress: params.outAddress,
         feeRate: config.electrumUrl == 'blockstream.info:995' ? params.fee * 1000 : params.fee * 100,
         drain: false,
@@ -64,7 +64,7 @@ class LiquidModel {
   Future<String> buildDrainWalletTx(TransactionBuilder params) async {
     try {
       final pset = await config.liquid.wallet.buildLbtcTx(
-        sats: params.amount,
+        sats: BigInt.from(params.amount),
         outAddress: params.outAddress,
         feeRate: config.electrumUrl == 'blockstream.info:995' ? params.fee * 1000 : params.fee * 100,
         drain: true,
@@ -82,7 +82,7 @@ class LiquidModel {
   Future<String> buildAssetTx(TransactionBuilder params) async {
     try {
       final pset = await config.liquid.wallet.buildAssetTx(
-        sats: params.amount,
+        sats: BigInt.from(params.amount),
         outAddress: params.outAddress,
         feeRate: config.electrumUrl == 'blockstream.info:995' ? params.fee * 1000 : params.fee * 100,
         asset: params.assetId,

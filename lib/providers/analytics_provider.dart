@@ -62,9 +62,9 @@ final bitcoinFeeSpentPerDayProvider = StateProvider.autoDispose<Map<DateTime, nu
   }
 
   for (BitcoinTransaction transaction in transactions) {
-    if (transaction.btcDetails.sent > 0) {
+    if (transaction.btcDetails.sent.toInt() > 0) {
       final DateTime date = normalizeDate(transaction.timestamp);
-      valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + (transaction.btcDetails.fee ?? 0);
+      valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + ((transaction.btcDetails.fee?.toInt() ?? 0));
     }
   }
 
@@ -91,7 +91,7 @@ final bitcoinIncomePerDayProvider = StateProvider.autoDispose<Map<DateTime, num>
 
   for (BitcoinTransaction transaction in transactions) {
     final DateTime date = normalizeDate(transaction.timestamp);
-    valueIncomePerDay[date] = (valueIncomePerDay[date] ?? 0) + transaction.btcDetails.received;
+    valueIncomePerDay[date] = (valueIncomePerDay[date] ?? 0) + transaction.btcDetails.received.toInt();
   }
 
   num cumulativeIncome = 0;
@@ -116,7 +116,7 @@ final bitcoinSpentPerDayProvider = StateProvider.autoDispose<Map<DateTime, num>>
 
   for (BitcoinTransaction transaction in transactions) {
     final DateTime date = normalizeDate(transaction.timestamp);
-    valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + transaction.btcDetails.sent;
+    valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + transaction.btcDetails.sent.toInt();
   }
 
   num cumulativeSpent = 0;
@@ -154,10 +154,10 @@ final bitcoinBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((
 
     final DateTime date = transaction.btcDetails.confirmationTime  == null || transaction.btcDetails.confirmationTime !.timestamp == 0
         ? normalizeDate(DateTime.now())
-        : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.btcDetails.confirmationTime !.timestamp * 1000));
+        : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.btcDetails.confirmationTime!.timestamp.toInt() * 1000));
     var netAmount = transaction.btcDetails.received - transaction.btcDetails.sent;
 
-    cumulativeBalance += netAmount;
+    cumulativeBalance += netAmount.toInt();
     balancePerDay[date] = cumulativeBalance;
   }
 
@@ -255,7 +255,7 @@ final liquidFeePerDayProvider = StateProvider.autoDispose.family<Map<DateTime, n
       final DateTime date = normalizeDate(transaction.timestamp);
       final hasSentFromAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value < 0);
       if (hasSentFromAsset) {
-        valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + transaction.lwkDetails.fee.abs();
+        valueSpentPerDay[date] = (valueSpentPerDay[date] ?? 0) + transaction.lwkDetails.fee.toInt().abs();
       }
     }
   }

@@ -530,8 +530,8 @@ Future<void> handlePegIn(
       .watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future)
       .then((value) => value);
 
-  final fee = await transaction.$1.feeAmount().then((value) => value);
-  final amountToSet = (bitcoin - fee!);
+  final fee = (transaction.$1.feeAmount() ?? BigInt.zero).toInt();
+  final amountToSet = (bitcoin - fee);
 
   controller.text = btcInDenominationFormatted(amountToSet.toDouble(), btcFormat);
   ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), 'sats');
@@ -574,8 +574,8 @@ Future<void> handleBitcoinToLightning(WidgetRef ref, TextEditingController contr
   final transaction =
   await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future).then((value) => value);
 
-  final fee = await transaction.$1.feeAmount().then((value) => value);
-  final amountToSet = (balance - fee!);
+  final fee = (transaction.$1.feeAmount() ?? BigInt.zero).toInt();
+  final amountToSet = (balance - fee);
   controller.text = btcInDenominationFormatted(amountToSet, btcFormat);
   ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
 }
@@ -587,7 +587,7 @@ Future<void> handleLiquidBitcoinToLightning(WidgetRef ref, TextEditingController
   ref.read(sendTxProvider.notifier).updateDrain(true);
 
   final pset = await ref.watch(liquidDrainWalletProvider.future);
-  final sendingBalance = pset.balances[0].value + pset.absoluteFees;
+  final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
   final controllerValue = sendingBalance.abs();
   controller.text = btcInDenominationFormatted(controllerValue, btcFormat);
   ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);

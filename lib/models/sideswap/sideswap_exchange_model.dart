@@ -47,7 +47,7 @@ class SideswapStartExchange {
       if (total >= sendAmount) {
         break;
       }
-      total += utxo.unblinded.value;
+      total += utxo.unblinded.value.toInt();
       assetInputForAmount.add(utxo);
     }
 
