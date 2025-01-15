@@ -25,7 +25,7 @@ class LiquidModel {
   }
 
   Future<bool> sync() async {
-    await config.liquid.wallet.sync(electrumUrl: config.electrumUrl, validateDomain: false);
+    await config.liquid.wallet.sync(electrumUrl: config.electrumUrl, validateDomain: true);
     return true;
   }
 
