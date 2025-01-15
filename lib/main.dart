@@ -40,6 +40,40 @@ Future<void> main() async {
 
   await dotenv.load(fileName: ".env");
 
+  // waiting for pusher update
+  // await PusherBeams.instance.start(dotenv.env['PUSHERINSTANCE']!);
+  // PusherBeams.instance.onMessageReceivedInTheForeground((message) async {
+  //   if (Platform.isAndroid || Platform.isIOS) {
+  //     const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+  //       'pix_payments_channel',
+  //       'PIX Payments',
+  //       channelDescription: 'Notifications for received PIX transactions.',
+  //       importance: Importance.max,
+  //       priority: Priority.high,
+  //       showWhen: false,
+  //     );
+  //     const DarwinNotificationDetails iOSPlatformChannelSpecifics = DarwinNotificationDetails(
+  //       presentAlert: true,
+  //       presentBadge: true,
+  //       presentSound: true,
+  //       subtitle: 'PIX Payments',
+  //     );
+  //     const NotificationDetails platformChannelSpecifics = NotificationDetails(
+  //       android: androidPlatformChannelSpecifics,
+  //       iOS: iOSPlatformChannelSpecifics,
+  //     );
+  //
+  //     await flutterLocalNotificationsPlugin.show(
+  //       0,
+  //       'Depósito de Depix',
+  //       'Você recebeu um novo depósito de Depix.',
+  //       platformChannelSpecifics,
+  //     );
+  //     final container = ProviderContainer();
+  //     container.read(syncOnAppOpenProvider.notifier).state = true;
+  //   }
+  // });
+
   // Initialize Hive for local storage
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);

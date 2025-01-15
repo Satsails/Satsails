@@ -4,7 +4,7 @@ import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -156,10 +156,7 @@ class _DepositPixState extends ConsumerState<DepositPix> {
           onPressed: () => context.pop(),
         ),
       ),
-      body: FlutterKeyboardDoneWidget(
-        doneWidgetBuilder: (context) {
-          return const Text('Done');
-        },
+      body: KeyboardDismissOnTap(
         child: SingleChildScrollView(
           child: Center(
             child: Column(

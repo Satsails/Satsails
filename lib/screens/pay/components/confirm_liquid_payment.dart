@@ -11,7 +11,7 @@ import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -89,12 +89,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
         }
       },
       child: SafeArea(
-        child: FlutterKeyboardDoneWidget(
-          doneWidgetBuilder: (context) {
-            return const Text(
-              'Done',
-            );
-          },
+        child: KeyboardDismissOnTap(
           child: Scaffold(
             backgroundColor: Colors.black,
             resizeToAvoidBottomInset: false,

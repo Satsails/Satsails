@@ -3,7 +3,7 @@ import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
 import 'package:Satsails/screens/receive/components/custodial_lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -36,12 +36,7 @@ class Receive extends ConsumerWidget {
           },
         ),
       ),
-      body: FlutterKeyboardDoneWidget(
-        doneWidgetBuilder: (context) {
-          return const Text(
-            'Done',
-          );
-        },
+      body: KeyboardDismissOnTap(
         child: SingleChildScrollView(
           child: Column(
             children: [

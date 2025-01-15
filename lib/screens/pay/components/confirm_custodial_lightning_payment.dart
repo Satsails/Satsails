@@ -8,7 +8,6 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/validations/address_validation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
@@ -17,6 +16,7 @@ import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 class ConfirmCustodialLightningPayment extends ConsumerStatefulWidget {
   ConfirmCustodialLightningPayment({Key? key}) : super(key: key);
@@ -97,10 +97,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
         }
       },
       child: SafeArea(
-        child: FlutterKeyboardDoneWidget(
-          doneWidgetBuilder: (context) {
-            return const Text('Done');
-          },
+        child: KeyboardDismissOnTap(
           child: Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: Colors.black,

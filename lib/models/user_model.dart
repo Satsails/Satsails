@@ -101,6 +101,26 @@ class UserService {
     }
   }
 
+  // static BeamsAuthProvider getPusherAuth(String auth, String userId) {
+  //   try {
+  //     final BeamsAuthProvider response = BeamsAuthProvider()
+  //       ..authUrl = dotenv.env['BACKEND']! + '/users/get_pusher_auth'
+  //       ..headers = {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': auth,
+  //       }
+  //       ..queryParams = {
+  //         'user_id': userId
+  //       }
+  //       ..credentials = 'omit';
+  //
+  //     return response;
+  //   } catch (e) {
+  //     throw Exception(
+  //         'An error has occurred. Please try again later');
+  //   }
+  // }
+
   static Future<Result<User>> showUser(String auth) async {
     try {
       final response = await http.get(

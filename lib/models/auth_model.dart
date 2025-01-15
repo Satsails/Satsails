@@ -209,6 +209,7 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('affiliate');
     await Hive.deleteBoxFromDisk('addresses');
     await Hive.deleteBoxFromDisk('coinosPayments');
+    // await PusherBeams.instance.clearAllState();
     await SecureKeyManager.deleteKey();
     final appDocDir = await getApplicationDocumentsDirectory();
     final bitcoinDBPath = '${appDocDir.path}/bdk_wallet.sqlite';

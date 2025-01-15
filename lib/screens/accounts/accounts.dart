@@ -7,7 +7,7 @@ import 'package:Satsails/screens/receive/components/custodial_lightning_widget.d
 import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/models/balance_model.dart';
@@ -574,12 +574,7 @@ class Accounts extends ConsumerWidget {
         builder: (context, scrollController) {
           return Scaffold(
             backgroundColor: Colors.black,
-            body: FlutterKeyboardDoneWidget(
-              doneWidgetBuilder: (context) {
-                return const Text(
-                  'Done',
-                );
-              },
+            body: KeyboardDismissOnTap(
               child: SingleChildScrollView(
                 controller: scrollController,
                 padding: const EdgeInsets.all(16.0),

@@ -3,7 +3,7 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -71,10 +71,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
           ),
         ),
         body: SafeArea(
-          child: FlutterKeyboardDoneWidget(
-            doneWidgetBuilder: (context) {
-              return const Text('Done');
-            },
+          child: KeyboardDismissOnTap(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: ListView(

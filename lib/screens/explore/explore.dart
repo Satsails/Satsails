@@ -272,6 +272,10 @@ Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentI
       }
     }
 
+    // final userID = ref.read(userProvider).paymentId;
+    // final auth = ref.read(userProvider).recoveryCode;
+    // await PusherBeams.instance.setUserId(userID,UserService.getPusherAuth(auth, userID), (error) {},);
+
     context.push('/home/explore/deposit_type');
     ref.read(isLoadingProvider.notifier).state = false;
   } catch (e) {
