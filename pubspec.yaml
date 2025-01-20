@@ -25,14 +25,17 @@ dependencies:
   overlay_support: ^2.1.0
   webview_flutter: ^4.5.0
   qr_flutter: ^4.1.0
-#  qr_code_scanner: ^1.0.1
   mobile_scanner: ^6.0.2
-#  ai_barcode_scanner 3.4.3 for web compil
   fl_chart: ^0.66.2
   bip39: ^1.0.6
   flutter_riverpod: ^2.5.1
   bdk_flutter: ^0.31.2
-  dart_bolt12_decoder: ^0.8.0
+#  breez_sdk:
+#    git:
+#      url: https://github.com/breez/breez-sdk-greenlight
+#      path: libs/sdk-flutter
+#      ref: 0.6.6-frb-v2
+  bitcoin_message_signer: ^1.0.2
   bolt11_decoder: ^1.0.2
   lwk: ^0.1.5
   forex_currency_conversion: ^0.9.1
@@ -63,8 +66,11 @@ dependencies:
   conduit_password_hash: ^5.1.3
   flutter_keyboard_visibility: ^6.0.0
   bech32: ^0.2.2
-#  pusher_beams: ^1.1.2
-#  dart_pusher_channels: ^1.2.3
+  firebase_core: ^3.4.0
+  firebase_messaging: ^15.1.0
+  pusher_client: ^2.0.0
+dependency_overrides:
+  uuid: ^4.1.0
 dev_dependencies:
   build_runner: ^2.4.11
   flutter_dotenv: ^5.1.0

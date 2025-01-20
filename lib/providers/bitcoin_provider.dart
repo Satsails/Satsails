@@ -114,17 +114,13 @@ final buildDrainWalletBitcoinTransactionProvider = FutureProvider.autoDispose.fa
   });
 });
 
-final signBitcoinPsbtProvider = FutureProvider.family.autoDispose<bool, TransactionBuilder>((ref, psbt) async {
+final signBitcoinPsbtProvider = FutureProvider.family.autoDispose<(PartiallySignedTransaction, TransactionDetails), (PartiallySignedTransaction, TransactionDetails)>((ref, psbt) async {
   final bitcoin = await ref.watch(bitcoinProvider.future);
-  final sendTx = ref.watch(sendTxProvider.notifier);
   final BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
-  if (sendTx.state.drain) {
-    final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(psbt).future);
-    return bitcoinModel.signBitcoinTransaction(transaction);
-  } else {
-    final transaction = await ref.watch(buildBitcoinTransactionProvider(psbt).future);
-    return bitcoinModel.signBitcoinTransaction(transaction);
-  }
+
+  await bitcoinModel.signBitcoinTransaction(psbt);
+
+  return psbt;
 });
 
 final broadcastBitcoinTransactionProvider = FutureProvider.autoDispose.family<String, (PartiallySignedTransaction, TransactionDetails)>((ref, signedPsbt) {
@@ -136,15 +132,14 @@ final broadcastBitcoinTransactionProvider = FutureProvider.autoDispose.family<St
 
 final sendBitcoinTransactionProvider = FutureProvider.autoDispose<String>((ref) async {
   final feeRate = await ref.watch(getCustomFeeRateProvider.future);
-  final sendTx = ref.watch(sendTxProvider.notifier);
-  final transactionBuilder = TransactionBuilder(sendTx.state.amount, sendTx.state.address, feeRate);
-  (PartiallySignedTransaction, TransactionDetails) psbt;
-  if (sendTx.state.drain) {
-    psbt = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilder).future);
-  } else {
-    psbt = await ref.watch(buildBitcoinTransactionProvider(transactionBuilder).future);
-  }
-  await ref.watch(signBitcoinPsbtProvider(transactionBuilder).future);
-  return await ref.watch(broadcastBitcoinTransactionProvider(psbt).future);
-});
+  final sendTx = ref.read(sendTxProvider);
+  final transactionBuilder = TransactionBuilder(sendTx.amount, sendTx.address, feeRate);
 
+  final psbt = sendTx.drain
+      ? await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilder).future)
+      : await ref.watch(buildBitcoinTransactionProvider(transactionBuilder).future);
+
+  final signedPsbt = await ref.watch(signBitcoinPsbtProvider(psbt).future);
+
+  return await ref.watch(broadcastBitcoinTransactionProvider(signedPsbt!).future);
+});

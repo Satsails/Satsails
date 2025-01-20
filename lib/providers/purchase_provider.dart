@@ -36,7 +36,7 @@ final singlePurchaseDetailsProvider = StateProvider.autoDispose<Purchase>((ref) 
 
 final getUserPurchasesProvider = FutureProvider.autoDispose<List<Purchase>>((ref) async {
   final paymentId = ref.read(userProvider).paymentId;
-  final auth = ref.read(userProvider).recoveryCode;
+  final auth = ref.read(userProvider).jwt!;
   final transactions = await PurchaseService.getUserPurchases(paymentId, auth);
 
   if (transactions.isSuccess && transactions.data != null) {
@@ -49,7 +49,7 @@ final getUserPurchasesProvider = FutureProvider.autoDispose<List<Purchase>>((ref
 
 final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) async {
   final paymentId = ref.read(userProvider).paymentId;
-  final auth = ref.read(userProvider).recoveryCode;
+  final auth = ref.read(userProvider).jwt!;
   final amountTransferred = await PurchaseService.getAmountPurchased(paymentId, auth);
 
   if (amountTransferred.isSuccess && amountTransferred.data != null) {
@@ -60,7 +60,7 @@ final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) asyn
 });
 
 final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase, int>((ref, amount) async {
-  final auth = ref.read(userProvider).recoveryCode;
+  final auth = ref.read(userProvider).jwt!;
   final liquidAddress = await ref.read(liquidAddressProvider.future);
   final result = await PurchaseService.createPurchaseRequest(auth, amount, liquidAddress.confidential);
   await ref.refresh(getUserPurchasesProvider.future);
@@ -72,7 +72,7 @@ final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase
 });
 
 final getPixPaymentStateProvider = FutureProvider.autoDispose.family<bool, String>((ref, transactionId) async {
-  final auth = ref.read(userProvider).recoveryCode;
+  final auth = ref.read(userProvider).jwt!;
   final paymentState = await PurchaseService.getPurchasePixPaymentState(transactionId, auth);
 
   if (paymentState.isSuccess && paymentState.data != null) {

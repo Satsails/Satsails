@@ -9,19 +9,18 @@ const FlutterSecureStorage _storage = FlutterSecureStorage();
 
 final initializeUserProvider = FutureProvider<User>((ref) async {
   final box = await Hive.openBox('user');
-  final legacyBox = await Hive.openBox('affiliate');
-  final legacyAffiliateCode = legacyBox.get('insertedAffiliateCode', defaultValue: '');
   final paymentId = box.get('paymentId', defaultValue: '');
   final affiliateCode = box.get('affiliateCode', defaultValue: '');
   final hasUploadedAffiliateCode = box.get('hasUploadedAffiliateCode', defaultValue: false);
-
+  final jwt = await _storage.read(key: 'backendJwt') ?? '';
   final recoveryCode = await _storage.read(key: 'recoveryCode') ?? '';
 
   return User(
     recoveryCode: recoveryCode,
     paymentId: paymentId,
-    affiliateCode: legacyAffiliateCode.isNotEmpty ? legacyAffiliateCode : affiliateCode,
-    hasUploadedAffiliateCode: hasUploadedAffiliateCode,
+    affiliateCode: affiliateCode,
+    hasUploadedAffiliateCode: hasUploadedAffiliateCode ?? false,
+    jwt: jwt,
   );
 });
 
@@ -34,6 +33,7 @@ final userProvider = StateNotifierProvider<UserModel, User>((ref) {
       affiliateCode: '',
       recoveryCode: '',
       paymentId: '',
+      jwt: '',
       hasUploadedAffiliateCode: false,
     ),
     error: (Object error, StackTrace stackTrace) {
@@ -44,7 +44,7 @@ final userProvider = StateNotifierProvider<UserModel, User>((ref) {
 
 final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>((ref, affiliateCode) async {
   var paymentId = ref.read(userProvider).paymentId;
-  final auth = ref.read(userProvider).recoveryCode;
+  final auth = ref.read(userProvider).jwt!;
   final result = await UserService.addAffiliateCode(paymentId, affiliateCode, auth);
 
   if (result.isSuccess && result.data == true) {
@@ -56,42 +56,34 @@ final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>
 });
 
 final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
-  final auth = await AuthModel().getBackendPassword();
-  ref.read(userProvider.notifier).setRecoveryCode(auth!);
-  final liquidAddress = await ref.read(liquidAddressProvider.future);
-  final result = await UserService.createUserRequest(auth!, liquidAddress.confidential, liquidAddress.index);
+  final bitcoinPublicKey = await BackendAuth.getPublicKey();
+  final challenge = await BackendAuth.fetchChallenge(bitcoinPublicKey!);
+  final signedChallenge = await BackendAuth.signChallengeWithPrivateKey(challenge!);
+  final result = await UserService.createUserRequest(bitcoinPublicKey!, signedChallenge!);
 
-  // if has saved affiliate code passed from the link without an account created
   if (result.isSuccess && result.data != null) {
-    // add affilaite from link in case it was passed
     final affiliateCodeFromLink = ref.read(userProvider).affiliateCode ?? '';
     if (affiliateCodeFromLink.isNotEmpty) {
       await ref.read(addAffiliateCodeProvider(affiliateCodeFromLink).future);
     }
     final user = result.data!;
     await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
-    await ref.read(userProvider.notifier).setRecoveryCode(user.recoveryCode);
+    await ref.read(userProvider.notifier).setJwt(user.jwt!);
     await ref.read(userProvider.notifier).setAffiliateCode(user.affiliateCode ?? '');
   } else {
-    await ref.read(setUserProvider.future);
+    throw result.error!;
   }
 });
 
-final setUserProvider = FutureProvider.autoDispose<void>((ref) async {
-  final auth = ref.read(userProvider).recoveryCode;
-  final userResult = await UserService.showUser(auth);
+final migrateUserToJwtProvider = FutureProvider.autoDispose<void>((ref) async {
+  final bitcoinPublicKey = await BackendAuth.getPublicKey();
+  final recoveryCode = ref.read(userProvider).recoveryCode;
+  final result = await UserService.migrateToJWT(recoveryCode!, bitcoinPublicKey!);
 
-  if (userResult.isSuccess && userResult.data != null) {
-    final user = userResult.data!;
-    await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
-    await ref.read(userProvider.notifier).setRecoveryCode(user.recoveryCode);
-    await ref.read(userProvider.notifier).setAffiliateCode(user.affiliateCode ?? '');
-    final affiliateCodeFromLink = ref.read(userProvider).affiliateCode ?? '';
-    if (affiliateCodeFromLink.isNotEmpty && user.affiliateCode == null) {
-      await ref.read(addAffiliateCodeProvider(affiliateCodeFromLink).future);
-    }
+  if (result.isSuccess && result.data != null) {
+    ref.read(userProvider.notifier).setJwt(result.data!);
+    ref.read(userProvider.notifier).setRecoveryCode('');
   } else {
-    await ref.read(userProvider.notifier).setRecoveryCode('');
-    throw userResult.error!;
+    throw result.error!;
   }
 });

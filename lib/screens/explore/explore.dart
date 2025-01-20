@@ -247,44 +247,70 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentId) async {
+Future<void> _handleOnPress(
+    WidgetRef ref,
+    BuildContext context,
+    String paymentId,
+    ) async {
   final insertedAffiliateCode = ref.watch(userProvider).affiliateCode ?? '';
-  final hasUploadedAffiliateCode = ref.watch(userProvider).hasUploadedAffiliateCode;
+  final hasUploadedAffiliateCode = ref.watch(userProvider).hasUploadedAffiliateCode ?? false;
+  final recoveryCode = ref.watch(userProvider).recoveryCode;
+
   ref.read(isLoadingProvider.notifier).state = true;
 
   try {
+    // If the user doesn't have a paymentId, we assume they're new and need to be created
     if (paymentId.isEmpty) {
       await ref.watch(createUserProvider.future);
 
-      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-      if (Platform.isAndroid) {
-        flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()!.requestNotificationsPermission();
-      } else if (Platform.isIOS) {
-        await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+      if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
+        await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
+
+      // Request notification permissions (Android/iOS)
+      await _requestNotificationPermissions();
     } else {
       if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
         await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
+      // If the user has a recovery code, we migrate them to JWT-based auth
+       if (recoveryCode != null && recoveryCode.isNotEmpty) {
+        await ref.read(migrateUserToJwtProvider.future);
+      }
     }
 
-    // final userID = ref.read(userProvider).paymentId;
-    // final auth = ref.read(userProvider).recoveryCode;
-    // await PusherBeams.instance.setUserId(userID,UserService.getPusherAuth(auth, userID), (error) {},);
-
+    // Navigate to the home/explore/deposit_type route
     context.push('/home/explore/deposit_type');
-    ref.read(isLoadingProvider.notifier).state = false;
   } catch (e) {
+    // Show any errors in a snack bar
     showMessageSnackBar(
       message: e.toString(),
       context: context,
       error: true,
     );
-
+  } finally {
+    // Ensure loading state is turned off, regardless of success or failure
     ref.read(isLoadingProvider.notifier).state = false;
   }
 }
+
+Future<void> _requestNotificationPermissions() async {
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  if (Platform.isAndroid) {
+    final androidPlugin =
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+
+    // On some newer Android versions you might still need user permission
+    // to display notifications, so we request it if the plugin supports it
+    await androidPlugin?.requestNotificationsPermission();
+  } else if (Platform.isIOS) {
+    final iosPlugin =
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
+
+    await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
+  }
+}
+

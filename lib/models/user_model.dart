@@ -1,7 +1,5 @@
-// this screen needs some heavy refactoring. On version "Unyielding conviction" we shall totally redo this spaghetti code.
 import 'dart:convert';
 import 'package:Satsails/handlers/response_handlers.dart';
-import 'package:Satsails/models/purchase_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
@@ -24,6 +22,11 @@ class UserModel extends StateNotifier<User> {
     state = state.copyWith(affiliateCode: affiliateCode);
   }
 
+  Future<void> setJwt(String jwt) async {
+    await _storage.write(key: 'backendJwt', value: jwt);
+    state = state.copyWith(jwt: jwt);
+  }
+
   Future<void> setRecoveryCode(String recoveryCode) async {
     await _storage.write(key: 'recoveryCode', value: recoveryCode);
     state = state.copyWith(recoveryCode: recoveryCode);
@@ -37,16 +40,18 @@ class UserModel extends StateNotifier<User> {
 }
 
 class User {
-  final String recoveryCode;
+  final String? recoveryCode;
   final String paymentId;
   final String? affiliateCode;
-  final bool hasUploadedAffiliateCode;
+  final bool? hasUploadedAffiliateCode;
+  final String jwt;
 
   User({
-    required this.recoveryCode,
+    this.recoveryCode,
     required this.paymentId,
     required this.affiliateCode,
-    required this.hasUploadedAffiliateCode,
+    this.hasUploadedAffiliateCode,
+    required this.jwt,
   });
 
   User copyWith({
@@ -54,12 +59,14 @@ class User {
     String? paymentId,
     String? affiliateCode,
     bool? hasUploadedAffiliateCode,
+    String? jwt,
   }) {
     return User(
       recoveryCode: recoveryCode ?? this.recoveryCode,
       paymentId: paymentId ?? this.paymentId,
       affiliateCode: affiliateCode ?? this.affiliateCode,
       hasUploadedAffiliateCode: hasUploadedAffiliateCode ?? this.hasUploadedAffiliateCode,
+      jwt: jwt ?? this.jwt,
     );
   }
 
@@ -68,21 +75,20 @@ class User {
       recoveryCode: json['user']['authentication_token'],
       paymentId: json['user']['payment_id'],
       affiliateCode: json['inserted_affiliate']['code'] ?? '',
-      hasUploadedAffiliateCode: false,
+      jwt: json['token'],
     );
   }
 }
 
 class UserService {
-  static Future<Result<User>> createUserRequest(String auth, String liquidAddress, int liquidIndex) async {
+  static Future<Result<User>> createUserRequest(String publicKey, String signature) async {
     try {
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users'),
         body: jsonEncode({
           'user': {
-            'authentication_token': auth,
-            'liquid_address': liquidAddress,
-            'liquid_address_index': liquidIndex,
+             'wallet_public_key': publicKey,
+             'signature': signature,
           }
         }),
         headers: {
@@ -92,6 +98,32 @@ class UserService {
 
       if (response.statusCode == 201) {
         return Result(data: User.fromJson(jsonDecode(response.body)));
+      } else {
+        return Result(error: 'Failed to create user: ${response.body}');
+      }
+    } catch (e) {
+      return Result(
+          error: 'An error has occurred. Please try again later');
+    }
+  }
+
+  static Future<Result<String>> migrateToJWT(String auth, String bitcoinPublicKey) async {
+    try {
+      final response = await http.post(
+        Uri.parse(dotenv.env['BACKEND']! + '/users/migrate'),
+        body: jsonEncode({
+          'user': {
+            'wallet_public_key': bitcoinPublicKey,
+          }
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 201) {
+        return Result(data: jsonDecode(response.body)['token']);
       } else {
         return Result(error: 'Failed to create user: ${response.body}');
       }
@@ -120,27 +152,6 @@ class UserService {
   //         'An error has occurred. Please try again later');
   //   }
   // }
-
-  static Future<Result<User>> showUser(String auth) async {
-    try {
-      final response = await http.get(
-        Uri.parse(dotenv.env['BACKEND']! + '/users/show_user'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: User.fromJson(jsonDecode(response.body)));
-      } else {
-        return Result(error: 'Failed to show user');
-      }
-    } catch (e) {
-      return Result(
-          error: 'An error has occurred. Please try again later');
-    }
-  }
 
   static Future<Result<bool>> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
     try {

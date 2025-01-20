@@ -77,7 +77,7 @@ final liquidUnspentUtxosProvider = FutureProvider<List<TxOut>>((ref) {
 final getCustomFeeRateProvider = FutureProvider.autoDispose<double>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
-    final blocks = ref.watch(sendBlocksProvider.notifier).state.toInt();
+    final blocks = ref.watch(sendBlocksProvider).toInt();
     return liquidModel.getLiquidFees(blocks);
   });
 });
@@ -140,18 +140,18 @@ final broadcastLiquidTransactionProvider = FutureProvider.family.autoDispose<Str
 
 final sendLiquidTransactionProvider = FutureProvider.autoDispose<String>((ref) async {
   final feeRate = await ref.watch(getCustomFeeRateProvider.future);
-  final sendTx = ref.watch(sendTxProvider.notifier);
+  final sendTx = ref.read(sendTxProvider);
   final transactionBuilder = TransactionBuilder(
-    amount: sendTx.state.amount,
-    outAddress: sendTx.state.address,
+    amount: sendTx.amount,
+    outAddress: sendTx.address,
     fee: feeRate,
-    assetId: sendTx.state.assetId,
+    assetId: sendTx.assetId,
   );
   String pset;
-  if (sendTx.state.drain) {
+  if (sendTx.drain) {
     pset = await ref.watch(buildDrainLiquidTransactionProvider(transactionBuilder).future);
   } else {
-    pset = sendTx.state.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC) ? await ref.watch(buildLiquidTransactionProvider(transactionBuilder).future): await ref.watch(buildLiquidAssetTransactionProvider(transactionBuilder).future);
+    pset = sendTx.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC) ? await ref.watch(buildLiquidTransactionProvider(transactionBuilder).future): await ref.watch(buildLiquidAssetTransactionProvider(transactionBuilder).future);
   }
   final signedTxBytes = await ref.watch(signLiquidPsetProvider(pset).future);
   return ref.watch(broadcastLiquidTransactionProvider(signedTxBytes).future);

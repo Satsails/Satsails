@@ -126,12 +126,3 @@ final liquidTransactionsByDate = StateProvider.autoDispose<List<LiquidTransactio
 
   return transactionState.filterLiquidTransactions(dateTimeRange);
 });
-
-// here for when we implement joltz and we must store transactions for later usage
-// final encryptSideswapTransactionsProvider = FutureProvider.autoDispose<String>((ref) async {
-//   final transactionState = ref.watch(transactionNotifierProvider);
-//   final authModel = ref.watch(authModelProvider);
-//
-//   // Encrypt the transactions
-//   return await transactionState.encryptSideswapTransactions(authModel);
-// });
