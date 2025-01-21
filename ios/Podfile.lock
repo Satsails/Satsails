@@ -2,9 +2,9 @@ PODS:
   - bdk_flutter (0.31.2):
     - Flutter
   - BranchSDK (3.7.0)
-  - Crisp (2.8.1):
-    - Crisp/Crisp (= 2.8.1)
-  - Crisp/Crisp (2.8.1)
+  - Crisp (2.8.2):
+    - Crisp/Crisp (= 2.8.2)
+  - Crisp/Crisp (2.8.2)
   - crisp_chat (2.2.3):
     - Crisp (~> 2.8.1)
     - Flutter
@@ -43,7 +43,7 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 8.0)
     - nanopb (~> 3.30910.0)
   - Flutter (1.0.0)
-  - flutter_branch_sdk (8.3.1):
+  - flutter_branch_sdk (8.3.2):
     - BranchSDK (~> 3.7.0)
     - Flutter
   - flutter_keyboard_visibility (0.0.1):
@@ -125,18 +125,8 @@ PODS:
   - permission_handler_apple (9.3.0):
     - Flutter
   - PromisesObjC (2.4.0)
-  - pusher_client (2.0.0):
-    - Flutter
-    - PusherSwiftWithEncryption (~> 8.0.0)
-  - PusherSwiftWithEncryption (8.0.0):
-    - ReachabilitySwift (~> 5.0)
-    - Sodium (= 0.8.0)
-    - Starscream (~> 3.1)
-  - ReachabilitySwift (5.2.4)
   - share_plus (0.0.1):
     - Flutter
-  - Sodium (0.8.0)
-  - Starscream (3.1.1)
   - url_launcher_ios (0.0.1):
     - Flutter
   - vibration (1.7.5):
@@ -161,7 +151,6 @@ DEPENDENCIES:
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
-  - pusher_client (from `.symlinks/plugins/pusher_client/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - vibration (from `.symlinks/plugins/vibration/ios`)
@@ -187,10 +176,6 @@ SPEC REPOS:
     - MLKitVision
     - nanopb
     - PromisesObjC
-    - PusherSwiftWithEncryption
-    - ReachabilitySwift
-    - Sodium
-    - Starscream
 
 EXTERNAL SOURCES:
   bdk_flutter:
@@ -223,8 +208,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
-  pusher_client:
-    :path: ".symlinks/plugins/pusher_client/ios"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   url_launcher_ios:
@@ -237,7 +220,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   bdk_flutter: fb57a7400a7f3f181c5977bcdc2a5ef347ae4e7f
   BranchSDK: 1f63030d369197f4f33cb496a3c06ce997b5ec2f
-  Crisp: 0ff88141775c806ed3c8683595e1c10b06beb5d2
+  Crisp: 6747c96b2b2c2a81babf1eaecd1688a65d98edd4
   crisp_chat: 0d82d8a11d2119ec4ba173611c7c15885b05332d
   device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
   Firebase: 9f574c08c2396885b5e7e100ed4293d956218af9
@@ -248,7 +231,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 6ef4a1c7eb2a61ee1f74727d7f6ce2e72acf1414
   FirebaseMessaging: d2d1d9c62c46dd2db49a952f7deb5b16ad2c9742
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_branch_sdk: 9ffbfdd3d76638ac87ba007f6520135e30276e5f
+  flutter_branch_sdk: 5b85eeb59977d13b943a672bd69b526b7f9eacea
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
   flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
@@ -268,12 +251,7 @@ SPEC CHECKSUMS:
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  pusher_client: ffcefc0aeeb910ef85e82c9bb333146adad0d8ce
-  PusherSwiftWithEncryption: e8626abf1067a7e1b06afde720934fe1872498e3
-  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
-  Sodium: 63c0ca312a932e6da481689537d4b35568841bdc
-  Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   vibration: 7d883d141656a1c1a6d8d238616b2042a51a1241
   webview_flutter_wkwebview: 0982481e3d9c78fd5c6f62a002fcd24fc791f1e4
