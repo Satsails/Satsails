@@ -2,14 +2,17 @@ import 'dart:async';
 
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
+import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/models/purchase_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
+import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
 import 'package:Satsails/screens/spash/splash.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -40,41 +43,9 @@ Future<void> main() async {
 
   await dotenv.load(fileName: ".env");
 
-  // waiting for pusher update
-  // await PusherBeams.instance.start(dotenv.env['PUSHERINSTANCE']!);
-  // PusherBeams.instance.onMessageReceivedInTheForeground((message) async {
-  //   if (Platform.isAndroid || Platform.isIOS) {
-  //     const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
-  //       'pix_payments_channel',
-  //       'PIX Payments',
-  //       channelDescription: 'Notifications for received PIX transactions.',
-  //       importance: Importance.max,
-  //       priority: Priority.high,
-  //       showWhen: false,
-  //     );
-  //     const DarwinNotificationDetails iOSPlatformChannelSpecifics = DarwinNotificationDetails(
-  //       presentAlert: true,
-  //       presentBadge: true,
-  //       presentSound: true,
-  //       subtitle: 'PIX Payments',
-  //     );
-  //     const NotificationDetails platformChannelSpecifics = NotificationDetails(
-  //       android: androidPlatformChannelSpecifics,
-  //       iOS: iOSPlatformChannelSpecifics,
-  //     );
-  //
-  //     await flutterLocalNotificationsPlugin.show(
-  //       0,
-  //       'Depósito de Depix',
-  //       'Você recebeu um novo depósito de Depix.',
-  //       platformChannelSpecifics,
-  //     );
-  //     final container = ProviderContainer();
-  //     container.read(syncOnAppOpenProvider.notifier).state = true;
-  //   }
-  // });
+  await Firebase.initializeApp();
+  await FirebaseService.getAndRefreshFCMToken();
 
-  // Initialize Hive for local storage
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
   Hive.registerAdapter(WalletBalanceAdapter());

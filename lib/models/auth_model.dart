@@ -179,6 +179,7 @@ class AuthModel {
     await _storage.delete(key: 'coinosPassword');
     await _storage.delete(key: 'recoveryCode');
     await _storage.delete(key: 'backendJwt');
+    await _storage.delete(key: 'fcmToken');
     await Hive.deleteBoxFromDisk('bitcoin');
     await Hive.deleteBoxFromDisk('liquid');
     await Hive.deleteBoxFromDisk('affiliateCode');
@@ -196,7 +197,6 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('affiliate');
     await Hive.deleteBoxFromDisk('addresses');
     await Hive.deleteBoxFromDisk('coinosPayments');
-    // await PusherBeams.instance.clearAllState();
     final appDocDir = await getApplicationDocumentsDirectory();
     final bitcoinDBPath = '${appDocDir.path}/bdk_wallet.sqlite';
     final dbFile = File(bitcoinDBPath);

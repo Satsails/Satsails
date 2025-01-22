@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:Satsails/helpers/string_extension.dart';
-import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
@@ -279,7 +278,6 @@ Future<void> _handleOnPress(
       }
     }
 
-    // Navigate to the home/explore/deposit_type route
     context.push('/home/explore/deposit_type');
   } catch (e) {
     // Show any errors in a snack bar

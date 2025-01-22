@@ -1,6 +1,8 @@
 import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
@@ -70,6 +72,7 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
     await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
     await ref.read(userProvider.notifier).setJwt(user.jwt!);
     await ref.read(userProvider.notifier).setAffiliateCode(user.affiliateCode ?? '');
+    await FirebaseService.storeTokenOnbackend();
   } else {
     throw result.error!;
   }
@@ -83,6 +86,7 @@ final migrateUserToJwtProvider = FutureProvider.autoDispose<void>((ref) async {
   if (result.isSuccess && result.data != null) {
     ref.read(userProvider.notifier).setJwt(result.data!);
     ref.read(userProvider.notifier).setRecoveryCode('');
+    await FirebaseService.storeTokenOnbackend();
   } else {
     throw result.error!;
   }

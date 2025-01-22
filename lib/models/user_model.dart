@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:Satsails/handlers/response_handlers.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
@@ -132,26 +133,6 @@ class UserService {
           error: 'An error has occurred. Please try again later');
     }
   }
-
-  // static BeamsAuthProvider getPusherAuth(String auth, String userId) {
-  //   try {
-  //     final BeamsAuthProvider response = BeamsAuthProvider()
-  //       ..authUrl = dotenv.env['BACKEND']! + '/users/get_pusher_auth'
-  //       ..headers = {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': auth,
-  //       }
-  //       ..queryParams = {
-  //         'user_id': userId
-  //       }
-  //       ..credentials = 'omit';
-  //
-  //     return response;
-  //   } catch (e) {
-  //     throw Exception(
-  //         'An error has occurred. Please try again later');
-  //   }
-  // }
 
   static Future<Result<bool>> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
     try {
