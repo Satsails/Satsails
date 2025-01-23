@@ -1,13 +1,30 @@
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class FirebaseService {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   static final FlutterSecureStorage _storage = FlutterSecureStorage();
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  // Initialize notifications
+  static Future<void> initializeLocalNotifications() async {
+    const AndroidInitializationSettings androidInitializationSettings = AndroidInitializationSettings('app_icon');
+    const DarwinInitializationSettings iosInitializationSettings = DarwinInitializationSettings();
+
+    const InitializationSettings initializationSettings = InitializationSettings(
+      android: androidInitializationSettings,
+      iOS: iosInitializationSettings,
+    );
+
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
 
   static Future<void> storeTokenOnbackend() async {
     try {
@@ -19,6 +36,7 @@ class FirebaseService {
       if (token != null && token.isNotEmpty) {
         await sendTokenToBackend(jwt, token);
         await storeFCMToken(token);
+        await subscribeToTopics();
       }
     } catch (e) {
       print('Error in FCM token management: $e');
@@ -77,5 +95,52 @@ class FirebaseService {
     } catch (e) {
       print('Error sending FCM token to backend: $e');
     }
+  }
+
+  static Future<void> subscribeToTopics() async {
+    try {
+      await _firebaseMessaging.subscribeToTopic('priceUpdates');
+      await _firebaseMessaging.subscribeToTopic('campaigns');
+    } catch (e) {
+      print('Error subscribing to topics: $e');
+    }
+  }
+
+  static Future<void> listenForForegroundPushNotifications() async {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      try {
+        if (message.notification != null) {
+          // Create local notification details
+          const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
+            'push_channel', // Channel ID
+            'Push Notifications', // Channel name
+            channelDescription: 'This channel is used for push notifications.',
+            importance: Importance.high,
+            priority: Priority.high,
+            showWhen: true,
+          );
+
+          const DarwinNotificationDetails iosNotificationDetails = DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          );
+
+          const NotificationDetails platformChannelSpecifics = NotificationDetails(
+            android: androidNotificationDetails,
+            iOS: iosNotificationDetails,
+          );
+
+          // Show the local notification
+          await flutterLocalNotificationsPlugin.show(
+            0, // Notification ID
+            message.notification!.title, // Notification title
+            message.notification!.body, // Notification body
+            platformChannelSpecifics,
+          );
+        }
+      } catch (e) {
+      }
+    });
   }
 }

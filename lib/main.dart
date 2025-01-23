@@ -13,9 +13,9 @@ import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
 import 'package:Satsails/screens/spash/splash.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
@@ -32,8 +32,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import './app_router.dart';
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -45,6 +43,8 @@ Future<void> main() async {
 
   await Firebase.initializeApp();
   await FirebaseService.getAndRefreshFCMToken();
+  await FirebaseService.listenForForegroundPushNotifications();
+
 
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
@@ -66,8 +66,25 @@ Future<void> main() async {
       if (insertedAffiliateCode != null && currentInsertedAffiliateCode.isEmpty) {
         box.put('affiliateCode', upperCaseCode);
         showSimpleNotification(
-          Text('Affiliate code $upperCaseCode inserted!'.i18n),
+          Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Affiliate code $upperCaseCode inserted!'.i18n,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
           background: Colors.green,
+          elevation: 10,
+          contentPadding: EdgeInsets.all(8),
         );
       }
     }
