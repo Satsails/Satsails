@@ -85,12 +85,7 @@ flutter:
   assets:
     - lib/assets/app_icon.png
     - lib/assets/satsails.png
-    - lib/assets/GraficoAnalise.svg
     - lib/assets/satsails.svg
-    - lib/assets/click.png
-    - lib/assets/qr_code.png
-    - lib/assets/support.png
-    - lib/assets/wallet.png
     - lib/assets/frame.svg
     - lib/assets/depix.png
     - lib/assets/eurx.png
