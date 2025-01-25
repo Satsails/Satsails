@@ -1,21 +1,18 @@
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:overlay_support/overlay_support.dart';
 
 class FirebaseService {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   static final FlutterSecureStorage _storage = FlutterSecureStorage();
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-  // Initialize notifications
   static Future<void> initializeLocalNotifications() async {
-    const AndroidInitializationSettings androidInitializationSettings = AndroidInitializationSettings('app_icon');
+    const AndroidInitializationSettings androidInitializationSettings = AndroidInitializationSettings('ic_notification');
     const DarwinInitializationSettings iosInitializationSettings = DarwinInitializationSettings();
 
     const InitializationSettings initializationSettings = InitializationSettings(
@@ -39,7 +36,6 @@ class FirebaseService {
         await subscribeToTopics();
       }
     } catch (e) {
-      print('Error in FCM token management: $e');
     }
   }
 
@@ -62,7 +58,6 @@ class FirebaseService {
         await storeFCMToken(newToken);
       });
     } catch (e) {
-      print('Error in FCM token management: $e');
     }
   }
 
@@ -76,7 +71,7 @@ class FirebaseService {
 
   static Future<void> sendTokenToBackend(String jwt, String token) async {
     try {
-      final response = await http.post(
+      await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users/store_fcm_token'),
         headers: {
           'Content-Type': 'application/json',
@@ -89,11 +84,7 @@ class FirebaseService {
         }),
       );
 
-      if (response.statusCode != 200) {
-        print('Failed to send FCM token to backend: ${response.body}');
-      }
     } catch (e) {
-      print('Error sending FCM token to backend: $e');
     }
   }
 
@@ -118,6 +109,7 @@ class FirebaseService {
             importance: Importance.high,
             priority: Priority.high,
             showWhen: true,
+            icon: 'ic_notification',
           );
 
           const DarwinNotificationDetails iosNotificationDetails = DarwinNotificationDetails(

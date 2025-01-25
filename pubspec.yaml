@@ -30,7 +30,6 @@ dependencies:
   bip39: ^1.0.6
   flutter_riverpod: ^2.5.1
   bdk_flutter: ^0.31.2
-#  lightspark_wallet: ^0.1.0
   bitcoin_message_signer: ^1.0.2
   bolt11_decoder: ^1.0.2
   lwk: ^0.1.5
@@ -64,6 +63,7 @@ dependencies:
   bech32: ^0.2.2
   firebase_core: ^3.4.0
   firebase_messaging: ^15.1.0
+  android_notification_icons: ^0.0.1
   dart_pusher_channels: ^1.2.3
 dependency_overrides:
   rxdart: ^0.28.0
@@ -107,6 +107,10 @@ flutter_launcher_icons:
   ios: true
   image_path_android: "lib/assets/satsails.png"
   image_path_ios: "lib/assets/satsails_ios.png"
+
+android_notification_icons:
+  image_path: 'lib/assets/satsails.png'
+  icon_name: 'ic_notification' # optional
 
 flutter_native_splash:
   color: "#000000"  # Background color
