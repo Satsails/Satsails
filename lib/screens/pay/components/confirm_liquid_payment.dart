@@ -379,7 +379,6 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                         controller.loading();
                         try {
                           final tx = await ref.watch(sendLiquidTransactionProvider.future);
-                          await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                           showFullscreenTransactionSendModal(
                             context: context,
                             asset: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).name,
