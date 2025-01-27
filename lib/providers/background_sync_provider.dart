@@ -144,7 +144,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   @override
   Future<WalletBalance> build() async {
     final initialBalance = ref.read(balanceNotifierProvider);
-    await performSync();
+
     return initialBalance;
   }
 
@@ -152,6 +152,10 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   Future<WalletBalance> performSync() async {
     return await handleSync(
       syncOperation: () async {
+        if (ref.read(backgroundSyncInProgressProvider)) {
+          debugPrint('Sync already in progress. Skipping...');
+          return ref.read(balanceNotifierProvider);
+        }
         setBackgroundSyncInProgress(true);
         final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
         final previousBalance = balanceNotifier.state;

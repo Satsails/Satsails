@@ -163,12 +163,14 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       _startLockCountdown();
+      _cancelSyncTimer();
     } else if (state == AppLifecycleState.resumed) {
       if (ref.read(syncOnAppOpenProvider)) {
         ref.read(backgroundSyncNotifierProvider.notifier).performSync();
         ref.read(syncOnAppOpenProvider.notifier).state = false;
       }
       _cancelLockTimer();
+      _startSyncTimer();
     }
   }
 
@@ -194,6 +196,20 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     } else {
       _router!.go('/open_pin');
     }
+  }
+
+  Timer? _syncTimer;
+
+  void _startSyncTimer() {
+    _cancelSyncTimer();
+    _syncTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+    });
+  }
+
+  void _cancelSyncTimer() {
+    _syncTimer?.cancel();
+    _syncTimer = null;
   }
 
   @override
