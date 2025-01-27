@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/firebase_model.dart';
@@ -12,6 +13,8 @@ import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
 import 'package:Satsails/screens/spash/splash.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,7 +23,6 @@ import 'package:hive/hive.dart';
 import 'package:i18n_extension/default.i18n.dart';
 import 'package:lwk/lwk.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
-import 'package:Satsails/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
@@ -43,6 +45,12 @@ Future<void> main() async {
   await FirebaseService.getAndRefreshFCMToken();
   await FirebaseService.listenForForegroundPushNotifications();
 
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
 
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
@@ -53,7 +61,10 @@ Future<void> main() async {
   Hive.registerAdapter(PurchaseAdapter());
 
   await LwkCore.init();
-  await FlutterBranchSdk.init(enableLogging: false, disableTracking: true);
+  try {
+    await FlutterBranchSdk.init(enableLogging: false, branchAttributionLevel: BranchAttributionLevel.NONE);
+  } catch (e) {
+  }
 
   FlutterBranchSdk.listSession().listen((data) async {
     if (data.containsKey("affiliateCode")) {
@@ -127,8 +138,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   }
 
   Future<void> _initializeRouter() async {
-    final authModel = ref.read(authModelProvider);
-    final mnemonic = await authModel.getMnemonic();
+    final mnemonic = await AuthModel().getMnemonic();
 
     final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/open_pin';
 
@@ -172,8 +182,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     ref.read(sendTxProvider.notifier).resetToDefault();
     ref.read(sendBlocksProvider.notifier).state = 1;
 
-    final authModel = ref.read(authModelProvider);
-    final mnemonic = await authModel.getMnemonic();
+    final mnemonic = await AuthModel().getMnemonic();
 
     if (mnemonic == null || mnemonic.isEmpty) {
       _router!.go('/');

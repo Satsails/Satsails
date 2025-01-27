@@ -1,16 +1,19 @@
 import 'dart:typed_data';
+import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk/lwk.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/liquid_model.dart';
-import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 
 final initializeLiquidProvider = FutureProvider<Liquid>((ref) {
-  final electrumUrl = ref.watch(settingsProvider).liquidElectrumNode;
+  final electrumUrl = ref.watch(
+    settingsProvider.select((settings) => settings.liquidElectrumNode),
+  );
+
   return ref.watch(liquidConfigProvider.future).then((config) {
     return Liquid(liquid: config, electrumUrl: electrumUrl);
   });
@@ -112,7 +115,7 @@ final decodeLiquidPsetProvider = FutureProvider.family.autoDispose<PsetAmounts, 
 final signLiquidPsetProvider = FutureProvider.family.autoDispose<Uint8List, String>((ref, pset) async {
   final liquid = await ref.watch(initializeLiquidProvider.future);
   final LiquidModel liquidModel = LiquidModel(liquid);
-  final mnemonic = await ref.watch(authModelProvider).getMnemonic();
+  final mnemonic = await AuthModel().getMnemonic();
   final SignParams signParams = SignParams(
     pset: pset,
     mnemonic: mnemonic!,
@@ -123,7 +126,7 @@ final signLiquidPsetProvider = FutureProvider.family.autoDispose<Uint8List, Stri
 final signLiquidPsetStringProvider = FutureProvider.family.autoDispose<String, String>((ref, pset) async {
   final liquid = await ref.watch(initializeLiquidProvider.future);
   final LiquidModel liquidModel = LiquidModel(liquid);
-  final mnemonic = await ref.watch(authModelProvider).getMnemonic();
+  final mnemonic = await AuthModel().getMnemonic();
   final SignParams signParams = SignParams(
     pset: pset,
     mnemonic: mnemonic!,

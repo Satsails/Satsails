@@ -65,8 +65,7 @@ dependencies:
   firebase_messaging: ^15.1.0
   android_notification_icons: ^0.0.1
   dart_pusher_channels: ^1.2.3
-dependency_overrides:
-  rxdart: ^0.28.0
+  firebase_crashlytics: ^4.1.0
 dev_dependencies:
   build_runner: ^2.4.11
   flutter_dotenv: ^5.1.0

@@ -1,11 +1,11 @@
 import 'dart:math';
+import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:Satsails/providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class BackupWallet extends ConsumerStatefulWidget {
@@ -28,7 +28,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
   }
 
   Future<void> fetchMnemonic() async {
-    final authModel = ref.read(authModelProvider);
+    final authModel = AuthModel();
     final mnemonic = await authModel.getMnemonic();
 
     if (mnemonic != null && mnemonic.isNotEmpty) {

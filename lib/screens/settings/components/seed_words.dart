@@ -1,8 +1,8 @@
+import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,7 +11,7 @@ class SeedWords extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authModel = ref.read(authModelProvider);
+    final authModel = AuthModel();
     final mnemonicFuture = authModel.getMnemonic();
     final backupDone = ref.watch(settingsProvider).backup;
     final screenWidth = MediaQuery.of(context).size.width;

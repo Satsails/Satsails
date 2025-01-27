@@ -1,7 +1,6 @@
 import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
-import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';

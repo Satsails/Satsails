@@ -1,16 +1,18 @@
+import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:Satsails/models/bitcoin_config_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/providers/auth_provider.dart';
 
 final bitcoinConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
-  final authModel = ref.read(authModelProvider);
-  final mnemonic = await authModel.getMnemonic();
+  final mnemonic = await AuthModel().getMnemonic();
   if (mnemonic == null || mnemonic.isEmpty) {
     throw Exception('Mnemonic is null or empty');
   }
-  final electrumUrl = ref.watch(settingsProvider).bitcoinElectrumNode;
+  final electrumUrl = ref.watch(
+    settingsProvider.select((settings) => settings.bitcoinElectrumNode),
+  );
+
   return BitcoinConfig(
     mnemonic: mnemonic,
     network: Network.bitcoin,

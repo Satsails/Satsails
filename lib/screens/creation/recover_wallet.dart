@@ -1,4 +1,4 @@
-import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/words_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
@@ -91,7 +91,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
   }
 
   Future<void> _recoverAccount(BuildContext context) async {
-    final authModel = ref.read(authModelProvider);
+    final authModel = AuthModel();
     final mnemonic = _controllers
         .take(_totalWords)
         .map((controller) => controller.text.trim())
