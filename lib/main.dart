@@ -61,9 +61,11 @@ Future<void> main() async {
   Hive.registerAdapter(PurchaseAdapter());
 
   await LwkCore.init();
+
   try {
     await FlutterBranchSdk.init(enableLogging: false, branchAttributionLevel: BranchAttributionLevel.NONE);
   } catch (e) {
+    // Ignoring errors
   }
 
   FlutterBranchSdk.listSession().listen((data) async {

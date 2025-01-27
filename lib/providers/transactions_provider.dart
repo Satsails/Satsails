@@ -1,4 +1,3 @@
-import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';

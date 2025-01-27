@@ -19,9 +19,9 @@ String confirmationStatus(bdk.TransactionDetails transaction, WidgetRef ref) {
 
 String transactionTypeString(bdk.TransactionDetails transaction, WidgetRef ref) {
   if (transaction.sent.toInt() - transaction.received.toInt() > 0) {
-    return 'sent.toInt()'.i18n(ref);
+    return 'sent'.i18n(ref);
   } else {
-    return 'received.toInt()'.i18n(ref);
+    return 'received'.i18n(ref);
   }
 }
 
@@ -88,9 +88,9 @@ Icon confirmationStatusIcon(lwk.Tx transaction) {
 String liquidTransactionType(lwk.Tx transaction, WidgetRef ref) {
   switch (transaction.kind) {
     case 'incoming':
-      return 'received.toInt()'.i18n(ref);
+      return 'received'.i18n(ref);
     case 'outgoing':
-      return 'sent.toInt()'.i18n(ref);
+      return 'sent'.i18n(ref);
     case 'burn':
       return 'Burn'.i18n(ref);
     case 'redeposit':
