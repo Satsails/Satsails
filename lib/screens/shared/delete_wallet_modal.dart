@@ -1,4 +1,5 @@
 import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -16,7 +17,7 @@ class DeleteWalletSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authModel = AuthModel();
+    final authModel = ref.read(authModelProvider);
     return ListTile(
       leading: const Icon(Icons.delete, color: Colors.white),
       title: Text(title.i18n(ref), style: const TextStyle(color: Colors.white)),

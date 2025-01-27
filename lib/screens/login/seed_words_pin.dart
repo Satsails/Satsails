@@ -1,4 +1,5 @@
 import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -86,7 +87,7 @@ class _SeedWordsPinState extends ConsumerState<SeedWordsPin> {
   }
 
   Future<void> _checkPin(BuildContext context, WidgetRef ref) async {
-    final authModel = AuthModel();
+    final authModel = ref.read(authModelProvider);
     final pinText = await authModel.getPin();
 
     if (pinText == _pinController.text) {

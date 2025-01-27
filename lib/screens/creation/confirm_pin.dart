@@ -1,4 +1,5 @@
 import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/creation/set_pin.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
@@ -105,7 +106,7 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin> {
                             ref.read(loadingProvider.notifier).state = true;
 
                             try {
-                              final authModel = AuthModel();
+                              final authModel = ref.read(authModelProvider);
 
                               // Set the PIN (using the stored original PIN)
                               await authModel.setPin(originalPin);

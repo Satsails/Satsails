@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,7 +29,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
   }
 
   Future<void> fetchMnemonic() async {
-    final authModel = AuthModel();
+    final authModel = ref.read(authModelProvider);
     final mnemonic = await authModel.getMnemonic();
 
     if (mnemonic != null && mnemonic.isNotEmpty) {

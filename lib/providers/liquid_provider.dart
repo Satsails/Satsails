@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/address_provider.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk/lwk.dart';
@@ -115,7 +116,8 @@ final decodeLiquidPsetProvider = FutureProvider.family.autoDispose<PsetAmounts, 
 final signLiquidPsetProvider = FutureProvider.family.autoDispose<Uint8List, String>((ref, pset) async {
   final liquid = await ref.watch(initializeLiquidProvider.future);
   final LiquidModel liquidModel = LiquidModel(liquid);
-  final mnemonic = await AuthModel().getMnemonic();
+  final authModel = ref.read(authModelProvider);
+  final mnemonic = await authModel.getMnemonic();
   final SignParams signParams = SignParams(
     pset: pset,
     mnemonic: mnemonic!,
@@ -126,7 +128,8 @@ final signLiquidPsetProvider = FutureProvider.family.autoDispose<Uint8List, Stri
 final signLiquidPsetStringProvider = FutureProvider.family.autoDispose<String, String>((ref, pset) async {
   final liquid = await ref.watch(initializeLiquidProvider.future);
   final LiquidModel liquidModel = LiquidModel(liquid);
-  final mnemonic = await AuthModel().getMnemonic();
+  final authModel = ref.read(authModelProvider);
+  final mnemonic = await authModel.getMnemonic();
   final SignParams signParams = SignParams(
     pset: pset,
     mnemonic: mnemonic!,

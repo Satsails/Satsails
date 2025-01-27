@@ -1,4 +1,5 @@
 import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -168,7 +169,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
 
 
   Future<void> _forgotPin(BuildContext context, WidgetRef ref) async {
-    final authModel = AuthModel();
+    final authModel = ref.read(authModelProvider);
     await authModel.deleteAuthentication(); // Delete the wallet
     context.go('/');
   }

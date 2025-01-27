@@ -6,6 +6,7 @@ import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/models/purchase_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -140,7 +141,8 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   }
 
   Future<void> _initializeRouter() async {
-    final mnemonic = await AuthModel().getMnemonic();
+    final authModel = ref.read(authModelProvider);
+    final mnemonic = await authModel.getMnemonic();
 
     final initialRoute = (mnemonic == null || mnemonic.isEmpty) ? '/' : '/open_pin';
 
@@ -183,8 +185,9 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   Future<void> _lockApp() async {
     ref.read(sendTxProvider.notifier).resetToDefault();
     ref.read(sendBlocksProvider.notifier).state = 1;
+    final authModel = ref.read(authModelProvider);
 
-    final mnemonic = await AuthModel().getMnemonic();
+    final mnemonic = await authModel.getMnemonic();
 
     if (mnemonic == null || mnemonic.isEmpty) {
       _router!.go('/');
