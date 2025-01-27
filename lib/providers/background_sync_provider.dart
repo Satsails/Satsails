@@ -140,17 +140,13 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
 }
 
 class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
-  Timer? _timer;
 
   @override
   Future<WalletBalance> build() async {
     // Perform the initial sync when the provider is built
     final initialBalance = ref.read(balanceNotifierProvider);
 
-    // Set up periodic sync every 2 minutes
-    _timer ??= Timer.periodic(const Duration(minutes: 2), (timer) async {
-      await performSync();
-    });
+    await performSync();
 
     return initialBalance;
   }
@@ -304,11 +300,6 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
       );
       ref.read(balanceChangeProvider.notifier).state = balanceChange;
     }
-  }
-
-  @override
-  void onDispose() {
-    _timer?.cancel();
   }
 }
 

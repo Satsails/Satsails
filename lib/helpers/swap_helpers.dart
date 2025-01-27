@@ -2032,7 +2032,6 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
               }
               await ref.watch(sendLiquidTransactionProvider.future);
               await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
@@ -2099,7 +2098,6 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
               }
               await ref.watch(sendBitcoinTransactionProvider.future);
               await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-              await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
@@ -2165,7 +2163,6 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
           controller.loading();
           try {
             await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
-            await ref.read(liquidSyncNotifierProvider.notifier).performSync();
             ref.read(sendTxProvider.notifier).updateAddress('');
             ref.read(sendTxProvider.notifier).updateAmount(0);
             ref.read(sendBlocksProvider.notifier).state = 1;
@@ -2225,7 +2222,6 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               final liquidAddress = await ref.read(liquidAddressProvider.future);
               ref.read(sendTxProvider.notifier).updateAddress(liquidAddress.confidential);
               await ref.read(sendCoinosLiquidProvider.future);
-              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
             } else {
               final addressFromCoinos = await ref.read(createInvoiceForSwapProvider('liquid').future);
               ref.read(sendTxProvider.notifier).updateAddress(addressFromCoinos);
@@ -2233,7 +2229,6 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
               final lnBalance = await ref.read(coinosBalanceProvider.future);
               balanceNotifier.updateLightningBalance(lnBalance);
-              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
             }
             ref.read(sendBlocksProvider.notifier).state = 1;
             showMessageSnackBar(
@@ -2287,7 +2282,6 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               final btcAddress = await ref.read(bitcoinAddressProvider.future);
               ref.read(sendTxProvider.notifier).updateAddress(btcAddress);
               await ref.read(sendCoinosBitcoinProvider.future);
-              await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
             } else {
               final addressFromCoinos = await ref.read(createInvoiceForSwapProvider('bitcoin').future);
               ref.read(sendTxProvider.notifier).updateAddress(addressFromCoinos);
@@ -2295,7 +2289,6 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
               final lnBalance = await ref.read(coinosBalanceProvider.future);
               balanceNotifier.updateLightningBalance(lnBalance);
-              await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
             }
             ref.read(sendBlocksProvider.notifier).state = 1;
             showMessageSnackBar(

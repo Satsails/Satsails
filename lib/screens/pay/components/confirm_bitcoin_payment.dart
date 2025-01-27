@@ -402,7 +402,6 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                         controller.loading();
                         try {
                           final tx = await ref.watch(sendBitcoinTransactionProvider.future);
-                          await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
 
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           ref.read(sendBlocksProvider.notifier).state = 1;

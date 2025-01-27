@@ -9,9 +9,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
@@ -181,23 +179,14 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: LiquidPullToRefresh(
-          onRefresh: () async {
-            await ref
-                .read(backgroundSyncNotifierProvider.notifier)
-                .performSync();
-          },
-          color: Colors.orange,
-          showChildOpacityTransition: false,
-          child: ListView.builder(
+        body: ListView.builder(
             itemCount: itemCount,
             itemBuilder: (BuildContext context, int index) {
               return itemBuilder(index);
             },
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildNoTransactionsFound(double screenHeight, WidgetRef ref) {

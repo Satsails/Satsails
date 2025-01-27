@@ -37,7 +37,6 @@ dependencies:
   icons_plus: ^5.0.0
   loading_animation_widget: ^1.2.1
   group_button: ^5.3.4
-  liquid_pull_to_refresh: ^3.0.1
   action_slider: ^0.7.0
   flutter_card_swiper: ^7.0.0
   calendar_date_picker2: ^0.5.6
