@@ -11,10 +11,10 @@ final liquidConfigProvider = FutureProvider<LiquidConfig>((ref) async {
   }
 
   try {
-    final wallet = await LiquidConfigModel.createWallet(mnemonic, Network.testnet);
+    final wallet = await LiquidConfigModel.createWallet(mnemonic, Network.mainnet);
     return LiquidConfig(
       mnemonic: mnemonic,
-      network: Network.testnet,
+      network: Network.mainnet,
       wallet: wallet,
     );
   } catch (e) {
@@ -23,10 +23,10 @@ final liquidConfigProvider = FutureProvider<LiquidConfig>((ref) async {
         errorMessage.contains('UpdateOnDifferentStatus')) {
       // Delete database only for specific errors
       await authModel.deleteLwkDb();
-      final wallet = await LiquidConfigModel.createWallet(mnemonic, Network.testnet);
+      final wallet = await LiquidConfigModel.createWallet(mnemonic, Network.mainnet);
       return LiquidConfig(
         mnemonic: mnemonic,
-        network: Network.testnet,
+        network: Network.mainnet,
         wallet: wallet,
       );
     } else {

@@ -173,8 +173,10 @@ class AuthModel {
   Future<void> deleteLwkDb() async {
     final appDocDir = await getApplicationDocumentsDirectory();
     final liquidDBPath = '${appDocDir.path}/lwk-db';
-    final dbFile = File(liquidDBPath);
-    await dbFile.delete();
+    final dbDir = Directory(liquidDBPath);
+    if (await dbDir.exists()) {
+      await dbDir.delete(recursive: true);
+    }
   }
 
   Future<void> deleteAuthentication() async {
