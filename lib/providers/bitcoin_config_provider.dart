@@ -10,9 +10,7 @@ final bitcoinConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
   if (mnemonic == null || mnemonic.isEmpty) {
     throw Exception('Mnemonic is null or empty');
   }
-  final electrumUrl = ref.watch(
-    settingsProvider.select((settings) => settings.bitcoinElectrumNode),
-  );
+  final electrumUrl = ref.watch(settingsProvider).bitcoinElectrumNode;
 
   return BitcoinConfig(
     mnemonic: mnemonic,

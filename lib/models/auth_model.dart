@@ -170,6 +170,13 @@ class AuthModel {
     return base64.encode(derivedKey.sublist(20, 30));
   }
 
+  Future<void> deleteLwkDb() async {
+    final appDocDir = await getApplicationDocumentsDirectory();
+    final liquidDBPath = '${appDocDir.path}/lwk-db';
+    final dbFile = File(liquidDBPath);
+    await dbFile.delete();
+  }
+
   Future<void> deleteAuthentication() async {
     await _storage.delete(key: 'mnemonic');
     await _storage.delete(key: 'pin');

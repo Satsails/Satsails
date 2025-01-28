@@ -10,9 +10,7 @@ import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 
 final initializeLiquidProvider = FutureProvider<Liquid>((ref) {
-  final electrumUrl = ref.watch(
-    settingsProvider.select((settings) => settings.liquidElectrumNode),
-  );
+  final electrumUrl = ref.watch(settingsProvider).liquidElectrumNode;
 
   return ref.watch(liquidConfigProvider.future).then((config) {
     return Liquid(liquid: config, electrumUrl: electrumUrl);

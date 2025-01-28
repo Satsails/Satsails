@@ -5,12 +5,12 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
-import 'package:Satsails/providers/settings_provider.dart';
 import 'package:hive/hive.dart';
 import 'package:lwk/lwk.dart';
 
