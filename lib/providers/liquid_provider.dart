@@ -10,7 +10,9 @@ import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 
 final initializeLiquidProvider = FutureProvider<Liquid>((ref) {
-  final electrumUrl = ref.watch(settingsProvider).liquidElectrumNode;
+  final electrumUrl = ref.watch(
+    settingsProvider.select((settings) => settings.liquidElectrumNode),
+  );
 
   return ref.watch(liquidConfigProvider.future).then((config) {
     return Liquid(liquid: config, electrumUrl: electrumUrl);
@@ -54,21 +56,21 @@ final liquidNextAddressProvider = FutureProvider.autoDispose<String>((ref) {
   });
 });
 
-final liquidBalanceProvider = FutureProvider<Balances>((ref) {
+final liquidBalanceProvider = FutureProvider.autoDispose<Balances>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     return liquidModel.balance();
   });
 });
 
-final liquidTransactionsProvider = FutureProvider<List<Tx>>((ref) {
+final liquidTransactionsProvider = FutureProvider.autoDispose<List<Tx>>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     return liquidModel.txs();
   });
 });
 
-final liquidUnspentUtxosProvider = FutureProvider<List<TxOut>>((ref) {
+final liquidUnspentUtxosProvider = FutureProvider.autoDispose<List<TxOut>>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     return liquidModel.listUnspent();

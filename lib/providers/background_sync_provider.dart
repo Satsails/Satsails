@@ -145,8 +145,6 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   Future<WalletBalance> build() async {
     final initialBalance = ref.read(balanceNotifierProvider);
 
-    await performSync();
-
     return initialBalance;
   }
 

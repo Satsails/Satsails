@@ -53,7 +53,7 @@ final getBitcoinTransactionsProvider = FutureProvider.autoDispose<List<Transacti
   });
 });
 
-final getBitcoinBalanceProvider = FutureProvider<Balance>((ref) {
+final getBitcoinBalanceProvider = FutureProvider.autoDispose<Balance>((ref) {
   return ref.watch(bitcoinProvider.future).then((bitcoin) {
     BitcoinModel bitcoinModel = BitcoinModel(bitcoin);
     return bitcoinModel.getBalance();

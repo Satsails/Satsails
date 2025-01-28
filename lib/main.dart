@@ -202,7 +202,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
 
   void _startSyncTimer() {
     _cancelSyncTimer();
-    _syncTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+    _syncTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
       ref.read(backgroundSyncNotifierProvider.notifier).performSync();
     });
   }
