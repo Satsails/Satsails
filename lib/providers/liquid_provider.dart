@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';

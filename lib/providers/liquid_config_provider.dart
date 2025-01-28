@@ -1,4 +1,3 @@
-import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:lwk/lwk.dart';
 import 'package:Satsails/models/liquid_config_model.dart';

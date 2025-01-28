@@ -60,7 +60,7 @@ class SideswapStartExchange {
           "asset_bf": utxo.unblinded.assetBf,
           "redeem_script": utxo.scriptPubkey,
           "txid": utxo.outpoint.txid,
-          "value": utxo.unblinded.value,
+          "value": utxo.unblinded.value.toInt(),
           "value_bf": utxo.unblinded.valueBf,
           "vout": utxo.outpoint.vout,
         };
