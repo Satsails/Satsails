@@ -78,6 +78,7 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
   }
 });
 
+// delete after migrations
 final migrateUserToJwtProvider = FutureProvider.autoDispose<void>((ref) async {
   final bitcoinPublicKey = await BackendAuth.getPublicKey();
   final recoveryCode = ref.read(userProvider).recoveryCode;

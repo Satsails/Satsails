@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:Satsails/handlers/response_handlers.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
@@ -73,7 +72,6 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      recoveryCode: json['user']['authentication_token'],
       paymentId: json['user']['payment_id'],
       affiliateCode: json['inserted_affiliate']['code'] ?? '',
       jwt: json['token'],
