@@ -54,6 +54,16 @@ class Purchase extends HiveObject {
   final double receivedAmount;
   @HiveField(16)
   final String pixKey;
+  @HiveField(17)
+  final String? paymentGateway;
+  @HiveField(18)
+  final String status;
+  @HiveField(19)
+  final String paymentMethod;
+  @HiveField(20)
+  final String assetPurchased;
+  @HiveField(21)
+  final String currencyOfPayment;
 
   Purchase({
     required this.id,
@@ -66,27 +76,41 @@ class Purchase extends HiveObject {
     required this.updatedAt,
     required this.receivedAmount,
     this.pixKey = '',
+    required this.status,
+    this.paymentGateway,
+    required this.paymentMethod,
+    required this.assetPurchased,
+    required this.currencyOfPayment,
   });
 
   factory Purchase.fromJson(Map<String, dynamic> json) {
-    final transfer = json.containsKey('transfer') ? json['transfer'] : json;
+    final transfer = json['transfer'] ?? json;
 
     return Purchase(
       id: transfer['id'] ?? 0,
       transferId: transfer['transfer_id'] ?? '',
-      originalAmount: (transfer['original_amount'] != null) ? double.parse(transfer['original_amount']) : 0.0,
+      originalAmount: (transfer['original_amount'] != null)
+          ? double.tryParse(transfer['original_amount'].toString()) ?? 0.0
+          : 0.0,
       completedTransfer: transfer['completed_transfer'] ?? false,
       userId: transfer['user_id'],
-      receivedAmount: (transfer['amount_received_by_user'] != null) ? double.parse(transfer['amount_received_by_user']) : 0.0,
-      createdAt: DateTime.parse(transfer['created_at'] ?? DateTime.now().toIso8601String()).toLocal(),
-      updatedAt: DateTime.parse(transfer['updated_at'] ?? DateTime.now().toIso8601String()).toLocal(),
+      receivedAmount: (transfer['amount_received_by_user'] != null)
+          ? double.tryParse(transfer['amount_received_by_user'].toString()) ?? 0.0
+          : 0.0,
+      createdAt: DateTime.tryParse(transfer['created_at']?.toString() ?? '')?.toLocal() ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(transfer['updated_at']?.toString() ?? '')?.toLocal() ?? DateTime.now(),
       failed: transfer['failed'] ?? false,
-      pixKey: json['pix'] ?? '', // "pix" key is outside "transfer"
+      pixKey: json['pix']?.toString() ?? '',
+      paymentGateway: transfer['payment_gateway']?.toString(),
+      status: transfer['status']?.toString() ?? 'unknown',
+      paymentMethod: transfer['payment_method']?.toString() ?? 'unknown',
+      assetPurchased: transfer['asset_purchased']?.toString() ?? 'unknown',
+      currencyOfPayment: transfer['currency_of_payment']?.toString() ?? 'unknown',
     );
   }
 
-
-  Purchase.empty() : this(
+  Purchase.empty()
+      : this(
     id: 0,
     transferId: '',
     originalAmount: 0.0,
@@ -97,6 +121,10 @@ class Purchase extends HiveObject {
     receivedAmount: 0.0,
     failed: false,
     pixKey: '',
+    status: 'unknown',
+    paymentMethod: 'unknown',
+    assetPurchased: 'unknown',
+    currencyOfPayment: 'unknown',
   );
 }
 

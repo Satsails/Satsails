@@ -63,7 +63,6 @@ final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase
   final auth = ref.read(userProvider).jwt!;
   final liquidAddress = await ref.read(liquidAddressProvider.future);
   final result = await PurchaseService.createPurchaseRequest(auth, amount, liquidAddress.confidential);
-  await ref.refresh(getUserPurchasesProvider.future);
   if (result.isSuccess && result.data != null) {
     return result.data!;
   } else {
