@@ -165,10 +165,6 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
       _startLockCountdown();
       _cancelSyncTimer();
     } else if (state == AppLifecycleState.resumed) {
-      if (ref.read(syncOnAppOpenProvider)) {
-        ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-        ref.read(syncOnAppOpenProvider.notifier).state = false;
-      }
       _cancelLockTimer();
       _startSyncTimer();
     }

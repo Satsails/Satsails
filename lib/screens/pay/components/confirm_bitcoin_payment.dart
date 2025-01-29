@@ -403,15 +403,18 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                         try {
                           final tx = await ref.watch(sendBitcoinTransactionProvider.future);
 
-                          ref.read(sendTxProvider.notifier).resetToDefault();
-                          ref.read(sendBlocksProvider.notifier).state = 1;
                           showFullscreenTransactionSendModal(
                             context: context,
                             asset: 'Bitcoin',
                             amount: btcInDenominationFormatted(sendTxState.amount, btcFormat),
                             fiat: false,
                             txid: tx,
+                            receiveAddress: ref.read(sendTxProvider).address,
+                            confirmationBlocks: ref.read(sendBlocksProvider.notifier).state.toInt(),
                           );
+
+                          ref.read(sendTxProvider.notifier).resetToDefault();
+                          ref.read(sendBlocksProvider.notifier).state = 1;
                           context.replace('/home');
                         } catch (e) {
                           controller.failure();

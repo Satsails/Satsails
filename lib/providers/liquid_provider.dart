@@ -14,6 +14,10 @@ final initializeLiquidProvider = FutureProvider<Liquid>((ref) {
     settingsProvider.select((settings) => settings.liquidElectrumNode),
   );
 
+  ref.watch(
+    settingsProvider.select((settings) => settings.online),
+  );
+
   return ref.watch(liquidConfigProvider.future).then((config) {
     return Liquid(liquid: config, electrumUrl: electrumUrl);
   });

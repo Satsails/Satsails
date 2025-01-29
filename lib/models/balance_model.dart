@@ -2,6 +2,7 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/currency_conversions.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:hive/hive.dart';
+import 'package:lwk/lwk.dart';
 import 'package:riverpod/riverpod.dart';
 
 part 'balance_model.g.dart';
@@ -151,7 +152,7 @@ class WalletBalance {
     int? lightningBalance,
   }) : lightningBalance = lightningBalance ?? 0;
 
-  factory WalletBalance.updateFromAssets(List<dynamic> balances, int bitcoinBalance, int lightningBalance) {
+  factory WalletBalance.updateFromAssets(Balances balances, int bitcoinBalance, int lightningBalance) {
     int usdBalance = 0;
     int eurBalance = 0;
     int brlBalance = 0;

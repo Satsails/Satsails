@@ -14,6 +14,10 @@ final bitcoinConfigProvider = FutureProvider<BitcoinConfig>((ref) async {
     settingsProvider.select((settings) => settings.bitcoinElectrumNode),
   );
 
+  ref.watch(
+    settingsProvider.select((settings) => settings.online),
+  );
+
   return BitcoinConfig(
     mnemonic: mnemonic,
     network: Network.bitcoin,

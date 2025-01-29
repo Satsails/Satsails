@@ -155,24 +155,29 @@ class Home extends ConsumerWidget {
         ],
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Clarity.settings_line, color: Colors.white),
-          onPressed: () {
+        GestureDetector(
+          onTap: () {
             ref.invalidate(initializeUserProvider);
             context.push('/home/settings');
           },
+          child: const Icon(Clarity.settings_line, color: Colors.white),
         ),
+        SizedBox(width: 10), // Add spacing
         ref.watch(backgroundSyncInProgressProvider)
-            ? LoadingAnimationWidget.bouncingBall(
-            color: Colors.orange, size: 40)
-            : IconButton(
-          icon: Icon(
-            Icons.sync,
-            color: settings.online ? Colors.white : Colors.red,
+            ? Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: LoadingAnimationWidget.beat(
+            color: Colors.green,
+            size: 20,
           ),
-          onPressed: () {
-            toggleOnlineStatus();
-          },
+        )
+            : Padding( padding:  const EdgeInsets.symmetric(horizontal: 8),
+          child: GestureDetector(onTap: () {toggleOnlineStatus();},
+            child:  LoadingAnimationWidget.beat(
+              color: settings.online ? Colors.green : Colors.red,
+              size: 20,
+            ),
+          ),
         ),
       ],
     );

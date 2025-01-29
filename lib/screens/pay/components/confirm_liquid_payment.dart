@@ -387,7 +387,10 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                             fiatAmount: ref.watch(sendTxProvider).amount.toString(),
                             txid: tx,
                             isLiquid: true,
+                            receiveAddress: ref.read(sendTxProvider).address,
+                            confirmationBlocks: ref.read(sendBlocksProvider.notifier).state.toInt(),
                           );
+
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           ref.read(sendBlocksProvider.notifier).state = 1;
                           context.replace('/home');
@@ -405,8 +408,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                           });
                         }
                       },
-                      child: Text('Slide to send'.i18n(ref),
-                          style: const TextStyle(color: Colors.white)),
+                      child: Text('Slide to send'.i18n(ref), style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),
