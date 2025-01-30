@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/firebase_model.dart';
@@ -8,8 +7,10 @@ import 'package:Satsails/models/purchase_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/purchase_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
 import 'package:Satsails/screens/spash/splash.dart';
@@ -103,7 +104,7 @@ Future<void> main() async {
   });
 
   runApp(
-      const OverlaySupport.global(
+    const OverlaySupport.global(
       child: RestartWidget(
         child: ProviderScope(
           child: TransactionNotificationsListener(
@@ -124,19 +125,20 @@ class MainApp extends ConsumerStatefulWidget {
 
 class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   Timer? _lockTimer;
+  Timer? _syncTimer;
+  Timer? _purchaseTimer;
   final int lockThresholdInSeconds = 300; // 5 minutes
   GoRouter? _router;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this); // Observe app lifecycle
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.black,
       systemNavigationBarIconBrightness: Brightness.light,
     ));
 
-    // Initialize the router
     _initializeRouter();
   }
 
@@ -149,12 +151,15 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     setState(() {
       _router = AppRouter.createRouter(initialRoute);
     });
+
+    _startSyncTimer();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this); // Stop observing
-    _cancelLockTimer(); // Cancel the timer if the app is closed
+    WidgetsBinding.instance.removeObserver(this);
+    _cancelLockTimer();
+    _cancelSyncTimer();
     super.dispose();
   }
 
@@ -171,7 +176,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   }
 
   void _startLockCountdown() {
-    _cancelLockTimer(); // Ensure no previous timer is running
+    _cancelLockTimer();
     _lockTimer = Timer(Duration(seconds: lockThresholdInSeconds), _lockApp);
   }
 
@@ -186,7 +191,6 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     final authModel = ref.read(authModelProvider);
 
     final mnemonic = await authModel.getMnemonic();
-
     if (mnemonic == null || mnemonic.isEmpty) {
       _router!.go('/');
     } else {
@@ -194,18 +198,26 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     }
   }
 
-  Timer? _syncTimer;
-
   void _startSyncTimer() {
     _cancelSyncTimer();
+
     _syncTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
       ref.read(backgroundSyncNotifierProvider.notifier).performSync();
     });
+
+    final auth = ref.watch(userProvider).jwt;
+    if (auth != null || auth.isNotEmpty) {
+      _purchaseTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
+        ref.read(getUserPurchasesProvider);
+      });
+    }
   }
 
   void _cancelSyncTimer() {
     _syncTimer?.cancel();
     _syncTimer = null;
+    _purchaseTimer?.cancel();
+    _purchaseTimer = null;
   }
 
   @override
@@ -220,7 +232,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     }
 
     return ScreenUtilInit(
-      designSize: const Size(430, 932), // Design size based on iPhone 16 Pro Max
+      designSize: const Size(430, 932),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
@@ -241,7 +253,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
           builder: (context, child) {
             return MediaQuery(
               data: MediaQuery.of(context).copyWith(
-                textScaleFactor: 1.0, // Prevent text scaling based on user settings
+                textScaleFactor: 1.0,
               ),
               child: I18n(
                 child: child!,
@@ -253,4 +265,3 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     );
   }
 }
-

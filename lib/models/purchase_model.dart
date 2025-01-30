@@ -10,24 +10,47 @@ part 'purchase_model.g.dart';
 class PurchaseNotifier extends StateNotifier<List<Purchase>> {
   PurchaseNotifier(List<Purchase> initialPurchases) : super(initialPurchases);
 
-  Future<void> addPurchase(Purchase purchase) async {
-    state = [...state, purchase];
-    await _updateHive();
-  }
-
-  Future<void> setPurchases(List<Purchase> purchases) async {
-    state = purchases;
-    await _updateHive();
-  }
-
   Purchase getPurchaseById(int id) {
     return state.firstWhere((purchase) => purchase.id == id, orElse: () => Purchase.empty());
   }
 
+  Future<void> mergePurchase(Purchase serverPurchase) async {
+    final Map<int, Purchase> mergedPurchases = {
+      for (var p in state) p.id: p
+    };
+
+    mergedPurchases[serverPurchase.id] = serverPurchase;
+
+    state = mergedPurchases.values.toList();
+    await _updateHive();
+  }
+
+  Future<void> mergePurchases(List<Purchase> serverPurchases) async {
+    final Map<int, Purchase> mergedPurchases = {
+      for (var p in state) p.id: p
+    };
+
+    for (final serverPurchase in serverPurchases) {
+      mergedPurchases[serverPurchase.id] = serverPurchase;
+    }
+
+    state = mergedPurchases.values.toList();
+    await _updateHive();
+  }
+
   Future<void> _updateHive() async {
     final purchaseBox = await Hive.openBox<Purchase>('purchasesBox');
-    await purchaseBox.clear();
-    await purchaseBox.addAll(state);
+    final existingKeys = purchaseBox.keys.cast<int>().toSet();
+    final currentIds = state.map((p) => p.id).toSet();
+
+    // Delete stale entries
+    final keysToRemove = existingKeys.difference(currentIds);
+    await purchaseBox.deleteAll(keysToRemove);
+
+    // Upsert current purchases
+    for (final purchase in state) {
+      await purchaseBox.put(purchase.id, purchase);
+    }
   }
 }
 
@@ -154,10 +177,10 @@ class PurchaseService {
     }
   }
 
-  static Future<Result<List<Purchase>>> getUserPurchases(String pixPaymentCode, String auth) async {
+  static Future<Result<List<Purchase>>> getUserPurchases(String auth) async {
     try {
       final uri = Uri.parse(
-          dotenv.env['BACKEND']! + '/users/user_transfers').replace(queryParameters: {'payment_id': pixPaymentCode,});
+          dotenv.env['BACKEND']! + '/users/user_transfers');
 
       final response = await http.get(
         uri,
@@ -180,13 +203,9 @@ class PurchaseService {
     }
   }
 
-  static Future<Result<String>> getAmountPurchased(String pixPaymentCode, String auth) async {
+  static Future<Result<String>> getAmountPurchased(String auth) async {
     try {
-      final uri = Uri.parse(
-          dotenv.env['BACKEND']! + '/users/amount_transfered_by_day')
-          .replace(queryParameters: {
-        'payment_id': pixPaymentCode,
-      });
+      final uri = Uri.parse(dotenv.env['BACKEND']! + '/users/amount_transfered_by_day');
 
       final response = await http.get(
         uri,

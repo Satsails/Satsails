@@ -35,12 +35,11 @@ final singlePurchaseDetailsProvider = StateProvider.autoDispose<Purchase>((ref) 
 
 
 final getUserPurchasesProvider = FutureProvider.autoDispose<List<Purchase>>((ref) async {
-  final paymentId = ref.read(userProvider).paymentId;
   final auth = ref.read(userProvider).jwt!;
-  final transactions = await PurchaseService.getUserPurchases(paymentId, auth);
+  final transactions = await PurchaseService.getUserPurchases(auth);
 
   if (transactions.isSuccess && transactions.data != null) {
-    ref.read(purchaseProvider.notifier).setPurchases(transactions.data!);
+    ref.read(purchaseProvider.notifier).mergePurchases(transactions.data!);
     return transactions.data!;
   } else {
     throw transactions.error!;
@@ -48,9 +47,8 @@ final getUserPurchasesProvider = FutureProvider.autoDispose<List<Purchase>>((ref
 });
 
 final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) async {
-  final paymentId = ref.read(userProvider).paymentId;
   final auth = ref.read(userProvider).jwt!;
-  final amountTransferred = await PurchaseService.getAmountPurchased(paymentId, auth);
+  final amountTransferred = await PurchaseService.getAmountPurchased(auth);
 
   if (amountTransferred.isSuccess && amountTransferred.data != null) {
     return amountTransferred.data!;
@@ -64,6 +62,7 @@ final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase
   final liquidAddress = await ref.read(liquidAddressProvider.future);
   final result = await PurchaseService.createPurchaseRequest(auth, amount, liquidAddress.confidential);
   if (result.isSuccess && result.data != null) {
+    ref.read(purchaseProvider.notifier).mergePurchase(result.data!);
     return result.data!;
   } else {
     throw result.error!;
