@@ -31,7 +31,6 @@ class PurchaseNotifier extends StateNotifier<List<Purchase>> {
   }
 }
 
-// many of this fields are only kept here for backwards compatibility. They will be removed someday to better match the backend
 @HiveType(typeId: 28)
 class Purchase extends HiveObject {
   @HiveField(0)
@@ -57,13 +56,13 @@ class Purchase extends HiveObject {
   @HiveField(17)
   final String? paymentGateway;
   @HiveField(18)
-  final String status;
+  final String? status; // Made nullable
   @HiveField(19)
-  final String paymentMethod;
+  final String? paymentMethod; // Made nullable
   @HiveField(20)
-  final String assetPurchased;
+  final String? assetPurchased; // Made nullable
   @HiveField(21)
-  final String currencyOfPayment;
+  final String? currencyOfPayment; // Made nullable
 
   Purchase({
     required this.id,
@@ -76,11 +75,11 @@ class Purchase extends HiveObject {
     required this.updatedAt,
     required this.receivedAmount,
     this.pixKey = '',
-    required this.status,
     this.paymentGateway,
-    required this.paymentMethod,
-    required this.assetPurchased,
-    required this.currencyOfPayment,
+    this.status = 'unknown', // Optional with default
+    this.paymentMethod = 'unknown', // Optional with default
+    this.assetPurchased = 'unknown', // Optional with default
+    this.currencyOfPayment = 'unknown', // Optional with default
   });
 
   factory Purchase.fromJson(Map<String, dynamic> json) {
@@ -102,10 +101,10 @@ class Purchase extends HiveObject {
       failed: transfer['failed'] ?? false,
       pixKey: json['pix']?.toString() ?? '',
       paymentGateway: transfer['payment_gateway']?.toString(),
-      status: transfer['status']?.toString() ?? 'unknown',
-      paymentMethod: transfer['payment_method']?.toString() ?? 'unknown',
-      assetPurchased: transfer['asset_purchased']?.toString() ?? 'unknown',
-      currencyOfPayment: transfer['currency_of_payment']?.toString() ?? 'unknown',
+      status: transfer['status']?.toString() ?? 'unknown', // Ensure default
+      paymentMethod: transfer['payment_method']?.toString() ?? 'unknown', // Ensure default
+      assetPurchased: transfer['asset_purchased']?.toString() ?? 'unknown', // Ensure default
+      currencyOfPayment: transfer['currency_of_payment']?.toString() ?? 'unknown', // Ensure default
     );
   }
 

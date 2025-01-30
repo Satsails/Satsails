@@ -27,11 +27,11 @@ class PurchaseAdapter extends TypeAdapter<Purchase> {
       updatedAt: fields[14] as DateTime,
       receivedAmount: fields[15] as double,
       pixKey: fields[16] as String,
-      status: fields[18] as String,
       paymentGateway: fields[17] as String?,
-      paymentMethod: fields[19] as String,
-      assetPurchased: fields[20] as String,
-      currencyOfPayment: fields[21] as String,
+      status: fields[18] as String?,
+      paymentMethod: fields[19] as String?,
+      assetPurchased: fields[20] as String?,
+      currencyOfPayment: fields[21] as String?,
     );
   }
 
