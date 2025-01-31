@@ -35,23 +35,15 @@ class BalanceNotifier extends StateNotifier<WalletBalance> {
         state = cachedBalance;
       }
 
-      // Listen for balance updates
-      ref.listen<AsyncValue<WalletBalance>>(initializeBalanceProvider, (previous, next) async {
-        next.when(
-          data: (balance) async {
-            state = balance; // Update state with new balance
-            await hiveBox.put('balance', balance); // Store new balance in Hive
-          },
-          loading: () {
-            // Do nothing, retain previous balance
-          },
-          error: (error, stackTrace) {
-            print('Error updating balance: $error');
-          },
-        );
+      // Listen for changes in the Hive box
+      hiveBox.watch(key: 'balance').listen((event) {
+        if (event.value != null && event.value is WalletBalance) {
+          state = event.value as WalletBalance;
+        }
       });
     });
   }
+
 
   void updateLightningBalance(int newLightningBalance) {
     state = WalletBalance(

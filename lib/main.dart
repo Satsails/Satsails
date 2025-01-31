@@ -7,6 +7,7 @@ import 'package:Satsails/models/purchase_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/purchase_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -202,6 +203,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     _cancelSyncTimer();
 
     _syncTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+      ref.read(updateCurrencyProvider);
       ref.read(backgroundSyncNotifierProvider.notifier).performSync();
     });
 

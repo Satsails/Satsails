@@ -14,8 +14,6 @@ import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:hive/hive.dart';
 import 'package:lwk/lwk.dart';
 
-final syncOnAppOpenProvider = StateProvider<bool>((ref) => false);
-
 abstract class SyncNotifier<T> extends AsyncNotifier<T> {
   Future<T> performSync();
 
