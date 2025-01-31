@@ -55,5 +55,15 @@ String currencyFormat(double value, String currency, {int decimalPlaces = 2}) {
   }
 }
 
+String stripTrailingZeros(String value) {
+  // Remove trailing zeros
+  value = value.replaceAll(RegExp(r'0+$'), '');
+  // If the string ends with '.', remove that too
+  if (value.endsWith('.')) {
+    value = value.substring(0, value.length - 1);
+  }
+  return value;
+}
+
 
 

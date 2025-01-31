@@ -2,7 +2,6 @@ import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart' as bdk;
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
-import 'package:Satsails/services/coinos/coinos_push_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';

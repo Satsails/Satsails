@@ -3,26 +3,11 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
-
-final initialPurchaseProvider = FutureProvider<List<Purchase>>((ref) async {
-  final purchaseBox = await Hive.openBox<Purchase>('purchasesBox');
-
-  final purchases = purchaseBox.values.toList();
-  return purchases;
-});
 
 final purchaseProvider = StateNotifierProvider<PurchaseNotifier, List<Purchase>>((ref) {
-  final initialPurchases = ref.watch(initialPurchaseProvider);
-
-  return initialPurchases.when(
-    data: (purchases) => PurchaseNotifier(purchases),
-    loading: () => PurchaseNotifier([]),
-    error: (error, stackTrace) {
-      throw error;
-    },
-  );
+  return PurchaseNotifier();
 });
+
 
 final selectedPurchaseIdProvider = StateProvider<int>((ref) => 0);
 
@@ -35,12 +20,11 @@ final singlePurchaseDetailsProvider = StateProvider.autoDispose<Purchase>((ref) 
 
 
 final getUserPurchasesProvider = FutureProvider.autoDispose<List<Purchase>>((ref) async {
-  final paymentId = ref.read(userProvider).paymentId;
-  final auth = ref.read(userProvider).recoveryCode;
-  final transactions = await PurchaseService.getUserPurchases(paymentId, auth);
+  final auth = ref.read(userProvider).jwt!;
+  final transactions = await PurchaseService.getUserPurchases(auth);
 
   if (transactions.isSuccess && transactions.data != null) {
-    ref.read(purchaseProvider.notifier).setPurchases(transactions.data!);
+    ref.read(purchaseProvider.notifier).mergePurchases(transactions.data!);
     return transactions.data!;
   } else {
     throw transactions.error!;
@@ -48,9 +32,8 @@ final getUserPurchasesProvider = FutureProvider.autoDispose<List<Purchase>>((ref
 });
 
 final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) async {
-  final paymentId = ref.read(userProvider).paymentId;
-  final auth = ref.read(userProvider).recoveryCode;
-  final amountTransferred = await PurchaseService.getAmountPurchased(paymentId, auth);
+  final auth = ref.read(userProvider).jwt!;
+  final amountTransferred = await PurchaseService.getAmountPurchased(auth);
 
   if (amountTransferred.isSuccess && amountTransferred.data != null) {
     return amountTransferred.data!;
@@ -60,11 +43,11 @@ final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) asyn
 });
 
 final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase, int>((ref, amount) async {
-  final auth = ref.read(userProvider).recoveryCode;
+  final auth = ref.read(userProvider).jwt!;
   final liquidAddress = await ref.read(liquidAddressProvider.future);
   final result = await PurchaseService.createPurchaseRequest(auth, amount, liquidAddress.confidential);
-  await ref.refresh(getUserPurchasesProvider.future);
   if (result.isSuccess && result.data != null) {
+    ref.read(purchaseProvider.notifier).mergePurchase(result.data!);
     return result.data!;
   } else {
     throw result.error!;
@@ -72,7 +55,7 @@ final createPurchaseRequestProvider = FutureProvider.autoDispose.family<Purchase
 });
 
 final getPixPaymentStateProvider = FutureProvider.autoDispose.family<bool, String>((ref, transactionId) async {
-  final auth = ref.read(userProvider).recoveryCode;
+  final auth = ref.read(userProvider).jwt!;
   final paymentState = await PurchaseService.getPurchasePixPaymentState(transactionId, auth);
 
   if (paymentState.isSuccess && paymentState.data != null) {

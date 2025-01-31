@@ -23,10 +23,14 @@ class Explore extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black, // black app bar
+        backgroundColor: Colors.black,
         title: Text(
           'Explore',
-          style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.sp,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -37,21 +41,28 @@ class Explore extends ConsumerWidget {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _BalanceDisplay(),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 16.h,
+                  ),
+                  child: _BalanceDisplay(),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 19.w),
+                  child: _ActionGrid(),
+                ),
                 SizedBox(height: 16.h),
-                _ActionGrid(),
               ],
             ),
           ),
-
           if (isLoading)
             Center(
               child: LoadingAnimationWidget.threeArchedCircle(
-                size: 80.h, // Adjusted size with .h
+                size: 80.h,
                 color: Colors.orange,
               ),
             ),
@@ -68,12 +79,13 @@ class _BalanceDisplay extends ConsumerWidget {
     final currency = ref.watch(settingsProvider).currency;
     final totalBtcBalance = ref.watch(totalBalanceInDenominationProvider(denomination));
     final totalBalanceInCurrency = ref.watch(totalBalanceInFiatProvider(currency));
+
     return Card(
       color: Colors.grey.shade900,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 2,
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w), // Adjusted padding
+        padding: EdgeInsets.symmetric(vertical: 16.h),
         child: Column(
           children: [
             Text(
@@ -118,7 +130,8 @@ class _ActionGrid extends ConsumerWidget {
         GridView(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: 5,
+            crossAxisSpacing: 12.w,
+            mainAxisSpacing: 12.h,
             childAspectRatio: 3,
           ),
           shrinkWrap: true,
@@ -148,7 +161,8 @@ class _ActionGrid extends ConsumerWidget {
         GridView(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: 5,
+            crossAxisSpacing: 12.w,
+            mainAxisSpacing: 12.h,
             childAspectRatio: 1.2,
           ),
           shrinkWrap: true,
@@ -214,15 +228,14 @@ class _ActionButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (icon != null)
-                Icon(icon, color: Colors.white, size: 20),
+              if (icon != null) Icon(icon, color: Colors.white, size: 20),
               if (icon != null) const SizedBox(width: 8),
               Text(
                 title,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: fontSize,
+                  fontSize: fontSize.sp,
                 ),
               ),
             ],
@@ -233,40 +246,69 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentId) async {
+Future<void> _handleOnPress(
+    WidgetRef ref,
+    BuildContext context,
+    String paymentId,
+    ) async {
   final insertedAffiliateCode = ref.watch(userProvider).affiliateCode ?? '';
-  final hasUploadedAffiliateCode = ref.watch(userProvider).hasUploadedAffiliateCode;
+  final hasUploadedAffiliateCode = ref.watch(userProvider).hasUploadedAffiliateCode ?? false;
+  final recoveryCode = ref.watch(userProvider).recoveryCode;
+
   ref.read(isLoadingProvider.notifier).state = true;
 
   try {
+    // If the user doesn't have a paymentId, we assume they're new and need to be created
     if (paymentId.isEmpty) {
       await ref.watch(createUserProvider.future);
 
-      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-      if (Platform.isAndroid) {
-        flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()!.requestNotificationsPermission();
-      } else if (Platform.isIOS) {
-        await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+      if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
+        await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
+
+      // Request notification permissions (Android/iOS)
+      await _requestNotificationPermissions();
     } else {
       if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
         await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
+      // If the user has a recovery code, we migrate them to JWT-based auth
+       if (recoveryCode != null && recoveryCode.isNotEmpty) {
+        await ref.read(migrateUserToJwtProvider.future);
+      }
     }
 
     context.push('/home/explore/deposit_type');
-    ref.read(isLoadingProvider.notifier).state = false;
   } catch (e) {
+    // Show any errors in a snack bar
     showMessageSnackBar(
       message: e.toString(),
       context: context,
       error: true,
     );
-
+  } finally {
+    // Ensure loading state is turned off, regardless of success or failure
     ref.read(isLoadingProvider.notifier).state = false;
   }
 }
+
+Future<void> _requestNotificationPermissions() async {
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  if (Platform.isAndroid) {
+    final androidPlugin =
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+
+    // On some newer Android versions you might still need user permission
+    // to display notifications, so we request it if the plugin supports it
+    await androidPlugin?.requestNotificationsPermission();
+  } else if (Platform.isIOS) {
+    final iosPlugin =
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
+
+    await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
+  }
+}
+

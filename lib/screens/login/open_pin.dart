@@ -1,3 +1,5 @@
+import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -6,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:quickalert/quickalert.dart';
 
@@ -95,7 +96,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
   }
 
   Future<void> _checkPin(BuildContext context, WidgetRef ref) async {
-    final authModel = ref.read(authModelProvider);
+    final authModel = AuthModel();
     final pinText = await authModel.getPin();
 
     if (pinText == _pinController.text) {

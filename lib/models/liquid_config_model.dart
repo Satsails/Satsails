@@ -1,4 +1,4 @@
-import 'package:lwk_dart/lwk_dart.dart';
+import 'package:lwk/lwk.dart';
 import 'package:path_provider/path_provider.dart';
 
 class LiquidConfigModel {

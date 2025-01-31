@@ -1,3 +1,5 @@
+import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/creation/set_pin.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
@@ -7,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 
 // Add this line to define the loadingProvider

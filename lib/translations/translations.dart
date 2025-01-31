@@ -2128,7 +2128,7 @@ extension Localization on String {
         'en': 'Payment Status',
         'pt': 'Status do Pagamento'
       } +
-      {
+       {
         'en': 'Paid',
         'pt': 'Pago'
       } +
@@ -2139,6 +2139,42 @@ extension Localization on String {
       {
         'en': 'Pending payment',
         'pt': 'Pending payment'
+      } +
+      {
+        'en': 'Amount',
+        'pt': 'Valor'
+      } +
+      {
+        'en': 'Asset',
+        'pt': 'Ativo'
+      } +
+      {
+        'en': 'Recipient',
+        'pt': 'Destinatário'
+      } +
+      {
+        'en': 'Confirmation',
+        'pt': 'Confirmação'
+      } +
+      {
+        'en': 'Transaction ID',
+        'pt': 'ID da Transação'
+      } +
+      {
+        'en': 'Copied',
+        'pt': 'Copiado'
+      } +
+      {
+        'en': 'Instant',
+        'pt': 'Instantâneo'
+      } +
+      {
+        'en': '1 block',
+        'pt': '1 bloco'
+      } +
+      {
+        'en': 'blocks',
+        'pt': 'blocos'
       };
 
   String i18n(WidgetRef ref) {

@@ -1,8 +1,9 @@
+import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:go_router/go_router.dart';
 

@@ -85,22 +85,11 @@ final closeSideswapProvider = Provider.autoDispose<void>((ref) {
 
 final sideswapHiveStorageProvider = FutureProvider.autoDispose.family<void, String>((ref, orderId) async {
   final sideswapStatusProvider = await ref.watch(sideswapPegStatusProvider.future).then((value) => value);
-  final box = await Hive.openBox('sideswapStatus');
-  box.put(orderId, sideswapStatusProvider);
+  ref.read(sideswapAllPegsProvider.notifier).addOrUpdateSwap(sideswapStatusProvider);
 });
 
-final sideswapAllPegsProvider = FutureProvider.autoDispose<List<SideswapPegStatus>>((ref) async {
-  final box = await Hive.openBox('sideswapStatus');
-  final keys = box.keys;
-  final List<SideswapPegStatus> swaps = [];
-  for (var key in keys) {
-    final value = box.get(key);
-    if (value != null) {
-      swaps.add(value);
-    }
-  }
-  swaps.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
-  return swaps;
+final sideswapAllPegsProvider = StateNotifierProvider<SideswapPegNotifier, List<SideswapPegStatus>>((ref) {
+  return SideswapPegNotifier();
 });
 
 final orderIdStatusProvider = StateProvider((ref) => '');
@@ -172,14 +161,12 @@ final sideswapUploadAndSignInputsProvider = FutureProvider.autoDispose<SideswapC
   final inputsUpload =  await state.uploadInputs(returnAddress, liquidUnspentUtxos, receiveAddress.confidential, sendAmount).then((value) => value);
   final signedPset = await ref.read(signLiquidPsetStringProvider(inputsUpload.pset).future).then((value) => value);
   final transaction = await state.uploadPset(signedPset, inputsUpload.submitId).then((value) => value);
-  final box = await Hive.openBox('sideswapSwapData');
-  box.put(transaction.txid, transaction);
+  ref.read(sideswapGetSwapsProvider.notifier).addOrUpdateSwap(transaction);
   return transaction;
 });
 
-final sideswapGetSwapsProvider = FutureProvider.autoDispose<List<SideswapCompletedSwap>>((ref) async {
-  final box = await Hive.openBox('sideswapSwapData');
-  return box.values.map((e) => e as SideswapCompletedSwap).toList();
+final sideswapGetSwapsProvider = StateNotifierProvider<SideswapSwapsNotifier, List<SideswapCompletedSwap>>((ref) {
+  return SideswapSwapsNotifier();
 });
 
 final sideswapExchangeCompletionProvider = StreamProvider.autoDispose<SideswapExchangeState>((ref) {

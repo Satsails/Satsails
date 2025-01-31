@@ -7,7 +7,7 @@ import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -80,12 +80,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
         }
       },
       child: SafeArea(
-        child: FlutterKeyboardDoneWidget(
-          doneWidgetBuilder: (context) {
-            return const Text(
-              'Done',
-            );
-          },
+        child: KeyboardDismissOnTap(
           child: Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: Colors.black,
@@ -292,8 +287,8 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                   final transaction = await ref
                                       .watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future)
                                       .then((value) => value);
-                                  final fee = await transaction.$1.feeAmount().then((value) => value);
-                                  final amountToSet = (balance - fee!);
+                                  final fee = (transaction.$1.feeAmount() ?? BigInt.zero).toInt();
+                                  final amountToSet = (balance - fee);
                                   final selectedCurrency = ref.watch(inputCurrencyProvider);
                                   final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(
                                       amountToSet, selectedCurrency, ref.watch(currencyNotifierProvider));
@@ -407,17 +402,19 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                         controller.loading();
                         try {
                           final tx = await ref.watch(sendBitcoinTransactionProvider.future);
-                          await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
 
-                          ref.read(sendTxProvider.notifier).resetToDefault();
-                          ref.read(sendBlocksProvider.notifier).state = 1;
                           showFullscreenTransactionSendModal(
                             context: context,
                             asset: 'Bitcoin',
                             amount: btcInDenominationFormatted(sendTxState.amount, btcFormat),
                             fiat: false,
                             txid: tx,
+                            receiveAddress: ref.read(sendTxProvider).address,
+                            confirmationBlocks: ref.read(sendBlocksProvider.notifier).state.toInt(),
                           );
+
+                          ref.read(sendTxProvider.notifier).resetToDefault();
+                          ref.read(sendBlocksProvider.notifier).state = 1;
                           context.replace('/home');
                         } catch (e) {
                           controller.failure();

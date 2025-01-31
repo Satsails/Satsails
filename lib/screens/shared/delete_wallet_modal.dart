@@ -1,6 +1,5 @@
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
-import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/translations/translations.dart';
