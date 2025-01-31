@@ -144,6 +144,45 @@ class SideswapStartExchange {
   }
 }
 
+class SideswapSwapsNotifier extends StateNotifier<List<SideswapCompletedSwap>> {
+  SideswapSwapsNotifier() : super([]) {
+    _loadSwaps();
+  }
+
+  Future<void> _loadSwaps() async {
+    final box = await Hive.openBox<SideswapCompletedSwap>('sideswapSwapData');
+
+    /// **Listen for Hive Box changes and auto-update state**
+    box.watch().listen((event) => _updateSwaps());
+
+    _updateSwaps();
+  }
+
+  void _updateSwaps() {
+    final box = Hive.box<SideswapCompletedSwap>('sideswapSwapData');
+    final swaps = box.values.toList();
+
+    /// **Update provider state with latest swaps**
+    state = swaps;
+  }
+
+  /// **🔹 Add or update a swap without duplicating entries**
+  Future<void> addOrUpdateSwap(SideswapCompletedSwap newSwap) async {
+    final box = Hive.box<SideswapCompletedSwap>('sideswapSwapData');
+
+    /// **Check if swap already exists**
+    final existingSwap = box.get(newSwap.txid);
+
+    if (existingSwap == null) {
+      await box.put(newSwap.txid, newSwap);
+    }
+
+    /// **Refresh state**
+    _updateSwaps();
+  }
+}
+
+
 @HiveType(typeId: 11)
 class SideswapCompletedSwap {
   @HiveField(0)

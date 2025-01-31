@@ -1,45 +1,44 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
-import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/purchase_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final initializeTransactionsProvider =
-FutureProvider.autoDispose<Transaction>((ref) async {
+// StateNotifierProvider to hold transaction state
+final transactionNotifierProvider = StateNotifierProvider<TransactionModel, Transaction>((ref) {
+  return TransactionModel();
+});
+
+// Function to fetch transactions and update the provider
+Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
+  // if i manage to speed this up problem is fixed
   final bitcoinTxs = await ref.watch(getBitcoinTransactionsProvider.future);
   final bitcoinTransactions = bitcoinTxs.map((btcTx) {
     return BitcoinTransaction(
       id: btcTx.txid,
-      timestamp: btcTx.confirmationTime != null &&btcTx.confirmationTime!.timestamp != 0 ? DateTime.fromMillisecondsSinceEpoch(btcTx.confirmationTime!.timestamp.toInt() * 1000) : DateTime.now(),
+      timestamp: btcTx.confirmationTime != null && btcTx.confirmationTime!.timestamp != 0
+          ? DateTime.fromMillisecondsSinceEpoch(btcTx.confirmationTime!.timestamp.toInt() * 1000)
+          : DateTime.now(),
       btcDetails: btcTx,
       isConfirmed: btcTx.confirmationTime != null && btcTx.confirmationTime!.timestamp != 0,
     );
   }).toList();
+
   final liquidTxs = await ref.watch(liquidTransactionsProvider.future);
   final liquidTransactions = liquidTxs.map((lwkTx) {
     return LiquidTransaction(
       id: lwkTx.txid,
-      timestamp: lwkTx.timestamp != null && lwkTx.timestamp != 0 ? DateTime.fromMillisecondsSinceEpoch(lwkTx.timestamp! * 1000) : DateTime.now(),
+      timestamp: lwkTx.timestamp != null && lwkTx.timestamp != 0
+          ? DateTime.fromMillisecondsSinceEpoch(lwkTx.timestamp! * 1000)
+          : DateTime.now(),
       lwkDetails: lwkTx,
       isConfirmed: lwkTx.timestamp != null && lwkTx.timestamp != 0,
     );
   }).toList();
 
-  // Fetch Coinos Transactions
-  final coinosTxs = ref.watch(coinosLnProvider).transactions;
-  final coinosTransactions = coinosTxs.map((coinosTx) {
-    return CoinosTransaction(
-      id: coinosTx.id ?? '',
-      timestamp: coinosTx.created!,
-      coinosDetails: coinosTx,
-      isConfirmed: coinosTx.confirmed ?? false,
-    );
-  }).toList();
-
-  final sideswapPegTxs = await ref.watch(sideswapAllPegsProvider.future);
+  final sideswapPegTxs = ref.watch(sideswapAllPegsProvider);
   final sideswapPegTransactions = sideswapPegTxs.map((pegTx) {
     return SideswapPegTransaction(
       id: pegTx.orderId!,
@@ -49,10 +48,8 @@ FutureProvider.autoDispose<Transaction>((ref) async {
     );
   }).toList();
 
-  final sideswapInstantSwapTxs =
-  await ref.watch(sideswapGetSwapsProvider.future);
-  final sideswapInstantSwapTransactions =
-  sideswapInstantSwapTxs.map((instantSwapTx) {
+  final sideswapInstantSwapTxs = ref.watch(sideswapGetSwapsProvider);
+  final sideswapInstantSwapTransactions = sideswapInstantSwapTxs.map((instantSwapTx) {
     return SideswapInstantSwapTransaction(
       id: instantSwapTx.orderId,
       timestamp: DateTime.fromMillisecondsSinceEpoch(instantSwapTx.timestamp!),
@@ -60,8 +57,8 @@ FutureProvider.autoDispose<Transaction>((ref) async {
       isConfirmed: instantSwapTx.txid != null && instantSwapTx.txid!.isNotEmpty,
     );
   }).toList();
-
-  final purchases = ref.watch(purchaseProvider) ;
+  //
+  final purchases = ref.watch(purchaseProvider);
   final pixPurchases = purchases.map((pixTx) {
     return PixPurchaseTransaction(
       id: pixTx.id.toString(),
@@ -71,56 +68,35 @@ FutureProvider.autoDispose<Transaction>((ref) async {
     );
   }).toList();
 
-  return Transaction(
-    bitcoinTransactions: bitcoinTransactions,
-    liquidTransactions: liquidTransactions,
-    coinosTransactions: coinosTransactions,
-    sideswapPegTransactions: sideswapPegTransactions,
-    sideswapInstantSwapTransactions: sideswapInstantSwapTransactions,
-    pixPurchaseTransactions: pixPurchases,
-  );
-});
-
-final transactionNotifierProvider = StateNotifierProvider.autoDispose<TransactionModel, Transaction>((ref) {
-  final initialTransactionsAsync = ref.watch(initializeTransactionsProvider);
-
-  return initialTransactionsAsync.when(
-    data: (transactions) => TransactionModel(transactions),
-    loading: () => TransactionModel(
-      Transaction(
-        bitcoinTransactions: [],
-        liquidTransactions: [],
-        coinosTransactions: [],
-        sideswapPegTransactions: [],
-        sideswapInstantSwapTransactions: [],
-        pixPurchaseTransactions: [],
-      ),
+  final transactionNotifier = ref.read(transactionNotifierProvider.notifier);
+  transactionNotifier.updateTransactions(
+    Transaction(
+      bitcoinTransactions: bitcoinTransactions,
+      liquidTransactions: liquidTransactions,
+      sideswapPegTransactions: sideswapPegTransactions,
+      sideswapInstantSwapTransactions: sideswapInstantSwapTransactions,
+      pixPurchaseTransactions: pixPurchases,
     ),
-    error: (error, stackTrace) {
-      return TransactionModel(
-        Transaction(
-          bitcoinTransactions: [],
-          liquidTransactions: [],
-          coinosTransactions: [],
-          sideswapPegTransactions: [],
-          sideswapInstantSwapTransactions: [],
-          pixPurchaseTransactions: [],
-        ),
-      );
-    },
   );
-});
+}
 
+// StateProviders to filter transactions by date
 final bitcoinTransactionsByDate = StateProvider.autoDispose<List<BitcoinTransaction>>((ref) {
-  final dateTimeRange = ref.watch(dateTimeSelectProvider);
   final transactionState = ref.watch(transactionNotifierProvider);
+  final dateTimeRange = ref.watch(dateTimeSelectProvider);
 
-  return transactionState.filterBitcoinTransactions(dateTimeRange);
+  return transactionState.bitcoinTransactions.where((tx) {
+    return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(dateTimeRange.start * 1000)) &&
+        tx.timestamp.isBefore(DateTime.fromMillisecondsSinceEpoch(dateTimeRange.end * 1000));
+  }).toList();
 });
 
 final liquidTransactionsByDate = StateProvider.autoDispose<List<LiquidTransaction>>((ref) {
-  final dateTimeRange = ref.watch(dateTimeSelectProvider);
   final transactionState = ref.watch(transactionNotifierProvider);
+  final dateTimeRange = ref.watch(dateTimeSelectProvider);
 
-  return transactionState.filterLiquidTransactions(dateTimeRange);
+  return transactionState.liquidTransactions.where((tx) {
+    return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(dateTimeRange.start * 1000)) &&
+        tx.timestamp.isBefore(DateTime.fromMillisecondsSinceEpoch(dateTimeRange.end * 1000));
+  }).toList();
 });

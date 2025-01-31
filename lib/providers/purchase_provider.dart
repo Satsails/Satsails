@@ -3,26 +3,11 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
-
-final initialPurchaseProvider = FutureProvider<List<Purchase>>((ref) async {
-  final purchaseBox = await Hive.openBox<Purchase>('purchasesBox');
-
-  final purchases = purchaseBox.values.toList();
-  return purchases;
-});
 
 final purchaseProvider = StateNotifierProvider<PurchaseNotifier, List<Purchase>>((ref) {
-  final initialPurchases = ref.watch(initialPurchaseProvider);
-
-  return initialPurchases.when(
-    data: (purchases) => PurchaseNotifier(purchases),
-    loading: () => PurchaseNotifier([]),
-    error: (error, stackTrace) {
-      throw error;
-    },
-  );
+  return PurchaseNotifier();
 });
+
 
 final selectedPurchaseIdProvider = StateProvider<int>((ref) => 0);
 

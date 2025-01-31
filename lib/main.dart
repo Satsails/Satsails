@@ -11,6 +11,7 @@ import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/purchase_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
@@ -202,13 +203,15 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   void _startSyncTimer() {
     _cancelSyncTimer();
 
+    Future.microtask(() async => await fetchAndUpdateTransactions(ref));
     _syncTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+      fetchAndUpdateTransactions(ref);
       ref.read(updateCurrencyProvider);
       ref.read(backgroundSyncNotifierProvider.notifier).performSync();
     });
 
     final auth = ref.watch(userProvider).jwt;
-    if (auth != null || auth.isNotEmpty) {
+    if (auth != null && auth.isNotEmpty) {
       _purchaseTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
         ref.read(getUserPurchasesProvider);
       });

@@ -7,53 +7,117 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 part 'purchase_model.g.dart';
 
+/// **Notifier for managing Purchase transactions**
 class PurchaseNotifier extends StateNotifier<List<Purchase>> {
-  PurchaseNotifier(List<Purchase> initialPurchases) : super(initialPurchases);
+  PurchaseNotifier() : super([]) {
+    _loadPurchases();
+  }
 
   Purchase getPurchaseById(int id) {
     return state.firstWhere((purchase) => purchase.id == id, orElse: () => Purchase.empty());
   }
 
-  Future<void> mergePurchase(Purchase serverPurchase) async {
-    final Map<int, Purchase> mergedPurchases = {
-      for (var p in state) p.id: p
-    };
+  /// **Loads purchases from Hive & sets up a listener**
+  Future<void> _loadPurchases() async {
+    final box = await Hive.openBox<Purchase>('purchasesBox');
 
-    mergedPurchases[serverPurchase.id] = serverPurchase;
+    // **Listen for real-time updates in Hive**
+    box.watch().listen((event) => _updatePurchases());
 
-    state = mergedPurchases.values.toList();
-    await _updateHive();
+    // **Initial state update**
+    _updatePurchases();
   }
 
+  /// **Updates the provider's state with the latest purchases**
+  void _updatePurchases() {
+    final box = Hive.box<Purchase>('purchasesBox');
+    final purchases = box.values.toList();
+
+    // **Sort purchases by `createdAt` (newest first)**
+    purchases.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    state = purchases;
+  }
+
+  /// **Merge a single purchase into Hive and update state**
+  Future<void> mergePurchase(Purchase serverPurchase) async {
+    final box = Hive.box<Purchase>('purchasesBox');
+
+    // Get the existing purchase if it exists
+    final existingPurchase = box.get(serverPurchase.id);
+
+    // If no existing purchase, add the new one directly
+    if (existingPurchase == null) {
+      await box.put(serverPurchase.id, serverPurchase);
+      _updatePurchases();
+      return;
+    }
+
+    // **Merge updated fields** (ensure no data is lost)
+    final updatedPurchase = existingPurchase.copyWith(
+      transferId: serverPurchase.transferId,
+      originalAmount: serverPurchase.originalAmount,
+      completedTransfer: serverPurchase.completedTransfer,
+      failed: serverPurchase.failed,
+      userId: serverPurchase.userId ?? existingPurchase.userId,
+      createdAt: existingPurchase.createdAt, // Keep original creation date
+      updatedAt: serverPurchase.updatedAt, // Use new updated timestamp
+      receivedAmount: serverPurchase.receivedAmount,
+      pixKey: serverPurchase.pixKey,
+      paymentGateway: serverPurchase.paymentGateway ?? existingPurchase.paymentGateway,
+      status: serverPurchase.status ?? existingPurchase.status,
+      paymentMethod: serverPurchase.paymentMethod ?? existingPurchase.paymentMethod,
+      assetPurchased: serverPurchase.assetPurchased ?? existingPurchase.assetPurchased,
+      currencyOfPayment: serverPurchase.currencyOfPayment ?? existingPurchase.currencyOfPayment,
+    );
+
+    // If the purchase has **no changes**, skip saving
+    if (existingPurchase == updatedPurchase) {
+      return;
+    }
+
+    // Save the updated purchase
+    await box.put(serverPurchase.id, updatedPurchase);
+
+    // Update state
+    _updatePurchases();
+  }
+
+  /// **Merge a list of purchases, ensuring updates only when necessary**
   Future<void> mergePurchases(List<Purchase> serverPurchases) async {
-    final Map<int, Purchase> mergedPurchases = {
-      for (var p in state) p.id: p
-    };
+    final box = Hive.box<Purchase>('purchasesBox');
 
     for (final serverPurchase in serverPurchases) {
-      mergedPurchases[serverPurchase.id] = serverPurchase;
+      final existingPurchase = box.get(serverPurchase.id);
+
+      final updatedPurchase = existingPurchase?.copyWith(
+        transferId: serverPurchase.transferId,
+        originalAmount: serverPurchase.originalAmount,
+        completedTransfer: serverPurchase.completedTransfer,
+        failed: serverPurchase.failed,
+        userId: serverPurchase.userId ?? existingPurchase?.userId,
+        createdAt: existingPurchase?.createdAt ?? serverPurchase.createdAt,
+        updatedAt: serverPurchase.updatedAt,
+        receivedAmount: serverPurchase.receivedAmount,
+        pixKey: serverPurchase.pixKey,
+        paymentGateway: serverPurchase.paymentGateway ?? existingPurchase?.paymentGateway,
+        status: serverPurchase.status ?? existingPurchase?.status,
+        paymentMethod: serverPurchase.paymentMethod ?? existingPurchase?.paymentMethod,
+        assetPurchased: serverPurchase.assetPurchased ?? existingPurchase?.assetPurchased,
+        currencyOfPayment: serverPurchase.currencyOfPayment ?? existingPurchase?.currencyOfPayment,
+      ) ?? serverPurchase;
+
+      // Save only if changes exist
+      if (existingPurchase == null || existingPurchase != updatedPurchase) {
+        await box.put(serverPurchase.id, updatedPurchase);
+      }
     }
 
-    state = mergedPurchases.values.toList();
-    await _updateHive();
-  }
-
-  Future<void> _updateHive() async {
-    final purchaseBox = await Hive.openBox<Purchase>('purchasesBox');
-    final existingKeys = purchaseBox.keys.cast<int>().toSet();
-    final currentIds = state.map((p) => p.id).toSet();
-
-    // Delete stale entries
-    final keysToRemove = existingKeys.difference(currentIds);
-    await purchaseBox.deleteAll(keysToRemove);
-
-    // Upsert current purchases
-    for (final purchase in state) {
-      await purchaseBox.put(purchase.id, purchase);
-    }
+    _updatePurchases();
   }
 }
 
+/// **Purchase Model**
 @HiveType(typeId: 28)
 class Purchase extends HiveObject {
   @HiveField(0)
@@ -79,13 +143,13 @@ class Purchase extends HiveObject {
   @HiveField(17)
   final String? paymentGateway;
   @HiveField(18)
-  final String? status; // Made nullable
+  final String? status;
   @HiveField(19)
-  final String? paymentMethod; // Made nullable
+  final String? paymentMethod;
   @HiveField(20)
-  final String? assetPurchased; // Made nullable
+  final String? assetPurchased;
   @HiveField(21)
-  final String? currencyOfPayment; // Made nullable
+  final String? currencyOfPayment;
 
   Purchase({
     required this.id,
@@ -99,10 +163,10 @@ class Purchase extends HiveObject {
     required this.receivedAmount,
     this.pixKey = '',
     this.paymentGateway,
-    this.status = 'unknown', // Optional with default
-    this.paymentMethod = 'unknown', // Optional with default
-    this.assetPurchased = 'unknown', // Optional with default
-    this.currencyOfPayment = 'unknown', // Optional with default
+    this.status = 'unknown',
+    this.paymentMethod = 'unknown',
+    this.assetPurchased = 'unknown',
+    this.currencyOfPayment = 'unknown',
   });
 
   factory Purchase.fromJson(Map<String, dynamic> json) {
@@ -131,6 +195,41 @@ class Purchase extends HiveObject {
     );
   }
 
+  /// **Create a copy with updated values**
+  Purchase copyWith({
+    String? transferId,
+    double? originalAmount,
+    bool? completedTransfer,
+    bool? failed,
+    int? userId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    double? receivedAmount,
+    String? pixKey,
+    String? paymentGateway,
+    String? status,
+    String? paymentMethod,
+    String? assetPurchased,
+    String? currencyOfPayment,
+  }) {
+    return Purchase(
+      id: id,
+      transferId: transferId ?? this.transferId,
+      originalAmount: originalAmount ?? this.originalAmount,
+      completedTransfer: completedTransfer ?? this.completedTransfer,
+      failed: failed ?? this.failed,
+      userId: userId ?? this.userId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      receivedAmount: receivedAmount ?? this.receivedAmount,
+      pixKey: pixKey ?? this.pixKey,
+      paymentGateway: paymentGateway ?? this.paymentGateway,
+      status: status ?? this.status,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      assetPurchased: assetPurchased ?? this.assetPurchased,
+      currencyOfPayment: currencyOfPayment ?? this.currencyOfPayment,
+    );
+  }
   Purchase.empty()
       : this(
     id: 0,
@@ -149,6 +248,7 @@ class Purchase extends HiveObject {
     currencyOfPayment: 'unknown',
   );
 }
+
 
 class PurchaseService {
   static Future<Result<Purchase>> createPurchaseRequest(String auth, int amount, String liquidAddress) async {
@@ -253,4 +353,5 @@ class PurchaseService {
     }
   }
 }
+
 

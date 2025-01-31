@@ -39,49 +39,34 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
           child: selectedSwapType == 'Pix History' && paymentId.isNotEmpty
               ? Builder(builder: (context) => const PixHistory())
               : selectedSwapType == 'Lightning Swaps'
-              ? CoinosPaymentsList()
-              : allSwaps.when(
-            data: (swaps) {
-              return swapsToFiat.when(
-                data: (fiatSwaps) {
-                  final combinedSwaps = _filterAndSortSwaps([...swaps, ...fiatSwaps]);
-                  if (combinedSwaps.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No swaps found'.i18n(ref),
-                        style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
-                      ),
-                    );
-                  }
-                  return ListView.builder(
-                    itemCount: combinedSwaps.length,
-                    itemBuilder: (context, index) {
-                      final swap = combinedSwaps[index];
-                      if (swap is SideswapPegStatus) {
-                        return _buildTransactionItem(swap, context, ref, screenWidth);
-                      } else if (swap is SideswapCompletedSwap) {
-                        return _buildFiatTransactionItem(swap, context, ref, screenWidth);
-                      } else {
-                        throw Exception('Unknown swap type');
-                      }
-                    },
-                  );
-                },
-                loading: () => LoadingAnimationWidget.threeArchedCircle(
-                  size: screenWidth * 0.2,
-                  color: Colors.orange,
-                ),
-                error: (error, stackTrace) => Center(
-                  child: Text('Error: $error', style: TextStyle(fontSize: screenWidth * 0.05)),
-                ),
-              );
-            },
-            loading: () => LoadingAnimationWidget.threeArchedCircle(size: screenWidth * 0.5, color: Colors.black),
-            error: (error, stackTrace) => Center(
-              child: Text('Error: $error', style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white)),
-            ),
-          ),
-        )
+                  ? CoinosPaymentsList()
+                  : Builder(
+                      builder: (context) {
+                        final combinedSwaps = _filterAndSortSwaps([...allSwaps, ...swapsToFiat]);
+                        if (combinedSwaps.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No swaps found'.i18n(ref),
+                              style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
+                            ),
+                          );
+                        }
+                        return ListView.builder(
+                          itemCount: combinedSwaps.length,
+                          itemBuilder: (context, index) {
+                            final swap = combinedSwaps[index];
+                            if (swap is SideswapPegStatus) {
+                              return _buildTransactionItem(swap, context, ref, screenWidth);
+                            } else if (swap is SideswapCompletedSwap) {
+                              return _buildFiatTransactionItem(swap, context, ref, screenWidth);
+                            } else {
+                              throw Exception('Unknown swap type');
+                            }
+                          },
+                        );
+                      },
+                    ),
+        ),
       ],
     );
   }

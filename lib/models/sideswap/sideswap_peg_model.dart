@@ -1,5 +1,45 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 part 'sideswap_peg_model.g.dart';
+
+class SideswapPegNotifier extends StateNotifier<List<SideswapPegStatus>> {
+  SideswapPegNotifier() : super([]) {
+    _loadSwaps();
+  }
+
+  Future<void> addOrUpdateSwap(SideswapPegStatus newSwap) async {
+    final box = Hive.box<SideswapPegStatus>('sideswapStatus');
+
+    /// **Check if swap already exists**
+    final existingSwap = box.get(newSwap.orderId);
+
+    if (existingSwap == null) {
+      /// **New swap - Add to box**
+      await box.put(newSwap.orderId, newSwap);
+    }      /// **Only save if there are changes**
+    ///
+    /// **Refresh state**
+    _updateSwaps();
+  }
+
+  Future<void> _loadSwaps() async {
+    final box = await Hive.openBox<SideswapPegStatus>('sideswapStatus');
+
+    /// **Listen for Hive Box changes and update state automatically**
+    box.watch().listen((event) => _updateSwaps());
+
+    _updateSwaps();
+  }
+
+  void _updateSwaps() {
+    final box = Hive.box<SideswapPegStatus>('sideswapStatus');
+    final swaps = box.values.toList();
+    swaps.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
+
+    /// **Update provider state with latest swaps**
+    state = swaps;
+  }
+}
 
 @HiveType(typeId: 8)
 class SideswapPeg extends HiveObject {

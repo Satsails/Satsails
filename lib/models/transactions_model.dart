@@ -1,7 +1,3 @@
-import 'dart:convert';
-
-import 'package:Satsails/models/auth_model.dart';
-import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/models/purchase_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
@@ -11,7 +7,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk/lwk.dart' as lwk;
 
 class TransactionModel extends StateNotifier<Transaction> {
-  TransactionModel(Transaction state) : super(state);
+  TransactionModel() : super(Transaction.empty());
+
+  void updateTransactions(Transaction newTransactions) {
+    state = newTransactions;
+  }
 }
 
 abstract class BaseTransaction {
@@ -57,17 +57,6 @@ class PixPurchaseTransaction extends BaseTransaction {
   }) : super(id: id, timestamp: timestamp);
 }
 
-class CoinosTransaction extends BaseTransaction {
-  final CoinosPayment coinosDetails;
-
-  CoinosTransaction({
-    required String id,
-    required DateTime timestamp,
-    required this.coinosDetails,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp);
-}
-
 class SideswapPegTransaction extends BaseTransaction {
   final SideswapPegStatus sideswapPegDetails;
 
@@ -93,7 +82,6 @@ class SideswapInstantSwapTransaction extends BaseTransaction {
 class Transaction {
   final List<BitcoinTransaction> bitcoinTransactions;
   final List<LiquidTransaction> liquidTransactions;
-  final List<CoinosTransaction> coinosTransactions;
   final List<SideswapPegTransaction> sideswapPegTransactions;
   final List<SideswapInstantSwapTransaction> sideswapInstantSwapTransactions;
   final List<PixPurchaseTransaction> pixPurchaseTransactions;
@@ -101,7 +89,6 @@ class Transaction {
   Transaction({
     required this.bitcoinTransactions,
     required this.liquidTransactions,
-    required this.coinosTransactions,
     required this.sideswapPegTransactions,
     required this.sideswapInstantSwapTransactions,
     required this.pixPurchaseTransactions,
@@ -110,7 +97,6 @@ class Transaction {
   Transaction copyWith({
     List<BitcoinTransaction>? bitcoinTransactions,
     List<LiquidTransaction>? liquidTransactions,
-    List<CoinosTransaction>? coinosTransactions,
     List<SideswapPegTransaction>? sideswapPegTransactions,
     List<SideswapInstantSwapTransaction>? sideswapInstantSwapTransactions,
     List<PixPurchaseTransaction>? pixPurchaseTransactions,
@@ -118,7 +104,6 @@ class Transaction {
     return Transaction(
       bitcoinTransactions: bitcoinTransactions ?? this.bitcoinTransactions,
       liquidTransactions: liquidTransactions ?? this.liquidTransactions,
-      coinosTransactions: coinosTransactions ?? this.coinosTransactions,
       sideswapPegTransactions: sideswapPegTransactions ?? this.sideswapPegTransactions,
       sideswapInstantSwapTransactions: sideswapInstantSwapTransactions ?? this.sideswapInstantSwapTransactions,
       pixPurchaseTransactions: pixPurchaseTransactions ?? this.pixPurchaseTransactions,
@@ -130,7 +115,6 @@ class Transaction {
     return [
       ...bitcoinTransactions,
       ...liquidTransactions,
-      ...coinosTransactions,
       ...sideswapPegTransactions,
       ...sideswapInstantSwapTransactions,
     ];
@@ -171,5 +155,15 @@ class Transaction {
       return tx.lwkDetails.kind == kind;
     }).toList()
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
+  factory Transaction.empty() {
+    return Transaction(
+      bitcoinTransactions: [],
+      liquidTransactions: [],
+      sideswapPegTransactions: [],
+      sideswapInstantSwapTransactions: [],
+      pixPurchaseTransactions: [],
+    );
   }
 }

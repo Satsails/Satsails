@@ -13,16 +13,6 @@ class PixHistory extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pixHistory = ref.watch(transactionNotifierProvider).pixPurchaseTransactions;
 
-    if (pixHistory.isEmpty) {
-      return Center(
-        child: Text(
-          'No Pix transactions'.i18n(ref),
-          style: const TextStyle(color: Colors.white),
-        ),
-      );
-    }
-
-    // Sort transactions by creation date (newest first)
     pixHistory.sort((a, b) => b.pixDetails.createdAt.compareTo(a.pixDetails.createdAt));
 
     return ListView.builder(
