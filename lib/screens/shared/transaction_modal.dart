@@ -163,7 +163,7 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
             ),
           ),
           SizedBox(height: 20.h),
-          Row(
+          Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               AnimatedContainer(
@@ -176,9 +176,9 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
                     width: checked ? 1.5 : 0,
                   ),
                 ),
-                child: getAssetImage(assetName, width: 40.sp, height: 40.sp),
+                child: getAssetImage(assetName, width: 100.sp, height: 100.sp),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: 8.h),
               Text(
                 displayAmount, // The amount received (Fiat or Crypto)
                 style: TextStyle(
@@ -197,9 +197,9 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
               child: Text(
                 assetName,
                 style: TextStyle(
-                  fontSize: 25.sp,
+                  fontSize: 40.sp,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: Colors.grey,
                   letterSpacing: 0.8,
                   shadows: [
                     Shadow(

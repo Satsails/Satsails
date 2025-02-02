@@ -75,7 +75,7 @@ class _TransactionNotificationsListenerState
           ),
         );
       },
-      duration: Duration(seconds: 2),
+      duration: Duration(seconds: 5),
     );
   }
 }
