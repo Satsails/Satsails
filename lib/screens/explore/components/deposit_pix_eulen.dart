@@ -14,14 +14,14 @@ import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 
-class DepositPix extends ConsumerStatefulWidget {
-  const DepositPix({Key? key}) : super(key: key);
+class DepositPixEulen extends ConsumerStatefulWidget {
+  const DepositPixEulen({Key? key}) : super(key: key);
 
   @override
   _DepositPixState createState() => _DepositPixState();
 }
 
-class _DepositPixState extends ConsumerState<DepositPix> {
+class _DepositPixState extends ConsumerState<DepositPixEulen> {
   final TextEditingController _amountController = TextEditingController();
   String _pixQRCode = '';
   bool _isLoading = false;

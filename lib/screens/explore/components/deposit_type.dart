@@ -1,4 +1,4 @@
-import 'package:Satsails/helpers/deposit_type.dart' as helpers;
+import 'package:Satsails/providers/deposit_type_provider.dart' as helpers;
 import 'package:Satsails/helpers/swap_helpers.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';

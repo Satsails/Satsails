@@ -1,6 +1,7 @@
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/screens/explore/components/deposit_method.dart';
-import 'package:Satsails/screens/explore/components/deposit_pix.dart';
+import 'package:Satsails/screens/explore/components/deposit_pix_eulen.dart';
+import 'package:Satsails/screens/explore/components/deposit_provider.dart';
 import 'package:Satsails/screens/explore/components/deposit_type.dart';
 import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/creation/confirm_pin.dart';
@@ -241,25 +242,34 @@ class AppRouter {
               ),
               routes: [
                 GoRoute(
-                  path: '/deposit_type',
+                  path: 'deposit_type',
                   pageBuilder: (context, state) => _buildFadeScalePage(
                     child: DepositType(),
                     state: state,
                   ),
                   routes: [
                     GoRoute(
-                      path: '/deposit_method',
+                      path: 'deposit_method',
                       pageBuilder: (context, state) => _buildFadeScalePage(
                         child: DepositMethod(),
                         state: state,
                       ),
                       routes: [
                         GoRoute(
-                          path: '/deposit_pix',
+                          path: 'deposit_provider',
                           pageBuilder: (context, state) => _buildFadeScalePage(
-                            child: DepositPix(),
+                            child: DepositProvider(),
                             state: state,
                           ),
+                          routes: [
+                            GoRoute(
+                              path: 'deposit_pix_eulen',
+                              pageBuilder: (context, state) => _buildFadeScalePage(
+                                child: DepositPixEulen(),
+                                state: state,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

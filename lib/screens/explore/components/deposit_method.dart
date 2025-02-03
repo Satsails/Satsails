@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:io' show Platform;
 
 import 'package:go_router/go_router.dart';
-import 'package:Satsails/helpers/deposit_type.dart' as helpers;
+import 'package:Satsails/providers/deposit_type_provider.dart' as helpers;
 
 class DepositMethod extends ConsumerWidget {
   const DepositMethod({Key? key}) : super(key: key);
@@ -16,6 +16,11 @@ class DepositMethod extends ConsumerWidget {
 
     final List<_DepositMethodOption> allMethods = [
       _DepositMethodOption(
+        title: "PIX".i18n(ref),
+        subtitle: "Transfer in minutes".i18n(ref),
+        method: helpers.DepositMethod.pix,
+      ),
+      _DepositMethodOption(
         title: "Credit Card".i18n(ref),
         subtitle: "Transfer in minutes".i18n(ref),
         method: helpers.DepositMethod.credit_card,
@@ -24,11 +29,6 @@ class DepositMethod extends ConsumerWidget {
         title: Platform.isIOS ? "Apple Pay".i18n(ref) : "Google Pay".i18n(ref),
         subtitle: "Transfer in minutes".i18n(ref),
         method: helpers.DepositMethod.big_tech_pay,
-      ),
-      _DepositMethodOption(
-        title: "PIX".i18n(ref),
-        subtitle: "Transfer in minutes".i18n(ref),
-        method: helpers.DepositMethod.pix,
       ),
       _DepositMethodOption(
         title: "Bank Transfer".i18n(ref),
@@ -79,7 +79,7 @@ class _DepositMethodOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.push('/home/explore/deposit_type/deposit_method/deposit_pix');
+        context.push('/home/explore/deposit_type/deposit_method/deposit_provider');
       },
       child: Container(
         decoration: BoxDecoration(

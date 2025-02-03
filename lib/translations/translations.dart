@@ -302,7 +302,7 @@ extension Localization on String {
         'pt': 'Exceção: Endereço inválido',
       } +
       {
-        'en': 'Bitcoin Balance',
+        'en': 'Bitcoin balance',
         'pt': 'Saldo Bitcoin',
       } +
       {

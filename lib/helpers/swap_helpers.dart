@@ -288,6 +288,7 @@ Widget getAssetImage(String? asset, {double? width, double? height}) {
   switch (asset) {
     case 'Bitcoin':
       return Image.asset('lib/assets/bitcoin-logo.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
+    case 'Liquid Bitcoin':
     case 'L-BTC':
     case 'LBTC':
       return Image.asset('lib/assets/l-btc.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
@@ -301,6 +302,7 @@ Widget getAssetImage(String? asset, {double? width, double? height}) {
     case 'DEPIX':
       return Image.asset('lib/assets/depix.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
     case 'Lightning':
+    case 'Lightning Bitcoin':
       return Image.asset('lib/assets/Bitcoin_lightning_logo.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
     default:
       return Image.asset('lib/assets/app_icon.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);

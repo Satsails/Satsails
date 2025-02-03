@@ -53,7 +53,7 @@ class Explore extends ConsumerWidget {
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 19.w),
-                  child: _ActionGrid(),
+                  child: _ActionCards(), // Two separate types of cards
                 ),
                 SizedBox(height: 16.h),
               ],
@@ -120,128 +120,161 @@ class _BalanceDisplay extends ConsumerWidget {
   }
 }
 
-class _ActionGrid extends ConsumerWidget {
+class _ActionCards extends ConsumerWidget {
+  const _ActionCards({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final paymentId = ref.watch(userProvider).paymentId;
 
     return Column(
       children: [
-        GridView(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12.w,
-            mainAxisSpacing: 12.h,
-            childAspectRatio: 3,
-          ),
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+        Row(
           children: [
-            _ActionButton(
-              title: 'Buy'.i18n(ref),
-              color: Colors.green,
-              fontSize: 18,
-              onTap: () => _handleOnPress(ref, context, paymentId),
+            Expanded(
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                color: Colors.green,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () => _handleOnPress(ref, context, paymentId),
+                  child: Container(
+                    height: 80.h,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Buy'.i18n(ref),
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
-            _ActionButton(
-              title: 'Sell'.i18n(ref),
-              color: Colors.red,
-              fontSize: 18,
-              onTap: () {
-                showMessageSnackBar(
-                  message: "Coming soon".i18n(ref),
-                  context: context,
-                  error: true,
-                );
-              },
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                color: Colors.red,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () {
+                    showMessageSnackBar(
+                      message: "Coming soon".i18n(ref),
+                      context: context,
+                      error: true,
+                    );
+                  },
+                  child: Container(
+                    height: 80.h,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Sell'.i18n(ref),
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
         SizedBox(height: 16.h),
-        GridView(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12.w,
-            mainAxisSpacing: 12.h,
-            childAspectRatio: 1.2,
-          ),
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+        Row(
           children: [
-            _ActionButton(
-              title: 'Services'.i18n(ref),
-              color: Colors.grey.shade900,
-              fontSize: 16,
-              onTap: () {
-                showMessageSnackBar(
-                  message: "Coming soon".i18n(ref),
-                  context: context,
-                  error: true,
-                );
-              },
-              icon: Icons.lightbulb,
+            Expanded(
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                color: Colors.grey.shade900,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () {
+                    showMessageSnackBar(
+                      message: "Coming soon".i18n(ref),
+                      context: context,
+                      error: true,
+                    );
+                  },
+                  child: AspectRatio(
+                    aspectRatio: 1.2,
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.lightbulb, color: Colors.white, size: 20),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'Services'.i18n(ref),
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
-            _ActionButton(
-              title: 'Store'.i18n(ref),
-              color: Colors.grey.shade900,
-              fontSize: 16,
-              onTap: () {
-                showMessageSnackBar(
-                  message: "Coming soon".i18n(ref),
-                  context: context,
-                  error: true,
-                );
-              },
-              icon: Icons.shopping_cart,
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                color: Colors.grey.shade900,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () {
+                    showMessageSnackBar(
+                      message: "Coming soon".i18n(ref),
+                      context: context,
+                      error: true,
+                    );
+                  },
+                  child: AspectRatio(
+                    aspectRatio: 1.2,
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.shopping_cart,color: Colors.white, size: 20),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'Store'.i18n(ref),
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
       ],
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final String title;
-  final Color color;
-  final VoidCallback onTap;
-  final IconData? icon;
-  final double fontSize;
-
-  const _ActionButton({
-    required this.title,
-    required this.color,
-    required this.onTap,
-    this.icon,
-    required this.fontSize,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: color,
-      borderRadius: BorderRadius.circular(10),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) Icon(icon, color: Colors.white, size: 20),
-              if (icon != null) const SizedBox(width: 8),
-              Text(
-                title,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: fontSize.sp,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
