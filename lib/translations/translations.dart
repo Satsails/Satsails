@@ -2101,8 +2101,8 @@ extension Localization on String {
         'pt': 'Gerar Código QR'
       } +
       {
-        'en': 'You can only transfer R\$ 6000 per day.',
-        'pt': 'Você pode transferir apenas R\$ 6000 por dia.'
+        'en': 'You can only transfer R\$ 6000 per 24h per person',
+        'pt': 'Você pode transferir apenas R\$ 6000 em 24h por pessoa.'
       } +
       {
         'en': 'If you send anymore than that, the amount will be refunded to your bank account.',
@@ -2175,6 +2175,10 @@ extension Localization on String {
       {
         'en': 'blocks',
         'pt': 'blocos'
+      } +
+      {
+        'en': "Purchases above R\$ 6000 from the same person will be refunded to the sender's bank account",
+        'pt': 'Compras acima de R\$ 6000 da mesma pessoa serão devolvidas ao remetente',
       };
 
   String i18n(WidgetRef ref) {

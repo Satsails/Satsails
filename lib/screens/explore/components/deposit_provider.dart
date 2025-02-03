@@ -90,7 +90,9 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
 
   /// Trigger navigation when the card (except the “see details” text) is tapped.
   void _handleNavigation() {
-    context.push('/home/explore/deposit_type/deposit_method/deposit_provider/deposit_pix_eulen');}
+    context.push(
+        '/home/explore/deposit_type/deposit_method/deposit_provider/deposit_pix_eulen');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,12 +108,10 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
           "Maximum purchase per person: 6000 BRL per day",
           "Near-instant deposits",
           "No documentation required",
-          "Easy to top up your wallet quickly",
           "Minimum purchase per person: 1 BRL",
         ],
         disadvantages: [
           "If a user sends more than 6000 BRL per day, refunds are not automatic and may take several hours",
-          "Only available for Brazilian payment methods and in BRL",
           "Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payer's name",
           "Not possible to send documentation and unlock higher purchase amounts."
         ],
@@ -147,8 +147,15 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
         decoration: BoxDecoration(
           color: Colors.grey.shade900,
           borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        // Use the same padding as the DepositMethod card.
+        // Same padding as the DepositMethod card.
         padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -177,14 +184,14 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                               style: TextStyle(
                                 fontSize: 20.sp,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: Colors.grey,
                               ),
                             ),
                           ),
                       ],
                     ),
                   ),
-                  // Center: "See details" toggle (without a click effect).
+                  // Center: "See details" toggle with an extra info icon.
                   Align(
                     alignment: Alignment.center,
                     child: GestureDetector(
@@ -194,22 +201,36 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                           _isExpanded = !_isExpanded;
                         });
                       },
-                      child: Text(
-                        _isExpanded ? "Hide details".i18n : "See details".i18n,
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          color: Colors.white70,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _isExpanded
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            size: 18.sp,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            _isExpanded ? "Hide details".i18n : "See details".i18n,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: Colors.grey,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  // Right side: arrow icon.
+                  // Right side: a chevron icon.
                   Align(
                     alignment: Alignment.centerRight,
                     child: Icon(
-                      Icons.arrow_forward,
+                      Icons.chevron_right,
                       size: 25.sp,
-                      color: Colors.white,
+                      color: Colors.grey,
                     ),
                   ),
                 ],
@@ -222,14 +243,26 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Accepted Currencies as plain text.
-                    Text(
-                      "Accepted Currencies: $acceptedCurrenciesText".i18n,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    // Accepted Currencies with a money icon.
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.monetization_on,
+                          size: 18.sp,
+                          color: Colors.amberAccent,
+                        ),
+                        SizedBox(width: 4.w),
+                        Expanded(
+                          child: Text(
+                            "Accepted Currencies: $acceptedCurrenciesText".i18n,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 12.h),
                     // Advantages section.
@@ -238,7 +271,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
-                        color: Colors.greenAccent,
+                        color: Colors.grey,
                       ),
                     ),
                     SizedBox(height: 6.h),
@@ -246,15 +279,14 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                           (advantage) => Padding(
                         padding: EdgeInsets.symmetric(vertical: 2.h),
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              "• ",
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                color: Colors.white,
-                              ),
+                            Icon(
+                              Icons.check_circle_outline,
+                              size: 16.sp,
+                              color: Colors.lightGreenAccent,
                             ),
+                            SizedBox(width: 6.w),
                             Expanded(
                               child: Text(
                                 advantage,
@@ -275,7 +307,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
-                        color: Colors.redAccent,
+                        color: Colors.grey,
                       ),
                     ),
                     SizedBox(height: 6.h),
@@ -283,15 +315,14 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                           (disadvantage) => Padding(
                         padding: EdgeInsets.symmetric(vertical: 2.h),
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              "• ",
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                color: Colors.white,
-                              ),
+                            Icon(
+                              Icons.cancel_outlined,
+                              size: 16.sp,
+                              color: Colors.redAccent,
                             ),
+                            SizedBox(width: 6.w),
                             Expanded(
                               child: Text(
                                 disadvantage,

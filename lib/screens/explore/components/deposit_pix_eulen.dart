@@ -357,7 +357,29 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'You can only transfer R\$ 6000 per day.'.i18n(ref),
+                                          'You can only transfer R\$ 6000 per 24h per person'.i18n(ref),
+                                          style: TextStyle(
+                                            fontSize: 16.sp,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 12.h),
+                                  Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade900,
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Purchases above R\$ 6000 from the same person will be refunded to the sender's bank account".i18n(ref),
                                           style: TextStyle(
                                             fontSize: 16.sp,
                                             color: Colors.white,
