@@ -57,8 +57,8 @@ final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>
   }
 });
 
-final fetchBackendChallangeProvider = FutureProvider.autoDispose.family<String, String>((ref, bitcoinPublicKey) async {
-  final result = await BackendAuth.fetchChallenge(bitcoinPublicKey!);
+final fetchBackendChallangeProvider = FutureProvider.autoDispose<String>((ref) async {
+  final result = await BackendAuth.fetchChallenge();
   if (result.isSuccess && result.data != null) {
     return result.data!;
   } else {
@@ -67,10 +67,9 @@ final fetchBackendChallangeProvider = FutureProvider.autoDispose.family<String, 
 });
 
 final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
-  final bitcoinPublicKey = await BackendAuth.getPublicKey();
-  final challenge = await ref.read(fetchBackendChallangeProvider(bitcoinPublicKey!).future);
+  final challenge = await ref.read(fetchBackendChallangeProvider.future);
   final signedChallenge = await BackendAuth.signChallengeWithPrivateKey(challenge!);
-  final result = await UserService.createUserRequest(bitcoinPublicKey!, signedChallenge!);
+  final result = await UserService.createUserRequest(challenge!, signedChallenge!);
 
   if (result.isSuccess && result.data != null) {
     final affiliateCodeFromLink = ref.read(userProvider).affiliateCode ?? '';
@@ -89,9 +88,10 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
 
 // delete after migrations
 final migrateUserToJwtProvider = FutureProvider.autoDispose<void>((ref) async {
-  final bitcoinPublicKey = await BackendAuth.getPublicKey();
+  final challenge = await ref.read(fetchBackendChallangeProvider.future);
+  final signedChallenge = await BackendAuth.signChallengeWithPrivateKey(challenge!);
   final recoveryCode = ref.read(userProvider).recoveryCode;
-  final result = await UserService.migrateToJWT(recoveryCode!, bitcoinPublicKey!);
+  final result = await UserService.migrateToJWT(recoveryCode!, challenge, signedChallenge!);
 
   if (result.isSuccess && result.data != null) {
     ref.read(userProvider.notifier).setJwt(result.data!);

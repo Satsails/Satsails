@@ -27,6 +27,7 @@ class UserModel extends StateNotifier<User> {
     state = state.copyWith(jwt: jwt);
   }
 
+  // legacy we can delete by the end of 2025
   Future<void> setRecoveryCode(String recoveryCode) async {
     await _storage.write(key: 'recoveryCode', value: recoveryCode);
     state = state.copyWith(recoveryCode: recoveryCode);
@@ -80,13 +81,13 @@ class User {
 }
 
 class UserService {
-  static Future<Result<User>> createUserRequest(String publicKey, String signature) async {
+  static Future<Result<User>> createUserRequest(String challenge, String signature) async {
     try {
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users'),
         body: jsonEncode({
           'user': {
-             'wallet_public_key': publicKey,
+             'challenge': challenge,
              'signature': signature,
           }
         }),
@@ -106,13 +107,14 @@ class UserService {
     }
   }
 
-  static Future<Result<String>> migrateToJWT(String auth, String bitcoinPublicKey) async {
+  static Future<Result<String>> migrateToJWT(String auth, String challenge, String signature) async {
     try {
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users/migrate'),
         body: jsonEncode({
           'user': {
-            'wallet_public_key': bitcoinPublicKey,
+            'challenge': challenge,
+            'signature': signature,
           }
         }),
         headers: {

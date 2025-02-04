@@ -28,7 +28,7 @@ class BackendAuth {
 
       final signer = BitcoinMessageSigner(
         privateKey: Uint8List.fromList(privateKeyBytes),
-        scriptType: P2WPKH(),
+        scriptType: P2PKH(compressed: true)
       );
 
       if (challengeResponse == null) return null;
@@ -37,22 +37,6 @@ class BackendAuth {
       return signature;
     } catch (e) {
       throw Exception('$e');
-    }
-  }
-
-  static Future<String?> getPublicKey() async {
-    try {
-      final mnemonic = await AuthModel().getMnemonic();
-      if (mnemonic == null) {
-        return null;
-      }
-
-      final descriptorSecretKey = await _getDescriptorSecretKey(mnemonic);
-      final publicKey = descriptorSecretKey.toPublic().asString();
-
-      return publicKey;
-    } catch (e) {
-      return null;
     }
   }
 
@@ -65,16 +49,15 @@ class BackendAuth {
     );
   }
 
-  static Future<Result<String>> fetchChallenge(String publicKey) async {
+  static Future<Result<String>> fetchChallenge() async {
     try {
       final backendUrl = dotenv.env['BACKEND'];
       if (backendUrl == null || backendUrl.isEmpty) {
         return Result(error: 'Backend URL is not configured');
       }
 
-      final response = await http.post(
+      final response = await http.get(
         Uri.parse('$backendUrl/auth/challenge'),
-        body: jsonEncode({'auth': {'public_key': publicKey}}),
         headers: {'Content-Type': 'application/json'},
       );
 
