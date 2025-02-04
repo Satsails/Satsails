@@ -138,6 +138,9 @@ class _OpenPinState extends ConsumerState<OpenPin> {
       );
 
       if (authenticated) {
+        ref.read(appLockedProvider.notifier).state = false;
+        ref.invalidate(bitcoinConfigProvider);
+        ref.invalidate(liquidConfigProvider);
         context.go('/home');
       }
     }
