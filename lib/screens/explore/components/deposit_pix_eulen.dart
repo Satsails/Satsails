@@ -181,8 +181,8 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                 // Amount input when no QR code is generated.
                 if (_pixQRCode.isEmpty)
                   Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: 16.h, horizontal: 8.w),
+                    padding:
+                    EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
                     child: TextField(
                       controller: _amountController,
                       keyboardType: TextInputType.number,
@@ -376,7 +376,6 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                               ),
                             ],
                           ),
-                          // Same padding as the "Insert amount" field.
                           padding: EdgeInsets.symmetric(
                               vertical: 16.h, horizontal: 8.w),
                           child: Column(
@@ -391,7 +390,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
-                                      'Transfer limit: R\$6000 per 24h per person'
+                                      'Transfer limit: R\$ 6000 per 24h per person'
                                           .i18n(ref),
                                       style: TextStyle(
                                         fontSize: 16.sp,
@@ -412,7 +411,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
-                                      'Purchases above R\$6000 will be refunded'
+                                      "Purchases above R\$ 6000 from the same person will be refunded to the sender's bank account"
                                           .i18n(ref),
                                       style: TextStyle(
                                         fontSize: 16.sp,
@@ -433,8 +432,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
-                                      'Amount Purchased Today: R\$ $amountPurchasedToday'
-                                          .i18n(ref),
+                                      'Amount Purchased Today:'.i18n(ref) + 'R\$ $amountPurchasedToday',
                                       style: TextStyle(
                                         fontSize: 16.sp,
                                         color: Colors.grey,
@@ -454,8 +452,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
-                                      'Min purchase for on-chain BTC conversion: R\$ $minBtcInBRL'
-                                          .i18n(ref),
+                                      'Min purchase for on-chain BTC conversion:'.i18n(ref) +' R\$ $minBtcInBRL',
                                       style: TextStyle(
                                         fontSize: 16.sp,
                                         color: Colors.grey,
@@ -487,8 +484,8 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                       SizedBox(width: 8.w),
                                       Text(
                                         _infoExpanded
-                                            ? 'Hide details'
-                                            : 'See details',
+                                            ? 'Hide details'.i18n(ref)
+                                            : 'See details'.i18n(ref),
                                         style: TextStyle(
                                           fontSize: 18.sp,
                                           color: Colors.grey,
@@ -504,7 +501,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                 Divider(color: Colors.grey.shade600),
                                 SizedBox(height: 12.h),
                                 Text(
-                                  'Additional Information:',
+                                  'Additional Information:'.i18n(ref),
                                   style: TextStyle(
                                     fontSize: 16.sp,
                                     color: Colors.grey,
@@ -513,7 +510,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                 ),
                                 SizedBox(height: 8.h),
                                 Text(
-                                  'Each person can only transfer up to R\$6000 within a 24-hour period to ensure fair usage.',
+                                  'Each person can only transfer up to R\$6000 within a 24-hour period to ensure fair usage.'.i18n(ref),
                                   style: TextStyle(
                                     fontSize: 14.sp,
                                     color: Colors.grey.shade400,
@@ -521,7 +518,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                 ),
                                 SizedBox(height: 8.h),
                                 Text(
-                                  'If a purchase exceeds R\$6000 from the same person, the excess amount will be refunded automatically to the sender\'s bank account.',
+                                  'If a purchase exceeds R\$6000 from the same person, the excess amount will be refunded automatically to the sender\'s bank account.'.i18n(ref),
                                   style: TextStyle(
                                     fontSize: 14.sp,
                                     color: Colors.grey.shade400,
@@ -529,7 +526,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                 ),
                                 SizedBox(height: 8.h),
                                 Text(
-                                  'The amount purchased today is aggregated from all transfers made in the current day.',
+                                  'The amount purchased today is aggregated from all transfers made in the current day.'.i18n(ref),
                                   style: TextStyle(
                                     fontSize: 14.sp,
                                     color: Colors.grey.shade400,
@@ -547,7 +544,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                 TextButton(
                   onPressed: () => context.go('/home'),
                   child: Text(
-                    'Back to Home',
+                    'Back to Home'.i18n(ref),
                     style: TextStyle(
                       fontSize: 16.sp,
                       color: Colors.grey,
