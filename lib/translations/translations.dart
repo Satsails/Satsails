@@ -2332,6 +2332,22 @@ extension Localization on String {
       {
         'en': "Each person can only transfer up to R\$6000 within a 24-hour period to ensure fair usage.",
         'pt': "Cada pessoa pode transferir até R\$6000 em um período de 24 horas para garantir a utilização equilibrada.",
+      } +
+      {
+        'en': "Additional Information:",
+        'pt': "Informações Adicionais:",
+      }+
+      {
+        'en': "Transfer limit: R\$ 6000 per 24h per person",
+        'pt': "Limite de Transferência: R\$ 6000 por 24h por pessoa",
+      }+
+      {
+        'en': "Fixed fee",
+        'pt': "Taxa fixa",
+      }+
+      {
+        'en': "Total fee",
+        'pt': "Taxa total",
       };
 
   String i18n(WidgetRef ref) {

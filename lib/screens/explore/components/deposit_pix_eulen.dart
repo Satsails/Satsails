@@ -30,7 +30,6 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
   double feePercentage = 0;
   String amountPurchasedToday = '0';
   bool pixPayed = false;
-  bool _infoExpanded = false;
   Timer? _paymentCheckTimer;
 
   @override
@@ -181,12 +180,14 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                 // Amount input when no QR code is generated.
                 if (_pixQRCode.isEmpty)
                   Padding(
-                    padding:
-                    EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
+                    padding: EdgeInsets.symmetric(
+                        vertical: 16.h, horizontal: 8.w),
                     child: TextField(
                       controller: _amountController,
                       keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 20.sp,
@@ -202,8 +203,8 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
-                          borderSide:
-                          BorderSide(color: Colors.transparent, width: 2.0),
+                          borderSide: BorderSide(
+                              color: Colors.transparent, width: 2.0),
                         ),
                         labelText: 'Insert amount'.i18n(ref),
                         labelStyle: TextStyle(
@@ -272,7 +273,8 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                     vertical: 16.h, horizontal: 8.w),
                                 decoration: BoxDecoration(
                                   color: Colors.grey.shade900,
-                                  borderRadius: BorderRadius.circular(12.r),
+                                  borderRadius:
+                                  BorderRadius.circular(12.r),
                                 ),
                                 child: Text(
                                   '$_amountToReceive Depix',
@@ -289,7 +291,30 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                 MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Service Fee'.i18n(ref),
+                                    'Fixed fee'.i18n(ref),
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      color: Colors.grey[400],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    '1 BRL',
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      color: Colors.grey[400],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 10.h),
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Total fee'.i18n(ref),
                                     style: TextStyle(
                                       fontSize: 16.sp,
                                       color: Colors.grey[400],
@@ -350,7 +375,8 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                     children: [
                       // Generate QR code button.
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 0.2.sw),
+                        padding:
+                        EdgeInsets.symmetric(horizontal: 0.2.sw),
                         child: CustomButton(
                           onPressed: _generateQRCode,
                           primaryColor: Colors.orange,
@@ -362,7 +388,8 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                       SizedBox(height: 16.h),
                       // Unified information card styled with the provided container decoration.
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        padding:
+                        EdgeInsets.symmetric(horizontal: 16.w),
                         child: Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
@@ -379,14 +406,17 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                           padding: EdgeInsets.symmetric(
                               vertical: 16.h, horizontal: 8.w),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
                             children: [
                               // Row 1: Transfer limit.
                               Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                                crossAxisAlignment:
+                                CrossAxisAlignment.center,
                                 children: [
                                   Icon(Icons.info,
-                                      color: Colors.grey, size: 20.sp),
+                                      color: Colors.grey,
+                                      size: 20.sp),
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
@@ -404,10 +434,12 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                               SizedBox(height: 8.h),
                               // Row 2: Refund policy.
                               Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                                crossAxisAlignment:
+                                CrossAxisAlignment.center,
                                 children: [
                                   Icon(Icons.money_off,
-                                      color: Colors.grey, size: 20.sp),
+                                      color: Colors.grey,
+                                      size: 20.sp),
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
@@ -425,14 +457,18 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                               SizedBox(height: 8.h),
                               // Row 3: Amount purchased today.
                               Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                                crossAxisAlignment:
+                                CrossAxisAlignment.center,
                                 children: [
                                   Icon(Icons.attach_money,
-                                      color: Colors.grey, size: 20.sp),
+                                      color: Colors.grey,
+                                      size: 20.sp),
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
-                                      'Amount Purchased Today:'.i18n(ref) + 'R\$ $amountPurchasedToday',
+                                      'Amount Purchased Today:'
+                                          .i18n(ref) +
+                                          ' R\$ $amountPurchasedToday',
                                       style: TextStyle(
                                         fontSize: 16.sp,
                                         color: Colors.grey,
@@ -445,14 +481,18 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                               SizedBox(height: 8.h),
                               // Row 4: Minimum purchase for on-chain BTC conversion.
                               Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                                crossAxisAlignment:
+                                CrossAxisAlignment.center,
                                 children: [
                                   Icon(Icons.currency_bitcoin,
-                                      color: Colors.grey, size: 20.sp),
+                                      color: Colors.grey,
+                                      size: 20.sp),
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
-                                      'Min purchase for on-chain BTC conversion:'.i18n(ref) +' R\$ $minBtcInBRL',
+                                      'Min purchase for on-chain BTC conversion:'
+                                          .i18n(ref) +
+                                          ' R\$ $minBtcInBRL',
                                       style: TextStyle(
                                         fontSize: 16.sp,
                                         color: Colors.grey,
@@ -462,95 +502,23 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                   ),
                                 ],
                               ),
-                              // Toggle "See details" button.
-                              SizedBox(height: 12.h),
-                              Center(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _infoExpanded = !_infoExpanded;
-                                    });
-                                  },
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        _infoExpanded
-                                            ? Icons.expand_less
-                                            : Icons.expand_more,
-                                        color: Colors.grey,
-                                        size: 20.sp,
-                                      ),
-                                      SizedBox(width: 8.w),
-                                      Text(
-                                        _infoExpanded
-                                            ? 'Hide details'.i18n(ref)
-                                            : 'See details'.i18n(ref),
-                                        style: TextStyle(
-                                          fontSize: 18.sp,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              // Expanded details section.
-                              if (_infoExpanded) ...[
-                                SizedBox(height: 12.h),
-                                Divider(color: Colors.grey.shade600),
-                                SizedBox(height: 12.h),
-                                Text(
-                                  'Additional Information:'.i18n(ref),
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 8.h),
-                                Text(
-                                  'Each person can only transfer up to R\$6000 within a 24-hour period to ensure fair usage.'.i18n(ref),
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    color: Colors.grey.shade400,
-                                  ),
-                                ),
-                                SizedBox(height: 8.h),
-                                Text(
-                                  'If a purchase exceeds R\$6000 from the same person, the excess amount will be refunded automatically to the sender\'s bank account.'.i18n(ref),
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    color: Colors.grey.shade400,
-                                  ),
-                                ),
-                                SizedBox(height: 8.h),
-                                Text(
-                                  'The amount purchased today is aggregated from all transfers made in the current day.'.i18n(ref),
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    color: Colors.grey.shade400,
-                                  ),
-                                ),
-                              ],
+                              SizedBox(height: 16.h),
                             ],
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => context.go('/home'),
+                        child: Text(
+                          'Back to Home'.i18n(ref),
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color: Colors.grey,
                           ),
                         ),
                       ),
                     ],
                   ),
-                // Discreet "Back to Home" button (always shown).
-                SizedBox(height: 16.h),
-                TextButton(
-                  onPressed: () => context.go('/home'),
-                  child: Text(
-                    'Back to Home'.i18n(ref),
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
