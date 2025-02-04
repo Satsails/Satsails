@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:bitcoin_message_signer/bitcoin_message_signer.dart';
 import 'package:conduit_password_hash/pbkdf2.dart';
@@ -14,7 +15,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class BackendAuth {
-  static Future<String?> signChallengeWithPrivateKey(String challengeResponse) async {
+  static Future<String?> signChallengeWithPrivateKey(
+      String challengeResponse) async {
     try {
       final mnemonic = await AuthModel().getMnemonic();
       if (mnemonic == null) {
@@ -54,7 +56,8 @@ class BackendAuth {
     }
   }
 
-  static Future<DescriptorSecretKey> _getDescriptorSecretKey(String mnemonic) async {
+  static Future<DescriptorSecretKey> _getDescriptorSecretKey(
+      String mnemonic) async {
     final mnemonicType = await Mnemonic.fromString(mnemonic);
     return await DescriptorSecretKey.create(
       network: Network.testnet,
@@ -62,24 +65,28 @@ class BackendAuth {
     );
   }
 
-  static Future<String?> fetchChallenge(String publicKey) async {
+  static Future<Result<String>> fetchChallenge(String publicKey) async {
+    try {
+      final backendUrl = dotenv.env['BACKEND'];
+      if (backendUrl == null || backendUrl.isEmpty) {
+        return Result(error: 'Backend URL is not configured');
+      }
 
-    final backendUrl = dotenv.env['BACKEND'];
-    final response = await http.post(
-      Uri.parse('$backendUrl/auth/challenge'),
-      body: jsonEncode({'auth': {'public_key': publicKey}}),
-      headers: {'Content-Type': 'application/json'},
-    );
-    if (response.statusCode != 200) {
-      return null;
+      final response = await http.post(
+        Uri.parse('$backendUrl/auth/challenge'),
+        body: jsonEncode({'auth': {'public_key': publicKey}}),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+
+      final dynamic jsonResponse = json.decode(response.body);
+      final challenge = jsonResponse['challenge'] as String?;
+
+
+      return Result(data: challenge);
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please try again later');
     }
-
-    final challenge = json.decode(response.body)['challenge'];
-    if (challenge == null || challenge.isEmpty) {
-      return null;
-    }
-
-    return challenge;
   }
 }
 

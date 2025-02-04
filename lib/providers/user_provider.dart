@@ -57,9 +57,18 @@ final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>
   }
 });
 
+final fetchBackendChallangeProvider = FutureProvider.autoDispose.family<String, String>((ref, bitcoinPublicKey) async {
+  final result = await BackendAuth.fetchChallenge(bitcoinPublicKey!);
+  if (result.isSuccess && result.data != null) {
+    return result.data!;
+  } else {
+    throw result.error!;
+  }
+});
+
 final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
   final bitcoinPublicKey = await BackendAuth.getPublicKey();
-  final challenge = await BackendAuth.fetchChallenge(bitcoinPublicKey!);
+  final challenge = await ref.read(fetchBackendChallangeProvider(bitcoinPublicKey!).future);
   final signedChallenge = await BackendAuth.signChallengeWithPrivateKey(challenge!);
   final result = await UserService.createUserRequest(bitcoinPublicKey!, signedChallenge!);
 
