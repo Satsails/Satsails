@@ -1,5 +1,7 @@
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/providers/bitcoin_config_provider.dart';
+import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -100,14 +102,16 @@ class _OpenPinState extends ConsumerState<OpenPin> {
     final pinText = await authModel.getPin();
 
     if (pinText == _pinController.text) {
-      _attempts = 0; // Reset the attempts counter on success
+      _attempts = 0;
+      ref.read(appLockedProvider.notifier).state = false;
+      ref.invalidate(bitcoinConfigProvider);
+      ref.invalidate(liquidConfigProvider);
       context.go('/home');
     } else {
-      _attempts++; // Increment the attempts counter
+      _attempts++;
 
-      // Check if the user has failed 6 times
       if (_attempts >= 6) {
-        await _forgotPin(context, ref); // Trigger wallet deletion
+        await _forgotPin(context, ref);
       } else {
         int remainingAttempts = 6 - _attempts;
         showMessageSnackBar(

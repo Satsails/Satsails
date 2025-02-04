@@ -1,6 +1,8 @@
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/providers/bitcoin_config_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
+import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/screens/creation/set_pin.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -128,6 +130,9 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin> {
 
                               // Navigate to the home screen
                               if (mounted) {
+                                ref.read(appLockedProvider.notifier).state = false;
+                                ref.invalidate(bitcoinConfigProvider);
+                                ref.invalidate(liquidConfigProvider);
                                 context.go('/home');
                               }
                             } catch (e) {

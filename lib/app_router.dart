@@ -1,6 +1,6 @@
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/screens/explore/components/deposit_method.dart';
-import 'package:Satsails/screens/explore/components/deposit_pix_eulen.dart';
+import 'package:Satsails/screens/explore/components/deposit_depix_pix_eulen.dart';
 import 'package:Satsails/screens/explore/components/deposit_provider.dart';
 import 'package:Satsails/screens/explore/components/deposit_type.dart';
 import 'package:Satsails/screens/explore/explore.dart';

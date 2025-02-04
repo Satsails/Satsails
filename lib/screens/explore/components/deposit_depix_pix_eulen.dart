@@ -507,18 +507,18 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                           ),
                         ),
                       ),
-                      TextButton(
-                        onPressed: () => context.go('/home'),
-                        child: Text(
-                          'Back to Home'.i18n(ref),
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
                     ],
                   ),
+                TextButton(
+                  onPressed: () => context.go('/home'),
+                  child: Text(
+                    'Back to Home'.i18n(ref),
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

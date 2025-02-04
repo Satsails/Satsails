@@ -190,6 +190,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   Future<void> _lockApp() async {
     ref.read(sendTxProvider.notifier).resetToDefault();
     ref.read(sendBlocksProvider.notifier).state = 1;
+    ref.read(appLockedProvider.notifier).state = true;
     final authModel = ref.read(authModelProvider);
 
     final mnemonic = await authModel.getMnemonic();
@@ -205,15 +206,21 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
 
     Future.microtask(() async => await fetchAndUpdateTransactions(ref));
     _syncTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
-      fetchAndUpdateTransactions(ref);
-      ref.read(updateCurrencyProvider);
-      ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+      final appIsLocked = ref.read(appLockedProvider) == true;
+      if (!appIsLocked) {
+        fetchAndUpdateTransactions(ref);
+        ref.read(updateCurrencyProvider);
+        ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+      }
     });
 
     final auth = ref.watch(userProvider).jwt;
     if (auth != null && auth.isNotEmpty) {
       _purchaseTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
-        ref.read(getUserPurchasesProvider);
+        final appIsLocked = ref.read(appLockedProvider) == true;
+        if (!appIsLocked) {
+          ref.read(getUserPurchasesProvider);
+        }
       });
     }
   }

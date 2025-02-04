@@ -1,5 +1,7 @@
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/providers/bitcoin_config_provider.dart';
+import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -62,6 +64,9 @@ class DeleteWalletSection extends StatelessWidget {
                   onPressed: () async {
                     context.pop();
                     await authModel.deleteAuthentication();
+                    ref.read(appLockedProvider.notifier).state = true;
+                    ref.invalidate(bitcoinConfigProvider);
+                    ref.invalidate(liquidConfigProvider);
                     RestartWidget.restartApp(context);
                   },
                   text:
