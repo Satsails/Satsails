@@ -175,6 +175,9 @@ class _OpenPinState extends ConsumerState<OpenPin> {
   Future<void> _forgotPin(BuildContext context, WidgetRef ref) async {
     final authModel = ref.read(authModelProvider);
     await authModel.deleteAuthentication(); // Delete the wallet
+    ref.read(appLockedProvider.notifier).state = true;
+    ref.invalidate(bitcoinConfigProvider);
+    ref.invalidate(liquidConfigProvider);
     context.go('/');
   }
 }
