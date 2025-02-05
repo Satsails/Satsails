@@ -49,7 +49,7 @@ class LiquidModel {
       final pset = await config.liquid.wallet.buildLbtcTx(
         sats: BigInt.from(params.amount),
         outAddress: params.outAddress,
-        feeRate: config.electrumUrl == 'blockstream.info:995' ? params.fee * 1000 : params.fee * 100,
+        feeRate: params.fee * 100 < 26 ? 26 : params.fee * 100,
         drain: false,
       );
       return pset;

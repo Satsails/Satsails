@@ -1420,7 +1420,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
                                 CommaTextInputFormatter(),
                                 DecimalTextInputFormatter(decimalRange: 2, integerRange: 7),
                               ],
-                              style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: Colors.white, fontSize: 20.sp),
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: '0',
