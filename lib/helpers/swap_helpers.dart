@@ -179,6 +179,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(sendBitcoinProvider.notifier).state = true;
         ref.read(inputInFiatProvider.notifier).state = false;
         ref.read(pegOutBlocksProvider.notifier).state = 2;
+        ref.read(pegInProvider.notifier).state = true;
         break;
 
       case SwapType.sideswapLbtcToBtc:
@@ -187,6 +188,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(sendBitcoinProvider.notifier).state = true;
         ref.read(inputInFiatProvider.notifier).state = false;
         ref.read(pegOutBlocksProvider.notifier).state = 2;
+        ref.read(pegInProvider.notifier).state = false;
         break;
 
       case SwapType.coinosLnToBTC:

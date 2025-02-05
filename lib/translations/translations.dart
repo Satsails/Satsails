@@ -2348,6 +2348,10 @@ extension Localization on String {
       {
         'en': "Total fee",
         'pt': "Taxa total",
+      }+
+      {
+        'en': "The maximum allowed transfer amount is 5000 BRL",
+        'pt': "O valor máximo permitido por deposito é de 5000 BRL",
       };
 
   String i18n(WidgetRef ref) {
