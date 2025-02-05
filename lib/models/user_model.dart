@@ -123,7 +123,7 @@ class UserService {
         },
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         return Result(data: jsonDecode(response.body)['token']);
       } else {
         return Result(error: 'Failed to create user: ${response.body}');
@@ -134,13 +134,12 @@ class UserService {
     }
   }
 
-  static Future<Result<bool>> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
+  static Future<Result<bool>> addAffiliateCode(String affiliateCode, String auth) async {
     try {
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users/add_affiliate'),
         body: jsonEncode({
           'user': {
-            'payment_id': paymentId,
             'affiliate_code': affiliateCode,
           }
         }),

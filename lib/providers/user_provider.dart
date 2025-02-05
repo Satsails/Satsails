@@ -45,9 +45,8 @@ final userProvider = StateNotifierProvider<UserModel, User>((ref) {
 });
 
 final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>((ref, affiliateCode) async {
-  var paymentId = ref.read(userProvider).paymentId;
   final auth = ref.read(userProvider).jwt!;
-  final result = await UserService.addAffiliateCode(paymentId, affiliateCode, auth);
+  final result = await UserService.addAffiliateCode(affiliateCode, auth);
 
   if (result.isSuccess && result.data == true) {
     ref.read(userProvider.notifier).setAffiliateCode(affiliateCode);

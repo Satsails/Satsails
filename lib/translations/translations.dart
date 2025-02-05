@@ -2352,6 +2352,14 @@ extension Localization on String {
       {
         'en': "The maximum allowed transfer amount is 5000 BRL",
         'pt': "O valor máximo permitido por deposito é de 5000 BRL",
+      }+
+      {
+        'en': "Error inserting affiliate code",
+        'pt': "Erro ao inserir código de afiliado",
+      }+
+      {
+        'en': "Affiliate code inserted successfully",
+        'pt': "Código de afiliado inserido com sucesso",
       };
 
   String i18n(WidgetRef ref) {
