@@ -291,7 +291,7 @@ Future<void> _handleOnPress(
   ref.read(isLoadingProvider.notifier).state = true;
 
   try {
-    // If the user doesn't have a paymentId, we assume they're new and need to be created
+    // For new users (no paymentId)
     if (paymentId.isEmpty) {
       await ref.watch(createUserProvider.future);
 
@@ -299,31 +299,31 @@ Future<void> _handleOnPress(
         await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
 
-      // Request notification permissions (Android/iOS)
       await _requestNotificationPermissions();
     } else {
+      // For existing users, consider migrating first if recoveryCode is present.
+      if (recoveryCode != null && recoveryCode.isNotEmpty) {
+        await ref.read(migrateUserToJwtProvider.future);
+      }
+
+      // Then update affiliate code if needed.
       if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
         await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
-      }
-      // If the user has a recovery code, we migrate them to JWT-based auth
-       if (recoveryCode != null && recoveryCode.isNotEmpty) {
-        await ref.read(migrateUserToJwtProvider.future);
       }
     }
 
     context.push('/home/explore/deposit_type');
   } catch (e) {
-    // Show any errors in a snack bar
     showMessageSnackBar(
       message: e.toString(),
       context: context,
       error: true,
     );
   } finally {
-    // Ensure loading state is turned off, regardless of success or failure
     ref.read(isLoadingProvider.notifier).state = false;
   }
 }
+
 
 Future<void> _requestNotificationPermissions() async {
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();

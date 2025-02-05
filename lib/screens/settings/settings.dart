@@ -147,7 +147,7 @@ class Settings extends ConsumerWidget {
 
   Widget _buildAffiliateSection(BuildContext context, WidgetRef ref) {
     final affiliateCode = ref.watch(userProvider).affiliateCode ?? '';
-    final hasNotCreatedUser = ref.watch(userProvider).jwt.isEmpty;
+    final hasNotCreatedUser = ref.watch(userProvider).paymentId.isEmpty;
 
     if (hasNotCreatedUser) {
       return SizedBox.shrink();
