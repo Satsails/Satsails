@@ -2221,8 +2221,8 @@ extension Localization on String {
       }
       +
       {
-        'en': 'Maximum purchase per person: 6000 BRL per day',
-        'pt': 'Compra máxima por pessoa: 6000 BRL por dia',
+        'en': 'Maximum purchase: 6000 BRL per day',
+        'pt': 'Compra máxima: 6000 BRL por dia',
       }
       +
       {
@@ -2236,8 +2236,8 @@ extension Localization on String {
       }
       +
       {
-        'en': 'Minimum purchase per person: 1 BRL',
-        'pt': 'Compra mínima por pessoa: 1 BRL',
+        'en': 'Minimum purchase: 1 BRL',
+        'pt': 'Compra mínima: 1 BRL',
       }
       +
       {
@@ -2273,6 +2273,16 @@ extension Localization on String {
       {
         'en': 'A purchase history is required to gradually unlock the maximum transaction limit: starting at 500 BRL, then increasing to 1000 BRL and 2000 BRL, eventually unlocking up to 5000 BRL per transaction.',
         'pt': 'É necessário um histórico de compras para desbloquear gradualmente o limite máximo de transação: começando em 500 BRL, depois aumentando para 1000 BRL e 2000 BRL, eventualmente desbloqueando até 5000 BRL por transação.',
+      }
+      +
+      {
+        'en': 'First purchase tax number will be assumed for further purchases. If you pay from another tax number, purchase will be refunded',
+        'pt': 'CPF do primeiro pedido será assumido para próximos pedidos. Se pagar de outro cpf, a compra será reembolsada.',
+      }
+      +
+      {
+        'en': 'Purchases from users that differ from the first purchase cpf will be refunded',
+        'pt': 'Compras feita com um cpf diferente da primeira compra, serão reembolsadas',
       }
       +
       {
@@ -2320,8 +2330,8 @@ extension Localization on String {
       }
       +
       {
-        'en': "Transfer limit: R\$ 6000 per 24h per person.",
-        'pt': "Limite de Transferência: R\$ 6000 por 24h por pessoa.",
+        'en': "Transfer limit: R\$ 6000",
+        'pt': "Limite de Transferência: R\$ 6000",
       }
       +
       {

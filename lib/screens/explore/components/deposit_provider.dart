@@ -106,18 +106,17 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
     final Map<helpers.DepositProvider, ProviderDetails> providerDetails = {
       helpers.DepositProvider.Eulen: ProviderDetails(
         advantages: [
-          "Maximum purchase per person: 6000 BRL per day",
           "Near-instant deposits",
           "No documentation required",
-          "Minimum purchase per person: 1 BRL",
+          "Minimum purchase: 1 BRL",
         ],
         disadvantages: [
-          "If a user sends more than 6000 BRL per day, refunds are not automatic and may take several hours",
           "Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payer's name",
           "Not possible to send documentation and unlock higher purchase amounts. ",
           "You will need to convert DEPIX into bitcoin manually",
           "Maximum of 5000 BRL per single transaction",
           "A purchase history is required to gradually unlock the maximum transaction limit: starting at 500 BRL, then increasing to 1000 BRL and 2000 BRL, eventually unlocking up to 5000 BRL per transaction.",
+          "First purchase tax number will be assumed for further purchases. If you pay from another tax number, purchase will be refunded",
         ],
       ),
       helpers.DepositProvider.NoxPay: ProviderDetails(

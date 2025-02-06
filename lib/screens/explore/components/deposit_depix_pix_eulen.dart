@@ -420,7 +420,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
-                                      'Transfer limit: R\$ 6000 per 24h per person'
+                                      'Transfer limit: R\$ 6000'
                                           .i18n(ref),
                                       style: TextStyle(
                                         fontSize: 16.sp,
@@ -443,8 +443,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
-                                      "Purchases above R\$ 6000 from the same person will be refunded to the sender's bank account"
-                                          .i18n(ref),
+                                      "Purchases from users that differ from the first purchase cpf will be refunded".i18n(ref),
                                       style: TextStyle(
                                         fontSize: 16.sp,
                                         color: Colors.grey,

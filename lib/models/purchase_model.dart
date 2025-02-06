@@ -270,7 +270,7 @@ class PurchaseService {
       if (response.statusCode == 201) {
         return Result(data: Purchase.fromJson(jsonDecode(response.body)));
       } else {
-        return Result(error: 'An error has occurred. Please try again later');
+        return Result(error: response.body);
       }
     } catch (e) {
       return Result(error: 'An error has occurred. Please try again later');
