@@ -2335,6 +2335,11 @@ extension Localization on String {
       }
       +
       {
+        'en': "We are unable to process your transaction. Please contact support for further information.",
+        'pt': "Não podemos processar a sua transação. Por favor, contate o suporte para obter mais informações.",
+      }
+      +
+      {
         'en': "If a purchase exceeds R\$6000 from the same person, the excess amount will be refunded automatically to the sender\'s bank account.",
         'pt': "Se um comprimento for superior a R\$6000 da mesma pessoa, o valor será devolvido automaticamente para o cartão de crédito do recebedor.",
       }
