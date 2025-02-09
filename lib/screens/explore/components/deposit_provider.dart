@@ -113,10 +113,8 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
         disadvantages: [
           "Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payer's name",
           "Not possible to send documentation and unlock higher purchase amounts. ",
-          "You will need to convert DEPIX into bitcoin manually",
           "Maximum of 5000 BRL per single transaction",
-          "A purchase history is required to gradually unlock the maximum transaction limit: starting at 500 BRL, then increasing to 1000 BRL and 2000 BRL, eventually unlocking up to 5000 BRL per transaction.",
-          "First purchase tax number will be assumed for further purchases. If you pay from another tax number, purchase will be refunded",
+          "Onboarding made by pix metadata on first purchase",
         ],
       ),
       helpers.DepositProvider.NoxPay: ProviderDetails(

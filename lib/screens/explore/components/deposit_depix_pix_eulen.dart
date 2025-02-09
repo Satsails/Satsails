@@ -432,29 +432,6 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                 ],
                               ),
                               SizedBox(height: 8.h),
-                              // Row 2: Refund policy.
-                              Row(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.money_off,
-                                      color: Colors.grey,
-                                      size: 20.sp),
-                                  SizedBox(width: 8.w),
-                                  Expanded(
-                                    child: Text(
-                                      "Purchases from users that differ from the first purchase cpf will be refunded".i18n(ref),
-                                      style: TextStyle(
-                                        fontSize: 16.sp,
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 8.h),
-                              // Row 3: Amount purchased today.
                               Row(
                                 crossAxisAlignment:
                                 CrossAxisAlignment.center,
