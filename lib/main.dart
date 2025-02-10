@@ -16,6 +16,7 @@ import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
 import 'package:Satsails/screens/spash/splash.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -48,6 +49,11 @@ Future<void> main() async {
   await Firebase.initializeApp();
   await FirebaseService.getAndRefreshFCMToken();
   await FirebaseService.listenForForegroundPushNotifications();
+
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.playIntegrity,
+    appleProvider: AppleProvider.deviceCheck,
+  );
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
@@ -251,8 +252,12 @@ class Purchase extends HiveObject {
 
 
 class PurchaseService {
+  /// Creates a new purchase request.
   static Future<Result<Purchase>> createPurchaseRequest(String auth, int amount, String liquidAddress) async {
     try {
+      // Get the Firebase App Check token.
+      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/transfers'),
         body: jsonEncode({
@@ -264,6 +269,7 @@ class PurchaseService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
+          'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -277,34 +283,41 @@ class PurchaseService {
     }
   }
 
+  /// Retrieves the list of user purchases.
   static Future<Result<List<Purchase>>> getUserPurchases(String auth) async {
     try {
-      final uri = Uri.parse(
-          dotenv.env['BACKEND']! + '/users/user_transfers');
+      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+
+      final uri = Uri.parse(dotenv.env['BACKEND']! + '/users/user_transfers');
 
       final response = await http.get(
         uri,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
+          'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        List<Purchase> transfers = jsonResponse['transfer'].map((item) => Purchase.fromJson(item as Map<String, dynamic>)).toList().cast<Purchase>();
+        List<Purchase> transfers = (jsonResponse['transfer'] as List)
+            .map((item) => Purchase.fromJson(item as Map<String, dynamic>))
+            .toList();
         return Result(data: transfers);
       } else {
         return Result(error: 'An error has occurred. Please try again later');
       }
     } catch (e) {
-      return Result(
-          error: 'An error has occurred. Please try again later');
+      return Result(error: 'An error has occurred. Please try again later');
     }
   }
 
+  /// Gets the amount purchased (transferred) by the user for the day.
   static Future<Result<String>> getAmountPurchased(String auth) async {
     try {
+      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+
       final uri = Uri.parse(dotenv.env['BACKEND']! + '/users/amount_transfered_by_day');
 
       final response = await http.get(
@@ -312,6 +325,7 @@ class PurchaseService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
+          'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -321,16 +335,17 @@ class PurchaseService {
         return Result(error: 'An error has occurred. Please try again later');
       }
     } catch (e) {
-      return Result(
-          error: 'An error has occurred. Please try again later');
+      return Result(error: 'An error has occurred. Please try again later');
     }
   }
 
+  /// Checks the purchase Pix payment state using the transaction ID.
   static Future<Result<bool>> getPurchasePixPaymentState(String transactionId, String auth) async {
     try {
-      final uri = Uri.parse(
-          dotenv.env['BACKEND']! + '/transfers/check_purchase_state'
-      ).replace(queryParameters: {
+      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+
+      final uri = Uri.parse(dotenv.env['BACKEND']! + '/transfers/check_purchase_state')
+          .replace(queryParameters: {
         'transfer[txid]': transactionId,
       });
 
@@ -339,6 +354,7 @@ class PurchaseService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
+          'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -348,10 +364,10 @@ class PurchaseService {
         return Result(error: 'An error has occurred. Please try again later');
       }
     } catch (e) {
-      return Result(
-          error: 'An error has occurred. Please try again later');
+      return Result(error: 'An error has occurred. Please try again later');
     }
   }
 }
+
 
 

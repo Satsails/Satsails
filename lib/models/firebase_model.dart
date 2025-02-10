@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -71,11 +72,14 @@ class FirebaseService {
 
   static Future<void> sendTokenToBackend(String jwt, String token) async {
     try {
+      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+
       await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users/store_fcm_token'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwt',
+          'X-Firebase-AppCheck': appCheckToken ?? '',
         },
         body: jsonEncode({
           'user': {
