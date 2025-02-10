@@ -25,7 +25,7 @@ class Receive extends ConsumerWidget {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Text('Receive'.i18n(ref), style: const TextStyle(color: Colors.white)),
+        title: Text('Receive'.i18n, style: const TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, size: screenHeight * 0.03, color: Colors.white),
           onPressed: () {
@@ -79,7 +79,7 @@ class Receive extends ConsumerWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Text(
-                            value.i18n(ref),
+                            value.i18n,
                             style: TextStyle(color: Colors.orange, fontSize: screenWidth * 0.045),
                           ),
                         ),

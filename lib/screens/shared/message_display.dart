@@ -34,7 +34,7 @@ class MessageDisplay extends ConsumerWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                message.i18n(ref),
+                message.i18n,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,

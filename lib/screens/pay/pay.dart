@@ -89,7 +89,7 @@ class _PayState extends ConsumerState<Pay> {
       widget: Padding(
         padding: const EdgeInsets.only(top: 16),
         child: Text(
-          message.i18n(ref),
+          message.i18n,
           style: const TextStyle(
             color: Colors.white70,
             fontSize: 16,
@@ -185,7 +185,7 @@ class _PayState extends ConsumerState<Pay> {
                       ),
                     ),
                     child: Text(
-                      'Paste'.i18n(ref),
+                      'Paste'.i18n,
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),
@@ -201,7 +201,7 @@ class _PayState extends ConsumerState<Pay> {
                       ),
                     ),
                     child: Text(
-                      'Flash'.i18n(ref),
+                      'Flash'.i18n,
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),

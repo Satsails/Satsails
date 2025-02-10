@@ -122,7 +122,7 @@ class LightningCards extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                          title.i18n(ref),
+                          title.i18n,
                           style: TextStyle(
                             fontSize: titleFontSize / 1.5,
                             color: Colors.black,),

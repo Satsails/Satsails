@@ -44,7 +44,7 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text('Total bitcoin balance:'.i18n(ref), style: TextStyle(fontSize: titleFontSize * 0.6, color: Colors.black)),
+                        Text('Total bitcoin balance:'.i18n, style: TextStyle(fontSize: titleFontSize * 0.6, color: Colors.black)),
                         _buildVisibilityToggleIcon(context, ref),
                       ],
                     ),
@@ -73,7 +73,7 @@ Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProvi
                   onPressed: () {
                     _showDenominationChangeModalBottomSheet(context, ref);
                   },
-                  child: Text('Change'.i18n(ref), style: const TextStyle(color: Colors.black)),
+                  child: Text('Change'.i18n, style: const TextStyle(color: Colors.black)),
                 ),
               ),
             ],

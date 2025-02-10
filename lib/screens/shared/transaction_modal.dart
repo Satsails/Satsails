@@ -312,9 +312,9 @@ class _PaymentTransactionOverlayState
   /// "Instant", "1 block" or "X blocks"
   String get confirmationText {
     final blocks = widget.confirmationBlocks;
-    if (blocks == null) return 'Instant'.i18n(ref);
-    if (blocks == 1) return '1 block'.i18n(ref);
-    return '$blocks ${'blocks'.i18n(ref)}';
+    if (blocks == null) return 'Instant'.i18n;
+    if (blocks == 1) return '1 block'.i18n;
+    return '$blocks ${'blocks'.i18n}';
   }
 
   /// Determines how to display the amount
@@ -419,19 +419,19 @@ class _PaymentTransactionOverlayState
 
                   // Amount
                   _transactionDetailRow(
-                    label: 'Amount'.i18n(ref),
+                    label: 'Amount'.i18n,
                     value: displayAmount,
                   ),
 
                   // Confirmation
                   _transactionDetailRow(
-                    label: 'Confirmation'.i18n(ref),
+                    label: 'Confirmation'.i18n,
                     value: confirmationText,
                   ),
 
                   // Recipient
                   _transactionDetailRowMulti(
-                    label: 'Recipient'.i18n(ref),
+                    label: 'Recipient'.i18n,
                     value: widget.receiveAddress,
                     isAddressOrTxid: true,
                   ),
@@ -439,7 +439,7 @@ class _PaymentTransactionOverlayState
                   // Transaction ID
                   if (widget.txid != null && widget.txid!.isNotEmpty)
                     _transactionDetailRowMulti(
-                      label: 'Transaction ID'.i18n(ref),
+                      label: 'Transaction ID'.i18n,
                       value: widget.txid!,
                       isAddressOrTxid: true,
                     ),
@@ -535,7 +535,7 @@ class _PaymentTransactionOverlayState
                       Clipboard.setData(ClipboardData(text: value));
                       showMessageSnackBar(
                         context: context,
-                        message: 'Copied'.i18n(ref),
+                        message: 'Copied'.i18n,
                         error: false,
                       );
                     },

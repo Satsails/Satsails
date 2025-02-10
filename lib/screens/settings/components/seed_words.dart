@@ -22,7 +22,7 @@ class SeedWords extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
-          'Seed Words'.i18n(ref),
+          'Seed Words'.i18n,
           style: const TextStyle(
             color: Colors.white,
           ),
@@ -78,7 +78,7 @@ class SeedWords extends ConsumerWidget {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.2),
                       child: CustomButton(
-                        text: 'Backup Wallet'.i18n(ref),
+                        text: 'Backup Wallet'.i18n,
                         onPressed: () {
                           context.push('/backup_wallet');
                         },

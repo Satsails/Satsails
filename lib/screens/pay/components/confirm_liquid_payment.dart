@@ -79,7 +79,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
       onPopInvoked: (bool canPop) {
         if (isProcessing) {
           showMessageSnackBarInfo(
-            message: "Transaction in progress, please wait.".i18n(ref),
+            message: "Transaction in progress, please wait.".i18n,
             context: context,
           );
         } else {
@@ -102,13 +102,13 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                     context.pop();
                   } else {
                     showMessageSnackBarInfo(
-                      message: "Transaction in progress, please wait.".i18n(ref),
+                      message: "Transaction in progress, please wait.".i18n,
                       context: context,
                     );
                   }
                 },
               ),
-              title: Text('Confirm Payment'.i18n(ref), style: const TextStyle(color: Colors.white)),
+              title: Text('Confirm Payment'.i18n, style: const TextStyle(color: Colors.white)),
             ),
             body: Column(
               children: [
@@ -292,7 +292,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                                   }
                                 } catch (e) {
                                   showMessageSnackBar(
-                                    message: e.toString().i18n(ref),
+                                    message: e.toString().i18n,
                                     error: true,
                                     context: context,
                                   );
@@ -326,7 +326,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                         ref.watch(liquidFeeProvider).when(
                           data: (int fee) {
                             return Text(
-                              '${'Fee:'.i18n(ref)} $fee${' sats'}',
+                              '${'Fee:'.i18n} $fee${' sats'}',
                               style: TextStyle(
                                   fontSize: dynamicFontSize / 1.5,
                                   fontWeight: FontWeight.bold,
@@ -340,7 +340,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                               onPressed: () {
                                 ref.refresh(feeProvider);
                               },
-                              child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n(ref),
+                              child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n,
                                   style: TextStyle(color: Colors.white, fontSize: dynamicFontSize / 1.5))),
                         ),
                         SizedBox(height: dynamicSizedBox),
@@ -397,7 +397,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                         } catch (e) {
                           controller.failure();
                           showMessageSnackBar(
-                            message: e.toString().i18n(ref),
+                            message: e.toString().i18n,
                             error: true,
                             context: context,
                           );
@@ -408,7 +408,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                           });
                         }
                       },
-                      child: Text('Slide to send'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                      child: Text('Slide to send'.i18n, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),

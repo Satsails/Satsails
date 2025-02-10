@@ -35,7 +35,7 @@ class BuildTransactions extends ConsumerWidget {
           },
         );
       },
-      text: 'See Full History'.i18n(ref),
+      text: 'See Full History'.i18n,
       primaryColor: Colors.transparent,
       secondaryColor: Colors.transparent,
       textColor: Colors.white,
@@ -198,7 +198,7 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
       ),
       child: Center(
         child: Text(
-          'No transactions found. Check back later.'.i18n(ref),
+          'No transactions found. Check back later.'.i18n,
           style: const TextStyle(color: Colors.white, fontSize: 18),
         ),
       ),
@@ -325,11 +325,11 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
             subtitle: Text(
                 timestampToDateTime(
                     transaction.btcDetails.confirmationTime?.timestamp.toInt())
-                    .i18n(ref),
+                    .i18n,
                 style: TextStyle(
                     fontSize: dynamicFontSize, color: Colors.grey)),
             trailing:
-            confirmationStatus(transaction.btcDetails, ref) == 'Confirmed'.i18n(ref)
+            confirmationStatus(transaction.btcDetails, ref) == 'Confirmed'.i18n
                 ? const Icon(Icons.check_circle_outlined,
                 color: Colors.green)
                 : const Icon(Icons.access_alarm_outlined,
@@ -373,14 +373,14 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
                         style: TextStyle(
                             fontSize: dynamicFontSize,
                             color: Colors.white))
-                        : Text('Multiple'.i18n(ref),
+                        : Text('Multiple'.i18n,
                         style: TextStyle(
                             fontSize: dynamicFontSize,
                             color: Colors.white)),
                   ],
                 ),
                 subtitle: Text(
-                    timestampToDateTime(transaction.lwkDetails.timestamp).i18n(ref),
+                    timestampToDateTime(transaction.lwkDetails.timestamp).i18n,
                     style: TextStyle(
                         fontSize: dynamicFontSize, color: Colors.grey)),
                 trailing: confirmationStatusIcon(transaction.lwkDetails),

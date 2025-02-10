@@ -92,7 +92,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
     if (amount.isEmpty) {
       showMessageSnackBar(
         context: context,
-        message: 'Amount cannot be empty'.i18n(ref),
+        message: 'Amount cannot be empty'.i18n,
         error: true,
       );
       return;
@@ -103,7 +103,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
     if (amountInInt == null || amountInInt <= 0) {
       showMessageSnackBar(
         context: context,
-        message: 'Please enter a valid amount.'.i18n(ref),
+        message: 'Please enter a valid amount.'.i18n,
         error: true,
       );
       return;
@@ -112,7 +112,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
     if (amountInInt > 5000) {
       showMessageSnackBar(
         context: context,
-        message: 'The maximum allowed transfer amount is 5000 BRL'.i18n(ref),
+        message: 'The maximum allowed transfer amount is 5000 BRL'.i18n,
         error: true,
       );
       return;
@@ -140,7 +140,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
       });
       showMessageSnackBar(
         context: context,
-        message: e.toString().i18n(ref),
+        message: e.toString().i18n,
         error: true,
       );
     }
@@ -206,7 +206,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                           borderSide: BorderSide(
                               color: Colors.transparent, width: 2.0),
                         ),
-                        labelText: 'Insert amount'.i18n(ref),
+                        labelText: 'Insert amount'.i18n,
                         labelStyle: TextStyle(
                           fontSize: 20.sp,
                           color: Colors.grey[400],
@@ -256,7 +256,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      'Amount to Receive'.i18n(ref),
+                                      'Amount to Receive'.i18n,
                                       style: TextStyle(
                                         fontSize: 20.sp,
                                         color: Colors.white,
@@ -291,7 +291,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                 MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Fixed fee'.i18n(ref),
+                                    'Fixed fee'.i18n,
                                     style: TextStyle(
                                       fontSize: 16.sp,
                                       color: Colors.grey[400],
@@ -314,7 +314,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                 MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Total fee'.i18n(ref),
+                                    'Total fee'.i18n,
                                     style: TextStyle(
                                       fontSize: 16.sp,
                                       color: Colors.grey[400],
@@ -338,7 +338,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                   MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Payment Status'.i18n(ref),
+                                      'Payment Status'.i18n,
                                       style: TextStyle(
                                         fontSize: 16.sp,
                                         color: Colors.grey[400],
@@ -346,7 +346,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                       ),
                                     ),
                                     Text(
-                                      'Pending'.i18n(ref),
+                                      'Pending'.i18n,
                                       style: TextStyle(
                                         fontSize: 16.sp,
                                         color: Colors.orange,
@@ -381,7 +381,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                           onPressed: _generateQRCode,
                           primaryColor: Colors.orange,
                           secondaryColor: Colors.orange,
-                          text: 'Generate QR Code'.i18n(ref),
+                          text: 'Generate QR Code'.i18n,
                           textColor: Colors.white,
                         ),
                       ),
@@ -421,7 +421,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                   Expanded(
                                     child: Text(
                                       'Transfer limit: R\$ 6000'
-                                          .i18n(ref),
+                                          .i18n,
                                       style: TextStyle(
                                         fontSize: 16.sp,
                                         color: Colors.grey,
@@ -443,7 +443,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                   Expanded(
                                     child: Text(
                                       'Amount Purchased Today:'
-                                          .i18n(ref) +
+                                          .i18n +
                                           ' R\$ $amountPurchasedToday',
                                       style: TextStyle(
                                         fontSize: 16.sp,
@@ -467,7 +467,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                   Expanded(
                                     child: Text(
                                       'Min purchase for on-chain BTC conversion:'
-                                          .i18n(ref) +
+                                          .i18n +
                                           ' R\$ $minBtcInBRL',
                                       style: TextStyle(
                                         fontSize: 16.sp,
@@ -488,7 +488,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                 TextButton(
                   onPressed: () => context.go('/home'),
                   child: Text(
-                    'Back to Home'.i18n(ref),
+                    'Back to Home'.i18n,
                     style: TextStyle(
                       fontSize: 16.sp,
                       color: Colors.grey,

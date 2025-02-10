@@ -347,7 +347,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
         Center(
           child: TextButton(
             child: Text(
-              !isShowingBalanceData ? 'Show Balance'.i18n(ref) : 'Show Statistics over period'.i18n(ref),
+              !isShowingBalanceData ? 'Show Balance'.i18n : 'Show Statistics over period'.i18n,
               style: const TextStyle(color: Colors.white),
             ),
             onPressed: () {
@@ -361,12 +361,12 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: isShowingBalanceData
               ? [
-            _buildLegend('Balance'.i18n(ref), Colors.orangeAccent),
+            _buildLegend('Balance'.i18n, Colors.orangeAccent),
           ]
               : [
-            _buildLegend('Sent'.i18n(ref), Colors.blueAccent),
-            _buildLegend('Received'.i18n(ref), Colors.greenAccent),
-            if (isBtc) _buildLegend('Fee'.i18n(ref), Colors.orangeAccent),
+            _buildLegend('Sent'.i18n, Colors.blueAccent),
+            _buildLegend('Received'.i18n, Colors.greenAccent),
+            if (isBtc) _buildLegend('Fee'.i18n, Colors.orangeAccent),
           ],
         ),
         const Calendar(),

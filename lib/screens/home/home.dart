@@ -46,7 +46,7 @@ class Home extends ConsumerWidget {
                       child: Icon(BoxIcons.bx_support, color: Colors.white),
                     ),
                     Text(
-                      'Support'.i18n(ref),
+                      'Support'.i18n,
                       style: TextStyle(color: Colors.white),
                     ),
                   ],

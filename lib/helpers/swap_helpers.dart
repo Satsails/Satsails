@@ -368,7 +368,7 @@ Widget _simpleFeeText(String label, double fee, WidgetRef ref) {
   return Column(
     children: [
       Text(
-        label.i18n(ref),
+        label.i18n,
         style: TextStyle(
           color: Colors.white70,
           fontSize: 14.sp,
@@ -616,7 +616,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'From Asset'.i18n(ref),
+                    'From Asset'.i18n,
                     style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                   ),
                   SizedBox(height: 8.h),
@@ -713,7 +713,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'To Asset'.i18n(ref),
+                    'To Asset'.i18n,
                     style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                   ),
                   SizedBox(height: 8.h),
@@ -1455,7 +1455,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
             );
           },
           loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size: 16.w, color: Colors.white)),
-          error: (error, stack) => Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: 20.sp)),
+          error: (error, stack) => Text(error.toString().i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
         ),
     ],
   );
@@ -1649,7 +1649,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
             );
           },
           loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size: 16.w, color: Colors.white)),
-          error: (error, stack) => Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: 20.sp)),
+          error: (error, stack) => Text(error.toString().i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
         ),
     ],
   );
@@ -1677,7 +1677,7 @@ Widget buildAdvancedOptionsCard(WidgetRef ref) {
           bottom: BorderSide(color: Colors.transparent),
         ),
         title: Text(
-          'Transaction fees'.i18n(ref),
+          'Transaction fees'.i18n,
           style: TextStyle(
             color: Colors.white,
             fontSize: 14.sp,
@@ -1907,7 +1907,7 @@ Widget _feeRow(String label, String value, WidgetRef ref) {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          label.i18n(ref),
+          label.i18n,
           style: TextStyle(
             color: Colors.white70,
             fontSize: 14.sp,
@@ -2030,7 +2030,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
             try {
               if (ref.watch(sendTxProvider).amount < status.minPegOutAmount) {
                 ref.read(transactionInProgressProvider.notifier).state = false;
-                throw 'Amount is below minimum peg out amount'.i18n(ref);
+                throw 'Amount is below minimum peg out amount'.i18n;
               }
               await ref.watch(sendLiquidTransactionProvider.future);
               await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
@@ -2062,7 +2062,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
             }
           },
           child:  Text(
-            'Slide to Swap'.i18n(ref),
+            'Slide to Swap'.i18n,
             style: TextStyle(
               color: Colors.grey,
               fontSize: 14.sp,
@@ -2074,7 +2074,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
       );
     },
     loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size: 20.w, color: Colors.white)),
-    error: (error, stack) => Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: 14.sp)),
+    error: (error, stack) => Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n, style: TextStyle(color: Colors.white, fontSize: 14.sp)),
   );
 }
 
@@ -2096,7 +2096,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
             try {
               if (ref.watch(sendTxProvider).amount < ref.watch(sideswapStatusProvider).minPegInAmount) {
                 ref.read(transactionInProgressProvider.notifier).state = false;
-                throw 'Amount is below minimum peg in amount'.i18n(ref);
+                throw 'Amount is below minimum peg in amount'.i18n;
               }
               await ref.watch(sendBitcoinTransactionProvider.future);
               await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
@@ -2128,7 +2128,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
             }
           },
           child: Text(
-            'Slide to Swap'.i18n(ref),
+            'Slide to Swap'.i18n,
             style: TextStyle(
               color: Colors.grey,
               fontSize: 14.sp,
@@ -2145,7 +2145,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
     ),
     error: (error, stack) => Padding(
       padding: EdgeInsets.all(10.w),
-      child: Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: 14.sp)),
+      child: Text(error.toString().i18n, style: TextStyle(color: Colors.white, fontSize: 14.sp)),
     ),
   );
 }
@@ -2177,7 +2177,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
             context.go('/home');
             ref.read(sendTxProvider.notifier).resetToDefault();
             showMessageSnackBar(
-              message: 'Swap done!'.i18n(ref),
+              message: 'Swap done!'.i18n,
               error: false,
               context: context,
             );
@@ -2185,7 +2185,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
             ref.read(transactionInProgressProvider.notifier).state = false;
             controller.failure();
             showMessageSnackBar(
-              message: e.toString().i18n(ref),
+              message: e.toString().i18n,
               error: true,
               context: context,
             );
@@ -2193,7 +2193,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
           }
         },
         child: Text(
-          'Slide to Swap'.i18n(ref),
+          'Slide to Swap'.i18n,
           style: TextStyle(
             color: Colors.grey,
             fontWeight: FontWeight.bold,
@@ -2234,7 +2234,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
             }
             ref.read(sendBlocksProvider.notifier).state = 1;
             showMessageSnackBar(
-              message: 'Swap done!'.i18n(ref),
+              message: 'Swap done!'.i18n,
               error: false,
               context: context,
             );
@@ -2246,7 +2246,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
             ref.read(transactionInProgressProvider.notifier).state = false;
             controller.failure();
             showMessageSnackBar(
-              message: e.toString().i18n(ref),
+              message: e.toString().i18n,
               error: true,
               context: context,
             );
@@ -2254,7 +2254,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
           }
         },
         child:  Text(
-          'Slide to Swap'.i18n(ref),
+          'Slide to Swap'.i18n,
           style: TextStyle(
             color: Colors.grey,
             fontSize: 14.sp,
@@ -2294,7 +2294,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
             }
             ref.read(sendBlocksProvider.notifier).state = 1;
             showMessageSnackBar(
-              message: 'Swap done!'.i18n(ref),
+              message: 'Swap done!'.i18n,
               error: false,
               context: context,
             );
@@ -2306,7 +2306,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
             ref.read(transactionInProgressProvider.notifier).state = false;
             controller.failure();
             showMessageSnackBar(
-              message: e.toString().i18n(ref),
+              message: e.toString().i18n,
               error: true,
               context: context,
             );
@@ -2314,7 +2314,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
           }
         },
         child:  Text(
-          'Slide to Swap'.i18n(ref),
+          'Slide to Swap'.i18n,
           style: TextStyle(
             color: Colors.grey,
             fontSize: 14.sp,

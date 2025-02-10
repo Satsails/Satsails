@@ -69,7 +69,7 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
           padding: EdgeInsets.all(height * 0.01),
           child: CustomElevatedButton(
             onPressed: _onCreateAddress,
-            text: 'Create Address'.i18n(ref),
+            text: 'Create Address'.i18n,
             controller: controller,
           ),
         ),

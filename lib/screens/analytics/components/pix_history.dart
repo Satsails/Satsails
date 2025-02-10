@@ -46,10 +46,10 @@ class PixHistory extends ConsumerWidget {
               ),
               title: Text(
                 pix.pixDetails.failed
-                    ? "Transaction failed".i18n(ref)
+                    ? "Transaction failed".i18n
                     : pix.pixDetails.completedTransfer
-                    ? "${"Received".i18n(ref)} ${pix.pixDetails.receivedAmount % 1 == 0 ? pix.pixDetails.receivedAmount.toInt() : pix.pixDetails.receivedAmount.toStringAsFixed(3)}"
-                    : "Pending payment".i18n(ref),
+                    ? "${"Received".i18n} ${pix.pixDetails.receivedAmount % 1 == 0 ? pix.pixDetails.receivedAmount.toInt() : pix.pixDetails.receivedAmount.toStringAsFixed(3)}"
+                    : "Pending payment".i18n,
                 style: TextStyle(
                   color: pix.pixDetails.failed
                       ? Colors.red
@@ -65,7 +65,7 @@ class PixHistory extends ConsumerWidget {
                   children: [
                     if (pix.pixDetails.completedTransfer)
                       Text(
-                        "Completed".i18n(ref),
+                        "Completed".i18n,
                         style: const TextStyle(color: Colors.green),
                       ),
                     Text(

@@ -39,7 +39,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
       });
     } else {
       showMessageSnackBar(
-        message: 'Failed to load mnemonic.'.i18n(ref),
+        message: 'Failed to load mnemonic.'.i18n,
         error: true,
         context: context,
       );
@@ -87,7 +87,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title: Text('Backup Wallet'.i18n(ref)),
+          title: Text('Backup Wallet'.i18n),
         ),
         body: const Center(
           child: CircularProgressIndicator(),
@@ -100,7 +100,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
-          'Backup Wallet'.i18n(ref),
+          'Backup Wallet'.i18n,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -119,7 +119,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Select the correct word for each position:'.i18n(ref),
+              'Select the correct word for each position:'.i18n,
               style: TextStyle(
                 fontSize: screenWidth * 0.05,
                 color: Colors.white,
@@ -138,7 +138,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${'Word in position'.i18n(ref)} ${wordIndex + 1}:',
+                          '${'Word in position'.i18n} ${wordIndex + 1}:',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: screenWidth * 0.04,
@@ -174,19 +174,19 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.2),
               child: CustomButton(
-                text: 'Verify'.i18n(ref),
+                text: 'Verify'.i18n,
                 onPressed: () {
                   if (checkAnswers()) {
                     ref.read(settingsProvider.notifier).setBackup(true);
                     showMessageSnackBar(
-                      message: 'Wallet successfully backed up!'.i18n(ref),
+                      message: 'Wallet successfully backed up!'.i18n,
                       error: false,
                       context: context,
                     );
                     context.go('/home');
                   } else {
                     showMessageSnackBar(
-                      message: 'Incorrect selections. Please try again.'.i18n(ref),
+                      message: 'Incorrect selections. Please try again.'.i18n,
                       error: true,
                       context: context,
                     );

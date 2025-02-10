@@ -77,7 +77,7 @@ class Analytics extends ConsumerWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
-                      value.i18n(ref),
+                      value.i18n,
                       style: TextStyle(color: Colors.orange, fontSize: screenWidth * 0.045),
                     ),
                   ),

@@ -32,7 +32,7 @@ class _SetPinState extends ConsumerState<SetPin> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
-          'Set PIN'.i18n(ref),
+          'Set PIN'.i18n,
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
@@ -51,7 +51,7 @@ class _SetPinState extends ConsumerState<SetPin> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  'Choose a 6-digit PIN'.i18n(ref),
+                  'Choose a 6-digit PIN'.i18n,
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
                 const SizedBox(height: 10),
@@ -82,7 +82,7 @@ class _SetPinState extends ConsumerState<SetPin> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 106),
                   child: CustomButton(
-                    text: 'Next'.i18n(ref),
+                    text: 'Next'.i18n,
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         // Store the PIN in pinProvider
@@ -91,7 +91,7 @@ class _SetPinState extends ConsumerState<SetPin> {
                         // Navigate to ConfirmPin screen
                         context.push('/confirm_pin');
                       } else {
-                        showMessageSnackBar(message: 'Please enter a 6-digit PIN'.i18n(ref), error: true, context: context);
+                        showMessageSnackBar(message: 'Please enter a 6-digit PIN'.i18n, error: true, context: context);
                       }
                     },
                   ),

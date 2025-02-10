@@ -38,7 +38,7 @@ class DepositProvider extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Select Provider".i18n(ref),
+          "Select Provider".i18n,
           style: TextStyle(
             color: Colors.white,
             fontSize: 20.sp,
@@ -137,8 +137,8 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
 
     final details = providerDetails[widget.provider] ??
         ProviderDetails(
-          advantages: ["Details not available".i18n(ref)],
-          disadvantages: ["Details not available".i18n(ref)],
+          advantages: ["Details not available".i18n],
+          disadvantages: ["Details not available".i18n],
         );
 
     return Container(
@@ -182,7 +182,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                               Padding(
                                 padding: EdgeInsets.only(left: 8.w),
                                 child: Text(
-                                  widget.title.i18n(ref),
+                                  widget.title.i18n,
                                   style: TextStyle(
                                     fontSize: 20.sp,
                                     fontWeight: FontWeight.bold,
@@ -211,9 +211,9 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildSummaryRow("No KYC needed".i18n(ref)),
-                      _buildSummaryRow("Only accepts BRL".i18n(ref)),
-                      _buildSummaryRow("Max 6000 BRL per day".i18n(ref)),
+                      _buildSummaryRow("No KYC needed".i18n),
+                      _buildSummaryRow("Only accepts BRL".i18n),
+                      _buildSummaryRow("Max 6000 BRL per day".i18n),
                     ],
                   ),
                 ),
@@ -235,7 +235,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                             SizedBox(width: 4.w),
                             Expanded(
                               child: Text(
-                                "Accepted Currencies: $acceptedCurrenciesText".i18n(ref),
+                                "Accepted Currencies: $acceptedCurrenciesText".i18n,
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.bold,
@@ -248,7 +248,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                         SizedBox(height: 12.h),
                         // Advantages section.
                         Text(
-                          "Advantages:".i18n(ref),
+                          "Advantages:".i18n,
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
@@ -270,7 +270,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                                 SizedBox(width: 6.w),
                                 Expanded(
                                   child: Text(
-                                    advantage.i18n(ref),
+                                    advantage.i18n,
                                     style: TextStyle(
                                       fontSize: 16.sp,
                                       color: Colors.grey,
@@ -284,7 +284,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                         SizedBox(height: 12.h),
                         // Disadvantages section.
                         Text(
-                          "Disadvantages:".i18n(ref),
+                          "Disadvantages:".i18n,
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
@@ -306,7 +306,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                                 SizedBox(width: 6.w),
                                 Expanded(
                                   child: Text(
-                                    disadvantage.i18n(ref),
+                                    disadvantage.i18n,
                                     style: TextStyle(
                                       fontSize: 16.sp,
                                       color: Colors.grey,
@@ -344,8 +344,8 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                     SizedBox(width: 4.w),
                     Text(
                       _isExpanded
-                          ? "Hide details".i18n(ref)
-                          : "See details".i18n(ref),
+                          ? "Hide details".i18n
+                          : "See details".i18n,
                       style: TextStyle(
                         fontSize: 18.sp,
                         color: Colors.grey,

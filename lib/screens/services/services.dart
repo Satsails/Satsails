@@ -80,7 +80,7 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
         ],
         title: Center(
           child: Text(
-            _currentTitle.i18n(ref),
+            _currentTitle.i18n,
             style: const TextStyle(color: Colors.white),
           ),
         ),
@@ -188,7 +188,7 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      'Services'.i18n(ref),
+                      'Services'.i18n,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 24,
@@ -207,7 +207,7 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
             ),
             ExpansionTile(
               leading: const Icon(Icons.school, color: Colors.orange),
-              title: Text('Educação Real'.i18n(ref), style: const TextStyle(color: Colors.white)),
+              title: Text('Educação Real'.i18n, style: const TextStyle(color: Colors.white)),
               children: [
                 _buildDrawerItem(
                   ref,
@@ -281,7 +281,7 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
     return ListTile(
       leading: Icon(icon, color: Colors.orange),
       title: Text(
-        title.i18n(ref),
+        title.i18n,
         style: const TextStyle(color: Colors.white),
       ),
       onTap: () {

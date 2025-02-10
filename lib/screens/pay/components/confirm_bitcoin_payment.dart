@@ -70,7 +70,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
       onPopInvoked: (bool canPop) {
         if (isProcessing) {
           showMessageSnackBarInfo(
-            message: "Transaction in progress, please wait.".i18n(ref),
+            message: "Transaction in progress, please wait.".i18n,
             context: context,
           );
         } else {
@@ -86,7 +86,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
             backgroundColor: Colors.black,
             appBar: AppBar(
               backgroundColor: Colors.black,
-              title: Text('Confirm Payment'.i18n(ref), style: const TextStyle(color: Colors.white)),
+              title: Text('Confirm Payment'.i18n, style: const TextStyle(color: Colors.white)),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
@@ -94,7 +94,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                     context.pop();
                   } else {
                     showMessageSnackBarInfo(
-                      message: "Transaction in progress, please wait.".i18n(ref),
+                      message: "Transaction in progress, please wait.".i18n,
                       context: context,
                     );
                   }
@@ -128,7 +128,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('Bitcoin Balance'.i18n(ref),
+                                    Text('Bitcoin Balance'.i18n,
                                         style: TextStyle(fontSize: titleFontSize / 1.5, color: Colors.black),
                                         textAlign: TextAlign.center),
                                     Column(
@@ -301,7 +301,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                   ref.read(sendTxProvider.notifier).updateDrain(true);
                                 } catch (e) {
                                   showMessageSnackBar(
-                                    message: e.toString().i18n(ref),
+                                    message: e.toString().i18n,
                                     error: true,
                                     context: context,
                                   );
@@ -335,7 +335,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                         Padding(
                           padding: EdgeInsets.all(dynamicPadding / 2),
                           child: Text(
-                            "${"Transaction in ".i18n(ref)}${getTimeFrame(ref.watch(sendBlocksProvider).toInt(), ref)}",
+                            "${"Transaction in ".i18n}${getTimeFrame(ref.watch(sendBlocksProvider).toInt(), ref)}",
                             style: TextStyle(
                               fontSize: dynamicFontSize / 1.5,
                               color: Colors.white,
@@ -348,7 +348,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                         ref.watch(feeProvider).when(
                           data: (int fee) {
                             return Text(
-                              '${'Fee:'.i18n(ref)} $fee sats',
+                              '${'Fee:'.i18n} $fee sats',
                               style: TextStyle(
                                   fontSize: dynamicFontSize / 1.5, fontWeight: FontWeight.bold, color: Colors.white),
                               textAlign: TextAlign.center,
@@ -360,7 +360,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                             onPressed: () {
                               ref.refresh(feeProvider);
                             },
-                            child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n(ref),
+                            child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n,
                                 style: TextStyle(color: Colors.white, fontSize: dynamicFontSize / 1.5)),
                           ),
                         ),
@@ -419,7 +419,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                         } catch (e) {
                           controller.failure();
                           showMessageSnackBar(
-                            message: e.toString().i18n(ref),
+                            message: e.toString().i18n,
                             error: true,
                             context: context,
                           );
@@ -430,7 +430,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                           });
                         }
                       },
-                      child: Text('Slide to send'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                      child: Text('Slide to send'.i18n, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),

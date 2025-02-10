@@ -179,17 +179,17 @@ final assetBalanceProvider = StateProvider.autoDispose<int>((ref) {
 String getTimeFrame(int blocks, WidgetRef ref) {
   switch (blocks) {
     case 1:
-      return '10 minutes'.i18n(ref);
+      return '10 minutes'.i18n;
     case 2:
-      return '30 minutes'.i18n(ref);
+      return '30 minutes'.i18n;
     case 3:
-      return '1 hour'.i18n(ref);
+      return '1 hour'.i18n;
     case 4:
-      return 'Days'.i18n(ref);
+      return 'Days'.i18n;
     case 5:
-      return 'Weeks'.i18n(ref);
+      return 'Weeks'.i18n;
     default:
-      return 'Invalid number of blocks.'.i18n(ref);
+      return 'Invalid number of blocks.'.i18n;
   }
 }
 

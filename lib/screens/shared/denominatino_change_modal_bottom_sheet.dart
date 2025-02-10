@@ -60,7 +60,7 @@ class _DenominationChangeModalBottomSheetState extends ConsumerState<Denominatio
                       ),
                     ),
                     child: Text(
-                      'Currency'.i18n(ref),
+                      'Currency'.i18n,
                       style: TextStyle(
                         fontSize: titleFontSize * 0.7,
                         color: Colors.white, // Text color
@@ -82,7 +82,7 @@ class _DenominationChangeModalBottomSheetState extends ConsumerState<Denominatio
                       ),
                     ),
                     child: Text(
-                      'Bitcoin Unit'.i18n(ref),
+                      'Bitcoin Unit'.i18n,
                       style: TextStyle(
                         fontSize: titleFontSize * 0.7,
                         color: Colors.white, // Text color

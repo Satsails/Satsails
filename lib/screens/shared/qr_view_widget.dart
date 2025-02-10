@@ -141,7 +141,7 @@ class _QRViewWidgetState extends ConsumerState<QRViewWidget> {
               ),
               const SizedBox(height: 16.0),
               Text(
-                'Scan failed!'.i18n(ref),
+                'Scan failed!'.i18n,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -151,7 +151,7 @@ class _QRViewWidgetState extends ConsumerState<QRViewWidget> {
               ),
               const SizedBox(height: 8.0),
               Text(
-                'Something went wrong, please try again.'.i18n(ref),
+                'Something went wrong, please try again.'.i18n,
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black54,
@@ -189,7 +189,7 @@ class _QRViewWidgetState extends ConsumerState<QRViewWidget> {
       widget: Padding(
         padding: const EdgeInsets.only(top: 16),
         child: Text(
-          message.i18n(ref),
+          message.i18n,
           style: const TextStyle(
             color: Colors.white70,
             fontSize: 16,
@@ -240,7 +240,7 @@ class _QRViewWidgetState extends ConsumerState<QRViewWidget> {
                   vertical: MediaQuery.of(context).size.width * 0.05,
                 ),
                 child: CustomButton(
-                  text: 'Request camera permission'.i18n(widget.ref),
+                  text: 'Request camera permission'.i18n,
                   onPressed: _requestCameraPermission,
                   primaryColor: Colors.orange,
                   secondaryColor: Colors.orange,

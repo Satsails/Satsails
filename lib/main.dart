@@ -234,6 +234,8 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final language = ref.watch(settingsProvider).language;
 
+    I18n.define(Locale(language));
+
     if (_router == null) {
       return const MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -266,6 +268,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
                 textScaleFactor: 1.0,
               ),
               child: I18n(
+                initialLocale: Locale(language),
                 child: child!,
               ),
             );

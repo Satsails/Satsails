@@ -23,7 +23,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Transaction Details'.i18n(ref),
+          'Transaction Details'.i18n,
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
@@ -59,15 +59,15 @@ class TransactionDetailsScreen extends ConsumerWidget {
                       children: [
                         transactionTypeIcon(transaction.btcDetails),
                         const SizedBox(width: 8.0),
-                        confirmationStatus(transaction.btcDetails, ref) == 'Confirmed'.i18n(ref)
+                        confirmationStatus(transaction.btcDetails, ref) == 'Confirmed'.i18n
                             ? const Icon(Icons.check_circle_outlined, color: Colors.green)
                             : const Icon(Icons.access_alarm_outlined, color: Colors.red),
                       ],
                     ),
                     const SizedBox(height: 8.0),
                     Text(
-                      confirmationStatus(transaction.btcDetails, ref) == 'Unconfirmed'.i18n(ref)
-                          ? "Waiting".i18n(ref)
+                      confirmationStatus(transaction.btcDetails, ref) == 'Unconfirmed'.i18n
+                          ? "Waiting".i18n
                           : transactionAmount(transaction.btcDetails, ref),
                       style: const TextStyle(color: Colors.green, fontSize: 36, fontWeight: FontWeight.bold),
                     ),
@@ -78,39 +78,39 @@ class TransactionDetailsScreen extends ConsumerWidget {
               Divider(color: Colors.grey.shade700),
               const SizedBox(height: 16.0),
               Text(
-                "Transaction Details".i18n(ref),
+                "Transaction Details".i18n,
                 style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16.0),
               TransactionDetailRow(
-                label: "Date".i18n(ref),
-                value: _formatTimestamp(transaction.btcDetails.confirmationTime?.timestamp.toInt()).i18n(ref)
+                label: "Date".i18n,
+                value: _formatTimestamp(transaction.btcDetails.confirmationTime?.timestamp.toInt()).i18n
               ),
               TransactionDetailRow(
-                label: "Status".i18n(ref),
-                value: transaction.btcDetails.confirmationTime != null ? "Confirmed".i18n(ref) : "Pending".i18n(ref),
+                label: "Status".i18n,
+                value: transaction.btcDetails.confirmationTime != null ? "Confirmed".i18n : "Pending".i18n,
               ),
               TransactionDetailRow(
-                label: "Confirmation block".i18n(ref),
-                value: transaction.btcDetails.confirmationTime != null ? transaction.btcDetails.confirmationTime!.height.toString() : "Unconfirmed".i18n(ref),
+                label: "Confirmation block".i18n,
+                value: transaction.btcDetails.confirmationTime != null ? transaction.btcDetails.confirmationTime!.height.toString() : "Unconfirmed".i18n,
               ),
               const SizedBox(height: 16.0),
               Text(
-                "Amounts".i18n(ref),
+                "Amounts".i18n,
                 style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16.0),
               TransactionDetailRow(
-                label: "Received".i18n(ref),
+                label: "Received".i18n,
                 value: "${btcInDenominationFormatted(transaction.btcDetails.received.toInt(), denomination)} $denomination",
               ),
               TransactionDetailRow(
-                label: "Sent".i18n(ref),
+                label: "Sent".i18n,
                 value: "${btcInDenominationFormatted(transaction.btcDetails.sent.toInt(), denomination)} $denomination",
               ),
               if (transaction.btcDetails.fee != null)
                 TransactionDetailRow(
-                  label: "Fee".i18n(ref),
+                  label: "Fee".i18n,
                   value: "${btcInDenominationFormatted(transaction.btcDetails.fee!.toInt(), denomination)} $denomination",
                 ),
               const SizedBox(height: 16.0),
@@ -135,7 +135,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
                       const Icon(Icons.search, color: Colors.white),
                       const SizedBox(width: 8.0),
                       Text(
-                        "Search on Mempool".i18n(ref),
+                        "Search on Mempool".i18n,
                         style: const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ],

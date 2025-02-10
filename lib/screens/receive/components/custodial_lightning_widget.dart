@@ -71,7 +71,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
       });
     } catch (e) {
       showMessageSnackBar(
-        message: '$e'.i18n(ref),
+        message: '$e'.i18n,
         error: true,
         context: context,
       );
@@ -88,8 +88,8 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
     QuickAlert.show(
       context: context,
       type: QuickAlertType.info,
-      title: 'Custodial Lightning Warning'.i18n(ref), // Added an icon for emphasis
-      text: 'By using this custodial Lightning service, your funds are held by our partner Coinos. Satsails does not have control over these funds. You agree to have your funds held by Coinos.'.i18n(ref),
+      title: 'Custodial Lightning Warning'.i18n, // Added an icon for emphasis
+      text: 'By using this custodial Lightning service, your funds are held by our partner Coinos. Satsails does not have control over these funds. You agree to have your funds held by Coinos.'.i18n,
       backgroundColor: Colors.black87, // Slightly lighter for better aesthetics
       titleColor: Colors.orange, // More attention-grabbing color
       textColor: Colors.white70, // Lighter for better contrast
@@ -102,13 +102,13 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
           const SizedBox(height: 16.0),
           // Enhanced Copyable Field for Username
           _buildCopyableField(
-            label: 'Username'.i18n(ref),
+            label: 'Username'.i18n,
             value: coinosLn.username,
           ),
           const SizedBox(height: 16.0),
           // Enhanced Copyable Field for Password
           _buildCopyableField(
-            label: 'Password'.i18n(ref),
+            label: 'Password'.i18n,
             value: coinosLn.password,
           ),
           const SizedBox(height: 24.0),
@@ -124,7 +124,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                 ),
               ),
               child: Text(
-                'Visit Coinos'.i18n(ref),
+                'Visit Coinos'.i18n,
                 style: TextStyle(
                   color: Colors.black87,
                   fontSize: 16,
@@ -225,7 +225,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
               )
                   : CustomElevatedButton(
                 onPressed: _onCreateAddress,
-                text: 'Create Address'.i18n(ref),
+                text: 'Create Address'.i18n,
                 controller: controller,
               ),
             ),
@@ -235,7 +235,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
                 IconButton(
                   icon: const Icon(Icons.info, color: Colors.orange, size: 40),
                   onPressed: () => _showCustodialWarningModal(context, ref),
-                  tooltip: 'Custodial Lightning Info'.i18n(ref),
+                  tooltip: 'Custodial Lightning Info'.i18n,
                 ),
               ],
             ),
@@ -294,7 +294,7 @@ Widget _showRegistration(WidgetRef ref, BuildContext context) {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Create Lightning Wallet'.i18n(ref),
+            'Create Lightning Wallet'.i18n,
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -304,7 +304,7 @@ Widget _showRegistration(WidgetRef ref, BuildContext context) {
           ),
           const SizedBox(height: 12.0),
           Text(
-            'A username and password will be derived from your private key. This will be used to access your custodial Lightning wallet. Your funds will be custodied by coinos.'.i18n(ref),
+            'A username and password will be derived from your private key. This will be used to access your custodial Lightning wallet. Your funds will be custodied by coinos.'.i18n,
             style: const TextStyle(
               fontSize: 16,
               color: Colors.black54,
@@ -321,7 +321,7 @@ Widget _showRegistration(WidgetRef ref, BuildContext context) {
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
             ),
             child: Text(
-              'Register'.i18n(ref),
+              'Register'.i18n,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -333,7 +333,7 @@ Widget _showRegistration(WidgetRef ref, BuildContext context) {
                 ref.read(showRegistrationProvider.notifier).state = false;
               } catch (e) {
                 showMessageSnackBar(
-                  message: '$e'.i18n(ref),
+                  message: '$e'.i18n,
                   error: true,
                   context: context,
                 );

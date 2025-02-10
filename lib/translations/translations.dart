@@ -2377,13 +2377,5 @@ extension Localization on String {
         'pt': "Código de afiliado inserido com sucesso",
       };
 
-  String i18n(WidgetRef ref) {
-    var currentLanguage = ref.read(settingsProvider).language;
-    if (currentLanguage == 'EN' || currentLanguage == 'en') {
-      currentLanguage = 'en';
-    } else if (currentLanguage == 'PT' || currentLanguage == 'pt') {
-      currentLanguage = 'pt';
-    }
-    return localize(this, _t, locale: currentLanguage);
-  }
+  String get i18n => localize(this, _t);
 }

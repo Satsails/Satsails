@@ -27,7 +27,7 @@ class BackupWarning extends ConsumerWidget {
                 context.push('/seed_words');
               },
               child: Text(
-                'Backup your wallet'.i18n(ref),
+                'Backup your wallet'.i18n,
                 style: TextStyle(
                   color: Colors.red,
                   fontSize: dynamicFontSize,

@@ -89,7 +89,7 @@ class _BalanceDisplay extends ConsumerWidget {
         child: Column(
           children: [
             Text(
-              'Bitcoin balance'.i18n(ref),
+              'Bitcoin balance'.i18n,
               style: TextStyle(
                 fontSize: 20.sp,
                 color: Colors.grey,
@@ -144,7 +144,7 @@ class _ActionCards extends ConsumerWidget {
                     height: 80.h,
                     alignment: Alignment.center,
                     child: Text(
-                      'Buy'.i18n(ref),
+                      'Buy'.i18n,
                       style: TextStyle(
                         fontSize: 18.sp,
                         color: Colors.white,
@@ -166,7 +166,7 @@ class _ActionCards extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(10),
                   onTap: () {
                     showMessageSnackBar(
-                      message: "Coming soon".i18n(ref),
+                      message: "Coming soon".i18n,
                       context: context,
                       error: true,
                     );
@@ -175,7 +175,7 @@ class _ActionCards extends ConsumerWidget {
                     height: 80.h,
                     alignment: Alignment.center,
                     child: Text(
-                      'Sell'.i18n(ref),
+                      'Sell'.i18n,
                       style: TextStyle(
                         fontSize: 18.sp,
                         color: Colors.white,
@@ -201,7 +201,7 @@ class _ActionCards extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(10),
                   onTap: () {
                     showMessageSnackBar(
-                      message: "Coming soon".i18n(ref),
+                      message: "Coming soon".i18n,
                       context: context,
                       error: true,
                     );
@@ -217,7 +217,7 @@ class _ActionCards extends ConsumerWidget {
                           Icon(Icons.lightbulb, color: Colors.white, size: 20),
                           SizedBox(width: 8.w),
                           Text(
-                            'Services'.i18n(ref),
+                            'Services'.i18n,
                             style: TextStyle(
                               fontSize: 16.sp,
                               color: Colors.white,
@@ -242,7 +242,7 @@ class _ActionCards extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(10),
                   onTap: () {
                     showMessageSnackBar(
-                      message: "Coming soon".i18n(ref),
+                      message: "Coming soon".i18n,
                       context: context,
                       error: true,
                     );
@@ -258,7 +258,7 @@ class _ActionCards extends ConsumerWidget {
                           Icon(Icons.shopping_cart,color: Colors.white, size: 20),
                           SizedBox(width: 8.w),
                           Text(
-                            'Store'.i18n(ref),
+                            'Store'.i18n,
                             style: TextStyle(
                               fontSize: 16.sp,
                               color: Colors.white,

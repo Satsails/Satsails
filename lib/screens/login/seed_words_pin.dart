@@ -33,7 +33,7 @@ class _SeedWordsPinState extends ConsumerState<SeedWordsPin> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Enter PIN'.i18n(ref), style: const TextStyle(color: Colors.white)),
+        title: Text('Enter PIN'.i18n, style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -66,9 +66,9 @@ class _SeedWordsPinState extends ConsumerState<SeedWordsPin> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a PIN'.i18n(ref);
+                      return 'Please enter a PIN'.i18n;
                     } else if (value.length != 6) {
-                      return 'PIN must be exactly 6 digits'.i18n(ref);
+                      return 'PIN must be exactly 6 digits'.i18n;
                     }
                     return null;
                   },
@@ -77,7 +77,7 @@ class _SeedWordsPinState extends ConsumerState<SeedWordsPin> {
               const SizedBox(height: 20),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
-                child: CustomButton(text: 'Unlock'.i18n(ref), onPressed: () => _checkPin(context, ref)),
+                child: CustomButton(text: 'Unlock'.i18n, onPressed: () => _checkPin(context, ref)),
               ),
             ],
           ),
@@ -94,7 +94,7 @@ class _SeedWordsPinState extends ConsumerState<SeedWordsPin> {
       context.push('/seed_words'); // Redirect to the seed words screen on successful authentication
     } else {
       showMessageSnackBar(
-        message: 'Invalid PIN'.i18n(ref),
+        message: 'Invalid PIN'.i18n,
         error: true,
         context: context,
       );
@@ -108,7 +108,7 @@ class _SeedWordsPinState extends ConsumerState<SeedWordsPin> {
 
     if (canCheckBiometrics) {
       bool authenticated = await _localAuth.authenticate(
-        localizedReason: 'Please authenticate to view seed words'.i18n(ref),
+        localizedReason: 'Please authenticate to view seed words'.i18n,
         options: const AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: true,

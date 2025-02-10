@@ -46,7 +46,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
                         if (combinedSwaps.isEmpty) {
                           return Center(
                             child: Text(
-                              'No swaps found'.i18n(ref),
+                              'No swaps found'.i18n,
                               style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
                             ),
                           );
@@ -87,7 +87,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(
-              value.i18n(ref),
+              value.i18n,
               style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04, color: Colors.orange),
             ),
           );
@@ -146,7 +146,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
                 alignment: Alignment.centerLeft,
                 child: Column(
                   children: [
-                    Text("Fiat Swap".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.0375, fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text("Fiat Swap".i18n, style: TextStyle(fontSize: screenWidth * 0.0375, fontWeight: FontWeight.bold, color: Colors.white)),
                     Text(_timestampToDateTime(swap.timestamp), style: TextStyle(fontSize: screenWidth * 0.025, color: Colors.white)),
                   ],
                 ),
@@ -172,7 +172,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
                     Column(
                       children: [
                         const Icon(Icons.arrow_forward, color: Colors.orange, size: 30),
-                        Text("More Details".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.02, color: Colors.white)),
+                        Text("More Details".i18n, style: TextStyle(fontSize: screenWidth * 0.02, color: Colors.white)),
                       ],
                     ),
                     Column(
@@ -219,7 +219,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
                 child: Column(
                   children: [
                     Text(
-                      'Layer Swap'.i18n(ref),
+                      'Layer Swap'.i18n,
                       style: TextStyle(
                         fontSize: screenWidth * 0.0375,
                         fontWeight: FontWeight.bold,
@@ -248,7 +248,7 @@ class _SwapsBuilderState extends ConsumerState<SwapsBuilder> {
                 Column(
                   children: [
                     const Icon(Icons.arrow_forward, color: Colors.orange, size: 30),
-                    Text("More Details".i18n(ref), style: TextStyle(fontSize: screenWidth * 0.02, color: Colors.white)),
+                    Text("More Details".i18n, style: TextStyle(fontSize: screenWidth * 0.02, color: Colors.white)),
                   ],
                 ),
                 Text(

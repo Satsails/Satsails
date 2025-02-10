@@ -9,19 +9,19 @@ import 'package:lwk/lwk.dart' as lwk;
 
 String confirmationStatus(bdk.TransactionDetails transaction, WidgetRef ref) {
   if (transaction.confirmationTime == null || transaction.confirmationTime!.height == 0) {
-    return 'Unconfirmed'.i18n(ref);
+    return 'Unconfirmed'.i18n;
   } else if (transaction.confirmationTime != null) {
-    return 'Confirmed'.i18n(ref);
+    return 'Confirmed'.i18n;
   } else {
-    return 'Unknown'.i18n(ref);
+    return 'Unknown'.i18n;
   }
 }
 
 String transactionTypeString(bdk.TransactionDetails transaction, WidgetRef ref) {
   if (transaction.sent.toInt() - transaction.received.toInt() > 0) {
-    return 'Sent'.i18n(ref);
+    return 'Sent'.i18n;
   } else {
-    return 'Received'.i18n(ref);
+    return 'Received'.i18n;
   }
 }
 
@@ -88,19 +88,19 @@ Icon confirmationStatusIcon(lwk.Tx transaction) {
 String liquidTransactionType(lwk.Tx transaction, WidgetRef ref) {
   switch (transaction.kind) {
     case 'incoming':
-      return 'Received'.i18n(ref);
+      return 'Received'.i18n;
     case 'outgoing':
-      return 'Sent'.i18n(ref);
+      return 'Sent'.i18n;
     case 'burn':
-      return 'Burn'.i18n(ref);
+      return 'Burn'.i18n;
     case 'redeposit':
-      return 'Redeposit'.i18n(ref);
+      return 'Redeposit'.i18n;
     case 'issuance':
-      return 'Issuance'.i18n(ref);
+      return 'Issuance'.i18n;
     case 'reissuance':
-      return 'Reissuance'.i18n(ref);
+      return 'Reissuance'.i18n;
     default:
-      return 'Fiat Swap'.i18n(ref);
+      return 'Fiat Swap'.i18n;
   }
 }
 

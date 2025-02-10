@@ -104,7 +104,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
       context.push('/set_pin');
     } else {
       showMessageSnackBar(
-        message: 'Invalid mnemonic'.i18n(ref),
+        message: 'Invalid mnemonic'.i18n,
         error: true,
         context: context,
       );
@@ -148,7 +148,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Recover wallet'.i18n(ref), style: const TextStyle(color: Colors.white)),
+        title: Text('Recover wallet'.i18n, style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -190,7 +190,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                         return DropdownMenuItem<int>(
                           value: value,
                           child: Text(
-                            "$value${'words'.i18n(ref)}",
+                            "$value${'words'.i18n}",
                             style: TextStyle(
                               color: _totalWords == value ? const Color(0xFFFF9800) : const Color(0xFFD98100),
                             ),
@@ -205,7 +205,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                       selectedItemBuilder: (BuildContext context) {
                         return [12, 24].map((value) {
                           return Text(
-                            "$value${'words'.i18n(ref)}",
+                            "$value${'words'.i18n}",
                             style: TextStyle(
                               color: _totalWords == value ? const Color(0xFFFF9800) : const Color(0xFFD98100),
                             ),
@@ -243,7 +243,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                             keyboardType: TextInputType.visiblePassword, // Helps prevent suggestions
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                              labelText: '${'Word'.i18n(ref)} ${index + 1}',
+                              labelText: '${'Word'.i18n} ${index + 1}',
                               labelStyle: TextStyle(
                                 color: _selectedWordIndex == index ? Colors.orangeAccent : const Color(0xFF6D6D6D),
                               ),
@@ -277,7 +277,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.15, vertical: screenHeight * 0.02),
                 child: CustomButton(
-                  text: 'Recover Account'.i18n(ref),
+                  text: 'Recover Account'.i18n,
                   onPressed: () => _recoverAccount(context),
                 ),
               ),

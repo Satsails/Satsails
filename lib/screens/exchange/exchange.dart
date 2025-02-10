@@ -37,7 +37,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
       onWillPop: () async {
         if (transactionInProgress) {
           showMessageSnackBarInfo(
-            message: 'Transaction in progress'.i18n(ref),
+            message: 'Transaction in progress'.i18n,
             context: context,
           );
           return false;
@@ -51,7 +51,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
         appBar: AppBar(
           backgroundColor: Colors.black,
           title: Text(
-            'Exchange'.i18n(ref),
+            'Exchange'.i18n,
             style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
           ),
           leading: IconButton(
@@ -59,7 +59,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
             onPressed: () {
               if (transactionInProgress) {
                 showMessageSnackBarInfo(
-                  message: 'Transaction in progress'.i18n(ref),
+                  message: 'Transaction in progress'.i18n,
                   context: context,
                 );
               } else {

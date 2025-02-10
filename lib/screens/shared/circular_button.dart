@@ -50,16 +50,16 @@ Widget buildActionButtons(BuildContext context, WidgetRef ref) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
-      buildCircularButton(context, Icons.add, 'Add Money'.i18n(ref), () {
+      buildCircularButton(context, Icons.add, 'Add Money'.i18n, () {
         context.push('/home/explore');
       }, Colors.black),
-      buildCircularButton(context, Icons.compare_arrows, 'Swaps'.i18n(ref), () {
+      buildCircularButton(context, Icons.compare_arrows, 'Swaps'.i18n, () {
         context.push('/home/exchange');
       }, Colors.black),
-      buildCircularButton(context, Icons.credit_card, 'Pay'.i18n(ref), () {
+      buildCircularButton(context, Icons.credit_card, 'Pay'.i18n, () {
         context.push('/home/pay');
       }, Colors.black),
-      buildCircularButton(context, Icons.arrow_downward_outlined, 'Receive'.i18n(ref), () {
+      buildCircularButton(context, Icons.arrow_downward_outlined, 'Receive'.i18n, () {
         context.push('/home/receive');
       }, Colors.black),
     ],

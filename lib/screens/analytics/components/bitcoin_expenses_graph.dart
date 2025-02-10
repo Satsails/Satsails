@@ -276,7 +276,7 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
         Center(
           child: TextButton(
             child: Text(
-              !isShowingMainData ? 'Show Balance'.i18n(ref) : 'Show Statistics over period'.i18n(ref),
+              !isShowingMainData ? 'Show Balance'.i18n : 'Show Statistics over period'.i18n,
               style: const TextStyle(color: Colors.white),
             ),
             onPressed: () {
@@ -290,12 +290,12 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: isShowingMainData
               ? [
-            _buildLegend('Balance'.i18n(ref), Colors.orangeAccent),
+            _buildLegend('Balance'.i18n, Colors.orangeAccent),
           ]
               : [
-            _buildLegend('Spending'.i18n(ref), Colors.blueAccent),
-            _buildLegend('Income'.i18n(ref), Colors.greenAccent),
-            _buildLegend('Fee'.i18n(ref), Colors.orangeAccent),
+            _buildLegend('Spending'.i18n, Colors.blueAccent),
+            _buildLegend('Income'.i18n, Colors.greenAccent),
+            _buildLegend('Fee'.i18n, Colors.orangeAccent),
           ],
         ),
         const Calendar(),
