@@ -109,12 +109,12 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
           "Near-instant deposits",
           "No documentation required",
           "Minimum purchase: 1 BRL",
+          "Onboarding made by pix metadata on first purchase",
         ],
         disadvantages: [
           "Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payer's name",
           "Not possible to send documentation and unlock higher purchase amounts. ",
           "Maximum of 5000 BRL per single transaction",
-          "Onboarding made by pix metadata on first purchase",
         ],
       ),
       helpers.DepositProvider.NoxPay: ProviderDetails(

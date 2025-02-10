@@ -30,15 +30,16 @@ class PurchaseAdapter extends TypeAdapter<Purchase> {
       paymentGateway: fields[17] as String?,
       status: fields[18] as String?,
       paymentMethod: fields[19] as String?,
-      assetPurchased: fields[20] as String?,
-      currencyOfPayment: fields[21] as String?,
+      asset: fields[20] as String?,
+      currency: fields[21] as String?,
+      type: fields[22] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Purchase obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -66,9 +67,11 @@ class PurchaseAdapter extends TypeAdapter<Purchase> {
       ..writeByte(19)
       ..write(obj.paymentMethod)
       ..writeByte(20)
-      ..write(obj.assetPurchased)
+      ..write(obj.asset)
       ..writeByte(21)
-      ..write(obj.currencyOfPayment);
+      ..write(obj.currency)
+      ..writeByte(22)
+      ..write(obj.type);
   }
 
   @override

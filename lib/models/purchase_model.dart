@@ -68,8 +68,9 @@ class PurchaseNotifier extends StateNotifier<List<Purchase>> {
       paymentGateway: serverPurchase.paymentGateway ?? existingPurchase.paymentGateway,
       status: serverPurchase.status ?? existingPurchase.status,
       paymentMethod: serverPurchase.paymentMethod ?? existingPurchase.paymentMethod,
-      assetPurchased: serverPurchase.assetPurchased ?? existingPurchase.assetPurchased,
-      currencyOfPayment: serverPurchase.currencyOfPayment ?? existingPurchase.currencyOfPayment,
+      asset: serverPurchase.asset ?? existingPurchase.asset,
+      currency: serverPurchase.currency ?? existingPurchase.currency,
+      type: serverPurchase.type ?? existingPurchase.type,
     );
 
     // If the purchase has **no changes**, skip saving
@@ -104,8 +105,9 @@ class PurchaseNotifier extends StateNotifier<List<Purchase>> {
         paymentGateway: serverPurchase.paymentGateway ?? existingPurchase?.paymentGateway,
         status: serverPurchase.status ?? existingPurchase?.status,
         paymentMethod: serverPurchase.paymentMethod ?? existingPurchase?.paymentMethod,
-        assetPurchased: serverPurchase.assetPurchased ?? existingPurchase?.assetPurchased,
-        currencyOfPayment: serverPurchase.currencyOfPayment ?? existingPurchase?.currencyOfPayment,
+        asset: serverPurchase.asset ?? existingPurchase?.asset,
+        currency: serverPurchase.currency ?? existingPurchase?.currency,
+        type: serverPurchase.type ?? existingPurchase?.type,
       ) ?? serverPurchase;
 
       // Save only if changes exist
@@ -148,9 +150,11 @@ class Purchase extends HiveObject {
   @HiveField(19)
   final String? paymentMethod;
   @HiveField(20)
-  final String? assetPurchased;
+  final String? asset;
   @HiveField(21)
-  final String? currencyOfPayment;
+  final String? currency;
+  @HiveField(22)
+  final String? type;
 
   Purchase({
     required this.id,
@@ -166,8 +170,9 @@ class Purchase extends HiveObject {
     this.paymentGateway,
     this.status = 'unknown',
     this.paymentMethod = 'unknown',
-    this.assetPurchased = 'unknown',
-    this.currencyOfPayment = 'unknown',
+    this.asset = 'unknown',
+    this.currency = 'unknown',
+    this.type = 'unknown',
   });
 
   factory Purchase.fromJson(Map<String, dynamic> json) {
@@ -191,8 +196,9 @@ class Purchase extends HiveObject {
       paymentGateway: transfer['payment_gateway']?.toString(),
       status: transfer['status']?.toString() ?? 'unknown', // Ensure default
       paymentMethod: transfer['payment_method']?.toString() ?? 'unknown', // Ensure default
-      assetPurchased: transfer['asset_purchased']?.toString() ?? 'unknown', // Ensure default
-      currencyOfPayment: transfer['currency_of_payment']?.toString() ?? 'unknown', // Ensure default
+      asset: transfer['asset']?.toString() ?? 'unknown', // Ensure default
+      currency: transfer['currency']?.toString() ?? 'unknown', // Ensure default
+      type: transfer['type']?.toString() ?? 'unknown', // Ensure default
     );
   }
 
@@ -210,8 +216,9 @@ class Purchase extends HiveObject {
     String? paymentGateway,
     String? status,
     String? paymentMethod,
-    String? assetPurchased,
-    String? currencyOfPayment,
+    String? asset,
+    String? currency,
+    String? type,
   }) {
     return Purchase(
       id: id,
@@ -227,8 +234,9 @@ class Purchase extends HiveObject {
       paymentGateway: paymentGateway ?? this.paymentGateway,
       status: status ?? this.status,
       paymentMethod: paymentMethod ?? this.paymentMethod,
-      assetPurchased: assetPurchased ?? this.assetPurchased,
-      currencyOfPayment: currencyOfPayment ?? this.currencyOfPayment,
+      asset: asset ?? this.asset,
+      currency: currency ?? this.currency,
+      type: currency ?? this.type,
     );
   }
   Purchase.empty()
@@ -245,8 +253,9 @@ class Purchase extends HiveObject {
     pixKey: '',
     status: 'unknown',
     paymentMethod: 'unknown',
-    assetPurchased: 'unknown',
-    currencyOfPayment: 'unknown',
+    asset: 'unknown',
+    currency: 'unknown',
+    type: 'unknown',
   );
 }
 

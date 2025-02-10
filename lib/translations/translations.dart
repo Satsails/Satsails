@@ -2128,7 +2128,7 @@ extension Localization on String {
         'en': 'Payment Status',
         'pt': 'Status do Pagamento'
       } +
-       {
+      {
         'en': 'Paid',
         'pt': 'Pago'
       } +
@@ -2375,6 +2375,10 @@ extension Localization on String {
       {
         'en': "Affiliate code inserted successfully",
         'pt': "Código de afiliado inserido com sucesso",
+      }+
+      {
+        'en': "Onboarding made by pix metadata on first purchase",
+        'pt': "Onboarding através do metadados de PIX",
       };
 
   String get i18n => localize(this, _t);
