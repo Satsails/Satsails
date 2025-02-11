@@ -29,7 +29,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
   double _amountToReceive = 0;
   double feePercentage = 0;
   String amountPurchasedToday = '0';
-  String registeredTaxId = '';
+  String registeredTaxId = 'Loading...';
   bool pixPayed = false;
   Timer? _paymentCheckTimer;
 
@@ -61,7 +61,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
       });
     } catch (e) {
       setState(() {
-        registeredTaxId = '';
+        registeredTaxId = 'Loading...';
       });
     }
   }
