@@ -3,7 +3,7 @@ import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
-import 'package:Satsails/providers/purchase_provider.dart';
+import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 
 // StateNotifierProvider to hold transaction state
@@ -58,13 +58,13 @@ Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
     );
   }).toList();
   //
-  final purchases = ref.watch(purchaseProvider);
+  final purchases = ref.watch(eulenTransferProvider);
   final pixPurchases = purchases.map((pixTx) {
-    return PixPurchaseTransaction(
+    return EulenTransaction(
       id: pixTx.id.toString(),
       timestamp: pixTx.createdAt,
       pixDetails: pixTx,
-      isConfirmed: pixTx.completedTransfer,
+      isConfirmed: pixTx.completed,
     );
   }).toList();
 

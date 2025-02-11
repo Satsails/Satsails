@@ -1,5 +1,5 @@
 import 'package:Satsails/models/datetime_range_model.dart';
-import 'package:Satsails/models/purchase_model.dart';
+import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
@@ -46,10 +46,10 @@ class LiquidTransaction extends BaseTransaction {
   }) : super(id: id, timestamp: timestamp);
 }
 
-class PixPurchaseTransaction extends BaseTransaction {
-  final Purchase pixDetails;
+class EulenTransaction extends BaseTransaction {
+  final EulenTransfer pixDetails;
 
-  PixPurchaseTransaction({
+  EulenTransaction({
     required String id,
     required DateTime timestamp,
     required this.pixDetails,
@@ -84,7 +84,7 @@ class Transaction {
   final List<LiquidTransaction> liquidTransactions;
   final List<SideswapPegTransaction> sideswapPegTransactions;
   final List<SideswapInstantSwapTransaction> sideswapInstantSwapTransactions;
-  final List<PixPurchaseTransaction> pixPurchaseTransactions;
+  final List<EulenTransaction> pixPurchaseTransactions;
 
   Transaction({
     required this.bitcoinTransactions,
@@ -99,7 +99,7 @@ class Transaction {
     List<LiquidTransaction>? liquidTransactions,
     List<SideswapPegTransaction>? sideswapPegTransactions,
     List<SideswapInstantSwapTransaction>? sideswapInstantSwapTransactions,
-    List<PixPurchaseTransaction>? pixPurchaseTransactions,
+    List<EulenTransaction>? pixPurchaseTransactions,
   }) {
     return Transaction(
       bitcoinTransactions: bitcoinTransactions ?? this.bitcoinTransactions,

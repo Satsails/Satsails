@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
-import 'package:Satsails/providers/purchase_provider.dart';
+import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +60,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
           }
           try {
             final result =
-            await ref.read(getPixPaymentStateProvider(transactionId).future);
+            await ref.read(getEulenPixPaymentStateProvider(transactionId).future);
             if (mounted) {
               setState(() {
                 pixPayed = result;
@@ -124,8 +124,8 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
 
     try {
       final purchase =
-      await ref.read(createPurchaseRequestProvider(amountInInt).future);
-      _checkPixPayment(purchase.transferId);
+      await ref.read(createEulenTransferRequestProvider(amountInInt).future);
+      _checkPixPayment(purchase.transactionId);
 
       setState(() {
         _pixQRCode = purchase.pixKey;

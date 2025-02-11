@@ -1,4 +1,4 @@
-import 'package:Satsails/providers/purchase_provider.dart';
+import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -28,32 +28,32 @@ class PixHistory extends ConsumerWidget {
           ),
           child: InkWell(
             onTap: () {
-              ref.read(selectedPurchaseIdProvider.notifier).state = pix.pixDetails.id;
+              ref.read(selectedEulenTransferIdProvider.notifier).state = pix.pixDetails.id;
               context.push('/pix_transaction_details');
             },
             child: ListTile(
               leading: Icon(
                 pix.pixDetails.failed
                     ? Icons.error_rounded
-                    : pix.pixDetails.completedTransfer
+                    : pix.pixDetails.completed
                     ? Icons.check_circle_rounded
                     : Icons.arrow_downward_rounded,
                 color: pix.pixDetails.failed
                     ? Colors.red
-                    : pix.pixDetails.completedTransfer
+                    : pix.pixDetails.completed
                     ? Colors.green
                     : Colors.orange,
               ),
               title: Text(
                 pix.pixDetails.failed
                     ? "Transaction failed".i18n
-                    : pix.pixDetails.completedTransfer
+                    : pix.pixDetails.completed
                     ? "${"Received".i18n} ${pix.pixDetails.receivedAmount % 1 == 0 ? pix.pixDetails.receivedAmount.toInt() : pix.pixDetails.receivedAmount.toStringAsFixed(3)}"
                     : "Pending payment".i18n,
                 style: TextStyle(
                   color: pix.pixDetails.failed
                       ? Colors.red
-                      : pix.pixDetails.completedTransfer
+                      : pix.pixDetails.completed
                       ? Colors.green
                       : Colors.orange,
                 ),
@@ -63,7 +63,7 @@ class PixHistory extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (pix.pixDetails.completedTransfer)
+                    if (pix.pixDetails.completed)
                       Text(
                         "Completed".i18n,
                         style: const TextStyle(color: Colors.green),

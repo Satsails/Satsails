@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
+import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/firebase_model.dart';
-import 'package:Satsails/models/purchase_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
-import 'package:Satsails/providers/purchase_provider.dart';
+import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
@@ -72,7 +72,7 @@ Future<void> main() async {
   Hive.registerAdapter(SideswapPegStatusAdapter());
   Hive.registerAdapter(SideswapCompletedSwapAdapter());
   Hive.registerAdapter(CoinosPaymentAdapter());
-  Hive.registerAdapter(PurchaseAdapter());
+  Hive.registerAdapter(EulenTransferAdapter());
 
   await LwkCore.init();
 

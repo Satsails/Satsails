@@ -196,7 +196,7 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('sideswapStatus');
     await Hive.deleteBoxFromDisk('sideswapSwapData');
     await Hive.deleteBoxFromDisk('pix');
-    await Hive.deleteBoxFromDisk('purchasesBox');
+    await Hive.deleteBoxFromDisk('eulenTransfersBox');
     await Hive.deleteBoxFromDisk('user');
     await Hive.deleteBoxFromDisk('affiliate');
     await Hive.deleteBoxFromDisk('addresses');
