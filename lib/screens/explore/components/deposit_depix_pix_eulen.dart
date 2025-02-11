@@ -15,20 +15,21 @@ import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 
-class DepositPixEulen extends ConsumerStatefulWidget {
-  const DepositPixEulen({Key? key}) : super(key: key);
+class DepositDepixPixEulen extends ConsumerStatefulWidget {
+  const DepositDepixPixEulen({Key? key}) : super(key: key);
 
   @override
   _DepositPixState createState() => _DepositPixState();
 }
 
-class _DepositPixState extends ConsumerState<DepositPixEulen> {
+class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
   final TextEditingController _amountController = TextEditingController();
   String _pixQRCode = '';
   bool _isLoading = false;
   double _amountToReceive = 0;
   double feePercentage = 0;
   String amountPurchasedToday = '0';
+  String registeredTaxId = '';
   bool pixPayed = false;
   Timer? _paymentCheckTimer;
 
@@ -36,6 +37,7 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
   void initState() {
     super.initState();
     _fetchAmountPurchasedToday();
+    _fetchTaxId();
   }
 
   Future<void> _fetchAmountPurchasedToday() async {
@@ -47,6 +49,19 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
     } catch (e) {
       setState(() {
         amountPurchasedToday = '0';
+      });
+    }
+  }
+
+  Future<void> _fetchTaxId() async {
+    try {
+      final result = await ref.read(getRegisteredTaxIdProvider.future);
+      setState(() {
+        registeredTaxId = result;
+      });
+    } catch (e) {
+      setState(() {
+        registeredTaxId = '';
       });
     }
   }
@@ -445,6 +460,27 @@ class _DepositPixState extends ConsumerState<DepositPixEulen> {
                                       'Amount Purchased Today:'
                                           .i18n +
                                           ' R\$ $amountPurchasedToday',
+                                      style: TextStyle(
+                                        fontSize: 16.sp,
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8.h),
+                              Row(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.verified_user,
+                                      color: Colors.grey,
+                                      size: 20.sp),
+                                  SizedBox(width: 8.w),
+                                  Expanded(
+                                    child: Text(
+                                      'Registered Tax id: '.i18n + registeredTaxId.i18n,
                                       style: TextStyle(
                                         fontSize: 16.sp,
                                         color: Colors.grey,

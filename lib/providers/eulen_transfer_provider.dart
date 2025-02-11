@@ -42,6 +42,17 @@ final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) asyn
   }
 });
 
+final getRegisteredTaxIdProvider = FutureProvider.autoDispose<String>((ref) async {
+  final auth = ref.read(userProvider).jwt!;
+  final amountTransferred = await EulenService.getRegisteredTaxId(auth);
+
+  if (amountTransferred.isSuccess && amountTransferred.data != null) {
+    return amountTransferred.data!;
+  } else {
+    throw amountTransferred.error!;
+  }
+});
+
 final createEulenTransferRequestProvider = FutureProvider.autoDispose.family<EulenTransfer, int>((ref, amount) async {
   final auth = ref.read(userProvider).jwt!;
   final liquidAddress = await ref.read(liquidAddressProvider.future);

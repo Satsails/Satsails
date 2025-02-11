@@ -265,7 +265,7 @@ class AppRouter {
                             GoRoute(
                               path: 'deposit_pix_eulen',
                               pageBuilder: (context, state) => _buildFadeScalePage(
-                                child: DepositPixEulen(),
+                                child: DepositDepixPixEulen(),
                                 state: state,
                               ),
                             ),

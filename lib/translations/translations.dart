@@ -2379,6 +2379,14 @@ extension Localization on String {
       {
         'en': "Onboarding made by pix metadata on first purchase",
         'pt': "Onboarding através do metadados de PIX",
+      }+
+      {
+        'en': "Not registered",
+        'pt': "Sem registro",
+      }+
+      {
+        'en': "Registered Tax id: ",
+        'pt': "Tax ID registrado: "
       };
 
   String get i18n => localize(this, _t);
