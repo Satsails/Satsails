@@ -51,8 +51,12 @@ Future<void> main() async {
   await FirebaseService.listenForForegroundPushNotifications();
 
   await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidProvider.playIntegrity,
-    appleProvider: AppleProvider.deviceCheck,
+    androidProvider: kReleaseMode
+        ? AndroidProvider.playIntegrity
+        : AndroidProvider.debug,
+    appleProvider: kReleaseMode
+        ? AppleProvider.appAttest
+        : AppleProvider.debug,
   );
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;

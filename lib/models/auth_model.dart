@@ -6,6 +6,7 @@ import 'package:bitcoin_message_signer/bitcoin_message_signer.dart';
 import 'package:conduit_password_hash/pbkdf2.dart';
 import 'package:crypto/crypto.dart';
 import 'package:faker/faker.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -56,21 +57,25 @@ class BackendAuth {
         return Result(error: 'Backend URL is not configured');
       }
 
+      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+
       final response = await http.get(
         Uri.parse('$backendUrl/auth/challenge'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Firebase-AppCheck': appCheckToken ?? '',
+        },
       );
 
+        final dynamic jsonResponse = json.decode(response.body);
+        final challenge = jsonResponse['challenge'] as String?;
 
-      final dynamic jsonResponse = json.decode(response.body);
-      final challenge = jsonResponse['challenge'] as String?;
-
-
-      return Result(data: challenge);
+        return Result(data: challenge);
     } catch (e) {
       return Result(error: 'An error has occurred. Please try again later');
     }
   }
+
 }
 
 
