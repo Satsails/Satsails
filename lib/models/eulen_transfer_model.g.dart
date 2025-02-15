@@ -29,8 +29,8 @@ class EulenTransferAdapter extends TypeAdapter<EulenTransfer> {
       pixKey: fields[9] as String,
       status: fields[10] as String?,
       paymentMethod: fields[11] as String?,
-      asset: fields[12] as String?,
-      currency: fields[13] as String?,
+      to_currency: fields[12] as String?,
+      from_currency: fields[13] as String?,
       transactionType: fields[14] as String,
       provider: fields[15] as String,
     );
@@ -65,9 +65,9 @@ class EulenTransferAdapter extends TypeAdapter<EulenTransfer> {
       ..writeByte(11)
       ..write(obj.paymentMethod)
       ..writeByte(12)
-      ..write(obj.asset)
+      ..write(obj.to_currency)
       ..writeByte(13)
-      ..write(obj.currency)
+      ..write(obj.from_currency)
       ..writeByte(14)
       ..write(obj.transactionType)
       ..writeByte(15)

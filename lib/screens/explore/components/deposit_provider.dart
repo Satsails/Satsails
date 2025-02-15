@@ -211,7 +211,6 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildSummaryRow("No KYC needed".i18n),
                       _buildSummaryRow("Only accepts BRL".i18n),
                       _buildSummaryRow("Max 6000 BRL per day".i18n),
                     ],

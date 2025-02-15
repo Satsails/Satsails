@@ -67,8 +67,8 @@ class EulenTransferNotifier extends StateNotifier<List<EulenTransfer>> {
       pixKey: serverPurchase.pixKey,
       status: serverPurchase.status ?? existingPurchase?.status,
       paymentMethod: serverPurchase.paymentMethod ?? existingPurchase?.paymentMethod,
-      asset: serverPurchase.asset ?? existingPurchase?.asset,
-      currency: serverPurchase.currency ?? existingPurchase?.currency,
+      to_currency: serverPurchase.to_currency ?? existingPurchase?.to_currency,
+      from_currency: serverPurchase.from_currency ?? existingPurchase?.from_currency,
       transactionType: serverPurchase.transactionType,
     );
 
@@ -103,8 +103,8 @@ class EulenTransferNotifier extends StateNotifier<List<EulenTransfer>> {
         pixKey: serverPurchase.pixKey,
         status: serverPurchase.status ?? existingPurchase?.status,
         paymentMethod: serverPurchase.paymentMethod ?? existingPurchase?.paymentMethod,
-        asset: serverPurchase.asset ?? existingPurchase?.asset,
-        currency: serverPurchase.currency ?? existingPurchase?.currency,
+        to_currency: serverPurchase.to_currency ?? existingPurchase?.to_currency,
+        from_currency: serverPurchase.from_currency ?? existingPurchase?.from_currency,
         transactionType: serverPurchase.transactionType,
       ) ?? serverPurchase;
 
@@ -146,9 +146,9 @@ class EulenTransfer extends HiveObject {
   @HiveField(11)
   final String? paymentMethod;
   @HiveField(12)
-  final String? asset;
+  final String? to_currency;
   @HiveField(13)
-  final String? currency;
+  final String? from_currency;
   @HiveField(14)
   final String transactionType; // e.g., "BUY" or "SELL"
   @HiveField(15)
@@ -167,8 +167,8 @@ class EulenTransfer extends HiveObject {
     this.pixKey = '',
     this.status = 'unknown',
     this.paymentMethod = 'unknown',
-    this.asset = 'unknown',
-    this.currency = 'unknown',
+    this.to_currency = 'unknown',
+    this.from_currency = 'unknown',
     this.transactionType = 'BUY',
     this.provider = 'Eulen',
   });
@@ -188,8 +188,8 @@ class EulenTransfer extends HiveObject {
       pixKey: json['pix']?.toString() ?? '',
       status: data['status']?.toString() ?? 'unknown',
       paymentMethod: data['payment_method']?.toString() ?? 'unknown',
-      asset: data['asset']?.toString() ?? 'unknown',
-      currency: data['currency']?.toString() ?? 'unknown',
+      to_currency: data['to_currency']?.toString() ?? 'unknown',
+      from_currency: data['from_currency']?.toString() ?? 'unknown',
       transactionType: data['type']?.toString() ?? 'BUY',
       provider: 'Eulen',
     );
@@ -207,8 +207,8 @@ class EulenTransfer extends HiveObject {
     String? pixKey,
     String? status,
     String? paymentMethod,
-    String? asset,
-    String? currency,
+    String? to_currency,
+    String? from_currency,
     String? transactionType,
     String? provider,
   }) {
@@ -225,8 +225,8 @@ class EulenTransfer extends HiveObject {
       pixKey: pixKey ?? this.pixKey,
       status: status ?? this.status,
       paymentMethod: paymentMethod ?? this.paymentMethod,
-      asset: asset ?? this.asset,
-      currency: currency ?? this.currency,
+      to_currency: to_currency ?? this.to_currency,
+      from_currency: from_currency ?? this.from_currency,
       transactionType: transactionType ?? this.transactionType,
       provider: provider ?? this.provider,
     );
@@ -245,8 +245,8 @@ class EulenTransfer extends HiveObject {
     pixKey: '',
     status: 'unknown',
     paymentMethod: 'unknown',
-    asset: 'unknown',
-    currency: 'unknown',
+    to_currency: 'unknown',
+    from_currency: 'unknown',
     transactionType: 'BUY',
     provider: 'Eulen',
   );
@@ -256,7 +256,7 @@ class EulenService {
   /// Creates a new Eulen transaction (purchase or sale).
   static Future<Result<EulenTransfer>> createTransaction(String auth, int amount, String liquidAddress, {String transactionType = 'BUY'}) async {
     try {
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/eulen_transfers'),
         body: jsonEncode({
@@ -264,14 +264,14 @@ class EulenService {
             'value_set_to_receive': amount,
             'liquid_address': liquidAddress,
             // 'type': transactionType,
-            // 'asset': transactionType,
-            // 'currency': transactionType,
+            // 'to_currency': transactionType,
+            // 'from_currency': transactionType,
           }
         }),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
