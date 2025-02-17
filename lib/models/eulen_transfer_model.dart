@@ -41,35 +41,36 @@ class EulenTransferNotifier extends StateNotifier<List<EulenTransfer>> {
   }
 
   /// **Merge a single purchase into Hive and update state**
-  Future<void> mergeTransfer(EulenTransfer serverPurchase) async {
+  Future<void> mergeTransfer(EulenTransfer serverData) async {
     final box = Hive.box<EulenTransfer>('eulenTransfersBox');
 
     // Get the existing purchase if it exists
-    final existingPurchase = box.get(serverPurchase.id);
+    final existingPurchase = box.get(serverData.id);
 
     // If no existing purchase, add the new one directly
     if (existingPurchase == null) {
-      await box.put(serverPurchase.id, serverPurchase);
+      await box.put(serverData.id, serverData);
       _updateTransfers();
       return;
     }
 
     // **Merge updated fields** (ensure no data is lost)
     final updatedPurchase = existingPurchase.copyWith(
-      transactionId: serverPurchase.transactionId,
-      originalAmount: serverPurchase.originalAmount,
-      completed: serverPurchase.completed,
-      failed: serverPurchase.failed,
-      userId: serverPurchase.userId ?? existingPurchase?.userId,
-      createdAt: existingPurchase?.createdAt ?? serverPurchase.createdAt,
-      updatedAt: serverPurchase.updatedAt,
-      receivedAmount: serverPurchase.receivedAmount,
-      pixKey: serverPurchase.pixKey,
-      status: serverPurchase.status ?? existingPurchase?.status,
-      paymentMethod: serverPurchase.paymentMethod ?? existingPurchase?.paymentMethod,
-      to_currency: serverPurchase.to_currency ?? existingPurchase?.to_currency,
-      from_currency: serverPurchase.from_currency ?? existingPurchase?.from_currency,
-      transactionType: serverPurchase.transactionType,
+      transactionId: serverData.transactionId,
+      originalAmount: serverData.originalAmount,
+      completed: serverData.completed,
+      failed: serverData.failed,
+      userId: serverData.userId ?? existingPurchase?.userId,
+      createdAt: existingPurchase?.createdAt ?? serverData.createdAt,
+      updatedAt: serverData.updatedAt,
+      receivedAmount: serverData.receivedAmount,
+      pixKey: serverData.pixKey,
+      status: serverData.status ?? existingPurchase?.status,
+      paymentMethod: serverData.paymentMethod ?? existingPurchase?.paymentMethod,
+      to_currency: serverData.to_currency ?? existingPurchase?.to_currency,
+      from_currency: serverData.from_currency ?? existingPurchase?.from_currency,
+      transactionType: serverData.transactionType,
+      price: serverData.price,
     );
 
     // If the purchase has **no changes**, skip saving
@@ -78,39 +79,40 @@ class EulenTransferNotifier extends StateNotifier<List<EulenTransfer>> {
     }
 
     // Save the updated purchase
-    await box.put(serverPurchase.id, updatedPurchase);
+    await box.put(serverData.id, updatedPurchase);
 
     // Update state
     _updateTransfers();
   }
 
   /// **Merge a list of purchases, ensuring updates only when necessary**
-  Future<void> mergePurchases(List<EulenTransfer> serverPurchases) async {
+  Future<void> mergePurchases(List<EulenTransfer> serverDatas) async {
     final box = Hive.box<EulenTransfer>('eulenTransfersBox');
 
-    for (final serverPurchase in serverPurchases) {
-      final existingPurchase = box.get(serverPurchase.id);
+    for (final serverData in serverDatas) {
+      final existingPurchase = box.get(serverData.id);
 
       final updatedPurchase = existingPurchase?.copyWith(
-        transactionId: serverPurchase.transactionId,
-        originalAmount: serverPurchase.originalAmount,
-        completed: serverPurchase.completed,
-        failed: serverPurchase.failed,
-        userId: serverPurchase.userId ?? existingPurchase?.userId,
-        createdAt: existingPurchase?.createdAt ?? serverPurchase.createdAt,
-        updatedAt: serverPurchase.updatedAt,
-        receivedAmount: serverPurchase.receivedAmount,
-        pixKey: serverPurchase.pixKey,
-        status: serverPurchase.status ?? existingPurchase?.status,
-        paymentMethod: serverPurchase.paymentMethod ?? existingPurchase?.paymentMethod,
-        to_currency: serverPurchase.to_currency ?? existingPurchase?.to_currency,
-        from_currency: serverPurchase.from_currency ?? existingPurchase?.from_currency,
-        transactionType: serverPurchase.transactionType,
-      ) ?? serverPurchase;
+        transactionId: serverData.transactionId,
+        originalAmount: serverData.originalAmount,
+        completed: serverData.completed,
+        failed: serverData.failed,
+        userId: serverData.userId ?? existingPurchase?.userId,
+        createdAt: existingPurchase?.createdAt ?? serverData.createdAt,
+        updatedAt: serverData.updatedAt,
+        receivedAmount: serverData.receivedAmount,
+        pixKey: serverData.pixKey,
+        status: serverData.status ?? existingPurchase?.status,
+        paymentMethod: serverData.paymentMethod ?? existingPurchase?.paymentMethod,
+        to_currency: serverData.to_currency ?? existingPurchase?.to_currency,
+        from_currency: serverData.from_currency ?? existingPurchase?.from_currency,
+        transactionType: serverData.transactionType,
+        price: serverData.price,
+      ) ?? serverData;
 
       // Save only if changes exist
       if (existingPurchase == null || existingPurchase != updatedPurchase) {
-        await box.put(serverPurchase.id, updatedPurchase);
+        await box.put(serverData.id, updatedPurchase);
       }
     }
 
@@ -153,6 +155,8 @@ class EulenTransfer extends HiveObject {
   final String transactionType; // e.g., "BUY" or "SELL"
   @HiveField(15)
   final String provider; // e.g. "Eulen"
+  @HiveField(16)
+  final double price; // e.g. "Eulen"
 
   EulenTransfer({
     required this.id,
@@ -171,6 +175,7 @@ class EulenTransfer extends HiveObject {
     this.from_currency = 'unknown',
     this.transactionType = 'BUY',
     this.provider = 'Eulen',
+    this.price = 0.0,
   });
 
   factory EulenTransfer.fromJson(Map<String, dynamic> json) {
@@ -192,6 +197,7 @@ class EulenTransfer extends HiveObject {
       from_currency: data['from_currency']?.toString() ?? 'unknown',
       transactionType: data['type']?.toString() ?? 'BUY',
       provider: 'Eulen',
+      price: double.tryParse(data['price']?.toString() ?? '') ?? 0.0,
     );
   }
 
@@ -211,6 +217,7 @@ class EulenTransfer extends HiveObject {
     String? from_currency,
     String? transactionType,
     String? provider,
+    double? price,
   }) {
     return EulenTransfer(
       id: this.id,
@@ -229,6 +236,7 @@ class EulenTransfer extends HiveObject {
       from_currency: from_currency ?? this.from_currency,
       transactionType: transactionType ?? this.transactionType,
       provider: provider ?? this.provider,
+      price: price ?? this.price,
     );
   }
 
@@ -249,6 +257,7 @@ class EulenTransfer extends HiveObject {
     from_currency: 'unknown',
     transactionType: 'BUY',
     provider: 'Eulen',
+    price: 0.0,
   );
 }
 
@@ -256,7 +265,7 @@ class EulenService {
   /// Creates a new Eulen transaction (purchase or sale).
   static Future<Result<EulenTransfer>> createTransaction(String auth, int amount, String liquidAddress, {String transactionType = 'BUY'}) async {
     try {
-      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/eulen_transfers'),
         body: jsonEncode({
@@ -271,7 +280,7 @@ class EulenService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          // 'X-Firebase-AppCheck': appCheckToken ?? '',
+          'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
