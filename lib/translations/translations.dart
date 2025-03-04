@@ -2387,6 +2387,34 @@ extension Localization on String {
       {
         'en': "Registered Tax id: ",
         'pt': "Tax ID registrado: "
+      } +
+      {
+        'en': "Enrollment process required",
+        'pt': "Processo de inscrição necessário",
+      } +
+      {
+        'en': "No limit purchases",
+        'pt': "Compras sem limite",
+      }+
+      {
+        'en': "Purchase bitcoin directly",
+        'pt': "Comprar bitcoin diretamente",
+      }+
+      {
+        'en': "Near unlimited purchase amounts",
+        'pt': "Valores de compra quase ilimitados",
+      }+
+      {
+        'en': "You have to KYC with the provider",
+        'pt': "Você precisa passar pelo KYC com o provedor",
+      }+
+      {
+        'en': "Purchases reported to the Brazilian federal revenue agency under the payer's name",
+        'pt': "Compras são relatadas à Receita Federal brasileira em nome do pagador",
+      }+
+      {
+        'en': "Purchase",
+        'pt': "Comprar",
       };
 
   String get i18n => localize(this, _t);

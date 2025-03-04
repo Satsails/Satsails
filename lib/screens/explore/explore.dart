@@ -139,7 +139,7 @@ class _ActionCards extends ConsumerWidget {
                 color: Colors.green,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
-                  onTap: () => _handleOnPress(ref, context, paymentId),
+                  onTap: () => _handleOnPress(ref, context, paymentId, true),
                   child: Container(
                     height: 80.h,
                     alignment: Alignment.center,
@@ -283,6 +283,7 @@ Future<void> _handleOnPress(
     WidgetRef ref,
     BuildContext context,
     String paymentId,
+    bool buy
     ) async {
   final insertedAffiliateCode = ref.watch(userProvider).affiliateCode ?? '';
   final hasUploadedAffiliateCode = ref.watch(userProvider).hasUploadedAffiliateCode ?? false;
@@ -312,7 +313,11 @@ Future<void> _handleOnPress(
       }
     }
 
-    context.push('/home/explore/deposit_type');
+    if (buy) {
+      context.push('/home/explore/deposit_type');
+    } else {
+      context.push('/home/explore/sell_type');
+    }
   } catch (e) {
     showMessageSnackBar(
       message: e.toString(),

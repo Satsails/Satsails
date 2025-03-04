@@ -5,19 +5,19 @@ enum DepositMethod { pix, credit_card, big_tech_pay, bank_transfer }
 enum DepositProvider { Eulen, NoxPay, Chimera }
 enum CurrencyDeposit { USD, EUR, BRL, CFH }
 
-final depositTypeProvider = StateProvider.autoDispose<DepositType>(
+final depositTypeProvider = StateProvider<DepositType>(
       (ref) => DepositType.depix,
 );
 
-final depositMethodProvider = StateProvider.autoDispose<DepositMethod>(
+final depositMethodProvider = StateProvider<DepositMethod>(
       (ref) => DepositMethod.pix,
 );
 
-final depositProvider = StateProvider.autoDispose<DepositProvider>(
+final depositProvider = StateProvider<DepositProvider>(
       (ref) => DepositProvider.Eulen,
 );
 
-final currencyTypeDeposit = StateProvider.autoDispose<CurrencyDeposit>(
+final currencyTypeDeposit = StateProvider<CurrencyDeposit>(
       (ref) => CurrencyDeposit.EUR,
 );
 
@@ -38,12 +38,18 @@ final depositMethodBasedOnTypeProvider = StateProvider<Set<DepositMethod>>((ref)
 });
 
 final depositProviderBasedOnMethodProvider = StateProvider<Set<DepositProvider>>((ref) {
+  final depositType = ref.watch(depositTypeProvider);
   final availableMethods = ref.watch(depositMethodBasedOnTypeProvider);
   final providers = <DepositProvider>{};
+
   for (final method in availableMethods) {
     switch (method) {
       case DepositMethod.pix:
+        if (depositType == DepositType.depix) {
           providers.addAll({DepositProvider.Eulen});
+        } else if (depositType == DepositType.bitcoin) {
+          providers.add(DepositProvider.NoxPay);
+        }
         break;
       case DepositMethod.credit_card:
         providers.add(DepositProvider.NoxPay);
@@ -59,6 +65,7 @@ final depositProviderBasedOnMethodProvider = StateProvider<Set<DepositProvider>>
 
   return providers;
 });
+
 
 final depositCurrencyBasedOnProvider = StateProvider<Set<CurrencyDeposit>>((ref) {
   final availableMethods = ref.watch(depositProviderBasedOnMethodProvider);

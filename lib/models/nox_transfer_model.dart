@@ -254,18 +254,16 @@ class NoxTransfer extends HiveObject {
 
 class NoxService {
   /// Creates a new Nox transaction (purchase or sale).
-  static Future<Result<NoxTransfer>> createTransaction(String auth, int amount, String liquidAddress, {String transactionType = 'BUY'}) async {
+  static Future<Result<String>> createTransaction(String auth, String quoteId, String address, {String transactionType = 'BUY'}) async {
     try {
       final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers'),
         body: jsonEncode({
           'transfer': {
-            'value_set_to_receive': amount,
-            'liquid_address': liquidAddress,
-            // 'type': transactionType,
-            // 'to_currency': transactionType,
-            // 'from_currency': transactionType,
+            'quote_id': quoteId,
+            'address': address,
+            'type': transactionType,
           }
         }),
         headers: {
@@ -276,7 +274,8 @@ class NoxService {
       );
 
       if (response.statusCode == 201) {
-        return Result(data: NoxTransfer.fromJson(jsonDecode(response.body)));
+        final jsonResponse = jsonDecode(response.body);
+        return Result(data: jsonResponse['transfer']);
       } else {
         return Result(error: response.body);
       }
@@ -314,10 +313,17 @@ class NoxService {
     }
   }
 
-  static Future<Result<List<NoxTransfer>>> getQuote(String auth, String fromCurrency, String toCurrency, String amount) async {
+  static Future<Result<NoxTransfer>> getQuote(
+      String auth, String fromCurrency, String toCurrency, String amount) async {
     try {
       final appCheckToken = await FirebaseAppCheck.instance.getToken();
-      final uri = Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers/quote');
+      // Build the URI with query parameters for from_currency, to_currency, and value_set_to_receive.
+      final uri = Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers/quote')
+          .replace(queryParameters: {
+        'from_currency': fromCurrency,
+        'to_currency': toCurrency,
+        'value_set_to_receive': amount,
+      });
 
       final response = await http.get(
         uri,
@@ -329,11 +335,7 @@ class NoxService {
       );
 
       if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        List<NoxTransfer> transactions = (jsonResponse['transfer'] as List)
-            .map((item) => NoxTransfer.fromJson(item as Map<String, dynamic>))
-            .toList();
-        return Result(data: transactions);
+        return Result(data: NoxTransfer.fromJson(jsonDecode(response.body)));
       } else {
         return Result(error: 'An error has occurred. Please try again later');
       }
@@ -341,4 +343,5 @@ class NoxService {
       return Result(error: 'An error has occurred. Please try again later');
     }
   }
+
 }

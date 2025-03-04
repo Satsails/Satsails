@@ -7,14 +7,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:go_router/go_router.dart';
 
-class DepositType extends ConsumerWidget {
-  const DepositType({super.key});
+class SellType extends ConsumerWidget {
+  const SellType({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Deposit Type".i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
+        title: Text("Selling Type".i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -27,33 +27,32 @@ class DepositType extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _DepositOption(
-              title: "Depix".i18n,
-              subtitle: "Transfer in minutes".i18n,
-              isAvailable: true,
-              onTap: () => handleDepixSelection(context, ref),
-            ),
-            SizedBox(height: 0.02.sh),
-            _DepositOption(
+            _SellOption(
               title: "Bitcoin".i18n,
-              subtitle: "Coming soon".i18n,
-              isAvailable: false,
+              subtitle: "Transfer 15-30 minutes".i18n,
+              isAvailable: true,
               onTap: () => handleBitcoinSelection(context, ref),
             ),
             SizedBox(height: 0.02.sh),
-            _DepositOption(
+            _SellOption(
+              title: "Depix".i18n,
+              subtitle: "Coming soon".i18n,
+              isAvailable: false,
+            ),
+            SizedBox(height: 0.02.sh),
+            _SellOption(
               title: "Lightning Bitcoin".i18n,
               subtitle: "Coming soon".i18n,
               isAvailable: false,
             ),
             SizedBox(height: 0.02.sh),
-            _DepositOption(
+            _SellOption(
               title: "USDT".i18n,
               subtitle: "Coming soon".i18n,
               isAvailable: false,
             ),
             SizedBox(height: 0.02.sh),
-            _DepositOption(
+            _SellOption(
               title: "Liquid Bitcoin".i18n,
               subtitle: "Coming soon".i18n,
               isAvailable: false,
@@ -65,13 +64,13 @@ class DepositType extends ConsumerWidget {
   }
 }
 
-class _DepositOption extends StatelessWidget {
+class _SellOption extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool isAvailable;
   final VoidCallback? onTap;
 
-  const _DepositOption({
+  const _SellOption({
     Key? key,
     required this.title,
     required this.subtitle,
@@ -120,11 +119,6 @@ class _DepositOption extends StatelessWidget {
       ),
     );
   }
-}
-
-void handleDepixSelection(BuildContext context, WidgetRef ref) {
-  ref.read(helpers.depositTypeProvider.notifier).state = helpers.DepositType.depix;
-  context.push('/home/explore/deposit_type/deposit_method');
 }
 
 void handleBitcoinSelection(BuildContext context, WidgetRef ref) {

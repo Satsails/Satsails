@@ -85,6 +85,7 @@ flutter:
   assets:
     - lib/assets/app_icon.png
     - lib/assets/satsails.png
+    - lib/assets/nox.svg
     - lib/assets/satsails.svg
     - lib/assets/eulen-logo.svg
     - lib/assets/frame.svg

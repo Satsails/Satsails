@@ -90,19 +90,35 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
 
   /// Trigger navigation when the main area of the card is tapped.
   void _handleNavigation() {
-    context.push(
-        '/home/explore/deposit_type/deposit_method/deposit_provider/deposit_pix_eulen');
+    if (widget.provider == helpers.DepositProvider.Eulen) {
+      context.push(
+          '/home/explore/deposit_type/deposit_method/deposit_provider/deposit_pix_eulen');
+    }
+    if (widget.provider == helpers.DepositProvider.NoxPay) {
+      context.push(
+          '/home/explore/deposit_type/deposit_method/deposit_provider/deposit_pix_nox');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final acceptedCurrencies =
+    // If the provider is NoxPay, override accepted currencies to "BRL".
+    final acceptedCurrenciesFromProvider =
     ref.watch(helpers.depositCurrencyBasedOnProvider);
-    final acceptedCurrenciesText = acceptedCurrencies
+    final acceptedCurrenciesText =
+    widget.provider == helpers.DepositProvider.NoxPay
+        ? "BRL".i18n
+        : acceptedCurrenciesFromProvider
         .map((currency) => currency.toString().split('.').last)
         .join(', ');
 
-    // Provider details (for Eulen, appended with two extra disadvantage items).
+    // Define summary texts based on provider.
+    final List<String> summaryTexts =
+    widget.provider == helpers.DepositProvider.NoxPay
+        ? ["Enrollment process required".i18n, "No limit purchases".i18n]
+        : ["Only accepts BRL".i18n, "Max 6000 BRL per day".i18n];
+
+    // Provider details for each deposit provider.
     final Map<helpers.DepositProvider, ProviderDetails> providerDetails = {
       helpers.DepositProvider.Eulen: ProviderDetails(
         advantages: [
@@ -113,16 +129,18 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
         ],
         disadvantages: [
           "Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payer's name",
-          "Not possible to send documentation and unlock higher purchase amounts. ",
+          "Not possible to send documentation and unlock higher purchase amounts.",
           "Maximum of 5000 BRL per single transaction",
         ],
       ),
       helpers.DepositProvider.NoxPay: ProviderDetails(
         advantages: [
-          // Add NoxPay advantages here.
+          "Purchase bitcoin directly".i18n,
+          "Near unlimited purchase amounts".i18n,
         ],
         disadvantages: [
-          // Add NoxPay disadvantages here.
+          "You have to KYC with the provider".i18n,
+          "Purchases reported to the Brazilian federal revenue agency under the payer's name".i18n,
         ],
       ),
       helpers.DepositProvider.Chimera: ProviderDetails(
@@ -173,11 +191,12 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            SvgPicture.asset(
-                              _getAssetForProvider(widget.provider),
-                              width: 30,
-                              height: 30,
-                            ),
+                            if (_getAssetForProvider(widget.provider).isNotEmpty)
+                              SvgPicture.asset(
+                                _getAssetForProvider(widget.provider),
+                                width: 30,
+                                height: 30,
+                              ),
                             if (widget.provider != helpers.DepositProvider.Eulen)
                               Padding(
                                 padding: EdgeInsets.only(left: 8.w),
@@ -205,15 +224,14 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                     ],
                   ),
                 ),
-                // Summary section (with check icons) in the middle.
+                // Summary section.
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.h),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSummaryRow("Only accepts BRL".i18n),
-                      _buildSummaryRow("Max 6000 BRL per day".i18n),
-                    ],
+                    children: summaryTexts
+                        .map((text) => _buildSummaryRow(text))
+                        .toList(),
                   ),
                 ),
                 // Expanded details section (if expanded).
@@ -234,7 +252,8 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                             SizedBox(width: 4.w),
                             Expanded(
                               child: Text(
-                                "Accepted Currencies: $acceptedCurrenciesText".i18n,
+                                "Accepted Currencies: $acceptedCurrenciesText"
+                                    .i18n,
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.bold,
@@ -262,14 +281,14 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Icon(
-                                  Icons.check, // using consistent check icon
+                                  Icons.check,
                                   size: 16.sp,
                                   color: Colors.greenAccent,
                                 ),
                                 SizedBox(width: 6.w),
                                 Expanded(
                                   child: Text(
-                                    advantage.i18n,
+                                    advantage,
                                     style: TextStyle(
                                       fontSize: 16.sp,
                                       color: Colors.grey,
@@ -298,14 +317,14 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Icon(
-                                  Icons.close, // using a consistent "close" icon
+                                  Icons.close,
                                   size: 16.sp,
                                   color: Colors.redAccent,
                                 ),
                                 SizedBox(width: 6.w),
                                 Expanded(
                                   child: Text(
-                                    disadvantage.i18n,
+                                    disadvantage,
                                     style: TextStyle(
                                       fontSize: 16.sp,
                                       color: Colors.grey,
@@ -342,9 +361,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                     ),
                     SizedBox(width: 4.w),
                     Text(
-                      _isExpanded
-                          ? "Hide details".i18n
-                          : "See details".i18n,
+                      _isExpanded ? "Hide details".i18n : "See details".i18n,
                       style: TextStyle(
                         fontSize: 18.sp,
                         color: Colors.grey,
@@ -386,7 +403,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
       case helpers.DepositProvider.Eulen:
         return 'lib/assets/eulen-logo.svg';
       case helpers.DepositProvider.NoxPay:
-        return 'lib/assets/noxpay-logo.svg';
+        return ''; // No asset for NoxPay
       case helpers.DepositProvider.Chimera:
         return 'lib/assets/chimera-logo.svg';
       default:

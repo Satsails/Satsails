@@ -1,8 +1,10 @@
 import 'package:Satsails/models/transactions_model.dart';
+import 'package:Satsails/screens/explore/components/deposit_bitcoin_pix_nox.dart';
 import 'package:Satsails/screens/explore/components/deposit_method.dart';
 import 'package:Satsails/screens/explore/components/deposit_depix_pix_eulen.dart';
 import 'package:Satsails/screens/explore/components/deposit_provider.dart';
 import 'package:Satsails/screens/explore/components/deposit_type.dart';
+import 'package:Satsails/screens/explore/components/sell_type.dart';
 import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/creation/confirm_pin.dart';
 import 'package:Satsails/screens/login/seed_words_pin.dart';
@@ -242,6 +244,13 @@ class AppRouter {
               ),
               routes: [
                 GoRoute(
+                  path: '/sell_type',
+                  pageBuilder: (context, state) => _buildFadeScalePage(
+                    child: SellType(),
+                    state: state,
+                  ),
+                ),
+                GoRoute(
                   path: 'deposit_type',
                   pageBuilder: (context, state) => _buildFadeScalePage(
                     child: DepositType(),
@@ -266,6 +275,13 @@ class AppRouter {
                               path: 'deposit_pix_eulen',
                               pageBuilder: (context, state) => _buildFadeScalePage(
                                 child: DepositDepixPixEulen(),
+                                state: state,
+                              ),
+                            ),
+                            GoRoute(
+                              path: 'deposit_pix_nox',
+                              pageBuilder: (context, state) => _buildFadeScalePage(
+                                child: DepositBitcoinPixNox(),
                                 state: state,
                               ),
                             ),
