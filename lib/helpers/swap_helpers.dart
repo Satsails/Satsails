@@ -5,7 +5,6 @@ import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dar
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
@@ -64,8 +63,8 @@ List<String> getAssets(WidgetRef ref) {
 
   return [
     'Bitcoin',
-    if (lightningAvailable) 'Lightning Bitcoin',
-    'Liquid Bitcoin',
+    if (lightningAvailable) 'Lightning',
+    'L-BTC',
     'USDT',
     'Eurox',
     'Depix'
@@ -78,40 +77,40 @@ final swapTypeProvider = StateProvider.autoDispose<SwapType?>((ref) {
   final combinedKey = '$fromAsset-$toAsset';
 
   switch (combinedKey) {
-    case 'Bitcoin-Liquid Bitcoin':
+    case 'Bitcoin-L-BTC':
       return SwapType.sideswapBtcToLbtc;
 
-    case 'Liquid Bitcoin-Bitcoin':
+    case 'L-BTC-Bitcoin':
       return SwapType.sideswapLbtcToBtc;
 
-    case 'Lightning Bitcoin-Bitcoin':
+    case 'Lightning-Bitcoin':
       return SwapType.coinosLnToBTC;
 
-    case 'Lightning Bitcoin-Liquid Bitcoin':
+    case 'Lightning-L-BTC':
       return SwapType.coinosLnToLBTC;
 
-    case 'Bitcoin-Lightning Bitcoin':
+    case 'Bitcoin-Lightning':
       return SwapType.coinosBtcToLn;
 
-    case 'Liquid Bitcoin-Lightning Bitcoin':
+    case 'L-BTC-Lightning':
       return SwapType.coinosLbtcToLn;
 
-    case 'USDT-Liquid Bitcoin':
+    case 'USDT-L-BTC':
       return SwapType.sideswapUsdtToLbtc;
 
-    case 'Eurox-Liquid Bitcoin':
+    case 'Eurox-L-BTC':
       return SwapType.sideswapEuroxToLbtc;
 
-    case 'Depix-Liquid Bitcoin':
+    case 'Depix-L-BTC':
       return SwapType.sideswapDepixToLbtc;
 
-    case 'Liquid Bitcoin-USDT':
+    case 'L-BTC-USDT':
       return SwapType.sideswapLbtcToUsdt;
 
-    case 'Liquid Bitcoin-Eurox':
+    case 'L-BTC-Eurox':
       return SwapType.sideswapLbtcToEurox;
 
-    case 'Liquid Bitcoin-Depix':
+    case 'L-BTC-Depix':
       return SwapType.sideswapLbtcToDepix;
 
     default:
@@ -180,6 +179,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(sendBitcoinProvider.notifier).state = true;
         ref.read(inputInFiatProvider.notifier).state = false;
         ref.read(pegOutBlocksProvider.notifier).state = 2;
+        ref.read(pegInProvider.notifier).state = true;
         break;
 
       case SwapType.sideswapLbtcToBtc:
@@ -188,6 +188,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(sendBitcoinProvider.notifier).state = true;
         ref.read(inputInFiatProvider.notifier).state = false;
         ref.read(pegOutBlocksProvider.notifier).state = 2;
+        ref.read(pegInProvider.notifier).state = false;
         break;
 
       case SwapType.coinosLnToBTC:
@@ -269,15 +270,15 @@ List<String> getAvailableSwaps(String asset, WidgetRef ref) {
 
   switch (asset) {
     case 'Bitcoin':
-      return ['Liquid Bitcoin', if (lightningAvailable) 'Lightning Bitcoin'];
-    case 'Liquid Bitcoin':
-      return ['USDT', 'Depix', 'Eurox', if (lightningAvailable) 'Lightning Bitcoin', 'Bitcoin'];
-    case 'Lightning Bitcoin':
-      return lightningAvailable ? ['Bitcoin', 'Liquid Bitcoin'] : [];
+      return ['L-BTC', if (lightningAvailable) 'Lightning'];
+    case 'L-BTC':
+      return ['USDT', 'Depix', 'Eurox', if (lightningAvailable) 'Lightning', 'Bitcoin'];
+    case 'Lightning':
+      return lightningAvailable ? ['Bitcoin', 'L-BTC'] : [];
     case 'USDT':
     case 'Eurox':
     case 'Depix':
-      return ['Liquid Bitcoin'];
+      return ['L-BTC'];
     default:
       return [];
   }
@@ -290,6 +291,7 @@ Widget getAssetImage(String? asset, {double? width, double? height}) {
     case 'Bitcoin':
       return Image.asset('lib/assets/bitcoin-logo.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
     case 'Liquid Bitcoin':
+    case 'L-BTC':
     case 'LBTC':
       return Image.asset('lib/assets/l-btc.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
     case 'USDT':
@@ -301,8 +303,8 @@ Widget getAssetImage(String? asset, {double? width, double? height}) {
     case 'Depix':
     case 'DEPIX':
       return Image.asset('lib/assets/depix.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
-    case 'Lightning Bitcoin':
     case 'Lightning':
+    case 'Lightning Bitcoin':
       return Image.asset('lib/assets/Bitcoin_lightning_logo.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
     default:
       return Image.asset('lib/assets/app_icon.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
@@ -311,7 +313,7 @@ Widget getAssetImage(String? asset, {double? width, double? height}) {
 
 final transactionInProgressProvider = StateProvider.autoDispose<bool>((ref) => false);
 final fromAssetProvider = StateProvider.autoDispose<String>((ref) => 'Depix');
-final toAssetProvider = StateProvider.autoDispose<String>((ref) => 'Liquid Bitcoin');
+final toAssetProvider = StateProvider.autoDispose<String>((ref) => 'L-BTC');
 final inputInFiatProvider = StateProvider.autoDispose<bool>((ref) => false);
 final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');
 final precisionFiatValueProvider = StateProvider.autoDispose<String>((ref) => "0.00");
@@ -366,7 +368,7 @@ Widget _simpleFeeText(String label, double fee, WidgetRef ref) {
   return Column(
     children: [
       Text(
-        label.i18n(ref),
+        label.i18n,
         style: TextStyle(
           color: Colors.white70,
           fontSize: 14.sp,
@@ -530,8 +532,8 @@ Future<void> handlePegIn(
       .watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future)
       .then((value) => value);
 
-  final fee = await transaction.$1.feeAmount().then((value) => value);
-  final amountToSet = (bitcoin - fee!);
+  final fee = (transaction.$1.feeAmount() ?? BigInt.zero).toInt();
+  final amountToSet = (bitcoin - fee);
 
   controller.text = btcInDenominationFormatted(amountToSet.toDouble(), btcFormat);
   ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), 'sats');
@@ -574,8 +576,8 @@ Future<void> handleBitcoinToLightning(WidgetRef ref, TextEditingController contr
   final transaction =
   await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future).then((value) => value);
 
-  final fee = await transaction.$1.feeAmount().then((value) => value);
-  final amountToSet = (balance - fee!);
+  final fee = (transaction.$1.feeAmount() ?? BigInt.zero).toInt();
+  final amountToSet = (balance - fee);
   controller.text = btcInDenominationFormatted(amountToSet, btcFormat);
   ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
 }
@@ -587,7 +589,7 @@ Future<void> handleLiquidBitcoinToLightning(WidgetRef ref, TextEditingController
   ref.read(sendTxProvider.notifier).updateDrain(true);
 
   final pset = await ref.watch(liquidDrainWalletProvider.future);
-  final sendingBalance = pset.balances[0].value + pset.absoluteFees;
+  final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
   final controllerValue = sendingBalance.abs();
   controller.text = btcInDenominationFormatted(controllerValue, btcFormat);
   ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
@@ -614,7 +616,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'From Asset'.i18n(ref),
+                    'From Asset'.i18n,
                     style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                   ),
                   SizedBox(height: 8.h),
@@ -711,7 +713,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'To Asset'.i18n(ref),
+                    'To Asset'.i18n,
                     style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                   ),
                   SizedBox(height: 8.h),
@@ -850,7 +852,7 @@ Widget buildCoinosSwap(
             if (double.parse(formattedValueToReceive) <= 0)
               Text(
                 "0",
-                style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                style: TextStyle(fontSize: 20.sp, color: Colors.grey),
               )
             else
               Column(
@@ -860,7 +862,7 @@ Widget buildCoinosSwap(
                     children: [
                       Text(
                         valueInCurrency,
-                        style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                        style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                       ),
                       SizedBox(width: 2.w),
                       Text(
@@ -874,7 +876,7 @@ Widget buildCoinosSwap(
                       children: [
                         Text(
                           formattedValueToReceive,
-                          style: TextStyle(fontSize: 16.sp, color: Colors.white),
+                          style: TextStyle(fontSize: 20.sp, color: Colors.white),
                         ),
                         SizedBox(width: 2.w),
                         Text(
@@ -929,7 +931,7 @@ Widget buildCoinosSwap(
                   Text(
                     btcInDenominationFormatted(
                         ref.watch(sendTxProvider).amount.toDouble(), btcFormat),
-                    style: TextStyle(fontSize: 16.sp, color: Colors.white),
+                    style: TextStyle(fontSize: 20.sp, color: Colors.white),
                   ),
                   SizedBox(width: 2.w),
                   Text(
@@ -942,7 +944,7 @@ Widget buildCoinosSwap(
                 children: [
                   Text(
                     valueToSendInCurrency,
-                    style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                    style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                   ),
                   SizedBox(width: 2.w),
                   Text(
@@ -975,12 +977,12 @@ Widget buildCoinosSwap(
                       hintText: '0',
                       hintStyle: TextStyle(
                         color: Colors.grey,
-                        fontSize: 16.sp,
+                        fontSize: 20.sp,
                       ),
                     ),
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16.sp,
+                      fontSize: 20.sp,
                     ),
                     onChanged: (value) async {
                       if (inputInFiat) {
@@ -1056,11 +1058,11 @@ Widget buildSideswapInstantSwap(
                     children: [
                       Text(
                         parts[0],
-                        style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+                        style: TextStyle(color: Colors.grey, fontSize: 20.sp),
                       ),
                       Text(
                         parts.sublist(1).join(' '),
-                        style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+                        style: TextStyle(color: Colors.grey, fontSize: 20.sp),
                       ),
                     ],
                   );
@@ -1079,7 +1081,7 @@ Widget buildSideswapInstantSwap(
                           children: [
                             Text(
                               valueInCurrency,
-                              style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                              style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                             ),
                             SizedBox(width: 2.w),
                             Text(currency, style: TextStyle(fontSize: 8.sp, color: Colors.grey)),
@@ -1090,7 +1092,7 @@ Widget buildSideswapInstantSwap(
                           children: [
                             Text(
                               btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin),
-                              style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                              style: TextStyle(color: Colors.white, fontSize: 20.sp),
                             ),
                             SizedBox(width: 2.w),
                             if(!sendBitcoin)
@@ -1111,7 +1113,7 @@ Widget buildSideswapInstantSwap(
                   SizedBox(height: 20.h),
                   Text(
                     "0",
-                    style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+                    style: TextStyle(color: Colors.grey, fontSize: 20.sp),
                   ),
                 ],
               )
@@ -1128,7 +1130,7 @@ Widget buildSideswapInstantSwap(
               ),
               error: (error, stack) => Text(
                 'Error: $error',
-                style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                style: TextStyle(color: Colors.white, fontSize: 20.sp),
               ),
             );
           },
@@ -1164,7 +1166,7 @@ Widget buildSideswapInstantSwap(
                   children: [
                     Text(
                       '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat)}',
-                      style: TextStyle(fontSize: 16.sp, color: Colors.white),
+                      style: TextStyle(fontSize: 20.sp, color: Colors.white),
                     ),
                     SizedBox(width: 2.w),
                     Text(
@@ -1177,7 +1179,7 @@ Widget buildSideswapInstantSwap(
                   children: [
                     Text(
                       currencyFormat(ref.watch(sendTxProvider).amount / 100000000 * currencyRate, currency),
-                      style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                      style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                     ),
                     SizedBox(width: 2.w),
                     Text(
@@ -1215,12 +1217,12 @@ Widget buildSideswapInstantSwap(
                       hintText: '0',
                       hintStyle: TextStyle(
                         color: Colors.grey,
-                        fontSize: 16.sp,
+                        fontSize: 20.sp,
                       ),
                     ),
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16.sp,
+                      fontSize: 20.sp,
                     ),
                     onChanged: (value) async {
                       if (inputInFiat) {
@@ -1288,7 +1290,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
               Column(
                 children: [
                   SizedBox(height: 20.h),
-                  Text("0", style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
+                  Text("0", style: TextStyle(fontSize: 20.sp, color: Colors.grey)),
                 ],
               )
             else
@@ -1298,7 +1300,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
                   SizedBox(height: 20.h),
                   Row(
                     children: [
-                      Text(valueInCurrency, style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
+                      Text(valueInCurrency, style: TextStyle(fontSize: 20.sp, color: Colors.grey)),
                       SizedBox(width: 2.w),
                       Text(currency, style: TextStyle(fontSize: 8.sp, color: Colors.grey)),
                     ],
@@ -1306,7 +1308,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
                   IntrinsicWidth(
                     child: Row(
                       children: [
-                        Text(formattedValueToReceive, style: TextStyle(fontSize: 16.sp, color: Colors.white)),
+                        Text(formattedValueToReceive, style: TextStyle(fontSize: 20.sp, color: Colors.white)),
                         SizedBox(width: 2.w),
                         Text(btcFormat, style: TextStyle(fontSize: 8.sp, color: Colors.grey)),
                       ],
@@ -1343,7 +1345,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
                     children: [
                       Text(
                         '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat)}',
-                        style: TextStyle(fontSize: 16.sp, color: Colors.white),
+                        style: TextStyle(fontSize: 20.sp, color: Colors.white),
                       ),
                       SizedBox(width: 2.w),
                       Text(
@@ -1356,7 +1358,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
                     children: [
                       Text(
                         valueToSendInCurrency,
-                        style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                        style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                       ),
                       SizedBox(width: 2.w),
                       Text(
@@ -1382,11 +1384,11 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
                                     ? DecimalTextInputFormatter(decimalRange: 0)
                                     : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),
                               ],
-                              style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                              style: TextStyle(color: Colors.white, fontSize: 20.sp),
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: '0',
-                                hintStyle: TextStyle(color: Colors.grey, fontSize: 16.sp),
+                                hintStyle: TextStyle(color: Colors.grey, fontSize: 20.sp),
                               ),
                               onChanged: (value) async {
                                 if (value.isEmpty) {
@@ -1418,11 +1420,11 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
                                 CommaTextInputFormatter(),
                                 DecimalTextInputFormatter(decimalRange: 2, integerRange: 7),
                               ],
-                              style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: Colors.white, fontSize: 20.sp),
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: '0',
-                                hintStyle: TextStyle(color: Colors.grey, fontSize: 16.sp),
+                                hintStyle: TextStyle(color: Colors.grey, fontSize: 20.sp),
                               ),
                               onChanged: (value) async {
                                 if (value.isEmpty) {
@@ -1453,7 +1455,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
             );
           },
           loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size: 16.w, color: Colors.white)),
-          error: (error, stack) => Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+          error: (error, stack) => Text(error.toString().i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
         ),
     ],
   );
@@ -1482,7 +1484,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
               Column(
                 children: [
                   SizedBox(height: 20.h),
-                  Text("0", style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
+                  Text("0", style: TextStyle(fontSize: 20.sp, color: Colors.grey)),
                 ],
               )
             else
@@ -1492,7 +1494,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
                   SizedBox(height: 20.h),
                   Row(
                     children: [
-                      Text(valueInCurrency, style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
+                      Text(valueInCurrency, style: TextStyle(fontSize: 20.sp, color: Colors.grey)),
                       SizedBox(width: 2.w),
                       Text(currency, style: TextStyle(fontSize: 8.sp, color: Colors.grey)),
                     ],
@@ -1500,7 +1502,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
                   IntrinsicWidth(
                     child: Row(
                       children: [
-                        Text(formattedValueToReceive, style: TextStyle(fontSize: 16.sp, color: Colors.white)),
+                        Text(formattedValueToReceive, style: TextStyle(fontSize: 20.sp, color: Colors.white)),
                         SizedBox(width: 2.w),
                         Text(btcFormat, style: TextStyle(fontSize: 8.sp, color: Colors.grey)),
                       ],
@@ -1537,7 +1539,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
                     children: [
                       Text(
                         '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat)}',
-                        style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                        style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                       ),
                       SizedBox(width: 2.w),
                       Text(
@@ -1550,7 +1552,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
                     children: [
                       Text(
                         valueToSendInCurrency,
-                        style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                        style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                       ),
                       SizedBox(width: 2.w),
                       Text(
@@ -1576,11 +1578,11 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
                                     ? DecimalTextInputFormatter(decimalRange: 0)
                                     : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),
                               ],
-                              style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                              style: TextStyle(color: Colors.white, fontSize: 20.sp),
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: '0',
-                                hintStyle: TextStyle(color: Colors.grey, fontSize: 16.sp),
+                                hintStyle: TextStyle(color: Colors.grey, fontSize: 20.sp),
                               ),
                               onChanged: (value) async {
                                 if (value.isEmpty) {
@@ -1612,11 +1614,11 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
                                 CommaTextInputFormatter(),
                                 DecimalTextInputFormatter(decimalRange: 2, integerRange: 7),
                               ],
-                              style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                              style: TextStyle(color: Colors.white, fontSize: 20.sp),
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: '0',
-                                hintStyle: TextStyle(color: Colors.grey, fontSize: 16.sp),
+                                hintStyle: TextStyle(color: Colors.grey, fontSize: 20.sp),
                               ),
                               onChanged: (value) async {
                                 if (value.isEmpty) {
@@ -1647,7 +1649,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
             );
           },
           loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size: 16.w, color: Colors.white)),
-          error: (error, stack) => Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+          error: (error, stack) => Text(error.toString().i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
         ),
     ],
   );
@@ -1675,7 +1677,7 @@ Widget buildAdvancedOptionsCard(WidgetRef ref) {
           bottom: BorderSide(color: Colors.transparent),
         ),
         title: Text(
-          'Transaction fees'.i18n(ref),
+          'Transaction fees'.i18n,
           style: TextStyle(
             color: Colors.white,
             fontSize: 14.sp,
@@ -1905,7 +1907,7 @@ Widget _feeRow(String label, String value, WidgetRef ref) {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          label.i18n(ref),
+          label.i18n,
           style: TextStyle(
             color: Colors.white70,
             fontSize: 14.sp,
@@ -2028,11 +2030,10 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
             try {
               if (ref.watch(sendTxProvider).amount < status.minPegOutAmount) {
                 ref.read(transactionInProgressProvider.notifier).state = false;
-                throw 'Amount is below minimum peg out amount'.i18n(ref);
+                throw 'Amount is below minimum peg out amount'.i18n;
               }
               await ref.watch(sendLiquidTransactionProvider.future);
               await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
@@ -2061,7 +2062,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
             }
           },
           child:  Text(
-            'Slide to Swap'.i18n(ref),
+            'Slide to Swap'.i18n,
             style: TextStyle(
               color: Colors.grey,
               fontSize: 14.sp,
@@ -2073,7 +2074,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
       );
     },
     loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size: 20.w, color: Colors.white)),
-    error: (error, stack) => Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: 14.sp)),
+    error: (error, stack) => Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n, style: TextStyle(color: Colors.white, fontSize: 14.sp)),
   );
 }
 
@@ -2095,11 +2096,10 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
             try {
               if (ref.watch(sendTxProvider).amount < ref.watch(sideswapStatusProvider).minPegInAmount) {
                 ref.read(transactionInProgressProvider.notifier).state = false;
-                throw 'Amount is below minimum peg in amount'.i18n(ref);
+                throw 'Amount is below minimum peg in amount'.i18n;
               }
               await ref.watch(sendBitcoinTransactionProvider.future);
               await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
-              await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
@@ -2128,7 +2128,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
             }
           },
           child: Text(
-            'Slide to Swap'.i18n(ref),
+            'Slide to Swap'.i18n,
             style: TextStyle(
               color: Colors.grey,
               fontSize: 14.sp,
@@ -2145,7 +2145,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
     ),
     error: (error, stack) => Padding(
       padding: EdgeInsets.all(10.w),
-      child: Text(error.toString().i18n(ref), style: TextStyle(color: Colors.white, fontSize: 14.sp)),
+      child: Text(error.toString().i18n, style: TextStyle(color: Colors.white, fontSize: 14.sp)),
     ),
   );
 }
@@ -2165,7 +2165,6 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
           controller.loading();
           try {
             await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
-            await ref.read(liquidSyncNotifierProvider.notifier).performSync();
             ref.read(sendTxProvider.notifier).updateAddress('');
             ref.read(sendTxProvider.notifier).updateAmount(0);
             ref.read(sendBlocksProvider.notifier).state = 1;
@@ -2178,7 +2177,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
             context.go('/home');
             ref.read(sendTxProvider.notifier).resetToDefault();
             showMessageSnackBar(
-              message: 'Swap done!'.i18n(ref),
+              message: 'Swap done!'.i18n,
               error: false,
               context: context,
             );
@@ -2186,7 +2185,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
             ref.read(transactionInProgressProvider.notifier).state = false;
             controller.failure();
             showMessageSnackBar(
-              message: e.toString().i18n(ref),
+              message: e.toString().i18n,
               error: true,
               context: context,
             );
@@ -2194,7 +2193,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
           }
         },
         child: Text(
-          'Slide to Swap'.i18n(ref),
+          'Slide to Swap'.i18n,
           style: TextStyle(
             color: Colors.grey,
             fontWeight: FontWeight.bold,
@@ -2225,7 +2224,6 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               final liquidAddress = await ref.read(liquidAddressProvider.future);
               ref.read(sendTxProvider.notifier).updateAddress(liquidAddress.confidential);
               await ref.read(sendCoinosLiquidProvider.future);
-              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
             } else {
               final addressFromCoinos = await ref.read(createInvoiceForSwapProvider('liquid').future);
               ref.read(sendTxProvider.notifier).updateAddress(addressFromCoinos);
@@ -2233,11 +2231,10 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
               final lnBalance = await ref.read(coinosBalanceProvider.future);
               balanceNotifier.updateLightningBalance(lnBalance);
-              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
             }
             ref.read(sendBlocksProvider.notifier).state = 1;
             showMessageSnackBar(
-              message: 'Swap done!'.i18n(ref),
+              message: 'Swap done!'.i18n,
               error: false,
               context: context,
             );
@@ -2249,7 +2246,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
             ref.read(transactionInProgressProvider.notifier).state = false;
             controller.failure();
             showMessageSnackBar(
-              message: e.toString().i18n(ref),
+              message: e.toString().i18n,
               error: true,
               context: context,
             );
@@ -2257,7 +2254,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
           }
         },
         child:  Text(
-          'Slide to Swap'.i18n(ref),
+          'Slide to Swap'.i18n,
           style: TextStyle(
             color: Colors.grey,
             fontSize: 14.sp,
@@ -2287,7 +2284,6 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               final btcAddress = await ref.read(bitcoinAddressProvider.future);
               ref.read(sendTxProvider.notifier).updateAddress(btcAddress);
               await ref.read(sendCoinosBitcoinProvider.future);
-              await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
             } else {
               final addressFromCoinos = await ref.read(createInvoiceForSwapProvider('bitcoin').future);
               ref.read(sendTxProvider.notifier).updateAddress(addressFromCoinos);
@@ -2295,11 +2291,10 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
               final lnBalance = await ref.read(coinosBalanceProvider.future);
               balanceNotifier.updateLightningBalance(lnBalance);
-              await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
             }
             ref.read(sendBlocksProvider.notifier).state = 1;
             showMessageSnackBar(
-              message: 'Swap done!'.i18n(ref),
+              message: 'Swap done!'.i18n,
               error: false,
               context: context,
             );
@@ -2311,7 +2306,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
             ref.read(transactionInProgressProvider.notifier).state = false;
             controller.failure();
             showMessageSnackBar(
-              message: e.toString().i18n(ref),
+              message: e.toString().i18n,
               error: true,
               context: context,
             );
@@ -2319,7 +2314,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
           }
         },
         child:  Text(
-          'Slide to Swap'.i18n(ref),
+          'Slide to Swap'.i18n,
           style: TextStyle(
             color: Colors.grey,
             fontSize: 14.sp,

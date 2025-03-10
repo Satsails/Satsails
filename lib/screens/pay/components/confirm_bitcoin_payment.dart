@@ -7,7 +7,7 @@ import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -70,7 +70,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
       onPopInvoked: (bool canPop) {
         if (isProcessing) {
           showMessageSnackBarInfo(
-            message: "Transaction in progress, please wait.".i18n(ref),
+            message: "Transaction in progress, please wait.".i18n,
             context: context,
           );
         } else {
@@ -80,18 +80,13 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
         }
       },
       child: SafeArea(
-        child: FlutterKeyboardDoneWidget(
-          doneWidgetBuilder: (context) {
-            return const Text(
-              'Done',
-            );
-          },
+        child: KeyboardDismissOnTap(
           child: Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: Colors.black,
             appBar: AppBar(
               backgroundColor: Colors.black,
-              title: Text('Confirm Payment'.i18n(ref), style: const TextStyle(color: Colors.white)),
+              title: Text('Confirm Payment'.i18n, style: const TextStyle(color: Colors.white)),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
@@ -99,7 +94,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                     context.pop();
                   } else {
                     showMessageSnackBarInfo(
-                      message: "Transaction in progress, please wait.".i18n(ref),
+                      message: "Transaction in progress, please wait.".i18n,
                       context: context,
                     );
                   }
@@ -133,7 +128,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('Bitcoin Balance'.i18n(ref),
+                                    Text('Bitcoin Balance'.i18n,
                                         style: TextStyle(fontSize: titleFontSize / 1.5, color: Colors.black),
                                         textAlign: TextAlign.center),
                                     Column(
@@ -292,8 +287,8 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                   final transaction = await ref
                                       .watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future)
                                       .then((value) => value);
-                                  final fee = await transaction.$1.feeAmount().then((value) => value);
-                                  final amountToSet = (balance - fee!);
+                                  final fee = (transaction.$1.feeAmount() ?? BigInt.zero).toInt();
+                                  final amountToSet = (balance - fee);
                                   final selectedCurrency = ref.watch(inputCurrencyProvider);
                                   final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(
                                       amountToSet, selectedCurrency, ref.watch(currencyNotifierProvider));
@@ -306,7 +301,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                   ref.read(sendTxProvider.notifier).updateDrain(true);
                                 } catch (e) {
                                   showMessageSnackBar(
-                                    message: e.toString().i18n(ref),
+                                    message: e.toString().i18n,
                                     error: true,
                                     context: context,
                                   );
@@ -340,7 +335,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                         Padding(
                           padding: EdgeInsets.all(dynamicPadding / 2),
                           child: Text(
-                            "${"Transaction in ".i18n(ref)}${getTimeFrame(ref.watch(sendBlocksProvider).toInt(), ref)}",
+                            "${"Transaction in ".i18n}${getTimeFrame(ref.watch(sendBlocksProvider).toInt(), ref)}",
                             style: TextStyle(
                               fontSize: dynamicFontSize / 1.5,
                               color: Colors.white,
@@ -353,7 +348,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                         ref.watch(feeProvider).when(
                           data: (int fee) {
                             return Text(
-                              '${'Fee:'.i18n(ref)} $fee sats',
+                              '${'Fee:'.i18n} $fee sats',
                               style: TextStyle(
                                   fontSize: dynamicFontSize / 1.5, fontWeight: FontWeight.bold, color: Colors.white),
                               textAlign: TextAlign.center,
@@ -365,7 +360,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                             onPressed: () {
                               ref.refresh(feeProvider);
                             },
-                            child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n(ref),
+                            child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n,
                                 style: TextStyle(color: Colors.white, fontSize: dynamicFontSize / 1.5)),
                           ),
                         ),
@@ -407,22 +402,24 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                         controller.loading();
                         try {
                           final tx = await ref.watch(sendBitcoinTransactionProvider.future);
-                          await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
 
-                          ref.read(sendTxProvider.notifier).resetToDefault();
-                          ref.read(sendBlocksProvider.notifier).state = 1;
                           showFullscreenTransactionSendModal(
                             context: context,
                             asset: 'Bitcoin',
                             amount: btcInDenominationFormatted(sendTxState.amount, btcFormat),
                             fiat: false,
                             txid: tx,
+                            receiveAddress: ref.read(sendTxProvider).address,
+                            confirmationBlocks: ref.read(sendBlocksProvider.notifier).state.toInt(),
                           );
+
+                          ref.read(sendTxProvider.notifier).resetToDefault();
+                          ref.read(sendBlocksProvider.notifier).state = 1;
                           context.replace('/home');
                         } catch (e) {
                           controller.failure();
                           showMessageSnackBar(
-                            message: e.toString().i18n(ref),
+                            message: e.toString().i18n,
                             error: true,
                             context: context,
                           );
@@ -433,7 +430,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                           });
                         }
                       },
-                      child: Text('Slide to send'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                      child: Text('Slide to send'.i18n, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),

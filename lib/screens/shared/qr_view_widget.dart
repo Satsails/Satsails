@@ -1,10 +1,9 @@
-import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/transaction_data_provider.dart';
@@ -12,34 +11,45 @@ import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:quickalert/quickalert.dart';
 
-class QRViewWidget extends StatefulWidget {
-  final GlobalKey qrKey;
+/// Same name as before, but internally uses MobileScanner
+class QRViewWidget extends ConsumerStatefulWidget {
+  /// We don’t use [qrKey] here anymore, but you can keep it if desired
+  final GlobalKey? qrKey;
   final WidgetRef ref;
-  final Function(QRViewController)? onQRViewCreated;
 
   const QRViewWidget({
     super.key,
-    required this.qrKey,
+    this.qrKey,
     required this.ref,
-    this.onQRViewCreated,
   });
 
   @override
   _QRViewWidgetState createState() => _QRViewWidgetState();
 }
 
-class _QRViewWidgetState extends State<QRViewWidget> {
+class _QRViewWidgetState extends ConsumerState<QRViewWidget> {
   PermissionStatus _status = PermissionStatus.denied;
-  QRViewController? _controller;
+
+  /// The new scanner controller
+  late final MobileScannerController _controller;
   bool _isProcessing = false;
   bool _hasNavigated = false;
 
   @override
   void initState() {
     super.initState();
+    _controller = MobileScannerController();
     _checkCameraPermission();
   }
 
+  @override
+  void dispose() {
+    // Dispose the controller if desired
+    _controller.dispose();
+    super.dispose();
+  }
+
+  /// Step A: Check existing camera permission
   Future<void> _checkCameraPermission() async {
     final status = await Permission.camera.status;
     setState(() {
@@ -50,12 +60,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     }
   }
 
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
-
+  /// Step B: Request camera permission if not granted
   Future<void> _requestCameraPermission() async {
     final status = await Permission.camera.request();
     if (status.isPermanentlyDenied) {
@@ -67,73 +72,65 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     }
   }
 
-  void _handleQRViewCreated(QRViewController controller, BuildContext context, WidgetRef ref) {
-    _controller = controller;
-    widget.onQRViewCreated?.call(controller);
-
-    controller.scannedDataStream.listen((scanData) {
-      if (!_isProcessing && !_hasNavigated) {
-        _processScanData(scanData.code, context, ref);
-      }
-    });
-  }
-
+  /// Processing the scanned data
   Future<void> _processScanData(String? code, BuildContext context, WidgetRef ref) async {
     if (code == null || _isProcessing || _hasNavigated) return;
 
     _isProcessing = true;
-    await _controller?.pauseCamera();
-    debugPrint('Camera paused');
+
+    // Pause scanning to prevent multiple detections
+    _controller.stop();
 
     try {
-      await widget.ref.refresh(setAddressAndAmountProvider(code).future);
-      debugPrint('Data refreshed with scan data: $code');
+      // Attempt to parse the QR data
+      await ref.refresh(setAddressAndAmountProvider(code).future);
+      final paymentType = ref.read(sendTxProvider).type;
 
-      final paymentType = widget.ref.read(sendTxProvider).type;
       _navigateToPaymentScreen(paymentType, context, ref);
     } catch (e) {
       await _showErrorDialog(context, e.toString(), ref);
+      // Resume scanning if desired
+      _controller.start();
     } finally {
       _isProcessing = false;
     }
   }
 
-  Future<void> _navigateToPaymentScreen(PaymentType paymentType, BuildContext context, WidgetRef ref) async {
+  /// Navigates based on payment type
+  Future<void> _navigateToPaymentScreen(
+      PaymentType paymentType,
+      BuildContext context,
+      WidgetRef ref,
+      ) async {
     _hasNavigated = true;
+    _controller.stop();
 
     switch (paymentType) {
       case PaymentType.Bitcoin:
-        _controller = null;
         context.pushReplacement('/home/pay/confirm_bitcoin_payment');
         break;
-
       case PaymentType.Lightning:
-        _controller = null;
         context.pushReplacement('/home/pay/confirm_custodial_lightning_payment');
         break;
-
       case PaymentType.Liquid:
-        _controller = null;
-          context.pushReplacement('/home/pay/confirm_liquid_payment');
+        context.pushReplacement('/home/pay/confirm_liquid_payment');
         break;
-
       default:
         await _showScanFailedDialog(context, ref);
+        _controller.start();
         break;
     }
   }
 
+  /// Shows a “Scan failed” dialog
   Future<void> _showScanFailedDialog(BuildContext context, WidgetRef ref) async {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
           backgroundColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(
-              vertical: 20.0, horizontal: 24.0),
+          contentPadding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 24.0),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -144,7 +141,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
               ),
               const SizedBox(height: 16.0),
               Text(
-                'Scan failed!'.i18n(widget.ref),
+                'Scan failed!'.i18n,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -154,7 +151,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
               ),
               const SizedBox(height: 8.0),
               Text(
-                'Something went wrong, please try again.'.i18n(widget.ref),
+                'Something went wrong, please try again.'.i18n,
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black54,
@@ -168,7 +165,8 @@ class _QRViewWidgetState extends State<QRViewWidget> {
               icon: const Icon(Icons.close, color: Colors.black54),
               onPressed: () {
                 context.pop();
-                _controller?.resumeCamera();
+                // Optionally resume the camera
+                _controller.start();
               },
             ),
           ],
@@ -177,21 +175,22 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     );
   }
 
-  Future<void> _showErrorDialog(BuildContext context, String message, dynamic ref) async {
+  /// Shows an error dialog for other exceptions
+  Future<void> _showErrorDialog(BuildContext context, String message, WidgetRef ref) async {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.error,
-      title: 'Oops!', // Updated Title
-      textColor: Colors.white70, // Slightly lighter for better contrast
-      titleColor: Colors.redAccent, // More attention-grabbing color
-      backgroundColor: Colors.black87, // Softer black for aesthetics
+      title: 'Oops!',
+      textColor: Colors.white70,
+      titleColor: Colors.redAccent,
+      backgroundColor: Colors.black87,
       showCancelBtn: false,
       showConfirmBtn: false,
       widget: Padding(
         padding: const EdgeInsets.only(top: 16),
         child: Text(
-          message.i18n(ref),
-          style: TextStyle(
+          message.i18n,
+          style: const TextStyle(
             color: Colors.white70,
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -202,22 +201,27 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
+    // If camera permission is granted, show the scanner
     if (_status.isGranted) {
-      return QRView(
-        key: widget.qrKey,
-        onQRViewCreated: (controller) => _handleQRViewCreated(controller, context, widget.ref),
-        overlay: QrScannerOverlayShape(
-          borderColor: Colors.orange,
-          borderRadius: 10,
-          borderLength: 30,
-          borderWidth: 10,
-          cutOutSize: MediaQuery.of(context).size.width * 0.6,
-        ),
+      return MobileScanner(
+        // Controller handles the camera, flash, etc.
+        controller: _controller,
+        // onDetect is called whenever a barcode is recognized
+        onDetect: (barcodeCapture) {
+          // barcodeCapture.barcodes is a list of Barcodes
+          for (final barcode in barcodeCapture.barcodes) {
+            final String? code = barcode.rawValue;
+            if (code != null && !_isProcessing && !_hasNavigated) {
+              _processScanData(code, context, widget.ref);
+              break; // Optionally stop after the first recognized code
+            }
+          }
+        },
       );
     } else {
+      // If camera permission is NOT granted, show permission request screen
       return Scaffold(
         backgroundColor: Colors.black,
         body: Center(
@@ -236,8 +240,8 @@ class _QRViewWidgetState extends State<QRViewWidget> {
                   vertical: MediaQuery.of(context).size.width * 0.05,
                 ),
                 child: CustomButton(
-                  text: 'Request camera permission'.i18n(widget.ref),
-                  onPressed: () => _requestCameraPermission(),
+                  text: 'Request camera permission'.i18n,
+                  onPressed: _requestCameraPermission,
                   primaryColor: Colors.orange,
                   secondaryColor: Colors.orange,
                   textColor: Colors.black,

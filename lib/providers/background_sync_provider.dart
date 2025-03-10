@@ -5,16 +5,14 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
-import 'package:Satsails/providers/settings_provider.dart';
 import 'package:hive/hive.dart';
-import 'package:lwk_dart/lwk_dart.dart';
-
-final syncOnAppOpenProvider = StateProvider<bool>((ref) => false);
+import 'package:lwk/lwk.dart';
 
 abstract class SyncNotifier<T> extends AsyncNotifier<T> {
   Future<T> performSync();
@@ -50,7 +48,7 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
   @override
   Future<int> build() async {
     final balance = await ref.read(getBitcoinBalanceProvider.future);
-    return balance.total;
+    return balance.total.toInt();
   }
 
   @override
@@ -67,9 +65,9 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
         // Retrieve the Bitcoin balance
         final balance = await ref.read(getBitcoinBalanceProvider.future);
 
-        ref.read(balanceNotifierProvider.notifier).updateBtcBalance(balance.total);
+        ref.read(balanceNotifierProvider.notifier).updateBtcBalance(balance.total.toInt());
 
-        return balance.total;
+        return balance.total.toInt();
       },
       onSuccess: () {
         // Optional: Actions on successful sync
@@ -140,17 +138,10 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
 }
 
 class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
-  Timer? _timer;
 
   @override
   Future<WalletBalance> build() async {
-    // Perform the initial sync when the provider is built
     final initialBalance = ref.read(balanceNotifierProvider);
-
-    // Set up periodic sync every 2 minutes
-    _timer ??= Timer.periodic(const Duration(minutes: 2), (timer) async {
-      await performSync();
-    });
 
     return initialBalance;
   }
@@ -159,6 +150,10 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   Future<WalletBalance> performSync() async {
     return await handleSync(
       syncOperation: () async {
+        if (ref.read(backgroundSyncInProgressProvider)) {
+          debugPrint('Sync already in progress. Skipping...');
+          return ref.read(balanceNotifierProvider);
+        }
         setBackgroundSyncInProgress(true);
         final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
         final previousBalance = balanceNotifier.state;
@@ -304,11 +299,6 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
       );
       ref.read(balanceChangeProvider.notifier).state = balanceChange;
     }
-  }
-
-  @override
-  void onDispose() {
-    _timer?.cancel();
   }
 }
 

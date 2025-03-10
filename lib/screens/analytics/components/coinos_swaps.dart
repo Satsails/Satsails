@@ -16,7 +16,7 @@ class CoinosPaymentsList extends ConsumerWidget {
       data: (payments) => payments.isEmpty
           ? Center(
         child: Text(
-          'No swaps found'.i18n(ref),
+          'No swaps found'.i18n,
           style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
         ),
       )
@@ -40,9 +40,9 @@ class CoinosPaymentsList extends ConsumerWidget {
 
     // Check if payment represents a "sent" or "received" transaction
     final bool isSentToLightning = payment.amount != null && payment.amount! > 0;
-    final String transactionType = isSentToLightning ? 'Sent'.i18n(ref) : 'Received'.i18n(ref);
-    final String receiveType = transactionType == 'Sent'.i18n(ref) ? 'lightning' : payment.type ?? 'N/A';
-    final String sentType = transactionType == 'Received'.i18n(ref) ? 'lightning' : payment.type ?? 'N/A';
+    final String transactionType = isSentToLightning ? 'Sent'.i18n : 'Received'.i18n;
+    final String receiveType = transactionType == 'Sent'.i18n ? 'lightning' : payment.type ?? 'N/A';
+    final String sentType = transactionType == 'Received'.i18n ? 'lightning' : payment.type ?? 'N/A';
 
     if (sentType == receiveType || sentType == 'internal' || receiveType == 'internal') {
       return SizedBox.shrink();

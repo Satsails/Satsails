@@ -49,7 +49,7 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(29, 31, 49, 1.0),
         title: Text(
-          'Search the blockchain'.i18n(ref),
+          'Search the blockchain'.i18n,
           style: const TextStyle(color: Colors.white),
         ),
         leading: IconButton(

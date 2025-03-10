@@ -11,7 +11,7 @@ import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -79,7 +79,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
       onPopInvoked: (bool canPop) {
         if (isProcessing) {
           showMessageSnackBarInfo(
-            message: "Transaction in progress, please wait.".i18n(ref),
+            message: "Transaction in progress, please wait.".i18n,
             context: context,
           );
         } else {
@@ -89,12 +89,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
         }
       },
       child: SafeArea(
-        child: FlutterKeyboardDoneWidget(
-          doneWidgetBuilder: (context) {
-            return const Text(
-              'Done',
-            );
-          },
+        child: KeyboardDismissOnTap(
           child: Scaffold(
             backgroundColor: Colors.black,
             resizeToAvoidBottomInset: false,
@@ -107,13 +102,13 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                     context.pop();
                   } else {
                     showMessageSnackBarInfo(
-                      message: "Transaction in progress, please wait.".i18n(ref),
+                      message: "Transaction in progress, please wait.".i18n,
                       context: context,
                     );
                   }
                 },
               ),
-              title: Text('Confirm Payment'.i18n(ref), style: const TextStyle(color: Colors.white)),
+              title: Text('Confirm Payment'.i18n, style: const TextStyle(color: Colors.white)),
             ),
             body: Column(
               children: [
@@ -275,7 +270,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                                 try {
                                   if (assetId == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
                                     final pset = await ref.watch(liquidDrainWalletProvider.future);
-                                    final sendingBalance = pset.balances[0].value + pset.absoluteFees;
+                                    final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
                                     final controllerValue = sendingBalance.abs();
                                     final selectedCurrency = ref.watch(inputCurrencyProvider);
                                     final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(
@@ -297,7 +292,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                                   }
                                 } catch (e) {
                                   showMessageSnackBar(
-                                    message: e.toString().i18n(ref),
+                                    message: e.toString().i18n,
                                     error: true,
                                     context: context,
                                   );
@@ -331,7 +326,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                         ref.watch(liquidFeeProvider).when(
                           data: (int fee) {
                             return Text(
-                              '${'Fee:'.i18n(ref)} $fee${' sats'}',
+                              '${'Fee:'.i18n} $fee${' sats'}',
                               style: TextStyle(
                                   fontSize: dynamicFontSize / 1.5,
                                   fontWeight: FontWeight.bold,
@@ -345,7 +340,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                               onPressed: () {
                                 ref.refresh(feeProvider);
                               },
-                              child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n(ref),
+                              child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n,
                                   style: TextStyle(color: Colors.white, fontSize: dynamicFontSize / 1.5))),
                         ),
                         SizedBox(height: dynamicSizedBox),
@@ -384,7 +379,6 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                         controller.loading();
                         try {
                           final tx = await ref.watch(sendLiquidTransactionProvider.future);
-                          await ref.read(liquidSyncNotifierProvider.notifier).performSync();
                           showFullscreenTransactionSendModal(
                             context: context,
                             asset: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).name,
@@ -393,14 +387,17 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                             fiatAmount: ref.watch(sendTxProvider).amount.toString(),
                             txid: tx,
                             isLiquid: true,
+                            receiveAddress: ref.read(sendTxProvider).address,
+                            confirmationBlocks: ref.read(sendBlocksProvider.notifier).state.toInt(),
                           );
+
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           ref.read(sendBlocksProvider.notifier).state = 1;
                           context.replace('/home');
                         } catch (e) {
                           controller.failure();
                           showMessageSnackBar(
-                            message: e.toString().i18n(ref),
+                            message: e.toString().i18n,
                             error: true,
                             context: context,
                           );
@@ -411,8 +408,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                           });
                         }
                       },
-                      child: Text('Slide to send'.i18n(ref),
-                          style: const TextStyle(color: Colors.white)),
+                      child: Text('Slide to send'.i18n, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),

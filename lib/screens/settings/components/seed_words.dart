@@ -1,8 +1,9 @@
+import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:go_router/go_router.dart';
 
@@ -21,7 +22,7 @@ class SeedWords extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
-          'Seed Words'.i18n(ref),
+          'Seed Words'.i18n,
           style: const TextStyle(
             color: Colors.white,
           ),
@@ -77,7 +78,7 @@ class SeedWords extends ConsumerWidget {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.2),
                       child: CustomButton(
-                        text: 'Backup Wallet'.i18n(ref),
+                        text: 'Backup Wallet'.i18n,
                         onPressed: () {
                           context.push('/backup_wallet');
                         },

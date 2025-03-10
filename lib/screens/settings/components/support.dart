@@ -50,7 +50,7 @@ class _SupportState extends ConsumerState<Support> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Support'.i18n(ref), style: const TextStyle(color: Colors.white)),
+        title: Text('Support'.i18n, style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -67,7 +67,7 @@ class _SupportState extends ConsumerState<Support> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 CustomElevatedButton(
-                  text: 'Open support chat'.i18n(ref),
+                  text: 'Open support chat'.i18n,
                   onPressed: () async {
                     await _openCrispChat(ref);
                   },
@@ -76,7 +76,7 @@ class _SupportState extends ConsumerState<Support> {
                 ),
                 const SizedBox(height: 20),
                 CustomElevatedButton(
-                  text: 'Reset Chat Session'.i18n(ref),
+                  text: 'Reset Chat Session'.i18n,
                   textColor: Colors.white,
                   backgroundColor: Colors.black,
                   onPressed: () async {

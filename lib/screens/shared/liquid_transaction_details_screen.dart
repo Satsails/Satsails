@@ -23,7 +23,7 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Liquid Transaction Details'.i18n(ref),
+          'Liquid Transaction Details'.i18n,
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
@@ -72,17 +72,17 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
               Divider(color: Colors.grey.shade700),
               const SizedBox(height: 16.0),
               Text(
-                "Transaction Details".i18n(ref),
+                "Transaction Details".i18n,
                 style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16.0),
               TransactionDetailRow(
-                label: "Date".i18n(ref),
+                label: "Date".i18n,
                 value: timestampToDateTime(transaction.lwkDetails.timestamp),
               ),
               const SizedBox(height: 16.0),
               Text(
-                "Amounts".i18n(ref),
+                "Amounts".i18n,
                 style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16.0),
@@ -94,8 +94,8 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
                 );
               }).toList(),
               TransactionDetailRow(
-                label: "Fee".i18n(ref),
-                value: "${btcInDenominationFormatted(transaction.lwkDetails.fee, denomination)} $denomination",
+                label: "Fee".i18n,
+                value: "${btcInDenominationFormatted(transaction.lwkDetails.fee.toInt(), denomination)} $denomination",
               ),
               const SizedBox(height: 16.0),
               Divider(color: Colors.grey.shade700),
@@ -117,7 +117,7 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
                       const Icon(Icons.search, color: Colors.white),
                       const SizedBox(width: 8.0),
                       Text(
-                        "Search on Mempool".i18n(ref),
+                        "Search on Mempool".i18n,
                         style: const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ],

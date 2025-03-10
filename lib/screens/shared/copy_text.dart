@@ -48,7 +48,7 @@ Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [do
                 },
                 icon: Icon(Icons.share, color: Colors.white.withOpacity(0.7)),
                 label: Text(
-                  'Share'.i18n(ref),
+                  'Share'.i18n,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
                     fontSize: 16.sp,
@@ -59,14 +59,14 @@ Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [do
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: address));
                   showMessageSnackBar(
-                    message: 'Address copied to clipboard'.i18n(ref),
+                    message: 'Address copied to clipboard'.i18n,
                     error: false,
                     context: context,
                   );
                 },
                 icon: Icon(Icons.copy, color: Colors.white.withOpacity(0.7)),
                 label: Text(
-                  'Copy'.i18n(ref),
+                  'Copy'.i18n,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
                     fontSize: 16.sp,

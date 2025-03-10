@@ -24,7 +24,7 @@ class OfflineTransactionWarning extends ConsumerWidget {
             color: Colors.orange,
           ),
           Text(
-            'You are offline.'.i18n(ref),
+            'You are offline.'.i18n,
             style: TextStyle(
               color: Colors.orange,
               fontSize: dynamicFontSize,

@@ -5,9 +5,11 @@
 *.swp
 .DS_Store
 .atom/
+.build/
 .buildlog/
 .history
 .svn/
+.swiftpm/
 migrate_working_dir/
 
 # IntelliJ related
@@ -52,3 +54,6 @@ app.*.map.json
 /.env
 /private_key.pem
 /public_key.pem
+ios/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
+firebase.json

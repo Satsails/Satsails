@@ -23,10 +23,14 @@ class Explore extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black, // black app bar
+        backgroundColor: Colors.black,
         title: Text(
           'Explore',
-          style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.sp,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -37,21 +41,28 @@ class Explore extends ConsumerWidget {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _BalanceDisplay(),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 16.h,
+                  ),
+                  child: _BalanceDisplay(),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 19.w),
+                  child: _ActionCards(), // Two separate types of cards
+                ),
                 SizedBox(height: 16.h),
-                _ActionGrid(),
               ],
             ),
           ),
-
           if (isLoading)
             Center(
               child: LoadingAnimationWidget.threeArchedCircle(
-                size: 80.h, // Adjusted size with .h
+                size: 80.h,
                 color: Colors.orange,
               ),
             ),
@@ -68,16 +79,17 @@ class _BalanceDisplay extends ConsumerWidget {
     final currency = ref.watch(settingsProvider).currency;
     final totalBtcBalance = ref.watch(totalBalanceInDenominationProvider(denomination));
     final totalBalanceInCurrency = ref.watch(totalBalanceInFiatProvider(currency));
+
     return Card(
       color: Colors.grey.shade900,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 2,
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w), // Adjusted padding
+        padding: EdgeInsets.symmetric(vertical: 16.h),
         child: Column(
           children: [
             Text(
-              'Bitcoin balance'.i18n(ref),
+              'Bitcoin balance'.i18n,
               style: TextStyle(
                 fontSize: 20.sp,
                 color: Colors.grey,
@@ -108,77 +120,157 @@ class _BalanceDisplay extends ConsumerWidget {
   }
 }
 
-class _ActionGrid extends ConsumerWidget {
+class _ActionCards extends ConsumerWidget {
+  const _ActionCards({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final paymentId = ref.watch(userProvider).paymentId;
 
     return Column(
       children: [
-        GridView(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 5,
-            childAspectRatio: 3,
-          ),
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+        Row(
           children: [
-            _ActionButton(
-              title: 'Buy'.i18n(ref),
-              color: Colors.green,
-              fontSize: 18,
-              onTap: () => _handleOnPress(ref, context, paymentId),
+            Expanded(
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                color: Colors.green,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () => _handleOnPress(ref, context, paymentId, true),
+                  child: Container(
+                    height: 80.h,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Buy'.i18n,
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
-            _ActionButton(
-              title: 'Sell'.i18n(ref),
-              color: Colors.red,
-              fontSize: 18,
-              onTap: () {
-                showMessageSnackBar(
-                  message: "Coming soon".i18n(ref),
-                  context: context,
-                  error: true,
-                );
-              },
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                color: Colors.red,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () {
+                    showMessageSnackBar(
+                      message: "Coming soon".i18n,
+                      context: context,
+                      error: true,
+                    );
+                  },
+                  child: Container(
+                    height: 80.h,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Sell'.i18n,
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
         SizedBox(height: 16.h),
-        GridView(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 5,
-            childAspectRatio: 1.2,
-          ),
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+        Row(
           children: [
-            _ActionButton(
-              title: 'Services'.i18n(ref),
-              color: Colors.grey.shade900,
-              fontSize: 16,
-              onTap: () {
-                showMessageSnackBar(
-                  message: "Coming soon".i18n(ref),
-                  context: context,
-                  error: true,
-                );
-              },
-              icon: Icons.lightbulb,
+            Expanded(
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                color: Colors.grey.shade900,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () {
+                    showMessageSnackBar(
+                      message: "Coming soon".i18n,
+                      context: context,
+                      error: true,
+                    );
+                  },
+                  child: AspectRatio(
+                    aspectRatio: 1.2,
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.lightbulb, color: Colors.white, size: 20),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'Services'.i18n,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
-            _ActionButton(
-              title: 'Store'.i18n(ref),
-              color: Colors.grey.shade900,
-              fontSize: 16,
-              onTap: () {
-                showMessageSnackBar(
-                  message: "Coming soon".i18n(ref),
-                  context: context,
-                  error: true,
-                );
-              },
-              icon: Icons.shopping_cart,
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                color: Colors.grey.shade900,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () {
+                    showMessageSnackBar(
+                      message: "Coming soon".i18n,
+                      context: context,
+                      error: true,
+                    );
+                  },
+                  child: AspectRatio(
+                    aspectRatio: 1.2,
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.shopping_cart,color: Colors.white, size: 20),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'Store'.i18n,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -187,86 +279,74 @@ class _ActionGrid extends ConsumerWidget {
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  final String title;
-  final Color color;
-  final VoidCallback onTap;
-  final IconData? icon;
-  final double fontSize;
-
-  const _ActionButton({
-    required this.title,
-    required this.color,
-    required this.onTap,
-    this.icon,
-    required this.fontSize,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: color,
-      borderRadius: BorderRadius.circular(10),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null)
-                Icon(icon, color: Colors.white, size: 20),
-              if (icon != null) const SizedBox(width: 8),
-              Text(
-                title,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: fontSize,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentId) async {
+Future<void> _handleOnPress(
+    WidgetRef ref,
+    BuildContext context,
+    String paymentId,
+    bool buy
+    ) async {
   final insertedAffiliateCode = ref.watch(userProvider).affiliateCode ?? '';
-  final hasUploadedAffiliateCode = ref.watch(userProvider).hasUploadedAffiliateCode;
+  final hasUploadedAffiliateCode = ref.watch(userProvider).hasUploadedAffiliateCode ?? false;
+  final recoveryCode = ref.watch(userProvider).recoveryCode;
+
   ref.read(isLoadingProvider.notifier).state = true;
 
   try {
+    // For new users (no paymentId)
     if (paymentId.isEmpty) {
       await ref.watch(createUserProvider.future);
 
-      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-      if (Platform.isAndroid) {
-        flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()!.requestNotificationsPermission();
-      } else if (Platform.isIOS) {
-        await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+      if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
+        await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
+
+      await _requestNotificationPermissions();
     } else {
+      // For existing users, consider migrating first if recoveryCode is present.
+      if (recoveryCode != null && recoveryCode.isNotEmpty) {
+        await ref.read(migrateUserToJwtProvider.future);
+      }
+
+      // Then update affiliate code if needed.
       if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
         await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
     }
 
-    context.push('/home/explore/deposit_type');
-    ref.read(isLoadingProvider.notifier).state = false;
+    if (buy) {
+      context.push('/home/explore/deposit_type');
+    } else {
+      context.push('/home/explore/sell_type');
+    }
   } catch (e) {
     showMessageSnackBar(
       message: e.toString(),
       context: context,
       error: true,
     );
-
+  } finally {
     ref.read(isLoadingProvider.notifier).state = false;
   }
 }
+
+
+Future<void> _requestNotificationPermissions() async {
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  if (Platform.isAndroid) {
+    final androidPlugin =
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+
+    // On some newer Android versions you might still need user permission
+    // to display notifications, so we request it if the plugin supports it
+    await androidPlugin?.requestNotificationsPermission();
+  } else if (Platform.isIOS) {
+    final iosPlugin =
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
+
+    await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
+  }
+}
+

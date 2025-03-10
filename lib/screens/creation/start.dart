@@ -63,7 +63,7 @@ class Start extends ConsumerWidget {
                         ],
                       ),
                       Text(
-                        'Become sovereign and freely opt out of the system.'.i18n(ref),
+                        'Become sovereign and freely opt out of the system.'.i18n,
                         style: TextStyle(
                           fontSize: screenWidth * 0.04,
                           color: Colors.white,
@@ -77,13 +77,13 @@ class Start extends ConsumerWidget {
                 Column(
                   children: [
                     CustomButton(
-                      text: 'Create wallet'.i18n(ref),
+                      text: 'Create wallet'.i18n,
                       onPressed: () {
                         context.push('/set_pin');
                       },
                     ),
                     CustomButton(
-                        text: 'Recover wallet'.i18n(ref),
+                        text: 'Recover wallet'.i18n,
                         onPressed: () {
                           context.push('/recover_wallet');
                         },

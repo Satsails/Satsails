@@ -9,9 +9,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
@@ -37,7 +35,7 @@ class BuildTransactions extends ConsumerWidget {
           },
         );
       },
-      text: 'See Full History'.i18n(ref),
+      text: 'See Full History'.i18n,
       primaryColor: Colors.transparent,
       secondaryColor: Colors.transparent,
       textColor: Colors.white,
@@ -181,23 +179,14 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: LiquidPullToRefresh(
-          onRefresh: () async {
-            await ref
-                .read(backgroundSyncNotifierProvider.notifier)
-                .performSync();
-          },
-          color: Colors.orange,
-          showChildOpacityTransition: false,
-          child: ListView.builder(
+        body: ListView.builder(
             itemCount: itemCount,
             itemBuilder: (BuildContext context, int index) {
               return itemBuilder(index);
             },
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildNoTransactionsFound(double screenHeight, WidgetRef ref) {
@@ -209,7 +198,7 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
       ),
       child: Center(
         child: Text(
-          'No transactions found. Check back later.'.i18n(ref),
+          'No transactions found. Check back later.'.i18n,
           style: const TextStyle(color: Colors.white, fontSize: 18),
         ),
       ),
@@ -335,12 +324,12 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
             ),
             subtitle: Text(
                 timestampToDateTime(
-                    transaction.btcDetails.confirmationTime?.timestamp)
-                    .i18n(ref),
+                    transaction.btcDetails.confirmationTime?.timestamp.toInt())
+                    .i18n,
                 style: TextStyle(
                     fontSize: dynamicFontSize, color: Colors.grey)),
             trailing:
-            confirmationStatus(transaction.btcDetails, ref) == 'Confirmed'.i18n(ref)
+            confirmationStatus(transaction.btcDetails, ref) == 'Confirmed'.i18n
                 ? const Icon(Icons.check_circle_outlined,
                 color: Colors.green)
                 : const Icon(Icons.access_alarm_outlined,
@@ -384,14 +373,14 @@ class TransactionListModalBottomSheet extends ConsumerWidget {
                         style: TextStyle(
                             fontSize: dynamicFontSize,
                             color: Colors.white))
-                        : Text('Multiple'.i18n(ref),
+                        : Text('Multiple'.i18n,
                         style: TextStyle(
                             fontSize: dynamicFontSize,
                             color: Colors.white)),
                   ],
                 ),
                 subtitle: Text(
-                    timestampToDateTime(transaction.lwkDetails.timestamp).i18n(ref),
+                    timestampToDateTime(transaction.lwkDetails.timestamp).i18n,
                     style: TextStyle(
                         fontSize: dynamicFontSize, color: Colors.grey)),
                 trailing: confirmationStatusIcon(transaction.lwkDetails),

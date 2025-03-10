@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:lwk_dart/lwk_dart.dart';
+import 'package:lwk/lwk.dart';
 import 'package:Satsails/models/liquid_config_model.dart';
 import 'dart:convert';
 import 'package:http/http.dart';
@@ -25,7 +25,7 @@ class LiquidModel {
   }
 
   Future<bool> sync() async {
-    await config.liquid.wallet.sync(electrumUrl: config.electrumUrl);
+    await config.liquid.wallet.sync(electrumUrl: config.electrumUrl, validateDomain: true);
     return true;
   }
 
@@ -47,9 +47,9 @@ class LiquidModel {
   Future<String> buildLbtcTx(TransactionBuilder params) async {
     try {
       final pset = await config.liquid.wallet.buildLbtcTx(
-        sats: params.amount,
+        sats: BigInt.from(params.amount),
         outAddress: params.outAddress,
-        feeRate: config.electrumUrl == 'blockstream.info:995' ? params.fee * 1000 : params.fee * 100,
+        feeRate: params.fee * 100 < 26 ? 26 : params.fee * 100,
         drain: false,
       );
       return pset;
@@ -64,9 +64,9 @@ class LiquidModel {
   Future<String> buildDrainWalletTx(TransactionBuilder params) async {
     try {
       final pset = await config.liquid.wallet.buildLbtcTx(
-        sats: params.amount,
+        sats: BigInt.from(params.amount),
         outAddress: params.outAddress,
-        feeRate: config.electrumUrl == 'blockstream.info:995' ? params.fee * 1000 : params.fee * 100,
+        feeRate: params.fee * 100 < 26 ? 26 : params.fee * 100,
         drain: true,
       );
       return pset;
@@ -82,9 +82,9 @@ class LiquidModel {
   Future<String> buildAssetTx(TransactionBuilder params) async {
     try {
       final pset = await config.liquid.wallet.buildAssetTx(
-        sats: params.amount,
+        sats: BigInt.from(params.amount),
         outAddress: params.outAddress,
-        feeRate: config.electrumUrl == 'blockstream.info:995' ? params.fee * 1000 : params.fee * 100,
+        feeRate: params.fee * 100 < 26 ? 26 : params.fee * 100,
         asset: params.assetId,
       );
       return pset;

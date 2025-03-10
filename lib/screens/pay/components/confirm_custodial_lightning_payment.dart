@@ -8,7 +8,6 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/validations/address_validation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
@@ -17,6 +16,7 @@ import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 class ConfirmCustodialLightningPayment extends ConsumerStatefulWidget {
   ConfirmCustodialLightningPayment({Key? key}) : super(key: key);
@@ -87,7 +87,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
       onPopInvoked: (bool canPop) {
         if (isProcessing) {
           showMessageSnackBarInfo(
-            message: "Transaction in progress, please wait.".i18n(ref),
+            message: "Transaction in progress, please wait.".i18n,
             context: context,
           );
         } else {
@@ -97,16 +97,13 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
         }
       },
       child: SafeArea(
-        child: FlutterKeyboardDoneWidget(
-          doneWidgetBuilder: (context) {
-            return const Text('Done');
-          },
+        child: KeyboardDismissOnTap(
           child: Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: Colors.black,
             appBar: AppBar(
               backgroundColor: Colors.black,
-              title: Text('Confirm Payment'.i18n(ref), style: const TextStyle(color: Colors.white)),
+              title: Text('Confirm Payment'.i18n, style: const TextStyle(color: Colors.white)),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
@@ -114,7 +111,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                     context.pop();
                   } else {
                     showMessageSnackBarInfo(
-                      message: "Transaction in progress, please wait.".i18n(ref),
+                      message: "Transaction in progress, please wait.".i18n,
                       context: context,
                     );
                   }
@@ -150,7 +147,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text('Lightning Balance'.i18n(ref),
+                                      Text('Lightning Balance'.i18n,
                                           style: TextStyle(fontSize: titleFontSize / 1.5, color: Colors.black),
                                           textAlign: TextAlign.center),
                                       SizedBox(height: dynamicSizedBox),
@@ -207,7 +204,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                                     );
                                     if (amountInSats > maxAmount) {
                                       showMessageSnackBar(
-                                        message: "Balance insufficient to cover fees".i18n(ref),
+                                        message: "Balance insufficient to cover fees".i18n,
                                         error: true,
                                         context: context,
                                       );
@@ -285,9 +282,9 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                                       builder: (BuildContext context) {
                                         return AlertDialog(
                                           backgroundColor: Colors.black,
-                                          title: Text("Lightning Fee Information".i18n(ref), style: TextStyle(color: Colors.orange)),
+                                          title: Text("Lightning Fee Information".i18n, style: TextStyle(color: Colors.orange)),
                                           content: Text(
-                                            "Lightning fees are dynamic. We must store at least 0.5% of the transaction value for routing fees. Any unused amount will be returned to your wallet.".i18n(ref),
+                                            "Lightning fees are dynamic. We must store at least 0.5% of the transaction value for routing fees. Any unused amount will be returned to your wallet.".i18n,
                                             style: TextStyle(color: Colors.white),
                                           ),
                                           actions: [
@@ -364,7 +361,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                       action: (controller) async {
                         if (sendTxState.amount == 0) {
                           showMessageSnackBar(
-                            message: "Amount cannot be zero".i18n(ref),
+                            message: "Amount cannot be zero".i18n,
                             error: true,
                             context: context,
                           );
@@ -388,6 +385,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                             asset: 'Lightning',
                             amount: btcInDenominationFormatted(sendTxState.amount, btcFormat),
                             fiat: false,
+                            receiveAddress: ref.read(sendTxProvider).address,
                           );
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           context.replace('/home');
@@ -395,7 +393,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                           ref.read(sendTxProvider.notifier).updateAddress(initialAddress);
                           controller.failure();
                           showMessageSnackBar(
-                            message: e.toString().i18n(ref),
+                            message: e.toString().i18n,
                             error: true,
                             context: context,
                           );
@@ -406,7 +404,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                           });
                         }
                       },
-                      child: Text('Slide to send'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                      child: Text('Slide to send'.i18n, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),

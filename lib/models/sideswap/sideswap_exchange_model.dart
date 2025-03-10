@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:lwk_dart/lwk_dart.dart';
+import 'package:lwk/lwk.dart';
 
 part 'sideswap_exchange_model.g.dart';
 
@@ -47,7 +47,7 @@ class SideswapStartExchange {
       if (total >= sendAmount) {
         break;
       }
-      total += utxo.unblinded.value;
+      total += utxo.unblinded.value.toInt();
       assetInputForAmount.add(utxo);
     }
 
@@ -60,7 +60,7 @@ class SideswapStartExchange {
           "asset_bf": utxo.unblinded.assetBf,
           "redeem_script": utxo.scriptPubkey,
           "txid": utxo.outpoint.txid,
-          "value": utxo.unblinded.value,
+          "value": utxo.unblinded.value.toInt(),
           "value_bf": utxo.unblinded.valueBf,
           "vout": utxo.outpoint.vout,
         };
@@ -143,6 +143,45 @@ class SideswapStartExchange {
     }
   }
 }
+
+class SideswapSwapsNotifier extends StateNotifier<List<SideswapCompletedSwap>> {
+  SideswapSwapsNotifier() : super([]) {
+    _loadSwaps();
+  }
+
+  Future<void> _loadSwaps() async {
+    final box = await Hive.openBox<SideswapCompletedSwap>('sideswapSwapData');
+
+    /// **Listen for Hive Box changes and auto-update state**
+    box.watch().listen((event) => _updateSwaps());
+
+    _updateSwaps();
+  }
+
+  void _updateSwaps() {
+    final box = Hive.box<SideswapCompletedSwap>('sideswapSwapData');
+    final swaps = box.values.toList();
+
+    /// **Update provider state with latest swaps**
+    state = swaps;
+  }
+
+  /// **🔹 Add or update a swap without duplicating entries**
+  Future<void> addOrUpdateSwap(SideswapCompletedSwap newSwap) async {
+    final box = Hive.box<SideswapCompletedSwap>('sideswapSwapData');
+
+    /// **Check if swap already exists**
+    final existingSwap = box.get(newSwap.txid);
+
+    if (existingSwap == null) {
+      await box.put(newSwap.txid, newSwap);
+    }
+
+    /// **Refresh state**
+    _updateSwaps();
+  }
+}
+
 
 @HiveType(typeId: 11)
 class SideswapCompletedSwap {

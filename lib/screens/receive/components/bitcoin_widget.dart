@@ -62,7 +62,7 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
           padding: EdgeInsets.all(height * 0.01),
           child: CustomElevatedButton(
             onPressed: _onCreateAddress,
-            text: 'Create Address'.i18n(ref),
+            text: 'Create Address'.i18n,
             controller: controller,
           ),
         ),

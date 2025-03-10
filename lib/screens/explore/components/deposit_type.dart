@@ -1,4 +1,4 @@
-import 'package:Satsails/helpers/deposit_type.dart' as helpers;
+import 'package:Satsails/providers/deposit_type_provider.dart' as helpers;
 import 'package:Satsails/helpers/swap_helpers.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +14,7 @@ class DepositType extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Deposit Type".i18n(ref), style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
+        title: Text("Deposit Type".i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -28,33 +28,34 @@ class DepositType extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _DepositOption(
-              title: "Depix".i18n(ref),
-              subtitle: "Transfer in minutes".i18n(ref),
+              title: "Depix".i18n,
+              subtitle: "Transfer in minutes".i18n,
               isAvailable: true,
               onTap: () => handleDepixSelection(context, ref),
             ),
             SizedBox(height: 0.02.sh),
             _DepositOption(
-              title: "Bitcoin".i18n(ref),
-              subtitle: "Coming soon".i18n(ref),
+              title: "Bitcoin".i18n,
+              subtitle: "Coming soon".i18n,
+              isAvailable: false,
+              onTap: () => handleBitcoinSelection(context, ref),
+            ),
+            SizedBox(height: 0.02.sh),
+            _DepositOption(
+              title: "Lightning Bitcoin".i18n,
+              subtitle: "Coming soon".i18n,
               isAvailable: false,
             ),
             SizedBox(height: 0.02.sh),
             _DepositOption(
-              title: "Lightning Bitcoin".i18n(ref),
-              subtitle: "Coming soon".i18n(ref),
+              title: "USDT".i18n,
+              subtitle: "Coming soon".i18n,
               isAvailable: false,
             ),
             SizedBox(height: 0.02.sh),
             _DepositOption(
-              title: "USDT".i18n(ref),
-              subtitle: "Coming soon".i18n(ref),
-              isAvailable: false,
-            ),
-            SizedBox(height: 0.02.sh),
-            _DepositOption(
-              title: "Liquid Bitcoin".i18n(ref),
-              subtitle: "Coming soon".i18n(ref),
+              title: "Liquid Bitcoin".i18n,
+              subtitle: "Coming soon".i18n,
               isAvailable: false,
             ),
           ],
@@ -123,5 +124,10 @@ class _DepositOption extends StatelessWidget {
 
 void handleDepixSelection(BuildContext context, WidgetRef ref) {
   ref.read(helpers.depositTypeProvider.notifier).state = helpers.DepositType.depix;
+  context.push('/home/explore/deposit_type/deposit_method');
+}
+
+void handleBitcoinSelection(BuildContext context, WidgetRef ref) {
+  ref.read(helpers.depositTypeProvider.notifier).state = helpers.DepositType.bitcoin;
   context.push('/home/explore/deposit_type/deposit_method');
 }

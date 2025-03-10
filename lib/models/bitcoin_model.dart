@@ -81,7 +81,7 @@ class BitcoinModel {
       final address = await Address.fromString(s: transaction.outAddress, network: config.network);
       final script = await address.scriptPubkey();
       final txBuilderResult = await txBuilder
-          .addRecipient(script, transaction.amount)
+          .addRecipient(script, BigInt.from(transaction.amount))
           .feeRate(transaction.fee)
           .enableRbf()
           .finish(config.wallet);

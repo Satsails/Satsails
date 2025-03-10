@@ -8,7 +8,7 @@ import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:lwk_dart/lwk_dart.dart';
+import 'package:lwk/lwk.dart';
 
 class LiquidWidget extends ConsumerStatefulWidget {
 
@@ -69,7 +69,7 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
           padding: EdgeInsets.all(height * 0.01),
           child: CustomElevatedButton(
             onPressed: _onCreateAddress,
-            text: 'Create Address'.i18n(ref),
+            text: 'Create Address'.i18n,
             controller: controller,
           ),
         ),

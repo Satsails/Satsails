@@ -5,6 +5,7 @@
             android:label="Satsails"
             android:name="${applicationName}"
             android:icon="@mipmap/ic_launcher">
+            android:enableOnBackInvokedCallback="true"
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
             <intent-filter>
@@ -14,6 +15,13 @@
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
             </intent-filter>
         </receiver>
+        <service
+                android:name="im.crisp.client.external.notification.CrispNotificationService"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
         <activity
                 android:name=".MainActivity"
                 android:exported="true"
@@ -30,6 +38,9 @@
                     android:name="io.flutter.embedding.android.NormalTheme"
                     android:resource="@style/NormalTheme"
             />
+            <meta-data
+                    android:name="google_analytics_adid_collection_enabled"
+                    android:value="false" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

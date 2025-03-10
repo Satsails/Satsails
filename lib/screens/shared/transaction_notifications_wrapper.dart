@@ -1,12 +1,9 @@
-import 'dart:async';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/models/balance_model.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/transaction_modal.dart';
-import 'package:Satsails/services/coinos/coinos_push_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -26,42 +23,15 @@ class TransactionNotificationsListener extends ConsumerStatefulWidget {
 class _TransactionNotificationsListenerState
     extends ConsumerState<TransactionNotificationsListener> {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  CoinosPushNotifications? _pushNotifications;
-  StreamSubscription<Map<String, dynamic>>? _subscription;
   BalanceChange? _previousBalanceChange;
 
   @override
   void initState() {
     super.initState();
-    _initializePushNotifications();
-  }
-
-  Future<void> _initializePushNotifications() async {
-    final token = await _storage.read(key: 'coinosToken') ?? '';
-
-    if (token.isNotEmpty) {
-      _pushNotifications = CoinosPushNotifications(token);
-      _pushNotifications!.connect();
-
-      _subscription = _pushNotifications!.paymentStream.listen((paymentData) {
-        _handleWebSocketPayment(paymentData);
-      });
-    } else {
-      print('Token is empty, cannot connect to push notifications');
-    }
-  }
-
-  void _handleWebSocketPayment(Map<String, dynamic> paymentData) {
-    if (!mounted) return;
-
-    ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-
   }
 
   @override
   void dispose() {
-    _subscription?.cancel();
-    _pushNotifications?.close();
     super.dispose();
   }
 
@@ -105,7 +75,7 @@ class _TransactionNotificationsListenerState
           ),
         );
       },
-      duration: Duration(seconds: 2),
+      duration: Duration(seconds: 5),
     );
   }
 }

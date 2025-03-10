@@ -1,6 +1,7 @@
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
-import 'package:Satsails/providers/user_provider.dart';
+import 'package:Satsails/providers/bitcoin_config_provider.dart';
+import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -21,7 +22,7 @@ class DeleteWalletSection extends StatelessWidget {
     final authModel = ref.read(authModelProvider);
     return ListTile(
       leading: const Icon(Icons.delete, color: Colors.white),
-      title: Text(title.i18n(ref), style: const TextStyle(color: Colors.white)),
+      title: Text(title.i18n, style: const TextStyle(color: Colors.white)),
       onTap: () {
         _showDeleteDialog(context, authModel, ref);
       },
@@ -32,8 +33,8 @@ class DeleteWalletSection extends StatelessWidget {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.error,
-      title: 'Delete Wallet?'.i18n(ref),
-      text: 'Are you sure you want to delete the wallet?'.i18n(ref),
+      title: 'Delete Wallet?'.i18n,
+      text: 'Are you sure you want to delete the wallet?'.i18n,
       titleColor: Colors.redAccent, // Consistent title color
       textColor: Colors.white70,
       backgroundColor: Colors.black87,
@@ -48,8 +49,8 @@ class DeleteWalletSection extends StatelessWidget {
             QuickAlert.show(
               context: context,
               type: QuickAlertType.error,
-              title: 'Delete Wallet?'.i18n(ref),
-              text: 'Are you sure? This action cannot be undone.'.i18n(ref),
+              title: 'Delete Wallet?'.i18n,
+              text: 'Are you sure? This action cannot be undone.'.i18n,
               titleColor: Colors.redAccent, // Consistent title color
               textColor: Colors.white70,
               backgroundColor: Colors.black87,
@@ -63,16 +64,19 @@ class DeleteWalletSection extends StatelessWidget {
                   onPressed: () async {
                     context.pop();
                     await authModel.deleteAuthentication();
+                    ref.read(appLockedProvider.notifier).state = true;
+                    ref.invalidate(bitcoinConfigProvider);
+                    ref.invalidate(liquidConfigProvider);
                     RestartWidget.restartApp(context);
                   },
                   text:
-                  'Delete wallet'.i18n(ref),
+                  'Delete wallet'.i18n,
                   backgroundColor: Colors.redAccent,
                 ),
               ),
             );
           },
-          text: 'Delete wallet'.i18n(ref),
+          text: 'Delete wallet'.i18n,
           backgroundColor: Colors.redAccent,
         ),
       ),

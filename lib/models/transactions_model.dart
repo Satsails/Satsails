@@ -1,17 +1,17 @@
-import 'dart:convert';
-
-import 'package:Satsails/models/auth_model.dart';
-import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
-import 'package:Satsails/models/purchase_model.dart';
+import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lwk_dart/lwk_dart.dart' as lwk;
+import 'package:lwk/lwk.dart' as lwk;
 
 class TransactionModel extends StateNotifier<Transaction> {
-  TransactionModel(Transaction state) : super(state);
+  TransactionModel() : super(Transaction.empty());
+
+  void updateTransactions(Transaction newTransactions) {
+    state = newTransactions;
+  }
 }
 
 abstract class BaseTransaction {
@@ -46,24 +46,13 @@ class LiquidTransaction extends BaseTransaction {
   }) : super(id: id, timestamp: timestamp);
 }
 
-class PixPurchaseTransaction extends BaseTransaction {
-  final Purchase pixDetails;
+class EulenTransaction extends BaseTransaction {
+  final EulenTransfer pixDetails;
 
-  PixPurchaseTransaction({
+  EulenTransaction({
     required String id,
     required DateTime timestamp,
     required this.pixDetails,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp);
-}
-
-class CoinosTransaction extends BaseTransaction {
-  final CoinosPayment coinosDetails;
-
-  CoinosTransaction({
-    required String id,
-    required DateTime timestamp,
-    required this.coinosDetails,
     required bool isConfirmed,
   }) : super(id: id, timestamp: timestamp);
 }
@@ -93,15 +82,13 @@ class SideswapInstantSwapTransaction extends BaseTransaction {
 class Transaction {
   final List<BitcoinTransaction> bitcoinTransactions;
   final List<LiquidTransaction> liquidTransactions;
-  final List<CoinosTransaction> coinosTransactions;
   final List<SideswapPegTransaction> sideswapPegTransactions;
   final List<SideswapInstantSwapTransaction> sideswapInstantSwapTransactions;
-  final List<PixPurchaseTransaction> pixPurchaseTransactions;
+  final List<EulenTransaction> pixPurchaseTransactions;
 
   Transaction({
     required this.bitcoinTransactions,
     required this.liquidTransactions,
-    required this.coinosTransactions,
     required this.sideswapPegTransactions,
     required this.sideswapInstantSwapTransactions,
     required this.pixPurchaseTransactions,
@@ -110,15 +97,13 @@ class Transaction {
   Transaction copyWith({
     List<BitcoinTransaction>? bitcoinTransactions,
     List<LiquidTransaction>? liquidTransactions,
-    List<CoinosTransaction>? coinosTransactions,
     List<SideswapPegTransaction>? sideswapPegTransactions,
     List<SideswapInstantSwapTransaction>? sideswapInstantSwapTransactions,
-    List<PixPurchaseTransaction>? pixPurchaseTransactions,
+    List<EulenTransaction>? pixPurchaseTransactions,
   }) {
     return Transaction(
       bitcoinTransactions: bitcoinTransactions ?? this.bitcoinTransactions,
       liquidTransactions: liquidTransactions ?? this.liquidTransactions,
-      coinosTransactions: coinosTransactions ?? this.coinosTransactions,
       sideswapPegTransactions: sideswapPegTransactions ?? this.sideswapPegTransactions,
       sideswapInstantSwapTransactions: sideswapInstantSwapTransactions ?? this.sideswapInstantSwapTransactions,
       pixPurchaseTransactions: pixPurchaseTransactions ?? this.pixPurchaseTransactions,
@@ -130,7 +115,6 @@ class Transaction {
     return [
       ...bitcoinTransactions,
       ...liquidTransactions,
-      ...coinosTransactions,
       ...sideswapPegTransactions,
       ...sideswapInstantSwapTransactions,
     ];
@@ -173,58 +157,13 @@ class Transaction {
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
-  // here for when we implement joltz and we must store transactions for later usage
-  // Future<String> encryptSideswapTransactions(AuthModel authModel) async {
-  //   final List<Map<String, dynamic>> sideswapPegData = sideswapPegTransactions.map((tx) {
-  //     return {
-  //       'orderId': tx.sideswapPegDetails.orderId,
-  //       'addr': tx.sideswapPegDetails.addr,
-  //       'addrRecv': tx.sideswapPegDetails.addrRecv,
-  //       'createdAt': tx.sideswapPegDetails.createdAt,
-  //       'expiresAt': tx.sideswapPegDetails.expiresAt,
-  //       'pegIn': tx.sideswapPegDetails.pegIn,
-  //       'list': tx.sideswapPegDetails.list?.map((item) {
-  //         return {
-  //           'amount': item.amount,
-  //           'createdAt': item.createdAt,
-  //           'detectedConfs': item.detectedConfs,
-  //           'payout': item.payout,
-  //           'payoutTxid': item.payoutTxid,
-  //           'status': item.status,
-  //           'totalConfs': item.totalConfs,
-  //           'txHash': item.txHash,
-  //           'txState': item.txState,
-  //           'txStateCode': item.txStateCode,
-  //           'vout': item.vout,
-  //         };
-  //       }).toList(),
-  //     };
-  //   }).toList();
-  //
-  //   final List<Map<String, dynamic>> sideswapInstantSwapData = sideswapInstantSwapTransactions.map((tx) {
-  //     return {
-  //       'txid': tx.sideswapInstantSwapDetails.txid,
-  //       'sendAsset': tx.sideswapInstantSwapDetails.sendAsset,
-  //       'sendAmount': tx.sideswapInstantSwapDetails.sendAmount,
-  //       'recvAsset': tx.sideswapInstantSwapDetails.recvAsset,
-  //       'recvAmount': tx.sideswapInstantSwapDetails.recvAmount,
-  //       'orderId': tx.sideswapInstantSwapDetails.orderId,
-  //       'timestamp': tx.sideswapInstantSwapDetails.timestamp,
-  //     };
-  //   }).toList();
-  //
-  //   final Map<String, dynamic> combinedData = {
-  //     'sideswapPegTransactions': sideswapPegData,
-  //     'sideswapInstantSwapTransactions': sideswapInstantSwapData,
-  //   };
-  //
-  //   final jsonString = jsonEncode(combinedData);
-  //   final encrypted = await authModel.encrypt(jsonString);
-  //   return encrypted;
-  // }
-  //
-  // Future<String> decryptSideswapTransactions(AuthModel authModel, String encrypted) async {
-  //   final decrypted = await authModel.decrypt(encrypted);
-  //   return decrypted;
-  // }
+  factory Transaction.empty() {
+    return Transaction(
+      bitcoinTransactions: [],
+      liquidTransactions: [],
+      sideswapPegTransactions: [],
+      sideswapInstantSwapTransactions: [],
+      pixPurchaseTransactions: [],
+    );
+  }
 }

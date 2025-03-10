@@ -1,12 +1,10 @@
-// this screen needs some heavy refactoring. On version "Unyielding conviction" we shall totally redo this spaghetti code.
 import 'dart:convert';
 import 'package:Satsails/handlers/response_handlers.dart';
-import 'package:Satsails/models/purchase_model.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
-import 'package:pusher_beams/pusher_beams.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 const FlutterSecureStorage _storage = FlutterSecureStorage();
@@ -25,6 +23,12 @@ class UserModel extends StateNotifier<User> {
     state = state.copyWith(affiliateCode: affiliateCode);
   }
 
+  Future<void> setJwt(String jwt) async {
+    await _storage.write(key: 'backendJwt', value: jwt);
+    state = state.copyWith(jwt: jwt);
+  }
+
+  // legacy we can delete by the end of 2025
   Future<void> setRecoveryCode(String recoveryCode) async {
     await _storage.write(key: 'recoveryCode', value: recoveryCode);
     state = state.copyWith(recoveryCode: recoveryCode);
@@ -38,16 +42,18 @@ class UserModel extends StateNotifier<User> {
 }
 
 class User {
-  final String recoveryCode;
+  final String? recoveryCode;
   final String paymentId;
   final String? affiliateCode;
-  final bool hasUploadedAffiliateCode;
+  final bool? hasUploadedAffiliateCode;
+  final String jwt;
 
   User({
-    required this.recoveryCode,
+    this.recoveryCode,
     required this.paymentId,
     required this.affiliateCode,
-    required this.hasUploadedAffiliateCode,
+    this.hasUploadedAffiliateCode,
+    required this.jwt,
   });
 
   User copyWith({
@@ -55,39 +61,44 @@ class User {
     String? paymentId,
     String? affiliateCode,
     bool? hasUploadedAffiliateCode,
+    String? jwt,
   }) {
     return User(
       recoveryCode: recoveryCode ?? this.recoveryCode,
       paymentId: paymentId ?? this.paymentId,
       affiliateCode: affiliateCode ?? this.affiliateCode,
       hasUploadedAffiliateCode: hasUploadedAffiliateCode ?? this.hasUploadedAffiliateCode,
+      jwt: jwt ?? this.jwt,
     );
   }
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      recoveryCode: json['user']['authentication_token'],
       paymentId: json['user']['payment_id'],
       affiliateCode: json['inserted_affiliate']['code'] ?? '',
-      hasUploadedAffiliateCode: false,
+      jwt: json['token'],
     );
   }
 }
 
 class UserService {
-  static Future<Result<User>> createUserRequest(String auth, String liquidAddress, int liquidIndex) async {
+  /// Create a new user.
+  static Future<Result<User>> createUserRequest(String challenge, String signature) async {
     try {
+      // Get the Firebase App Check token.
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
+
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users'),
         body: jsonEncode({
           'user': {
-            'authentication_token': auth,
-            'liquid_address': liquidAddress,
-            'liquid_address_index': liquidIndex,
+            'challenge': challenge,
+            'signature': signature,
           }
         }),
         headers: {
           'Content-Type': 'application/json',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -97,65 +108,57 @@ class UserService {
         return Result(error: 'Failed to create user: ${response.body}');
       }
     } catch (e) {
-      return Result(
-          error: 'An error has occurred. Please try again later');
+      return Result(error: 'An error has occurred. Please try again later');
     }
   }
 
-  static Future<Result<User>> showUser(String auth) async {
+  /// Migrate to JWT (authenticate and receive a JWT token).
+  static Future<Result<String>> migrateToJWT(String auth, String challenge, String signature) async {
     try {
-      final response = await http.get(
-        Uri.parse(dotenv.env['BACKEND']! + '/users/show_user'),
+      // Get the Firebase App Check token.
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
+
+      final response = await http.post(
+        Uri.parse(dotenv.env['BACKEND']! + '/users/migrate'),
+        body: jsonEncode({
+          'user': {
+            'challenge': challenge,
+            'signature': signature,
+          }
+        }),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
       if (response.statusCode == 200) {
-        return Result(data: User.fromJson(jsonDecode(response.body)));
+        return Result(data: jsonDecode(response.body)['token']);
       } else {
-        return Result(error: 'Failed to show user');
+        return Result(error: 'Failed to migrate user: ${response.body}');
       }
     } catch (e) {
-      return Result(
-          error: 'An error has occurred. Please try again later');
+      return Result(error: 'An error has occurred. Please try again later');
     }
   }
 
-  static BeamsAuthProvider getPusherAuth(String auth, String userId) {
+  /// Add an affiliate code to the user.
+  static Future<Result<bool>> addAffiliateCode(String affiliateCode, String auth) async {
     try {
-      final BeamsAuthProvider response = BeamsAuthProvider()
-        ..authUrl = dotenv.env['BACKEND']! + '/users/get_pusher_auth'
-        ..headers = {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        }
-        ..queryParams = {
-          'user_id': userId
-        }
-        ..credentials = 'omit';
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
 
-      return response;
-    } catch (e) {
-      throw Exception(
-          'An error has occurred. Please try again later');
-    }
-  }
-
-  static Future<Result<bool>> addAffiliateCode(String paymentId, String affiliateCode, String auth) async {
-    try {
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users/add_affiliate'),
         body: jsonEncode({
           'user': {
-            'payment_id': paymentId,
             'affiliate_code': affiliateCode,
           }
         }),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 

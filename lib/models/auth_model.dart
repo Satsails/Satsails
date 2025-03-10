@@ -1,59 +1,84 @@
 import 'dart:convert';
 import 'dart:io';
-// import 'dart:typed_data';
+import 'package:Satsails/handlers/response_handlers.dart';
+import 'package:bdk_flutter/bdk_flutter.dart';
+import 'package:bitcoin_message_signer/bitcoin_message_signer.dart';
 import 'package:conduit_password_hash/pbkdf2.dart';
 import 'package:crypto/crypto.dart';
-// import 'package:encrypt/encrypt.dart' as encrypter;
 import 'package:faker/faker.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pusher_beams/pusher_beams.dart';
-import 'dart:math';
-import 'package:convert/convert.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-// keep this in case we revert boltz
-class SecureKeyManager {
-  static const String _keyId = 'boltz_key';
-  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+class BackendAuth {
+  static Future<String?> signChallengeWithPrivateKey(
+      String challengeResponse) async {
+    try {
+      final mnemonic = await AuthModel().getMnemonic();
+      if (mnemonic == null) {
+        return null;
+      }
 
-  static Future<void> generateAndStoreKey() async {
-    String? existingKey = await _secureStorage.read(key: _keyId);
-    if (existingKey == null) {
-      final key = _generateRandom256BitKey();
-      await _secureStorage.write(key: _keyId, value: key);
+      final descriptorSecretKey = await _getDescriptorSecretKey(mnemonic);
+      final privateKeyBytes = descriptorSecretKey.secretBytes();
+
+      final signer = BitcoinMessageSigner(
+        privateKey: Uint8List.fromList(privateKeyBytes),
+        scriptType: P2PKH(compressed: true)
+      );
+
+      if (challengeResponse == null) return null;
+
+      final signature = signer.signMessage(message: challengeResponse);
+      return signature;
+    } catch (e) {
+      throw Exception('$e');
     }
   }
 
-  static Future<String?> retrieveKey() async {
-    return await _secureStorage.read(key: _keyId);
-  }
-
-  static Future<void> deleteKey() async {
-    await _secureStorage.delete(key: _keyId);
-  }
-
-  static String _generateRandom256BitKey() {
-    final keyBytes = List<int>.generate(32, (i) => Random.secure().nextInt(256));
-    return hex.encode(keyBytes);
-  }
-
-  static Future<Box<T>> openEncryptedBox<T>(String boxName) async {
-    final encryptionKey = await retrieveKey();
-
-    if (encryptionKey == null) {
-      throw Exception("Encryption key not found.");
-    }
-
-    final key = hex.decode(encryptionKey);
-
-    return await Hive.openBox<T>(
-      boxName,
-      encryptionCipher: HiveAesCipher(key),
+  static Future<DescriptorSecretKey> _getDescriptorSecretKey(
+      String mnemonic) async {
+    final mnemonicType = await Mnemonic.fromString(mnemonic);
+    return await DescriptorSecretKey.create(
+      network: Network.testnet,
+      mnemonic: mnemonicType,
     );
   }
+
+  static Future<Result<String>> fetchChallenge() async {
+    try {
+      final backendUrl = dotenv.env['BACKEND'];
+      if (backendUrl == null || backendUrl.isEmpty) {
+        return Result(error: 'Backend URL is not configured');
+      }
+
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
+
+      final response = await http.get(
+        Uri.parse('$backendUrl/auth/challenge'),
+        headers: {
+          'Content-Type': 'application/json',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
+        },
+      );
+
+        final dynamic jsonResponse = json.decode(response.body);
+        final challenge = jsonResponse['challenge'] as String?;
+
+        return Result(data: challenge);
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please try again later');
+    }
+  }
+
 }
+
+
 
 class AuthModel {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -106,42 +131,6 @@ class AuthModel {
     return derivedKey;
   }
 
-  // here for when we implement joltz and we must store transactions for later usage
-  // Future<encrypter.Key> deriveAESKey(String mnemonic) async {
-  //   final derivedKey = await deriveKeyWithSalt(mnemonic);
-  //   return encrypter.Key(Uint8List.fromList(derivedKey.sublist(0, 32)));
-  // }
-  //
-  // Future<encrypter.IV> deriveAESIV(String mnemonic) async {
-  //   final derivedKey = await deriveKeyWithSalt(mnemonic);
-  //   return encrypter.IV(Uint8List.fromList(derivedKey.sublist(32, 48)));
-  // }
-  //
-  // Future<String> encrypt(String plaintext) async {
-  //   final mnemonic = await getMnemonic();
-  //   if (mnemonic == null) throw Exception('Mnemonic not found');
-  //
-  //   final key = await deriveAESKey(mnemonic);
-  //   final iv = await deriveAESIV(mnemonic);
-  //
-  //   final encrypterInstance = encrypter.Encrypter(encrypter.AES(key, mode: encrypter.AESMode.cbc));
-  //   final encrypted = encrypterInstance.encrypt(plaintext, iv: iv);
-  //
-  //   return encrypted.base64;
-  // }
-  //
-  // Future<String> decrypt(String ciphertext) async {
-  //   final mnemonic = await getMnemonic();
-  //   if (mnemonic == null) throw Exception('Mnemonic not found');
-  //
-  //   final key = await deriveAESKey(mnemonic);
-  //   final iv = await deriveAESIV(mnemonic);
-  //
-  //   final encrypterInstance = encrypter.Encrypter(encrypter.AES(key, mode: encrypter.AESMode.cbc));
-  //   final decrypted = encrypterInstance.decrypt(encrypter.Encrypted.fromBase64(ciphertext), iv: iv);
-  //
-  //   return decrypted;
-  // }
 
   Future<String?> getUsername() async {
     final mnemonic = await getMnemonic();
@@ -167,15 +156,6 @@ class AuthModel {
     return username;
   }
 
-  Future<String?> getBackendPassword() async {
-    final mnemonic = await getMnemonic();
-    if (mnemonic == null) return null;
-
-    final derivedKey = await deriveKeyWithSalt(mnemonic);
-
-    return base64.encode(derivedKey.sublist(10, 20));
-  }
-
   Future<String?> getCoinosPassword() async {
     final mnemonic = await getMnemonic();
     if (mnemonic == null) return null;
@@ -183,6 +163,15 @@ class AuthModel {
     final derivedKey = await deriveKeyWithSalt(mnemonic);
 
     return base64.encode(derivedKey.sublist(20, 30));
+  }
+
+  Future<void> deleteLwkDb() async {
+    final appDocDir = await getApplicationDocumentsDirectory();
+    final liquidDBPath = '${appDocDir.path}/lwk-db';
+    final dbDir = Directory(liquidDBPath);
+    if (await dbDir.exists()) {
+      await dbDir.delete(recursive: true);
+    }
   }
 
   Future<void> deleteAuthentication() async {
@@ -193,6 +182,8 @@ class AuthModel {
     await _storage.delete(key: 'coinosUsername');
     await _storage.delete(key: 'coinosPassword');
     await _storage.delete(key: 'recoveryCode');
+    await _storage.delete(key: 'backendJwt');
+    await _storage.delete(key: 'fcmToken');
     await Hive.deleteBoxFromDisk('bitcoin');
     await Hive.deleteBoxFromDisk('liquid');
     await Hive.deleteBoxFromDisk('affiliateCode');
@@ -205,13 +196,11 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('sideswapStatus');
     await Hive.deleteBoxFromDisk('sideswapSwapData');
     await Hive.deleteBoxFromDisk('pix');
-    await Hive.deleteBoxFromDisk('purchasesBox');
+    await Hive.deleteBoxFromDisk('eulenTransfersBox');
     await Hive.deleteBoxFromDisk('user');
     await Hive.deleteBoxFromDisk('affiliate');
     await Hive.deleteBoxFromDisk('addresses');
     await Hive.deleteBoxFromDisk('coinosPayments');
-    await SecureKeyManager.deleteKey();
-    await PusherBeams.instance.clearAllState();
     final appDocDir = await getApplicationDocumentsDirectory();
     final bitcoinDBPath = '${appDocDir.path}/bdk_wallet.sqlite';
     final dbFile = File(bitcoinDBPath);

@@ -31,7 +31,7 @@ class BoltzButtonPicker extends ConsumerWidget {
             ref.read(selectedButtonProvider.notifier).state = "Receiving";
         }
       },
-      buttons: ["Receiving".i18n(ref), 'Sending'.i18n(ref)],
+      buttons: ["Receiving".i18n, 'Sending'.i18n],
       options: GroupButtonOptions(
         unselectedTextStyle: TextStyle(
             fontSize: screenWidth * 0.04, color: Colors.orange),

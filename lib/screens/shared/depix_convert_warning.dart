@@ -28,7 +28,7 @@ class DepixConvertWarning extends ConsumerWidget {
             context.push('/home/exchange');
           },
           child: Text(
-            'Convert your DEPIX to bitcoin'.i18n(ref),
+            'Convert your DEPIX to bitcoin'.i18n,
             style: TextStyle(
               color: Colors.grey,
               fontSize: dynamicFontSize,

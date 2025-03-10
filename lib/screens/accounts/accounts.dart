@@ -7,7 +7,7 @@ import 'package:Satsails/screens/receive/components/custodial_lightning_widget.d
 import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_keyboard_done/flutter_keyboard_done.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/models/balance_model.dart';
@@ -180,7 +180,7 @@ class Accounts extends ConsumerWidget {
                         child: Column(
                           children: [
                             _buildListTile(
-                              'Liquid'.i18n(ref),
+                              'Liquid'.i18n,
                               liquidBalanceInFormat,
                               const Icon(Lbtc_icon.lbtc_icon, color: Colors.white),
                               context,
@@ -198,7 +198,7 @@ class Accounts extends ConsumerWidget {
                 ),
                 SizedBox(height: screenWidth * 0.02),
                 Text(
-                  'Stable'.i18n(ref),
+                  'Stable'.i18n,
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 SizedBox(height: screenWidth * 0.02),
@@ -401,7 +401,7 @@ class Accounts extends ConsumerWidget {
                       _receiveLightningPayment(context, ref);
                     } else if (title == 'Bitcoin') {
                       _showBitcoinAddress(context, addressFuture, ref);
-                    } else if (title == 'Liquid'.i18n(ref)) {
+                    } else if (title == 'Liquid'.i18n) {
                       _showLiquidAddress(context, addressFuture, ref);
                     } else {
                       _showLiquidAddress(context, addressFuture, ref);
@@ -412,7 +412,7 @@ class Accounts extends ConsumerWidget {
                       const Icon(Icons.arrow_downward, color: Colors.white),
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
-                        child: Text('Receive'.i18n(ref),
+                        child: Text('Receive'.i18n,
                             style: const TextStyle(color: Colors.white)),
                       ),
                     ],
@@ -428,7 +428,7 @@ class Accounts extends ConsumerWidget {
                       const Icon(Icons.arrow_upward, color: Colors.white),
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
-                        child: Text('Send'.i18n(ref),
+                        child: Text('Send'.i18n,
                             style: const TextStyle(color: Colors.white)),
                       ),
                     ],
@@ -476,7 +476,7 @@ class Accounts extends ConsumerWidget {
                         padding:
                         EdgeInsets.only(top: screenSize.height * 0.02),
                         child: Text(
-                          'Receive'.i18n(ref),
+                          'Receive'.i18n,
                           style: TextStyle(
                               fontSize: screenSize.width * 0.06,
                               color: Colors.white),
@@ -535,7 +535,7 @@ class Accounts extends ConsumerWidget {
                         padding:
                         EdgeInsets.only(top: screenSize.height * 0.02),
                         child: Text(
-                          'Receive'.i18n(ref),
+                          'Receive'.i18n,
                           style: TextStyle(
                               fontSize: screenSize.width * 0.06,
                               color: Colors.white),
@@ -574,12 +574,7 @@ class Accounts extends ConsumerWidget {
         builder: (context, scrollController) {
           return Scaffold(
             backgroundColor: Colors.black,
-            body: FlutterKeyboardDoneWidget(
-              doneWidgetBuilder: (context) {
-                return const Text(
-                  'Done',
-                );
-              },
+            body: KeyboardDismissOnTap(
               child: SingleChildScrollView(
                 controller: scrollController,
                 padding: const EdgeInsets.all(16.0),

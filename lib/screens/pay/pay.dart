@@ -7,41 +7,58 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:Satsails/screens/shared/qr_view_widget.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:mobile_scanner/mobile_scanner.dart'; // <-- mobile_scanner
 import 'package:quickalert/quickalert.dart';
 
 class Pay extends ConsumerStatefulWidget {
-  Pay({Key? key}) : super(key: key);
+  const Pay({Key? key}) : super(key: key);
 
   @override
   _PayState createState() => _PayState();
 }
 
 class _PayState extends ConsumerState<Pay> {
-  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  QRViewController? controller;
+  /// We replace `QRViewController` with `MobileScannerController`.
+  MobileScannerController? _controller;
 
+  @override
+  void initState() {
+    super.initState();
+    _controller = MobileScannerController();
+    // Optionally you could set initialTorchState or facing here:
+    // _controller = MobileScannerController(
+    //   torchEnabled: false,
+    //   facing: CameraFacing.back,
+    // );
+  }
+
+  @override
+  void dispose() {
+    // Dispose the controller to clean up the camera resource
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  /// Paste data from clipboard
   Future<void> _pasteFromClipboard(BuildContext context) async {
     final data = await Clipboard.getData('text/plain');
     if (data != null) {
       try {
         await ref.refresh(setAddressAndAmountProvider(data.text ?? '').future);
 
-        // Read the payment type without causing a rebuild
-        final paymentType = ref.read(sendTxProvider.notifier).state.type;
+        final paymentType = ref.read(sendTxProvider).type;
+
+        // Stop scanning (similar to pauseCamera())
+        await _controller?.stop();
 
         switch (paymentType) {
           case PaymentType.Bitcoin:
-            await controller?.pauseCamera();
             context.push('/home/pay/confirm_bitcoin_payment');
             break;
           case PaymentType.Lightning:
-            await controller?.pauseCamera();
             context.push('/home/pay/confirm_custodial_lightning_payment');
             break;
           case PaymentType.Liquid:
-            await controller?.pauseCamera();
             context.push('/home/pay/confirm_liquid_payment');
             break;
           default:
@@ -53,26 +70,27 @@ class _PayState extends ConsumerState<Pay> {
     }
   }
 
-
+  /// Toggle torch (replaces toggleFlash)
   void _toggleFlash() {
-    controller?.toggleFlash();
+    _controller?.toggleTorch();
   }
 
+  /// Show an error dialog using quickalert
   void _showErrorDialog(BuildContext context, String message) {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.error,
-      title: 'Oops!', // Updated Title
-      textColor: Colors.white70, // Slightly lighter for better contrast
-      titleColor: Colors.redAccent, // More attention-grabbing color
-      backgroundColor: Colors.black87, // Softer black for aesthetics
+      title: 'Oops!',
+      textColor: Colors.white70,
+      titleColor: Colors.redAccent,
+      backgroundColor: Colors.black87,
       showCancelBtn: false,
       showConfirmBtn: false,
       widget: Padding(
         padding: const EdgeInsets.only(top: 16),
         child: Text(
-          message.i18n(ref),
-          style: TextStyle(
+          message.i18n,
+          style: const TextStyle(
             color: Colors.white70,
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -83,6 +101,42 @@ class _PayState extends ConsumerState<Pay> {
     );
   }
 
+  /// Called when a QR code or barcode is detected
+  Future<void> _onDetect(BarcodeCapture capture, BuildContext context) async {
+    for (final barcode in capture.barcodes) {
+      final code = barcode.rawValue;
+      if (code == null) continue; // skip if empty
+
+      // Stop scanning so we don't read multiple times
+      await _controller?.stop();
+
+      try {
+        await ref.refresh(setAddressAndAmountProvider(code).future);
+
+        final paymentType = ref.read(sendTxProvider).type;
+        switch (paymentType) {
+          case PaymentType.Bitcoin:
+            context.push('/home/pay/confirm_bitcoin_payment');
+            break;
+          case PaymentType.Lightning:
+            context.push('/home/pay/confirm_custodial_lightning_payment');
+            break;
+          case PaymentType.Liquid:
+            context.push('/home/pay/confirm_liquid_payment');
+            break;
+          default:
+            _showErrorDialog(context, 'Scan failed!');
+        }
+      } catch (e) {
+        _showErrorDialog(context, e.toString());
+        // Optionally resume scanning if the parse fails
+        _controller?.start();
+      }
+
+      // Break after handling the first recognized code
+      break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,19 +146,15 @@ class _PayState extends ConsumerState<Pay> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Isolate QR Code Scanner View within a separate ProviderScope
+          /// 1. MobileScanner view
           Positioned.fill(
-            child: ProviderScope(
-              child: QRViewWidget(
-                qrKey: qrKey,
-                onQRViewCreated: (QRViewController ctrl) {
-                  controller = ctrl;
-                },
-                ref: ref,
-              ),
+            child: MobileScanner(
+              controller: _controller!,
+              onDetect: (capture) => _onDetect(capture, context),
             ),
           ),
-          // Back Button
+
+          /// 2. Back Button
           Positioned(
             top: 40.0,
             left: 10.0,
@@ -113,7 +163,8 @@ class _PayState extends ConsumerState<Pay> {
               onPressed: () => context.pop(),
             ),
           ),
-          // Bottom Buttons
+
+          /// 3. Bottom Buttons
           Positioned(
             bottom: 20.0,
             left: 20.0,
@@ -134,7 +185,7 @@ class _PayState extends ConsumerState<Pay> {
                       ),
                     ),
                     child: Text(
-                      'Paste'.i18n(ref),
+                      'Paste'.i18n,
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),
@@ -150,7 +201,7 @@ class _PayState extends ConsumerState<Pay> {
                       ),
                     ),
                     child: Text(
-                      'Flash'.i18n(ref),
+                      'Flash'.i18n,
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),

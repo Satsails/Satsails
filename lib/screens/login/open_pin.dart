@@ -1,3 +1,7 @@
+import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/providers/bitcoin_config_provider.dart';
+import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -6,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:quickalert/quickalert.dart';
 
@@ -37,7 +40,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
-          title: Center(child: Text('Enter PIN'.i18n(ref), style: const TextStyle(color: Colors.white))),
+          title: Center(child: Text('Enter PIN'.i18n, style: const TextStyle(color: Colors.white))),
           backgroundColor: Colors.black,
           automaticallyImplyLeading: false,
         ),
@@ -65,9 +68,9 @@ class _OpenPinState extends ConsumerState<OpenPin> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a PIN'.i18n(ref);
+                        return 'Please enter a PIN'.i18n;
                       } else if (value.length != 6) {
-                        return 'PIN must be exactly 6 digits'.i18n(ref);
+                        return 'PIN must be exactly 6 digits'.i18n;
                       }
                       return null;
                     },
@@ -76,13 +79,13 @@ class _OpenPinState extends ConsumerState<OpenPin> {
                 const SizedBox(height: 20),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
-                  child: CustomButton(text: 'Unlock'.i18n(ref), onPressed: () => _checkPin(context, ref)),
+                  child: CustomButton(text: 'Unlock'.i18n, onPressed: () => _checkPin(context, ref)),
                 ),
                 const SizedBox(height: 20),
                 TextButton(
                   onPressed: () => _showConfirmationDialog(context, ref),
                   child: Text(
-                    'Forgot PIN'.i18n(ref),
+                    'Forgot PIN'.i18n,
                     style: const TextStyle(fontSize: 20.0, color: Colors.red),
                   ),
                 ),
@@ -95,23 +98,25 @@ class _OpenPinState extends ConsumerState<OpenPin> {
   }
 
   Future<void> _checkPin(BuildContext context, WidgetRef ref) async {
-    final authModel = ref.read(authModelProvider);
+    final authModel = AuthModel();
     final pinText = await authModel.getPin();
 
     if (pinText == _pinController.text) {
-      _attempts = 0; // Reset the attempts counter on success
+      _attempts = 0;
+      ref.read(appLockedProvider.notifier).state = false;
+      ref.invalidate(bitcoinConfigProvider);
+      ref.invalidate(liquidConfigProvider);
       context.go('/home');
     } else {
-      _attempts++; // Increment the attempts counter
+      _attempts++;
 
-      // Check if the user has failed 6 times
       if (_attempts >= 6) {
-        await _forgotPin(context, ref); // Trigger wallet deletion
+        await _forgotPin(context, ref);
       } else {
         int remainingAttempts = 6 - _attempts;
         showMessageSnackBar(
           context: context,
-          message: 'Invalid PIN'.i18n(ref) + ' $remainingAttempts ' + 'attempts remaining'.i18n(ref),
+          message: 'Invalid PIN'.i18n + ' $remainingAttempts ' + 'attempts remaining'.i18n,
           error: true,
         );
       }
@@ -125,7 +130,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
 
     if (canCheckBiometrics) {
       bool authenticated = await _localAuth.authenticate(
-        localizedReason: 'Please authenticate to open the app'.i18n(ref),
+        localizedReason: 'Please authenticate to open the app'.i18n,
         options: const AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: true,
@@ -133,6 +138,9 @@ class _OpenPinState extends ConsumerState<OpenPin> {
       );
 
       if (authenticated) {
+        ref.read(appLockedProvider.notifier).state = false;
+        ref.invalidate(bitcoinConfigProvider);
+        ref.invalidate(liquidConfigProvider);
         context.go('/home');
       }
     }
@@ -144,8 +152,8 @@ class _OpenPinState extends ConsumerState<OpenPin> {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.error,
-      title: 'Delete Account?'.i18n(ref),
-      text: 'All information will be permanently deleted.'.i18n(ref),
+      title: 'Delete Account?'.i18n,
+      text: 'All information will be permanently deleted.'.i18n,
       titleColor: Colors.redAccent,
       textColor: Colors.white70,
       backgroundColor: Colors.black87,
@@ -159,7 +167,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
             context.pop();
             await _forgotPin(context, ref);
           },
-          text: 'Delete wallet'.i18n(ref),
+          text: 'Delete wallet'.i18n,
           backgroundColor: Colors.redAccent,
         ),
       ),
@@ -170,6 +178,9 @@ class _OpenPinState extends ConsumerState<OpenPin> {
   Future<void> _forgotPin(BuildContext context, WidgetRef ref) async {
     final authModel = ref.read(authModelProvider);
     await authModel.deleteAuthentication(); // Delete the wallet
+    ref.read(appLockedProvider.notifier).state = true;
+    ref.invalidate(bitcoinConfigProvider);
+    ref.invalidate(liquidConfigProvider);
     context.go('/');
   }
 }

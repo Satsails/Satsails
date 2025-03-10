@@ -302,7 +302,7 @@ extension Localization on String {
         'pt': 'Exceção: Endereço inválido',
       } +
       {
-        'en': 'Bitcoin Balance',
+        'en': 'Bitcoin balance',
         'pt': 'Saldo Bitcoin',
       } +
       {
@@ -2101,8 +2101,8 @@ extension Localization on String {
         'pt': 'Gerar Código QR'
       } +
       {
-        'en': 'You can only transfer R\$ 6000 per day.',
-        'pt': 'Você pode transferir apenas R\$ 6000 por dia.'
+        'en': 'You can only transfer R\$ 6000 per 24h per person',
+        'pt': 'Você pode transferir apenas R\$ 6000 em 24h por pessoa.'
       } +
       {
         'en': 'If you send anymore than that, the amount will be refunded to your bank account.',
@@ -2139,15 +2139,287 @@ extension Localization on String {
       {
         'en': 'Pending payment',
         'pt': 'Pending payment'
+      } +
+      {
+        'en': 'Amount',
+        'pt': 'Valor'
+      } +
+      {
+        'en': 'Asset',
+        'pt': 'Ativo'
+      } +
+      {
+        'en': 'Recipient',
+        'pt': 'Destinatário'
+      } +
+      {
+        'en': 'Confirmation',
+        'pt': 'Confirmação'
+      } +
+      {
+        'en': 'Transaction ID',
+        'pt': 'ID da Transação'
+      } +
+      {
+        'en': 'Copied',
+        'pt': 'Copiado'
+      } +
+      {
+        'en': 'Instant',
+        'pt': 'Instantâneo'
+      } +
+      {
+        'en': '1 block',
+        'pt': '1 bloco'
+      } +
+      {
+        'en': 'blocks',
+        'pt': 'blocos'
+      } +
+      {
+        'en': "Purchases above R\$ 6000 from the same person will be refunded to the sender's bank account",
+        'pt': 'Compras acima de R\$ 6000 da mesma pessoa serão devolvidas ao remetente',
+      } +
+      {
+        'en': 'Select Provider',
+        'pt': 'Selecionar Provedor',
+      }
+      +
+      {
+        'en': 'No KYC needed',
+        'pt': 'Sem KYC necessário',
+      }
+      +
+      {
+        'en': 'Only accepts BRL',
+        'pt': 'Só aceita BRL',
+      }
+      +
+      {
+        'en': 'Max 6000 BRL per day',
+        'pt': 'Máx. 6000 BRL por dia',
+      }
+      +
+      {
+        'en': 'See details',
+        'pt': 'Ver detalhes',
+      }
+      +
+      {
+        'en': 'Transfer in 1-2 days',
+        'pt': 'Transferência em 1-2 dias',
+      }
+      +
+      {
+        'en': 'Accepted Currencies: BRL',
+        'pt': 'Moedas aceitas: BRL',
+      }
+      +
+      {
+        'en': 'Advantages:',
+        'pt': 'Vantagens:',
+      }
+      +
+      {
+        'en': 'Maximum purchase: 6000 BRL per day',
+        'pt': 'Compra máxima: 6000 BRL por dia',
+      }
+      +
+      {
+        'en': 'Near-instant deposits',
+        'pt': 'Depósitos quase instantâneos',
+      }
+      +
+      {
+        'en': 'No documentation required',
+        'pt': 'Sem documentação necessária',
+      }
+      +
+      {
+        'en': 'Minimum purchase: 1 BRL',
+        'pt': 'Compra mínima: 1 BRL',
+      }
+      +
+      {
+        'en': 'Disadvantages:',
+        'pt': 'Desvantagens:',
+      }
+      +
+      {
+        'en': 'If a user sends more than 6000 BRL per day, refunds are not automatic and may take several hours',
+        'pt': 'Se um usuário enviar mais de 6000 BRL por dia, os reembolsos não são automáticos e podem levar várias horas',
+      }
+      +
+      {
+        'en': 'Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payer\'s name',
+        'pt': 'Compras de tokens Depix são reportadas e registradas na Receita Federal Brasileira em nome do pagador',
+      }
+      +
+      {
+        'en': 'Not possible to send documentation and unlock higher purchase amounts.',
+        'pt': 'Não é possível enviar documentação e desbloquear valores de compra mais altos.',
+      }
+      +
+      {
+        'en': 'You will need to convert DEPIX into bitcoin manually',
+        'pt': 'Você precisará converter DEPIX em bitcoin manualmente',
+      }
+      +
+      {
+        'en': 'Maximum of 5000 BRL per single transaction',
+        'pt': 'Máximo de 5000 BRL por transação',
+      }
+      +
+      {
+        'en': 'A purchase history is required to gradually unlock the maximum transaction limit: starting at 500 BRL, then increasing to 1000 BRL and 2000 BRL, eventually unlocking up to 5000 BRL per transaction.',
+        'pt': 'É necessário um histórico de compras para desbloquear gradualmente o limite máximo de transação: começando em 500 BRL, depois aumentando para 1000 BRL e 2000 BRL, eventualmente desbloqueando até 5000 BRL por transação.',
+      }
+      +
+      {
+        'en': 'First purchase tax number will be assumed for further purchases. If you pay from another tax number, purchase will be refunded',
+        'pt': 'CPF do primeiro pedido será assumido para próximos pedidos. Se pagar de outro cpf, a compra será reembolsada.',
+      }
+      +
+      {
+        'en': 'Purchases from users that differ from the first purchase cpf will be refunded',
+        'pt': 'Compras feita com um cpf diferente da primeira compra, serão reembolsadas',
+      }
+      +
+      {
+        'en': 'Hide details',
+        'pt': 'Esconder detalhes',
+      }
+      +
+      {
+        'en': 'blocks',
+        'pt': 'blocos',
+      }
+      +
+      {
+        'en': "Purchases above R\$ 6000 from the same person will be refunded to the sender's bank account",
+        'pt': 'Compras acima de R\$ 6000 da mesma pessoa serão devolvidas ao remetente',
+      }
+      +
+      {
+        'en': "Back to Home",
+        'pt': 'Voltar para inicio',
+      }+
+      {
+        'en': "Purchases above R\$ 6000 from the same person will be refunded to the sender's bank account",
+        'pt': 'Compras acima de R\$ 6000 da mesma pessoa serão devolvidas ao remetente',
+      }
+      +
+      {
+        'en': "Back to Home",
+        'pt': 'Voltar para início',
+      }
+      +
+      {
+        'en': "The amount purchased today is aggregated from all transfers made in the current day.",
+        'pt': 'O valor comprado hoje é a soma de todas as transferências feitas no dia atual.',
+      }
+      +
+      {
+        'en': "Min purchase for on-chain BTC conversion:",
+        'pt': "Valor mínimo para conversão de BTC on-chain:",
+      }
+      +
+      {
+        'en': "Amount Purchased Today:",
+        'pt': "Valor comprado hoje:",
+      }
+      +
+      {
+        'en': "Transfer limit: R\$ 6000",
+        'pt': "Limite de Transferência: R\$ 6000",
+      }
+      +
+      {
+        'en': "We are unable to process your transaction. Please contact support for further information.",
+        'pt': "Não podemos processar a sua transação. Por favor, contate o suporte para obter mais informações.",
+      }
+      +
+      {
+        'en': "If a purchase exceeds R\$6000 from the same person, the excess amount will be refunded automatically to the sender\'s bank account.",
+        'pt': "Se um comprimento for superior a R\$6000 da mesma pessoa, o valor será devolvido automaticamente para o cartão de crédito do recebedor.",
+      }
+      +
+      {
+        'en': "Each person can only transfer up to R\$6000 within a 24-hour period to ensure fair usage.",
+        'pt': "Cada pessoa pode transferir até R\$6000 em um período de 24 horas para garantir a utilização equilibrada.",
+      } +
+      {
+        'en': "Additional Information:",
+        'pt': "Informações Adicionais:",
+      }+
+      {
+        'en': "Transfer limit: R\$ 6000 per 24h per person",
+        'pt': "Limite de Transferência: R\$ 6000 por 24h por pessoa",
+      }+
+      {
+        'en': "Fixed fee",
+        'pt': "Taxa fixa",
+      }+
+      {
+        'en': "Total fee",
+        'pt': "Taxa total",
+      }+
+      {
+        'en': "The maximum allowed transfer amount is 5000 BRL",
+        'pt': "O valor máximo permitido por deposito é de 5000 BRL",
+      }+
+      {
+        'en': "Error inserting affiliate code",
+        'pt': "Erro ao inserir código de afiliado",
+      }+
+      {
+        'en': "Affiliate code inserted successfully",
+        'pt': "Código de afiliado inserido com sucesso",
+      }+
+      {
+        'en': "Onboarding made by pix metadata on first purchase",
+        'pt': "Onboarding através do metadados de PIX",
+      }+
+      {
+        'en': "Not registered",
+        'pt': "Sem registro",
+      }+
+      {
+        'en': "Registered Tax id: ",
+        'pt': "Tax ID registrado: "
+      } +
+      {
+        'en': "Enrollment process required",
+        'pt': "Processo de inscrição necessário",
+      } +
+      {
+        'en': "No limit purchases",
+        'pt': "Compras sem limite",
+      }+
+      {
+        'en': "Purchase bitcoin directly",
+        'pt': "Comprar bitcoin diretamente",
+      }+
+      {
+        'en': "Near unlimited purchase amounts",
+        'pt': "Valores de compra quase ilimitados",
+      }+
+      {
+        'en': "You have to KYC with the provider",
+        'pt': "Você precisa passar pelo KYC com o provedor",
+      }+
+      {
+        'en': "Purchases reported to the Brazilian federal revenue agency under the payer's name",
+        'pt': "Compras são relatadas à Receita Federal brasileira em nome do pagador",
+      }+
+      {
+        'en': "Purchase",
+        'pt': "Comprar",
+      }+
+      {
+        'en': "Depix token purchases are returned to the sender bank if CPF/CNPJ diverges for the one registered",
+        'pt': "As compras de depix são devolvidas ao banco do remetente se o CPF/CNPJ divergem do registrado",
       };
 
-  String i18n(WidgetRef ref) {
-    var currentLanguage = ref.read(settingsProvider).language;
-    if (currentLanguage == 'EN' || currentLanguage == 'en') {
-      currentLanguage = 'en';
-    } else if (currentLanguage == 'PT' || currentLanguage == 'pt') {
-      currentLanguage = 'pt';
-    }
-    return localize(this, _t, locale: currentLanguage);
-  }
+  String get i18n => localize(this, _t);
 }

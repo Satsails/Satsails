@@ -39,33 +39,37 @@ To build the Satsails application for Flutter, follow these steps:
 1. **Install FVM**:
    First, install FVM by following the instructions at [FVM Installation Guide](https://fvm.app/documentation/getting-started/installation).
 
-2. **Clone the Repository**:
+2. **Create a Firebase Project**:
+
+3. **Set Up Firebase for Your Flutter App**:
+
+4. **Clone the Repository**:
    ```bash
    git clone https://github.com/your_username/satsails.git
    cd satsails
    ```
 
-3. **Use the Correct Flutter Version**:
+5. **Use the Correct Flutter Version**:
    Run the following command to use the specified Flutter version:
    ```bash
    fvm use
    ```
 
-4. **Get Dependencies**:
+6. **Get Dependencies**:
    Run the following command to fetch all the required dependencies:
    ```bash
    flutter pub get
    ```
 
-5. **Create the `.env` File**:
+7. **Create the `.env` File**:
    You need to create an `.env` file following the example provided in the `.env.sample` file. Contact Satsails to obtain the necessary values for the `.env` file at [contatosatsails@proton.me](mailto:contatosatsails@proton.me).
 
-6. **Run the Application**:
+8. **Run the Application**:
    You can run the application on an emulator or a connected device using:
    ```bash
    flutter run
    ```
 
-7. **Additional Build Options**:
+9. **Additional Build Options**:
    You can also build for iOS or other platforms. Refer to the Flutter documentation for more details on building for different platforms.
 

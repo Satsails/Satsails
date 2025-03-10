@@ -29,7 +29,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
           onLongPress: () {}, // Disable long press by doing nothing
           child: Icon(Icons.dashboard, size: math.min(screenHeight * 0.03, 25.0)),
         ),
-        label: 'Home'.i18n(ref),
+        label: 'Home'.i18n,
       ),
       BottomNavigationBarItem(
         icon: GestureDetector(
@@ -37,7 +37,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
           onLongPress: () {}, // Disable long press by doing nothing
           child: Icon(Icons.analytics, size: math.min(screenHeight * 0.03, 25.0)),
         ),
-        label: 'Analytics'.i18n(ref),
+        label: 'Analytics'.i18n,
       ),
       BottomNavigationBarItem(
         icon: GestureDetector(
@@ -45,7 +45,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
           onLongPress: () {}, // Disable long press by doing nothing
           child: Icon(Icons.lightbulb, size: math.min(screenHeight * 0.03, 25.0)),
         ),
-        label: 'Services'.i18n(ref),
+        label: 'Services'.i18n,
       ),
       BottomNavigationBarItem(
         icon: GestureDetector(
@@ -53,7 +53,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
           onLongPress: () {}, // Disable long press by doing nothing
           child: Icon(Icons.account_balance_wallet, size: math.min(screenHeight * 0.03, 25.0)),
         ),
-        label: 'Wallets'.i18n(ref),
+        label: 'Wallets'.i18n,
       ),
     ];
 

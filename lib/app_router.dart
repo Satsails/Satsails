@@ -1,7 +1,10 @@
 import 'package:Satsails/models/transactions_model.dart';
+import 'package:Satsails/screens/explore/components/deposit_bitcoin_pix_nox.dart';
 import 'package:Satsails/screens/explore/components/deposit_method.dart';
-import 'package:Satsails/screens/explore/components/deposit_pix.dart';
+import 'package:Satsails/screens/explore/components/deposit_depix_pix_eulen.dart';
+import 'package:Satsails/screens/explore/components/deposit_provider.dart';
 import 'package:Satsails/screens/explore/components/deposit_type.dart';
+import 'package:Satsails/screens/explore/components/sell_type.dart';
 import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/creation/confirm_pin.dart';
 import 'package:Satsails/screens/login/seed_words_pin.dart';
@@ -29,7 +32,59 @@ import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/screens/home/components/search_modal.dart';
 import 'package:Satsails/screens/settings/components/backup_wallet.dart';
 
+import 'package:flutter/material.dart';
+
 class AppRouter {
+  /// Helper method: returns a [CustomTransitionPage] that
+  /// applies a subtle scale+fade effect—ideal for a premium app.
+  ///
+  /// 1) Starts slightly scaled down (0.95) for a refined "zoom up" feel.
+  /// 2) Simultaneously fades in from 0.0 to 1.0.
+  /// 3) Uses a CurvedAnimation (easeOutCubic) for a smooth yet professional vibe.
+  static CustomTransitionPage<void> _buildFadeScalePage({
+    required Widget child,
+    required GoRouterState state,
+    Duration duration = const Duration(milliseconds: 200),
+  }) {
+    return CustomTransitionPage<void>(
+      key: state.pageKey,
+      child: child,
+      transitionDuration: duration,
+      reverseTransitionDuration: duration, // Explicitly set reverse duration
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        // Use different curves for enter/exit
+        final isPush = animation.status == AnimationStatus.forward;
+
+        final curve = isPush
+            ? Curves.easeOutCubic
+            : Curves.easeInCubic;
+
+        final fadeAnimation = CurvedAnimation(
+          parent: animation,
+          curve: curve,
+        );
+
+        final scaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          ),
+        );
+
+        return FadeTransition(
+          opacity: fadeAnimation,
+          child: ScaleTransition(
+            scale: scaleAnimation,
+            alignment: Alignment.center,
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+
+  /// Creates a GoRouter with all your routes, each wrapped in our custom
+  /// "fade+scale" page transition.
   static GoRouter createRouter(String initialRoute) {
     return GoRouter(
       initialLocation: initialRoute,
@@ -37,111 +92,200 @@ class AppRouter {
         GoRoute(
           path: '/',
           name: 'start',
-          builder: (context, state) => const Start(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const Start(),
+            state: state,
+          ),
         ),
         GoRoute(
           path: '/transaction-details',
           name: 'transactionDetails',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final transaction = state.extra as BitcoinTransaction;
-            return TransactionDetailsScreen(transaction: transaction);
+            return _buildFadeScalePage(
+              child: TransactionDetailsScreen(transaction: transaction),
+              state: state,
+            );
           },
         ),
         GoRoute(
           path: '/liquid-transaction-details',
           name: 'liquidTransactionDetails',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final transaction = state.extra as LiquidTransaction;
-            return LiquidTransactionDetailsScreen(transaction: transaction);
+            return _buildFadeScalePage(
+              child: LiquidTransactionDetailsScreen(transaction: transaction),
+              state: state,
+            );
           },
         ),
         GoRoute(
           path: '/seed_words',
           name: 'seed_words',
-          builder: (context, state) => const SeedWords(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const SeedWords(),
+            state: state,
+          ),
         ),
         GoRoute(
           path: '/open_pin',
           name: 'open_pin',
-          builder: (context, state) => OpenPin(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: OpenPin(),
+            state: state,
+          ),
         ),
         GoRoute(
           path: '/open_seed_words_pin',
           name: 'open_seed_words_pin',
-          builder: (context, state) => SeedWordsPin(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: SeedWordsPin(),
+            state: state,
+          ),
         ),
         GoRoute(
           path: '/accounts',
           name: 'accounts',
-          builder: (context, state) => const Accounts(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const Accounts(),
+            state: state,
+          ),
         ),
         GoRoute(
           path: '/analytics',
           name: 'analytics',
-          builder: (context, state) => const Analytics(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const Analytics(),
+            state: state,
+          ),
         ),
         GoRoute(
           path: '/confirm_pin',
           name: 'confirm_pin',
-          builder: (context, state) => const ConfirmPin(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const ConfirmPin(),
+            state: state,
+          ),
         ),
         GoRoute(
           path: '/set_pin',
           name: 'set_pin',
-          builder: (context, state) => const SetPin(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const SetPin(),
+            state: state,
+          ),
         ),
         GoRoute(
           path: '/apps',
           name: 'apps',
-          builder: (context, state) => const Services(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const Services(),
+            state: state,
+          ),
         ),
+        // Main screen with subroutes
         GoRoute(
           path: '/home',
           name: 'home',
-          builder: (context, state) => const MainScreen(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const MainScreen(),
+            state: state,
+          ),
           routes: [
             GoRoute(
               path: '/pay',
-              builder: (context, state) => Pay(),
+              pageBuilder: (context, state) => _buildFadeScalePage(
+                child: Pay(),
+                state: state,
+              ),
               routes: [
                 GoRoute(
                   path: '/confirm_bitcoin_payment',
-                  builder: (context, state) => ConfirmBitcoinPayment(),
+                  pageBuilder: (context, state) => _buildFadeScalePage(
+                    child: ConfirmBitcoinPayment(),
+                    state: state,
+                  ),
                 ),
                 GoRoute(
                   path: '/confirm_liquid_payment',
-                  builder: (context, state) => ConfirmLiquidPayment(),
+                  pageBuilder: (context, state) => _buildFadeScalePage(
+                    child: ConfirmLiquidPayment(),
+                    state: state,
+                  ),
                 ),
                 GoRoute(
                   path: '/confirm_custodial_lightning_payment',
-                  builder: (context, state) => ConfirmCustodialLightningPayment(),
+                  pageBuilder: (context, state) => _buildFadeScalePage(
+                    child: ConfirmCustodialLightningPayment(),
+                    state: state,
+                  ),
                 ),
               ],
             ),
             GoRoute(
               path: '/deposit_type',
-              builder: (context, state) => DepositType(),
-              routes: [],
+              pageBuilder: (context, state) => _buildFadeScalePage(
+                child: DepositType(),
+                state: state,
+              ),
             ),
             GoRoute(
               path: '/receive',
-              builder: (context, state) => Receive(),
+              pageBuilder: (context, state) => _buildFadeScalePage(
+                child: Receive(),
+                state: state,
+              ),
             ),
             GoRoute(
               path: '/explore',
-              builder: (context, state) => const Explore(),
+              pageBuilder: (context, state) => _buildFadeScalePage(
+                child: const Explore(),
+                state: state,
+              ),
               routes: [
                 GoRoute(
-                  path: '/deposit_type',
-                  builder: (context, state) => DepositType(),
+                  path: '/sell_type',
+                  pageBuilder: (context, state) => _buildFadeScalePage(
+                    child: SellType(),
+                    state: state,
+                  ),
+                ),
+                GoRoute(
+                  path: 'deposit_type',
+                  pageBuilder: (context, state) => _buildFadeScalePage(
+                    child: DepositType(),
+                    state: state,
+                  ),
                   routes: [
                     GoRoute(
-                      path: '/deposit_method',
-                      builder: (context, state) => DepositMethod(),
+                      path: 'deposit_method',
+                      pageBuilder: (context, state) => _buildFadeScalePage(
+                        child: DepositMethod(),
+                        state: state,
+                      ),
                       routes: [
                         GoRoute(
-                          path: '/deposit_pix',
-                          builder: (context, state) => DepositPix(),
+                          path: 'deposit_provider',
+                          pageBuilder: (context, state) => _buildFadeScalePage(
+                            child: DepositProvider(),
+                            state: state,
+                          ),
+                          routes: [
+                            GoRoute(
+                              path: 'deposit_pix_eulen',
+                              pageBuilder: (context, state) => _buildFadeScalePage(
+                                child: DepositDepixPixEulen(),
+                                state: state,
+                              ),
+                            ),
+                            GoRoute(
+                              path: 'deposit_pix_nox',
+                              pageBuilder: (context, state) => _buildFadeScalePage(
+                                child: DepositBitcoinPixNox(),
+                                state: state,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -151,38 +295,59 @@ class AppRouter {
             ),
             GoRoute(
               path: '/exchange',
-              builder: (context, state) => Exchange(),
+              pageBuilder: (context, state) => _buildFadeScalePage(
+                child: Exchange(),
+                state: state,
+              ),
             ),
             GoRoute(
               path: 'settings',
-              builder: (context, state) => const Settings(),
-            )
+              pageBuilder: (context, state) => _buildFadeScalePage(
+                child: const Settings(),
+                state: state,
+              ),
+            ),
           ],
         ),
         GoRoute(
           path: '/recover_wallet',
           name: 'recover_wallet',
-          builder: (context, state) => const RecoverWallet(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const RecoverWallet(),
+            state: state,
+          ),
         ),
         GoRoute(
           path: '/search_modal',
           name: 'search_modal',
-          builder: (context, state) => const SearchModal(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const SearchModal(),
+            state: state,
+          ),
         ),
         GoRoute(
           path: '/backup_wallet',
           name: 'backup_wallet',
-          builder: (context, state) => const BackupWallet(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const BackupWallet(),
+            state: state,
+          ),
         ),
         GoRoute(
           path: '/pix_transaction_details',
           name: 'pix_transaction_details',
-          builder: (context, state) => const PixTransactionDetails(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const PixTransactionDetails(),
+            state: state,
+          ),
         ),
         GoRoute(
           path: '/support',
           name: 'support',
-          builder: (context, state) => const Support(),
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const Support(),
+            state: state,
+          ),
         ),
       ],
     );

@@ -2,6 +2,7 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/currency_conversions.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:hive/hive.dart';
+import 'package:lwk/lwk.dart';
 import 'package:riverpod/riverpod.dart';
 
 part 'balance_model.g.dart';
@@ -34,23 +35,15 @@ class BalanceNotifier extends StateNotifier<WalletBalance> {
         state = cachedBalance;
       }
 
-      // Listen for balance updates
-      ref.listen<AsyncValue<WalletBalance>>(initializeBalanceProvider, (previous, next) async {
-        next.when(
-          data: (balance) async {
-            state = balance; // Update state with new balance
-            await hiveBox.put('balance', balance); // Store new balance in Hive
-          },
-          loading: () {
-            // Do nothing, retain previous balance
-          },
-          error: (error, stackTrace) {
-            print('Error updating balance: $error');
-          },
-        );
+      // Listen for changes in the Hive box
+      hiveBox.watch(key: 'balance').listen((event) {
+        if (event.value != null && event.value is WalletBalance) {
+          state = event.value as WalletBalance;
+        }
       });
     });
   }
+
 
   void updateLightningBalance(int newLightningBalance) {
     state = WalletBalance(
@@ -151,7 +144,7 @@ class WalletBalance {
     int? lightningBalance,
   }) : lightningBalance = lightningBalance ?? 0;
 
-  factory WalletBalance.updateFromAssets(List<dynamic> balances, int bitcoinBalance, int lightningBalance) {
+  factory WalletBalance.updateFromAssets(Balances balances, int bitcoinBalance, int lightningBalance) {
     int usdBalance = 0;
     int eurBalance = 0;
     int brlBalance = 0;

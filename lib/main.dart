@@ -1,37 +1,41 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
-import 'package:Satsails/models/purchase_model.dart';
+import 'package:Satsails/models/eulen_transfer_model.dart';
+import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/transactions_provider.dart';
+import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
 import 'package:Satsails/screens/spash/splash.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:i18n_extension/default.i18n.dart';
-import 'package:lwk_dart/lwk_dart.dart';
+import 'package:lwk/lwk.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
-import 'package:Satsails/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:pusher_beams/pusher_beams.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import './app_router.dart';
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,50 +46,37 @@ Future<void> main() async {
 
   await dotenv.load(fileName: ".env");
 
-  await PusherBeams.instance.start(dotenv.env['PUSHERINSTANCE']!);
-  PusherBeams.instance.onMessageReceivedInTheForeground((message) async {
-    if (Platform.isAndroid || Platform.isIOS) {
-      const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        'pix_payments_channel',
-        'PIX Payments',
-        channelDescription: 'Notifications for received PIX transactions.',
-        importance: Importance.max,
-        priority: Priority.high,
-        showWhen: false,
-      );
-      const DarwinNotificationDetails iOSPlatformChannelSpecifics = DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-        subtitle: 'PIX Payments',
-      );
-      const NotificationDetails platformChannelSpecifics = NotificationDetails(
-        android: androidPlatformChannelSpecifics,
-        iOS: iOSPlatformChannelSpecifics,
-      );
+  await Firebase.initializeApp();
+  await FirebaseService.getAndRefreshFCMToken();
+  await FirebaseService.listenForForegroundPushNotifications();
 
-      await flutterLocalNotificationsPlugin.show(
-        0,
-        'Depósito de Depix',
-        'Você recebeu um novo depósito de Depix.',
-        platformChannelSpecifics,
-      );
-      final container = ProviderContainer();
-      container.read(syncOnAppOpenProvider.notifier).state = true;
-    }
-  });
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.playIntegrity,
+    appleProvider: AppleProvider.appAttest
+  );
 
-  // Initialize Hive for local storage
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
   Hive.registerAdapter(WalletBalanceAdapter());
   Hive.registerAdapter(SideswapPegStatusAdapter());
   Hive.registerAdapter(SideswapCompletedSwapAdapter());
   Hive.registerAdapter(CoinosPaymentAdapter());
-  Hive.registerAdapter(PurchaseAdapter());
+  Hive.registerAdapter(EulenTransferAdapter());
 
   await LwkCore.init();
-  await FlutterBranchSdk.init(enableLogging: false, disableTracking: true);
+
+  try {
+    await FlutterBranchSdk.init(enableLogging: false, branchAttributionLevel: BranchAttributionLevel.NONE);
+  } catch (e) {
+    // Ignoring errors
+  }
 
   FlutterBranchSdk.listSession().listen((data) async {
     if (data.containsKey("affiliateCode")) {
@@ -96,15 +87,32 @@ Future<void> main() async {
       if (insertedAffiliateCode != null && currentInsertedAffiliateCode.isEmpty) {
         box.put('affiliateCode', upperCaseCode);
         showSimpleNotification(
-          Text('Affiliate code $upperCaseCode inserted!'.i18n),
+          Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Affiliate code $upperCaseCode inserted!'.i18n,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
           background: Colors.green,
+          elevation: 10,
+          contentPadding: EdgeInsets.all(8),
         );
       }
     }
   });
 
   runApp(
-      const OverlaySupport.global(
+    const OverlaySupport.global(
       child: RestartWidget(
         child: ProviderScope(
           child: TransactionNotificationsListener(
@@ -125,19 +133,20 @@ class MainApp extends ConsumerStatefulWidget {
 
 class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   Timer? _lockTimer;
+  Timer? _syncTimer;
+  Timer? _purchaseTimer;
   final int lockThresholdInSeconds = 300; // 5 minutes
   GoRouter? _router;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this); // Observe app lifecycle
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.black,
       systemNavigationBarIconBrightness: Brightness.light,
     ));
 
-    // Initialize the router
     _initializeRouter();
   }
 
@@ -150,12 +159,15 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     setState(() {
       _router = AppRouter.createRouter(initialRoute);
     });
+
+    _startSyncTimer();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this); // Stop observing
-    _cancelLockTimer(); // Cancel the timer if the app is closed
+    WidgetsBinding.instance.removeObserver(this);
+    _cancelLockTimer();
+    _cancelSyncTimer();
     super.dispose();
   }
 
@@ -164,17 +176,15 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       _startLockCountdown();
+      _cancelSyncTimer();
     } else if (state == AppLifecycleState.resumed) {
-      if (ref.read(syncOnAppOpenProvider)) {
-        ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-        ref.read(syncOnAppOpenProvider.notifier).state = false;
-      }
       _cancelLockTimer();
+      _startSyncTimer();
     }
   }
 
   void _startLockCountdown() {
-    _cancelLockTimer(); // Ensure no previous timer is running
+    _cancelLockTimer();
     _lockTimer = Timer(Duration(seconds: lockThresholdInSeconds), _lockApp);
   }
 
@@ -186,10 +196,10 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   Future<void> _lockApp() async {
     ref.read(sendTxProvider.notifier).resetToDefault();
     ref.read(sendBlocksProvider.notifier).state = 1;
-
+    ref.read(appLockedProvider.notifier).state = true;
     final authModel = ref.read(authModelProvider);
-    final mnemonic = await authModel.getMnemonic();
 
+    final mnemonic = await authModel.getMnemonic();
     if (mnemonic == null || mnemonic.isEmpty) {
       _router!.go('/');
     } else {
@@ -197,9 +207,40 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     }
   }
 
+  void _startSyncTimer() {
+    _cancelSyncTimer();
+
+    Future.microtask(() async => await fetchAndUpdateTransactions(ref));
+    _syncTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+      final appIsLocked = ref.read(appLockedProvider) == true;
+      if (!appIsLocked) {
+        fetchAndUpdateTransactions(ref);
+        ref.read(updateCurrencyProvider);
+        ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+      }
+    });
+
+    _purchaseTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
+      final auth = ref.watch(userProvider).jwt;
+      final appIsLocked = ref.read(appLockedProvider) == true;
+      if (!appIsLocked && auth.isNotEmpty) {
+        ref.read(getUserPurchasesProvider);
+      }
+    });
+  }
+
+  void _cancelSyncTimer() {
+    _syncTimer?.cancel();
+    _syncTimer = null;
+    _purchaseTimer?.cancel();
+    _purchaseTimer = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final language = ref.watch(settingsProvider).language;
+
+    I18n.define(Locale(language));
 
     if (_router == null) {
       return const MaterialApp(
@@ -209,7 +250,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     }
 
     return ScreenUtilInit(
-      designSize: const Size(430, 932), // Design size based on iPhone 16 Pro Max
+      designSize: const Size(430, 932),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
@@ -230,9 +271,10 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
           builder: (context, child) {
             return MediaQuery(
               data: MediaQuery.of(context).copyWith(
-                textScaleFactor: 1.0, // Prevent text scaling based on user settings
+                textScaleFactor: 1.0,
               ),
               child: I18n(
+                initialLocale: Locale(language),
                 child: child!,
               ),
             );
@@ -242,4 +284,3 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     );
   }
 }
-

@@ -1,6 +1,6 @@
 import 'package:Satsails/helpers/string_extension.dart';
-import 'package:Satsails/models/purchase_model.dart';
-import 'package:Satsails/providers/purchase_provider.dart';
+import 'package:Satsails/models/eulen_transfer_model.dart';
+import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -30,14 +30,14 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
 
   @override
   Widget build(BuildContext context) {
-    final transaction = ref.watch(singlePurchaseDetailsProvider);
+    final transaction = ref.watch(singleEulenTransfersDetailsProvider);
     const double dynamicMargin = 16.0;
     const double dynamicRadius = 12.0;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Transaction Details'.i18n(ref),
+          'Transaction Details'.i18n,
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
@@ -72,16 +72,16 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
               Divider(color: Colors.grey.shade700),
               const SizedBox(height: 16.0),
               Text(
-                "About the transaction".i18n(ref),
+                "About the transaction".i18n,
                 style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16.0),
               _buildTransactionDetails(ref, transaction),
-              if (transaction.completedTransfer) ...[
+              if (transaction.completed) ...[
                 Divider(color: Colors.grey.shade700),
                 const SizedBox(height: 16.0),
                 Text(
-                  "Fees".i18n(ref),
+                  "Fees".i18n,
                   style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16.0),
@@ -94,18 +94,18 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     );
   }
 
-  Widget _buildTransactionHeader(WidgetRef ref, Purchase transaction) {
+  Widget _buildTransactionHeader(WidgetRef ref, EulenTransfer transaction) {
     return Column(
       children: [
         Icon(
           transaction.failed
               ? Icons.error_rounded
-              : transaction.completedTransfer 
+              : transaction.completed
               ? Icons.check_circle_rounded
               : Icons.access_time_rounded,
           color: transaction.failed
               ? Colors.red
-              : transaction.completedTransfer 
+              : transaction.completed
               ? Colors.green
               : Colors.orange,
           size: 40,
@@ -113,7 +113,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
         const SizedBox(height: 8.0),
         Text(
           transaction.failed
-              ? "Transaction failed".i18n(ref)
+              ? "Transaction failed".i18n
               : currencyFormat(transaction.receivedAmount, 'BRL', decimalPlaces: 2),
           style: TextStyle(
             color: transaction.failed ? Colors.red : Colors.green,
@@ -122,18 +122,18 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           ),
         ),
         const SizedBox(height: 8.0),
-        if (transaction.completedTransfer )
+        if (transaction.completed )
           GestureDetector(
             onTap: () {
-              Clipboard.setData(ClipboardData(text: transaction.transferId));
+              Clipboard.setData(ClipboardData(text: transaction.transactionId));
               showMessageSnackBar(
-                message: 'Transfer ID copied'.i18n(ref),
+                message: 'Transfer ID copied'.i18n,
                 error: false,
                 context: context,
               );
             },
             child: Text(
-              transaction.transferId,
+              transaction.transactionId,
               style: TextStyle(color: Colors.white, fontSize: MediaQuery.of(context).size.width * 0.045),
             ),
           ),
@@ -141,7 +141,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
     );
   }
 
-  Widget _buildTransactionDetails(WidgetRef ref, Purchase transaction) {
+  Widget _buildTransactionDetails(WidgetRef ref, EulenTransfer transaction) {
     return Column(
       children: [
         TransactionDetailRow(
@@ -150,34 +150,34 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
         ),
         const SizedBox(height: 16.0),
         TransactionDetailRow(
-          label: "Date".i18n(ref),
+          label: "Date".i18n,
           value: "${transaction.createdAt.day}/${transaction.createdAt.month}/${transaction.createdAt.year}",
         ),
         const SizedBox(height: 16.0),
         TransactionDetailRow(
-          label: "Status".i18n(ref),
+          label: "Status".i18n,
           value: transaction.failed
-              ? "Transaction failed".i18n(ref)
-              : transaction.completedTransfer 
-              ? "Completed".i18n(ref)
-              : "Pending".i18n(ref),
+              ? "Transaction failed".i18n
+              : transaction.completed
+              ? "Completed".i18n
+              : "Pending".i18n,
         ),
         const SizedBox(height: 16.0),
       ],
     );
   }
 
-  Widget _buildFeeDetails(WidgetRef ref, Purchase transaction) {
+  Widget _buildFeeDetails(WidgetRef ref, EulenTransfer transaction) {
     return Column(
       children: [
         TransactionDetailRow(
-          label: "Original amount".i18n(ref),
+          label: "Original amount".i18n,
           value: currencyFormat(transaction.originalAmount, 'BRL', decimalPlaces: 2),
         ),
         const SizedBox(height: 16.0),
-        if (transaction.completedTransfer )
+        if (transaction.completed )
           TransactionDetailRow(
-            label: "Total fees".i18n(ref),
+            label: "Total fees".i18n,
             value: currencyFormat((transaction.originalAmount - transaction.receivedAmount), 'BRL', decimalPlaces: 2),
           ),
       ],

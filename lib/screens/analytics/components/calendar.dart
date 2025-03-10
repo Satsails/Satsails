@@ -155,7 +155,7 @@ class _CalendarState extends ConsumerState<Calendar> {
             child: SegmentedButtonSlide(
               entries: [
                 SegmentedButtonSlideEntry(
-                  label: "1w".i18n(ref),
+                  label: "1w".i18n,
                 ),
                 const SegmentedButtonSlideEntry(
                   label: "1m",

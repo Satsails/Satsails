@@ -20,7 +20,7 @@ class Settings extends ConsumerWidget {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Text('Settings'.i18n(ref), style: const TextStyle(color: Colors.white)),
+        title: Text('Settings'.i18n, style: const TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
@@ -53,7 +53,7 @@ class Settings extends ConsumerWidget {
   Widget _buildElectrumNodeSection(BuildContext context, WidgetRef ref) {
     return ListTile(
       leading: const Icon(Icons.cloud, color: Colors.white),
-      title: Text('Select Electrum Node'.i18n(ref), style: const TextStyle(color: Colors.white)),
+      title: Text('Select Electrum Node'.i18n, style: const TextStyle(color: Colors.white)),
       subtitle: Text(ref.watch(settingsProvider).nodeType, style: TextStyle(color: Colors.grey)),
       onTap: () {
         showModalBottomSheet(
@@ -96,7 +96,7 @@ class Settings extends ConsumerWidget {
   Widget _buildBlockExplorerSection(BuildContext context, WidgetRef ref) {
     return ListTile(
       leading: const Icon(Clarity.block_solid, color: Colors.white),
-      title: Text('Search the blockchain'.i18n(ref), style: const TextStyle(color: Colors.white)),
+      title: Text('Search the blockchain'.i18n, style: const TextStyle(color: Colors.white)),
       subtitle: const Text('mempool.com', style: TextStyle(color: Colors.grey)),
       onTap: () {
         clearTransactionSearch(ref);
@@ -111,7 +111,7 @@ class Settings extends ConsumerWidget {
 
     return ListTile(
       leading: const Icon(Icons.language, color: Colors.white),
-      title: Text('Language'.i18n(ref), style: const TextStyle(color: Colors.white)),
+      title: Text('Language'.i18n, style: const TextStyle(color: Colors.white)),
       subtitle: Text(settings.language.toUpperCase(), style: const TextStyle(color: Colors.grey)),
       onTap: () {
         showModalBottomSheet(
@@ -123,7 +123,7 @@ class Settings extends ConsumerWidget {
               children: <Widget>[
                 ListTile(
                   leading: Flag(Flags.portugal),
-                  title: Text('Portuguese'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                  title: Text('Portuguese'.i18n, style: const TextStyle(color: Colors.white)),
                   onTap: () {
                     settingsNotifier.setLanguage('pt');
                     context.pop();
@@ -131,7 +131,7 @@ class Settings extends ConsumerWidget {
                 ),
                 ListTile(
                   leading: Flag(Flags.united_states_of_america),
-                  title: Text('English'.i18n(ref), style: const TextStyle(color: Colors.white)),
+                  title: Text('English'.i18n, style: const TextStyle(color: Colors.white)),
                   onTap: () {
                     settingsNotifier.setLanguage('en');
                     context.pop();
@@ -147,7 +147,7 @@ class Settings extends ConsumerWidget {
 
   Widget _buildAffiliateSection(BuildContext context, WidgetRef ref) {
     final affiliateCode = ref.watch(userProvider).affiliateCode ?? '';
-    final hasNotCreatedUser = ref.watch(userProvider).recoveryCode.isEmpty;
+    final hasNotCreatedUser = ref.watch(userProvider).paymentId.isEmpty;
 
     if (hasNotCreatedUser) {
       return SizedBox.shrink();
@@ -155,17 +155,17 @@ class Settings extends ConsumerWidget {
 
     return ListTile(
       leading: const Icon(Icons.account_circle_sharp, color: Colors.white),
-      title: Text('Affiliate Section'.i18n(ref), style: const TextStyle(color: Colors.white)),
+      title: Text('Affiliate Section'.i18n, style: const TextStyle(color: Colors.white)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (affiliateCode.isNotEmpty)
-            Text('Inserted Code:'.i18n(ref) +' $affiliateCode', style: const TextStyle(color: Colors.grey))
+            Text('Inserted Code:'.i18n +' $affiliateCode', style: const TextStyle(color: Colors.grey))
           else
             GestureDetector(
               onTap: () => _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref),
               child: Text(
-                'Insert an affiliate code to get a discount'.i18n(ref),
+                'Insert an affiliate code to get a discount'.i18n,
                 style: const TextStyle(color: Colors.grey),
               ),
             ),
@@ -200,7 +200,7 @@ class Settings extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    title.i18n(ref),
+                    title.i18n,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -211,7 +211,7 @@ class Settings extends ConsumerWidget {
                   TextField(
                     controller: controller,
                     decoration: InputDecoration(
-                      labelText: 'Affiliate Code'.i18n(ref),
+                      labelText: 'Affiliate Code'.i18n,
                       labelStyle: TextStyle(color: Colors.white),
                       border: OutlineInputBorder(),
                       fillColor: Colors.black,
@@ -231,7 +231,7 @@ class Settings extends ConsumerWidget {
                         try {
                           await ref.read(addAffiliateCodeProvider(affiliateCode).future);
                           showMessageSnackBar(
-                            message: 'Affiliate code inserted successfully'.i18n(ref),
+                            message: 'Affiliate code inserted successfully'.i18n,
                             error: false,
                             context: context,
                             top: true,
@@ -241,7 +241,7 @@ class Settings extends ConsumerWidget {
                           context.pop();
                         } catch (e) {
                           showMessageSnackBar(
-                            message: 'Error inserting affiliate code'.i18n(ref),
+                            message: 'Error inserting affiliate code'.i18n,
                             error: true,
                             context: context,
                             top: true,
@@ -263,8 +263,8 @@ class Settings extends ConsumerWidget {
     final walletBackedUp = ref.watch(settingsProvider).backup;
     return ListTile(
       leading: const Icon(Icons.currency_bitcoin, color: Colors.white),
-      title: Text('View Seed Words'.i18n(ref), style: const TextStyle(color: Colors.white)),
-      subtitle: Text('Write them down and keep them safe!'.i18n(ref), style: const TextStyle(color: Colors.grey)),
+      title: Text('View Seed Words'.i18n, style: const TextStyle(color: Colors.white)),
+      subtitle: Text('Write them down and keep them safe!'.i18n, style: const TextStyle(color: Colors.grey)),
       trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
       onTap: () {
         walletBackedUp ? context.push('/open_seed_words_pin') : context.push('/seed_words');
