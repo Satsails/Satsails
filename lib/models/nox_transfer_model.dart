@@ -256,7 +256,7 @@ class NoxService {
   /// Creates a new Nox transaction (purchase or sale).
   static Future<Result<String>> createTransaction(String auth, String quoteId, String address, {String transactionType = 'BUY'}) async {
     try {
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers'),
         body: jsonEncode({
@@ -269,7 +269,7 @@ class NoxService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -287,7 +287,7 @@ class NoxService {
   /// Retrieves a list of Nox transactions.
   static Future<Result<List<NoxTransfer>>> getTransfers(String auth) async {
     try {
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final uri = Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers');
 
       final response = await http.get(
@@ -295,7 +295,7 @@ class NoxService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -316,7 +316,7 @@ class NoxService {
   static Future<Result<NoxTransfer>> getQuote(
       String auth, String fromCurrency, String toCurrency, String amount) async {
     try {
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       // Build the URI with query parameters for from_currency, to_currency, and value_set_to_receive.
       final uri = Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers/quote')
           .replace(queryParameters: {
@@ -330,7 +330,7 @@ class NoxService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 

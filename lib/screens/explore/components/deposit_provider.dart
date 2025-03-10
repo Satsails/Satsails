@@ -129,6 +129,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
         ],
         disadvantages: [
           "Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payer's name",
+          "Depix token purchases are returned to the sender bank if CPF/CNPJ diverges for the one registered",
           "Not possible to send documentation and unlock higher purchase amounts.",
           "Maximum of 5000 BRL per single transaction",
         ],
@@ -288,7 +289,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                                 SizedBox(width: 6.w),
                                 Expanded(
                                   child: Text(
-                                    advantage,
+                                    advantage.i18n,
                                     style: TextStyle(
                                       fontSize: 16.sp,
                                       color: Colors.grey,
@@ -324,7 +325,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
                                 SizedBox(width: 6.w),
                                 Expanded(
                                   child: Text(
-                                    disadvantage,
+                                    disadvantage.i18n,
                                     style: TextStyle(
                                       fontSize: 16.sp,
                                       color: Colors.grey,

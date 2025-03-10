@@ -2256,7 +2256,7 @@ extension Localization on String {
       }
       +
       {
-        'en': 'Not possible to send documentation and unlock higher purchase amounts. ',
+        'en': 'Not possible to send documentation and unlock higher purchase amounts.',
         'pt': 'Não é possível enviar documentação e desbloquear valores de compra mais altos.',
       }
       +
@@ -2415,6 +2415,10 @@ extension Localization on String {
       {
         'en': "Purchase",
         'pt': "Comprar",
+      }+
+      {
+        'en': "Depix token purchases are returned to the sender bank if CPF/CNPJ diverges for the one registered",
+        'pt': "As compras de depix são devolvidas ao banco do remetente se o CPF/CNPJ divergem do registrado",
       };
 
   String get i18n => localize(this, _t);

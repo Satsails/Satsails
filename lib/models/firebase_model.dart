@@ -72,14 +72,14 @@ class FirebaseService {
 
   static Future<void> sendTokenToBackend(String jwt, String token) async {
     try {
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
 
       await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users/store_fcm_token'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwt',
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
         body: jsonEncode({
           'user': {

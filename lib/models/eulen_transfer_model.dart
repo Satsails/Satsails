@@ -265,7 +265,7 @@ class EulenService {
   /// Creates a new Eulen transaction (purchase or sale).
   static Future<Result<EulenTransfer>> createTransaction(String auth, int amount, String liquidAddress, {String transactionType = 'BUY'}) async {
     try {
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/eulen_transfers'),
         body: jsonEncode({
@@ -280,7 +280,7 @@ class EulenService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -297,7 +297,7 @@ class EulenService {
   /// Retrieves a list of Eulen transactions.
   static Future<Result<List<EulenTransfer>>> getTransfers(String auth) async {
     try {
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final uri = Uri.parse(dotenv.env['BACKEND']! + '/eulen_transfers');
 
       final response = await http.get(
@@ -305,7 +305,7 @@ class EulenService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -326,7 +326,7 @@ class EulenService {
   /// Gets the amount transferred for the day.
   static Future<Result<String>> getAmountTransferred(String auth) async {
     try {
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final uri = Uri.parse(dotenv.env['BACKEND']! + '/eulen_transfers/amount_transfered_by_day');
 
       final response = await http.get(
@@ -334,7 +334,7 @@ class EulenService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -350,7 +350,7 @@ class EulenService {
 
   static Future<Result<String>> getRegisteredTaxId(String auth) async {
     try {
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final uri = Uri.parse(dotenv.env['BACKEND']! + '/eulen_transfers/check_registered_tax_id');
 
       final response = await http.get(
@@ -358,7 +358,7 @@ class EulenService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -375,7 +375,7 @@ class EulenService {
   /// Checks the transaction payment state using the transaction ID.
   static Future<Result<bool>> getTransactionPaymentState(String transactionId, String auth) async {
     try {
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final uri = Uri.parse(dotenv.env['BACKEND']! + '/eulen_transfers/check_purchase_state')
           .replace(queryParameters: {'transfer[txid]': transactionId,
       });
@@ -385,7 +385,7 @@ class EulenService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 

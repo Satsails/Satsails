@@ -57,13 +57,13 @@ class BackendAuth {
         return Result(error: 'Backend URL is not configured');
       }
 
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
 
       final response = await http.get(
         Uri.parse('$backendUrl/auth/challenge'),
         headers: {
           'Content-Type': 'application/json',
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 

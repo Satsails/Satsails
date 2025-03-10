@@ -86,7 +86,7 @@ class UserService {
   static Future<Result<User>> createUserRequest(String challenge, String signature) async {
     try {
       // Get the Firebase App Check token.
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
 
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users'),
@@ -98,7 +98,7 @@ class UserService {
         }),
         headers: {
           'Content-Type': 'application/json',
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -116,7 +116,7 @@ class UserService {
   static Future<Result<String>> migrateToJWT(String auth, String challenge, String signature) async {
     try {
       // Get the Firebase App Check token.
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
 
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users/migrate'),
@@ -129,7 +129,7 @@ class UserService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -146,7 +146,7 @@ class UserService {
   /// Add an affiliate code to the user.
   static Future<Result<bool>> addAffiliateCode(String affiliateCode, String auth) async {
     try {
-      final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
 
       final response = await http.post(
         Uri.parse(dotenv.env['BACKEND']! + '/users/add_affiliate'),
@@ -158,7 +158,7 @@ class UserService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          'X-Firebase-AppCheck': appCheckToken ?? '',
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
