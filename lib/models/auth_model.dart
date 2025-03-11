@@ -103,7 +103,20 @@ class AuthModel {
   }
 
   Future<String?> getMnemonic() async {
-    return await _storage.read(key: 'mnemonic');
+    return await getMnemonicWithRetry();
+  }
+
+  // New method with retry logic
+  Future<String?> getMnemonicWithRetry() async {
+    for (int i = 0; i < 3; i++) {
+      final mnemonic = await _storage.read(key: 'mnemonic');
+      if (mnemonic != null) {
+        return mnemonic;
+      }
+      // Wait 500ms before the next attempt
+      await Future.delayed(Duration(milliseconds: 500));
+    }
+    return null;
   }
 
   Future<String?> getPin() async {

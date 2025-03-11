@@ -490,31 +490,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 8.h),
-                              // Row 4: Minimum purchase for on-chain BTC conversion.
-                              Row(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.currency_bitcoin,
-                                      color: Colors.grey,
-                                      size: 20.sp),
-                                  SizedBox(width: 8.w),
-                                  Expanded(
-                                    child: Text(
-                                      'Min purchase for on-chain BTC conversion:'
-                                          .i18n +
-                                          ' R\$ $minBtcInBRL',
-                                      style: TextStyle(
-                                        fontSize: 16.sp,
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 16.h),
                             ],
                           ),
                         ),
