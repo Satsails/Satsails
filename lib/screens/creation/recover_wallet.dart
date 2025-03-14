@@ -17,13 +17,15 @@ class RecoverWallet extends ConsumerStatefulWidget {
   _RecoverWalletState createState() => _RecoverWalletState();
 }
 
-class _RecoverWalletState extends ConsumerState<RecoverWallet> {
+class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTickerProviderStateMixin {
   final List<TextEditingController> _controllers = List.generate(24, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(24, (_) => FocusNode());
   List<String> _filteredWords = [];
   int _totalWords = 12;
   bool _keyboardVisible = false;
   int _selectedWordIndex = -1;
+  late AnimationController _suggestionController;
+  late Animation<double> _suggestionFadeAnimation;
 
   @override
   void initState() {
@@ -32,10 +34,23 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
       controller.addListener(_onTextChanged);
     }
 
+    _suggestionController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _suggestionFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _suggestionController, curve: Curves.easeInOut),
+    );
+
     KeyboardVisibilityController().onChange.listen((bool visible) {
       setState(() {
         _keyboardVisible = visible;
       });
+      if (visible && _filteredWords.isNotEmpty) {
+        _suggestionController.forward();
+      } else {
+        _suggestionController.reverse();
+      }
     });
   }
 
@@ -48,6 +63,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
     for (var focusNode in _focusNodes) {
       focusNode.dispose();
     }
+    _suggestionController.dispose();
     super.dispose();
   }
 
@@ -65,6 +81,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
       setState(() {
         _filteredWords = [];
       });
+      _suggestionController.reverse();
       return;
     }
 
@@ -75,6 +92,9 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
     setState(() {
       _filteredWords = filtered.length > 3 ? filtered.sublist(0, 3) : filtered;
     });
+    if (_keyboardVisible && _filteredWords.isNotEmpty) {
+      _suggestionController.forward();
+    }
   }
 
   void _onWordSelected(String word) {
@@ -89,6 +109,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
     setState(() {
       _filteredWords = [];
     });
+    _suggestionController.reverse();
   }
 
   Future<void> _recoverAccount(BuildContext context) async {
@@ -103,6 +124,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
       await ref.read(settingsProvider.notifier).setBackup(true);
       context.push('/set_pin');
     } else {
+      FocusScope.of(context).unfocus();
       showMessageSnackBar(
         message: 'Invalid mnemonic'.i18n,
         error: true,
@@ -116,16 +138,62 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      color: Colors.white,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: _filteredWords.map((word) {
-          return ListTile(
-            title: Text(word),
-            onTap: () => _onWordSelected(word),
-          );
-        }).toList(),
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 10.0), // Small gap above the keyboard
+        child: FadeTransition(
+          opacity: _suggestionFadeAnimation,
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(12.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            constraints: const BoxConstraints(
+              maxHeight: 150, // Limits height to keep it compact
+            ),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: _filteredWords.length,
+              itemBuilder: (context, index) {
+                final word = _filteredWords[index];
+                return Card(
+                  color: Colors.grey[850],
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 2.0),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                    title: Text(
+                      word,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    onTap: () {
+                      _onWordSelected(word);
+                      setState(() {
+                        _filteredWords = [];
+                      });
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -148,7 +216,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Recover wallet'.i18n, style: const TextStyle(color: Colors.white)),
+        title: Text('Recover Account'.i18n, style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -162,58 +230,54 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
           Column(
             children: [
               SizedBox(height: screenHeight * 0.02),
-              Theme(
-                data: Theme.of(context).copyWith(
-                  canvasColor: Colors.transparent,
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenHeight * 0.15),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: _totalWords == 12 ? const Color(0xFF1A1A1A) : const Color(0xFF2B2B2B),
-                      borderRadius: BorderRadius.circular(8.0), // Set the desired border radius
-                    ),
-                    child: DropdownButtonFormField<int>(
-                      decoration: InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: const BorderSide(color: Colors.transparent),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: const BorderSide(color: Colors.transparent),
-                        ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _totalWords = 12;
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: _totalWords == 12 ? Color(0xFF2B2B2B) : Color(0xFF1A1A1A),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
-                      dropdownColor: _totalWords == 12 ? const Color(0xFF1A1A1A) : const Color(0xFF2B2B2B),
-                      value: _totalWords,
-                      items: [12, 24].map((value) {
-                        return DropdownMenuItem<int>(
-                          value: value,
-                          child: Text(
-                            "$value${'words'.i18n}",
-                            style: TextStyle(
-                              color: _totalWords == value ? const Color(0xFFFF9800) : const Color(0xFFD98100),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _totalWords = value!;
-                        });
-                      },
-                      selectedItemBuilder: (BuildContext context) {
-                        return [12, 24].map((value) {
-                          return Text(
-                            "$value${'words'.i18n}",
-                            style: TextStyle(
-                              color: _totalWords == value ? const Color(0xFFFF9800) : const Color(0xFFD98100),
-                            ),
-                          );
-                        }).toList();
-                      },
+                      child: Text("12 words".i18n, style: TextStyle(color: Colors.white)),
                     ),
                   ),
+                  SizedBox(width: 20),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _totalWords = 24;
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: _totalWords == 24 ? Color(0xFF2B2B2B) : Color(0xFF1A1A1A),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Text("24 words".i18n, style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: screenHeight * 0.02),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Text(
+                  "Enter your key. Carefully enter your seed words below to recover your Bitcoin account.".i18n,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ),
               SizedBox(height: screenHeight * 0.02),
@@ -224,42 +288,33 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                     right: screenWidth * 0.05,
                     bottom: screenHeight * 0.02,
                   ),
-                  child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 2,
-                      crossAxisSpacing: 10,
-                    ),
-                    itemCount: _totalWords,
-                    itemBuilder: (context, index) {
-                      return Column(
-                        children: [
-                          TextField(
+                  child: SingleChildScrollView(
+                    child: Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: List.generate(
+                        _totalWords,
+                            (index) => SizedBox(
+                          width: screenWidth * 0.28,
+                          child: TextField(
                             controller: _controllers[index],
                             focusNode: _focusNodes[index],
                             style: const TextStyle(color: Colors.white),
-                            autocorrect: false, // Disable autocorrect
-                            enableSuggestions: false, // Disable suggestions
-                            keyboardType: TextInputType.visiblePassword, // Helps prevent suggestions
+                            autocorrect: false,
+                            enableSuggestions: false,
+                            keyboardType: TextInputType.visiblePassword,
                             decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Color(0xFF404040),
                               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                              labelText: '${'Word'.i18n} ${index + 1}',
-                              labelStyle: TextStyle(
-                                color: _selectedWordIndex == index ? Colors.orangeAccent : const Color(0xFF6D6D6D),
-                              ),
+                              labelText: '',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF6D6D6D),
-                                  width: 4.0,
-                                ),
+                                borderSide: const BorderSide(color: Color(0xFF6D6D6D), width: 4.0),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
-                                borderSide: const BorderSide(
-                                  color: Colors.orangeAccent,
-                                  width: 4.0,
-                                ),
+                                borderSide: const BorderSide(color: Colors.orangeAccent, width: 4.0),
                               ),
                             ),
                             onTap: () {
@@ -267,10 +322,10 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                                 _selectedWordIndex = index;
                               });
                             },
-                          )
-                        ],
-                      );
-                    },
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -279,14 +334,14 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> {
                 child: CustomButton(
                   text: 'Recover Account'.i18n,
                   onPressed: () => _recoverAccount(context),
+                  primaryColor: Colors.green,
+                  secondaryColor: Colors.green,
+                  textColor: Colors.white,
                 ),
               ),
             ],
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: _buildSuggestionList(context),
-          ),
+          _buildSuggestionList(context), // Positioned right above the keyboard
         ],
       ),
     );

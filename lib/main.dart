@@ -70,7 +70,7 @@ Future<void> main() async {
   Hive.registerAdapter(CoinosPaymentAdapter());
   Hive.registerAdapter(EulenTransferAdapter());
 
-  await LwkCore.init();
+  await LibLwk.init();
 
   try {
     await FlutterBranchSdk.init(enableLogging: false, branchAttributionLevel: BranchAttributionLevel.NONE);

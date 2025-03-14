@@ -2385,8 +2385,8 @@ extension Localization on String {
         'pt': "Sem registro",
       }+
       {
-        'en': "Registered Tax id: ",
-        'pt': "Tax ID registrado: "
+        'en': "Only accepted deposits from: ",
+        'pt': "Apenas depósitos aceites de: ",
       } +
       {
         'en': "Enrollment process required",
@@ -2419,6 +2419,10 @@ extension Localization on String {
       {
         'en': "Depix token purchases are returned to the sender bank if CPF/CNPJ diverges for the one registered",
         'pt': "As compras de depix são devolvidas ao banco do remetente se o CPF/CNPJ divergem do registrado",
+      }+
+      {
+        'en': "Enter your key. Carefully enter your seed words below to recover your Bitcoin account.",
+        'pt': "Insira sua chave. Insira as palavras-chave abaixo para recuperar sua conta de Bitcoin.",
       };
 
   String get i18n => localize(this, _t);
