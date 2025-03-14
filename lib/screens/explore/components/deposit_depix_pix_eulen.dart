@@ -480,7 +480,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
-                                      'Registered Tax id: '.i18n + registeredTaxId.i18n,
+                                      'Only accepted deposits from: '.i18n + registeredTaxId.i18n,
                                       style: TextStyle(
                                         fontSize: 16.sp,
                                         color: Colors.grey,
