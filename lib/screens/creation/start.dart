@@ -26,61 +26,32 @@ class _StartState extends ConsumerState<Start> with SingleTickerProviderStateMix
   void initState() {
     super.initState();
 
-    // Initialize AnimationController with 1.5-second duration
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
 
-    // Logo animations: fade, scale, and slide up
     _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
-      ),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeOut)),
     );
     _logoScale = Tween<double>(begin: 0.9, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack),
-      ),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack)),
     );
-    _logoOffset = Tween<Offset>(
-      begin: const Offset(0, 0.1), // 10% below
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack),
-      ),
+    _logoOffset = Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
+      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack)),
     );
 
-    // Text animation: fade in
     _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.3, 0.8, curve: Curves.easeOut),
-      ),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.3, 0.8, curve: Curves.easeOut)),
     );
 
-    // Buttons animations: fade and slide up
-    _buttonsOffset = Tween<Offset>(
-      begin: const Offset(0, 1), // Start below the screen
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.6, 1.0, curve: Curves.easeOutBack),
-      ),
+    _buttonsOffset = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
+      CurvedAnimation(parent: _controller, curve: const Interval(0.6, 1.0, curve: Curves.easeOutBack)),
     );
     _buttonsOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.6, 1.0, curve: Curves.easeOut),
-      ),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.6, 1.0, curve: Curves.easeOut)),
     );
 
-    // Start the animation
     _controller.forward();
   }
 
@@ -90,7 +61,6 @@ class _StartState extends ConsumerState<Start> with SingleTickerProviderStateMix
     super.dispose();
   }
 
-  // Gradient shader for the title text
   Shader createGradientShader(Rect bounds) {
     return const LinearGradient(
       colors: [Colors.redAccent, Colors.orangeAccent],
@@ -101,6 +71,9 @@ class _StartState extends ConsumerState<Start> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final logoSize = screenHeight < 800 ? 300.w : 450.w; // Shrink logo on smaller screens
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -110,79 +83,110 @@ class _StartState extends ConsumerState<Start> with SingleTickerProviderStateMix
             colors: [Colors.black, Colors.grey[900]!],
           ),
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Logo with fade, scale, and slide animations
-              FadeTransition(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 70.h),
+              child: FadeTransition(
                 opacity: _logoOpacity,
                 child: ScaleTransition(
                   scale: _logoScale,
                   child: SlideTransition(
                     position: _logoOffset,
-                    child: const InitialLogo(), // Your logo widget
+                    child: SizedBox(
+                      width: logoSize,
+                      height: logoSize,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 10,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const InitialLogo(),
+                      ),
+                    ),
                   ),
                 ),
               ),
-              // Text with fade animation
-              FadeTransition(
-                opacity: _textOpacity,
-                child: Padding(
-                  padding: EdgeInsets.only(top: 16.sp, left: 16.sp, right: 16.sp),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Satsails',
-                        style: TextStyle(
-                          foreground: Paint()..shader = createGradientShader(Rect.fromLTWH(0.0, 0.0, 0.6.sw, 0.1.sh)),
-                          fontSize: 0.14.sw,
-                          fontWeight: FontWeight.bold,
-                        ),
+            ),
+            SizedBox(height: 50.h),
+            FadeTransition(
+              opacity: _textOpacity,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Satsails',
+                      style: TextStyle(
+                        foreground: Paint()..shader = createGradientShader(Rect.fromLTWH(0.0, 0.0, 0.6.sw, 0.1.sh)),
+                        fontSize: 60.sp,
+                        fontWeight: FontWeight.w900,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.5),
+                            blurRadius: 5,
+                            offset: Offset(2, 2),
+                          ),
+                        ],
                       ),
-                      Text(
-                        'Become sovereign and freely opt out of the system.'.i18n,
-                        style: TextStyle(
-                          fontSize: 27.sp,
-                          color: Colors.white70,
-                        ),
+                    ),
+                    SizedBox(height: 10.h),
+                    Text(
+                      'Become sovereign and freely opt out of the system.'.i18n,
+                      style: TextStyle(
+                        fontSize: 24.sp,
+                        color: Colors.white70,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.5),
+                            blurRadius: 3,
+                            offset: Offset(1, 1),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const Spacer(),
+            SlideTransition(
+              position: _buttonsOffset,
+              child: FadeTransition(
+                opacity: _buttonsOpacity,
+                child: Padding(
+                  padding: EdgeInsets.all(20.w),
+                  child: Column(
+                    children: [
+                      CustomButton(
+                        text: 'Create wallet'.i18n,
+                        onPressed: () => context.push('/set_pin'),
+                        primaryColor: Colors.orange,
+                        secondaryColor: Colors.orange,
+                        textColor: Colors.black,
+                      ),
+                      SizedBox(height: 10.h),
+                      CustomButton(
+                        text: 'Recover wallet'.i18n,
+                        onPressed: () => context.push('/recover_wallet'),
+                        primaryColor: Colors.white24,
+                        secondaryColor: Colors.white24,
+                        textColor: Colors.white,
                       ),
                     ],
                   ),
                 ),
               ),
-              const Spacer(),
-              // Buttons with fade and slide animations
-              SlideTransition(
-                position: _buttonsOffset,
-                child: FadeTransition(
-                  opacity: _buttonsOpacity,
-                  child: Padding(
-                    padding: const EdgeInsets.all(13.0),
-                    child: Column(
-                      children: [
-                        CustomButton(
-                          text: 'Create wallet'.i18n,
-                          onPressed: () => context.push('/set_pin'),
-                          primaryColor: Colors.orange,
-                          secondaryColor: Colors.orange,
-                          textColor: Colors.black,
-                        ),
-                        const SizedBox(height: 5),
-                        CustomButton(
-                          text: 'Recover wallet'.i18n,
-                          onPressed: () => context.push('/recover_wallet'),
-                          primaryColor: Colors.white24,
-                          secondaryColor: Colors.white24,
-                          textColor: Colors.white,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

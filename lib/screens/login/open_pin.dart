@@ -13,6 +13,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // Define the loading provider
 final loadingProvider = StateProvider<bool>((ref) => false);
@@ -103,7 +104,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
       showCancelBtn: false,
       showConfirmBtn: false,
       widget: Padding(
-        padding: const EdgeInsets.only(top: 16),
+        padding: EdgeInsets.only(top: 16.h),
         child: CustomElevatedButton(
           onPressed: () async {
             context.pop();
@@ -137,7 +138,11 @@ class _OpenPinState extends ConsumerState<OpenPin> {
           title: Center(
             child: Text(
               'Enter PIN'.i18n,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20.sp, // Responsive font size
+              ),
             ),
           ),
           backgroundColor: Colors.black,
@@ -146,46 +151,54 @@ class _OpenPinState extends ConsumerState<OpenPin> {
         body: Stack(
           children: [
             Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Enter your 6-digit PIN'.i18n,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                    const SizedBox(height: 20),
-                    PinProgressIndicator(currentLength: pin.length, totalDigits: 6),
-                    const SizedBox(height: 40),
-                    CustomKeypad(
-                      onDigitPressed: (digit) {
-                        if (pin.length < 6) {
-                          setState(() => pin += digit);
-                        }
-                      },
-                      onBackspacePressed: () {
-                        if (pin.isNotEmpty) {
-                          setState(() => pin = pin.substring(0, pin.length - 1));
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 40),
-                    CustomButton(
-                      text: 'Unlock'.i18n,
-                      onPressed: pin.length == 6 ? () => _checkPin(context, ref) : () => {},
-                      primaryColor: Colors.green,
-                      secondaryColor: Colors.green,
-                    ),
-                    const SizedBox(height: 20),
-                    TextButton(
-                      onPressed: () => _showConfirmationDialog(context, ref),
-                      child: Text(
-                        'Forgot PIN'.i18n,
-                        style: const TextStyle(fontSize: 16.0, color: Colors.red),
+              child: SingleChildScrollView( // Added to make content scrollable
+                child: Padding(
+                  padding: EdgeInsets.all(16.w), // Responsive padding
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Enter your 6-digit PIN'.i18n,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp, // Responsive font size
+                        ),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 20.h), // Responsive height
+                      PinProgressIndicator(currentLength: pin.length, totalDigits: 6),
+                      SizedBox(height: 40.h), // Responsive height
+                      CustomKeypad(
+                        onDigitPressed: (digit) {
+                          if (pin.length < 6) {
+                            setState(() => pin += digit);
+                          }
+                        },
+                        onBackspacePressed: () {
+                          if (pin.isNotEmpty) {
+                            setState(() => pin = pin.substring(0, pin.length - 1));
+                          }
+                        },
+                      ),
+                      SizedBox(height: 40.h), // Responsive height
+                      CustomButton(
+                        text: 'Unlock'.i18n,
+                        onPressed: pin.length == 6 ? () => _checkPin(context, ref) : () => {},
+                        primaryColor: Colors.green,
+                        secondaryColor: Colors.green,
+                      ),
+                      SizedBox(height: 20.h), // Responsive height
+                      TextButton(
+                        onPressed: () => _showConfirmationDialog(context, ref),
+                        child: Text(
+                          'Forgot PIN'.i18n,
+                          style: TextStyle(
+                            fontSize: 18.sp, // Responsive font size
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -195,7 +208,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
                 child: Center(
                   child: LoadingAnimationWidget.threeArchedCircle(
                     color: Colors.orange,
-                    size: 50,
+                    size: 50.w, // Responsive size
                   ),
                 ),
               ),
@@ -218,9 +231,9 @@ class PinProgressIndicator extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(totalDigits, (index) {
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          width: 16,
-          height: 16,
+          margin: EdgeInsets.symmetric(horizontal: 8.w), // Responsive margin
+          width: 16.w, // Responsive width
+          height: 16.w, // Responsive height
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: index < currentLength ? Colors.white : Colors.grey[600],

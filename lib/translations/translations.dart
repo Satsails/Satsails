@@ -2423,6 +2423,14 @@ extension Localization on String {
       {
         'en': "Enter your key. Carefully enter your seed words below to recover your Bitcoin account.",
         'pt': "Insira sua chave. Insira as palavras-chave abaixo para recuperar sua conta de Bitcoin.",
+      }+
+      {
+        'en': "Enter your 6-digit PIN",
+        'pt': "Digite o seu PIN",
+      }+
+      {
+        'en': "Next",
+        'pt': "Próximo",
       };
 
   String get i18n => localize(this, _t);

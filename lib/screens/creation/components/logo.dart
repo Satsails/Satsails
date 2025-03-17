@@ -28,8 +28,7 @@ class InitialLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     return SvgPicture.asset(
       'lib/assets/initialLogo.svg',
-      width: 0.6.sw,
-      height: 0.6.sh,
+      fit: BoxFit.contain, // Ensures the SVG scales proportionally
     );
   }
 }

@@ -28,32 +28,9 @@ class Home extends ConsumerWidget {
       onWillPop: () async => false,
       child: Scaffold(
         backgroundColor: Colors.black,
-        appBar: _buildAppBar(context, ref),
+        // appBar: _buildAppBar(context, ref),
         body: SafeArea(
-          child: Stack(
-            children: [
-              _buildBody(context, ref),
-              Positioned(
-                bottom: 80,
-                right: 16,
-                child: Column(
-                  children: [
-                    FloatingActionButton.small(
-                      onPressed: () {
-                        context.push('/support');
-                      },
-                      backgroundColor: Colors.orange,
-                      child: Icon(BoxIcons.bx_support, color: Colors.white),
-                    ),
-                    Text(
-                      'Support'.i18n,
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          child: _buildBody(context, ref),
         ),
       ),
     );

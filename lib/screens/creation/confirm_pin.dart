@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/screens/shared/custom_keypad.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // Define the loading provider
 final loadingProvider = StateProvider<bool>((ref) => false);
@@ -78,52 +79,55 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin> {
       ),
       body: Stack(
         children: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Confirm your 6-digit PIN'.i18n,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                  const SizedBox(height: 20),
-                  PinProgressIndicator(currentLength: confirmPin.length, totalDigits: 6),
-                  const SizedBox(height: 40),
-                  CustomKeypad(
-                    onDigitPressed: (digit) {
-                      if (confirmPin.length < 6) {
-                        setState(() => confirmPin += digit);
-                      }
-                    },
-                    onBackspacePressed: () {
-                      if (confirmPin.isNotEmpty) {
-                        setState(() => confirmPin = confirmPin.substring(0, confirmPin.length - 1));
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 40),
-                  CustomButton(
-                    text: 'Set PIN'.i18n,
-                    onPressed: () {
-                      // Check PIN match synchronously
-                      if (confirmPin.length == 6 && confirmPin == originalPin) {
-                        _handleSetPin(originalPin); // Proceed with async PIN setting
-                      } else {
-                        FocusScope.of(context).unfocus();
-                        showMessageSnackBar(
-                          message: 'PINs do not match'.i18n,
-                          error: true,
-                          context: context,
-                          top: true,
-                        );
-                      }
-                    },
-                    primaryColor: Colors.green,
-                    secondaryColor: Colors.green,
-                  ),
-                ],
+          SingleChildScrollView(
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.w), // Scaled padding
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Confirm your 6-digit PIN'.i18n,
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp), // Scaled font size
+                    ),
+                    SizedBox(height: 20.h), // Scaled height
+                    PinProgressIndicator(currentLength: confirmPin.length, totalDigits: 6),
+                    SizedBox(height: 40.h), // Scaled height
+                    CustomKeypad(
+                      onDigitPressed: (digit) {
+                        if (confirmPin.length < 6) {
+                          setState(() => confirmPin += digit);
+                        }
+                      },
+                      onBackspacePressed: () {
+                        if (confirmPin.isNotEmpty) {
+                          setState(() => confirmPin = confirmPin.substring(0, confirmPin.length - 1));
+                        }
+                      },
+                    ),
+                    SizedBox(height: 40.h), // Scaled height
+                    CustomButton(
+                      text: 'Set PIN'.i18n,
+                      onPressed: () {
+                        // Check PIN match synchronously
+                        if (confirmPin.length == 6 && confirmPin == originalPin) {
+                          _handleSetPin(originalPin); // Proceed with async PIN setting
+                        } else {
+                          FocusScope.of(context).unfocus();
+                          showMessageSnackBar(
+                            message: 'PINs do not match'.i18n,
+                            error: true,
+                            context: context,
+                            top: true,
+                          );
+                        }
+                      },
+                      primaryColor: Colors.green,
+                      secondaryColor: Colors.green,
+                    ),
+                    SizedBox(height: 20.h), // Extra space at the bottom for scrolling
+                  ],
+                ),
               ),
             ),
           ),
@@ -143,7 +147,7 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin> {
   }
 }
 
-// Updated PinProgressIndicator to match SetPin
+// Updated PinProgressIndicator with scaled values
 class PinProgressIndicator extends StatelessWidget {
   final int currentLength;
   final int totalDigits;
@@ -156,9 +160,9 @@ class PinProgressIndicator extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(totalDigits, (index) {
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          width: 16,
-          height: 16,
+          margin: EdgeInsets.symmetric(horizontal: 8.w), // Scaled margin
+          width: 16.w, // Scaled width
+          height: 16.h, // Scaled height
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: index < currentLength ? Colors.white : Colors.grey[600],

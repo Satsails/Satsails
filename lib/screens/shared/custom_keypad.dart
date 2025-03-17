@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-// Widget for the custom numeric keypad
 class CustomKeypad extends StatelessWidget {
   final Function(String) onDigitPressed;
   final VoidCallback onBackspacePressed;
@@ -17,10 +17,10 @@ class CustomKeypad extends StatelessWidget {
       crossAxisCount: 3,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      childAspectRatio: 1.0, // Square buttons
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      crossAxisSpacing: 10.w,           // Scaled horizontal spacing
+      mainAxisSpacing: 10.h,            // Scaled vertical spacing
+      childAspectRatio: 1.0,            // Square buttons
+      padding: EdgeInsets.symmetric(horizontal: 20.w), // Scaled padding
       children: [
         for (int i = 1; i <= 9; i++)
           ElevatedButton(
@@ -29,36 +29,48 @@ class CustomKeypad extends StatelessWidget {
               backgroundColor: Colors.black,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r), // Scaled radius
               ),
+              minimumSize: const Size(0, 0), // Allow grid to control size
             ),
-            child: Text(i.toString(), style: const TextStyle(fontSize: 24)),
+            child: Text(
+              i.toString(),
+              style: TextStyle(fontSize: 24.sp), // Scaled font size
+            ),
           ),
-        const SizedBox(), // Empty space
+        const SizedBox(), // Empty space for bottom-left corner
         ElevatedButton(
           onPressed: () => onDigitPressed('0'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.black,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
+            minimumSize: const Size(0, 0),
           ),
-          child: const Text('0', style: TextStyle(fontSize: 24)),
+          child: Text(
+            '0',
+            style: TextStyle(fontSize: 24.sp),
+          ),
         ),
         ElevatedButton(
-            onPressed: onBackspacePressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+          onPressed: onBackspacePressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.r),
             ),
-            child: const Icon(Icons.backspace, size: 24, color: Colors.white)
+            minimumSize: const Size(0, 0),
+          ),
+          child: Icon(
+            Icons.backspace,
+            size: 24.sp, // Scaled icon size
+            color: Colors.white,
+          ),
         ),
       ],
     );
   }
 }
-

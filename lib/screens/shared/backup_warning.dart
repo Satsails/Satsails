@@ -19,7 +19,7 @@ class BackupWarning extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Icon(
-              Icons.warning,
+              Icons.key_off,
               color: Colors.red,
             ),
             TextButton(
