@@ -1,7 +1,9 @@
 import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
+import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:Satsails/screens/shared/delete_wallet_modal.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -16,35 +18,39 @@ class Settings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text('Settings'.i18n, style: const TextStyle(color: Colors.white)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            context.pop();
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        bottomNavigationBar: CustomBottomNavigationBar(
+          currentIndex: ref.watch(navigationProvider),
+          onTap: (int index) {
+            ref.read(navigationProvider.notifier).state = index;
           },
         ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildBlockExplorerSection(context, ref),
-            _buildDivider(),
-            _buildSeedSection(context, ref),
-            _buildDivider(),
-            _buildLanguageSection(ref, context),
-            _buildDivider(),
-            _buildElectrumNodeSection(context, ref),
-            _buildDivider(),
-            _buildAffiliateSection(context, ref),
-            _buildDivider(),
-            DeleteWalletSection(ref: ref),
-          ],
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          centerTitle: true,
+          title: Text('Settings'.i18n, style: const TextStyle(color: Colors.white)),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildBlockExplorerSection(context, ref),
+              _buildDivider(),
+              _buildSeedSection(context, ref),
+              _buildDivider(),
+              _buildLanguageSection(ref, context),
+              _buildDivider(),
+              _buildElectrumNodeSection(context, ref),
+              _buildDivider(),
+              _buildAffiliateSection(context, ref),
+              _buildDivider(),
+              DeleteWalletSection(ref: ref),
+            ],
+          ),
         ),
       ),
     );

@@ -2431,6 +2431,10 @@ extension Localization on String {
       {
         'en': "Next",
         'pt': "Próximo",
+      }+
+      {
+        'en': "Enter your 6-digit PIN to view seed words",
+        'pt': " Digite o seu PIN para ver as palavras-chave",
       };
 
   String get i18n => localize(this, _t);

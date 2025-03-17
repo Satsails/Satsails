@@ -4,7 +4,7 @@ import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/receive/components/custodial_lightning_widget.dart';
-import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
+import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -28,13 +28,6 @@ class Accounts extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: ref.watch(navigationProvider),
-        context: context,
-        onTap: (int index) {
-          ref.read(navigationProvider.notifier).state = index;
-        },
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(

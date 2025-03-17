@@ -8,7 +8,7 @@ import 'package:Satsails/screens/analytics/components/bitcoin_expenses_diagram.d
 import 'package:Satsails/screens/analytics/components/liquid_expenses_diagram.dart';
 import 'package:Satsails/screens/analytics/components/swaps_builder.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
-import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
+import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 
 import 'components/calendar.dart';
 
@@ -19,19 +19,9 @@ class Analytics extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        body: SafeArea(child: _buildBody(context, ref)),
-        bottomNavigationBar: CustomBottomNavigationBar(
-          currentIndex: ref.watch(navigationProvider),
-          context: context,
-          onTap: (int index) {
-            ref.read(navigationProvider.notifier).state = index;
-          },
-        ),
-      ),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(child: _buildBody(context, ref)),
     );
   }
 

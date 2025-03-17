@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
-import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
+import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -42,7 +42,6 @@ class Home extends ConsumerWidget {
         Expanded(child: _buildMiddleSection(context, ref)),
         CustomBottomNavigationBar(
           currentIndex: ref.watch(navigationProvider),
-          context: context,
           onTap: (int index) {
             ref.read(navigationProvider.notifier).state = index;
           },
@@ -61,9 +60,8 @@ class Home extends ConsumerWidget {
       children: [
         const BackupWarning(),
         buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
-        const DepixConvertWarning(),
         SizedBox(height: screenHeight * 0.01),
-        buildActionButtons(context, ref),
+        // buildActionButtons(context, ref),
         Flexible(
           child: SizedBox(
             height: double.infinity,

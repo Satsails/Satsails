@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
 
 class Services extends ConsumerStatefulWidget {
   const Services({super.key});
@@ -125,13 +123,6 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
                 ),
               ],
             ),
-          CustomBottomNavigationBar(
-            currentIndex: ref.watch(navigationProvider),
-            context: context,
-            onTap: (int index) {
-              ref.read(navigationProvider.notifier).state = index;
-            },
-          ),
         ],
       ),
     );

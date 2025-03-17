@@ -1,5 +1,7 @@
 import 'package:Satsails/helpers/swap_helpers.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -31,43 +33,23 @@ class _ExchangeState extends ConsumerState<Exchange> {
 
   @override
   Widget build(BuildContext context) {
-    final transactionInProgress = ref.watch(transactionInProgressProvider);
 
     return WillPopScope(
-      onWillPop: () async {
-        if (transactionInProgress) {
-          showMessageSnackBarInfo(
-            message: 'Transaction in progress'.i18n,
-            context: context,
-          );
-          return false;
-        }
-        ref.read(sendBlocksProvider.notifier).state = 1;
-        ref.read(sendTxProvider.notifier).resetToDefault();
-        return true;
-      },
+      onWillPop: () async => false,
       child: Scaffold(
         backgroundColor: Colors.black,
+        bottomNavigationBar: CustomBottomNavigationBar(
+          currentIndex: ref.watch(navigationProvider),
+          onTap: (int index) {
+            ref.read(navigationProvider.notifier).state = index;
+          },
+        ),
         appBar: AppBar(
           backgroundColor: Colors.black,
+          centerTitle: true,
           title: Text(
             'Exchange'.i18n,
             style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
-          ),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              if (transactionInProgress) {
-                showMessageSnackBarInfo(
-                  message: 'Transaction in progress'.i18n,
-                  context: context,
-                );
-              } else {
-                ref.read(sendTxProvider.notifier).resetToDefault();
-                ref.read(sendBlocksProvider.notifier).state = 1;
-                context.pop();
-              }
-            },
           ),
         ),
         body: SafeArea(

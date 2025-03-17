@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
+import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -21,52 +23,58 @@ class Explore extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isLoading = ref.watch(isLoadingProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          'Explore',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20.sp,
-            fontWeight: FontWeight.bold,
-          ),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        bottomNavigationBar: CustomBottomNavigationBar(
+          currentIndex: ref.watch(navigationProvider),
+          onTap: (int index) {
+            ref.read(navigationProvider.notifier).state = index;
+          },
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.pop(),
-        ),
-      ),
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 16.h,
-                  ),
-                  child: _BalanceDisplay(),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 19.w),
-                  child: _ActionCards(), // Two separate types of cards
-                ),
-                SizedBox(height: 16.h),
-              ],
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          centerTitle: true,
+          title: Text(
+            'Explore',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          if (isLoading)
-            Center(
-              child: LoadingAnimationWidget.threeArchedCircle(
-                size: 80.h,
-                color: Colors.orange,
+        ),
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 16.h,
+                    ),
+                    child: _BalanceDisplay(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 19.w),
+                    child: _ActionCards(), // Two separate types of cards
+                  ),
+                  SizedBox(height: 16.h),
+                ],
               ),
             ),
-        ],
+            if (isLoading)
+              Center(
+                child: LoadingAnimationWidget.threeArchedCircle(
+                  size: 80.h,
+                  color: Colors.orange,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
