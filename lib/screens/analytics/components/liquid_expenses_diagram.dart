@@ -27,7 +27,7 @@ class LiquidExpensesDiagram extends ConsumerWidget {
       Column(
         children: [
           Text(
-            '$liquidBalanceInFormat $btcFormat',
+          '$liquidBalanceInFormat $btcFormat',
             style: TextStyle(
               fontSize: screenWidth / 14,
               color: Colors.white,

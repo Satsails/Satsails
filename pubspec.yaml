@@ -66,7 +66,7 @@ dependencies:
   flutter_dotenv: ^5.1.0
   i18n_extension: ^15.0.4
   firebase_app_check: ^0.3.1
-  animated_notch_bottom_bar: ^1.0.3
+  dot_navigation_bar: ^1.0.2
 
 dev_dependencies:
   build_runner: ^2.4.11

@@ -117,6 +117,7 @@ class Transaction {
       ...liquidTransactions,
       ...sideswapPegTransactions,
       ...sideswapInstantSwapTransactions,
+      ...pixPurchaseTransactions,
     ];
   }
 
