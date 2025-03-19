@@ -57,7 +57,6 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       backgroundColor: Color(0xFF212121),// Transparent background
       dotIndicatorColor: Colors.transparent, // No dot indicator
       unselectedItemColor: Colors.grey[300], // Light grey for unselected items
-      margin: const EdgeInsets.only(bottom: 20),
       marginR: const EdgeInsets.only(bottom: 20),
       splashColor: Colors.transparent, // Orange color for splash effect
     );

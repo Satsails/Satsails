@@ -87,8 +87,6 @@ class TransactionList extends ConsumerWidget {
   Widget _buildUnifiedTransactionItem(dynamic transaction, BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    final dynamicMargin = screenHeight * 0.01;
-    final dynamicRadius = screenWidth * 0.03;
     final dynamicFontSize = screenHeight * 0.015;
 
     Widget transactionItem;
@@ -342,8 +340,7 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
   };
 
   // Determine if the transaction is confirmed
-  final isConfirmed = transaction.lwkDetails.outputs.isNotEmpty && transaction.lwkDetails.outputs[0].height != null ||
-      transaction.lwkDetails.inputs.isNotEmpty && transaction.lwkDetails.inputs[0].height != null;
+  final isConfirmed = transaction.lwkDetails.timestamp != null;
 
   // Format the transaction date
   final timestamp = transaction.lwkDetails.timestamp != null

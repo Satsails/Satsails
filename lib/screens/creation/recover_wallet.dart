@@ -305,7 +305,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
                             keyboardType: TextInputType.visiblePassword,
                             decoration: InputDecoration(
                               filled: true,
-                              fillColor: Color(0xFF404040),
+                              fillColor: Color(0xFF212121),
                               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                               labelText: '',
                               border: OutlineInputBorder(

@@ -2044,7 +2044,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
               );
               Future.microtask(() {
                 ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
-                ref.read(navigationProvider.notifier).state = 1;
+                ref.read(navigationProvider.notifier).state = 0;
               });
               controller.success();
               ref.read(transactionInProgressProvider.notifier).state = false;
@@ -2110,7 +2110,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
               );
               Future.microtask(() {
                 ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
-                ref.read(navigationProvider.notifier).state = 1;
+                ref.read(navigationProvider.notifier).state = 0;
               });
               controller.success();
               ref.read(transactionInProgressProvider.notifier).state = false;
@@ -2170,7 +2170,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
             ref.read(sendBlocksProvider.notifier).state = 1;
             Future.microtask(() {
               ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
-              ref.read(navigationProvider.notifier).state = 1;
+              ref.read(navigationProvider.notifier).state = 0;
             });
             controller.success();
             ref.read(transactionInProgressProvider.notifier).state = false;
