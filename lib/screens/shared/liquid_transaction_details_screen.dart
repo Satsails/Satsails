@@ -152,7 +152,7 @@ class TransactionDetailRow extends StatelessWidget {
         children: [
           Row(
             children: [
-              amount != null ? subTransactionIcon(amount!) : const SizedBox.shrink(),
+              amount != null ? subTransactionIndicator(amount!) : const SizedBox.shrink(),
               const SizedBox(width: 8.0),
               Text(
                 label,

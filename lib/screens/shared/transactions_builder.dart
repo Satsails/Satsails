@@ -226,58 +226,106 @@ class TransactionList extends ConsumerWidget {
   }
 }
 
-Widget _buildBitcoinTransactionItem(BitcoinTransaction transaction,
-    BuildContext context, WidgetRef ref) {
-  final screenHeight = MediaQuery
-      .of(context)
-      .size
-      .height;
+Widget _buildBitcoinTransactionItem(BitcoinTransaction transaction, BuildContext context, WidgetRef ref) {
+  final screenHeight = MediaQuery.of(context).size.height;
   final dynamicFontSize = screenHeight * 0.015;
 
-  return Column(
-    children: [
-      GestureDetector(
-        onTap: () {
-          context.pushNamed(
-            'transactionDetails',
-            extra: transaction,
-          );
-        },
-        child: ListTile(
-          leading: Column(
-            children: [
-              transactionTypeIcon(transaction.btcDetails),
-              Text(transactionAmountInFiat(transaction.btcDetails, ref),
-                  style: TextStyle(
-                      fontSize: dynamicFontSize, color: Colors.white)),
-            ],
-          ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(transactionTypeString(transaction.btcDetails, ref),
-                  style: TextStyle(
-                      fontSize: dynamicFontSize, color: Colors.white)),
-              Text(transactionAmount(transaction.btcDetails, ref),
-                  style: TextStyle(
-                      fontSize: dynamicFontSize, color: Colors.grey)),
-            ],
-          ),
-          subtitle: Text(
-              timestampToDateTime(
-                  transaction.btcDetails.confirmationTime?.timestamp.toInt())
-                  .i18n,
-              style: TextStyle(
-                  fontSize: dynamicFontSize, color: Colors.grey)),
-          trailing:
-          confirmationStatus(transaction.btcDetails, ref) == 'Confirmed'.i18n
-              ? const Icon(Icons.check_circle_outlined,
-              color: Colors.green)
-              : const Icon(Icons.access_alarm_outlined,
-              color: Colors.red),
+  // Determine if the transaction is confirmed
+  final isConfirmed = transaction.btcDetails.confirmationTime != null;
+
+  // Format the transaction date
+  final timestamp = transaction.btcDetails.confirmationTime?.timestamp != null
+      ? DateTime.fromMillisecondsSinceEpoch(transaction.btcDetails.confirmationTime!.timestamp.toInt() * 1000)
+      : transaction.timestamp;
+  final formattedDate = DateFormat('d, MMMM, HH:mm').format(timestamp);
+
+  return GestureDetector(
+    onTap: () {
+      context.pushNamed('transactionDetails', extra: transaction);
+    },
+    behavior: HitTestBehavior.opaque, // Makes the entire area tappable
+    child: Card(
+      color: Colors.black, // Dark background for contrast
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0), // Rounded corners
+      ),
+      elevation: 4, // Subtle shadow for depth
+      child: Padding(
+        padding: const EdgeInsets.all(12.0), // Consistent padding
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Progress indicator for unconfirmed transactions
+            if (!isConfirmed)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: LinearProgressIndicator(
+                  backgroundColor: Colors.grey[800],
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                  minHeight: 4,
+                ),
+              ),
+            // Main content
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Transaction type icon (outside Expanded)
+                transactionTypeIcon(transaction.btcDetails),
+                const SizedBox(width: 12), // Consistent spacing after icon
+                // Remaining content takes up available space
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Bitcoin logo and transaction amount
+                      Row(
+                        children: [
+                          Image.asset(
+                            'lib/assets/bitcoin-logo.png',
+                            width: 30,
+                            height: 30,
+                          ),
+                          const SizedBox(width: 10), // Consistent spacing
+                          Text(
+                            transactionAmount(transaction.btcDetails, ref),
+                            style: TextStyle(
+                              fontSize: dynamicFontSize,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Date and fiat value on the right
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            formattedDate,
+                            style: TextStyle(
+                              fontSize: dynamicFontSize - 2, // Smaller for date
+                              color: Colors.grey[400], // Lighter color
+                            ),
+                          ),
+                          Text(
+                            transactionAmountInFiat(transaction.btcDetails, ref),
+                            style: TextStyle(
+                              fontSize: dynamicFontSize,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[300], // Brighter than date
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-    ],
+    ),
   );
 }
 
@@ -301,7 +349,7 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
   final timestamp = transaction.lwkDetails.timestamp != null
       ? DateTime.fromMillisecondsSinceEpoch(transaction.lwkDetails.timestamp! * 1000)
       : transaction.timestamp;
-  final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(timestamp);
+  final formattedDate = DateFormat('d, MMMM, HH:mm').format(timestamp);
 
   return GestureDetector(
     onTap: () {
@@ -371,6 +419,7 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
+                                if (fiatValue.isNotEmpty)
                                 Text(
                                   formattedDate,
                                   style: TextStyle(
@@ -383,6 +432,7 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
                                     fiatValue,
                                     style: TextStyle(
                                       fontSize: dynamicFontSize,
+                                      fontWeight: FontWeight.bold,
                                       color: Colors.grey[300], // Brighter than date
                                     ),
                                   ),

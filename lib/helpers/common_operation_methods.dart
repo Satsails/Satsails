@@ -26,11 +26,31 @@ String transactionTypeString(bdk.TransactionDetails transaction, WidgetRef ref) 
   }
 }
 
-Icon transactionTypeIcon(bdk.TransactionDetails transaction) {
+Widget transactionTypeIcon(bdk.TransactionDetails transaction) {
+  // Helper function to create a circular icon with a dark gray background
+  Widget _circularIcon(IconData icon, Color color) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xFF212121), // Dark gray background
+      ),
+      child: Center(
+        child: Icon(
+          icon,
+          color: color,
+          size: 24, // Consistent icon size
+        ),
+      ),
+    );
+  }
+
+  // Determine if the transaction is a send or receive
   if (transaction.sent.toInt() - transaction.received.toInt() > 0) {
-    return const Icon(Icons.arrow_upward, color: Colors.red);
+    return _circularIcon(Icons.arrow_upward, Colors.red); // Send
   } else {
-    return const Icon(Icons.arrow_downward, color: Colors.green);
+    return _circularIcon(Icons.arrow_downward, Colors.green); // Receive
   }
 }
 
@@ -95,7 +115,7 @@ Widget transactionTypeLiquidIcon(String kind) {
     case 'reissuance':
       return _circularIcon(Icons.add_circle, Colors.green);
     default:
-      return _circularIcon(Icons.swap_calls, Colors.orange);
+      return _circularIcon(Icons.swap_horiz_outlined, Colors.orange);
   }
 }
 
@@ -157,13 +177,34 @@ void setTransactionSearchProvider(lwk.Tx transaction, WidgetRef ref) {
   }
 }
 
-Icon subTransactionIcon(int value) {
-  if (value > 0) {
-    return const Icon(Icons.arrow_downward, color: Colors.green);
-  } else if (value < 0) {
-    return const Icon(Icons.arrow_upward, color: Colors.red);
+Widget subTransactionIndicator(int value, {bool showIcon = true}) {
+  if (showIcon) {
+    // Return icons based on the value, same as the original behavior
+    if (value > 0) {
+      return const Icon(Icons.arrow_downward, color: Colors.green);
+    } else if (value < 0) {
+      return const Icon(Icons.arrow_upward, color: Colors.red);
+    } else {
+      return const Icon(Icons.device_unknown_outlined, color: Colors.grey);
+    }
   } else {
-    return const Icon(Icons.device_unknown_outlined, color: Colors.grey);
+    // Return text instead of icons
+    String text;
+    Color color;
+    if (value > 0) {
+      text = "Received";
+      color = Colors.green;
+    } else if (value < 0) {
+      text = "Sent";
+      color = Colors.red;
+    } else {
+      text = "Unknown";
+      color = Colors.grey;
+    }
+    return Text(
+      text,
+      style: TextStyle(color: color),
+    );
   }
 }
 
