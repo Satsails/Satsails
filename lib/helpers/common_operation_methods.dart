@@ -1,3 +1,4 @@
+import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
@@ -59,22 +60,42 @@ String transactionAmount(bdk.TransactionDetails transaction, WidgetRef ref) {
   }
 }
 
-Icon transactionTypeLiquidIcon(String kind) {
+Widget transactionTypeLiquidIcon(String kind) {
+  // Helper function to create a circular icon with a dark gray background
+  Widget _circularIcon(IconData icon, Color color) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xFF212121), // Dark gray background as per image
+      ),
+      child: Center(
+        child: Icon(
+          icon,
+          color: color,
+          size: 24, // Consistent icon size within the circle
+        ),
+      ),
+    );
+  }
+
+  // Switch case to map transaction types to their icons
   switch (kind) {
     case 'incoming':
-      return const Icon(Icons.arrow_downward, color: Colors.green);
+      return _circularIcon(Icons.arrow_downward, Colors.green);
     case 'outgoing':
-      return const Icon(Icons.arrow_upward, color: Colors.red);
+      return _circularIcon(Icons.arrow_upward, Colors.red);
     case 'burn':
-      return const Icon(Icons.local_fire_department, color: Colors.redAccent);
+      return _circularIcon(Icons.local_fire_department, Colors.redAccent);
     case 'redeposit':
-      return const Icon(Icons.subdirectory_arrow_left, color: Colors.green);
+      return _circularIcon(Icons.subdirectory_arrow_left, Colors.green);
     case 'issuance':
-      return const Icon(Icons.add_circle, color: Colors.greenAccent);
+      return _circularIcon(Icons.add_circle, Colors.greenAccent);
     case 'reissuance':
-      return const Icon(Icons.add_circle, color: Colors.green);
+      return _circularIcon(Icons.add_circle, Colors.green);
     default:
-      return const Icon(Icons.swap_calls, color: Colors.orange);
+      return _circularIcon(Icons.swap_calls, Colors.orange);
   }
 }
 
@@ -143,5 +164,27 @@ Icon subTransactionIcon(int value) {
     return const Icon(Icons.arrow_upward, color: Colors.red);
   } else {
     return const Icon(Icons.device_unknown_outlined, color: Colors.grey);
+  }
+}
+
+String liquidTransactionAmountInFiat(dynamic transaction, WidgetRef ref) {
+  if (AssetMapper.mapAsset(transaction.assetId) == AssetId.LBTC) {
+    final currency = ref.watch(settingsProvider).currency;
+    final value = ref.watch(conversionToFiatProvider(transaction.value));
+    return '${(double.parse(value) / 100000000).toStringAsFixed(2)} $currency';
+  }
+  return '';
+}
+
+String valueOfLiquidSubTransaction(AssetId asset, int value, WidgetRef ref) {
+  switch (asset) {
+    case AssetId.USD:
+    case AssetId.EUR:
+    case AssetId.BRL:
+      return (value / 100000000).toStringAsFixed(2);
+    case AssetId.LBTC:
+      return ref.watch(conversionProvider(value));
+    default:
+      return (value / 100000000).toStringAsFixed(2);
   }
 }

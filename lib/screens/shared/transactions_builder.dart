@@ -293,45 +293,70 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
     'LBTC': 'lib/assets/l-btc.png',
   };
 
+  // Determine if the transaction is confirmed
+  final isConfirmed = transaction.lwkDetails.outputs.isNotEmpty && transaction.lwkDetails.outputs[0].height != null ||
+      transaction.lwkDetails.inputs.isNotEmpty && transaction.lwkDetails.inputs[0].height != null;
+
+  // Format the transaction date
+  final timestamp = transaction.lwkDetails.timestamp != null
+      ? DateTime.fromMillisecondsSinceEpoch(transaction.lwkDetails.timestamp! * 1000)
+      : transaction.timestamp;
+  final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(timestamp);
+
   return GestureDetector(
     onTap: () {
       context.pushNamed('liquidTransactionDetails', extra: transaction);
     },
     child: Card(
-      color: Colors.black, // Define a background color to make the entire area tappable
+      color: Colors.black, // Dark background for contrast
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0), // Rounded corners
+      ),
+      elevation: 4, // Subtle shadow for depth
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(12.0), // Increased padding
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header row with direction icon, Liquid indicator, and status
+            // Progress indicator for unconfirmed transactions
+            if (!isConfirmed)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: LinearProgressIndicator(
+                  backgroundColor: Colors.grey[800],
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                  minHeight: 4,
+                ),
+              ),
+            // Main content
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 transactionTypeLiquidIcon(transaction.lwkDetails.kind),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12), // Increased spacing
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: transaction.lwkDetails.balances.map((balance) {
                       final asset = AssetMapper.mapAsset(balance.assetId);
                       final ticker = asset.name;
-                      final value = _valueOfLiquidSubTransaction(asset, balance.value, ref);
-                      final fiatValue = asset == AssetId.LBTC ? _liquidTransactionAmountInFiat(balance, ref) : '';
+                      final value = valueOfLiquidSubTransaction(asset, balance.value, ref);
+                      final fiatValue = asset == AssetId.LBTC ? liquidTransactionAmountInFiat(balance, ref) : '';
 
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 4.0),
+                        padding: const EdgeInsets.only(bottom: 8.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // Group the icon and value together
+                            // Asset icon and value
                             Row(
                               children: [
                                 Image.asset(
                                   assetIcons[ticker] ?? 'lib/assets/default.png',
-                                  width: 24,
-                                  height: 24,
+                                  width: 30, // Slightly larger icon
+                                  height: 30,
                                 ),
-                                const SizedBox(width: 8), // Space between icon and value
+                                const SizedBox(width: 10), // Adjusted spacing
                                 Text(
                                   value,
                                   style: TextStyle(
@@ -342,24 +367,33 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
                                 ),
                               ],
                             ),
-                            // Fiat value on the right, if present
-                            if (fiatValue.isNotEmpty)
-                              Text(
-                                fiatValue,
-                                style: TextStyle(
-                                  fontSize: dynamicFontSize,
-                                  color: Colors.grey,
+                            // Date and fiat value on the right
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  formattedDate,
+                                  style: TextStyle(
+                                    fontSize: dynamicFontSize - 2, // Smaller for date
+                                    color: Colors.grey[400], // Lighter color
+                                  ),
                                 ),
-                              ),
+                                if (fiatValue.isNotEmpty)
+                                  Text(
+                                    fiatValue,
+                                    style: TextStyle(
+                                      fontSize: dynamicFontSize,
+                                      color: Colors.grey[300], // Brighter than date
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ],
                         ),
                       );
                     }).toList(),
                   ),
                 ),
-                const SizedBox(width: 8),
-                // Confirmation status
-                confirmationStatusIcon(transaction.lwkDetails),
               ],
             ),
           ],
@@ -369,24 +403,3 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
   );
 }
 
-String _liquidTransactionAmountInFiat(dynamic transaction, WidgetRef ref) {
-  if (AssetMapper.mapAsset(transaction.assetId) == AssetId.LBTC) {
-    final currency = ref.watch(settingsProvider).currency;
-    final value = ref.watch(conversionToFiatProvider(transaction.value));
-    return '${(double.parse(value) / 100000000).toStringAsFixed(2)} $currency';
-  }
-  return '';
-}
-
-String _valueOfLiquidSubTransaction(AssetId asset, int value, WidgetRef ref) {
-  switch (asset) {
-    case AssetId.USD:
-    case AssetId.EUR:
-    case AssetId.BRL:
-      return (value / 100000000).toStringAsFixed(2);
-    case AssetId.LBTC:
-      return ref.watch(conversionProvider(value));
-    default:
-      return (value / 100000000).toStringAsFixed(2);
-  }
-}
