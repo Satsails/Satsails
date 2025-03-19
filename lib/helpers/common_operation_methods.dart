@@ -85,7 +85,7 @@ Icon confirmationStatusIcon(lwk.Tx transaction) {
 }
 
 
-String liquidTransactionType(lwk.Tx transaction, WidgetRef ref) {
+String liquidTransactionType(lwk.Tx transaction) {
   switch (transaction.kind) {
     case 'incoming':
       return 'Received'.i18n;

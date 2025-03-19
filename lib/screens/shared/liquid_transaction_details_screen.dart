@@ -63,7 +63,7 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: 8.0),
-                    Text(liquidTransactionType(transaction.lwkDetails, ref), style: const TextStyle(color: Colors.white, fontSize: 18)
+                    Text(liquidTransactionType(transaction.lwkDetails), style: const TextStyle(color: Colors.white, fontSize: 18)
                     ),
                   ],
                 ),
