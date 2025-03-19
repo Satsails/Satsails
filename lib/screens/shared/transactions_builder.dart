@@ -1,5 +1,4 @@
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -19,7 +18,6 @@ class BuildTransactions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CustomButton(
       onPressed: () {
-        // Show the TransactionListModalBottomSheet
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,

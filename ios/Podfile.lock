@@ -5,12 +5,12 @@ PODS:
     - PromisesObjC (~> 2.4)
   - bdk_flutter (0.31.2):
     - Flutter
-  - BranchSDK (3.7.0)
+  - BranchSDK (3.9.1)
   - Crisp (2.8.2):
     - Crisp/Crisp (= 2.8.2)
   - Crisp/Crisp (2.8.2)
-  - crisp_chat (2.2.3):
-    - Crisp (~> 2.8.1)
+  - crisp_chat (2.2.4):
+    - Crisp (~> 2.8.2)
     - Flutter
   - device_info_plus (0.0.1):
     - Flutter
@@ -87,8 +87,8 @@ PODS:
     - nanopb (~> 3.30910.0)
     - PromisesSwift (~> 2.1)
   - Flutter (1.0.0)
-  - flutter_branch_sdk (8.3.2):
-    - BranchSDK (~> 3.7.0)
+  - flutter_branch_sdk (8.4.0):
+    - BranchSDK (~> 3.9.0)
     - Flutter
   - flutter_keyboard_visibility (0.0.1):
     - Flutter
@@ -286,9 +286,9 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
   bdk_flutter: 08274535b7bd58a09bfa9c3733474fb44133484c
-  BranchSDK: 1f63030d369197f4f33cb496a3c06ce997b5ec2f
+  BranchSDK: a12f9aa63d7ba562fdff5509d4aed081f1098ec0
   Crisp: 6747c96b2b2c2a81babf1eaecd1688a65d98edd4
-  crisp_chat: 3bdffe847beeaf0277d5d6d1473962d758af5685
+  crisp_chat: 3cd3aedf7ff8ebed6822b05a8fae8f14920db259
   device_info_plus: 71ffc6ab7634ade6267c7a93088ed7e4f74e5896
   Firebase: 9f574c08c2396885b5e7e100ed4293d956218af9
   firebase_app_check: 870914f655d2b63c776373c80b9d53635b42e7d3
@@ -306,7 +306,7 @@ SPEC CHECKSUMS:
   FirebaseRemoteConfigInterop: ca12abf9da0003efd3a476b2dff4f7a04fd31b4f
   FirebaseSessions: 655ff17f3cc1a635cbdc2d69b953878001f9e25b
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_branch_sdk: 29ce383d19e60853e864e40708dff3fc0e601754
+  flutter_branch_sdk: 51f1cf5369be881b47706064039280e2e2a616a5
   flutter_keyboard_visibility: 4625131e43015dbbe759d9b20daaf77e0e3f6619
   flutter_local_notifications: ad39620c743ea4c15127860f4b5641649a988100
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
@@ -331,8 +331,8 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
   vibration: 8e2f50fc35bb736f9eecb7dd9f7047fbb6a6e888
-  webview_flutter_wkwebview: 44d4dee7d7056d5ad185d25b38404436d56c547c
+  webview_flutter_wkwebview: 1821ceac936eba6f7984d89a9f3bcb4dea99ebb2
 
-PODFILE CHECKSUM: 2aa96ada07e93c9e9b63a420d0411a8ed7efce0f
+PODFILE CHECKSUM: a1e709ea802d1b31151be9c211e2692639c84586
 
 COCOAPODS: 1.16.2

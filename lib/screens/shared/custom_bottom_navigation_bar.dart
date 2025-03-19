@@ -50,19 +50,16 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       ),
     ];
 
-    return SizedBox(
-      height: 0.1.sh,
-      child: DotNavigationBar(
-        items: bottomBarItems,
-        currentIndex: widget.currentIndex,
-        onTap: widget.onTap,
-        backgroundColor: Color(0xFF212121), // Dark grey background.withOpacity(0.5), // Semi-transparent background
-        dotIndicatorColor: Colors.transparent, // White dot for selected item
-        unselectedItemColor: Colors.grey[300], // Light grey for unselected items
-        splashBorderRadius: 50,
-        margin:  const EdgeInsets.only(bottom: 20),
-        marginR:  const EdgeInsets.only(bottom: 20, top: 0),
-      ),
+    return DotNavigationBar(
+      items: bottomBarItems,
+      currentIndex: widget.currentIndex,
+      onTap: widget.onTap,
+      backgroundColor: Color(0xFF212121),// Transparent background
+      dotIndicatorColor: Colors.transparent, // No dot indicator
+      unselectedItemColor: Colors.grey[300], // Light grey for unselected items
+      margin: const EdgeInsets.only(bottom: 20),
+      marginR: const EdgeInsets.only(bottom: 20),
+      splashColor: Colors.transparent, // Orange color for splash effect
     );
   }
 }
