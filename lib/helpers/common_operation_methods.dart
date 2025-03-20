@@ -81,7 +81,7 @@ String transactionAmount(bdk.TransactionDetails transaction, WidgetRef ref) {
   }
 }
 
-Widget pegTransactionTypeIcon(bool isPegIn) {
+Widget pegTransactionTypeIcon() {
   Widget _circularIcon(IconData icon, Color color) {
     return Container(
       width: 40,  // Responsive width
@@ -100,6 +100,27 @@ Widget pegTransactionTypeIcon(bool isPegIn) {
     );
   }
   return _circularIcon(Icons.swap_horiz_outlined, Colors.orange); // Peg Out: outgoing
+}
+
+Widget eulenTransactionTypeIcon() {
+  Widget _circularIcon(IconData icon, Color color) {
+    return Container(
+      width: 40,  // Responsive width
+      height: 40, // Responsive height, same as width for a circle
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xFF333333), // Dark gray background
+      ),
+      child: Center(
+        child: Icon(
+          icon,
+          color: color,
+          size: 24.w, // Responsive icon size
+        ),
+      ),
+    );
+  }
+  return _circularIcon(Icons.pix, Colors.green); // Peg Out: outgoing
 }
 
 Widget transactionTypeLiquidIcon(String kind) {

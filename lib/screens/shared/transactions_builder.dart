@@ -1,23 +1,18 @@
 import 'dart:math';
 
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
-import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
-import 'package:Satsails/providers/conversion_provider.dart';
+import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
-import 'package:Satsails/providers/user_provider.dart';
-import 'package:Satsails/screens/analytics/components/peg_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:i18n_extension/default.i18n.dart';
-import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -79,7 +74,11 @@ class TransactionList extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 allTransactions.isEmpty
-                    ? _buildNoTransactionsFound(screenHeight)
+                    ? Expanded(
+                  child: Center(
+                    child: _buildNoTransactionsFound(screenHeight),
+                  ),
+                )
                     : _buildTransactionList(
                   context,
                   allTransactions.length,
@@ -102,16 +101,14 @@ class TransactionList extends ConsumerWidget {
     );
   }
 
-
   Widget _buildTransactionList(BuildContext context, int itemCount, Widget Function(int) itemBuilder) {
-    // Get the screen height using MediaQuery
     final screenHeight = MediaQuery.of(context).size.height;
 
     final displayCount = itemCount > 0
         ? (screenHeight >= 800
-        ? min(itemCount, 5) // Large screen: show up to 6
+        ? min(itemCount, 5) // Large screen: show up to 5
         : screenHeight >= 600
-        ? min(itemCount, 4) // Medium screen: show up to 5
+        ? min(itemCount, 4) // Medium screen: show up to 4
         : min(itemCount, 3)) // Small screen: show up to 3
         : 0;
 
@@ -124,12 +121,17 @@ class TransactionList extends ConsumerWidget {
   }
 
   Widget _buildNoTransactionsFound(double screenHeight) {
-    return Text(
-      'No transactions found',
-      style: TextStyle(
-        fontSize: screenHeight * 0.02,
-        color: Colors.grey,
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min, // Keeps the Column compact
+      children: [
+        Text(
+          'No transactions found',
+          style: TextStyle(
+            fontSize: screenHeight * 0.025, // Slightly larger (e.g., ~20px on a 800px screen)
+            color: Colors.grey,
+          ),
+        ),
+      ],
     );
   }
 
@@ -187,7 +189,7 @@ class TransactionList extends ConsumerWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                pegTransactionTypeIcon(sideswapPegDetails.pegIn ?? false),
+                pegTransactionTypeIcon(),
                 SizedBox(width: 12.w), // Responsive spacing
                 Expanded(
                   child: Row(
@@ -234,236 +236,318 @@ class TransactionList extends ConsumerWidget {
     );
   }
 
-  /// Builds a ListTile for Eulen (Pix Purchase) transactions (optional)
   Widget _buildEulenTransactionItem(
       EulenTransaction transaction,
       BuildContext context,
       WidgetRef ref,
-      double fontSize,
+      double fontSize, // Kept from the original signature
       ) {
-    final pixDetails = transaction.pixDetails;
-    // Assuming EulenTransfer has fields like amount, currency
-    final status = transaction.pixDetails.status!.isNotEmpty ? 'Confirmed' : 'Pending';
-    return ListTile(
-      leading: const Icon(Icons.payment, color: Colors.yellow),
-      title: Text(
-        'Pix Purchase',
-        style: TextStyle(fontSize: fontSize, color: Colors.white),
-      ),
-      subtitle: Text(
-        DateFormat('yyyy-MM-dd HH:mm:ss').format(transaction.timestamp),
-        style: TextStyle(fontSize: fontSize, color: Colors.grey),
-      ),
-      trailing: Text(
-        status,
-        style: TextStyle(fontSize: fontSize, color: Colors.grey),
-      ),
-    );
-  }
-}
+    final isConfirmed = transaction.isConfirmed || transaction.pixDetails.status == "expired";
+    final status = transaction.pixDetails.status;
 
-Widget _buildBitcoinTransactionItem(BitcoinTransaction transaction, BuildContext context, WidgetRef ref) {
-  // Determine if the transaction is confirmed
-  final isConfirmed = transaction.btcDetails.confirmationTime != null;
+    final type = transaction.pixDetails.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
+    final title = "${transaction.pixDetails.paymentMethod} $type";
+    final amount = transaction.pixDetails.receivedAmount.toString();
+    final formattedDate = DateFormat('d, MMMM, HH:mm').format(transaction.timestamp);
 
-  // Format the transaction date
-  final timestamp = transaction.btcDetails.confirmationTime?.timestamp != null
-      ? DateTime.fromMillisecondsSinceEpoch(transaction.btcDetails.confirmationTime!.timestamp.toInt() * 1000)
-      : transaction.timestamp;
-  final formattedDate = DateFormat('d, MMMM, HH:mm').format(timestamp);
+    // Check if the transaction is failed or expired
+    final isFailedOrExpired = status == "failed" || status == "expired";
 
-  return GestureDetector(
-    onTap: () {
-      context.pushNamed('transactionDetails', extra: transaction);
-    },
-    behavior: HitTestBehavior.opaque, // Makes the entire area tappable
-    child: Padding(
-      padding: const EdgeInsets.all(12.0), // Consistent padding
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Progress indicator for unconfirmed transactions
-          if (!isConfirmed)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: LinearProgressIndicator(
-                backgroundColor: Colors.grey[800],
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-                minHeight: 4,
-              ),
-            ),
-          // Main content
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Transaction type icon
-              transactionTypeIcon(transaction.btcDetails),
-              const SizedBox(width: 12), // Consistent spacing after icon
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Bitcoin",
-                          style: TextStyle(
-                            fontSize: 16.sp, // Matches tickerDisplay
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          formattedDate,
-                          style: TextStyle(
-                            fontSize: 14.sp, // Matches date
-                            color: Colors.grey[400], // Lighter color
-                          ),
-                        ),
-                      ],
-                    ),
-                    // Transaction amount and fiat value on the right
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          transactionAmount(transaction.btcDetails, ref),
-                          style: TextStyle(
-                            fontSize: 14.sp, // Matches balance values
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          transactionAmountInFiat(transaction.btcDetails, ref),
-                          style: TextStyle(
-                            fontSize: 12.sp, // Matches fiat value
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+    return GestureDetector(
+      onTap: () {
+        ref.read(selectedEulenTransferIdProvider.notifier).state = transaction.pixDetails.id;
+        context.pushNamed('pix_transaction_details');
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Show progress indicator only if transaction is pending (not failed or expired)
+            if (!isConfirmed && !isFailedOrExpired)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: LinearProgressIndicator(
+                  backgroundColor: Colors.grey[800],
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                  minHeight: 4,
                 ),
               ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext context, WidgetRef ref) {
-  final isConfirmed = transaction.lwkDetails.timestamp != null;
-
-  // Format the transaction date
-  final timestamp = transaction.lwkDetails.timestamp != null
-      ? DateTime.fromMillisecondsSinceEpoch(transaction.lwkDetails.timestamp! * 1000)
-      : transaction.timestamp;
-  final formattedDate = DateFormat('d, MMMM, HH:mm').format(timestamp);
-
-  // Filter balances: exclude small LBTC balances when there are multiple balances
-  final balancesToShow = transaction.lwkDetails.balances.where((balance) {
-    if (transaction.lwkDetails.balances.length > 1 && balance.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC)) {
-      final satoshiValue = balance.value.abs();
-      if (satoshiValue < 100) {
-        return false; // Exclude small LBTC balance
-      }
-    }
-    return true; // Include all other balances
-  }).toList();
-
-  // Get unique ticker names from the filtered balances
-  final tickers = balancesToShow.map((b) => AssetMapper.mapAsset(b.assetId).name).toSet().toList();
-  final tickerDisplay = tickers.length == 1 ? tickers.first : tickers.join(' - ');
-
-  return GestureDetector(
-    onTap: () {
-      context.pushNamed('liquidTransactionDetails', extra: transaction);
-    },
-    child: Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Show progress indicator for unconfirmed transactions
-          if (!isConfirmed)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: LinearProgressIndicator(
-                backgroundColor: Colors.grey[800],
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-                minHeight: 4,
-              ),
-            ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              transactionTypeLiquidIcon(transaction.lwkDetails.kind),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      tickerDisplay,
-                      style: TextStyle(
-                        fontSize: 16.sp, // Main text size
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      formattedDate,
-                      style: TextStyle(
-                        fontSize: 14.sp, // Secondary text size
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Display filtered balances
-              if (balancesToShow.isNotEmpty)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: balancesToShow.map((balance) {
-                    final asset = AssetMapper.mapAsset(balance.assetId);
-                    final value = valueOfLiquidSubTransaction(asset, balance.value, ref);
-                    final fiatValue = asset == AssetId.LBTC ? liquidTransactionAmountInFiat(balance, ref) : '';
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+            // Main content
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Transaction type icon
+                eulenTransactionTypeIcon(),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "${value} ${asset.name}",
+                            title,
                             style: TextStyle(
-                              fontSize: 14.sp, // Main text size
+                              fontSize: 16.sp, // Consistent with Bitcoin item
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
                           ),
-                          if (fiatValue.isNotEmpty)
+                          Text(
+                            formattedDate,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: Colors.grey[400],
+                            ),
+                          ),
                             Text(
-                              fiatValue,
+                              status.toString(),
                               style: TextStyle(
-                                fontSize: 12.sp, // Secondary text size
+                                fontSize: 12.sp,
                                 color: Colors.grey[400],
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                         ],
                       ),
-                    );
-                  }).toList(),
+                      // Amount and fiat value
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "$amount ${transaction.pixDetails.from_currency}",
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            '${transaction.pixDetails.price} USD',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
+
+  Widget _buildBitcoinTransactionItem(BitcoinTransaction transaction, BuildContext context, WidgetRef ref) {
+    // Determine if the transaction is confirmed
+    final isConfirmed = transaction.btcDetails.confirmationTime != null;
+
+    // Format the transaction date
+    final timestamp = transaction.btcDetails.confirmationTime?.timestamp != null
+        ? DateTime.fromMillisecondsSinceEpoch(transaction.btcDetails.confirmationTime!.timestamp.toInt() * 1000)
+        : transaction.timestamp;
+    final formattedDate = DateFormat('d, MMMM, HH:mm').format(timestamp);
+
+    return GestureDetector(
+      onTap: () {
+        context.pushNamed('transactionDetails', extra: transaction);
+      },
+      behavior: HitTestBehavior.opaque, // Makes the entire area tappable
+      child: Padding(
+        padding: const EdgeInsets.all(12.0), // Consistent padding
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Progress indicator for unconfirmed transactions
+            if (!isConfirmed)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: LinearProgressIndicator(
+                  backgroundColor: Colors.grey[800],
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                  minHeight: 4,
+                ),
+              ),
+            // Main content
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Transaction type icon
+                transactionTypeIcon(transaction.btcDetails),
+                const SizedBox(width: 12), // Consistent spacing after icon
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Bitcoin",
+                            style: TextStyle(
+                              fontSize: 16.sp, // Matches tickerDisplay
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            formattedDate,
+                            style: TextStyle(
+                              fontSize: 14.sp, // Matches date
+                              color: Colors.grey[400], // Lighter color
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Transaction amount and fiat value on the right
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            transactionAmount(transaction.btcDetails, ref),
+                            style: TextStyle(
+                              fontSize: 14.sp, // Matches balance values
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            transactionAmountInFiat(transaction.btcDetails, ref),
+                            style: TextStyle(
+                              fontSize: 12.sp, // Matches fiat value
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext context, WidgetRef ref) {
+    final isConfirmed = transaction.lwkDetails.timestamp != null;
+
+    // Format the transaction date
+    final timestamp = transaction.lwkDetails.timestamp != null
+        ? DateTime.fromMillisecondsSinceEpoch(transaction.lwkDetails.timestamp! * 1000)
+        : transaction.timestamp;
+    final formattedDate = DateFormat('d, MMMM, HH:mm').format(timestamp);
+
+    // Filter balances: exclude small LBTC balances when there are multiple balances
+    final balancesToShow = transaction.lwkDetails.balances.where((balance) {
+      if (transaction.lwkDetails.balances.length > 1 && balance.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC)) {
+        final satoshiValue = balance.value.abs();
+        if (satoshiValue < 100) {
+          return false; // Exclude small LBTC balance
+        }
+      }
+      return true; // Include all other balances
+    }).toList();
+
+    // Get unique ticker names from the filtered balances
+    final tickers = balancesToShow.map((b) => AssetMapper.mapAsset(b.assetId).name).toSet().toList();
+    final tickerDisplay = tickers.length == 1 ? tickers.first : tickers.join(' - ');
+
+    return GestureDetector(
+      onTap: () {
+        context.pushNamed('liquidTransactionDetails', extra: transaction);
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Show progress indicator for unconfirmed transactions
+            if (!isConfirmed)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: LinearProgressIndicator(
+                  backgroundColor: Colors.grey[800],
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                  minHeight: 4,
+                ),
+              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                transactionTypeLiquidIcon(transaction.lwkDetails.kind),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tickerDisplay,
+                        style: TextStyle(
+                          fontSize: 16.sp, // Main text size
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        formattedDate,
+                        style: TextStyle(
+                          fontSize: 14.sp, // Secondary text size
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Display filtered balances
+                if (balancesToShow.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: balancesToShow.map((balance) {
+                      final asset = AssetMapper.mapAsset(balance.assetId);
+                      final value = valueOfLiquidSubTransaction(asset, balance.value, ref);
+                      final fiatValue = asset == AssetId.LBTC ? liquidTransactionAmountInFiat(balance, ref) : '';
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 4.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              "${value} ${asset.name}",
+                              style: TextStyle(
+                                fontSize: 14.sp, // Main text size
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            if (fiatValue.isNotEmpty)
+                              Text(
+                                fiatValue,
+                                style: TextStyle(
+                                  fontSize: 12.sp, // Secondary text size
+                                  color: Colors.grey[400],
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
