@@ -575,10 +575,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_branch_sdk
-      sha256: "60697824af8993cda52e0104bff672b3f25f12ebe575412edcb6281a841d9475"
+      sha256: fef13ad51fb4994aff433ef0b14669e0f20b98b8be5a87d7bd048e5a65ca244a
       url: "https://pub.dev"
     source: hosted
-    version: "8.4.0"
+    version: "8.4.1"
   flutter_card_swiper:
     dependency: "direct main"
     description:

@@ -15,16 +15,15 @@ class MainScreen extends ConsumerStatefulWidget {
 }
 
 class _MainScreenState extends ConsumerState<MainScreen> {
-  late final List<Widget> _pages;
+  late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
-
     _pages = [
       const Home(),
       const Explore(),
-      const Exchange(),
+      Exchange(key: UniqueKey()), // Initial instance of Exchange
       const Accounts(),
       const Settings(),
     ];
@@ -33,6 +32,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final currentIndex = ref.watch(navigationProvider);
+
+    // When navigating to Exchange (index 2), replace it with a new instance
+    if (currentIndex == 2) {
+      setState(() {
+        _pages[2] = Exchange(key: UniqueKey());
+      });
+    }
 
     return Scaffold(
       body: IndexedStack(

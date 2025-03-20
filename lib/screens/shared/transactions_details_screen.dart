@@ -23,7 +23,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'Transaction Details'.i18n,
-          style: TextStyle(color: Colors.white, fontSize: 18.sp), // Responsive font size
+          style: TextStyle(color: Colors.white), // Responsive font size
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
@@ -37,7 +37,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
           margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h), // Responsive margins
           padding: EdgeInsets.all(16.w), // Responsive padding
           decoration: BoxDecoration(
-            color: const Color(0xFF1C1C1E),
+            color: const Color(0xFF212121),
             borderRadius: BorderRadius.circular(12.r), // Responsive radius
             boxShadow: [
               BoxShadow(

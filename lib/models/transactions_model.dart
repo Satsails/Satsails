@@ -17,10 +17,12 @@ class TransactionModel extends StateNotifier<Transaction> {
 abstract class BaseTransaction {
   final String id;
   final DateTime timestamp;
+  final bool isConfirmed;
 
   BaseTransaction({
     required this.id,
     required this.timestamp,
+    required this.isConfirmed,
   });
 }
 
@@ -28,55 +30,55 @@ class BitcoinTransaction extends BaseTransaction {
   final bdk.TransactionDetails btcDetails;
 
   BitcoinTransaction({
-    required String id,
-    required DateTime timestamp,
-    required bool isConfirmed,
+    required super.id,
+    required super.timestamp,
+    required super.isConfirmed,
     required this.btcDetails,
-  }) : super(id: id, timestamp: timestamp);
+  });
 }
 
 class LiquidTransaction extends BaseTransaction {
   final lwk.Tx lwkDetails;
 
   LiquidTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.lwkDetails,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp);
+    required super.isConfirmed,
+  });
 }
 
 class EulenTransaction extends BaseTransaction {
   final EulenTransfer pixDetails;
 
   EulenTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.pixDetails,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp);
+    required super.isConfirmed,
+  });
 }
 
 class SideswapPegTransaction extends BaseTransaction {
   final SideswapPegStatus sideswapPegDetails;
 
   SideswapPegTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.sideswapPegDetails,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp);
+    required super.isConfirmed,
+  });
 }
 
 class SideswapInstantSwapTransaction extends BaseTransaction {
   final SideswapCompletedSwap sideswapInstantSwapDetails;
 
   SideswapInstantSwapTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.sideswapInstantSwapDetails,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp);
+    required super.isConfirmed,
+  });
 }
 
 class Transaction {

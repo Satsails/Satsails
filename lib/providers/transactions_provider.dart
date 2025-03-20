@@ -44,7 +44,7 @@ Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
       id: pegTx.orderId!,
       timestamp: DateTime.fromMillisecondsSinceEpoch(pegTx.createdAt!),
       sideswapPegDetails: pegTx,
-      isConfirmed: pegTx.list!.map((e) => e.status).contains('completed'),
+      isConfirmed: pegTx.list!.map((e) => e.status).contains('Done'),
     );
   }).toList();
 

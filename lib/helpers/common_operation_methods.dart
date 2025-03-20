@@ -6,6 +6,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lwk/lwk.dart' as lwk;
 
 String confirmationStatus(bdk.TransactionDetails transaction, WidgetRef ref) {
@@ -78,6 +79,27 @@ String transactionAmount(bdk.TransactionDetails transaction, WidgetRef ref) {
     int total = (transaction.received.toInt() - transaction.sent.toInt()).abs();
     return ref.watch(conversionProvider(total));
   }
+}
+
+Widget pegTransactionTypeIcon(bool isPegIn) {
+  Widget _circularIcon(IconData icon, Color color) {
+    return Container(
+      width: 40,  // Responsive width
+      height: 40, // Responsive height, same as width for a circle
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xFF333333), // Dark gray background
+      ),
+      child: Center(
+        child: Icon(
+          icon,
+          color: color,
+          size: 24.w, // Responsive icon size
+        ),
+      ),
+    );
+  }
+  return _circularIcon(Icons.swap_horiz_outlined, Colors.orange); // Peg Out: outgoing
 }
 
 Widget transactionTypeLiquidIcon(String kind) {

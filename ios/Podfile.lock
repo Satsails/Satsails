@@ -87,7 +87,7 @@ PODS:
     - nanopb (~> 3.30910.0)
     - PromisesSwift (~> 2.1)
   - Flutter (1.0.0)
-  - flutter_branch_sdk (8.4.0):
+  - flutter_branch_sdk (8.4.1):
     - BranchSDK (~> 3.9.0)
     - Flutter
   - flutter_keyboard_visibility (0.0.1):
@@ -306,7 +306,7 @@ SPEC CHECKSUMS:
   FirebaseRemoteConfigInterop: ca12abf9da0003efd3a476b2dff4f7a04fd31b4f
   FirebaseSessions: 655ff17f3cc1a635cbdc2d69b953878001f9e25b
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_branch_sdk: 51f1cf5369be881b47706064039280e2e2a616a5
+  flutter_branch_sdk: 71ad62179c5d571b60cccbe9021680e401503356
   flutter_keyboard_visibility: 4625131e43015dbbe759d9b20daaf77e0e3f6619
   flutter_local_notifications: ad39620c743ea4c15127860f4b5641649a988100
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13

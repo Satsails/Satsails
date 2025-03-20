@@ -128,7 +128,6 @@ class _StartState extends ConsumerState<Start> with SingleTickerProviderStateMix
                       style: TextStyle(
                         foreground: Paint()..shader = createGradientShader(Rect.fromLTWH(0.0, 0.0, 0.6.sw, 0.1.sh)),
                         fontSize: 60.sp,
-                        fontWeight: FontWeight.w900,
                         shadows: [
                           Shadow(
                             color: Colors.black.withOpacity(0.5),

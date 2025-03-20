@@ -32,7 +32,7 @@ dependencies:
   bdk_flutter: ^0.31.2
   bitcoin_message_signer: ^1.0.2
   bolt11_decoder: ^1.0.2
-  lwk: ^0.1.5
+  lwk: ^0.1.7
   forex_currency_conversion: ^0.9.1
   icons_plus: ^5.0.0
   loading_animation_widget: ^1.2.1
