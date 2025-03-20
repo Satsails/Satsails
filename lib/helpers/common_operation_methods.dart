@@ -34,7 +34,7 @@ Widget transactionTypeIcon(bdk.TransactionDetails transaction) {
       height: 40,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Color(0xFF212121), // Dark gray background
+        color: Color(0xFF333333), // Dark gray background
       ),
       child: Center(
         child: Icon(
@@ -88,7 +88,7 @@ Widget transactionTypeLiquidIcon(String kind) {
       height: 40,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Color(0xFF212121), // Dark gray background as per image
+        color: Color(0xFF333333), // Dark gray background as per image
       ),
       child: Center(
         child: Icon(

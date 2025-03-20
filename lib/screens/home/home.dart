@@ -8,6 +8,7 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -52,9 +53,12 @@ class Home extends ConsumerWidget {
         const BackupWarning(),
         buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
         Expanded(
-          child: Container(
-            color: Colors.black, // Match the background color
-            child: const TransactionList(),
+          child: Padding(
+            padding: EdgeInsets.all(16.0.sp),
+            child: Container(
+              color: Colors.black,
+              child: const TransactionList(),
+            ),
           ),
         ),
       ],

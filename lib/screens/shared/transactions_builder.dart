@@ -1,43 +1,22 @@
+import 'dart:math';
+
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
-import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
-import 'package:Satsails/screens/shared/custom_button.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:i18n_extension/default.i18n.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
-
-class BuildTransactions extends ConsumerWidget {
-  final bool showAllTransactions;
-
-  const BuildTransactions({super.key, required this.showAllTransactions});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return CustomButton(
-      onPressed: () {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent, // Make background transparent
-          builder: (context) {
-            return const TransactionList();
-          },
-        );
-      },
-      text: 'See Full History'.i18n,
-      primaryColor: Colors.transparent,
-      secondaryColor: Colors.transparent,
-      textColor: Colors.white,
-    );
-  }
-}
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class TransactionList extends ConsumerWidget {
   const TransactionList({Key? key}) : super(key: key);
@@ -48,25 +27,95 @@ class TransactionList extends ConsumerWidget {
     final transactionState = ref.watch(transactionNotifierProvider);
     final allTransactions = transactionState.allTransactionsSorted;
 
-    return Container(
-      height: screenHeight * 0.8,
-      decoration: const BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: allTransactions.isEmpty
-          ? _buildNoTransactionsFound(screenHeight)
-          : _buildTransactionList(
-        context,
-        allTransactions.length,
-            (index) => _buildUnifiedTransactionItem(allTransactions[index], context, ref),
-      ),
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                'Transactions'.i18n,
+                style: TextStyle(
+                  fontSize: 23,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            ref.watch(backgroundSyncInProgressProvider)
+                ? Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: LoadingAnimationWidget.beat(
+                color: Colors.green,
+                size: 20,
+              ),
+            )
+                : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: GestureDetector(
+                onTap: () {
+                  ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+                },
+                child: LoadingAnimationWidget.beat(
+                  color: ref.read(settingsProvider).online ? Colors.green : Colors.red,
+                  size: 20,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 8),
+        Expanded(
+          child: Card(
+            color: Color(0xFF212121),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                allTransactions.isEmpty
+                    ? _buildNoTransactionsFound(screenHeight)
+                    : _buildTransactionList(
+                  context,
+                  allTransactions.length,
+                      (index) => _buildUnifiedTransactionItem(allTransactions[index], context, ref),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // TODO: Navigate to full transaction list, e.g., context.push('/transactions')
+                  },
+                  child: const Text(
+                    'See all',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
+
   Widget _buildTransactionList(BuildContext context, int itemCount, Widget Function(int) itemBuilder) {
+    // Get the screen height using MediaQuery
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final displayCount = itemCount > 0
+        ? (screenHeight >= 800
+        ? min(itemCount, 4) // Large screen: show up to 6
+        : screenHeight >= 600
+        ? min(itemCount, 3) // Medium screen: show up to 5
+        : min(itemCount, 2)) // Small screen: show up to 3
+        : 0;
+
     return ListView.builder(
-      itemCount: itemCount,
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: displayCount,
       itemBuilder: (context, index) => itemBuilder(index),
     );
   }
@@ -225,9 +274,6 @@ class TransactionList extends ConsumerWidget {
 }
 
 Widget _buildBitcoinTransactionItem(BitcoinTransaction transaction, BuildContext context, WidgetRef ref) {
-  final screenHeight = MediaQuery.of(context).size.height;
-  final dynamicFontSize = screenHeight * 0.015;
-
   // Determine if the transaction is confirmed
   final isConfirmed = transaction.btcDetails.confirmationTime != null;
 
@@ -242,104 +288,85 @@ Widget _buildBitcoinTransactionItem(BitcoinTransaction transaction, BuildContext
       context.pushNamed('transactionDetails', extra: transaction);
     },
     behavior: HitTestBehavior.opaque, // Makes the entire area tappable
-    child: Card(
-      color: Colors.black, // Dark background for contrast
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0), // Rounded corners
-      ),
-      elevation: 4, // Subtle shadow for depth
-      child: Padding(
-        padding: const EdgeInsets.all(12.0), // Consistent padding
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Progress indicator for unconfirmed transactions
-            if (!isConfirmed)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: LinearProgressIndicator(
-                  backgroundColor: Colors.grey[800],
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
-                  minHeight: 4,
+    child: Padding(
+      padding: const EdgeInsets.all(12.0), // Consistent padding
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Progress indicator for unconfirmed transactions
+          if (!isConfirmed)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: LinearProgressIndicator(
+                backgroundColor: Colors.grey[800],
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                minHeight: 4,
+              ),
+            ),
+          // Main content
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Transaction type icon
+              transactionTypeIcon(transaction.btcDetails),
+              const SizedBox(width: 12), // Consistent spacing after icon
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Bitcoin",
+                          style: TextStyle(
+                            fontSize: 16.sp, // Matches tickerDisplay
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          formattedDate,
+                          style: TextStyle(
+                            fontSize: 14.sp, // Matches date
+                            color: Colors.grey[400], // Lighter color
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Transaction amount and fiat value on the right
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          transactionAmount(transaction.btcDetails, ref),
+                          style: TextStyle(
+                            fontSize: 14.sp, // Matches balance values
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          transactionAmountInFiat(transaction.btcDetails, ref),
+                          style: TextStyle(
+                            fontSize: 12.sp, // Matches fiat value
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            // Main content
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Transaction type icon (outside Expanded)
-                transactionTypeIcon(transaction.btcDetails),
-                const SizedBox(width: 12), // Consistent spacing after icon
-                // Remaining content takes up available space
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Bitcoin logo and transaction amount
-                      Row(
-                        children: [
-                          Image.asset(
-                            'lib/assets/bitcoin-logo.png',
-                            width: 30,
-                            height: 30,
-                          ),
-                          const SizedBox(width: 10), // Consistent spacing
-                          Text(
-                            transactionAmount(transaction.btcDetails, ref),
-                            style: TextStyle(
-                              fontSize: dynamicFontSize,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      // Date and fiat value on the right
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            formattedDate,
-                            style: TextStyle(
-                              fontSize: dynamicFontSize - 2, // Smaller for date
-                              color: Colors.grey[400], // Lighter color
-                            ),
-                          ),
-                          Text(
-                            transactionAmountInFiat(transaction.btcDetails, ref),
-                            style: TextStyle(
-                              fontSize: dynamicFontSize,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[300], // Brighter than date
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     ),
   );
 }
 
 Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext context, WidgetRef ref) {
-  final screenHeight = MediaQuery.of(context).size.height;
-  final dynamicFontSize = screenHeight * 0.015;
-
-  // Define the asset icon mapping
-  final assetIcons = {
-    'EURx': 'lib/assets/eurx.png',
-    'Depix': 'lib/assets/depix.png',
-    'USDT': 'lib/assets/tether.png',
-    'LBTC': 'lib/assets/l-btc.png',
-  };
-
-  // Determine if the transaction is confirmed
   final isConfirmed = transaction.lwkDetails.timestamp != null;
 
   // Format the transaction date
@@ -348,105 +375,106 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
       : transaction.timestamp;
   final formattedDate = DateFormat('d, MMMM, HH:mm').format(timestamp);
 
+  // Filter balances: exclude small LBTC balances when there are multiple balances
+  final balancesToShow = transaction.lwkDetails.balances.where((balance) {
+    if (transaction.lwkDetails.balances.length > 1 && balance.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC)) {
+      final satoshiValue = balance.value.abs();
+      if (satoshiValue < 100) {
+        return false; // Exclude small LBTC balance
+      }
+    }
+    return true; // Include all other balances
+  }).toList();
+
+  // Get unique ticker names from the filtered balances
+  final tickers = balancesToShow.map((b) => AssetMapper.mapAsset(b.assetId).name).toSet().toList();
+  final tickerDisplay = tickers.length == 1 ? tickers.first : tickers.join(' - ');
+
   return GestureDetector(
     onTap: () {
       context.pushNamed('liquidTransactionDetails', extra: transaction);
     },
-    child: Card(
-      color: Colors.black, // Dark background for contrast
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0), // Rounded corners
-      ),
-      elevation: 4, // Subtle shadow for depth
-      child: Padding(
-        padding: const EdgeInsets.all(12.0), // Increased padding
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Progress indicator for unconfirmed transactions
-            if (!isConfirmed)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: LinearProgressIndicator(
-                  backgroundColor: Colors.grey[800],
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
-                  minHeight: 4,
+    child: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Show progress indicator for unconfirmed transactions
+          if (!isConfirmed)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: LinearProgressIndicator(
+                backgroundColor: Colors.grey[800],
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                minHeight: 4,
+              ),
+            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              transactionTypeLiquidIcon(transaction.lwkDetails.kind),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tickerDisplay,
+                      style: TextStyle(
+                        fontSize: 16.sp, // Main text size
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      formattedDate,
+                      style: TextStyle(
+                        fontSize: 14.sp, // Secondary text size
+                        color: Colors.grey[400],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            // Main content
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                transactionTypeLiquidIcon(transaction.lwkDetails.kind),
-                const SizedBox(width: 12), // Increased spacing
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: transaction.lwkDetails.balances.map((balance) {
-                      final asset = AssetMapper.mapAsset(balance.assetId);
-                      final ticker = asset.name;
-                      final value = valueOfLiquidSubTransaction(asset, balance.value, ref);
-                      final fiatValue = asset == AssetId.LBTC ? liquidTransactionAmountInFiat(balance, ref) : '';
-
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Asset icon and value
-                            Row(
-                              children: [
-                                Image.asset(
-                                  assetIcons[ticker] ?? 'lib/assets/default.png',
-                                  width: 30, // Slightly larger icon
-                                  height: 30,
-                                ),
-                                const SizedBox(width: 10), // Adjusted spacing
-                                Text(
-                                  value,
-                                  style: TextStyle(
-                                    fontSize: dynamicFontSize,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
+              // Display filtered balances
+              if (balancesToShow.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: balancesToShow.map((balance) {
+                    final asset = AssetMapper.mapAsset(balance.assetId);
+                    final value = valueOfLiquidSubTransaction(asset, balance.value, ref);
+                    final fiatValue = asset == AssetId.LBTC ? liquidTransactionAmountInFiat(balance, ref) : '';
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "${value} ${asset.name}",
+                            style: TextStyle(
+                              fontSize: 14.sp, // Main text size
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
-                            // Date and fiat value on the right
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                if (fiatValue.isNotEmpty)
-                                Text(
-                                  formattedDate,
-                                  style: TextStyle(
-                                    fontSize: dynamicFontSize - 2, // Smaller for date
-                                    color: Colors.grey[400], // Lighter color
-                                  ),
-                                ),
-                                if (fiatValue.isNotEmpty)
-                                  Text(
-                                    fiatValue,
-                                    style: TextStyle(
-                                      fontSize: dynamicFontSize,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey[300], // Brighter than date
-                                    ),
-                                  ),
-                              ],
+                          ),
+                          if (fiatValue.isNotEmpty)
+                            Text(
+                              fiatValue,
+                              style: TextStyle(
+                                fontSize: 12.sp, // Secondary text size
+                                color: Colors.grey[400],
+                              ),
                             ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
                 ),
-              ],
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     ),
   );
 }
-

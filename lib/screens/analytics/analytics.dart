@@ -80,8 +80,6 @@ class Analytics extends ConsumerWidget {
         if (transactionType == 'Liquid') const LiquidExpensesDiagram(),
         if (transactionType == 'Swaps') const Expanded(child: SwapsBuilder()),
         if (transactionType == 'Lightning' && hasLightning) const LightningExpensesDiagram(),
-        if (transactionType == 'Bitcoin' || transactionType == 'Liquid' || transactionType == 'Lightning')
-          const BuildTransactions(showAllTransactions: false),
       ],
     );
   }
