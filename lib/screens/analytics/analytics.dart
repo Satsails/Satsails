@@ -77,7 +77,7 @@ class Analytics extends ConsumerWidget {
           ),
         ),
         if (transactionType == 'Bitcoin') const BitcoinExpensesDiagram(),
-        if (transactionType == 'Liquid') const LiquidExpensesDiagram(),
+        // if (transactionType == 'Liquid') const LiquidExpensesDiagram(),
         if (transactionType == 'Swaps') const Expanded(child: SwapsBuilder()),
         if (transactionType == 'Lightning' && hasLightning) const LightningExpensesDiagram(),
       ],

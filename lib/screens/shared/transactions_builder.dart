@@ -102,24 +102,21 @@ class TransactionListByWeek extends ConsumerWidget {
             borderRadius: BorderRadius.circular(15),
           ),
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8),
-                // List of transactions for this month
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: transactions.length,
-                  itemBuilder: (context, txIndex) {
-                    final tx = transactions[txIndex];
-                    return _buildUnifiedTransactionItem(tx, context, ref);
-                  },
-                ),
-              ],
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
+              // List of transactions for this month
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: transactions.length,
+                itemBuilder: (context, txIndex) {
+                  final tx = transactions[txIndex];
+                  return _buildUnifiedTransactionItem(tx, context, ref);
+                },
+              ),
+            ],
           ),
         ),
       ],

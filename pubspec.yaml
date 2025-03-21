@@ -50,7 +50,6 @@ dependencies:
   share_plus: ^10.0.0
   flutter_svg: ^2.0.10+1
   coingecko_api: ^2.0.1
-  flutter_image_slideshow: ^0.1.6
   crisp_chat: ^2.2.3
   currency_formatter: ^2.2.1
   flutter_local_notifications: ^17.2.3

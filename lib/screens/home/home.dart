@@ -1,7 +1,6 @@
 import 'package:Satsails/screens/shared/backup_warning.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
@@ -22,7 +21,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
   void initState() {
     super.initState();
     _controller = PageController(
-      viewportFraction: 0.95,
+      viewportFraction: 0.9,
       initialPage: 0,
     );
   }
@@ -36,14 +35,14 @@ class _BalanceScreenState extends State<BalanceScreen> {
   @override
   Widget build(BuildContext context) {
     final assets = [
-      {'name': 'BTC', 'color': Colors.orange},
-      {'name': 'LBTC', 'color': Colors.green},
-      {'name': 'USD', 'color': Colors.green[800]!},
-      {'name': 'EUR', 'color': Colors.blue},
+      {'name': 'Bitcoin', 'color': Color(0xFFFF9800)},
+      {'name': 'Depix', 'color': Color(0xFF009C3B)},
+      {'name': 'USDT', 'color': Color(0xFF008001)},
+      {'name': 'EURx', 'color': Color(0xFF003399)},
     ];
 
     return Padding(
-      padding: EdgeInsets.all(16.0.sp),
+      padding: EdgeInsets.symmetric(vertical: 8.sp),
       child: PageView.builder(
         itemCount: assets.length,
         controller: _controller,
@@ -51,7 +50,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
         padEnds: false,
         itemBuilder: (context, index) {
           return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0.sp),
+            padding: EdgeInsets.only(left: 16.0.sp),
             child: BalanceCard(
               assetName: assets[index]['name'] as String,
               color: assets[index]['color'] as Color,
@@ -84,13 +83,13 @@ class Home extends ConsumerWidget {
             children: [
               const BackupWarning(), // Takes its intrinsic height
               Expanded(
-                flex: 4, // 30% of remaining space for BalanceScreen
+                flex: 4,
                 child: const BalanceScreen(),
               ),
               Expanded(
-                flex: 7, // 70% of remaining space for TransactionList
+                flex: 6,
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: EdgeInsets.symmetric(horizontal: 16.sp),
                   child: Container(
                     color: Colors.black,
                     child: const TransactionList(),
