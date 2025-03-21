@@ -123,7 +123,7 @@ class Transaction {
     ];
   }
 
-  /// Sorts all transactions based on their timestamp.
+  /// Sorts all transactions based on their timestamp in descending order.
   List<BaseTransaction> get allTransactionsSorted {
     List<BaseTransaction> sorted = List.from(allTransactions);
     sorted.sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -158,6 +158,25 @@ class Transaction {
       return tx.lwkDetails.kind == kind;
     }).toList()
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
+  List<EulenTransaction> filterPixPurchases(DateTimeSelect range) {
+    return pixPurchaseTransactions.where((tx) {
+      return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(range.start * 1000)) &&
+          tx.timestamp.isBefore(DateTime.fromMillisecondsSinceEpoch(range.end * 1000));
+    }).toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
+  List<BaseTransaction> filterSwapTransactions() {
+    List<BaseTransaction> swaps = [];
+    // Add all sideswapPegTransactions
+    swaps.addAll(sideswapPegTransactions);
+    // Add LiquidTransaction objects where lwkDetails.kind is 'unknown'
+    swaps.addAll(liquidTransactions.where((tx) => tx.lwkDetails.kind == 'unknown'));
+    // Sort by timestamp in descending order
+    swaps.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    return swaps;
   }
 
   factory Transaction.empty() {

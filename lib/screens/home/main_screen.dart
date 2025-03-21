@@ -1,6 +1,7 @@
 import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/settings/settings.dart';
+import 'package:Satsails/screens/transactions/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/screens/home/home.dart';
@@ -24,7 +25,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       const Home(),
       const Explore(),
       Exchange(key: UniqueKey()), // Initial instance of Exchange
-      const Accounts(),
+      const Transactions(),
       const Settings(),
     ];
   }

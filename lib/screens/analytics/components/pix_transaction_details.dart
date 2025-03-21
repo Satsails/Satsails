@@ -186,11 +186,26 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
   }
 
   Widget _buildTransactionDetails(WidgetRef ref, EulenTransfer transaction) {
-    final statusText = transaction.status ?? (transaction.failed
-        ? "Failed".i18n
-        : transaction.completed
-        ? "Completed".i18n
-        : "Pending".i18n);
+    final status = transaction.status;
+
+    // Map status values to display text with internationalization
+    String statusText;
+    switch (status) {
+      case "expired":
+        statusText = "Expired".i18n;
+        break;
+      case "pending":
+        statusText = "Pending".i18n;
+        break;
+      case "depix_sent":
+        statusText = "Depix Sent".i18n;
+        break;
+      case "under_review":
+        statusText = "Under review".i18n;
+        break;
+      default:
+        statusText = status?.i18n ?? "Unknown".i18n; // Fallback for unknown statuses
+    }
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
 
     return Column(
@@ -244,9 +259,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
 
   Widget _buildFeeDetails(WidgetRef ref, EulenTransfer transaction) {
     final isBuy = transaction.transactionType == "BUY";
-    final fee = isBuy
-        ? (transaction.originalAmount - (transaction.receivedAmount * transaction.price)).abs()
-        : (transaction.originalAmount * transaction.price - transaction.receivedAmount).abs();
+    final fee = (transaction.originalAmount - transaction.receivedAmount).abs();
     final feePercentage = transaction.originalAmount != 0 ? (fee / transaction.originalAmount) * 100 : 0.0;
 
     return Column(

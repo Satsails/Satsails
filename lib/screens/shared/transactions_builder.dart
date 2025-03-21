@@ -5,6 +5,7 @@ import 'package:Satsails/helpers/common_operation_methods.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
@@ -16,82 +17,106 @@ import 'package:i18n_extension/default.i18n.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class TransactionList extends ConsumerWidget {
-  const TransactionList({Key? key}) : super(key: key);
+Widget buildNoTransactionsFound(double screenHeight) {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Text(
+        'No transactions found',
+        style: TextStyle(
+          fontSize: screenHeight * 0.025,
+          color: Colors.grey,
+        ),
+      ),
+    ],
+  );
+}
+
+class TransactionListByWeek extends ConsumerWidget {
+  final List<BaseTransaction> transactions; // Required parameter
+
+  const TransactionListByWeek({
+    Key? key,
+    required this.transactions, // Marked as required
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final transactionState = ref.watch(transactionNotifierProvider);
-    final allTransactions = transactionState.allTransactionsSorted;
+    // Group transactions by month
+    final Map<DateTime, List<BaseTransaction>> groupedTransactions = {};
+    for (var tx in transactions) {
+      // Normalize to the first day of the month for grouping
+      final monthKey = DateTime(tx.timestamp.year, tx.timestamp.month, 1);
+      groupedTransactions.putIfAbsent(monthKey, () => []).add(tx);
+    }
 
+    // Convert to a sorted list of months (descending order: most recent first)
+    final sortedMonths = groupedTransactions.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+
+    // Check if there are no transactions
+    if (sortedMonths.isEmpty) {
+      return Center(
+        child: buildNoTransactionsFound(MediaQuery
+            .of(context)
+            .size
+            .height),
+      );
+    }
+
+    // If there are transactions, build the list
+    return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
+      itemCount: sortedMonths.length,
+      itemBuilder: (context, index) {
+        final month = sortedMonths[index];
+        final transactionsInMonth = groupedTransactions[month]!;
+        return _buildMonthCard(context, ref, month, transactionsInMonth);
+      },
+    );
+  }
+}
+
+  /// Builds a card for each month containing its transactions
+  Widget _buildMonthCard(BuildContext context,
+      WidgetRef ref,
+      DateTime month,
+      List<BaseTransaction> transactions,) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                'Transactions'.i18n,
-                style: TextStyle(
-                  fontSize: 23,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Text(
+            DateFormat('MMMM yyyy').format(month), // e.g., "October 2024"
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            ref.watch(backgroundSyncInProgressProvider)
-                ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: LoadingAnimationWidget.beat(
-                color: Colors.green,
-                size: 20,
-              ),
-            )
-                : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: GestureDetector(
-                onTap: () {
-                  ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-                },
-                child: LoadingAnimationWidget.beat(
-                  color: ref.read(settingsProvider).online ? Colors.green : Colors.red,
-                  size: 20,
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-        SizedBox(height: 8),
-        Expanded(
-          child: Card(
-            color: Color(0xFF212121),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(15)),
-            ),
+        Card(
+          color: const Color(0xFF212121),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                allTransactions.isEmpty
-                    ? Expanded(
-                  child: Center(
-                    child: _buildNoTransactionsFound(screenHeight),
-                  ),
-                )
-                    : _buildTransactionList(
-                  context,
-                  allTransactions.length,
-                      (index) => _buildUnifiedTransactionItem(allTransactions[index], context, ref),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // TODO: Navigate to full transaction list, e.g., context.push('/transactions')
+                const SizedBox(height: 8),
+                // List of transactions for this month
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: transactions.length,
+                  itemBuilder: (context, txIndex) {
+                    final tx = transactions[txIndex];
+                    return _buildUnifiedTransactionItem(tx, context, ref);
                   },
-                  child: const Text(
-                    'See all',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
                 ),
               ],
             ),
@@ -101,44 +126,142 @@ class TransactionList extends ConsumerWidget {
     );
   }
 
-  Widget _buildTransactionList(BuildContext context, int itemCount, Widget Function(int) itemBuilder) {
+class TransactionList extends ConsumerWidget {
+  final bool showAll;
+  final dynamic transactions; // New parameter for custom transactions
+
+  const TransactionList({
+    Key? key,
+    this.showAll = false,
+    this.transactions, // Optional parameter, defaults to null
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final transactionState = ref.watch(transactionNotifierProvider);
+    final List<BaseTransaction> transactionList = transactions != null
+        ? (transactions as List<BaseTransaction>)
+        : transactionState.allTransactionsSorted;
 
-    final displayCount = itemCount > 0
-        ? (screenHeight >= 800
-        ? min(itemCount, 5) // Large screen: show up to 5
-        : screenHeight >= 600
-        ? min(itemCount, 4) // Medium screen: show up to 4
-        : min(itemCount, 3)) // Small screen: show up to 3
-        : 0;
-
-    return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: displayCount,
-      itemBuilder: (context, index) => itemBuilder(index),
-    );
-  }
-
-  Widget _buildNoTransactionsFound(double screenHeight) {
     return Column(
-      mainAxisSize: MainAxisSize.min, // Keeps the Column compact
       children: [
-        Text(
-          'No transactions found',
-          style: TextStyle(
-            fontSize: screenHeight * 0.025, // Slightly larger (e.g., ~20px on a 800px screen)
-            color: Colors.grey,
+        if (!showAll)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  'Transactions'.i18n,
+                  style: const TextStyle(
+                    fontSize: 23,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              ref.watch(backgroundSyncInProgressProvider)
+                  ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: LoadingAnimationWidget.beat(
+                  color: Colors.green,
+                  size: 20,
+                ),
+              )
+                  : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: GestureDetector(
+                  onTap: () {
+                    ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+                  },
+                  child: LoadingAnimationWidget.beat(
+                    color: ref.read(settingsProvider).online ? Colors.green : Colors.red,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        if (!showAll) const SizedBox(height: 8),
+        Expanded(
+          child: Card(
+            color: const Color(0xFF212121),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                transactionList.isEmpty
+                    ? Expanded(
+                  child: Center(
+                    child: buildNoTransactionsFound(screenHeight),
+                  ),
+                )
+                    : _buildTransactionList(
+                  context,
+                  transactionList.length,
+                      (index) => _buildUnifiedTransactionItem(transactionList[index], context, ref),
+                  showAll,
+                ),
+                if (!showAll)
+                  TextButton(
+                    onPressed: () {
+                      ref.read(navigationProvider.notifier).state = 3;
+                    },
+                    child: const Text(
+                      'See all',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
+  Widget _buildTransactionList(
+      BuildContext context,
+      int itemCount,
+      Widget Function(int) itemBuilder,
+      bool showAll,
+      ) {
+    if (showAll) {
+      return Expanded(
+        child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: itemCount,
+          itemBuilder: (context, index) => itemBuilder(index),
+        ),
+      );
+    } else {
+      // Non-scrollable list with limited items
+      final screenHeight = MediaQuery.of(context).size.height;
+      final displayCount = itemCount > 0
+          ? (screenHeight >= 800
+          ? min(itemCount, 5) // Large screen: show up to 5
+          : screenHeight >= 600
+          ? min(itemCount, 4) // Medium screen: show up to 4
+          : min(itemCount, 3)) // Small screen: show up to 3
+          : 0;
+
+      return ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: displayCount,
+        itemBuilder: (context, index) => itemBuilder(index),
+      );
+    }
+  }
+}
+
+
   /// Unified method to build transaction items based on type
   Widget _buildUnifiedTransactionItem(dynamic transaction, BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
     final dynamicFontSize = screenHeight * 0.015;
 
     Widget transactionItem;
@@ -243,6 +366,11 @@ class TransactionList extends ConsumerWidget {
       double fontSize, // Kept from the original signature
       ) {
     final isConfirmed = transaction.isConfirmed || transaction.pixDetails.status == "expired";
+    final statusText = transaction.pixDetails.failed
+        ? "Failed".i18n
+        : transaction.pixDetails.completed
+        ? "Completed".i18n
+        : "Pending".i18n;
     final status = transaction.pixDetails.status;
 
     final type = transaction.pixDetails.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
@@ -304,7 +432,7 @@ class TransactionList extends ConsumerWidget {
                             ),
                           ),
                             Text(
-                              status.toString(),
+                              statusText.toString(),
                               style: TextStyle(
                                 fontSize: 12.sp,
                                 color: Colors.grey[400],
@@ -313,7 +441,7 @@ class TransactionList extends ConsumerWidget {
                             ),
                         ],
                       ),
-                      // Amount and fiat value
+                      if(transaction.isConfirmed)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
@@ -550,4 +678,3 @@ class TransactionList extends ConsumerWidget {
       ),
     );
   }
-}
