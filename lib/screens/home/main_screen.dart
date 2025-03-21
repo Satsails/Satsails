@@ -24,8 +24,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     _pages = [
       const Home(),
       const Explore(),
-      Exchange(key: UniqueKey()), // Initial instance of Exchange
+      Exchange(key: UniqueKey()),
       const Transactions(),
+      const Accounts(),
       const Settings(),
     ];
   }

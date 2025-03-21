@@ -2020,7 +2020,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
     data: (peg) {
       return Align(
         alignment: Alignment.bottomCenter,
-        child: ActionSlider.standard(
+        child: ActionSlider.standard(height: 70.h,
           width: double.infinity,
           backgroundColor: Colors.black,
           toggleColor: Colors.orange,
@@ -2086,7 +2086,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
     data: (peg) {
       return Align(
         alignment: Alignment.bottomCenter,
-        child: ActionSlider.standard(
+        child: ActionSlider.standard(height: 70.h,
           width: double.infinity,
           backgroundColor: Colors.black,
           toggleColor: Colors.orange,
@@ -2156,7 +2156,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
     padding: EdgeInsets.only(bottom: 20.w),
     child: Align(
       alignment: Alignment.bottomCenter,
-      child: ActionSlider.standard(
+      child: ActionSlider.standard(height: 70.h,
         width: double.infinity,
         backgroundColor: Colors.black,
         toggleColor: Colors.orange,
@@ -2212,7 +2212,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
     padding: EdgeInsets.only(bottom: 20.w),
     child: Align(
       alignment: Alignment.bottomCenter,
-      child: ActionSlider.standard(
+      child: ActionSlider.standard(height: 70.h,
         width: double.infinity,
         backgroundColor: Colors.black,
         toggleColor: Colors.orange,
@@ -2272,7 +2272,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
     padding: EdgeInsets.only(bottom: 10.w),
     child: Align(
       alignment: Alignment.bottomCenter,
-      child: ActionSlider.standard(
+      child: ActionSlider.standard(height: 70.h,
         width: double.infinity,
         backgroundColor: Colors.black,
         toggleColor: Colors.orange,

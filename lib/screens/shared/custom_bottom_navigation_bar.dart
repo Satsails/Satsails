@@ -44,6 +44,11 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         unselectedColor: Colors.white,
       ),
       DotNavigationBarItem(
+        icon: Icon(Icons.wallet, size: iconSize),
+        selectedColor: Colors.orangeAccent,
+        unselectedColor: Colors.white,
+      ),
+      DotNavigationBarItem(
         icon: Icon(Icons.settings, size: iconSize),
         selectedColor: Colors.orangeAccent,
         unselectedColor: Colors.white,
@@ -54,11 +59,11 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       items: bottomBarItems,
       currentIndex: widget.currentIndex,
       onTap: widget.onTap,
-      backgroundColor: Color(0xFF212121),// Transparent background
-      dotIndicatorColor: Colors.transparent, // No dot indicator
-      unselectedItemColor: Colors.grey[300], // Light grey for unselected items
-      marginR: const EdgeInsets.only(bottom: 20),
-      splashColor: Colors.transparent, // Orange color for splash effect
+      backgroundColor: const Color(0xFF212121), // Your preferred background color
+      dotIndicatorColor: Colors.transparent,
+      unselectedItemColor: Colors.grey[300],
+      marginR: EdgeInsets.zero, // Key change to remove external space
+      splashColor: Colors.transparent,
     );
   }
 }

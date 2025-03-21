@@ -131,40 +131,97 @@ class _TransactionsState extends ConsumerState<Transactions> {
                         }
                       },
                     ),
-                    // Styled dropdown menu with rounded border radius
+                    // Filter menu button
                     Theme(
                       data: Theme.of(context).copyWith(
-                        menuTheme: MenuThemeData(
-                          style: MenuStyle(
-                            shape: MaterialStateProperty.all(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                            ),
+                        popupMenuTheme: PopupMenuThemeData(
+                          color: const Color(0xFF212121), // Dark background
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0), // Rounded corners
                           ),
                         ),
                       ),
-                      child: DropdownButton<String>(
-                        value: _selectedFilter,
-                        items: const [
-                          DropdownMenuItem(value: 'All', child: Text('All', style: TextStyle(color: Colors.white))),
-                          DropdownMenuItem(value: 'Bitcoin', child: Text('Bitcoin', style: TextStyle(color: Colors.white))),
-                          DropdownMenuItem(value: 'Liquid', child: Text('Liquid', style: TextStyle(color: Colors.white))),
-                          DropdownMenuItem(value: 'Pix Purchases', child: Text('Pix Purchases', style: TextStyle(color: Colors.white))),
-                          DropdownMenuItem(value: 'Swaps', child: Text('Swaps', style: TextStyle(color: Colors.white))),
-                          DropdownMenuItem(value: 'DePIX', child: Text('DePIX', style: TextStyle(color: Colors.white))),
-                          DropdownMenuItem(value: 'USDT', child: Text('USDT', style: TextStyle(color: Colors.white))),
-                          DropdownMenuItem(value: 'EUR', child: Text('EUR', style: TextStyle(color: Colors.white))),
-                        ],
-                        onChanged: (value) {
+                      child: PopupMenuButton<String>(
+                        icon: const Icon(Icons.sort, color: Colors.white), // Sort icon
+                        onSelected: (String value) {
                           setState(() {
-                            _selectedFilter = value ?? 'All';
+                            _selectedFilter = value; // Update filter on selection
                           });
                         },
-                        style: const TextStyle(color: Colors.white),
-                        dropdownColor: const Color(0xFF212121),
-                        icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                        underline: const SizedBox(),
+                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                          PopupMenuItem<String>(
+                            value: 'All',
+                            child: Text(
+                              'All',
+                              style: TextStyle(
+                                color: _selectedFilter == 'All' ? Colors.orange : Colors.white,
+                              ),
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'Bitcoin',
+                            child: Text(
+                              'Bitcoin',
+                              style: TextStyle(
+                                color: _selectedFilter == 'Bitcoin' ? Colors.orange : Colors.white,
+                              ),
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'Liquid',
+                            child: Text(
+                              'Liquid',
+                              style: TextStyle(
+                                color: _selectedFilter == 'Liquid' ? Colors.orange : Colors.white,
+                              ),
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'Pix Purchases',
+                            child: Text(
+                              'Pix Purchases',
+                              style: TextStyle(
+                                color: _selectedFilter == 'Pix Purchases' ? Colors.orange : Colors.white,
+                              ),
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'Swaps',
+                            child: Text(
+                              'Swaps',
+                              style: TextStyle(
+                                color: _selectedFilter == 'Swaps' ? Colors.orange : Colors.white,
+                              ),
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'DePIX',
+                            child: Text(
+                              'DePIX',
+                              style: TextStyle(
+                                color: _selectedFilter == 'DePIX' ? Colors.orange : Colors.white,
+                              ),
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'USDT',
+                            child: Text(
+                              'USDT',
+                              style: TextStyle(
+                                color: _selectedFilter == 'USDT' ? Colors.orange : Colors.white,
+                              ),
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'EUR',
+                            child: Text(
+                              'EUR',
+                              style: TextStyle(
+                                color: _selectedFilter == 'EUR' ? Colors.orange : Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     // Styled reset button

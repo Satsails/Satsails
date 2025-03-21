@@ -28,6 +28,12 @@ class Accounts extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.black,
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: ref.watch(navigationProvider),
+        onTap: (int index) {
+          ref.read(navigationProvider.notifier).state = index;
+        },
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(

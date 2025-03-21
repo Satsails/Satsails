@@ -1,220 +1,143 @@
+import 'package:Satsails/models/currency_conversions.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
-import 'package:Satsails/screens/shared/denominatino_change_modal_bottom_sheet.dart';
-import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/providers/balance_provider.dart';
-import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart'; // Assuming this exists
+import 'package:Satsails/providers/currency_conversions_provider.dart'; // Assuming this exists
 
-Widget buildBalanceCard(BuildContext context, WidgetRef ref, String balanceProviderName, String balanceInFiatName) {
-  final screenWidth = MediaQuery.of(context).size.width;
-  final screenHeight = MediaQuery.of(context).size.height;
-  final cardMargin = screenWidth * 0.05;
-  final cardPadding = screenWidth * 0.04;
-  final titleFontSize = screenHeight * 0.03;
-  final subtitleFontSize = screenHeight * 0.02;
+class BalanceCard extends ConsumerWidget {
+  final String assetName;
+  final Color color;
 
-  return SizedBox(
-    width: double.infinity,
-    child: Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
-      elevation: 10,
-      margin: EdgeInsets.symmetric(horizontal: cardMargin),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Colors.orange, Colors.deepOrange],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical:  MediaQuery.of(context).size.height < 800 ? cardPadding / 2 : cardPadding, horizontal: cardPadding / 2),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text('Total bitcoin balance:'.i18n, style: TextStyle(fontSize: titleFontSize * 0.6, color: Colors.black)),
-                        _buildVisibilityToggleIcon(context, ref),
-                      ],
-                    ),
-                    _buildPricePercentageChangeTicker(context, ref),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: _buildBalanceConsumer(ref, titleFontSize, balanceProviderName, 'btcFormat', FontWeight.bold),
-                ),
-              ),
-              SizedBox(height: screenHeight * 0.01),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: _buildBalanceConsumer(ref, subtitleFontSize, balanceInFiatName, 'currency', FontWeight.normal),
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    _showDenominationChangeModalBottomSheet(context, ref);
-                  },
-                  child: Text('Change'.i18n, style: const TextStyle(color: Colors.black)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
+  const BalanceCard({required this.assetName, required this.color, super.key});
 
-void _showDenominationChangeModalBottomSheet(BuildContext context, WidgetRef ref) {
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: Colors.black,
-    builder: (BuildContext context) {
-      return DenominationChangeModalBottomSheet(settingsNotifier: ref.read(settingsProvider.notifier));
-    },
-  );
-}
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final walletBalance = ref.watch(balanceNotifierProvider);
+    final settings = ref.watch(settingsProvider);
+    final conversions = ref.watch(currencyNotifierProvider);
 
-Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
-  final coinGeckoData = ref.watch(coinGeckoBitcoinChange);
-  final screenHeight = MediaQuery.of(context).size.height;
-  final titleFontSize = screenHeight * 0.03;
-  final containerHeight = titleFontSize * 1.5; // Define a fixed height for the container
+    // Determine native balance and equivalent
+    String nativeBalance;
+    String equivalentBalance;
 
-  return SizedBox(
-    height: containerHeight,
-    child: coinGeckoData.when(
-      data: (data) {
-        IconData? icon;
-        Color color;
-        String displayText = '${data.abs().toStringAsFixed(2)}%';
+    switch (assetName) {
+      case 'BTC':
+        nativeBalance =
+            walletBalance.btcBalanceInDenominationFormatted(settings.btcFormat);
+        double balanceInBtc = walletBalance.btcBalance / 100000000;
+        double equivalent = balanceInBtc *
+            _getRate(settings.currency, conversions);
+        equivalentBalance =
+        '${equivalent.toStringAsFixed(2)} ${settings.currency}';
+        break;
+      case 'LBTC':
+        nativeBalance = walletBalance.liquidBalanceInDenominationFormatted(
+            settings.btcFormat);
+        double balanceInBtc = walletBalance.liquidBalance / 100000000;
+        double equivalent = balanceInBtc *
+            _getRate(settings.currency, conversions);
+        equivalentBalance =
+        '${equivalent.toStringAsFixed(2)} ${settings.currency}';
+        break;
+      case 'Lightning':
+        nativeBalance =
+            walletBalance.lightningBalanceInDenominationFormatted('sats');
+        double balanceInBtc = walletBalance.lightningBalance! / 100000000;
+        double equivalent = balanceInBtc *
+            _getRate(settings.currency, conversions);
+        equivalentBalance =
+        '${equivalent.toStringAsFixed(2)} ${settings.currency}';
+        break;
+      case 'USD':
+        nativeBalance =
+            (walletBalance.usdBalance / 100).toStringAsFixed(2) + ' USD';
+        double balanceInBtc = (walletBalance.usdBalance / 100) *
+            conversions.usdToBtc;
+        double equivalent = balanceInBtc *
+            _getRate(settings.currency, conversions);
+        equivalentBalance =
+        '${equivalent.toStringAsFixed(2)} ${settings.currency}';
+        break;
+      case 'EUR':
+        nativeBalance =
+            (walletBalance.eurBalance / 100).toStringAsFixed(2) + ' EUR';
+        double balanceInBtc = (walletBalance.eurBalance / 100) *
+            conversions.eurToBtc;
+        double equivalent = balanceInBtc *
+            _getRate(settings.currency, conversions);
+        equivalentBalance =
+        '${equivalent.toStringAsFixed(2)} ${settings.currency}';
+        break;
+      case 'BRL':
+        nativeBalance =
+            (walletBalance.brlBalance / 100).toStringAsFixed(2) + ' BRL';
+        double balanceInBtc = (walletBalance.brlBalance / 100) *
+            conversions.brlToBtc;
+        double equivalent = balanceInBtc *
+            _getRate(settings.currency, conversions);
+        equivalentBalance =
+        '${equivalent.toStringAsFixed(2)} ${settings.currency}';
+        break;
+      default:
+        nativeBalance = '0';
+        equivalentBalance = '0 ${settings.currency}';
+    }
 
-        if (displayText == '-0.00%' || displayText == '0.00%') {
-          displayText = '0%';
-          icon = null;
-          color = const Color(0xFF00752B);
-        } else if (data > 0) {
-          icon = Icons.arrow_upward;
-          color = const Color(0xFF00752B);
-        } else if (data < 0) {
-          icon = Icons.arrow_downward;
-          color = Colors.red;
-        } else {
-          icon = null;
-          color = const Color(0xFF00752B);
-        }
+    // Price change ticker
+    AsyncValue<double> changeProvider;
+    switch (assetName) {
+      case 'BTC':
+      case 'LBTC':
+      case 'Lightning':
+        changeProvider = ref.watch(coinGeckoBitcoinChange);
+        break;
+      default:
+        changeProvider =
+            AsyncValue.data(0.0); // No price change for fiat assets
+    }
 
-        return Container(
-          padding: const EdgeInsets.all(5.0),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) Icon(icon, size: titleFontSize * 0.5, color: Colors.black),
-              SizedBox(width: icon != null ? 5.0 : 0), // Add space between icon and text if icon is present
-              Text(
-                displayText,
-                style: TextStyle(fontSize: titleFontSize * 0.5, color: Colors.black),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        );
-      },
-      loading: () {
-        return LoadingAnimationWidget.progressiveDots(size: titleFontSize * 0.5, color: Colors.black);
-      },
-      error: (error, stack) {
-        return Container(
-          height: containerHeight,
-          padding: const EdgeInsets.all(5.0),
-          decoration: BoxDecoration(
-            color: Colors.red,
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          child: Center(
-            child: Text(
-              'Error',
-              style: TextStyle(color: Colors.black, fontSize: titleFontSize * 0.5),
+    return Card(
+      color: color,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              assetName,
+              style: const TextStyle(fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
             ),
-          ),
-        );
-      },
-    ),
-  );
-}
-
-
-Widget _buildVisibilityToggleIcon(BuildContext context, WidgetRef ref) {
-  final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
-
-  return IconButton(
-    icon: Icon(
-      isBalanceVisible ? Icons.visibility : Icons.visibility_off,
-      color: Colors.black,
-    ),
-    onPressed: () {
-      ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible);
-    },
-  );
-}
-
-Widget _buildBalanceConsumer(WidgetRef ref, double fontSize, String providerName, String settingsName, FontWeight font) {
-  final settings = ref.watch(settingsProvider);
-  final isBalanceVisible = settings.balanceVisible;
-
-  String balance;
-  switch (providerName) {
-    case 'totalBalanceInDenominationProvider':
-      balance = ref.watch(totalBalanceInDenominationProvider(settings.btcFormat));
-      break;
-    case 'totalBalanceInFiatProvider':
-      balance = ref.watch(totalBalanceInFiatProvider(settings.currency));
-      break;
-    default:
-      throw Exception('Invalid providerName: $providerName');
+            const SizedBox(height: 8),
+            Text(
+              nativeBalance,
+              style: const TextStyle(fontSize: 18, color: Colors.white),
+            ),
+            Text(
+              equivalentBalance,
+              style: const TextStyle(fontSize: 16, color: Colors.white70),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  String settingsValue;
-  switch (settingsName) {
-    case 'btcFormat':
-      settingsValue = settings.btcFormat;
-      break;
-    case 'currency':
-      settingsValue = settings.currency;
-      break;
-    default:
-      throw Exception('Invalid settingsName: $settingsName');
+  double _getRate(String currency, CurrencyConversions conversions) {
+    switch (currency) {
+      case 'BTC':
+        return 1;
+      case 'USD':
+        return conversions.btcToUsd;
+      case 'EUR':
+        return conversions.btcToEur;
+      case 'BRL':
+        return conversions.btcToBrl;
+      default:
+        return 0;
+    }
   }
-
-  return SizedBox(
-    height: fontSize * 1.5,
-    child: Text(
-      isBalanceVisible ? '$balance $settingsValue' : '******',
-      style: TextStyle(fontSize: fontSize, color: Colors.black, fontWeight: font),
-    ),
-  );
 }

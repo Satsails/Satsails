@@ -566,115 +566,129 @@ class TransactionList extends ConsumerWidget {
     );
   }
 
-  Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext context, WidgetRef ref) {
-    final isConfirmed = transaction.lwkDetails.timestamp != null;
+Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext context, WidgetRef ref) {
+  final isConfirmed = transaction.lwkDetails.timestamp != null;
 
-    // Format the transaction date
-    final timestamp = transaction.lwkDetails.timestamp != null
-        ? DateTime.fromMillisecondsSinceEpoch(transaction.lwkDetails.timestamp! * 1000)
-        : transaction.timestamp;
-    final formattedDate = DateFormat('d, MMMM, HH:mm').format(timestamp);
+  // Format the transaction date
+  final timestamp = transaction.lwkDetails.timestamp != null
+      ? DateTime.fromMillisecondsSinceEpoch(transaction.lwkDetails.timestamp! * 1000)
+      : transaction.timestamp;
+  final formattedDate = DateFormat('d, MMMM, HH:mm').format(timestamp);
 
-    // Filter balances: exclude small LBTC balances when there are multiple balances
-    final balancesToShow = transaction.lwkDetails.balances.where((balance) {
-      if (transaction.lwkDetails.balances.length > 1 && balance.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC)) {
-        final satoshiValue = balance.value.abs();
-        if (satoshiValue < 100) {
-          return false; // Exclude small LBTC balance
-        }
+  // Filter balances: exclude small LBTC balances when there are multiple balances
+  final balancesToShow = transaction.lwkDetails.balances.where((balance) {
+    if (transaction.lwkDetails.balances.length > 1 && balance.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC)) {
+      final satoshiValue = balance.value.abs();
+      if (satoshiValue < 100) {
+        return false; // Exclude small LBTC balance
       }
-      return true; // Include all other balances
-    }).toList();
+    }
+    return true; // Include all other balances
+  }).toList();
 
-    // Get unique ticker names from the filtered balances
-    final tickers = balancesToShow.map((b) => AssetMapper.mapAsset(b.assetId).name).toSet().toList();
-    final tickerDisplay = tickers.length == 1 ? tickers.first : tickers.join(' - ');
+  // Separate balances into negative and positive
+  final negativeBalances = balancesToShow.where((b) => b.value < 0).toList();
+  final positiveBalances = balancesToShow.where((b) => b.value > 0).toList();
 
-    return GestureDetector(
-      onTap: () {
-        context.pushNamed('liquidTransactionDetails', extra: transaction);
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Show progress indicator for unconfirmed transactions
-            if (!isConfirmed)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: LinearProgressIndicator(
-                  backgroundColor: Colors.grey[800],
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-                  minHeight: 4,
+  // Get unique tickers for negative and positive balances
+  final negativeTickers = negativeBalances.map((b) => AssetMapper.mapAsset(b.assetId).name).toSet().toList();
+  final positiveTickers = positiveBalances.map((b) => AssetMapper.mapAsset(b.assetId).name).toSet().toList();
+
+  // Construct tickerDisplay based on balances
+  String tickerDisplay;
+  if (negativeTickers.isNotEmpty) {
+    final negativeStr = negativeTickers.join(' + ');
+    final positiveStr = positiveTickers.join(' + ');
+    tickerDisplay = positiveStr.isNotEmpty ? '$negativeStr -> $positiveStr' : negativeStr;
+  } else {
+    tickerDisplay = positiveTickers.join(' + ');
+  }
+
+  return GestureDetector(
+    onTap: () {
+      context.pushNamed('liquidTransactionDetails', extra: transaction);
+    },
+    child: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Show progress indicator for unconfirmed transactions
+          if (!isConfirmed)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: LinearProgressIndicator(
+                backgroundColor: Colors.grey[800],
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                minHeight: 4,
+              ),
+            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              transactionTypeLiquidIcon(transaction.lwkDetails.kind),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tickerDisplay,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      formattedDate,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Colors.grey[400],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                transactionTypeLiquidIcon(transaction.lwkDetails.kind),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        tickerDisplay,
-                        style: TextStyle(
-                          fontSize: 16.sp, // Main text size
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        formattedDate,
-                        style: TextStyle(
-                          fontSize: 14.sp, // Secondary text size
-                          color: Colors.grey[400],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Display filtered balances
-                if (balancesToShow.isNotEmpty)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: balancesToShow.map((balance) {
-                      final asset = AssetMapper.mapAsset(balance.assetId);
-                      final value = valueOfLiquidSubTransaction(asset, balance.value, ref);
-                      final fiatValue = asset == AssetId.LBTC ? liquidTransactionAmountInFiat(balance, ref) : '';
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 4.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
+              // Display filtered balances
+              if (balancesToShow.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: balancesToShow.map((balance) {
+                    final asset = AssetMapper.mapAsset(balance.assetId);
+                    final value = valueOfLiquidSubTransaction(asset, balance.value, ref);
+                    final fiatValue = asset == AssetId.LBTC ? liquidTransactionAmountInFiat(balance, ref) : '';
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "${value} ${asset.name}",
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          if (fiatValue.isNotEmpty)
                             Text(
-                              "${value} ${asset.name}",
+                              fiatValue,
                               style: TextStyle(
-                                fontSize: 14.sp, // Main text size
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                fontSize: 12.sp,
+                                color: Colors.grey[400],
                               ),
                             ),
-                            if (fiatValue.isNotEmpty)
-                              Text(
-                                fiatValue,
-                                style: TextStyle(
-                                  fontSize: 12.sp, // Secondary text size
-                                  color: Colors.grey[400],
-                                ),
-                              ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-              ],
-            ),
-          ],
-        ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+            ],
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}

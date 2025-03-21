@@ -211,7 +211,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   void _startSyncTimer() {
     _cancelSyncTimer();
 
-    Future.microtask(() async => await fetchAndUpdateTransactions(ref));
+     fetchAndUpdateTransactions(ref);
     _syncTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
       final appIsLocked = ref.read(appLockedProvider) == true;
       if (!appIsLocked) {

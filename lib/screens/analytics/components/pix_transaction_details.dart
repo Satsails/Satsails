@@ -26,7 +26,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
       appBar: AppBar(
         title: Text(
           'Transaction Details'.i18n,
-          style: TextStyle(color: Colors.white, fontSize: 18.sp),
+          style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
@@ -40,7 +40,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
-            color: const Color(0xFF1C1C1E),
+            color: const Color(0xFF212121),
             borderRadius: BorderRadius.circular(12.r),
             boxShadow: [
               BoxShadow(

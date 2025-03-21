@@ -157,14 +157,6 @@ class _OpenPinState extends ConsumerState<OpenPin> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        'Enter your 6-digit PIN'.i18n,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.sp, // Responsive font size
-                        ),
-                      ),
-                      SizedBox(height: 20.h), // Responsive height
                       PinProgressIndicator(currentLength: pin.length, totalDigits: 6),
                       SizedBox(height: 40.h), // Responsive height
                       CustomKeypad(

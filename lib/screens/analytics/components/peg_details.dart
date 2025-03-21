@@ -141,10 +141,6 @@ class PegDetails extends ConsumerWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade800,
-        borderRadius: BorderRadius.circular(8.r),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
