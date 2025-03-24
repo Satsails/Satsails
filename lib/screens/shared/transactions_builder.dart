@@ -24,7 +24,7 @@ Widget buildNoTransactionsFound(double screenHeight) {
       Text(
         'No transactions found',
         style: TextStyle(
-          fontSize: screenHeight * 0.025,
+          fontSize: 16.sp,
           color: Colors.grey,
         ),
       ),

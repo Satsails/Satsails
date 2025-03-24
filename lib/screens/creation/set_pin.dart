@@ -72,11 +72,6 @@ class _SetPinState extends ConsumerState<SetPin> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Choose a 6-digit PIN'.i18n,
-                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                ),
-                SizedBox(height: 20.h),
                 PinProgressIndicator(currentLength: pin.length, totalDigits: 6),
                 SizedBox(height: 40.h),
                 CustomKeypad(

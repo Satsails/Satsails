@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
@@ -85,45 +86,126 @@ class _BalanceDisplay extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final denomination = ref.watch(settingsProvider).btcFormat;
     final currency = ref.watch(settingsProvider).currency;
+
     final totalBtcBalance = ref.watch(totalBalanceInDenominationProvider(denomination));
     final totalBalanceInCurrency = ref.watch(totalBalanceInFiatProvider(currency));
+
+    final depixBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
+    final usdBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance);
+    final euroBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance);
 
     return Card(
       color: Colors.grey.shade900,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 2,
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.h),
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Title
             Text(
-              'Bitcoin balance'.i18n,
+              'Your Balances'.i18n,
               style: TextStyle(
                 fontSize: 20.sp,
                 color: Colors.grey,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(height: 8.h),
-            Text(
-              totalBtcBalance,
-              style: TextStyle(
-                fontSize: 25.sp,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+            SizedBox(height: 16.h),
+
+            // Bitcoin Balance Row
+            _buildBalanceRow(
+              imagePath: 'lib/assets/bitcoin-logo.png',
+              color: const Color(0xFFFF9800), // Bitcoin orange
+              label: 'Bitcoin'.i18n,
+              balance: totalBtcBalance,
+              fiatValue: currencyFormat(double.parse(totalBalanceInCurrency), currency),
             ),
-            SizedBox(height: 8.h),
-            Text(
-              currencyFormat(double.parse(totalBalanceInCurrency), currency),
-              style: TextStyle(
-                fontSize: 20.sp,
-                color: Colors.grey,
-              ),
+            SizedBox(height: 12.h),
+            _buildBalanceRow(
+              imagePath: 'lib/assets/depix.png',
+              color: const Color(0xFF009C3B), // Depix green
+              label: 'Depix'.i18n,
+              balance: depixBalance.toString(),
+              fiatValue: '',
+            ),
+            SizedBox(height: 12.h),
+            _buildBalanceRow(
+              imagePath: 'lib/assets/eurx.png',
+              color: const Color(0xFF003399), // Euro blue
+              label: 'EURx'.i18n,
+              balance: euroBalance.toString(),
+              fiatValue: '',
+            ),
+            SizedBox(height: 12.h),
+            _buildBalanceRow(
+              imagePath: 'lib/assets/tether.png',
+              color: const Color(0xFF008001), // USDT green (adjusted to match branding)
+              label: 'USDT'.i18n,
+              balance: usdBalance.toString(),
+              fiatValue: '',
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildBalanceRow({
+    required String imagePath,
+    required Color color,
+    required String label,
+    required String balance,
+    required String fiatValue,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(6.w),
+          child: ClipOval(
+            child: Image.asset(
+              imagePath,
+              width: 24.sp,
+              height: 24.sp,
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                balance,
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (fiatValue.isNotEmpty)
+                Text(
+                  fiatValue,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: Colors.grey,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

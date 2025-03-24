@@ -64,9 +64,9 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- REPLACE `android:host` with your `app.link` domain -->
-                <data android:scheme="https" android:host="1zl8l.app.link" />
-                <!-- REPLACE `android:host` with your `-alternate` domain (required for proper functioning of App Links and Deepviews) -->
                 <data android:scheme="https" android:host="links.satsails.com" />
+                <!-- REPLACE `android:host` with your `-alternate` domain (required for proper functioning of App Links and Deepviews) -->
+                <data android:scheme="https" android:host="1zl8l-alternate.app.link" />
             </intent-filter>
         </activity>
 

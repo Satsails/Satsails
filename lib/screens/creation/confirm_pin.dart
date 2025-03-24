@@ -86,11 +86,6 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'Confirm your 6-digit PIN'.i18n,
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp), // Scaled font size
-                    ),
-                    SizedBox(height: 20.h), // Scaled height
                     PinProgressIndicator(currentLength: confirmPin.length, totalDigits: 6),
                     SizedBox(height: 40.h), // Scaled height
                     CustomKeypad(

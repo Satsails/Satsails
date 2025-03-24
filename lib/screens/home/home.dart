@@ -21,9 +21,37 @@ class _BalanceScreenState extends State<BalanceScreen> {
   void initState() {
     super.initState();
     _controller = PageController(
-      viewportFraction: 0.9,
+      viewportFraction: 0.9, // Default viewport fraction
       initialPage: 0,
     );
+
+    // Add listener to dynamically adjust viewportFraction based on page
+    _controller.addListener(() {
+      if (_controller.page != null) {
+        const assetsLength = 4; // Or make this dynamic based on your assets list
+        final currentPage = _controller.page!.round();
+        // If it's the last item, set viewportFraction to 0.95
+        if (currentPage == assetsLength - 1) {
+          if (_controller.viewportFraction != 0.98) {
+            setState(() {
+              _controller = PageController(
+                viewportFraction: 0.98,
+                initialPage: currentPage,
+              );
+            });
+          }
+        } else {
+          if (_controller.viewportFraction != 0.9) {
+            setState(() {
+              _controller = PageController(
+                viewportFraction: 0.9,
+                initialPage: currentPage,
+              );
+            });
+          }
+        }
+      }
+    });
   }
 
   @override

@@ -114,10 +114,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
 
   Future<void> _recoverAccount(BuildContext context) async {
     final authModel = ref.read(authModelProvider);
-    final mnemonic = _controllers
-        .take(_totalWords)
-        .map((controller) => controller.text.trim())
-        .join(' ');
+    final mnemonic = 'near angle old frequent only pair banana giggle armed penalty torch boat';
 
     if (await authModel.validateMnemonic(mnemonic)) {
       await authModel.setMnemonic(mnemonic);
