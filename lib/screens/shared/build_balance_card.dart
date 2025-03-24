@@ -32,14 +32,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
 
     // Logic for balance calculation and icon widget
     if (widget.assetName == 'Bitcoin') {
-      iconWidget = Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildAssetItem('BTC', 'lib/assets/bitcoin-logo.png', 'Bitcoin', onTap: () => setState(() => _selectedNetwork = 'BTC'), isSelected: _selectedNetwork == 'BTC'),
-          _buildAssetItem('Lightning', 'lib/assets/Bitcoin_lightning_logo.png', 'Lightning', onTap: () => setState(() => _selectedNetwork = 'Lightning'), isSelected: _selectedNetwork == 'Lightning'),
-          _buildAssetItem('LBTC', 'lib/assets/l-btc.png', 'Liquid', onTap: () => setState(() => _selectedNetwork = 'LBTC'), isSelected: _selectedNetwork == 'LBTC'),
-        ],
-      );
 
       switch (_selectedNetwork) {
         case 'BTC':
@@ -155,25 +147,26 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            iconWidget,
-            const SizedBox(height: 16),
-            Text(
-              'Balance: $nativeBalance',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            Text(
-              'Equivalent: $equivalentBalance',
-              style: const TextStyle(fontSize: 16, color: Colors.white70),
-            ),
-            const SizedBox(height: 16),
-            Center(child: sendReceiveButtons),
-          ],
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              Text(
+                'Balance: $nativeBalance',
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+              ),
+              Text(
+                'Equivalent: $equivalentBalance',
+                style: const TextStyle(fontSize: 16, color: Colors.black),
+              ),
+              Spacer(),
+              Center(child: sendReceiveButtons),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -182,27 +175,25 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
   Widget _buildAssetItem(String key, String iconPath, String label, {VoidCallback? onTap, bool isSelected = false}) {
     return GestureDetector(
       onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF212121),
+          borderRadius: BorderRadius.circular(8), // Optional: adds rounded corners
+        ),
+        padding: const EdgeInsets.all(8), // Adds padding inside the box
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              border: isSelected ? Border.all(color: Colors.white, width: 2) : null,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Image.asset(iconPath, width: 32, height: 32),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

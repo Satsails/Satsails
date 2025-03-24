@@ -16,42 +16,29 @@ class BalanceScreen extends StatefulWidget {
 
 class _BalanceScreenState extends State<BalanceScreen> {
   late PageController _controller;
+  String _selectedFilter = 'Bitcoin network';
 
   @override
   void initState() {
     super.initState();
     _controller = PageController(
-      viewportFraction: 0.9, // Default viewport fraction
+      viewportFraction: 0.9, // Fixed viewport fraction
       initialPage: 0,
     );
+    // Listener removed to avoid dynamic viewportFraction changes
+  }
 
-    // Add listener to dynamically adjust viewportFraction based on page
-    _controller.addListener(() {
-      if (_controller.page != null) {
-        const assetsLength = 4; // Or make this dynamic based on your assets list
-        final currentPage = _controller.page!.round();
-        // If it's the last item, set viewportFraction to 0.95
-        if (currentPage == assetsLength - 1) {
-          if (_controller.viewportFraction != 0.98) {
-            setState(() {
-              _controller = PageController(
-                viewportFraction: 0.98,
-                initialPage: currentPage,
-              );
-            });
-          }
-        } else {
-          if (_controller.viewportFraction != 0.9) {
-            setState(() {
-              _controller = PageController(
-                viewportFraction: 0.9,
-                initialPage: currentPage,
-              );
-            });
-          }
-        }
-      }
-    });
+  PopupMenuItem<String> _buildMenuItem(String text, String logoPath) {
+    return PopupMenuItem<String>(
+      value: text,
+      child: Row(
+        children: [
+          Image.asset(logoPath, width: 24, height: 24),
+          const SizedBox(width: 10),
+          Text(text, style: const TextStyle(color: Colors.white)),
+        ],
+      ),
+    );
   }
 
   @override
@@ -63,10 +50,10 @@ class _BalanceScreenState extends State<BalanceScreen> {
   @override
   Widget build(BuildContext context) {
     final assets = [
-      {'name': 'Bitcoin', 'color': Color(0xFFFF9800)},
-      {'name': 'Depix', 'color': Color(0xFF009C3B)},
-      {'name': 'USDT', 'color': Color(0xFF008001)},
-      {'name': 'EURx', 'color': Color(0xFF003399)},
+      {'name': 'Bitcoin', 'color': const Color(0xFFFF9800)},
+      {'name': 'Depix', 'color': const Color(0xFF009C3B)},
+      {'name': 'USDT', 'color': const Color(0xFF008001)},
+      {'name': 'EURx', 'color': const Color(0xFF003399)},
     ];
 
     return Padding(
@@ -79,9 +66,41 @@ class _BalanceScreenState extends State<BalanceScreen> {
         itemBuilder: (context, index) {
           return Padding(
             padding: EdgeInsets.only(left: 16.0.sp),
-            child: BalanceCard(
-              assetName: assets[index]['name'] as String,
-              color: assets[index]['color'] as Color,
+            child: Container(
+              height: 200,
+              child: Column(
+                children: [
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      popupMenuTheme: const PopupMenuThemeData(
+                        color: Color(0xFF212121),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                        ),
+                      ),
+                    ),
+                    child: PopupMenuButton<String>(
+                      icon: const Icon(Icons.sort, color: Colors.white),
+                      onSelected: (String value) {
+                        setState(() {
+                          _selectedFilter = value;
+                        });
+                      },
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                        _buildMenuItem('Bitcoin network', 'lib/assets/bitcoin-logo.png'),
+                        _buildMenuItem('Liquid network', 'lib/assets/l-btc.png'),
+                        _buildMenuItem('Lightning network', 'lib/assets/Bitcoin_lightning_logo.png'),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: BalanceCard(
+                      assetName: assets[index]['name'] as String,
+                      color: assets[index]['color'] as Color,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
