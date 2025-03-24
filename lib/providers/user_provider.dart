@@ -52,6 +52,7 @@ final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>
     ref.read(userProvider.notifier).setAffiliateCode(affiliateCode);
     ref.read(userProvider.notifier).setHasUploadedAffiliateCode(true);
   } else {
+    ref.read(userProvider.notifier).setAffiliateCode('');
     throw result.error!;
   }
 });
@@ -72,14 +73,14 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
 
   if (result.isSuccess && result.data != null) {
     final affiliateCodeFromLink = ref.read(userProvider).affiliateCode ?? '';
-    if (affiliateCodeFromLink.isNotEmpty) {
-      await ref.read(addAffiliateCodeProvider(affiliateCodeFromLink).future);
-    }
     final user = result.data!;
     await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
     await ref.read(userProvider.notifier).setJwt(user.jwt!);
     await ref.read(userProvider.notifier).setAffiliateCode(user.affiliateCode ?? '');
     await FirebaseService.storeTokenOnbackend();
+    if (affiliateCodeFromLink.isNotEmpty) {
+      await ref.read(addAffiliateCodeProvider(affiliateCodeFromLink).future);
+    }
   } else {
     throw result.error!;
   }

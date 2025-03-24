@@ -11,6 +11,7 @@ import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/creation/confirm_pin.dart';
 import 'package:Satsails/screens/login/seed_words_pin.dart';
 import 'package:Satsails/screens/pay/components/confirm_custodial_lightning_payment.dart';
+import 'package:Satsails/screens/shared/affiliate_screen.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -90,7 +91,21 @@ class AppRouter {
   static GoRouter createRouter(String initialRoute) {
     return GoRouter(
       initialLocation: initialRoute,
+      redirect: (BuildContext context, GoRouterState state) {
+        final uri = state.uri;
+        if (uri.scheme == 'https' && uri.host == 'links.satsails.com') {
+          return '/affiliate';
+        }
+        return null; // No redirect by default
+      },
       routes: [
+        GoRoute(
+          path: '/affiliate',
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const AffiliateScreen(),
+            state: state,
+          ),
+        ),
         GoRoute(
           path: '/',
           name: 'start',

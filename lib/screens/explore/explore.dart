@@ -386,10 +386,6 @@ Future<void> _handleOnPress(
     if (paymentId.isEmpty) {
       await ref.watch(createUserProvider.future);
 
-      if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
-        await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
-      }
-
       await _requestNotificationPermissions();
     } else {
       // For existing users, consider migrating first if recoveryCode is present.

@@ -16,7 +16,6 @@ import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
 import 'package:Satsails/screens/spash/splash.dart';
-import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -26,7 +25,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
-import 'package:i18n_extension/default.i18n.dart';
 import 'package:lwk/lwk.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,39 +77,6 @@ Future<void> main() async {
     // Ignoring errors
   }
 
-  FlutterBranchSdk.listSession().listen((data) async {
-    if (data.containsKey("affiliateCode")) {
-      final insertedAffiliateCode = data["affiliateCode"];
-      final upperCaseCode = insertedAffiliateCode.toUpperCase();
-      final box = await Hive.openBox('user');
-      final currentInsertedAffiliateCode = box.get('affiliateCode', defaultValue: '');
-      if (insertedAffiliateCode != null && currentInsertedAffiliateCode.isEmpty) {
-        box.put('affiliateCode', upperCaseCode);
-        showSimpleNotification(
-          Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.white),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Affiliate code $upperCaseCode inserted!'.i18n,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          background: Colors.green,
-          elevation: 10,
-          contentPadding: EdgeInsets.all(8),
-        );
-      }
-    }
-  });
-
   runApp(
     const OverlaySupport.global(
       child: RestartWidget(
@@ -149,6 +114,17 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     ));
 
     _initializeRouter();
+    FlutterBranchSdk.listSession().listen((data) async {
+      if (data.containsKey("affiliateCode")) {
+        final insertedAffiliateCode = data["affiliateCode"];
+        final upperCaseCode = insertedAffiliateCode.toUpperCase();
+        final box = await Hive.openBox('user');
+        final currentInsertedAffiliateCode = box.get('affiliateCode', defaultValue: '');
+        if (insertedAffiliateCode != null && currentInsertedAffiliateCode.isEmpty) {
+          box.put('affiliateCode', upperCaseCode);
+        }
+      }
+    });
   }
 
   Future<void> _initializeRouter() async {
