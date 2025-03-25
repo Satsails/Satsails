@@ -7,6 +7,9 @@ import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/shared/build_balance_card.dart';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Assuming ScreenUtil is used for .sp units
+
 class BalanceScreen extends StatefulWidget {
   const BalanceScreen({super.key});
 
@@ -18,6 +21,14 @@ class _BalanceScreenState extends State<BalanceScreen> {
   late PageController _controller;
   late List<Map<String, dynamic>> _assets;
   late List<String> _selectedFilters;
+  int currentPage = 0;
+
+  // Map of network names to their icon paths
+  final Map<String, String> _networkImages = {
+    'Bitcoin network': 'lib/assets/bitcoin-logo.png',
+    'Liquid network': 'lib/assets/l-btc.png',
+    'Lightning network': 'lib/assets/Bitcoin_lightning_logo.png',
+  };
 
   @override
   void initState() {
@@ -28,7 +39,8 @@ class _BalanceScreenState extends State<BalanceScreen> {
       {'name': 'USDT', 'color': const Color(0xFF008001)},
       {'name': 'EURx', 'color': const Color(0xFF003399)},
     ];
-    _selectedFilters = List.filled(_assets.length, 'Bitcoin network');
+    // Set "Bitcoin network" for Bitcoin, "Liquid network" for others
+    _selectedFilters = _assets.map((asset) => asset['name'] == 'Bitcoin' ? 'Bitcoin network' : 'Liquid network').toList();
     _controller = PageController(
       viewportFraction: 0.9,
       initialPage: 0,
@@ -41,6 +53,64 @@ class _BalanceScreenState extends State<BalanceScreen> {
     super.dispose();
   }
 
+  void _updateController(int page) {
+    if (page == _assets.length - 1) {
+      if (_controller.viewportFraction != 0.95) {
+        _controller.dispose(); // Dispose of the old controller
+        _controller = PageController(
+          viewportFraction: 0.98,
+          initialPage: page,
+        );
+        setState(() {});
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_controller.hasClients) {
+            _controller.animateToPage(
+              page,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.ease,
+            );
+          }
+        });
+      }
+    } else {
+      if (_controller.viewportFraction != 0.9) {
+        _controller.dispose(); // Dispose of the old controller
+        _controller = PageController(
+          viewportFraction: 0.9,
+          initialPage: page,
+        );
+        setState(() {});
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_controller.hasClients) {
+            _controller.animateToPage(
+              page,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.ease,
+            );
+          }
+        });
+      }
+    }
+  }
+
+  /// Builds a Row with the network icon and text
+  Widget _buildNetworkRow(String network) {
+    return Row(
+      children: [
+        Image.asset(
+          _networkImages[network]!,
+          width: 24.sp,
+          height: 24.sp,
+        ),
+        SizedBox(width: 10.sp),
+        Text(
+          network,
+          style: TextStyle(color: Colors.white, fontSize: 16.sp),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -50,16 +120,68 @@ class _BalanceScreenState extends State<BalanceScreen> {
         controller: _controller,
         clipBehavior: Clip.none,
         padEnds: false,
+        onPageChanged: (int page) {
+          setState(() {
+            currentPage = page;
+          });
+          _updateController(page);
+        },
         itemBuilder: (context, index) {
+          // Define the dropdown widget based on the asset
+          Widget dropdown;
+          if (_assets[index]['name'] == 'Bitcoin') {
+            dropdown = DropdownButton<String>(
+              value: _selectedFilters[index],
+              items: [
+                'Bitcoin network',
+                'Liquid network',
+                'Lightning network',
+              ].map((network) {
+                return DropdownMenuItem<String>(
+                  value: network,
+                  child: _buildNetworkRow(network),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  setState(() {
+                    _selectedFilters[index] = newValue;
+                  });
+                }
+              },
+              dropdownColor: const Color(0xFF212121),
+              style: TextStyle(color: Colors.white, fontSize: 14.sp),
+              borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+              icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
+              underline: const SizedBox(),
+            );
+          } else {
+            dropdown = DropdownButton<String>(
+              value: _selectedFilters[index],
+              items: [
+                DropdownMenuItem<String>(
+                  value: 'Liquid network',
+                  child: _buildNetworkRow('Liquid network'),
+                ),
+              ],
+              onChanged: null, // Disable interaction
+              dropdownColor: const Color(0xFF212121),
+              style: TextStyle(color: Colors.white, fontSize: 14.sp),
+              borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+              icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
+              underline: const SizedBox(),
+            );
+          }
+
           return Padding(
             padding: EdgeInsets.only(left: 16.sp),
             child: Container(
-              height: 200.sp, // Using .sp for responsiveness
+              height: 200.sp,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch, // Changed for consistency
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Theme(
                         data: Theme.of(context).copyWith(
@@ -69,79 +191,13 @@ class _BalanceScreenState extends State<BalanceScreen> {
                             ),
                           ),
                         ),
-                        child: DropdownButton<String>(
-                          value: _selectedFilters[index],
-                          items: [
-                            DropdownMenuItem(
-                              value: 'Bitcoin network',
-                              child: Row(
-                                children: [
-                                  Image.asset(
-                                    'lib/assets/bitcoin-logo.png',
-                                    width: 24.sp,
-                                    height: 24.sp,
-                                  ),
-                                  SizedBox(width: 10.sp),
-                                  Text(
-                                    'Bitcoin network',
-                                    style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: 'Liquid network',
-                              child: Row(
-                                children: [
-                                  Image.asset(
-                                    'lib/assets/l-btc.png',
-                                    width: 24.sp,
-                                    height: 24.sp,
-                                  ),
-                                  SizedBox(width: 10.sp),
-                                  Text(
-                                    'Liquid network',
-                                    style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: 'Lightning network',
-                              child: Row(
-                                children: [
-                                  Image.asset(
-                                    'lib/assets/Bitcoin_lightning_logo.png',
-                                    width: 24.sp,
-                                    height: 24.sp,
-                                  ),
-                                  SizedBox(width: 10.sp),
-                                  Text(
-                                    'Lightning network',
-                                    style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                          onChanged: (String? newValue) {
-                            if (newValue != null) {
-                              setState(() {
-                                _selectedFilters[index] = newValue;
-                              });
-                            }
-                          },
-                          dropdownColor: const Color(0xFF212121),
-                          style: TextStyle(color: Colors.white, fontSize: 14.sp),
-                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                          icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
-                          underline: const SizedBox(),
-                        ),
+                        child: dropdown,
                       ),
                     ],
                   ),
-                  SizedBox(height: 10.sp), // Added spacing
-                  Expanded(
+                  const Spacer(),
+                  SizedBox(
+                    height: 0.25.sh,
                     child: BalanceCard(
                       assetName: _assets[index]['name'] as String,
                       color: _assets[index]['color'] as Color,
@@ -157,6 +213,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
     );
   }
 }
+
 
 class Home extends ConsumerWidget {
   const Home({super.key});
