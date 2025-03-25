@@ -8,8 +8,9 @@ import 'package:Satsails/providers/currency_conversions_provider.dart';
 class BalanceCard extends ConsumerStatefulWidget {
   final String assetName;
   final Color color;
+  final String networkFilter;
 
-  const BalanceCard({required this.assetName, required this.color, super.key});
+  const BalanceCard({required this.assetName, required this.color, required this.networkFilter, super.key});
 
   @override
   _BalanceCardState createState() => _BalanceCardState();
@@ -67,7 +68,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         case 'Depix':
           iconPath = 'lib/assets/depix.png';
           label = 'Depix';
-          final brlBalance = (walletBalance.brlBalance ?? 0) / 100;
+          final brlBalance = (walletBalance.brlBalance) / 100;
           nativeBalance = '${brlBalance.toStringAsFixed(2)} BRL';
           final balanceInBtc = brlBalance * conversions.brlToBtc;
           final equivalent = balanceInBtc * conversions.btcToUsd;
@@ -76,14 +77,14 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         case 'USDT':
           iconPath = 'lib/assets/tether.png';
           label = 'USDT';
-          final usdBalance = (walletBalance.usdBalance ?? 0) / 100;
+          final usdBalance = (walletBalance.usdBalance) / 100;
           nativeBalance = '${usdBalance.toStringAsFixed(2)} USD';
           equivalentBalance = nativeBalance;
           break;
         case 'EURx':
           iconPath = 'lib/assets/eurx.png';
           label = 'EURx';
-          final eurBalance = (walletBalance.eurBalance ?? 0) / 100;
+          final eurBalance = (walletBalance.eurBalance) / 100;
           nativeBalance = '${eurBalance.toStringAsFixed(2)} EUR';
           final balanceInBtc = eurBalance * conversions.eurToBtc;
           final equivalent = balanceInBtc * conversions.btcToUsd;

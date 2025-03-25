@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/settings/settings.dart';
@@ -16,37 +17,37 @@ class MainScreen extends ConsumerStatefulWidget {
 }
 
 class _MainScreenState extends ConsumerState<MainScreen> {
-  late List<Widget> _pages;
-
-  @override
-  void initState() {
-    super.initState();
-    _pages = [
-      const Home(),
-      const Explore(),
-      Exchange(key: UniqueKey()),
-      const Transactions(),
-      const Accounts(),
-      const Settings(),
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
     final currentIndex = ref.watch(navigationProvider);
 
-    // When navigating to Exchange (index 2), replace it with a new instance
-    if (currentIndex == 2) {
-      setState(() {
-        _pages[2] = Exchange(key: UniqueKey());
+    // Function to build the current screen based on the index
+    Widget getCurrentScreen(int index) {
+      Future.microtask(() {
+        ref.read(sendTxProvider.notifier).resetToDefault();
+        ref.read(sendBlocksProvider.notifier).state = 1;
       });
+
+      switch (index) {
+        case 0:
+          return const Home();
+        case 1:
+          return const Explore();
+        case 2:
+          return const Exchange(); // Forces a new instance each time
+        case 3:
+          return const Transactions();
+        case 4:
+          return const Accounts();
+        case 5:
+          return const Settings();
+        default:
+          return const Home(); // Fallback to Home screen
+      }
     }
 
     return Scaffold(
-      body: IndexedStack(
-        index: currentIndex,
-        children: _pages,
-      ),
+      body: getCurrentScreen(currentIndex),
     );
   }
 }

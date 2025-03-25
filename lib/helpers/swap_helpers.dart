@@ -623,7 +623,8 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: fromAsset,
-                      dropdownColor: Colors.black,
+                      dropdownColor: const Color(0xFF212121),
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
                       items: getAssets(ref)
                           .where((asset) => asset != toAsset) // Exclude the currently selected toAsset
                           .map((asset) => DropdownMenuItem(
@@ -720,7 +721,8 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: toAsset,
-                      dropdownColor: Colors.black,
+                      dropdownColor: const Color(0xFF212121),
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
                       items: getAvailableSwaps(fromAsset, ref)
                           .where((asset) => asset != fromAsset)
                           .map((asset) => DropdownMenuItem(
@@ -2020,7 +2022,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
     data: (peg) {
       return Align(
         alignment: Alignment.bottomCenter,
-        child: ActionSlider.standard(height: 70.h,
+        child: ActionSlider.standard(
           width: double.infinity,
           backgroundColor: Colors.black,
           toggleColor: Colors.orange,
@@ -2086,7 +2088,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
     data: (peg) {
       return Align(
         alignment: Alignment.bottomCenter,
-        child: ActionSlider.standard(height: 70.h,
+        child: ActionSlider.standard(
           width: double.infinity,
           backgroundColor: Colors.black,
           toggleColor: Colors.orange,
@@ -2156,7 +2158,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
     padding: EdgeInsets.only(bottom: 20.w),
     child: Align(
       alignment: Alignment.bottomCenter,
-      child: ActionSlider.standard(height: 70.h,
+      child: ActionSlider.standard(
         width: double.infinity,
         backgroundColor: Colors.black,
         toggleColor: Colors.orange,
@@ -2212,7 +2214,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
     padding: EdgeInsets.only(bottom: 20.w),
     child: Align(
       alignment: Alignment.bottomCenter,
-      child: ActionSlider.standard(height: 70.h,
+      child: ActionSlider.standard(
         width: double.infinity,
         backgroundColor: Colors.black,
         toggleColor: Colors.orange,
@@ -2272,7 +2274,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
     padding: EdgeInsets.only(bottom: 10.w),
     child: Align(
       alignment: Alignment.bottomCenter,
-      child: ActionSlider.standard(height: 70.h,
+      child: ActionSlider.standard(
         width: double.infinity,
         backgroundColor: Colors.black,
         toggleColor: Colors.orange,

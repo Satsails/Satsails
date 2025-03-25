@@ -16,28 +16,22 @@ class BalanceScreen extends StatefulWidget {
 
 class _BalanceScreenState extends State<BalanceScreen> {
   late PageController _controller;
-  String _selectedFilter = 'Bitcoin network';
+  late List<Map<String, dynamic>> _assets;
+  late List<String> _selectedFilters;
 
   @override
   void initState() {
     super.initState();
+    _assets = [
+      {'name': 'Bitcoin', 'color': const Color(0xFFFF9800)},
+      {'name': 'Depix', 'color': const Color(0xFF009C3B)},
+      {'name': 'USDT', 'color': const Color(0xFF008001)},
+      {'name': 'EURx', 'color': const Color(0xFF003399)},
+    ];
+    _selectedFilters = List.filled(_assets.length, 'Bitcoin network');
     _controller = PageController(
-      viewportFraction: 0.9, // Fixed viewport fraction
+      viewportFraction: 0.9,
       initialPage: 0,
-    );
-    // Listener removed to avoid dynamic viewportFraction changes
-  }
-
-  PopupMenuItem<String> _buildMenuItem(String text, String logoPath) {
-    return PopupMenuItem<String>(
-      value: text,
-      child: Row(
-        children: [
-          Image.asset(logoPath, width: 24, height: 24),
-          const SizedBox(width: 10),
-          Text(text, style: const TextStyle(color: Colors.white)),
-        ],
-      ),
     );
   }
 
@@ -49,54 +43,109 @@ class _BalanceScreenState extends State<BalanceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final assets = [
-      {'name': 'Bitcoin', 'color': const Color(0xFFFF9800)},
-      {'name': 'Depix', 'color': const Color(0xFF009C3B)},
-      {'name': 'USDT', 'color': const Color(0xFF008001)},
-      {'name': 'EURx', 'color': const Color(0xFF003399)},
-    ];
-
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.sp),
       child: PageView.builder(
-        itemCount: assets.length,
+        itemCount: _assets.length,
         controller: _controller,
         clipBehavior: Clip.none,
         padEnds: false,
         itemBuilder: (context, index) {
           return Padding(
-            padding: EdgeInsets.only(left: 16.0.sp),
+            padding: EdgeInsets.only(left: 16.sp),
             child: Container(
-              height: 200,
+              height: 200.sp, // Using .sp for responsiveness
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch, // Changed for consistency
                 children: [
-                  Theme(
-                    data: Theme.of(context).copyWith(
-                      popupMenuTheme: const PopupMenuThemeData(
-                        color: Color(0xFF212121),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Theme(
+                        data: Theme.of(context).copyWith(
+                          popupMenuTheme: const PopupMenuThemeData(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(0)),
+                            ),
+                          ),
+                        ),
+                        child: DropdownButton<String>(
+                          value: _selectedFilters[index],
+                          items: [
+                            DropdownMenuItem(
+                              value: 'Bitcoin network',
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    'lib/assets/bitcoin-logo.png',
+                                    width: 24.sp,
+                                    height: 24.sp,
+                                  ),
+                                  SizedBox(width: 10.sp),
+                                  Text(
+                                    'Bitcoin network',
+                                    style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Liquid network',
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    'lib/assets/l-btc.png',
+                                    width: 24.sp,
+                                    height: 24.sp,
+                                  ),
+                                  SizedBox(width: 10.sp),
+                                  Text(
+                                    'Liquid network',
+                                    style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Lightning network',
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    'lib/assets/Bitcoin_lightning_logo.png',
+                                    width: 24.sp,
+                                    height: 24.sp,
+                                  ),
+                                  SizedBox(width: 10.sp),
+                                  Text(
+                                    'Lightning network',
+                                    style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                _selectedFilters[index] = newValue;
+                              });
+                            }
+                          },
+                          dropdownColor: const Color(0xFF212121),
+                          style: TextStyle(color: Colors.white, fontSize: 14.sp),
+                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                          icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
+                          underline: const SizedBox(),
                         ),
                       ),
-                    ),
-                    child: PopupMenuButton<String>(
-                      icon: const Icon(Icons.sort, color: Colors.white),
-                      onSelected: (String value) {
-                        setState(() {
-                          _selectedFilter = value;
-                        });
-                      },
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                        _buildMenuItem('Bitcoin network', 'lib/assets/bitcoin-logo.png'),
-                        _buildMenuItem('Liquid network', 'lib/assets/l-btc.png'),
-                        _buildMenuItem('Lightning network', 'lib/assets/Bitcoin_lightning_logo.png'),
-                      ],
-                    ),
+                    ],
                   ),
+                  SizedBox(height: 10.sp), // Added spacing
                   Expanded(
                     child: BalanceCard(
-                      assetName: assets[index]['name'] as String,
-                      color: assets[index]['color'] as Color,
+                      assetName: _assets[index]['name'] as String,
+                      color: _assets[index]['color'] as Color,
+                      networkFilter: _selectedFilters[index],
                     ),
                   ),
                 ],
@@ -129,9 +178,9 @@ class Home extends ConsumerWidget {
           child: Column(
             children: [
               const BackupWarning(), // Takes its intrinsic height
-              Expanded(
+              const Expanded(
                 flex: 4,
-                child: const BalanceScreen(),
+                child: BalanceScreen(),
               ),
               Expanded(
                 flex: 6,

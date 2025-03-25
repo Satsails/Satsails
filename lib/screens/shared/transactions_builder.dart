@@ -235,20 +235,11 @@ class TransactionList extends ConsumerWidget {
         ),
       );
     } else {
-      // Non-scrollable list with limited items
-      final screenHeight = MediaQuery.of(context).size.height;
-      final displayCount = itemCount > 0
-          ? (screenHeight >= 800
-          ? min(itemCount, 5) // Large screen: show up to 5
-          : screenHeight >= 600
-          ? min(itemCount, 4) // Medium screen: show up to 4
-          : min(itemCount, 3)) // Small screen: show up to 3
-          : 0;
 
       return ListView.builder(
-        physics: const NeverScrollableScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(),
         shrinkWrap: true,
-        itemCount: displayCount,
+        itemCount: 4,
         itemBuilder: (context, index) => itemBuilder(index),
       );
     }

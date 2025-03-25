@@ -55,7 +55,7 @@ class Explore extends ConsumerWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: 16.w,
-                      vertical: 16.h,
+                      vertical: 8.h,
                     ),
                     child: _BalanceDisplay(),
                   ),
