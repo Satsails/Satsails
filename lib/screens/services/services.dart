@@ -94,7 +94,7 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
           ),
           if (_isLoading)
             Center(
-              child: LoadingAnimationWidget.threeArchedCircle(size: 100, color: Colors.orange),
+              child: LoadingAnimationWidget.fourRotatingDots(size: 100, color: Colors.orange),
             ),
         ],
       ),

@@ -1,6 +1,5 @@
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
-import 'package:Satsails/screens/analytics/components/peg_details.dart';
 import 'package:Satsails/screens/explore/components/deposit_bitcoin_pix_nox.dart';
 import 'package:Satsails/screens/explore/components/deposit_method.dart';
 import 'package:Satsails/screens/explore/components/deposit_depix_pix_eulen.dart';
@@ -121,17 +120,6 @@ class AppRouter {
             final transaction = state.extra as BitcoinTransaction;
             return _buildFadeScalePage(
               child: TransactionDetailsScreen(transaction: transaction),
-              state: state,
-            );
-          },
-        ),
-        GoRoute(
-          path: '/peg-details',
-          name: 'pegDetails',
-          pageBuilder: (context, state) {
-            final transaction = state.extra as SideswapPegStatus;
-            return _buildFadeScalePage(
-              child: PegDetails(swap: transaction),
               state: state,
             );
           },

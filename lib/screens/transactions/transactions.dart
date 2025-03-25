@@ -72,189 +72,192 @@ class _TransactionsState extends ConsumerState<Transactions> {
       }
     }
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: ref.watch(navigationProvider),
-        onTap: (int index) {
-          ref.read(navigationProvider.notifier).state = index;
-        },
-      ),
-      body: Stack(
-        children: [
-          SafeArea(
-            bottom: false,
-            child: Column(
-              children: [
-                AppBar(
-                  title: const Text(
-                    'Transactions',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        bottomNavigationBar: CustomBottomNavigationBar(
+          currentIndex: ref.watch(navigationProvider),
+          onTap: (int index) {
+            ref.read(navigationProvider.notifier).state = index;
+          },
+        ),
+        body: Stack(
+          children: [
+            SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  AppBar(
+                    title: const Text(
+                      'Transactions',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
                     ),
-                  ),
-                  backgroundColor: Colors.black,
-                  elevation: 0,
-                  actions: [
-                    // Calendar picker button
-                    IconButton(
-                      icon: const Icon(Icons.calendar_today, color: Colors.white),
-                      onPressed: () async {
-                        final selectedDate = await showCalendarDatePicker2Dialog(
-                          context: context,
-                          config: CalendarDatePicker2WithActionButtonsConfig(
-                            calendarType: CalendarDatePicker2Type.range,
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime.now(),
-                            currentDate: _startDate ?? DateTime.now(),
-                            dayTextStyle: const TextStyle(color: Colors.white),
-                            weekdayLabelTextStyle: const TextStyle(color: Colors.white),
-                            controlsTextStyle: const TextStyle(color: Colors.white),
-                            selectedDayTextStyle: const TextStyle(color: Colors.black),
-                            selectedDayHighlightColor: Colors.orange,
-                            disabledDayTextStyle: const TextStyle(color: Colors.grey),
-                            yearTextStyle: const TextStyle(color: Colors.white),
-                            lastMonthIcon: const Icon(Icons.arrow_back, color: Colors.white),
-                            nextMonthIcon: const Icon(Icons.arrow_forward, color: Colors.white),
-                          ),
-                          dialogSize: const Size(325, 400),
-                          dialogBackgroundColor: const Color(0xFF212121),
-                        );
+                    backgroundColor: Colors.black,
+                    elevation: 0,
+                    actions: [
+                      // Calendar picker button
+                      IconButton(
+                        icon: const Icon(Icons.calendar_today, color: Colors.white),
+                        onPressed: () async {
+                          final selectedDate = await showCalendarDatePicker2Dialog(
+                            context: context,
+                            config: CalendarDatePicker2WithActionButtonsConfig(
+                              calendarType: CalendarDatePicker2Type.range,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime.now(),
+                              currentDate: _startDate ?? DateTime.now(),
+                              dayTextStyle: const TextStyle(color: Colors.white),
+                              weekdayLabelTextStyle: const TextStyle(color: Colors.white),
+                              controlsTextStyle: const TextStyle(color: Colors.white),
+                              selectedDayTextStyle: const TextStyle(color: Colors.black),
+                              selectedDayHighlightColor: Colors.orange,
+                              disabledDayTextStyle: const TextStyle(color: Colors.grey),
+                              yearTextStyle: const TextStyle(color: Colors.white),
+                              lastMonthIcon: const Icon(Icons.arrow_back, color: Colors.white),
+                              nextMonthIcon: const Icon(Icons.arrow_forward, color: Colors.white),
+                            ),
+                            dialogSize: const Size(325, 400),
+                            dialogBackgroundColor: const Color(0xFF212121),
+                          );
 
-                        if (selectedDate != null && selectedDate.isNotEmpty) {
-                          setState(() {
-                            _startDate = selectedDate.first;
-                            _endDate = selectedDate.length > 1 ? selectedDate.last : selectedDate.first;
-                          });
-                        }
-                      },
-                    ),
-                    // Filter menu button
-                    Theme(
-                      data: Theme.of(context).copyWith(
-                        popupMenuTheme: PopupMenuThemeData(
-                          color: const Color(0xFF212121), // Dark background
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0), // Rounded corners
+                          if (selectedDate != null && selectedDate.isNotEmpty) {
+                            setState(() {
+                              _startDate = selectedDate.first;
+                              _endDate = selectedDate.length > 1 ? selectedDate.last : selectedDate.first;
+                            });
+                          }
+                        },
+                      ),
+                      // Filter menu button
+                      Theme(
+                        data: Theme.of(context).copyWith(
+                          popupMenuTheme: PopupMenuThemeData(
+                            color: const Color(0xFF212121), // Dark background
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0), // Rounded corners
+                            ),
                           ),
                         ),
-                      ),
-                      child: PopupMenuButton<String>(
-                        icon: const Icon(Icons.sort, color: Colors.white), // Sort icon
-                        onSelected: (String value) {
-                          setState(() {
-                            _selectedFilter = value; // Update filter on selection
-                          });
-                        },
-                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                          PopupMenuItem<String>(
-                            value: 'All',
-                            child: Text(
-                              'All',
-                              style: TextStyle(
-                                color: _selectedFilter == 'All' ? Colors.orange : Colors.white,
+                        child: PopupMenuButton<String>(
+                          icon: const Icon(Icons.sort, color: Colors.white), // Sort icon
+                          onSelected: (String value) {
+                            setState(() {
+                              _selectedFilter = value; // Update filter on selection
+                            });
+                          },
+                          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                            PopupMenuItem<String>(
+                              value: 'All',
+                              child: Text(
+                                'All',
+                                style: TextStyle(
+                                  color: _selectedFilter == 'All' ? Colors.orange : Colors.white,
+                                ),
                               ),
                             ),
-                          ),
-                          PopupMenuItem<String>(
-                            value: 'Bitcoin',
-                            child: Text(
-                              'Bitcoin',
-                              style: TextStyle(
-                                color: _selectedFilter == 'Bitcoin' ? Colors.orange : Colors.white,
+                            PopupMenuItem<String>(
+                              value: 'Bitcoin',
+                              child: Text(
+                                'Bitcoin',
+                                style: TextStyle(
+                                  color: _selectedFilter == 'Bitcoin' ? Colors.orange : Colors.white,
+                                ),
                               ),
                             ),
-                          ),
-                          PopupMenuItem<String>(
-                            value: 'Liquid',
-                            child: Text(
-                              'Liquid',
-                              style: TextStyle(
-                                color: _selectedFilter == 'Liquid' ? Colors.orange : Colors.white,
+                            PopupMenuItem<String>(
+                              value: 'Liquid',
+                              child: Text(
+                                'Liquid',
+                                style: TextStyle(
+                                  color: _selectedFilter == 'Liquid' ? Colors.orange : Colors.white,
+                                ),
                               ),
                             ),
-                          ),
-                          PopupMenuItem<String>(
-                            value: 'Pix Purchases',
-                            child: Text(
-                              'Pix Purchases',
-                              style: TextStyle(
-                                color: _selectedFilter == 'Pix Purchases' ? Colors.orange : Colors.white,
+                            PopupMenuItem<String>(
+                              value: 'Pix Purchases',
+                              child: Text(
+                                'Pix Purchases',
+                                style: TextStyle(
+                                  color: _selectedFilter == 'Pix Purchases' ? Colors.orange : Colors.white,
+                                ),
                               ),
                             ),
-                          ),
-                          PopupMenuItem<String>(
-                            value: 'Swaps',
-                            child: Text(
-                              'Swaps',
-                              style: TextStyle(
-                                color: _selectedFilter == 'Swaps' ? Colors.orange : Colors.white,
+                            PopupMenuItem<String>(
+                              value: 'Swaps',
+                              child: Text(
+                                'Swaps',
+                                style: TextStyle(
+                                  color: _selectedFilter == 'Swaps' ? Colors.orange : Colors.white,
+                                ),
                               ),
                             ),
-                          ),
-                          PopupMenuItem<String>(
-                            value: 'DePIX',
-                            child: Text(
-                              'DePIX',
-                              style: TextStyle(
-                                color: _selectedFilter == 'DePIX' ? Colors.orange : Colors.white,
+                            PopupMenuItem<String>(
+                              value: 'DePIX',
+                              child: Text(
+                                'DePIX',
+                                style: TextStyle(
+                                  color: _selectedFilter == 'DePIX' ? Colors.orange : Colors.white,
+                                ),
                               ),
                             ),
-                          ),
-                          PopupMenuItem<String>(
-                            value: 'USDT',
-                            child: Text(
-                              'USDT',
-                              style: TextStyle(
-                                color: _selectedFilter == 'USDT' ? Colors.orange : Colors.white,
+                            PopupMenuItem<String>(
+                              value: 'USDT',
+                              child: Text(
+                                'USDT',
+                                style: TextStyle(
+                                  color: _selectedFilter == 'USDT' ? Colors.orange : Colors.white,
+                                ),
                               ),
                             ),
-                          ),
-                          PopupMenuItem<String>(
-                            value: 'EUR',
-                            child: Text(
-                              'EUR',
-                              style: TextStyle(
-                                color: _selectedFilter == 'EUR' ? Colors.orange : Colors.white,
+                            PopupMenuItem<String>(
+                              value: 'EUR',
+                              child: Text(
+                                'EUR',
+                                style: TextStyle(
+                                  color: _selectedFilter == 'EUR' ? Colors.orange : Colors.white,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Styled reset button
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _startDate = null;
-                            _endDate = null;
-                            _selectedFilter = 'All';
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orangeAccent,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          minimumSize: const Size(60, 30),
+                          ],
                         ),
-                        child: const Text('Reset'),
                       ),
-                    ),
-                  ],
-                ),
-                Expanded(
-                  child: TransactionListByWeek(transactions: filteredTransactions),
-                ),
-              ],
+                      // Styled reset button
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _startDate = null;
+                              _endDate = null;
+                              _selectedFilter = 'All';
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orangeAccent,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            minimumSize: const Size(60, 30),
+                          ),
+                          child: const Text('Reset'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: TransactionListByWeek(transactions: filteredTransactions),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

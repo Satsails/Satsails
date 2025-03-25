@@ -199,7 +199,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
-            child: LoadingAnimationWidget.threeArchedCircle(
+            child: LoadingAnimationWidget.fourRotatingDots(
               size: MediaQuery.of(context).size.width * 0.1,
               color: Colors.orange,
             ),
@@ -219,7 +219,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
             Padding(
               padding: EdgeInsets.all(height * 0.01),
               child: isLoading
-                  ? LoadingAnimationWidget.threeArchedCircle(
+                  ? LoadingAnimationWidget.fourRotatingDots(
                 size: MediaQuery.of(context).size.width * 0.1,
                 color: Colors.orange,
               )

@@ -14,6 +14,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 final isLoadingProvider = StateProvider<bool>((ref) => false);
 
@@ -71,8 +72,9 @@ class Explore extends ConsumerWidget {
             ),
             if (isLoading)
               Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                child: LoadingAnimationWidget.fourRotatingDots(
+                  color: Colors.orangeAccent,
+                  size: 40.sp,
                 ),
               ),
           ],

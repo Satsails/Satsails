@@ -175,7 +175,7 @@ class _DepositWebViewPageState extends State<DepositWebViewPage> {
           WebViewWidget(controller: _webViewController),
           if (_isLoading)
             Center(
-              child: LoadingAnimationWidget.threeArchedCircle(
+              child: LoadingAnimationWidget.fourRotatingDots(
                 size: 100,
                 color: Colors.orange,
               ),

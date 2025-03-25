@@ -130,7 +130,7 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin> {
             Container(
               color: Colors.black54,
               child: Center(
-                child: LoadingAnimationWidget.threeArchedCircle(
+                child: LoadingAnimationWidget.fourRotatingDots(
                   color: Colors.orange,
                   size: 50,
                 ),

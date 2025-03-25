@@ -86,7 +86,7 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
         );
       },
       loading: () => Center(
-        child: LoadingAnimationWidget.threeArchedCircle(
+        child: LoadingAnimationWidget.fourRotatingDots(
           size: MediaQuery.of(context).size.width * 0.6,
           color: Colors.orange,
         ),

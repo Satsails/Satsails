@@ -379,7 +379,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                 // Loading indicator while generating QR code.
                 if (_isLoading)
                   Center(
-                    child: LoadingAnimationWidget.threeArchedCircle(
+                    child: LoadingAnimationWidget.fourRotatingDots(
                       size: 0.1.sh,
                       color: Colors.orange,
                     ),

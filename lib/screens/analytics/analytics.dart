@@ -3,12 +3,7 @@ import 'package:Satsails/screens/analytics/components/lightning_expenses_diagram
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/analytics/components/bitcoin_expenses_diagram.dart';
-import 'package:Satsails/screens/analytics/components/liquid_expenses_diagram.dart';
-import 'package:Satsails/screens/analytics/components/swaps_builder.dart';
-import 'package:Satsails/screens/shared/transactions_builder.dart';
-import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 
 import 'components/calendar.dart';
 
@@ -78,7 +73,7 @@ class Analytics extends ConsumerWidget {
         ),
         if (transactionType == 'Bitcoin') const BitcoinExpensesDiagram(),
         // if (transactionType == 'Liquid') const LiquidExpensesDiagram(),
-        if (transactionType == 'Swaps') const Expanded(child: SwapsBuilder()),
+        // if (transactionType == 'Swaps') const Expanded(child: SwapsBuilder()),
         if (transactionType == 'Lightning' && hasLightning) const LightningExpensesDiagram(),
       ],
     );
