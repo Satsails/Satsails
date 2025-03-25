@@ -4,7 +4,6 @@ import 'package:Satsails/helpers/common_operation_methods.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -23,7 +22,7 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'Liquid Transaction Details'.i18n,
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
@@ -97,7 +96,7 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
                   ),
                   amount: balance.value,
                 );
-              }).toList(),
+              }),
               TransactionDetailRow(
                 label: "Fee".i18n,
                 value: "${btcInDenominationFormatted(transaction.lwkDetails.fee.toInt(), denomination)} $denomination",

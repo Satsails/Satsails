@@ -60,7 +60,7 @@ class Settings extends ConsumerWidget {
     return ListTile(
       leading: const Icon(Icons.cloud, color: Colors.white),
       title: Text('Select Electrum Node'.i18n, style: const TextStyle(color: Colors.white)),
-      subtitle: Text(ref.watch(settingsProvider).nodeType, style: TextStyle(color: Colors.grey)),
+      subtitle: Text(ref.watch(settingsProvider).nodeType, style: const TextStyle(color: Colors.grey)),
       onTap: () {
         showModalBottomSheet(
           backgroundColor: Colors.black,
@@ -156,7 +156,7 @@ class Settings extends ConsumerWidget {
     final hasNotCreatedUser = ref.watch(userProvider).paymentId.isEmpty;
 
     if (hasNotCreatedUser) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     return ListTile(
@@ -166,7 +166,7 @@ class Settings extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (affiliateCode.isNotEmpty)
-            Text('Inserted Code:'.i18n +' $affiliateCode', style: const TextStyle(color: Colors.grey))
+            Text('${'Inserted Code:'.i18n} $affiliateCode', style: const TextStyle(color: Colors.grey))
           else
             GestureDetector(
               onTap: () => _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref),
@@ -218,11 +218,11 @@ class Settings extends ConsumerWidget {
                     controller: controller,
                     decoration: InputDecoration(
                       labelText: 'Affiliate Code'.i18n,
-                      labelStyle: TextStyle(color: Colors.white),
-                      border: OutlineInputBorder(),
+                      labelStyle: const TextStyle(color: Colors.white),
+                      border: const OutlineInputBorder(),
                       fillColor: Colors.black,
                       filled: true,
-                      focusedBorder: OutlineInputBorder(
+                      focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.orange),
                       ),
                     ),

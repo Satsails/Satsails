@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:Satsails/handlers/response_handlers.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -60,14 +59,14 @@ class NoxTransferNotifier extends StateNotifier<List<NoxTransfer>> {
       originalAmount: serverData.originalAmount,
       completed: serverData.completed,
       failed: serverData.failed,
-      userId: serverData.userId ?? existingPurchase?.userId,
-      createdAt: existingPurchase?.createdAt ?? serverData.createdAt,
+      userId: serverData.userId ?? existingPurchase.userId,
+      createdAt: existingPurchase.createdAt ?? serverData.createdAt,
       updatedAt: serverData.updatedAt,
       receivedAmount: serverData.receivedAmount,
-      status: serverData.status ?? existingPurchase?.status,
-      paymentMethod: serverData.paymentMethod ?? existingPurchase?.paymentMethod,
-      to_currency: serverData.to_currency ?? existingPurchase?.to_currency,
-      from_currency: serverData.from_currency ?? existingPurchase?.from_currency,
+      status: serverData.status ?? existingPurchase.status,
+      paymentMethod: serverData.paymentMethod ?? existingPurchase.paymentMethod,
+      to_currency: serverData.to_currency ?? existingPurchase.to_currency,
+      from_currency: serverData.from_currency ?? existingPurchase.from_currency,
       transactionType: serverData.transactionType,
       price: serverData.price,
     );
@@ -96,14 +95,14 @@ class NoxTransferNotifier extends StateNotifier<List<NoxTransfer>> {
         originalAmount: serverData.originalAmount,
         completed: serverData.completed,
         failed: serverData.failed,
-        userId: serverData.userId ?? existingPurchase?.userId,
-        createdAt: existingPurchase?.createdAt ?? serverData.createdAt,
+        userId: serverData.userId ?? existingPurchase.userId,
+        createdAt: existingPurchase.createdAt ?? serverData.createdAt,
         updatedAt: serverData.updatedAt,
         receivedAmount: serverData.receivedAmount,
-        status: serverData.status ?? existingPurchase?.status,
-        paymentMethod: serverData.paymentMethod ?? existingPurchase?.paymentMethod,
-        to_currency: serverData.to_currency ?? existingPurchase?.to_currency,
-        from_currency: serverData.from_currency ?? existingPurchase?.from_currency,
+        status: serverData.status ?? existingPurchase.status,
+        paymentMethod: serverData.paymentMethod ?? existingPurchase.paymentMethod,
+        to_currency: serverData.to_currency ?? existingPurchase.to_currency,
+        from_currency: serverData.from_currency ?? existingPurchase.from_currency,
         transactionType: serverData.transactionType,
         price: serverData.price,
       ) ?? serverData;
@@ -213,7 +212,7 @@ class NoxTransfer extends HiveObject {
     double? price,
   }) {
     return NoxTransfer(
-      id: this.id,
+      id: id,
       transactionId: transactionId ?? this.transactionId,
       originalAmount: originalAmount ?? this.originalAmount,
       completed: completed ?? this.completed,
@@ -258,7 +257,7 @@ class NoxService {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final response = await http.post(
-        Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers'),
+        Uri.parse('${dotenv.env['BACKEND']!}/nox_transfers'),
         body: jsonEncode({
           'transfer': {
             'quote_id': quoteId,
@@ -288,7 +287,7 @@ class NoxService {
   static Future<Result<List<NoxTransfer>>> getTransfers(String auth) async {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
-      final uri = Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers');
+      final uri = Uri.parse('${dotenv.env['BACKEND']!}/nox_transfers');
 
       final response = await http.get(
         uri,
@@ -318,7 +317,7 @@ class NoxService {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       // Build the URI with query parameters for from_currency, to_currency, and value_set_to_receive.
-      final uri = Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers/quote')
+      final uri = Uri.parse('${dotenv.env['BACKEND']!}/nox_transfers/quote')
           .replace(queryParameters: {
         'from_currency': fromCurrency,
         'to_currency': toCurrency,

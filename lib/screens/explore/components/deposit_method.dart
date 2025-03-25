@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:Satsails/providers/deposit_type_provider.dart' as helpers;
 
 class DepositMethod extends ConsumerWidget {
-  const DepositMethod({Key? key}) : super(key: key);
+  const DepositMethod({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -69,11 +69,10 @@ class _DepositMethodOption extends StatelessWidget {
   final helpers.DepositMethod method;
 
   const _DepositMethodOption({
-    Key? key,
     required this.title,
     required this.subtitle,
     required this.method,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

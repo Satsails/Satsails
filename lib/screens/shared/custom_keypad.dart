@@ -6,10 +6,10 @@ class CustomKeypad extends StatelessWidget {
   final VoidCallback onBackspacePressed;
 
   const CustomKeypad({
-    Key? key,
+    super.key,
     required this.onDigitPressed,
     required this.onBackspacePressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

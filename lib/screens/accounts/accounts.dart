@@ -44,9 +44,9 @@ class Accounts extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SizedBox(height: screenWidth * 0.02),
-                  Text(
+                  const Text(
                     'Bitcoin',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                   SizedBox(height: screenWidth * 0.02),
                   Consumer(
@@ -95,9 +95,9 @@ class Accounts extends ConsumerWidget {
                   SizedBox(height: screenWidth * 0.02),
 
                   // Always show the Lightning card
-                  Text(
+                  const Text(
                     'Lightning',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                   SizedBox(height: screenWidth * 0.02),
                   Consumer(
@@ -112,7 +112,7 @@ class Accounts extends ConsumerWidget {
                           CurrencyParams(ref.watch(settingsProvider).currency, coinosBalance!),
                         )).toStringAsFixed(2);
 
-                        lightningBalanceInFormat = btcInDenominationFormatted(coinosBalance!, format);
+                        lightningBalanceInFormat = btcInDenominationFormatted(coinosBalance, format);
                       }
                       return Card(
                         shape: RoundedRectangleBorder(
@@ -149,9 +149,9 @@ class Accounts extends ConsumerWidget {
                     },
                   ),
                   SizedBox(height: screenWidth * 0.02),
-                  Text(
+                  const Text(
                     'Liquid Bitcoin',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                   SizedBox(height: screenWidth * 0.02),
                   Consumer(
@@ -601,7 +601,7 @@ class Accounts extends ConsumerWidget {
         return DraggableScrollableSheet(
           expand: false,
           builder: (context, scrollController) {
-            return Pay();
+            return const Pay();
           },
         );
       },

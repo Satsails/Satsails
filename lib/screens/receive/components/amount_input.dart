@@ -7,10 +7,10 @@ import 'package:Satsails/providers/address_receive_provider.dart';
 class AmountInput extends ConsumerWidget {
   final TextEditingController controller;
 
-  AmountInput({
-    Key? key,
+  const AmountInput({
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

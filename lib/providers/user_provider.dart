@@ -1,8 +1,6 @@
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/models/user_model.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
@@ -45,7 +43,7 @@ final userProvider = StateNotifierProvider<UserModel, User>((ref) {
 });
 
 final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>((ref, affiliateCode) async {
-  final auth = ref.read(userProvider).jwt!;
+  final auth = ref.read(userProvider).jwt;
   final result = await UserService.addAffiliateCode(affiliateCode, auth);
 
   if (result.isSuccess && result.data == true) {
@@ -68,14 +66,14 @@ final fetchBackendChallangeProvider = FutureProvider.autoDispose<String>((ref) a
 
 final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
   final challenge = await ref.read(fetchBackendChallangeProvider.future);
-  final signedChallenge = await BackendAuth.signChallengeWithPrivateKey(challenge!);
-  final result = await UserService.createUserRequest(challenge!, signedChallenge!);
+  final signedChallenge = await BackendAuth.signChallengeWithPrivateKey(challenge);
+  final result = await UserService.createUserRequest(challenge, signedChallenge!);
 
   if (result.isSuccess && result.data != null) {
     final affiliateCodeFromLink = ref.read(userProvider).affiliateCode ?? '';
     final user = result.data!;
     await ref.read(userProvider.notifier).setPaymentId(user.paymentId);
-    await ref.read(userProvider.notifier).setJwt(user.jwt!);
+    await ref.read(userProvider.notifier).setJwt(user.jwt);
     await ref.read(userProvider.notifier).setAffiliateCode(user.affiliateCode ?? '');
     await FirebaseService.storeTokenOnbackend();
     if (affiliateCodeFromLink.isNotEmpty) {
@@ -89,7 +87,7 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
 // delete after migrations
 final migrateUserToJwtProvider = FutureProvider.autoDispose<void>((ref) async {
   final challenge = await ref.read(fetchBackendChallangeProvider.future);
-  final signedChallenge = await BackendAuth.signChallengeWithPrivateKey(challenge!);
+  final signedChallenge = await BackendAuth.signChallengeWithPrivateKey(challenge);
   final recoveryCode = ref.read(userProvider).recoveryCode;
   final result = await UserService.migrateToJWT(recoveryCode!, challenge, signedChallenge!);
 

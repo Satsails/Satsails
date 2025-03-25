@@ -7,7 +7,6 @@ import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/validations/address_validation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
@@ -19,7 +18,7 @@ import 'package:action_slider/action_slider.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 class ConfirmCustodialLightningPayment extends ConsumerStatefulWidget {
-  ConfirmCustodialLightningPayment({Key? key}) : super(key: key);
+  const ConfirmCustodialLightningPayment({super.key});
 
   @override
   _ConfirmCustodialLightningPaymentState createState() =>
@@ -58,7 +57,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
     if (address.length <= startLength + endLength + 70) {
       return address;
     } else {
-      return address.substring(0, startLength) + '...' + address.substring(address.length - endLength);
+      return '${address.substring(0, startLength)}...${address.substring(address.length - endLength)}';
     }
   }
 
@@ -74,7 +73,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
 
     final currency = ref.read(settingsProvider).currency;
     final currencyRate = ref.read(selectedCurrencyProvider(currency));
-    final valueInBtc = lightningBalance! / 100000000;
+    final valueInBtc = lightningBalance / 100000000;
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
 
     final dynamicFontSize = screenHeight * 0.02;
@@ -275,21 +274,21 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                                   ),
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.info, color: Colors.orange),
+                                  icon: const Icon(Icons.info, color: Colors.orange),
                                   onPressed: () {
                                     showDialog(
                                       context: context,
                                       builder: (BuildContext context) {
                                         return AlertDialog(
                                           backgroundColor: Colors.black,
-                                          title: Text("Lightning Fee Information".i18n, style: TextStyle(color: Colors.orange)),
+                                          title: Text("Lightning Fee Information".i18n, style: const TextStyle(color: Colors.orange)),
                                           content: Text(
                                             "Lightning fees are dynamic. We must store at least 0.5% of the transaction value for routing fees. Any unused amount will be returned to your wallet.".i18n,
-                                            style: TextStyle(color: Colors.white),
+                                            style: const TextStyle(color: Colors.white),
                                           ),
                                           actions: [
                                             TextButton(
-                                              child: Text("Close", style: TextStyle(color: Colors.orange)),
+                                              child: const Text("Close", style: TextStyle(color: Colors.orange)),
                                               onPressed: () {
                                                 Navigator.of(context).pop();
                                               },
@@ -304,7 +303,7 @@ class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustod
                             ),
                           SizedBox(height: dynamicSizedBox),
                           if(!isInputBlocked)
-                          Container(
+                          SizedBox(
                             width: double.infinity,
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<String>(

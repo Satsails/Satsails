@@ -7,8 +7,7 @@ import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/shared/build_balance_card.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Assuming ScreenUtil is used for .sp units
+// Assuming ScreenUtil is used for .sp units
 
 class BalanceScreen extends StatefulWidget {
   const BalanceScreen({super.key});
@@ -175,7 +174,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
 
         return Padding(
           padding: EdgeInsets.only(left: 16.sp),
-          child: Container(
+          child: SizedBox(
             height: 200.sp,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

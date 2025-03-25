@@ -1,5 +1,4 @@
 import 'package:Satsails/models/address_model.dart';
-import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/transaction_data_provider.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -11,7 +10,7 @@ import 'package:mobile_scanner/mobile_scanner.dart'; // <-- mobile_scanner
 import 'package:quickalert/quickalert.dart';
 
 class Pay extends ConsumerStatefulWidget {
-  const Pay({Key? key}) : super(key: key);
+  const Pay({super.key});
 
   @override
   _PayState createState() => _PayState();

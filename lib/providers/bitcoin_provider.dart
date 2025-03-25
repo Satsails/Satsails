@@ -141,5 +141,5 @@ final sendBitcoinTransactionProvider = FutureProvider.autoDispose<String>((ref) 
 
   final signedPsbt = await ref.watch(signBitcoinPsbtProvider(psbt).future);
 
-  return await ref.watch(broadcastBitcoinTransactionProvider(signedPsbt!).future);
+  return await ref.watch(broadcastBitcoinTransactionProvider(signedPsbt).future);
 });

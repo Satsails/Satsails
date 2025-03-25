@@ -17,7 +17,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 final loadingProvider = StateProvider<bool>((ref) => false);
 
 class ConfirmPin extends ConsumerStatefulWidget {
-  const ConfirmPin({Key? key}) : super(key: key);
+  const ConfirmPin({super.key});
 
   @override
   _ConfirmPinState createState() => _ConfirmPinState();
@@ -147,7 +147,7 @@ class PinProgressIndicator extends StatelessWidget {
   final int currentLength;
   final int totalDigits;
 
-  const PinProgressIndicator({required this.currentLength, required this.totalDigits});
+  const PinProgressIndicator({super.key, required this.currentLength, required this.totalDigits});
 
   @override
   Widget build(BuildContext context) {

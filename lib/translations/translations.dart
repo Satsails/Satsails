@@ -1,6 +1,4 @@
 // this screen needs some heavy refactoring. On version "Unyielding conviction" we shall totally redo this spaghetti code. We must use some better way to translate the app"
-import 'package:Satsails/providers/settings_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
@@ -2340,7 +2338,7 @@ extension Localization on String {
       }
       +
       {
-        'en': "If a purchase exceeds R\$6000 from the same person, the excess amount will be refunded automatically to the sender\'s bank account.",
+        'en': "If a purchase exceeds R\$6000 from the same person, the excess amount will be refunded automatically to the sender's bank account.",
         'pt': "Se um comprimento for superior a R\$6000 da mesma pessoa, o valor será devolvido automaticamente para o cartão de crédito do recebedor.",
       }
       +

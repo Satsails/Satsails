@@ -14,10 +14,10 @@ class PinProgressIndicator extends StatelessWidget {
   final int totalDigits;
 
   const PinProgressIndicator({
-    Key? key,
+    super.key,
     required this.currentLength,
     required this.totalDigits,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -624,7 +624,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                     child: DropdownButton<String>(
                       value: fromAsset,
                       dropdownColor: const Color(0xFF212121),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      borderRadius: const BorderRadius.all(Radius.circular(12.0)),
                       items: getAssets(ref)
                           .where((asset) => asset != toAsset) // Exclude the currently selected toAsset
                           .map((asset) => DropdownMenuItem(
@@ -656,7 +656,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                       },
                       icon: Padding(
                         padding: EdgeInsets.only(left: 8.0.w),
-                        child: Icon(Icons.arrow_drop_down, color: Colors.white),
+                        child: const Icon(Icons.arrow_drop_down, color: Colors.white),
                       ),
                       isDense: true, // Ensures tight alignment with text
                       style: TextStyle(color: Colors.white, fontSize: 16.sp), // Dropdown text style
@@ -674,7 +674,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
           Row(
             children: [
               SizedBox(width: 16.w),
-              Expanded(
+              const Expanded(
                 child: Divider(
                   color: Colors.grey,
                   thickness: 1,
@@ -722,7 +722,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                     child: DropdownButton<String>(
                       value: toAsset,
                       dropdownColor: const Color(0xFF212121),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      borderRadius: const BorderRadius.all(Radius.circular(12.0)),
                       items: getAvailableSwaps(fromAsset, ref)
                           .where((asset) => asset != fromAsset)
                           .map((asset) => DropdownMenuItem(
@@ -755,7 +755,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                       },
                       icon: Padding(
                         padding: EdgeInsets.only(left: 8.0.w),
-                        child: Icon(Icons.arrow_drop_down, color: Colors.white),
+                        child: const Icon(Icons.arrow_drop_down, color: Colors.white),
                       ),
                       isDense: true, // Ensures tight alignment with text
                       style: TextStyle(color: Colors.white, fontSize: 16.sp), // Dropdown text style
@@ -1167,7 +1167,7 @@ Widget buildSideswapInstantSwap(
                     ? Row(
                   children: [
                     Text(
-                      '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat)}',
+                      btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat),
                       style: TextStyle(fontSize: 20.sp, color: Colors.white),
                     ),
                     SizedBox(width: 2.w),
@@ -1346,7 +1346,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
                       ? Row(
                     children: [
                       Text(
-                        '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat)}',
+                        btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat),
                         style: TextStyle(fontSize: 20.sp, color: Colors.white),
                       ),
                       SizedBox(width: 2.w),
@@ -1540,7 +1540,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
                       ? Row(
                     children: [
                       Text(
-                        '${btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat)}',
+                        btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat),
                         style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                       ),
                       SizedBox(width: 2.w),
@@ -1670,11 +1670,11 @@ Widget buildAdvancedOptionsCard(WidgetRef ref) {
         tilePadding: EdgeInsets.zero,
         childrenPadding: EdgeInsets.only(bottom: 16.h),
         maintainState: true,
-        shape: Border(
+        shape: const Border(
           top: BorderSide(color: Colors.transparent),
           bottom: BorderSide(color: Colors.transparent),
         ),
-        collapsedShape: Border(
+        collapsedShape: const Border(
           top: BorderSide(color: Colors.transparent),
           bottom: BorderSide(color: Colors.transparent),
         ),
@@ -1872,7 +1872,7 @@ List<Widget> _getFeeRows(WidgetRef ref) {
             final fixedFee = value.fixedFee ?? 0;
 
             return [
-              _feeRow('Asset price', '${value.price?.toStringAsFixed(0) ?? "N/A"}', ref),
+              _feeRow('Asset price', value.price?.toStringAsFixed(0) ?? "N/A", ref),
               _feeRow(
                 'Fixed Fee',
                 btcInDenominationFormatted(fixedFee.toDouble(), btcFormat, true),
@@ -1995,20 +1995,20 @@ Widget feeSelection(WidgetRef ref) {
       return pickBitcoinFeeSuggestionsPegOut(ref);
     case SwapType.coinosLnToBTC:
     case SwapType.coinosLnToLBTC:
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     case SwapType.coinosBtcToLn:
       return bitcoinFeeSlider(ref);
     case SwapType.coinosLbtcToLn:
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     case SwapType.sideswapUsdtToLbtc:
     case SwapType.sideswapEuroxToLbtc:
     case SwapType.sideswapDepixToLbtc:
     case SwapType.sideswapLbtcToUsdt:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToDepix:
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     default:
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
   }
 }
 
@@ -2353,6 +2353,6 @@ Widget slideToSend(WidgetRef ref, BuildContext context) {
     case SwapType.sideswapLbtcToDepix:
       return _instantSwapSlideToSend(ref, context);
     default:
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
   }
 }

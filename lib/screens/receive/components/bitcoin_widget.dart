@@ -11,7 +11,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class BitcoinWidget extends ConsumerStatefulWidget {
 
-  const BitcoinWidget({Key? key}) : super(key: key);
+  const BitcoinWidget({super.key});
 
   @override
   _BitcoinWidgetState createState() => _BitcoinWidgetState();
@@ -91,10 +91,10 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
           color: Colors.orange,
         ),
       ),
-      error: (error, stack) => Center(
+      error: (error, stack) => const Center(
         child: Text(
           'Error loading address',
-          style: const TextStyle(color: Colors.red),
+          style: TextStyle(color: Colors.red),
         ),
       ),
     );

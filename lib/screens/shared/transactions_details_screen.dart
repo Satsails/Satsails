@@ -4,7 +4,6 @@ import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:go_router/go_router.dart';
@@ -23,7 +22,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'Transaction Details'.i18n,
-          style: TextStyle(color: Colors.white), // Responsive font size
+          style: const TextStyle(color: Colors.white), // Responsive font size
         ),
         backgroundColor: Colors.black,
         leading: IconButton(

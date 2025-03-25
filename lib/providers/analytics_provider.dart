@@ -318,7 +318,7 @@ final liquidSpentPerDayProvider = StateProvider.autoDispose.family<Map<DateTime,
 
   // Process transactions and accumulate spent values
   for (LiquidTransaction transaction in transactions) {
-    if (transaction.timestamp != 0 && transaction.timestamp != null) {
+    if (transaction.timestamp != 0) {
       final DateTime date = normalizeDate(transaction.timestamp);
       final hasSentAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value < 0);
 
@@ -351,19 +351,16 @@ final liquidBalanceOverPeriod = StateProvider.autoDispose.family<Map<DateTime, n
   transactions.sort((a, b) {
     if (a.timestamp == null && b.timestamp == null) {
       return 0;
-    } else if (a.timestamp == null) {
-      return -1;
-    } else if (b.timestamp == null) {
-      return 1;
     } else {
-      return a.timestamp!.compareTo(b.timestamp!);
+      return a.timestamp.compareTo(b.timestamp);
     }
+
   });
 
   num cumulativeBalance = 0;
 
   for (LiquidTransaction transaction in transactions) {
-    if (transaction.timestamp == 0 || transaction.timestamp == null) {
+    if (transaction.timestamp == 0) {
       continue;
     }
 

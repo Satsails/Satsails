@@ -1,4 +1,3 @@
-import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/custom_keypad.dart';
@@ -49,7 +48,7 @@ class _SeedWordsPinState extends ConsumerState<SeedWordsPin> {
         int remainingAttempts = 6 - _attempts;
         showMessageSnackBar(
           context: context,
-          message: 'Invalid PIN'.i18n + ' $remainingAttempts ' + 'attempts remaining'.i18n,
+          message: '${'Invalid PIN'.i18n} $remainingAttempts ${'attempts remaining'.i18n}',
           error: true,
         );
         setState(() => pin = '');
@@ -199,7 +198,7 @@ class PinProgressIndicator extends StatelessWidget {
   final int currentLength;
   final int totalDigits;
 
-  const PinProgressIndicator({required this.currentLength, required this.totalDigits});
+  const PinProgressIndicator({super.key, required this.currentLength, required this.totalDigits});
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:bdk_flutter/bdk_flutter.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
 
 class BitcoinModel {
@@ -18,17 +16,17 @@ class BitcoinModel {
   }
 
   Future<int> getAddress() async {
-    final address = await config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
+    final address = config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
     return address.index;
   }
 
   Future<String> getCurrentAddress(int index) async {
-    final address = await config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
-    return await address.address.asString();
+    final address = config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
+    return address.address.asString();
   }
 
   Future<AddressInfo> getAddressInfo(int index) async {
-    final address = await config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
+    final address = config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
     return address;
   }
 
@@ -38,17 +36,17 @@ class BitcoinModel {
   }
 
   Future<List<TransactionDetails>> getTransactions() async {
-    final res = await config.wallet.listTransactions(includeRaw: true);
+    final res = config.wallet.listTransactions(includeRaw: true);
     return res;
   }
 
   Future<Balance> getBalance() async {
-    final res = await config.wallet.getBalance();
+    final res = config.wallet.getBalance();
     return res;
   }
 
   Future<List<LocalUtxo>> listUnspend() async {
-    final res = await config.wallet.listUnspent();
+    final res = config.wallet.listUnspent();
     return res;
   }
 
@@ -79,7 +77,7 @@ class BitcoinModel {
     try{
       final txBuilder = TxBuilder();
       final address = await Address.fromString(s: transaction.outAddress, network: config.network);
-      final script = await address.scriptPubkey();
+      final script = address.scriptPubkey();
       final txBuilderResult = await txBuilder
           .addRecipient(script, BigInt.from(transaction.amount))
           .feeRate(transaction.fee)
@@ -99,7 +97,7 @@ class BitcoinModel {
     try{
       final txBuilder = TxBuilder();
       final address = await Address.fromString(s: transaction.outAddress, network: config.network);
-      final script = await address.scriptPubkey();
+      final script = address.scriptPubkey();
 
       final txBuilderResult = await txBuilder.drainWallet().drainTo(script).feeRate(transaction.fee).enableRbf().finish(config.wallet);
       return txBuilderResult;
@@ -118,7 +116,7 @@ class BitcoinModel {
 
   Future<String> broadcastBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) signedPsbt) async {
     try {
-      final tx = await signedPsbt.$1.extractTx();
+      final tx = signedPsbt.$1.extractTx();
       return await config.blockchain!.broadcast(transaction: tx);
     } on GenericException catch (e) {
       throw e.message!;

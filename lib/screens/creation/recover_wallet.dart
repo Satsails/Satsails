@@ -1,4 +1,3 @@
-import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/words_provider.dart';
@@ -114,7 +113,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
 
   Future<void> _recoverAccount(BuildContext context) async {
     final authModel = ref.read(authModelProvider);
-    final mnemonic = 'near angle old frequent only pair banana giggle armed penalty torch boat';
+    const mnemonic = 'near angle old frequent only pair banana giggle armed penalty torch boat';
 
     if (await authModel.validateMnemonic(mnemonic)) {
       await authModel.setMnemonic(mnemonic);
@@ -237,15 +236,15 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
                       });
                     },
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       decoration: BoxDecoration(
-                        color: _totalWords == 12 ? Color(0xFF2B2B2B) : Color(0xFF1A1A1A),
+                        color: _totalWords == 12 ? const Color(0xFF2B2B2B) : const Color(0xFF1A1A1A),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      child: Text("12 words".i18n, style: TextStyle(color: Colors.white)),
+                      child: Text("12 words".i18n, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                   GestureDetector(
                     onTap: () {
                       setState(() {
@@ -253,20 +252,20 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
                       });
                     },
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       decoration: BoxDecoration(
-                        color: _totalWords == 24 ? Color(0xFF2B2B2B) : Color(0xFF1A1A1A),
+                        color: _totalWords == 24 ? const Color(0xFF2B2B2B) : const Color(0xFF1A1A1A),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      child: Text("24 words".i18n, style: TextStyle(color: Colors.white)),
+                      child: Text("24 words".i18n, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: screenHeight * 0.02),
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                padding: EdgeInsets.all(10),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(8.0),
@@ -274,7 +273,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
                 child: Text(
                   "Enter your key. Carefully enter your seed words below to recover your Bitcoin account.".i18n,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ),
               SizedBox(height: screenHeight * 0.02),
@@ -302,7 +301,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
                             keyboardType: TextInputType.visiblePassword,
                             decoration: InputDecoration(
                               filled: true,
-                              fillColor: Color(0xFF212121),
+                              fillColor: const Color(0xFF212121),
                               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                               labelText: '',
                               border: OutlineInputBorder(

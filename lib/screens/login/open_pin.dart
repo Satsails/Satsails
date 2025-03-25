@@ -56,7 +56,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
         int remainingAttempts = 6 - _attempts;
         showMessageSnackBar(
           context: context,
-          message: 'Invalid PIN'.i18n + ' $remainingAttempts ' + 'attempts remaining'.i18n,
+          message: '${'Invalid PIN'.i18n} $remainingAttempts ${'attempts remaining'.i18n}',
           error: true,
         );
         setState(() => pin = '');
@@ -215,7 +215,7 @@ class PinProgressIndicator extends StatelessWidget {
   final int currentLength;
   final int totalDigits;
 
-  const PinProgressIndicator({required this.currentLength, required this.totalDigits});
+  const PinProgressIndicator({super.key, required this.currentLength, required this.totalDigits});
 
   @override
   Widget build(BuildContext context) {

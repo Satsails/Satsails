@@ -62,13 +62,13 @@ Future<String> checkForValidLnurl(String invoice) async {
   try {
     final wellKnownUrl = convertLnAddressToWellKnown(invoice);
     if (wellKnownUrl == null) {
-      throw FormatException('Invalid lightning address format');
+      throw const FormatException('Invalid lightning address format');
     }
 
     final callback = await lnUrlHasWellKnown(wellKnownUrl);
 
     if (callback == null) {
-      throw FormatException('Callback URL is missing in LNURL response');
+      throw const FormatException('Callback URL is missing in LNURL response');
     }
 
     return callback;
@@ -82,10 +82,8 @@ Future<String> getLnInvoiceWithAmount(String invoice, int amount) async {
     if (convertLnAddressToWellKnown(invoice) == null) {
       final decodedInvoice = Bolt11PaymentRequest(invoice);
 
-      if (decodedInvoice.amount != null) {
-        return invoice;
-      }
-    }
+      return invoice;
+        }
 
     final amountInMsats = amount * 1000;
 
@@ -142,7 +140,7 @@ Future<AddressAndAmount> parseAddressAndAmount(String data, bool lnEnabled) asyn
   if (lnEnabled) {
     if ((await isValidBitcoinAddress(address).then((value) => !value)) &&
         (await isValidLiquidAddress(address).then((value) => !value)) &&
-        (await isValidLightningAddress(lightningInvoice) == null)) {
+        (isValidLightningAddress(lightningInvoice) == null)) {
       throw const FormatException('Invalid address');
     }
   } else {

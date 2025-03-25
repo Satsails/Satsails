@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
-import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -63,7 +62,7 @@ class Explore extends ConsumerWidget {
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 19.w),
-                      child: _ActionCards(),
+                      child: const _ActionCards(),
                     ),
                     SizedBox(height: 16.h),
                   ],
@@ -236,7 +235,7 @@ class _BalanceDisplay extends ConsumerWidget {
 }
 
 class _ActionCards extends ConsumerWidget {
-  const _ActionCards({Key? key}) : super(key: key);
+  const _ActionCards();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -329,7 +328,7 @@ class _ActionCards extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.lightbulb, color: Colors.white, size: 20),
+                          const Icon(Icons.lightbulb, color: Colors.white, size: 20),
                           SizedBox(width: 8.w),
                           Text(
                             'Services'.i18n,
@@ -370,7 +369,7 @@ class _ActionCards extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.shopping_cart, color: Colors.white, size: 20),
+                          const Icon(Icons.shopping_cart, color: Colors.white, size: 20),
                           SizedBox(width: 8.w),
                           Text(
                             'Store'.i18n,

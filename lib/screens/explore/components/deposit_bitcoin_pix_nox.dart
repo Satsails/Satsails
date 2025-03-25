@@ -1,4 +1,3 @@
-import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +9,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class DepositBitcoinPixNox extends ConsumerStatefulWidget {
-  const DepositBitcoinPixNox({Key? key}) : super(key: key);
+  const DepositBitcoinPixNox({super.key});
 
   @override
   _DepositBitcoinPixNoxState createState() => _DepositBitcoinPixNoxState();
@@ -30,7 +29,7 @@ class _DepositBitcoinPixNoxState extends ConsumerState<DepositBitcoinPixNox> {
     final amount = _amountController.text;
     // Retrieve the URL from your provider.
     final url = await ref.read(createNoxTransferRequestProvider(amount).future);
-    if (url != null && url.isNotEmpty) {
+    if (url.isNotEmpty) {
       // Open the URL in a full-screen web view.
       Navigator.push(
         context,
@@ -85,7 +84,7 @@ class _DepositBitcoinPixNoxState extends ConsumerState<DepositBitcoinPixNox> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: Colors.transparent, width: 2.0),
+                      borderSide: const BorderSide(color: Colors.transparent, width: 2.0),
                     ),
                     labelText: 'Insert amount'.i18n,
                     labelStyle: TextStyle(
@@ -116,7 +115,7 @@ class _DepositBitcoinPixNoxState extends ConsumerState<DepositBitcoinPixNox> {
 
 class DepositWebViewPage extends StatefulWidget {
   final String url;
-  const DepositWebViewPage({Key? key, required this.url}) : super(key: key);
+  const DepositWebViewPage({super.key, required this.url});
 
   @override
   _DepositWebViewPageState createState() => _DepositWebViewPageState();
@@ -162,7 +161,7 @@ class _DepositWebViewPageState extends State<DepositWebViewPage> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Deposit'.i18n, style: TextStyle(color: Colors.white)),
+        title: Text('Deposit'.i18n, style: const TextStyle(color: Colors.white)),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),

@@ -71,12 +71,11 @@ class _SellOption extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _SellOption({
-    Key? key,
     required this.title,
     required this.subtitle,
     required this.isAvailable,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

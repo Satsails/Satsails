@@ -52,12 +52,12 @@ void showFullscreenTransactionSendModal({
 class ReceiveTransactionOverlay extends ConsumerStatefulWidget {
 
   const ReceiveTransactionOverlay({
-    Key? key,
+    super.key,
     required this.amount,
     this.fiat = false,
     this.fiatAmount,
     this.asset,
-  }) : super(key: key);
+  });
 
   final String amount;
   final bool fiat;
@@ -233,7 +233,7 @@ class PaymentTransactionOverlay extends ConsumerStatefulWidget {
   final int? confirmationBlocks;
 
   const PaymentTransactionOverlay({
-    Key? key,
+    super.key,
     required this.amount,
     required this.receiveAddress,
     this.fiat = false,
@@ -242,7 +242,7 @@ class PaymentTransactionOverlay extends ConsumerStatefulWidget {
     this.txid,
     this.isLiquid = false,
     this.confirmationBlocks,
-  }) : super(key: key);
+  });
 
   @override
   _PaymentTransactionOverlayState createState() =>

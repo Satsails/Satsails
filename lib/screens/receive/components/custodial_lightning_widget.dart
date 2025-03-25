@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
-import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,7 +17,7 @@ final showRegistrationProvider = StateProvider<bool>((ref) => false);
 
 
 class CustodialLightningWidget extends ConsumerStatefulWidget {
-  const CustodialLightningWidget({Key? key}) : super(key: key);
+  const CustodialLightningWidget({super.key});
 
   @override
   _CustodialLightningWidgetState createState() => _CustodialLightningWidgetState();
@@ -125,7 +124,7 @@ class _CustodialLightningWidgetState extends ConsumerState<CustodialLightningWid
               ),
               child: Text(
                 'Visit Coinos'.i18n,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.black87,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -281,7 +280,7 @@ Widget _showRegistration(WidgetRef ref, BuildContext context) {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20.0),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             blurRadius: 10.0,

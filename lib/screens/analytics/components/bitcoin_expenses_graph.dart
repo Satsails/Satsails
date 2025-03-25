@@ -62,7 +62,7 @@ class LineChartSample extends StatelessWidget {
       ),
       child: LineChart(
         LineChartData(
-          clipData: FlClipData.all(), // Ensures lines do not exit the chart area
+          clipData: const FlClipData.all(), // Ensures lines do not exit the chart area
           backgroundColor: Colors.transparent,
           lineTouchData: LineTouchData(
             enabled: true,
@@ -84,7 +84,7 @@ class LineChartSample extends StatelessWidget {
 
                   // Display format for main data and other data
                   final displayString = '$formattedDate\n $bitcoinValue\n$selectedCurrency: $currencyValue';
-                  final displayStringIfNotMainData = '$bitcoinValue';
+                  final displayStringIfNotMainData = bitcoinValue;
 
                   return LineTooltipItem(
                     isShowingMainData ? displayString : displayStringIfNotMainData,
@@ -105,7 +105,7 @@ class LineChartSample extends StatelessWidget {
               },
             ),
           ),
-            gridData: FlGridData(
+            gridData: const FlGridData(
             show: false,
           ),
           titlesData: FlTitlesData(
@@ -123,10 +123,10 @@ class LineChartSample extends StatelessWidget {
                 reservedSize: 70,
               ),
             ),
-            topTitles: AxisTitles(
+            topTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
-            rightTitles: AxisTitles(
+            rightTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
           ),
@@ -143,7 +143,7 @@ class LineChartSample extends StatelessWidget {
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
-                dotData: FlDotData(show: false),
+                dotData: const FlDotData(show: false),
                 belowBarData: BarAreaData(
                   show: true,
                   gradient: LinearGradient(
@@ -162,7 +162,7 @@ class LineChartSample extends StatelessWidget {
                 isCurved: false,
                 color: Colors.blueAccent,
                 barWidth: 3,
-                dotData: FlDotData(show: false),
+                dotData: const FlDotData(show: false),
                 belowBarData: BarAreaData(
                   show: true,
                   gradient: LinearGradient(
@@ -181,7 +181,7 @@ class LineChartSample extends StatelessWidget {
                 isCurved: false,
                 color: Colors.greenAccent,
                 barWidth: 3,
-                dotData: FlDotData(show: false),
+                dotData: const FlDotData(show: false),
                 belowBarData: BarAreaData(
                   show: true,
                   gradient: LinearGradient(
@@ -200,7 +200,7 @@ class LineChartSample extends StatelessWidget {
                 isCurved: false,
                 color: Colors.orangeAccent,
                 barWidth: 3,
-                dotData: FlDotData(show: false),
+                dotData: const FlDotData(show: false),
                 belowBarData: BarAreaData(
                   show: true,
                   gradient: LinearGradient(

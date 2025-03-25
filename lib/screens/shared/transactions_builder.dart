@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
@@ -36,9 +35,9 @@ class TransactionListByWeek extends ConsumerWidget {
   final List<BaseTransaction> transactions; // Required parameter
 
   const TransactionListByWeek({
-    Key? key,
+    super.key,
     required this.transactions, // Marked as required
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -128,10 +127,10 @@ class TransactionList extends ConsumerWidget {
   final dynamic transactions; // New parameter for custom transactions
 
   const TransactionList({
-    Key? key,
+    super.key,
     this.showAll = false,
     this.transactions, // Optional parameter, defaults to null
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -184,7 +183,7 @@ class TransactionList extends ConsumerWidget {
         Expanded(
           child: Card(
             color: const Color(0xFF212121),
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
             child: Column(
@@ -653,7 +652,7 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            "${value} ${asset.name}",
+                            "$value ${asset.name}",
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.bold,

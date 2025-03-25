@@ -52,9 +52,9 @@ Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
   final sideswapInstantSwapTransactions = sideswapInstantSwapTxs.map((instantSwapTx) {
     return SideswapInstantSwapTransaction(
       id: instantSwapTx.orderId,
-      timestamp: DateTime.fromMillisecondsSinceEpoch(instantSwapTx.timestamp!),
+      timestamp: DateTime.fromMillisecondsSinceEpoch(instantSwapTx.timestamp),
       sideswapInstantSwapDetails: instantSwapTx,
-      isConfirmed: instantSwapTx.txid != null && instantSwapTx.txid!.isNotEmpty,
+      isConfirmed: instantSwapTx.txid.isNotEmpty,
     );
   }).toList();
   //

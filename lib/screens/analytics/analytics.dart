@@ -30,14 +30,14 @@ class Analytics extends ConsumerWidget {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: 16),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: Colors.grey[900],
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.5),
-                  offset: Offset(0, 4),
+                  offset: const Offset(0, 4),
                   blurRadius: 8,
                 ),
               ],
@@ -47,7 +47,7 @@ class Analytics extends ConsumerWidget {
               isExpanded: true,
               dropdownColor: Colors.grey[900],
               icon: Icon(Icons.arrow_drop_down, color: Colors.orange, size: screenWidth * 0.08),
-              underline: SizedBox(),
+              underline: const SizedBox(),
               style: TextStyle(color: Colors.orange, fontSize: screenWidth * 0.05, fontWeight: FontWeight.w500),
               onChanged: (String? newValue) {
                 if (newValue != null) {

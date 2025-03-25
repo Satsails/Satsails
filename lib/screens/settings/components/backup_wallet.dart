@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BackupWallet extends ConsumerStatefulWidget {
-  const BackupWallet({Key? key}) : super(key: key);
+  const BackupWallet({super.key});
 
   @override
   _BackupWalletState createState() => _BackupWalletState();

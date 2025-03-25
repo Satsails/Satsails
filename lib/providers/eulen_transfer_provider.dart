@@ -20,7 +20,7 @@ final singleEulenTransfersDetailsProvider = StateProvider.autoDispose<EulenTrans
 
 
 final getUserPurchasesProvider = FutureProvider.autoDispose<List<EulenTransfer>>((ref) async {
-  final auth = ref.read(userProvider).jwt!;
+  final auth = ref.read(userProvider).jwt;
   final transactions = await EulenService.getTransfers(auth);
 
   if (transactions.isSuccess && transactions.data != null) {
@@ -32,7 +32,7 @@ final getUserPurchasesProvider = FutureProvider.autoDispose<List<EulenTransfer>>
 });
 
 final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) async {
-  final auth = ref.read(userProvider).jwt!;
+  final auth = ref.read(userProvider).jwt;
   final amountTransferred = await EulenService.getAmountTransferred(auth);
 
   if (amountTransferred.isSuccess && amountTransferred.data != null) {
@@ -43,7 +43,7 @@ final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) asyn
 });
 
 final getRegisteredTaxIdProvider = FutureProvider.autoDispose<String>((ref) async {
-  final auth = ref.read(userProvider).jwt!;
+  final auth = ref.read(userProvider).jwt;
   final amountTransferred = await EulenService.getRegisteredTaxId(auth);
 
   if (amountTransferred.isSuccess && amountTransferred.data != null) {
@@ -54,7 +54,7 @@ final getRegisteredTaxIdProvider = FutureProvider.autoDispose<String>((ref) asyn
 });
 
 final createEulenTransferRequestProvider = FutureProvider.autoDispose.family<EulenTransfer, int>((ref, amount) async {
-  final auth = ref.read(userProvider).jwt!;
+  final auth = ref.read(userProvider).jwt;
   final liquidAddress = await ref.read(liquidAddressProvider.future);
   final result = await EulenService.createTransaction(auth, amount, liquidAddress.confidential);
   if (result.isSuccess && result.data != null) {
@@ -66,7 +66,7 @@ final createEulenTransferRequestProvider = FutureProvider.autoDispose.family<Eul
 });
 
 final getEulenPixPaymentStateProvider = FutureProvider.autoDispose.family<bool, String>((ref, transactionId) async {
-  final auth = ref.read(userProvider).jwt!;
+  final auth = ref.read(userProvider).jwt;
   final paymentState = await EulenService.getTransactionPaymentState(transactionId, auth);
 
   if (paymentState.isSuccess && paymentState.data != null) {

@@ -1,4 +1,3 @@
-import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/screens/explore/components/deposit_bitcoin_pix_nox.dart';
 import 'package:Satsails/screens/explore/components/deposit_method.dart';
@@ -147,7 +146,7 @@ class AppRouter {
           path: '/open_pin',
           name: 'open_pin',
           pageBuilder: (context, state) => _buildFadeScalePage(
-            child: OpenPin(),
+            child: const OpenPin(),
             state: state,
           ),
         ),
@@ -155,7 +154,7 @@ class AppRouter {
           path: '/open_seed_words_pin',
           name: 'open_seed_words_pin',
           pageBuilder: (context, state) => _buildFadeScalePage(
-            child: SeedWordsPin(),
+            child: const SeedWordsPin(),
             state: state,
           ),
         ),
@@ -211,28 +210,28 @@ class AppRouter {
             GoRoute(
               path: '/pay',
               pageBuilder: (context, state) => _buildFadeScalePage(
-                child: Pay(),
+                child: const Pay(),
                 state: state,
               ),
               routes: [
                 GoRoute(
                   path: '/confirm_bitcoin_payment',
                   pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: ConfirmBitcoinPayment(),
+                    child: const ConfirmBitcoinPayment(),
                     state: state,
                   ),
                 ),
                 GoRoute(
                   path: '/confirm_liquid_payment',
                   pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: ConfirmLiquidPayment(),
+                    child: const ConfirmLiquidPayment(),
                     state: state,
                   ),
                 ),
                 GoRoute(
                   path: '/confirm_custodial_lightning_payment',
                   pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: ConfirmCustodialLightningPayment(),
+                    child: const ConfirmCustodialLightningPayment(),
                     state: state,
                   ),
                 ),
@@ -241,14 +240,14 @@ class AppRouter {
             GoRoute(
               path: '/deposit_type',
               pageBuilder: (context, state) => _buildFadeScalePage(
-                child: DepositType(),
+                child: const DepositType(),
                 state: state,
               ),
             ),
             GoRoute(
               path: '/receive',
               pageBuilder: (context, state) => _buildFadeScalePage(
-                child: Receive(),
+                child: const Receive(),
                 state: state,
               ),
             ),
@@ -262,42 +261,42 @@ class AppRouter {
                 GoRoute(
                   path: '/sell_type',
                   pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: SellType(),
+                    child: const SellType(),
                     state: state,
                   ),
                 ),
                 GoRoute(
                   path: 'deposit_type',
                   pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: DepositType(),
+                    child: const DepositType(),
                     state: state,
                   ),
                   routes: [
                     GoRoute(
                       path: 'deposit_method',
                       pageBuilder: (context, state) => _buildFadeScalePage(
-                        child: DepositMethod(),
+                        child: const DepositMethod(),
                         state: state,
                       ),
                       routes: [
                         GoRoute(
                           path: 'deposit_provider',
                           pageBuilder: (context, state) => _buildFadeScalePage(
-                            child: DepositProvider(),
+                            child: const DepositProvider(),
                             state: state,
                           ),
                           routes: [
                             GoRoute(
                               path: 'deposit_pix_eulen',
                               pageBuilder: (context, state) => _buildFadeScalePage(
-                                child: DepositDepixPixEulen(),
+                                child: const DepositDepixPixEulen(),
                                 state: state,
                               ),
                             ),
                             GoRoute(
                               path: 'deposit_pix_nox',
                               pageBuilder: (context, state) => _buildFadeScalePage(
-                                child: DepositBitcoinPixNox(),
+                                child: const DepositBitcoinPixNox(),
                                 state: state,
                               ),
                             ),
@@ -312,7 +311,7 @@ class AppRouter {
             GoRoute(
               path: '/exchange',
               pageBuilder: (context, state) => _buildFadeScalePage(
-                child: Exchange(),
+                child: const Exchange(),
                 state: state,
               ),
             ),

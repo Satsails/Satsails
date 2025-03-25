@@ -72,12 +72,11 @@ class _DepositOption extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _DepositOption({
-    Key? key,
     required this.title,
     required this.subtitle,
     required this.isAvailable,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -89,7 +89,7 @@ class LiquidExpensesGraph extends StatelessWidget {
       ),
       child: LineChart(
         LineChartData(
-          clipData: FlClipData.all(), // Ensures lines do not exit the chart area
+          clipData: const FlClipData.all(), // Ensures lines do not exit the chart area
           backgroundColor: Colors.transparent,
           minX: selectedDays.isNotEmpty
               ? selectedDays.first.millisecondsSinceEpoch.toDouble()
@@ -126,9 +126,9 @@ class LiquidExpensesGraph extends StatelessWidget {
                   if (isBtc && isShowingMainData) {
                     displayString = '$formattedDate\n $valueString\n$selectedCurrency: $currencyValue';
                   } else if (isBtc) {
-                    displayString = '$valueString';
+                    displayString = valueString;
                   } else {
-                    displayString = '$valueString';
+                    displayString = valueString;
                   }
 
                   return LineTooltipItem(
@@ -150,7 +150,7 @@ class LiquidExpensesGraph extends StatelessWidget {
               },
             ),
           ),
-            gridData: FlGridData(
+            gridData: const FlGridData(
             show: false,
           ),
           titlesData: FlTitlesData(
@@ -168,10 +168,10 @@ class LiquidExpensesGraph extends StatelessWidget {
                 reservedSize: 70,
               ),
             ),
-            topTitles: AxisTitles(
+            topTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
-            rightTitles: AxisTitles(
+            rightTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
           ),
@@ -206,7 +206,7 @@ class LiquidExpensesGraph extends StatelessWidget {
           end: Alignment.centerRight,
         ),
         barWidth: 3,
-        dotData: FlDotData(show: false),
+        dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(
           show: true,
           gradient: LinearGradient(
@@ -226,7 +226,7 @@ class LiquidExpensesGraph extends StatelessWidget {
           isCurved: false,
           color: Colors.blueAccent,
           barWidth: 3,
-          dotData: FlDotData(show: false),
+          dotData: const FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(
@@ -246,7 +246,7 @@ class LiquidExpensesGraph extends StatelessWidget {
           isCurved: false,
           color: Colors.greenAccent,
           barWidth: 3,
-          dotData: FlDotData(show: false),
+          dotData: const FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(
@@ -266,7 +266,7 @@ class LiquidExpensesGraph extends StatelessWidget {
           isCurved: false,
           color: Colors.orangeAccent,
           barWidth: 3,
-          dotData: FlDotData(show: false),
+          dotData: const FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(

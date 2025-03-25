@@ -12,7 +12,7 @@ import 'package:lwk/lwk.dart';
 
 class LiquidWidget extends ConsumerStatefulWidget {
 
-  const LiquidWidget({Key? key}) : super(key: key);
+  const LiquidWidget({super.key});
 
   @override
   _LiquidWidgetState createState() => _LiquidWidgetState();
@@ -98,10 +98,10 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
           color: Colors.orange,
         ),
       ),
-      error: (error, stack) => Center(
+      error: (error, stack) => const Center(
         child: Text(
           'Error loading address',
-          style: const TextStyle(color: Colors.red),
+          style: TextStyle(color: Colors.red),
         ),
       ),
     );

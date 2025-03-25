@@ -19,7 +19,7 @@ final singleNoxTransfersDetailsProvider = StateProvider.autoDispose<NoxTransfer>
 
 
 final getUserPurchasesProvider = FutureProvider.autoDispose<List<NoxTransfer>>((ref) async {
-  final auth = ref.read(userProvider).jwt!;
+  final auth = ref.read(userProvider).jwt;
   final transactions = await NoxService.getTransfers(auth);
 
   if (transactions.isSuccess && transactions.data != null) {
@@ -32,7 +32,7 @@ final getUserPurchasesProvider = FutureProvider.autoDispose<List<NoxTransfer>>((
 
 
 final createNoxTransferRequestProvider = FutureProvider.autoDispose.family<String, String>((ref, amount) async {
-  final auth = ref.read(userProvider).jwt!;
+  final auth = ref.read(userProvider).jwt;
   final bitcoinAddress = await ref.read(bitcoinAddressProvider.future);
   final transactionId = await ref.read(getNoxUrlRequestProvider(amount).future);
   final result = await NoxService.createTransaction(auth, transactionId, bitcoinAddress);
@@ -44,7 +44,7 @@ final createNoxTransferRequestProvider = FutureProvider.autoDispose.family<Strin
 });
 
 final getNoxUrlRequestProvider = FutureProvider.autoDispose.family<String, String>((ref, amount) async {
-  final auth = ref.read(userProvider).jwt!;
+  final auth = ref.read(userProvider).jwt;
   final result = await NoxService.getQuote(auth, 'BRL', 'BTC', amount);
   if (result.isSuccess && result.data != null) {
     return result.data!.transactionId;

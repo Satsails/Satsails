@@ -16,7 +16,7 @@ import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 
 class DepositDepixPixEulen extends ConsumerStatefulWidget {
-  const DepositDepixPixEulen({Key? key}) : super(key: key);
+  const DepositDepixPixEulen({super.key});
 
   @override
   _DepositPixState createState() => _DepositPixState();
@@ -218,7 +218,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(
+                          borderSide: const BorderSide(
                               color: Colors.transparent, width: 2.0),
                         ),
                         labelText: 'Insert amount'.i18n,
@@ -457,9 +457,8 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
-                                      'Amount Purchased Today:'
-                                          .i18n +
-                                          ' R\$ $amountPurchasedToday',
+                                      '${'Amount Purchased Today:'
+                                          .i18n} R\$ $amountPurchasedToday',
                                       style: TextStyle(
                                         fontSize: 16.sp,
                                         color: Colors.grey,

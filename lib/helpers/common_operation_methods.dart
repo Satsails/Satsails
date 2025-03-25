@@ -29,11 +29,11 @@ String transactionTypeString(bdk.TransactionDetails transaction, WidgetRef ref) 
 
 Widget transactionTypeIcon(bdk.TransactionDetails transaction) {
   // Helper function to create a circular icon with a dark gray background
-  Widget _circularIcon(IconData icon, Color color) {
+  Widget circularIcon(IconData icon, Color color) {
     return Container(
       width: 40,
       height: 40,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         shape: BoxShape.circle,
         color: Color(0xFF333333), // Dark gray background
       ),
@@ -49,9 +49,9 @@ Widget transactionTypeIcon(bdk.TransactionDetails transaction) {
 
   // Determine if the transaction is a send or receive
   if (transaction.sent.toInt() - transaction.received.toInt() > 0) {
-    return _circularIcon(Icons.arrow_upward, Colors.red); // Send
+    return circularIcon(Icons.arrow_upward, Colors.red); // Send
   } else {
-    return _circularIcon(Icons.arrow_downward, Colors.green); // Receive
+    return circularIcon(Icons.arrow_downward, Colors.green); // Receive
   }
 }
 
@@ -82,7 +82,7 @@ String transactionAmount(bdk.TransactionDetails transaction, WidgetRef ref) {
 }
 
 Widget pegTransactionTypeIcon() {
-  Widget _circularIcon(IconData icon, Color color) {
+  Widget circularIcon(IconData icon, Color color) {
     return Container(
       width: 40,  // Responsive width
       height: 40, // Responsive height, same as width for a circle
@@ -99,11 +99,11 @@ Widget pegTransactionTypeIcon() {
       ),
     );
   }
-  return _circularIcon(Icons.swap_horiz_outlined, Colors.orange); // Peg Out: outgoing
+  return circularIcon(Icons.swap_horiz_outlined, Colors.orange); // Peg Out: outgoing
 }
 
 Widget eulenTransactionTypeIcon() {
-  Widget _circularIcon(IconData icon, Color color) {
+  Widget circularIcon(IconData icon, Color color) {
     return Container(
       width: 40,  // Responsive width
       height: 40, // Responsive height, same as width for a circle
@@ -120,16 +120,16 @@ Widget eulenTransactionTypeIcon() {
       ),
     );
   }
-  return _circularIcon(Icons.pix, Colors.green); // Peg Out: outgoing
+  return circularIcon(Icons.pix, Colors.green); // Peg Out: outgoing
 }
 
 Widget transactionTypeLiquidIcon(String kind) {
   // Helper function to create a circular icon with a dark gray background
-  Widget _circularIcon(IconData icon, Color color) {
+  Widget circularIcon(IconData icon, Color color) {
     return Container(
       width: 40,
       height: 40,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         shape: BoxShape.circle,
         color: Color(0xFF333333), // Dark gray background as per image
       ),
@@ -146,19 +146,19 @@ Widget transactionTypeLiquidIcon(String kind) {
   // Switch case to map transaction types to their icons
   switch (kind) {
     case 'incoming':
-      return _circularIcon(Icons.arrow_downward, Colors.green);
+      return circularIcon(Icons.arrow_downward, Colors.green);
     case 'outgoing':
-      return _circularIcon(Icons.arrow_upward, Colors.red);
+      return circularIcon(Icons.arrow_upward, Colors.red);
     case 'burn':
-      return _circularIcon(Icons.local_fire_department, Colors.redAccent);
+      return circularIcon(Icons.local_fire_department, Colors.redAccent);
     case 'redeposit':
-      return _circularIcon(Icons.subdirectory_arrow_left, Colors.green);
+      return circularIcon(Icons.subdirectory_arrow_left, Colors.green);
     case 'issuance':
-      return _circularIcon(Icons.add_circle, Colors.greenAccent);
+      return circularIcon(Icons.add_circle, Colors.greenAccent);
     case 'reissuance':
-      return _circularIcon(Icons.add_circle, Colors.green);
+      return circularIcon(Icons.add_circle, Colors.green);
     default:
-      return _circularIcon(Icons.swap_horiz_outlined, Colors.orange);
+      return circularIcon(Icons.swap_horiz_outlined, Colors.orange);
   }
 }
 

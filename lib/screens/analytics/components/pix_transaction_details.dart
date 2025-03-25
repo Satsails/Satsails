@@ -1,4 +1,3 @@
-import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
@@ -26,7 +25,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
       appBar: AppBar(
         title: Text(
           'Transaction Details'.i18n,
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(

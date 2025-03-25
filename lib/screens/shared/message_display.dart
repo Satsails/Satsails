@@ -11,9 +11,9 @@ class MessageDisplay extends ConsumerWidget {
   final String message;
 
   const MessageDisplay({
-    Key? key,
+    super.key,
     required this.message,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -57,7 +57,7 @@ void showMessageSnackBarInfo({
     snackbarDuration: const Duration(seconds: 3),
     builder: (context) => ToastCard(
       color: Colors.grey.shade900,
-      leading: Icon(
+      leading: const Icon(
         Icons.info,
         size: 28,
         color: Colors.orange,

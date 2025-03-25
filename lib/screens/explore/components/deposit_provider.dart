@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:Satsails/providers/deposit_type_provider.dart' as helpers;
 
 class DepositProvider extends ConsumerWidget {
-  const DepositProvider({Key? key}) : super(key: key);
+  const DepositProvider({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,15 +15,15 @@ class DepositProvider extends ConsumerWidget {
     ref.watch(helpers.depositProviderBasedOnMethodProvider);
 
     final List<_DepositProviderOption> allProviders = [
-      _DepositProviderOption(
+      const _DepositProviderOption(
         title: "Eulen",
         provider: helpers.DepositProvider.Eulen,
       ),
-      _DepositProviderOption(
+      const _DepositProviderOption(
         title: "NoxPay",
         provider: helpers.DepositProvider.NoxPay,
       ),
-      _DepositProviderOption(
+      const _DepositProviderOption(
         title: "Chimera",
         provider: helpers.DepositProvider.Chimera,
       ),
@@ -75,10 +75,9 @@ class _DepositProviderOption extends ConsumerStatefulWidget {
   final helpers.DepositProvider provider;
 
   const _DepositProviderOption({
-    Key? key,
     required this.title,
     required this.provider,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<_DepositProviderOption> createState() =>
@@ -183,7 +182,7 @@ class _DepositProviderOptionState extends ConsumerState<_DepositProviderOption> 
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Header with provider logo, title (if applicable), and arrow on the right.
-                Container(
+                SizedBox(
                   height: 60.h,
                   child: Stack(
                     children: [

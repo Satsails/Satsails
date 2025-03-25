@@ -132,7 +132,7 @@ class _StartState extends ConsumerState<Start> with SingleTickerProviderStateMix
                           Shadow(
                             color: Colors.black.withOpacity(0.5),
                             blurRadius: 5,
-                            offset: Offset(2, 2),
+                            offset: const Offset(2, 2),
                           ),
                         ],
                       ),
@@ -147,7 +147,7 @@ class _StartState extends ConsumerState<Start> with SingleTickerProviderStateMix
                           Shadow(
                             color: Colors.black.withOpacity(0.5),
                             blurRadius: 3,
-                            offset: Offset(1, 1),
+                            offset: const Offset(1, 1),
                           ),
                         ],
                       ),
