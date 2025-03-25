@@ -113,103 +113,104 @@ class _BalanceScreenState extends State<BalanceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.sp),
-      child: PageView.builder(
-        itemCount: _assets.length,
-        controller: _controller,
-        clipBehavior: Clip.none,
-        padEnds: false,
-        onPageChanged: (int page) {
-          setState(() {
-            currentPage = page;
-          });
-          _updateController(page);
-        },
-        itemBuilder: (context, index) {
-          // Define the dropdown widget based on the asset
-          Widget dropdown;
-          if (_assets[index]['name'] == 'Bitcoin') {
-            dropdown = DropdownButton<String>(
-              value: _selectedFilters[index],
-              items: [
-                'Bitcoin network',
-                'Liquid network',
-                'Lightning network',
-              ].map((network) {
-                return DropdownMenuItem<String>(
-                  value: network,
-                  child: _buildNetworkRow(network),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  setState(() {
-                    _selectedFilters[index] = newValue;
-                  });
-                }
-              },
-              dropdownColor: const Color(0xFF212121),
-              style: TextStyle(color: Colors.white, fontSize: 14.sp),
-              borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-              icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
-              underline: const SizedBox(),
-            );
-          } else {
-            dropdown = DropdownButton<String>(
-              value: _selectedFilters[index],
-              items: [
-                DropdownMenuItem<String>(
-                  value: 'Liquid network',
-                  child: _buildNetworkRow('Liquid network'),
-                ),
-              ],
-              onChanged: null, // Disable interaction
-              dropdownColor: const Color(0xFF212121),
-              style: TextStyle(color: Colors.white, fontSize: 14.sp),
-              borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-              icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
-              underline: const SizedBox(),
-            );
-          }
+    return PageView.builder(
+      itemCount: _assets.length,
+      controller: _controller,
+      clipBehavior: Clip.none,
+      padEnds: false,
+      onPageChanged: (int page) {
+        setState(() {
+          currentPage = page;
+        });
+        _updateController(page);
+      },
+      itemBuilder: (context, index) {
+        // Define the dropdown widget based on the asset
+        Widget dropdown;
+        if (_assets[index]['name'] == 'Bitcoin') {
+          dropdown = DropdownButton<String>(
+            value: _selectedFilters[index],
+            items: [
+              'Bitcoin network',
+              'Liquid network',
+              'Lightning network',
+            ].map((network) {
+              return DropdownMenuItem<String>(
+                value: network,
+                child: _buildNetworkRow(network),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                setState(() {
+                  _selectedFilters[index] = newValue;
+                });
+              }
+            },
+            dropdownColor: const Color(0xFF212121),
+            style: TextStyle(color: Colors.white, fontSize: 14.sp),
+            padding: EdgeInsets.zero,
+            borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+            icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
+            underline: const SizedBox(),
+          );
+        } else {
+          dropdown = DropdownButton<String>(
+            value: _selectedFilters[index],
+            items: [
+              DropdownMenuItem<String>(
+                value: 'Liquid network',
+                child: _buildNetworkRow('Liquid network'),
+              ),
+            ],
+            onChanged: null, // Disable interaction
+            padding: EdgeInsets.zero,
+            dropdownColor: const Color(0xFF212121),
+            style: TextStyle(color: Colors.white, fontSize: 14.sp),
+            borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+            icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
+            underline: const SizedBox(),
+          );
+        }
 
-          return Padding(
-            padding: EdgeInsets.only(left: 16.sp),
-            child: Container(
-              height: 200.sp,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Theme(
-                        data: Theme.of(context).copyWith(
-                          popupMenuTheme: const PopupMenuThemeData(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(0)),
-                            ),
+        return Padding(
+          padding: EdgeInsets.only(left: 16.sp),
+          child: Container(
+            height: 200.sp,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Theme(
+                      data: Theme.of(context).copyWith(
+                        popupMenuTheme: const PopupMenuThemeData(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(0)),
                           ),
                         ),
-                        child: dropdown,
                       ),
-                    ],
-                  ),
-                  const Spacer(),
-                  SizedBox(
-                    height: 0.25.sh,
+                      child: dropdown,
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 0.22.sh,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 10.sp),
                     child: BalanceCard(
                       assetName: _assets[index]['name'] as String,
                       color: _assets[index]['color'] as Color,
                       networkFilter: _selectedFilters[index],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

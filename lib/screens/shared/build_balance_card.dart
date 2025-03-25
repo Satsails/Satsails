@@ -5,22 +5,20 @@ import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 
-class BalanceCard extends ConsumerStatefulWidget {
+class BalanceCard extends ConsumerWidget {
   final String assetName;
   final Color color;
   final String networkFilter;
 
-  const BalanceCard({required this.assetName, required this.color, required this.networkFilter, super.key});
+  const BalanceCard({
+    required this.assetName,
+    required this.color,
+    required this.networkFilter,
+    super.key,
+  });
 
   @override
-  _BalanceCardState createState() => _BalanceCardState();
-}
-
-class _BalanceCardState extends ConsumerState<BalanceCard> {
-  String _selectedNetwork = 'BTC'; // Default to Bitcoin network for Bitcoin card
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final walletBalance = ref.watch(balanceNotifierProvider);
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final conversions = ref.watch(currencyNotifierProvider);
@@ -28,43 +26,32 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     // Variables to hold balance and icon widget
     String nativeBalance = '0';
     String equivalentBalance = '0 USD';
-    String totalBalance = '0 USD'; // For Bitcoin card
-    Widget iconWidget;
+    Widget? iconWidget; // Made nullable since it’s not used in the UI for Bitcoin
 
     // Logic for balance calculation and icon widget
-    if (widget.assetName == 'Bitcoin') {
-
-      switch (_selectedNetwork) {
-        case 'BTC':
-          nativeBalance = btcInDenominationFormatted(walletBalance.btcBalance ?? 0, btcFormat);
-          final btcBalanceInBtc = (walletBalance.btcBalance ?? 0) / 100000000;
-          final btcEquivalent = btcBalanceInBtc * conversions.btcToUsd;
-          equivalentBalance = '${btcEquivalent.toStringAsFixed(2)} USD';
+    if (assetName == 'Bitcoin') {
+      int balanceInSats;
+      switch (networkFilter) {
+        case 'Bitcoin network':
+          balanceInSats = walletBalance.btcBalance ?? 0;
           break;
-        case 'Lightning':
-          nativeBalance = btcInDenominationFormatted(walletBalance.lightningBalance ?? 0, btcFormat);
-          final lightningBalanceInBtc = (walletBalance.lightningBalance ?? 0) / 100000000;
-          final lightningEquivalent = lightningBalanceInBtc * conversions.btcToUsd;
-          equivalentBalance = '${lightningEquivalent.toStringAsFixed(2)} USD';
+        case 'Liquid network':
+          balanceInSats = walletBalance.liquidBalance ?? 0;
           break;
-        case 'LBTC':
-          nativeBalance = btcInDenominationFormatted(walletBalance.liquidBalance ?? 0, btcFormat);
-          final liquidBalanceInBtc = (walletBalance.liquidBalance ?? 0) / 100000000;
-          final liquidEquivalent = liquidBalanceInBtc * conversions.btcToUsd;
-          equivalentBalance = '${liquidEquivalent.toStringAsFixed(2)} USD';
+        case 'Lightning network':
+          balanceInSats = walletBalance.lightningBalance ?? 0;
           break;
+        default:
+          balanceInSats = 0; // Fallback if networkFilter is invalid
       }
-
-      final btcBalanceInBtc = (walletBalance.btcBalance ?? 0) / 100000000;
-      final lightningBalanceInBtc = (walletBalance.lightningBalance ?? 0) / 100000000;
-      final liquidBalanceInBtc = (walletBalance.liquidBalance ?? 0) / 100000000;
-      final totalBtc = btcBalanceInBtc + lightningBalanceInBtc + liquidBalanceInBtc;
-      final totalUsd = totalBtc * conversions.btcToUsd;
-      totalBalance = '${totalUsd.toStringAsFixed(2)} USD';
+      nativeBalance = btcInDenominationFormatted(balanceInSats, btcFormat);
+      final balanceInBtc = balanceInSats / 100000000;
+      final equivalent = balanceInBtc * conversions.btcToUsd;
+      equivalentBalance = '${equivalent.toStringAsFixed(2)} USD';
     } else {
       String iconPath;
       String label;
-      switch (widget.assetName) {
+      switch (assetName) {
         case 'Depix':
           iconPath = 'lib/assets/depix.png';
           label = 'Depix';
@@ -93,52 +80,54 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         default:
           iconPath = '';
           label = '';
+          nativeBalance = '0';
+          equivalentBalance = '0 USD';
       }
-      iconWidget = _buildAssetItem(widget.assetName, iconPath, label, isSelected: true);
+      iconWidget = _buildAssetItem(assetName, iconPath, label, isSelected: true);
     }
 
-    // Send and Receive buttons
+    // Define Send and Receive buttons
     final sendReceiveButtons = Container(
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
+        color: const Color(0xFF212121),
         borderRadius: BorderRadius.circular(30),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextButton(
+          IconButton(
             onPressed: () {
               // TODO: Implement send functionality
             },
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            icon: const Icon(
+              Icons.arrow_upward,
+              color: Colors.white,
+              size: 24,
             ),
-            child: const Text(
-              'Send',
-              style: TextStyle(color: Colors.white, fontSize: 14),
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            constraints: const BoxConstraints(), // Remove default min size constraints
           ),
-          VerticalDivider(color: Colors.white.withOpacity(0.2), thickness: 1),
-          TextButton(
+          VerticalDivider(color: Colors.white, thickness: 10),
+          IconButton(
             onPressed: () {
               // TODO: Implement receive functionality
             },
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            icon: const Icon(
+              Icons.arrow_downward,
+              color: Colors.white,
+              size: 24,
             ),
-            child: const Text(
-              'Receive',
-              style: TextStyle(color: Colors.white, fontSize: 14),
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            constraints: const BoxConstraints(), // Remove default min size constraints
           ),
         ],
       ),
     );
 
-    // Card layout
+    // Card layout with Stack
     return Container(
       decoration: BoxDecoration(
-        color: widget.color, // Solid color instead of gradient
+        color: color,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -148,24 +137,47 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      clipBehavior: Clip.none, // Allow overflow for protruding buttons
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        clipBehavior: Clip.none, // Allow overflow
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              Text(
-                'Balance: $nativeBalance',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+          // Main content positioned at the top
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Balance: $nativeBalance',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    'Equivalent: $equivalentBalance',
+                    style: const TextStyle(fontSize: 16, color: Colors.black),
+                  ),
+                  const SizedBox(height: 20), // Space to prevent overlap with buttons
+                  Text(
+                    'Total: 20',
+                    style: const TextStyle(fontSize: 16, color: Colors.black),
+                  ),
+                ],
               ),
-              Text(
-                'Equivalent: $equivalentBalance',
-                style: const TextStyle(fontSize: 16, color: Colors.black),
-              ),
-              Spacer(),
-              Center(child: sendReceiveButtons),
-            ],
+            ),
+          ),
+          // Send and Receive buttons positioned at the bottom, protruding below
+          Positioned(
+            bottom: -20, // Adjust this value based on button height
+            child: sendReceiveButtons,
           ),
         ],
       ),
@@ -173,15 +185,16 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
   }
 
   // Helper method to build asset items with name above icon
-  Widget _buildAssetItem(String key, String iconPath, String label, {VoidCallback? onTap, bool isSelected = false}) {
+  Widget _buildAssetItem(String key, String iconPath, String label,
+      {VoidCallback? onTap, bool isSelected = false}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: const Color(0xFF212121),
-          borderRadius: BorderRadius.circular(8), // Optional: adds rounded corners
+          borderRadius: BorderRadius.circular(8),
         ),
-        padding: const EdgeInsets.all(8), // Adds padding inside the box
+        padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
