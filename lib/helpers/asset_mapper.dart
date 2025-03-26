@@ -63,4 +63,19 @@ class AssetMapper {
         return '';
     }
   }
+
+  static String reverseMapTickerFromString(String name) {
+    switch (name) {
+      case 'USDT':
+        return 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2';
+      case 'Bitcoin':
+        return '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d';
+      case 'EURx':
+        return '18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec';
+      case 'Depix':
+        return '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189';
+      default:
+        return '';
+    }
+  }
 }

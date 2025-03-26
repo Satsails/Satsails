@@ -106,14 +106,15 @@ class MiniExpensesGraph extends ConsumerWidget {
           asyncData = AsyncValue.data(ref.watch(liquidBalancePerDayInFormatProvider(assetId)));
           break;
         case 'Lightning network':
-          asyncData = ref.watch(lightningBalanceOverPeriodByDayProvider);
+          // implement when spark
+          asyncData =  AsyncValue.data({});
           break;
         default:
           asyncData = AsyncValue.data({});
       }
     } else {
       // For non-Bitcoin assets (assumed to be on Liquid network)
-      final assetId = AssetMapper.reverseMapTicker(AssetId.USD);
+      final assetId = AssetMapper.reverseMapTickerFromString(assetName);
       asyncData = AsyncValue.data(ref.watch(liquidBalancePerDayInFormatProvider(assetId)));
     }
 
@@ -127,8 +128,8 @@ class MiniExpensesGraph extends ConsumerWidget {
         ),
         loading: () => Center(
           child: LoadingAnimationWidget.fourRotatingDots(
-            color: Colors.orangeAccent,
-            size: 30,
+            color: Colors.black,
+            size: 20,
           ),
         ),
         error: (err, stack) => Center(child: Text('Error')),
