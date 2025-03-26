@@ -1,4 +1,5 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
@@ -255,7 +256,7 @@ String liquidTransactionAmountInFiat(dynamic transaction, WidgetRef ref) {
   if (AssetMapper.mapAsset(transaction.assetId) == AssetId.LBTC) {
     final currency = ref.watch(settingsProvider).currency;
     final value = ref.watch(conversionToFiatProvider(transaction.value));
-    return '${(double.parse(value) / 100000000).toStringAsFixed(2)} $currency';
+    return currencyFormat(double.parse(value) / 100000000, currency);
   }
   return '';
 }
