@@ -172,7 +172,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                             PopupMenuItem<String>(
                               value: 'Liquid',
                               child: Text(
-                                'Liquid',
+                                'Liquid Bitcoin',
                                 style: TextStyle(
                                   color: _selectedFilter == 'Liquid' ? Colors.orange : Colors.white,
                                 ),

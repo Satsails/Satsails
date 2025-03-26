@@ -620,7 +620,7 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      tickerDisplay,
+                      tickerDisplay == 'L-BTC' ? "Liquid Bitcoin" : tickerDisplay,
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,

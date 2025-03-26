@@ -1,9 +1,13 @@
+import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/helpers/string_extension.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 class BalanceCard extends ConsumerWidget {
@@ -20,95 +24,100 @@ class BalanceCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final walletBalance = ref.watch(balanceNotifierProvider);
     final btcFormat = ref.watch(settingsProvider).btcFormat;
-    final conversions = ref.watch(currencyNotifierProvider);
+    final currency = ref.watch(settingsProvider).currency;
 
-    String nativeBalance = '0';
-    String equivalentBalance = '0 USD';
-    Widget? iconWidget;
+    final Map<String, String> _networkImages = {
+      'Bitcoin network': 'lib/assets/bitcoin-logo.png',
+      'Liquid network': 'lib/assets/l-btc.png',
+      'Lightning network': 'lib/assets/Bitcoin_lightning_logo.png',
+    };
 
+    final networkShortNames = {
+      'Bitcoin network': 'Mainnet',
+      'Liquid network': 'Liquid',
+      'Lightning network': 'Lightning',
+    };
+
+    final depixBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
+    final usdBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance);
+    final euroBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance);
+    final btcBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).btcBalance, btcFormat);
+    final liquidBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBalance, btcFormat);
+    final lightningBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).lightningBalance ?? 0, btcFormat);
+
+    String nativeBalance;
+    String equivalentBalance = '';
     if (assetName == 'Bitcoin') {
-      int balanceInSats;
       switch (networkFilter) {
         case 'Bitcoin network':
-          balanceInSats = walletBalance.btcBalance ?? 0;
+          nativeBalance = btcBalance;
+          equivalentBalance = currencyFormat(ref.watch(balanceNotifierProvider).btcBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency);
           break;
         case 'Liquid network':
-          balanceInSats = walletBalance.liquidBalance ?? 0;
+          nativeBalance = liquidBalance;
+          equivalentBalance = currencyFormat(ref.watch(balanceNotifierProvider).liquidBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency);
           break;
         case 'Lightning network':
-          balanceInSats = walletBalance.lightningBalance ?? 0;
+          nativeBalance = lightningBalance;
+          equivalentBalance = currencyFormat((ref.watch(balanceNotifierProvider).lightningBalance ?? 0) / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency);
           break;
         default:
-          balanceInSats = 0;
+          nativeBalance = '';
+          equivalentBalance = '';
       }
-      nativeBalance = btcInDenominationFormatted(balanceInSats, btcFormat);
-      final balanceInBtc = balanceInSats / 100000000;
-      final equivalent = balanceInBtc * conversions.btcToUsd;
-      equivalentBalance = '${equivalent.toStringAsFixed(2)} USD';
     } else {
-      String iconPath;
-      String label;
       switch (assetName) {
         case 'Depix':
-          iconPath = 'lib/assets/depix.png';
-          label = 'Depix';
-          final brlBalance = (walletBalance.brlBalance) / 100;
-          nativeBalance = '${brlBalance.toStringAsFixed(2)} BRL';
-          final balanceInBtc = brlBalance * conversions.brlToBtc;
-          final equivalent = balanceInBtc * conversions.btcToUsd;
-          equivalentBalance = '${equivalent.toStringAsFixed(2)} USD';
+          nativeBalance = depixBalance;
           break;
         case 'USDT':
-          iconPath = 'lib/assets/tether.png';
-          label = 'USDT';
-          final usdBalance = (walletBalance.usdBalance) / 100;
-          nativeBalance = '${usdBalance.toStringAsFixed(2)} USD';
-          equivalentBalance = nativeBalance;
+          nativeBalance = usdBalance;
           break;
         case 'EURx':
-          iconPath = 'lib/assets/eurx.png';
-          label = 'EURx';
-          final eurBalance = (walletBalance.eurBalance) / 100;
-          nativeBalance = '${eurBalance.toStringAsFixed(2)} EUR';
-          final balanceInBtc = eurBalance * conversions.eurToBtc;
-          final equivalent = balanceInBtc * conversions.btcToUsd;
-          equivalentBalance = '${equivalent.toStringAsFixed(2)} USD';
+          nativeBalance = euroBalance;
           break;
         default:
-          iconPath = '';
-          label = '';
           nativeBalance = '0';
           equivalentBalance = '0 USD';
       }
-      iconWidget = _buildAssetItem(assetName, iconPath, label, isSelected: true);
     }
 
-    final sendReceiveButtons = Container(
+    final bottomButtons = Container(
       decoration: BoxDecoration(
         color: const Color(0xFF212121),
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(30.r),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           IconButton(
             onPressed: () {
               // TODO: Implement send functionality
             },
-            icon: const Icon(Icons.arrow_upward, color: Colors.white, size: 24),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            constraints: const BoxConstraints(),
+            icon: Icon(Icons.arrow_upward, color: Colors.white, size: 24.w),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
           ),
-          const VerticalDivider(color: Colors.white, thickness: 1),
           IconButton(
             onPressed: () {
               // TODO: Implement receive functionality
             },
-            icon: const Icon(Icons.arrow_downward, color: Colors.white, size: 24),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            constraints: const BoxConstraints(),
+            icon: Icon(Icons.arrow_downward, color: Colors.white, size: 24.w),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+          ),
+          IconButton(
+            onPressed: () {
+              ref.read(navigationProvider.notifier).state = 4;
+            },
+            icon: Icon(Icons.shopping_cart, color: Colors.white, size: 24.w),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+          ),
+          IconButton(
+            onPressed: () {
+              context.pushNamed('analytics');
+            },
+            icon: Icon(Icons.analytics_outlined, color: Colors.white, size: 24.w),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
           ),
         ],
       ),
@@ -117,12 +126,12 @@ class BalanceCard extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
+            blurRadius: 8.w,
+            offset: Offset(0, 4.h),
           ),
         ],
       ),
@@ -136,84 +145,63 @@ class BalanceCard extends ConsumerWidget {
             left: 0,
             right: 0,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        _networkImages[networkFilter] ?? 'lib/assets/default.png',
+                        width: 24.w,
+                        height: 24.w,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        assetName,
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        ' (${networkShortNames[networkFilter] ?? networkFilter})',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 4.h),
                   Text(
-                    'Balance: $nativeBalance',
-                    style: const TextStyle(
-                      fontSize: 24,
+                    nativeBalance,
+                    style: TextStyle(
+                      fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
+                  SizedBox(height: 4.h),
                   Text(
-                    'Equivalent: $equivalentBalance',
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Total: 20', // TODO: Make this dynamic if needed
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    equivalentBalance,
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      color: Colors.grey[600],
+                    ),
                   ),
                 ],
               ),
             ),
           ),
           Positioned(
-            top: 8,
-            right: 8,
-            child: InkWell(
-              onTap: () {
-                context.pushNamed('analytics');
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF212121),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: const Text(
-                  'analytics',
-                  style: TextStyle(color: Colors.white, fontSize: 14),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -20,
-            child: sendReceiveButtons,
+            bottom: -20.h,
+            child: bottomButtons,
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildAssetItem(String key, String iconPath, String label,
-      {VoidCallback? onTap, bool isSelected = false}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF212121),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

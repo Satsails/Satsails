@@ -180,10 +180,10 @@ class _BalanceScreenState extends State<BalanceScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Padding(
-                      padding: EdgeInsets.all(8.0.sp),
+                      padding: EdgeInsets.symmetric(vertical: 8.0.sp),
                       child: Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFF212121),

@@ -60,7 +60,6 @@ dependencies:
   firebase_core: ^3.4.0
   firebase_messaging: ^15.1.0
   android_notification_icons: ^0.0.1
-  dart_pusher_channels: ^1.2.3
   firebase_crashlytics: ^4.1.0
   flutter_dotenv: ^5.1.0
   i18n_extension: ^15.0.4
