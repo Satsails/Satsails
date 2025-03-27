@@ -184,19 +184,12 @@ class _BalanceScreenState extends State<BalanceScreen> {
                   children: [
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 8.0.sp),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF212121),
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        padding: EdgeInsets.symmetric(horizontal: 12.sp, vertical: 0.sp),
-                        child: dropdown,
-                      ),
+                      child: dropdown,
                     ),
                   ],
                 ),
                 SizedBox(
-                  height: 0.22.sh,
+                  height: 0.23.sh,
                   child: Padding(
                     padding: EdgeInsets.only(bottom: 10.sp),
                     child: BalanceCard(

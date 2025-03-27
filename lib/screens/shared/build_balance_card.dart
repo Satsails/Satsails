@@ -2,6 +2,7 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
+import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -119,11 +120,11 @@ class MiniExpensesGraph extends ConsumerWidget {
     }
 
     return Container(
-      width: 100,
-      height: 100,
+      width: 120,
+      height: 30,
       child: asyncData.when(
         data: (data) => Padding(
-          padding: const EdgeInsets.all(4.0),
+          padding: EdgeInsets.all(4.0.sp),
           child: SimplifiedExpensesGraph(dataToDisplay: data),
         ),
         loading: () => Center(
@@ -136,6 +137,56 @@ class MiniExpensesGraph extends ConsumerWidget {
       ),
     );
   }
+}
+
+Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
+  final currency = ref.watch(settingsProvider).currency;
+  final coinGeckoData = ref.watch(coinGeckoBitcoinChange(currency.toLowerCase()));
+  final currentPrice = ref.watch(selectedCurrencyProvider(currency)) * 1;
+
+  return coinGeckoData.when(
+    data: (data) {
+      IconData? icon;
+      Color textColor = Colors.black; // Matches the card's text color
+      String displayText = '${data.abs().toStringAsFixed(2)}%';
+
+      // Handle neutral, positive, or negative change
+      if (displayText == '-0.00%' || displayText == '0.00%') {
+        displayText = '0%';
+        icon = null; // No icon for neutral change
+      } else if (data > 0) {
+        icon = Icons.arrow_upward; // Up arrow for positive change
+      } else if (data < 0) {
+        icon = Icons.arrow_downward; // Down arrow for negative change
+      }
+
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(currentPrice.toStringAsFixed(2), style:TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.bold
+          )),
+          SizedBox(width: 4), // Spacing only if icon exists
+          if (icon != null) Icon(icon, size: 14.sp, color: textColor),
+          SizedBox(width: icon != null ? 4.0 : 0), // Spacing only if icon exists
+          Text(
+            displayText,
+            style: TextStyle(fontSize: 14.sp, color: textColor, fontWeight: FontWeight.bold
+            ),
+          ),
+        ],
+      );
+    },
+    loading: () => LoadingAnimationWidget.progressiveDots(
+      size: 14.sp,
+      color: Colors.black,
+    ),
+    error: (error, stack) => Text(
+      'Error',
+      style: TextStyle(fontSize: 14.sp, color: Colors.black),
+    ),
+  );
 }
 
 class BalanceCard extends ConsumerWidget {
@@ -152,8 +203,12 @@ class BalanceCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final btcFormat = ref.watch(settingsProvider).btcFormat;
-    final currency = ref.watch(settingsProvider).currency;
+    final btcFormat = ref
+        .watch(settingsProvider)
+        .btcFormat;
+    final currency = ref
+        .watch(settingsProvider)
+        .currency;
 
     final Map<String, String> _networkImages = {
       'Bitcoin network': 'lib/assets/bitcoin-logo.png',
@@ -167,12 +222,24 @@ class BalanceCard extends ConsumerWidget {
       'Lightning network': 'Lightning',
     };
 
-    final depixBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
-    final usdBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance);
-    final euroBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance);
-    final btcBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).btcBalance, btcFormat);
-    final liquidBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBalance, btcFormat);
-    final lightningBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).lightningBalance ?? 0, btcFormat);
+    final depixBalance = fiatInDenominationFormatted(ref
+        .watch(balanceNotifierProvider)
+        .brlBalance);
+    final usdBalance = fiatInDenominationFormatted(ref
+        .watch(balanceNotifierProvider)
+        .usdBalance);
+    final euroBalance = fiatInDenominationFormatted(ref
+        .watch(balanceNotifierProvider)
+        .eurBalance);
+    final btcBalance = btcInDenominationFormatted(ref
+        .watch(balanceNotifierProvider)
+        .btcBalance, btcFormat);
+    final liquidBalance = btcInDenominationFormatted(ref
+        .watch(balanceNotifierProvider)
+        .liquidBalance, btcFormat);
+    final lightningBalance = btcInDenominationFormatted(ref
+        .watch(balanceNotifierProvider)
+        .lightningBalance ?? 0, btcFormat);
 
     String nativeBalance;
     String equivalentBalance = '';
@@ -180,15 +247,24 @@ class BalanceCard extends ConsumerWidget {
       switch (networkFilter) {
         case 'Bitcoin network':
           nativeBalance = btcBalance;
-          equivalentBalance = currencyFormat(ref.watch(balanceNotifierProvider).btcBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency);
+          equivalentBalance = currencyFormat(ref
+              .watch(balanceNotifierProvider)
+              .btcBalance / 100000000 *
+              ref.watch(selectedCurrencyProvider(currency)), currency);
           break;
         case 'Liquid network':
           nativeBalance = liquidBalance;
-          equivalentBalance = currencyFormat(ref.watch(balanceNotifierProvider).liquidBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency);
+          equivalentBalance = currencyFormat(ref
+              .watch(balanceNotifierProvider)
+              .liquidBalance / 100000000 *
+              ref.watch(selectedCurrencyProvider(currency)), currency);
           break;
         case 'Lightning network':
           nativeBalance = lightningBalance;
-          equivalentBalance = currencyFormat((ref.watch(balanceNotifierProvider).lightningBalance ?? 0) / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency);
+          equivalentBalance = currencyFormat((ref
+              .watch(balanceNotifierProvider)
+              .lightningBalance ?? 0) / 100000000 *
+              ref.watch(selectedCurrencyProvider(currency)), currency);
           break;
         default:
           nativeBalance = '';
@@ -218,16 +294,19 @@ class BalanceCard extends ConsumerWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Color(0xFF212121),
-          borderRadius: BorderRadius.circular(24.r),
+          borderRadius: BorderRadius.circular(12.r),
         ),
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-        child: Icon(
-          Icons.shopping_cart,
-          color: Colors.white,
-          size: 24.w,
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+        child: Text(
+          'Buy',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 12.sp, // Adjust size as needed
+            fontWeight: FontWeight.bold, // Optional: makes it stand out
+          ),
         ),
       ),
-    );
+    );;
 
     final bottomButtons = Container(
       decoration: BoxDecoration(
@@ -244,7 +323,6 @@ class BalanceCard extends ConsumerWidget {
             icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.w),
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
           ),
-          buyButton,
           IconButton(
             onPressed: () {
               // TODO: Implement receive functionality
@@ -276,73 +354,88 @@ class BalanceCard extends ConsumerWidget {
               right: 0,
               child: Padding(
                 padding: EdgeInsets.all(16.w),
-                child: Row(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Image.asset(
-                                _networkImages[networkFilter] ?? 'lib/assets/default.png',
-                                width: 24.w,
-                                height: 24.w,
-                              ),
-                              SizedBox(width: 8.w),
-                              Text(
-                                assetName,
-                                style: TextStyle(
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Text(
-                                ' (${networkShortNames[networkFilter] ?? networkFilter})',
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ],
+                    Row(
+                      children: [
+                        Image.asset(
+                          _networkImages[networkFilter] ?? 'lib/assets/default.png',
+                          width: 24.w,
+                          height: 24.w,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          assetName,
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
-                          SizedBox(height: 4.h),
-                          Text(
-                            nativeBalance,
-                            style: TextStyle(
-                              fontSize: 24.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                        ),
+                        Text(
+                          ' (${networkShortNames[networkFilter] ?? networkFilter})',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.black,
                           ),
-                          if (assetName == 'Bitcoin') ...[
-                            SizedBox(height: 4.h),
+                        ),
+                        Spacer(),
+                        buyButton,
+                      ],
+                    ),
+                    SizedBox(height: 25.h),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
                             Text(
-                              equivalentBalance,
+                              nativeBalance,
                               style: TextStyle(
-                                fontSize: 18.sp,
+                                fontSize: 24.sp,
+                                fontWeight: FontWeight.bold,
                                 color: Colors.black,
                               ),
                             ),
+                            if (assetName == 'Bitcoin')
+                              Text(
+                                equivalentBalance,
+                                style: TextStyle(
+                                  fontSize: 18.sp,
+                                  color: Colors.black,
+                                ),
+                              ),
                           ],
-                        ],
-                      ),
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        MiniExpensesGraph(
-                          networkFilter: networkFilter,
-                          assetName: assetName,
+                        ),
+                        Spacer(),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            MiniExpensesGraph(
+                              networkFilter: networkFilter,
+                              assetName: assetName,
+                            ),
+                            if (assetName == 'Bitcoin')
+                              _buildPricePercentageChangeTicker(context, ref),
+                          ],
                         ),
                       ],
                     ),
                   ],
                 ),
+              ),
+            ),
+            Positioned(
+              bottom: 16.h,
+              right: 16.w,
+              child: Icon(
+                Icons.touch_app,
+                color: Colors.black,
+                size: 24.sp,
               ),
             ),
             Positioned(

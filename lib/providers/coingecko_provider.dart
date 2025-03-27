@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final selectedDateRangeProvider = StateProvider<int>((ref) => 7);
 
-final coinGeckoBitcoinChange = FutureProvider.autoDispose<double>((ref) async {
+final coinGeckoBitcoinChange = FutureProvider.autoDispose.family<double, String>((ref, currency) async {
   CoingeckoModel coingeckoModel = CoingeckoModel();
-  return await coingeckoModel.getBitcoinChangePercentage();
+  return await coingeckoModel.getBitcoinChangePercentage(currency);
 });
 
 final coinGeckoBitcoinMarketDataProvider = FutureProvider.autoDispose<List<MarketChartData>>((ref) async {

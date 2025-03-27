@@ -4,10 +4,10 @@ import 'package:coingecko_api/data/market_chart_data.dart';
 class CoingeckoModel {
   CoinGeckoApi api = CoinGeckoApi();
 
-  Future<double> getBitcoinChangePercentage() async {
+  Future<double> getBitcoinChangePercentage(String currency) async {
     final marketData = await api.coins.getCoinMarketChart(
       id: 'bitcoin',
-      vsCurrency: 'usd',
+      vsCurrency: currency,
       days: 7,
     );
     final currentPrice = marketData.data.last.price;
