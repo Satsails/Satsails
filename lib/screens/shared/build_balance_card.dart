@@ -190,6 +190,8 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
   );
 }
 
+final isBalanceVisibleProvider = StateProvider<bool>((ref) => true);
+
 class BalanceCard extends ConsumerWidget {
   final String assetName;
   final Color color;
@@ -204,17 +206,21 @@ class BalanceCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final btcFormat = ref
-        .watch(settingsProvider)
-        .btcFormat;
-    final currency = ref
-        .watch(settingsProvider)
-        .currency;
+    final btcFormat = ref.watch(settingsProvider).btcFormat;
+    final currency = ref.watch(settingsProvider).currency;
+    // Watch the visibility state
+    final isBalanceVisible = ref.watch(isBalanceVisibleProvider);
 
     final Map<String, String> _networkImages = {
       'Bitcoin network': 'lib/assets/bitcoin-logo.png',
       'Liquid network': 'lib/assets/l-btc.png',
       'Lightning network': 'lib/assets/Bitcoin_lightning_logo.png',
+    };
+
+    final Map<String, String> _assetImages = {
+      'Depix': 'lib/assets/depix.png',
+      'USDT': 'lib/assets/tether.png',
+      'EURx': 'lib/assets/eurx.png',
     };
 
     final networkShortNames = {
@@ -223,91 +229,56 @@ class BalanceCard extends ConsumerWidget {
       'Lightning network': 'Lightning',
     };
 
-    final depixBalance = fiatInDenominationFormatted(ref
-        .watch(balanceNotifierProvider)
-        .brlBalance);
-    final usdBalance = fiatInDenominationFormatted(ref
-        .watch(balanceNotifierProvider)
-        .usdBalance);
-    final euroBalance = fiatInDenominationFormatted(ref
-        .watch(balanceNotifierProvider)
-        .eurBalance);
-    final btcBalance = btcInDenominationFormatted(ref
-        .watch(balanceNotifierProvider)
-        .btcBalance, btcFormat);
-    final liquidBalance = btcInDenominationFormatted(ref
-        .watch(balanceNotifierProvider)
-        .liquidBalance, btcFormat);
-    final lightningBalance = btcInDenominationFormatted(ref
-        .watch(balanceNotifierProvider)
-        .lightningBalance ?? 0, btcFormat);
+    final depixBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
+    final usdBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance);
+    final euroBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance);
+    final btcBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).btcBalance, btcFormat);
+    final liquidBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBalance, btcFormat);
+    final lightningBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).lightningBalance ?? 0, btcFormat);
 
+    // Determine balances based on visibility state
     String nativeBalance;
     String equivalentBalance = '';
     if (assetName == 'Bitcoin') {
       switch (networkFilter) {
         case 'Bitcoin network':
-          nativeBalance = btcBalance;
-          equivalentBalance = currencyFormat(ref
-              .watch(balanceNotifierProvider)
-              .btcBalance / 100000000 *
-              ref.watch(selectedCurrencyProvider(currency)), currency);
+          nativeBalance = isBalanceVisible ? btcBalance : '****';
+          equivalentBalance = isBalanceVisible
+              ? currencyFormat(ref.watch(balanceNotifierProvider).btcBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
+              : '****';
           break;
         case 'Liquid network':
-          nativeBalance = liquidBalance;
-          equivalentBalance = currencyFormat(ref
-              .watch(balanceNotifierProvider)
-              .liquidBalance / 100000000 *
-              ref.watch(selectedCurrencyProvider(currency)), currency);
+          nativeBalance = isBalanceVisible ? liquidBalance : '****';
+          equivalentBalance = isBalanceVisible
+              ? currencyFormat(ref.watch(balanceNotifierProvider).liquidBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
+              : '****';
           break;
         case 'Lightning network':
-          nativeBalance = lightningBalance;
-          equivalentBalance = currencyFormat((ref
-              .watch(balanceNotifierProvider)
-              .lightningBalance ?? 0) / 100000000 *
-              ref.watch(selectedCurrencyProvider(currency)), currency);
+          nativeBalance = isBalanceVisible ? lightningBalance : '****';
+          equivalentBalance = isBalanceVisible
+              ? currencyFormat((ref.watch(balanceNotifierProvider).lightningBalance ?? 0) / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
+              : '****';
           break;
         default:
-          nativeBalance = '';
-          equivalentBalance = '';
+          nativeBalance = '****';
+          equivalentBalance = '****';
       }
     } else {
       switch (assetName) {
         case 'Depix':
-          nativeBalance = depixBalance;
+          nativeBalance = isBalanceVisible ? depixBalance : '****';
           break;
         case 'USDT':
-          nativeBalance = usdBalance;
+          nativeBalance = isBalanceVisible ? usdBalance : '****';
           break;
         case 'EURx':
-          nativeBalance = euroBalance;
+          nativeBalance = isBalanceVisible ? euroBalance : '****';
           break;
         default:
-          nativeBalance = '0';
-          equivalentBalance = '0 USD';
+          nativeBalance = '****';
+          equivalentBalance = '****';
       }
     }
-
-    final buyButton = GestureDetector(
-      onTap: () {
-        ref.read(navigationProvider.notifier).state = 4;
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Color(0xFF212121),
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-        child: Text(
-          'Buy',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.sp, // Adjust size as needed
-            fontWeight: FontWeight.bold, // Optional: makes it stand out
-          ),
-        ),
-      ),
-    );;
 
     final bottomButtons = Container(
       decoration: BoxDecoration(
@@ -361,11 +332,18 @@ class BalanceCard extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        Image.asset(
-                          _networkImages[networkFilter] ?? 'lib/assets/default.png',
-                          width: 24.w,
-                          height: 24.w,
-                        ),
+                        if (assetName == 'Bitcoin')
+                          Image.asset(
+                            _networkImages[networkFilter] ?? 'lib/assets/default.png',
+                            width: 24.w,
+                            height: 24.w,
+                          )
+                        else
+                          Image.asset(
+                            _assetImages[assetName] ?? 'lib/assets/default.png',
+                            width: 24.w,
+                            height: 24.w,
+                          ),
                         SizedBox(width: 8.w),
                         Text(
                           assetName,
@@ -383,7 +361,17 @@ class BalanceCard extends ConsumerWidget {
                           ),
                         ),
                         Spacer(),
-                        buyButton,
+                        IconButton(
+                          onPressed: () {
+                            ref.read(isBalanceVisibleProvider.notifier).state =
+                            !ref.read(isBalanceVisibleProvider);
+                          },
+                          icon: Icon(
+                            isBalanceVisible ? Icons.remove_red_eye : Icons.visibility_off,
+                            color: Colors.black,
+                            size: 24.sp,
+                          ),
+                        ),
                       ],
                     ),
                     SizedBox(height: 25.h),

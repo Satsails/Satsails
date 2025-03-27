@@ -41,7 +41,7 @@ class Receive extends ConsumerWidget {
           children: [
             if (selectedType == 'Bitcoin network') const BitcoinWidget(),
             if (selectedType == 'Liquid network') const LiquidWidget(),
-            if (selectedType == 'Lightning network') const CustodialLightningWidget(),
+            // if (selectedType == 'Lightning network') const CustodialLightningWidget(),
           ],
         ),
       ),

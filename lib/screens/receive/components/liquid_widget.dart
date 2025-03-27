@@ -90,11 +90,9 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
           ),
         );
       },
-      loading: () => Center(
-        child: LoadingAnimationWidget.fourRotatingDots(
-          size: 30.w,
-          color: Colors.orange,
-        ),
+      loading: () => LoadingAnimationWidget.fourRotatingDots(
+        size: 70.w,
+        color: Colors.orange,
       ),
       error: (error, stack) => const Center(
         child: Text(

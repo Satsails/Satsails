@@ -16,6 +16,9 @@ import 'package:i18n_extension/default.i18n.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+
+
+
 Widget buildNoTransactionsFound(double screenHeight) {
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -140,6 +143,27 @@ class TransactionList extends ConsumerWidget {
         ? (transactions as List<BaseTransaction>)
         : transactionState.allTransactionsSorted;
 
+    final buyButton = GestureDetector(
+      onTap: () {
+        ref.read(navigationProvider.notifier).state = 4;
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFF212121),
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
+        child: Text(
+          'Buy',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+
     return Column(
       children: [
         if (!showAll)
@@ -157,25 +181,30 @@ class TransactionList extends ConsumerWidget {
                   ),
                 ),
               ),
-              ref.watch(backgroundSyncInProgressProvider)
-                  ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: LoadingAnimationWidget.beat(
-                  color: Colors.green,
-                  size: 20,
-                ),
-              )
-                  : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: GestureDetector(
-                  onTap: () {
-                    ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-                  },
-                  child: LoadingAnimationWidget.beat(
-                    color: ref.read(settingsProvider).online ? Colors.green : Colors.red,
-                    size: 20,
+              Row(
+                children: [
+                  buyButton,
+                  ref.watch(backgroundSyncInProgressProvider)
+                      ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: LoadingAnimationWidget.beat(
+                      color: Colors.green,
+                      size: 20,
+                    ),
+                  )
+                      : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: GestureDetector(
+                      onTap: () {
+                        ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+                      },
+                      child: LoadingAnimationWidget.beat(
+                        color: ref.read(settingsProvider).online ? Colors.green : Colors.red,
+                        size: 20,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
