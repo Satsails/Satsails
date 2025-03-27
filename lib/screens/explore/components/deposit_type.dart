@@ -23,7 +23,7 @@ class DepositType extends ConsumerWidget {
       ),
       backgroundColor: Colors.black,
       body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.sp),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

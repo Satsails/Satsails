@@ -53,7 +53,7 @@ class DepositProvider extends ConsumerWidget {
       ),
       backgroundColor: Colors.black,
       body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.sp),
         // Using a ListView to allow scrolling if there are many cards.
         child: ListView(
           children: availableProviders

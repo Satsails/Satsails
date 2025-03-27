@@ -326,7 +326,7 @@ class BalanceCard extends ConsumerWidget {
               left: 0,
               right: 0,
               child: Padding(
-                padding: EdgeInsets.all(16.w),
+                padding: EdgeInsets.all(16.sp),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

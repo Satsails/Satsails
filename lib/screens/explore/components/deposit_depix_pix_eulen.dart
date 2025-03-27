@@ -195,8 +195,100 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                 // Amount input when no QR code is generated.
                 if (_pixQRCode.isEmpty)
                   Padding(
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 16.sp),
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade900,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.4),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          vertical: 16.h, horizontal: 8.w),
+                      child: Column(
+                        crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                        children: [
+                          // Row 1: Transfer limit.
+                          Row(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.info,
+                                  color: Colors.grey,
+                                  size: 20.sp),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: Text(
+                                  'Transfer limit: R\$ 6000'
+                                      .i18n,
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8.h),
+                          Row(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.attach_money,
+                                  color: Colors.grey,
+                                  size: 20.sp),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: Text(
+                                  '${'Amount Purchased Today:'
+                                      .i18n} R\$ $amountPurchasedToday',
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8.h),
+                          Row(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.verified_user,
+                                  color: Colors.grey,
+                                  size: 20.sp),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: Text(
+                                  'Only accepted deposits from: '.i18n + registeredTaxId.i18n,
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                if (_pixQRCode.isEmpty)
+                  Padding(
                     padding: EdgeInsets.symmetric(
-                        vertical: 16.h, horizontal: 8.w),
+                        vertical: 16.h, horizontal: 16.sp),
                     child: TextField(
                       controller: _amountController,
                       keyboardType: TextInputType.number,
@@ -263,7 +355,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 20.w),
+                          padding: EdgeInsets.symmetric(horizontal: 16.sp),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -285,7 +377,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                               Container(
                                 width: double.infinity,
                                 padding: EdgeInsets.symmetric(
-                                    vertical: 16.h, horizontal: 8.w),
+                                    vertical: 16.h, horizontal: 16.sp),
                                 decoration: BoxDecoration(
                                   color: Colors.grey.shade900,
                                   borderRadius:
@@ -402,97 +494,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                       ),
                       SizedBox(height: 16.h),
                       // Unified information card styled with the provided container decoration.
-                      Padding(
-                        padding:
-                        EdgeInsets.symmetric(horizontal: 16.w),
-                        child: Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade900,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.4),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          padding: EdgeInsets.symmetric(
-                              vertical: 16.h, horizontal: 8.w),
-                          child: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            children: [
-                              // Row 1: Transfer limit.
-                              Row(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.info,
-                                      color: Colors.grey,
-                                      size: 20.sp),
-                                  SizedBox(width: 8.w),
-                                  Expanded(
-                                    child: Text(
-                                      'Transfer limit: R\$ 6000'
-                                          .i18n,
-                                      style: TextStyle(
-                                        fontSize: 16.sp,
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 8.h),
-                              Row(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.attach_money,
-                                      color: Colors.grey,
-                                      size: 20.sp),
-                                  SizedBox(width: 8.w),
-                                  Expanded(
-                                    child: Text(
-                                      '${'Amount Purchased Today:'
-                                          .i18n} R\$ $amountPurchasedToday',
-                                      style: TextStyle(
-                                        fontSize: 16.sp,
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 8.h),
-                              Row(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.verified_user,
-                                      color: Colors.grey,
-                                      size: 20.sp),
-                                  SizedBox(width: 8.w),
-                                  Expanded(
-                                    child: Text(
-                                      'Only accepted deposits from: '.i18n + registeredTaxId.i18n,
-                                      style: TextStyle(
-                                        fontSize: 16.sp,
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 TextButton(

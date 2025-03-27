@@ -1,4 +1,5 @@
 import 'package:Satsails/providers/coinos_provider.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
 import 'package:Satsails/screens/receive/components/custodial_lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
@@ -16,33 +17,46 @@ class Receive extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
     final selectedType = ref.watch(selectedReceiveTypeProvider);
+    Future.microtask(() => {ref.read(shouldUpdateMemoryProvider.notifier).state = false});
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
+    return WillPopScope(
+      onWillPop: () async {
+        try {
+          ref.read(inputAmountProvider.notifier).state = '0.0';
+          ref.invalidate(initialCoinosProvider);
+          ref.read(selectedReceiveTypeProvider.notifier).state = "Bitcoin";
+          ref.read(shouldUpdateMemoryProvider.notifier).state = true;
+          return true; // Allow the pop to proceed
+        } catch (e) {
+          return false; // Prevent pop if an error occurs
+        }
+      },
+      child: Scaffold(
         backgroundColor: Colors.black,
-        title: Text('Receive on ${selectedType.i18n}', style: const TextStyle(color: Colors.white)),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, size: screenHeight * 0.03, color: Colors.white),
-          onPressed: () {
-            ref.read(inputAmountProvider.notifier).state = '0.0';
-            ref.invalidate(initialCoinosProvider);
-            ref.read(selectedReceiveTypeProvider.notifier).state = "Bitcoin";
-            context.pop();
-          },
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: Text('Receive on ${selectedType.i18n}', style: const TextStyle(color: Colors.white)),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              ref.read(inputAmountProvider.notifier).state = '0.0';
+              ref.invalidate(initialCoinosProvider);
+              ref.read(selectedReceiveTypeProvider.notifier).state = "Bitcoin";
+              ref.read(shouldUpdateMemoryProvider.notifier).state = true;
+              context.pop();
+            },
+          ),
         ),
-      ),
-      body: KeyboardDismissOnTap(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (selectedType == 'Bitcoin network') const BitcoinWidget(),
-            if (selectedType == 'Liquid network') const LiquidWidget(),
-            // if (selectedType == 'Lightning network') const CustodialLightningWidget(),
-          ],
+        body: KeyboardDismissOnTap(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (selectedType == 'Bitcoin network') const BitcoinWidget(),
+              if (selectedType == 'Liquid network') const LiquidWidget(),
+              // if (selectedType == 'Lightning network') const CustodialLightningWidget(),
+            ],
+          ),
         ),
       ),
     );

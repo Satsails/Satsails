@@ -8,6 +8,7 @@ import 'package:Satsails/screens/shared/transactions_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Transactions extends ConsumerStatefulWidget {
   const Transactions({super.key});
@@ -228,7 +229,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                       ),
                       // Styled reset button
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        padding: EdgeInsets.symmetric(horizontal: 16.sp),
                         child: ElevatedButton(
                           onPressed: () {
                             setState(() {

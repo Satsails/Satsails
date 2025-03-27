@@ -55,13 +55,13 @@ class Explore extends ConsumerWidget {
                   children: [
                     Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
+                        horizontal: 16.sp,
                         vertical: 8.h,
                       ),
                       child: _BalanceDisplay(),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 19.w),
+                      padding: EdgeInsets.symmetric(horizontal: 16.sp),
                       child: const _ActionCards(),
                     ),
                     SizedBox(height: 16.h),

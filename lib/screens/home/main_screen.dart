@@ -12,12 +12,17 @@ import 'package:Satsails/providers/navigation_provider.dart';
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
 
-  // Reset providers unless the screen is Exchange (index 2)
+  // Reset provider unless the screen is Exchange (index 2)
   void _resetProviders(WidgetRef ref, int index) {
     if (index != 2) { // Skip reset for Exchange screen
       Future.microtask(() {
+        ref.read(shouldUpdateMemoryProvider.notifier).state = true;
         ref.read(sendTxProvider.notifier).resetToDefault();
         ref.read(sendBlocksProvider.notifier).state = 1;
+      });
+    }else {
+      Future.microtask(() {
+        ref.read(shouldUpdateMemoryProvider.notifier).state = false;
       });
     }
   }
