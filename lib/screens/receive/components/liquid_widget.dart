@@ -1,6 +1,7 @@
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
@@ -11,7 +12,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lwk/lwk.dart';
 
 class LiquidWidget extends ConsumerStatefulWidget {
-
   const LiquidWidget({super.key});
 
   @override
@@ -27,12 +27,6 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
   void initState() {
     super.initState();
     controller = TextEditingController();
-
-    // Optionally initialize the controller with existing amount
-    final inputAmount = ref.read(inputAmountProvider);
-    if (inputAmount != '0.0') {
-      controller.text = inputAmount;
-    }
   }
 
   @override
@@ -45,7 +39,8 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
     String inputValue = controller.text;
     ref.read(inputAmountProvider.notifier).state =
     inputValue.isEmpty ? '0.0' : inputValue;
-    final liquidAddressWithAmountAsyncValue = await ref.watch(liquidReceiveAddressAmountProvider.future);
+    final liquidAddressWithAmountAsyncValue =
+    await ref.watch(liquidReceiveAddressAmountProvider.future);
     setState(() {
       includeAmountInAddress = true;
       liquidAddressWithAmount = liquidAddressWithAmountAsyncValue;
@@ -54,19 +49,21 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
-
     final liquidAddressAsyncValue = ref.watch(liquidAddressProvider);
 
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        AmountInput(controller: controller),
-        SizedBox(height: height * 0.02),
+        SizedBox(height: 24.h),
         includeAmountInAddress
             ? _buildAddressWithAmount(liquidAddressWithAmount)
             : _buildDefaultAddress(liquidAddressAsyncValue),
         Padding(
-          padding: EdgeInsets.all(height * 0.01),
+          padding: EdgeInsets.all(16.h),
+          child: AmountInput(controller: controller),
+        ),
+        Padding(
+          padding: EdgeInsets.all(16.h),
           child: CustomElevatedButton(
             onPressed: _onCreateAddress,
             text: 'Create Address'.i18n,
@@ -78,23 +75,24 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
   }
 
   Widget _buildDefaultAddress(AsyncValue<Address> liquidAddressAsyncValue) {
-    final height = MediaQuery.of(context).size.height;
-
     return liquidAddressAsyncValue.when(
       data: (liquidAddress) {
-        return Column(
-          children: [
-            buildQrCode(liquidAddress.confidential, context),
-            Padding(
-              padding: EdgeInsets.all(height * 0.01),
-              child: buildAddressText(liquidAddress.confidential, context, ref),
-            ),
-          ],
+        return Center(
+          child: Column(
+            children: [
+              buildQrCode(liquidAddress.confidential, context),
+              SizedBox(height: 16.h),
+              Padding(
+                padding: EdgeInsets.all(16.h),
+                child: buildAddressText(liquidAddress.confidential, context, ref),
+              ),
+            ],
+          ),
         );
       },
       loading: () => Center(
         child: LoadingAnimationWidget.fourRotatingDots(
-          size: MediaQuery.of(context).size.width * 0.6,
+          size: 30.w,
           color: Colors.orange,
         ),
       ),
@@ -108,17 +106,17 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
   }
 
   Widget _buildAddressWithAmount(String liquidAddressWithAmount) {
-    final height = MediaQuery.of(context).size.height;
-
-      return Column(
-          children: [
-            buildQrCode(liquidAddressWithAmount, context),
-            Padding(
-              padding: EdgeInsets.all(height * 0.01),
-              child: buildAddressText(liquidAddressWithAmount, context, ref),
-            ),
-          ],
-        );
+    return Center(
+      child: Column(
+        children: [
+          buildQrCode(liquidAddressWithAmount, context),
+          SizedBox(height: 16.h),
+          Padding(
+            padding: EdgeInsets.all(16.h),
+            child: buildAddressText(liquidAddressWithAmount, context, ref),
+          ),
+        ],
+      ),
+    );
   }
 }
-

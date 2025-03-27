@@ -4,6 +4,7 @@ import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
+import 'package:Satsails/screens/receive/receive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
@@ -120,8 +121,8 @@ class MiniExpensesGraph extends ConsumerWidget {
     }
 
     return Container(
-      width: 120,
-      height: 30,
+      width: 150.w,
+      height: 30.h,
       child: asyncData.when(
         data: (data) => Padding(
           padding: EdgeInsets.all(4.0.sp),
@@ -164,27 +165,27 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(currentPrice.toStringAsFixed(2), style:TextStyle(
-            fontSize: 14.sp,
+            fontSize: 16.sp,
             fontWeight: FontWeight.bold
           )),
           SizedBox(width: 4), // Spacing only if icon exists
-          if (icon != null) Icon(icon, size: 14.sp, color: textColor),
+          if (icon != null) Icon(icon, size: 16.sp, color: textColor),
           SizedBox(width: icon != null ? 4.0 : 0), // Spacing only if icon exists
           Text(
             displayText,
-            style: TextStyle(fontSize: 14.sp, color: textColor, fontWeight: FontWeight.bold
+            style: TextStyle(fontSize: 16.sp, color: textColor, fontWeight: FontWeight.bold
             ),
           ),
         ],
       );
     },
     loading: () => LoadingAnimationWidget.progressiveDots(
-      size: 14.sp,
+      size: 16.sp,
       color: Colors.black,
     ),
     error: (error, stack) => Text(
       'Error',
-      style: TextStyle(fontSize: 14.sp, color: Colors.black),
+      style: TextStyle(fontSize: 16.sp, color: Colors.black),
     ),
   );
 }
@@ -301,7 +302,7 @@ class BalanceCard extends ConsumerWidget {
           'Buy',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 12.sp, // Adjust size as needed
+            fontSize: 16.sp, // Adjust size as needed
             fontWeight: FontWeight.bold, // Optional: makes it stand out
           ),
         ),
@@ -325,7 +326,8 @@ class BalanceCard extends ConsumerWidget {
           ),
           IconButton(
             onPressed: () {
-              // TODO: Implement receive functionality
+              ref.read(selectedReceiveTypeProvider.notifier).state = networkFilter;
+              context.push('/home/receive');
             },
             icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.w),
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
@@ -376,7 +378,7 @@ class BalanceCard extends ConsumerWidget {
                         Text(
                           ' (${networkShortNames[networkFilter] ?? networkFilter})',
                           style: TextStyle(
-                            fontSize: 14.sp,
+                            fontSize: 16.sp,
                             color: Colors.black,
                           ),
                         ),
