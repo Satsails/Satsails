@@ -9,14 +9,14 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart'; // <-- mobile_scanner
 import 'package:quickalert/quickalert.dart';
 
-class Pay extends ConsumerStatefulWidget {
-  const Pay({super.key});
+class Camera extends ConsumerStatefulWidget {
+  const Camera({super.key});
 
   @override
-  _PayState createState() => _PayState();
+  _CameraState createState() => _CameraState();
 }
 
-class _PayState extends ConsumerState<Pay> {
+class _CameraState extends ConsumerState<Camera> {
   /// We replace `QRViewController` with `MobileScannerController`.
   MobileScannerController? _controller;
 

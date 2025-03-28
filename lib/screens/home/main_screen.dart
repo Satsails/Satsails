@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/screens/explore/explore.dart';
@@ -14,15 +15,15 @@ class MainScreen extends ConsumerWidget {
 
   // Reset provider unless the screen is Exchange (index 2)
   void _resetProviders(WidgetRef ref, int index) {
-    if (index != 2) { // Skip reset for Exchange screen
+    if (index == 2) { // Skip reset for Exchange screen
       Future.microtask(() {
-        ref.read(shouldUpdateMemoryProvider.notifier).state = true;
         ref.read(sendTxProvider.notifier).resetToDefault();
         ref.read(sendBlocksProvider.notifier).state = 1;
+        ref.read(shouldUpdateMemoryProvider.notifier).state = false;
       });
     }else {
       Future.microtask(() {
-        ref.read(shouldUpdateMemoryProvider.notifier).state = false;
+        ref.read(shouldUpdateMemoryProvider.notifier).state = true;
       });
     }
   }

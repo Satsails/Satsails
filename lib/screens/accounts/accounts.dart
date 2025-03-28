@@ -17,7 +17,6 @@ import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
-import 'package:Satsails/screens/pay/pay.dart';
 
 class Accounts extends ConsumerWidget {
   const Accounts({super.key});
@@ -423,7 +422,7 @@ class Accounts extends ConsumerWidget {
                 TextButton(
                   onPressed: () {
                     // Open the Pay modal sheet when "Send" is clicked
-                    _showPayModalSheet(context, ref);
+                    // _showPayModalSheet(context, ref);
                   },
                   child: Row(
                     children: [
@@ -589,22 +588,22 @@ class Accounts extends ConsumerWidget {
     );
   }
 
-  void _showPayModalSheet(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
-      backgroundColor: Colors.black,
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
-      ),
-      builder: (BuildContext context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          builder: (context, scrollController) {
-            return const Pay();
-          },
-        );
-      },
-    );
-  }
+  // void _showPayModalSheet(BuildContext context, WidgetRef ref) {
+  //   showModalBottomSheet(
+  //     backgroundColor: Colors.black,
+  //     context: context,
+  //     isScrollControlled: true,
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+  //     ),
+  //     builder: (BuildContext context) {
+  //       return DraggableScrollableSheet(
+  //         expand: false,
+  //         builder: (context, scrollController) {
+  //           return Pay();
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 }

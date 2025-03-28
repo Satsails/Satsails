@@ -26,7 +26,6 @@ import 'package:Satsails/screens/creation/set_pin.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/login/open_pin.dart';
 import 'package:Satsails/screens/services/services.dart';
-import 'package:Satsails/screens/pay/pay.dart';
 import 'package:Satsails/screens/creation/recover_wallet.dart';
 import 'package:Satsails/screens/pay/components/confirm_bitcoin_payment.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
@@ -198,38 +197,49 @@ class AppRouter {
             state: state,
           ),
         ),
-        // Main screen with subroutes
         GoRoute(
           path: '/home',
-          name: 'home',
+          name: 'home', // Already named
           pageBuilder: (context, state) => _buildFadeScalePage(
             child: const MainScreen(),
             state: state,
           ),
           routes: [
             GoRoute(
-              path: '/pay',
-              pageBuilder: (context, state) => _buildFadeScalePage(
-                child: const Pay(),
-                state: state,
-              ),
+              path: 'pay', // Corrected to relative path
+              name: 'pay',
+              redirect: (context, state) {
+                final asset = (state.extra as String?)?.toLowerCase();
+                switch (asset) {
+                  case 'bitcoin':
+                    return state.namedLocation('pay_bitcoin');
+                  case 'liquid':
+                    return state.namedLocation('pay_liquid');
+                  case 'lightning':
+                    return state.namedLocation('pay_lightning');
+                }
+                return null;
+              },
               routes: [
                 GoRoute(
-                  path: '/confirm_bitcoin_payment',
+                  path: 'confirm_bitcoin_payment', // Corrected to relative path
+                  name: 'pay_bitcoin',
                   pageBuilder: (context, state) => _buildFadeScalePage(
                     child: const ConfirmBitcoinPayment(),
                     state: state,
                   ),
                 ),
                 GoRoute(
-                  path: '/confirm_liquid_payment',
+                  path: 'confirm_liquid_payment', // Corrected to relative path
+                  name: 'pay_liquid',
                   pageBuilder: (context, state) => _buildFadeScalePage(
                     child: const ConfirmLiquidPayment(),
                     state: state,
                   ),
                 ),
                 GoRoute(
-                  path: '/confirm_custodial_lightning_payment',
+                  path: 'confirm_custodial_lightning_payment', // Corrected to relative path
+                  name: 'pay_lightning',
                   pageBuilder: (context, state) => _buildFadeScalePage(
                     child: const ConfirmCustodialLightningPayment(),
                     state: state,

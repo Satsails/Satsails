@@ -191,8 +191,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
      fetchAndUpdateTransactions(ref);
     _syncTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
       final appIsLocked = ref.read(appLockedProvider) == true;
-      final shouldUpdate = ref.watch(shouldUpdateMemoryProvider);
-      if (!appIsLocked && shouldUpdate) {
+      if (!appIsLocked) {
         fetchAndUpdateTransactions(ref);
         ref.read(updateCurrencyProvider);
         ref.read(backgroundSyncNotifierProvider.notifier).performSync();

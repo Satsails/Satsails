@@ -3,8 +3,7 @@ import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
-import 'package:Satsails/screens/receive/receive.dart';
+import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
@@ -15,6 +14,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+
+final selectedNetworkTypeProvider = StateProvider<String>((ref) => "Bitcoin network");
 
 class SimplifiedExpensesGraph extends StatelessWidget {
   final Map<DateTime, num> dataToDisplay;
@@ -290,14 +291,16 @@ class BalanceCard extends ConsumerWidget {
         children: [
           IconButton(
             onPressed: () {
-              // TODO: Implement send functionality
+              ref.read(sendTxProvider.notifier).resetToDefault();
+              ref.read(sendBlocksProvider.notifier).state = 1;
+              context.push('/home/pay', extra: 'bitcoin');
             },
             icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.w),
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
           ),
           IconButton(
             onPressed: () {
-              ref.read(selectedReceiveTypeProvider.notifier).state = networkFilter;
+              ref.read(selectedNetworkTypeProvider.notifier).state = networkFilter;
               context.push('/home/receive');
             },
             icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.w),

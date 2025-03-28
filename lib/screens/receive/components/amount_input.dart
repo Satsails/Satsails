@@ -8,10 +8,12 @@ import 'package:i18n_extension/default.i18n.dart';
 
 class AmountInput extends ConsumerWidget {
   final TextEditingController controller;
+  final String label;
 
   const AmountInput({
     super.key,
     required this.controller,
+    this.label = '(Optional)',
   });
 
   @override
@@ -26,7 +28,7 @@ class AmountInput extends ConsumerWidget {
         Padding(
           padding: EdgeInsets.only(bottom: 8.h),
           child: Text(
-            'Amount to receive'.i18n,
+            'Amount'.i18n,
             style: TextStyle(
               fontSize: 18.sp,
               color: Colors.white,
@@ -65,7 +67,7 @@ class AmountInput extends ConsumerWidget {
                 textAlign: TextAlign.left, // Left-aligned text
                 decoration: InputDecoration(
                   border: InputBorder.none,
-                  hintText: '(Optional)', // Updated placeholder
+                  hintText: label.i18n,
                   hintStyle: const TextStyle(color: Colors.white70),
                   contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                   isDense: true,

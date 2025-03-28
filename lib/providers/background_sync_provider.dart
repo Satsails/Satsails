@@ -150,7 +150,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   Future<WalletBalance> performSync() async {
     return await handleSync(
       syncOperation: () async {
-        if (ref.read(backgroundSyncInProgressProvider)) {
+        if (ref.read(backgroundSyncInProgressProvider) || ref.read(shouldUpdateMemoryProvider) == false) {
           debugPrint('Sync already in progress. Skipping...');
           return ref.read(balanceNotifierProvider);
         }
@@ -312,3 +312,5 @@ final backgroundSyncNotifierProvider =
 AsyncNotifierProvider<BackgroundSyncNotifier, WalletBalance>(BackgroundSyncNotifier.new);
 
 final backgroundSyncInProgressProvider = StateProvider<bool>((ref) => false);
+
+final shouldUpdateMemoryProvider = StateProvider<bool>((ref) => true);

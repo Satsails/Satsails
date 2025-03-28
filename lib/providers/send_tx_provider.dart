@@ -73,7 +73,7 @@ final feeProvider = FutureProvider.autoDispose<int>((ref) async {
 
 final bitcoinTransactionBuilderProvider =  FutureProvider.autoDispose.family<bitcoinModel.TransactionBuilder, int>((ref, amount) async {
   final double fee = await ref.read(bitcoinProvider.getCustomFeeRateProvider.future).then((value) => value);
-  final address = ref.watch(sendTxProvider.notifier).state.address;
+  final address = ref.watch(sendTxProvider).address;
   return bitcoinModel.TransactionBuilder(amount, address, fee);
 });
 
@@ -121,7 +121,7 @@ final liquidAssetFeeProvider = FutureProvider.autoDispose<int>((ref) async {
 
 final liquidTransactionBuilderProvider =  FutureProvider.autoDispose.family<liquidModel.TransactionBuilder, int>((ref, amount) async {
   final double fee = await ref.read(liquidProvider.getCustomFeeRateProvider.future).then((value) => value);
-  final address = ref.watch(sendTxProvider.notifier).state.address;
+  final address = ref.watch(sendTxProvider).address;
   final asset = ref.watch(sendTxProvider).assetId;
   return liquidModel.TransactionBuilder(amount: amount, outAddress: address, fee: fee, assetId: asset);
 });
@@ -160,9 +160,9 @@ final currentCardIndexProvider = StateProvider.autoDispose<int>((ref) {
 });
 
 final assetBalanceProvider = StateProvider.autoDispose<int>((ref) {
-  final currentCardIndex = ref.watch(currentCardIndexProvider.notifier);
+  final currentCardIndex = ref.watch(currentCardIndexProvider);
   final balance = ref.read(balanceNotifierProvider);
-  switch (currentCardIndex.state) {
+  switch (currentCardIndex) {
     case 0:
       return balance.liquidBalance;
     case 1:
