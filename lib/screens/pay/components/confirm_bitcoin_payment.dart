@@ -255,44 +255,35 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                   ),
                                 ),
                               ),
-                              Stack(
-                                alignment: Alignment.topRight,
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF2B2B2B),
-                                      borderRadius: BorderRadius.circular(8.0),
+                              Container(
+                                padding: EdgeInsets.symmetric(vertical: 8.h),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2B2B2B),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                child: TextFormField(
+                                  controller: addressController,
+                                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                                  cursorColor: Colors.white,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: 'Enter recipient address'.i18n,
+                                    hintStyle: TextStyle(color: Colors.white70),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 16.w,
+                                      vertical: 12.h,
                                     ),
-                                    child: TextFormField(
-                                      controller: addressController,
-                                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                                      cursorColor: Colors.white,
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: 'Enter recipient address'.i18n,
-                                        hintStyle: TextStyle(color: Colors.white70),
-                                        contentPadding: EdgeInsets.symmetric(
-                                          horizontal: 16.w,
-                                          vertical: 12.h,
-                                        ),
-                                      ),
-                                      onChanged: (value) {
-                                        ref.read(sendTxProvider.notifier).updateAddress(value);
-                                      },
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: 8.h,
-                                    right: 0,
-                                    child: IconButton(
-                                      icon: Icon(Icons.qr_code, color: Colors.white, size: 24.w),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(Icons.camera_alt, color: Colors.white, size: 24.w),
                                       onPressed: () {
-                                        // TODO: Implement QR code scanning logic
+                                        // TODO: Implement QR code scanning logic using camera
                                       },
                                     ),
                                   ),
-                                ],
+                                  onChanged: (value) {
+                                    ref.read(sendTxProvider.notifier).updateAddress(value);
+                                  },
+                                ),
                               ),
                             ],
                           ),
