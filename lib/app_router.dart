@@ -1,4 +1,6 @@
+import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
+import 'package:Satsails/screens/analytics/components/peg_details.dart';
 import 'package:Satsails/screens/explore/components/deposit_bitcoin_pix_nox.dart';
 import 'package:Satsails/screens/explore/components/deposit_method.dart';
 import 'package:Satsails/screens/explore/components/deposit_depix_pix_eulen.dart';
@@ -8,6 +10,7 @@ import 'package:Satsails/screens/explore/components/sell_type.dart';
 import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/creation/confirm_pin.dart';
 import 'package:Satsails/screens/login/seed_words_pin.dart';
+import 'package:Satsails/screens/pay/components/camera.dart';
 import 'package:Satsails/screens/pay/components/confirm_custodial_lightning_payment.dart';
 import 'package:Satsails/screens/shared/affiliate_screen.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
@@ -123,6 +126,17 @@ class AppRouter {
           },
         ),
         GoRoute(
+          path: '/peg-details',
+          name: 'pegDetails',
+          pageBuilder: (context, state) {
+            final transaction = state.extra as SideswapPegStatus;
+            return _buildFadeScalePage(
+              child: PegDetails(swap: transaction),
+              state: state,
+            );
+          },
+        ),
+        GoRoute(
           path: '/liquid-transaction-details',
           name: 'liquidTransactionDetails',
           pageBuilder: (context, state) {
@@ -228,6 +242,16 @@ class AppRouter {
                     child: const ConfirmBitcoinPayment(),
                     state: state,
                   ),
+                  routes: [
+                    GoRoute(
+                      path: 'camera',
+                      name: 'camera',
+                      pageBuilder: (context, state) => _buildFadeScalePage(
+                        child: const Camera(),
+                        state: state,
+                      ),
+                    ),
+                  ]
                 ),
                 GoRoute(
                   path: 'confirm_liquid_payment', // Corrected to relative path

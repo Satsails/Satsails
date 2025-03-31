@@ -23,4 +23,3 @@ final coinGeckoBitcoinMarketDataProvider = FutureProvider.autoDispose<List<Marke
   final market = await coingeckoModel.getBitcoinMarketData(marketInfo);
   return market;
 });
-

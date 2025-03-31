@@ -371,7 +371,7 @@ Widget _simpleFeeText(String label, double fee, WidgetRef ref) {
         label.i18n,
         style: TextStyle(
           color: Colors.white70,
-          fontSize: 14.sp,
+          fontSize: 12.sp,
           fontWeight: FontWeight.w400,
         ),
       ),
@@ -380,7 +380,7 @@ Widget _simpleFeeText(String label, double fee, WidgetRef ref) {
         "$wholeFee sat/vB",
         style: TextStyle(
           color: Colors.white,
-          fontSize: 14.sp,
+          fontSize: 12.sp,
           fontWeight: FontWeight.w600,
         ),
       ),

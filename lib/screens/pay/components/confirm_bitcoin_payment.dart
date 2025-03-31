@@ -23,7 +23,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 Widget buildTransactionDetailsCard(WidgetRef ref) {
   return Card(
-    color: Colors.grey.shade900,
+    color: Color(0xFF212121),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
     elevation: 4,
     child: Padding(
@@ -216,8 +216,8 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                             padding: EdgeInsets.all(16.sp),
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF2B2B2B),
-                              borderRadius: BorderRadius.circular(8.0),
+                              color: const Color(0xFF212121),
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Column(
                               children: [
@@ -258,8 +258,8 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                               Container(
                                 padding: EdgeInsets.symmetric(vertical: 8.h),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF2B2B2B),
-                                  borderRadius: BorderRadius.circular(8.0),
+                                  color: const Color(0xFF212121),
+                                  borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: TextFormField(
                                   controller: addressController,
@@ -276,7 +276,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                     suffixIcon: IconButton(
                                       icon: Icon(Icons.camera_alt, color: Colors.white, size: 24.w),
                                       onPressed: () {
-                                        // TODO: Implement QR code scanning logic using camera
+                                        context.pushReplacementNamed('camera');
                                       },
                                     ),
                                   ),
@@ -304,8 +304,8 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF2B2B2B),
-                                  borderRadius: BorderRadius.circular(8.0),
+                                  color: const Color(0xFF212121),
+                                  borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -475,7 +475,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                                 padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                                                 decoration: BoxDecoration(
                                                   color: Colors.white,
-                                                  borderRadius: BorderRadius.circular(4.r),
+                                                  borderRadius: BorderRadius.circular(8.r),
                                                 ),
                                                 child: Text(
                                                   'Max',

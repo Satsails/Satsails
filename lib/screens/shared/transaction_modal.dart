@@ -373,7 +373,7 @@ class _PaymentTransactionOverlayState
             // Main Card
             Container(
               decoration: BoxDecoration(
-                color: Colors.grey[900],
+                color: Color(0xFF2B2B2B),
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),

@@ -2433,6 +2433,10 @@ extension Localization on String {
       {
         'en': "Enter your 6-digit PIN to view seed words",
         'pt': " Digite o seu PIN para ver as palavras-chave",
+      }+
+      {
+        'en': "Address is invalid",
+        'pt': "Endereço inválido"
       };
 
   String get i18n => localize(this, _t);

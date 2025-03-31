@@ -90,7 +90,9 @@ class BitcoinModel {
       throw "Insufficient funds";
     } on OutputBelowDustLimitException catch (_) {
       throw 'Amount is too small';
-    }
+    } on AddressException catch (_){
+      throw 'Address is invalid';
+      }
   }
 
   Future<(PartiallySignedTransaction, TransactionDetails)> drainWalletBitcoinTransaction(TransactionBuilder transaction) async {
@@ -107,6 +109,8 @@ class BitcoinModel {
       throw "Insufficient funds for a transaction this fast";
     } on OutputBelowDustLimitException catch (_) {
       throw 'Amount is too small';
+    } on AddressException catch (_){
+      throw 'Address is invalid';
     }
   }
 
