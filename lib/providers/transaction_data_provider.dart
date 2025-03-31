@@ -15,7 +15,7 @@ final setAddressAndAmountProvider = FutureProvider.autoDispose.family<AddressAnd
       ref.read(sendTxProvider.notifier).updateAddress(addressAndAmount.address);
       ref.read(sendTxProvider.notifier).updateAmount(addressAndAmount.amount ?? 0);
       ref.read(sendTxProvider.notifier).updatePaymentType(addressAndAmount.type);
-      ref.read(sendTxProvider.notifier).updateAssetId(addressAndAmount.assetId ?? '');
+      // ref.read(sendTxProvider.notifier).updateAssetId(addressAndAmount.assetId ?? '');
     });
     return addressAndAmount;
   } catch (e) {

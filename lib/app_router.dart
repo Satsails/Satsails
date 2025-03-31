@@ -256,7 +256,7 @@ class AppRouter {
                   path: 'confirm_bitcoin_payment', // Corrected to relative path
                   name: 'pay_bitcoin',
                   pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: const ConfirmBitcoinPayment(),
+                    child: ConfirmBitcoinPayment(key: UniqueKey()),
                     state: state,
                   ),
                 ),
@@ -264,7 +264,7 @@ class AppRouter {
                   path: 'confirm_liquid_payment', // Corrected to relative path
                   name: 'pay_liquid',
                   pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: const ConfirmLiquidPayment(),
+                    child: ConfirmLiquidPayment(key: UniqueKey()),
                     state: state,
                   ),
                 ),

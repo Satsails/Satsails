@@ -53,8 +53,9 @@ class _CameraState extends ConsumerState<Camera> {
       confirmBtnText: 'OK',
       confirmBtnColor: Colors.redAccent,
       onConfirmBtnTap: () {
-        Navigator.of(context).pop(); // Close the dialog
-        _controller?.start(); // Restart the camera
+        Navigator.of(context).pop();
+        ref.read(sendTxProvider.notifier).resetToDefault();
+        _controller?.start();
       },
       widget: Padding(
         padding: const EdgeInsets.only(top: 16),
@@ -85,7 +86,7 @@ class _CameraState extends ConsumerState<Camera> {
         if (providerPaymentType != widget.paymentType) {
           _showErrorDialog(
             context,
-            'Scanned payment type (${providerPaymentType.toString().split('.').last}) does not match expected type (${widget.paymentType.toString().split('.').last})',
+            'Scanned payment type does not match expected type',
           );
           break;
         }

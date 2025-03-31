@@ -136,21 +136,43 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
   late String btcFormat;
   late String currency;
   late double currencyRate;
-  late dynamic sendTxState;
+
+  void updateControllerText(int satsAmount) {
+    final selectedCurrency = ref.read(inputCurrencyProvider);
+    if (satsAmount == 0) {
+      controller.text = '';
+      return;
+    }
+
+    final converted = calculateAmountInSelectedCurrency(
+      satsAmount,
+      selectedCurrency,
+      ref.read(currencyNotifierProvider),
+    );
+
+    controller.text = selectedCurrency == 'BTC'
+        ? converted
+        : selectedCurrency == 'Sats'
+        ? satsAmount.toString()
+        : double.parse(converted).toStringAsFixed(2);
+  }
 
   @override
   void initState() {
     super.initState();
-    sendTxState = ref.read(sendTxProvider);
-    btcFormat = ref.read(settingsProvider).btcFormat;
-    currency = ref.read(settingsProvider).currency;
+    final settings = ref.read(settingsProvider);
+    btcFormat = settings.btcFormat;
+    currency = settings.currency;
     currencyRate = ref.read(selectedCurrencyProvider(currency));
 
-    final sendAmount = sendTxState.btcBalanceInDenominationFormatted(btcFormat);
-    controller.text = sendAmount == 0
-        ? ''
-        : (btcFormat == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString());
-    addressController.text = sendTxState.address;
+    final sendTxState = ref.read(sendTxProvider);
+    updateControllerText(sendTxState.amount);
+    final address = sendTxState.address;
+    if (address != null) {
+      addressController.text = address;
+    } else {
+      addressController.text = '';
+    }
   }
 
   @override
@@ -162,15 +184,16 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
 
   @override
   Widget build(BuildContext context) {
+    final sendTxState = ref.watch(sendTxProvider);
     final btcBalanceInFormat = ref.read(btcBalanceInFormatProvider(btcFormat));
     final valueInBtc = ref.watch(btcBalanceInFormatProvider('BTC')) == '0.00000000'
         ? 0
         : double.parse(ref.watch(btcBalanceInFormatProvider('BTC')));
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
+
     Future.microtask(() => {
       ref.read(shouldUpdateMemoryProvider.notifier).state = false,
     });
-
 
     return PopScope(
       canPop: !isProcessing,
