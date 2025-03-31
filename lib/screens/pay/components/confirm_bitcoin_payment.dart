@@ -25,6 +25,7 @@ Widget buildTransactionDetailsCard(WidgetRef ref) {
   return Card(
     color: Color(0xFF212121),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+    margin: EdgeInsets.zero,
     elevation: 4,
     child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.sp),
@@ -193,7 +194,10 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
                   if (!isProcessing) {
-                    context.pop();
+                    ref.read(sendTxProvider.notifier).resetToDefault();
+                    ref.read(sendBlocksProvider.notifier).state = 1;
+                    ref.read(shouldUpdateMemoryProvider.notifier).state = true;
+                    context.replace('/home');
                   } else {
                     showMessageSnackBarInfo(
                       message: "Transaction in progress, please wait.".i18n,
@@ -472,7 +476,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                                 }
                                               },
                                               child: Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                                                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                                                 decoration: BoxDecoration(
                                                   color: Colors.white,
                                                   borderRadius: BorderRadius.circular(8.r),

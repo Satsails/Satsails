@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:bech32/bech32.dart';
 import 'package:lwk/lwk.dart';
 import 'package:Satsails/models/liquid_config_model.dart';
 import 'dart:convert';
@@ -56,6 +57,8 @@ class LiquidModel {
     } catch (e) {
       if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
         throw "Insufficient funds";
+      } else if (e.toString().contains("LwkError(msg: Base58(TooShort(TooShortError { length: 0 })))") || e.toString().contains("InvalidChecksum")) {
+        throw "Address is invalid";
       }
       throw e.toString();
     }
@@ -73,6 +76,8 @@ class LiquidModel {
     } catch (e) {
       if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
         throw "Insufficient funds";
+      } else if (e.toString().contains("LwkError(msg: Base58(TooShort(TooShortError { length: 0 })))") || e.toString().contains("InvalidChecksum")) {
+        throw "Address is invalid";
       }
       throw e.toString();
     }
@@ -91,6 +96,8 @@ class LiquidModel {
     } catch (e) {
       if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
         throw "Insufficient funds, or not enough liquid bitcoin to pay fees.";
+      } else if (e.toString().contains("LwkError(msg: Base58(TooShort(TooShortError { length: 0 })))") || e.toString().contains("InvalidChecksum")) {
+        throw "Address is invalid";
       }
       throw e.toString();
     }

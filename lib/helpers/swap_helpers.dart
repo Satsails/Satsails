@@ -422,7 +422,7 @@ Widget buildBalanceCardWithMaxButton(WidgetRef ref, TextEditingController contro
                 },
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                  backgroundColor: Colors.orange,
+                  backgroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.r),
                   ),
@@ -430,7 +430,7 @@ Widget buildBalanceCardWithMaxButton(WidgetRef ref, TextEditingController contro
                 child: Text(
                   'Max',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1682,7 +1682,7 @@ Widget buildAdvancedOptionsCard(WidgetRef ref) {
           'Transaction fees'.i18n,
           style: TextStyle(
             color: Colors.white,
-            fontSize: 14.sp,
+            fontSize: 16.sp,
             fontWeight: FontWeight.bold,
           ),
         ),

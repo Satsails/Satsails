@@ -293,7 +293,7 @@ class BalanceCard extends ConsumerWidget {
             onPressed: () {
               ref.read(sendTxProvider.notifier).resetToDefault();
               ref.read(sendBlocksProvider.notifier).state = 1;
-              context.push('/home/pay', extra: 'bitcoin');
+              context.push('/home/pay', extra: 'liquid');
             },
             icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.w),
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
@@ -432,7 +432,7 @@ class BalanceCard extends ConsumerWidget {
               ),
             ),
             Positioned(
-              bottom: -20.h,
+              bottom: -25.h,
               child: bottomButtons,
             ),
           ],
