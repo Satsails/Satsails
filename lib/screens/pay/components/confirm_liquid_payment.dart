@@ -22,6 +22,179 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
 
+Future<bool> showConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
+  final settings = ref.read(settingsProvider);
+  final currency = settings.currency;
+  final amountInCurrency = ref.read(bitcoinValueInCurrencyProvider);
+
+  // Split address for stylish display (matching shortenString logic)
+  String shortenAddress(String value) {
+    if (value.length <= 12) return value;
+    return '${value.substring(0, 6)}...${value.substring(value.length - 6)}';
+  }
+
+  return await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        backgroundColor: const Color(0xFF212121),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        elevation: 4,
+        contentPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h), // Using ScreenUtil
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title
+              Center(
+                child: Text(
+                  'Confirm Transaction'.i18n,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.sp, // Using ScreenUtil
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(height: 24.h), // Using ScreenUtil
+
+              // Amount
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 6.h), // Using ScreenUtil
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Amount'.i18n,
+                      style: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 16.sp, // Using ScreenUtil
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '$amount $btcFormat',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.sp, // Using ScreenUtil
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          '${currencyFormat(amountInCurrency, currency)} $currency',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 14.sp, // Using ScreenUtil
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Recipient
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 6.h), // Using ScreenUtil
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Recipient'.i18n,
+                      style: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 16.sp, // Using ScreenUtil
+                      ),
+                    ),
+                    SizedBox(height: 6.h), // Using ScreenUtil
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h), // Using ScreenUtil
+                      decoration: BoxDecoration(
+                        color: Colors.grey[800],
+                        borderRadius: BorderRadius.circular(6.r), // Using ScreenUtil
+                      ),
+                      child: Expanded(
+                        child: Text(
+                          shortenAddress(address),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14.sp, // Using ScreenUtil
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Fee
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 6.h), // Using ScreenUtil
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Fee'.i18n,
+                      style: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 16.sp, // Using ScreenUtil
+                      ),
+                    ),
+                    Text(
+                      '$fee sats',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp, // Using ScreenUtil
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'Cancel'.i18n,
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontSize: 16.sp, // Using ScreenUtil
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.r)), // Using ScreenUtil
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h), // Using ScreenUtil
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              'Confirm'.i18n,
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 16.sp, // Using ScreenUtil
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+        actionsPadding: EdgeInsets.only(left: 24.w, right: 24.w, bottom: 16.h), // Using ScreenUtil
+      );
+    },
+  ) ?? false;
+}
+
 Widget buildTransactionDetailsCard(WidgetRef ref) {
   return Card(
     color: Color(0xFF212121),
@@ -537,7 +710,6 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                       ),
                     ),
                   ),
-                  // Action Slider
                   ActionSlider.standard(
                     sliderBehavior: SliderBehavior.stretch,
                     width: double.infinity,
@@ -548,24 +720,45 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                         isProcessing = true;
                       });
                       controller.loading();
+
                       try {
-                        final tx = await ref.watch(sendLiquidTransactionProvider.future);
-                        showFullscreenTransactionSendModal(
-                          context: context,
-                          asset: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).name,
-                          amount: btcInDenominationFormatted(ref.watch(sendTxProvider).amount, btcFormat),
-                          fiat: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).isFiat,
-                          fiatAmount: ref.watch(sendTxProvider).amount.toString(),
-                          txid: tx,
-                          isLiquid: true,
-                          receiveAddress: ref.read(sendTxProvider).address,
-                          confirmationBlocks: ref.read(sendBlocksProvider.notifier).state.toInt(),
+                        // Get the current transaction details
+                        final sendTxState = ref.read(sendTxProvider);
+                        final fee = await ref.read(liquidFeeProvider.future);
+
+                        // Show confirmation modal
+                        final confirmed = await showConfirmationModal(
+                          context,
+                          btcInDenominationFormatted(sendTxState.amount, btcFormat),
+                          sendTxState.address ?? '',
+                          fee,
+                          btcFormat,
+                          ref
                         );
 
-                        ref.read(sendTxProvider.notifier).resetToDefault();
-                        ref.read(sendBlocksProvider.notifier).state = 1;
-                        ref.read(shouldUpdateMemoryProvider.notifier).state = true;
-                        context.replace('/home');
+                        if (confirmed) {
+                          // Proceed with transaction only if user confirms
+                          final tx = await ref.watch(sendLiquidTransactionProvider.future);
+
+                          showFullscreenTransactionSendModal(
+                            context: context,
+                            asset: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).name,
+                            amount: btcInDenominationFormatted(ref.watch(sendTxProvider).amount, btcFormat),
+                            fiat: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).isFiat,
+                            fiatAmount: ref.watch(sendTxProvider).amount.toString(),
+                            txid: tx,
+                            isLiquid: true,
+                            receiveAddress: ref.read(sendTxProvider).address,
+                            confirmationBlocks: ref.read(sendBlocksProvider.notifier).state.toInt(),
+                          );
+
+                          ref.read(sendTxProvider.notifier).resetToDefault();
+                          ref.read(sendBlocksProvider.notifier).state = 1;
+                          ref.read(shouldUpdateMemoryProvider.notifier).state = true;
+                          context.replace('/home');
+                        } else {
+                          controller.reset();
+                        }
                       } catch (e) {
                         controller.failure();
                         showMessageSnackBar(
