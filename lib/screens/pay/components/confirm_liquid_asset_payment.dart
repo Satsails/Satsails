@@ -1,12 +1,12 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
-import 'package:Satsails/helpers/swap_helpers.dart';
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -15,19 +15,18 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
-import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 Widget buildTransactionDetailsCard(WidgetRef ref) {
   return Card(
     color: Color(0xFF212121),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
     margin: EdgeInsets.zero,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
     elevation: 4,
     child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.sp),
@@ -58,15 +57,15 @@ Widget buildTransactionDetailsCard(WidgetRef ref) {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Amount:'.i18n,
-                style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold)
+                  'Amount:'.i18n,
+                  style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold)
               ),
               Text(currencyFormat(ref.watch(bitcoinValueInCurrencyProvider), ref.watch(settingsProvider).currency), style: TextStyle(fontSize: 16.sp, color: Colors.white),
               ),
             ],
           ),
           SizedBox(height: 16.h),
-          ref.watch(feeProvider).when(
+          ref.watch(liquidFeeProvider).when(
             data: (int fee) {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -94,7 +93,7 @@ Widget buildTransactionDetailsCard(WidgetRef ref) {
             ),
           ),
           SizedBox(height: 8.h),
-          ref.watch(feeValueInCurrencyProvider).when(
+          ref.watch(liquidFeeValueInCurrencyProvider).when(
             data: (double feeValue) {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -104,7 +103,7 @@ Widget buildTransactionDetailsCard(WidgetRef ref) {
                     style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                  currencyFormat(feeValue, ref.watch(settingsProvider).currency),
+                    currencyFormat(feeValue, ref.watch(settingsProvider).currency),
                     style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -122,14 +121,17 @@ Widget buildTransactionDetailsCard(WidgetRef ref) {
   );
 }
 
-class ConfirmBitcoinPayment extends ConsumerStatefulWidget {
-  const ConfirmBitcoinPayment({super.key});
+
+
+
+class ConfirmLiquidPayment extends ConsumerStatefulWidget {
+  const ConfirmLiquidPayment({super.key});
 
   @override
-  _ConfirmBitcoinPaymentState createState() => _ConfirmBitcoinPaymentState();
+  _ConfirmLiquidPaymentState createState() => _ConfirmLiquidPaymentState();
 }
 
-class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
+class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
   final TextEditingController controller = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   bool isProcessing = false;
@@ -184,13 +186,11 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
 
   @override
   Widget build(BuildContext context) {
-    final sendTxState = ref.watch(sendTxProvider);
-    final btcBalanceInFormat = ref.read(btcBalanceInFormatProvider(btcFormat));
-    final valueInBtc = ref.watch(btcBalanceInFormatProvider('BTC')) == '0.00000000'
+    final btcBalanceInFormat = ref.read(liquidBalanceInFormatProvider(btcFormat));
+    final valueInBtc = ref.watch(liquidBalanceInFormatProvider('BTC')) == '0.00000000'
         ? 0
-        : double.parse(ref.watch(btcBalanceInFormatProvider('BTC')));
+        : double.parse(ref.watch(liquidBalanceInFormatProvider('BTC')));
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
-
     Future.microtask(() => {
       ref.read(shouldUpdateMemoryProvider.notifier).state = false,
     });
@@ -206,9 +206,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
           ref.read(sendBlocksProvider.notifier).state = 1;
-          Future.microtask(() => {
-            ref.read(shouldUpdateMemoryProvider.notifier).state = true,
-          });
+          ref.read(shouldUpdateMemoryProvider.notifier).state = true;
           context.replace('/home');
         }
       },
@@ -226,9 +224,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                   if (!isProcessing) {
                     ref.read(sendTxProvider.notifier).resetToDefault();
                     ref.read(sendBlocksProvider.notifier).state = 1;
-                    Future.microtask(() => {
-                      ref.read(shouldUpdateMemoryProvider.notifier).state = true,
-                    });
+                    ref.read(shouldUpdateMemoryProvider.notifier).state = true;
                     context.replace('/home');
                   } else {
                     showMessageSnackBarInfo(
@@ -258,7 +254,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                             child: Column(
                               children: [
                                 Text(
-                                  'Bitcoin Balance'.i18n,
+                                  'Liquid Balance'.i18n,
                                   style: TextStyle(color: Colors.white, fontSize: 16.sp),
                                 ),
                                 Text(
@@ -314,7 +310,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                       onPressed: () {
                                         context.pushNamed(
                                           'camera',
-                                          extra: {'paymentType': PaymentType.Bitcoin},
+                                          extra: {'paymentType': PaymentType.Liquid},
                                         );
                                       },
                                     ),
@@ -367,7 +363,8 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                             contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                                           ),
                                           onChanged: (value) async {
-                                            ref.read(inputAmountProvider.notifier).state = controller.text.isEmpty ? '0.0' : controller.text;
+                                            ref.read(inputAmountProvider.notifier).state =
+                                            controller.text.isEmpty ? '0.0' : controller.text;
                                             if (value.isEmpty) {
                                               ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
                                               ref.read(sendTxProvider.notifier).updateDrain(false);
@@ -483,24 +480,19 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                             child: GestureDetector(
                                               onTap: () async {
                                                 try {
-                                                  final balance = ref.watch(balanceNotifierProvider).btcBalance;
-                                                  final transactionBuilderParams = await ref
-                                                      .watch(bitcoinTransactionBuilderProvider(sendTxState.amount).future)
-                                                      .then((value) => value);
-                                                  final transaction = await ref
-                                                      .watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future)
-                                                      .then((value) => value);
-                                                  final fee = (transaction.$1.feeAmount() ?? BigInt.zero).toInt();
-                                                  final amountToSet = (balance - fee);
+                                                  final pset = await ref.watch(liquidDrainWalletProvider.future);
+                                                  final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
+                                                  final controllerValue = sendingBalance.abs();
                                                   final selectedCurrency = ref.watch(inputCurrencyProvider);
                                                   final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(
-                                                      amountToSet, selectedCurrency, ref.watch(currencyNotifierProvider));
-                                                  ref.read(sendTxProvider.notifier).updateAmountFromInput(amountToSet.toString(), 'sats');
+                                                      controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
                                                   controller.text = selectedCurrency == 'BTC'
                                                       ? amountToSetInSelectedCurrency
                                                       : selectedCurrency == 'Sats'
                                                       ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
                                                       : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
+                                                  ref.read(sendTxProvider.notifier).updateAmountFromInput(
+                                                      controllerValue.toString(), 'sats');
                                                   ref.read(sendTxProvider.notifier).updateDrain(true);
                                                 } catch (e) {
                                                   showMessageSnackBar(
@@ -537,8 +529,6 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                           ),
                           SizedBox(height: 16.h),
                           buildTransactionDetailsCard(ref),
-                          SizedBox(height: 16.h),
-                          bitcoinFeeSlider(ref),
                         ],
                       ),
                     ),
@@ -555,14 +545,15 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                       });
                       controller.loading();
                       try {
-                        final tx = await ref.watch(sendBitcoinTransactionProvider.future);
-
+                        final tx = await ref.watch(sendLiquidTransactionProvider.future);
                         showFullscreenTransactionSendModal(
                           context: context,
-                          asset: 'Bitcoin',
-                          amount: btcInDenominationFormatted(sendTxState.amount, btcFormat),
-                          fiat: false,
+                          asset: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).name,
+                          amount: btcInDenominationFormatted(ref.watch(sendTxProvider).amount, btcFormat),
+                          fiat: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).isFiat,
+                          fiatAmount: ref.watch(sendTxProvider).amount.toString(),
                           txid: tx,
+                          isLiquid: true,
                           receiveAddress: ref.read(sendTxProvider).address,
                           confirmationBlocks: ref.read(sendBlocksProvider.notifier).state.toInt(),
                         );
@@ -596,3 +587,401 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
     );
   }
 }
+
+
+// class ConfirmLiquidPayment extends ConsumerStatefulWidget {
+//   const ConfirmLiquidPayment({super.key});
+//
+//   @override
+//   _ConfirmLiquidPaymentState createState() => _ConfirmLiquidPaymentState();
+// }
+//
+// class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
+//   final TextEditingController controller = TextEditingController();
+//   final TextEditingController addressController = TextEditingController();
+//   bool isProcessing = false;
+//   late String btcFormat;
+//   late String currency;
+//   late double currencyRate;
+//   late dynamic sendTxState;
+//
+//
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     sendTxState = ref.read(sendTxProvider);
+//     btcFormat = ref.read(settingsProvider).btcFormat;
+//     currency = ref.read(settingsProvider).currency;
+//     currencyRate = ref.read(selectedCurrencyProvider(currency));
+//
+//     final sendAmount = sendTxState.btcBalanceInDenominationFormatted(btcFormat);
+//     controller.text = sendAmount == 0
+//         ? ''
+//         : (btcFormat == 'sats' ? sendAmount.toStringAsFixed(0) : sendAmount.toString());
+//     addressController.text = sendTxState.address;
+//   }
+//
+//   @override
+//   void dispose() {
+//     controller.dispose();
+//     addressController.dispose();
+//     super.dispose();
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final btcBalanceInFormat = ref.read(btcBalanceInFormatProvider(btcFormat));
+//     final valueInBtc = ref.watch(btcBalanceInFormatProvider('BTC')) == '0.00000000'
+//         ? 0
+//         : double.parse(ref.watch(btcBalanceInFormatProvider('BTC')));
+//     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
+//     Future.microtask(() => {ref.read(shouldUpdateMemoryProvider.notifier).state = false});
+//
+//     return PopScope(
+//       canPop: !isProcessing,
+//       onPopInvoked: (bool canPop) {
+//         if (isProcessing) {
+//           showMessageSnackBarInfo(
+//             message: "Transaction in progress, please wait.".i18n,
+//             context: context,
+//           );
+//         } else {
+//           ref.read(sendTxProvider.notifier).resetToDefault();
+//           ref.read(sendBlocksProvider.notifier).state = 1;
+//           ref.read(shouldUpdateMemoryProvider.notifier).state = true;
+//           context.replace('/home');
+//         }
+//       },
+//       child: SafeArea(
+//         child: KeyboardDismissOnTap(
+//           child: Scaffold(
+//             resizeToAvoidBottomInset: false,
+//             backgroundColor: Colors.black,
+//             appBar: AppBar(
+//               backgroundColor: Colors.black,
+//               title: Text('Confirm Payment'.i18n, style: const TextStyle(color: Colors.white)),
+//               leading: IconButton(
+//                 icon: const Icon(Icons.arrow_back, color: Colors.white),
+//                 onPressed: () {
+//                   if (!isProcessing) {
+//                     context.pop();
+//                   } else {
+//                     showMessageSnackBarInfo(
+//                       message: "Transaction in progress, please wait.".i18n,
+//                       context: context,
+//                     );
+//                   }
+//                 },
+//               ),
+//             ),
+//             body: Column(
+//               children: [
+//                 Expanded(
+//                   child: SingleChildScrollView(
+//                     child: Column(
+//                       children: [
+//                         LiquidCards(
+//                           titleFontSize: titleFontSize,
+//                           liquidFormart: liquidFormat,
+//                           liquidBalanceInFormat: liquidBalanceInFormat,
+//                           balance: balance,
+//                           dynamicPadding: dynamicPadding,
+//                           dynamicMargin: dynamicMargin,
+//                           dynamicCardHeight: dynamicCardHeight,
+//                           ref: ref,
+//                           controller: controller,
+//                         ),
+//                         Padding(
+//                           padding: EdgeInsets.symmetric(horizontal: dynamicPadding),
+//                           child: Center(
+//                             child: Container(
+//                               decoration: BoxDecoration(
+//                                 borderRadius: BorderRadius.circular(5.0),
+//                                 border: Border.all(color: Colors.grey, width: 1),
+//                               ),
+//                               child: Padding(
+//                                 padding: EdgeInsets.all(dynamicPadding / 2),
+//                                 child: Text(
+//                                   sendTxState.address,
+//                                   style: TextStyle(
+//                                     fontSize: titleFontSize / 1.5,
+//                                     color: Colors.white,
+//                                   ),
+//                                   textAlign: TextAlign.center,
+//                                 ),
+//                               ),
+//                             ),
+//                           ),
+//                         ),
+//                         Padding(
+//                           padding: EdgeInsets.only(top: dynamicPadding / 2),
+//                           child: FocusScope(
+//                             child: TextFormField(
+//                               controller: controller,
+//                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+//                               inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats'
+//                                   ? [DecimalTextInputFormatter(decimalRange: 0)]
+//                                   : (showBitcoinRelatedWidgets.state
+//                                   ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)]
+//                                   : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)]),
+//                               style: TextStyle(fontSize: dynamicFontSize * 3, color: Colors.white),
+//                               textAlign: TextAlign.center,
+//                               decoration: InputDecoration(
+//                                 border: InputBorder.none,
+//                                 hintText: showBitcoinRelatedWidgets.state ? '0' : '0.00',
+//                                 hintStyle: const TextStyle(color: Colors.white),
+//                               ),
+//                               onChanged: (value) async {
+//                                 if (showBitcoinRelatedWidgets.state) {
+//                                   ref.read(inputAmountProvider.notifier).state =
+//                                   controller.text.isEmpty ? '0.0' : controller.text;
+//                                   if (value.isEmpty) {
+//                                     ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+//                                     ref.read(sendTxProvider.notifier).updateDrain(false);
+//                                   }
+//                                   final amountInSats = calculateAmountInSatsToDisplay(
+//                                     value,
+//                                     ref.watch(inputCurrencyProvider),
+//                                     ref.watch(currencyNotifierProvider),
+//                                   );
+//                                   ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
+//                                 } else {
+//                                   ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
+//                                 }
+//                                 ref.read(sendTxProvider.notifier).updateDrain(false);
+//                               },
+//                             ),
+//                           ),
+//                         ),
+//                         if (showBitcoinRelatedWidgets.state) ...[
+//                           Text(
+//                             '${ref.watch(bitcoinValueInCurrencyProvider).toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
+//                             style: TextStyle(
+//                               fontSize: dynamicFontSize / 1.5,
+//                               color: Colors.white,
+//                               fontWeight: FontWeight.bold,
+//                             ),
+//                             textAlign: TextAlign.center,
+//                           ),
+//                           SizedBox(height: dynamicSizedBox),
+//                           Padding(
+//                             padding: const EdgeInsets.only(top: 8.0),
+//                             child: DropdownButtonHideUnderline(
+//                               child: DropdownButton<String>(
+//                                 hint: Text(
+//                                   "Select Currency",
+//                                   style: TextStyle(
+//                                       fontSize: dynamicFontSize / 2.7, color: Colors.white),
+//                                 ),
+//                                 dropdownColor: const Color(0xFF2B2B2B),
+//                                 value: ref.watch(inputCurrencyProvider),
+//                                 items: const [
+//                                   DropdownMenuItem(
+//                                     value: 'BTC',
+//                                     child: Center(
+//                                       child: Text('BTC',
+//                                           style: TextStyle(color: Color(0xFFD98100))),
+//                                     ),
+//                                   ),
+//                                   DropdownMenuItem(
+//                                     value: 'USD',
+//                                     child: Center(
+//                                       child: Text('USD',
+//                                           style: TextStyle(color: Color(0xFFD98100))),
+//                                     ),
+//                                   ),
+//                                   DropdownMenuItem(
+//                                     value: 'EUR',
+//                                     child: Center(
+//                                       child: Text('EUR', style: TextStyle(color: Color(0xFFD98100))),
+//                                     ),
+//                                   ),
+//                                   DropdownMenuItem(
+//                                     value: 'BRL',
+//                                     child: Center(
+//                                       child: Text('BRL', style: TextStyle(color: Color(0xFFD98100))),
+//                                     ),
+//                                   ),
+//                                   DropdownMenuItem(
+//                                     value: 'Sats',
+//                                     child: Center(
+//                                       child: Text('Sats', style: TextStyle(color: Color(0xFFD98100))),
+//                                     ),
+//                                   ),
+//                                 ],
+//                                 onChanged: (value) {
+//                                   ref.read(inputCurrencyProvider.notifier).state = value.toString();
+//                                   controller.text = '';
+//                                   ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
+//                                   ref.read(sendTxProvider.notifier).updateDrain(false);
+//                                 },
+//                               ),
+//                             ),
+//                           ),
+//                         ],
+//                         SizedBox(height: dynamicSizedBox),
+//                         Container(
+//                           decoration: BoxDecoration(
+//                             borderRadius: BorderRadius.circular(10),
+//                             color: Colors.white,
+//                           ),
+//                           child: Material(
+//                             color: Colors.transparent,
+//                             child: InkWell(
+//                               borderRadius: BorderRadius.circular(10),
+//                               onTap: () async {
+//                                 final assetId = ref.watch(sendTxProvider).assetId;
+//                                 try {
+//                                   if (assetId == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
+//                                     final pset = await ref.watch(liquidDrainWalletProvider.future);
+//                                     final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
+//                                     final controllerValue = sendingBalance.abs();
+//                                     final selectedCurrency = ref.watch(inputCurrencyProvider);
+//                                     final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(
+//                                         controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
+//                                     controller.text = selectedCurrency == 'BTC'
+//                                         ? amountToSetInSelectedCurrency
+//                                         : selectedCurrency == 'Sats'
+//                                         ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
+//                                         : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
+//                                     ref.read(sendTxProvider.notifier).updateAmountFromInput(
+//                                         controllerValue.toString(), 'sats');
+//                                     ref.read(sendTxProvider.notifier).updateDrain(true);
+//                                   } else {
+//                                     await ref.watch(liquidDrainWalletProvider.future);
+//                                     final sendingBalance = ref.watch(assetBalanceProvider);
+//                                     controller.text = fiatInDenominationFormatted(sendingBalance);
+//                                     ref.read(sendTxProvider.notifier).updateAmountFromInput(
+//                                         controller.text, btcFormat);
+//                                   }
+//                                 } catch (e) {
+//                                   showMessageSnackBar(
+//                                     message: e.toString().i18n,
+//                                     error: true,
+//                                     context: context,
+//                                   );
+//                                 }
+//                               },
+//                               child: Padding(
+//                                 padding: EdgeInsets.symmetric(
+//                                     horizontal: dynamicPadding / 1, vertical: dynamicPadding / 2.5),
+//                                 child: Text(
+//                                   'Max',
+//                                   style: TextStyle(
+//                                     fontSize: dynamicFontSize / 1,
+//                                     color: Colors.black,
+//                                   ),
+//                                 ),
+//                               ),
+//                             ),
+//                           ),
+//                         ),
+//                         SizedBox(height: dynamicSizedBox),
+//                         Slider(
+//                           value: 16 - ref.watch(sendBlocksProvider).toDouble(),
+//                           onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = 16 - value,
+//                           min: 1,
+//                           max: 15,
+//                           divisions: 14,
+//                           label: ref.watch(sendBlocksProvider).toInt().toString(),
+//                           activeColor: Colors.orange,
+//                         ),
+//                         SizedBox(height: dynamicSizedBox),
+//                         ref.watch(liquidFeeProvider).when(
+//                           data: (int fee) {
+//                             return Text(
+//                               '${'Fee:'.i18n} $fee${' sats'}',
+//                               style: TextStyle(
+//                                   fontSize: dynamicFontSize / 1.5,
+//                                   fontWeight: FontWeight.bold,
+//                                   color: Colors.white),
+//                               textAlign: TextAlign.center,
+//                             );
+//                           },
+//                           loading: () => LoadingAnimationWidget.progressiveDots(
+//                               size: dynamicFontSize / 1.5, color: Colors.white),
+//                           error: (error, stack) => TextButton(
+//                               onPressed: () {
+//                                 ref.refresh(feeProvider);
+//                               },
+//                               child: Text(sendTxState.amount == 0 ? '' : error.toString().i18n,
+//                                   style: TextStyle(color: Colors.white, fontSize: dynamicFontSize / 1.5))),
+//                         ),
+//                         SizedBox(height: dynamicSizedBox),
+//                         ref.watch(liquidFeeValueInCurrencyProvider).when(
+//                           data: (double feeValue) {
+//                             return Text(
+//                               '${feeValue.toStringAsFixed(2)} ${ref.watch(settingsProvider).currency}',
+//                               style: TextStyle(
+//                                   fontSize: dynamicFontSize / 1.5,
+//                                   fontWeight: FontWeight.bold,
+//                                   color: Colors.white),
+//                               textAlign: TextAlign.center,
+//                             );
+//                           },
+//                           loading: () => LoadingAnimationWidget.progressiveDots(
+//                               size: dynamicFontSize / 1.5, color: Colors.black),
+//                           error: (error, stack) => Text('',
+//                               style: TextStyle(color: Colors.black, fontSize: dynamicFontSize / 1.5)),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ),
+//                 Padding(
+//                   padding: const EdgeInsets.all(15.0),
+//                   child: Center(
+//                     child: ActionSlider.standard(
+//                       sliderBehavior: SliderBehavior.stretch,
+//                       width: double.infinity,
+//                       backgroundColor: Colors.black,
+//                       toggleColor: Colors.orange,
+//                       action: (controller) async {
+//                         setState(() {
+//                           isProcessing = true;
+//                         });
+//                         controller.loading();
+//                         try {
+//                           final tx = await ref.watch(sendLiquidTransactionProvider.future);
+//                           showFullscreenTransactionSendModal(
+//                             context: context,
+//                             asset: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).name,
+//                             amount: btcInDenominationFormatted(ref.watch(sendTxProvider).amount, btcFormat),
+//                             fiat: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).isFiat,
+//                             fiatAmount: ref.watch(sendTxProvider).amount.toString(),
+//                             txid: tx,
+//                             isLiquid: true,
+//                             receiveAddress: ref.read(sendTxProvider).address,
+//                             confirmationBlocks: ref.read(sendBlocksProvider.notifier).state.toInt(),
+//                           );
+//
+//                           ref.read(sendTxProvider.notifier).resetToDefault();
+//                           ref.read(sendBlocksProvider.notifier).state = 1;
+//                           context.replace('/home');
+//                         } catch (e) {
+//                           controller.failure();
+//                           showMessageSnackBar(
+//                             message: e.toString().i18n,
+//                             error: true,
+//                             context: context,
+//                           );
+//                           controller.reset();
+//                         } finally {
+//                           setState(() {
+//                             isProcessing = false;
+//                           });
+//                         }
+//                       },
+//                       child: Text('Slide to send'.i18n, style: const TextStyle(color: Colors.white)),
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

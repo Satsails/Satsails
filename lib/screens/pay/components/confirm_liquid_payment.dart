@@ -206,7 +206,9 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
         } else {
           ref.read(sendTxProvider.notifier).resetToDefault();
           ref.read(sendBlocksProvider.notifier).state = 1;
-          ref.read(shouldUpdateMemoryProvider.notifier).state = true;
+          Future.microtask(() => {
+            ref.read(shouldUpdateMemoryProvider.notifier).state = true,
+          });
           context.replace('/home');
         }
       },
@@ -224,7 +226,9 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                   if (!isProcessing) {
                     ref.read(sendTxProvider.notifier).resetToDefault();
                     ref.read(sendBlocksProvider.notifier).state = 1;
-                    ref.read(shouldUpdateMemoryProvider.notifier).state = true;
+                    Future.microtask(() => {
+                      ref.read(shouldUpdateMemoryProvider.notifier).state = true,
+                    });
                     context.replace('/home');
                   } else {
                     showMessageSnackBarInfo(

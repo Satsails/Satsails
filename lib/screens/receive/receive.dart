@@ -27,7 +27,9 @@ class Receive extends ConsumerWidget {
           ref.read(inputAmountProvider.notifier).state = '0.0';
           ref.invalidate(initialCoinosProvider);
           ref.read(selectedNetworkTypeProvider.notifier).state = "Bitcoin";
-          ref.read(shouldUpdateMemoryProvider.notifier).state = true;
+          Future.microtask(() => {
+            ref.read(shouldUpdateMemoryProvider.notifier).state = true,
+          });
           return true; // Allow the pop to proceed
         } catch (e) {
           return false; // Prevent pop if an error occurs
@@ -44,7 +46,9 @@ class Receive extends ConsumerWidget {
               ref.read(inputAmountProvider.notifier).state = '0.0';
               ref.invalidate(initialCoinosProvider);
               ref.read(selectedNetworkTypeProvider.notifier).state = "Bitcoin";
-              ref.read(shouldUpdateMemoryProvider.notifier).state = true;
+              Future.microtask(() => {
+                ref.read(shouldUpdateMemoryProvider.notifier).state = true,
+              });
               context.pop();
             },
           ),
