@@ -1,6 +1,8 @@
+import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/helpers/swap_helpers.dart';
+import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
@@ -165,7 +167,10 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
         ? 0
         : double.parse(ref.watch(btcBalanceInFormatProvider('BTC')));
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
-    Future.microtask(() => {ref.read(shouldUpdateMemoryProvider.notifier).state = false});
+    Future.microtask(() => {
+      ref.read(shouldUpdateMemoryProvider.notifier).state = false,
+    });
+
 
     return PopScope(
       canPop: !isProcessing,
@@ -280,7 +285,10 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                     suffixIcon: IconButton(
                                       icon: Icon(Icons.camera_alt, color: Colors.white, size: 24.w),
                                       onPressed: () {
-                                        context.pushReplacementNamed('camera');
+                                        context.pushNamed(
+                                          'camera',
+                                          extra: {'paymentType': PaymentType.Bitcoin},
+                                        );
                                       },
                                     ),
                                   ),

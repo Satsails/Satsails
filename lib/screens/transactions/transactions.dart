@@ -99,6 +99,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                       ),
                     ),
                     backgroundColor: Colors.black,
+                    automaticallyImplyLeading: false,
                     elevation: 0,
                     actions: [
                       // Calendar picker button

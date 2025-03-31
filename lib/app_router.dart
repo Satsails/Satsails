@@ -1,3 +1,4 @@
+import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/screens/analytics/components/peg_details.dart';
@@ -212,6 +213,22 @@ class AppRouter {
           ),
         ),
         GoRoute(
+          path: '/camera',
+          name: 'camera',
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+
+            final paymentType = extra != null && extra.containsKey('paymentType') && extra['paymentType'] is PaymentType
+                ? extra['paymentType'] as PaymentType
+                : PaymentType.Bitcoin;
+
+            return _buildFadeScalePage(
+              child: Camera(paymentType: paymentType),
+              state: state,
+            );
+          },
+        ),
+        GoRoute(
           path: '/home',
           name: 'home', // Already named
           pageBuilder: (context, state) => _buildFadeScalePage(
@@ -242,16 +259,6 @@ class AppRouter {
                     child: const ConfirmBitcoinPayment(),
                     state: state,
                   ),
-                  routes: [
-                    GoRoute(
-                      path: 'camera',
-                      name: 'camera',
-                      pageBuilder: (context, state) => _buildFadeScalePage(
-                        child: const Camera(),
-                        state: state,
-                      ),
-                    ),
-                  ]
                 ),
                 GoRoute(
                   path: 'confirm_liquid_payment', // Corrected to relative path
