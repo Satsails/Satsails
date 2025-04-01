@@ -681,7 +681,7 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            "$value ${asset.name}",
+                            "$value${asset.name == 'L-BTC' ? '' :  " ${asset.name}"}",
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.bold,

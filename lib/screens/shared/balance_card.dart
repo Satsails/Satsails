@@ -293,8 +293,33 @@ class BalanceCard extends ConsumerWidget {
             onPressed: () {
               ref.read(sendTxProvider.notifier).resetToDefault();
               ref.read(sendBlocksProvider.notifier).state = 1;
-              ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.BRL));
-              context.push('/home/pay', extra: 'liquid_asset');
+
+              if (assetName == 'Bitcoin') {
+                if (networkFilter == 'Bitcoin network') {
+                  context.push('/home/pay', extra: 'bitcoin');
+                } else if (networkFilter == 'Liquid network') {
+                  ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+                  context.push('/home/pay', extra: 'liquid');
+                } else if (networkFilter == 'Lightning network') {
+                  context.push('/home/pay', extra: 'lightning');
+                }
+              } else {
+                // Map non-Bitcoin assets to their AssetId
+                late String assetToUpdate; // Declare as late to ensure assignment in switch
+                switch (assetName) {
+                  case 'Depix':
+                    assetToUpdate = AssetMapper.reverseMapTicker(AssetId.BRL);
+                    break;
+                  case 'USDT':
+                    assetToUpdate = AssetMapper.reverseMapTicker(AssetId.USD);
+                    break;
+                  case 'EURx':
+                    assetToUpdate = AssetMapper.reverseMapTicker(AssetId.EUR);
+                    break;
+                }
+                ref.read(sendTxProvider.notifier).updateAssetId(assetToUpdate);
+                context.push('/home/pay', extra: 'liquid_asset');
+              }
             },
             icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.w),
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
