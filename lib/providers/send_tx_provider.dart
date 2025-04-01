@@ -20,11 +20,6 @@ final sendBlocksProvider = StateProvider.autoDispose<double>((ref) {
   return 1;
 });
 
-final amountInCurrencyProvider = StateProvider.autoDispose<double>((ref) {
-  final currencyParams = ref.watch(currencyParamsProvider);
-  return ref.read(currentBitcoinPriceInCurrencyProvider(currencyParams));
-});
-
 final currencyParamsProvider = StateProvider.autoDispose<CurrencyParams>((ref) {
   final currency = ref.watch(settingsProvider).currency;
   final sendAmount = ref.watch(sendTxProvider).amount;
@@ -126,53 +121,26 @@ final liquidTransactionBuilderProvider =  FutureProvider.autoDispose.family<liqu
   return liquidModel.TransactionBuilder(amount: amount, outAddress: address, fee: fee, assetId: asset);
 });
 
+final assetBalanceProvider = Provider.autoDispose<int>((ref) {
+  final assetId = ref.watch(sendTxProvider).assetId; // String hash from sendTxProvider
+  final balance = ref.watch(balanceNotifierProvider); // Use watch for reactivity
 
-final showBitcoinRelatedWidgetsProvider = StateProvider.autoDispose<bool>((ref) {
-  final sendTxState = ref.watch(sendTxProvider);
-  switch (sendTxState.assetId) {
-    case '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d':
-      return true;
-    case '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189':
-      return false;
-    case 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2':
-      return false;
-    case '18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec':
-      return false;
-    default:
-      return true;
-  }
-});
+  // Map the assetId string to an AssetId enum value
+  final mappedAsset = AssetMapper.mapAsset(assetId);
 
-final currentCardIndexProvider = StateProvider.autoDispose<int>((ref) {
-  final sendTxState = ref.watch(sendTxProvider);
-  switch (sendTxState.assetId) {
-    case '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d':
-      return 0;
-    case '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189':
-      return 1;
-    case 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2':
-      return 2;
-    case '18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec':
-      return 3;
-    default:
-      return 0;
-  }
-});
-
-final assetBalanceProvider = StateProvider.autoDispose<int>((ref) {
-  final currentCardIndex = ref.watch(currentCardIndexProvider);
-  final balance = ref.read(balanceNotifierProvider);
-  switch (currentCardIndex) {
-    case 0:
+  // Return the corresponding balance based on the mapped AssetId
+  switch (mappedAsset) {
+    case AssetId.LBTC:
       return balance.liquidBalance;
-    case 1:
+    case AssetId.BRL:
       return balance.brlBalance;
-    case 2:
+    case AssetId.USD:
       return balance.usdBalance;
-    case 3:
+    case AssetId.EUR:
       return balance.eurBalance;
+    case AssetId.UNKNOWN:
     default:
-      return balance.liquidBalance;
+      return balance.liquidBalance; // Fallback to liquidBalance for unknown assets
   }
 });
 

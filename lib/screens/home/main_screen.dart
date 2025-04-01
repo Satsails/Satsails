@@ -13,7 +13,6 @@ import 'package:Satsails/providers/navigation_provider.dart';
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
 
-  // Reset provider unless the screen is Exchange (index 2)
   void _resetProviders(WidgetRef ref, int index) {
     if (index == 2) { // Skip reset for Exchange screen
       Future.microtask(() {
@@ -21,14 +20,13 @@ class MainScreen extends ConsumerWidget {
         ref.read(sendBlocksProvider.notifier).state = 1;
         ref.read(shouldUpdateMemoryProvider.notifier).state = false;
       });
-    }else {
+    } else {
       Future.microtask(() {
         ref.read(shouldUpdateMemoryProvider.notifier).state = true;
       });
     }
   }
 
-  // Map of index to screen widget
   Widget _getCurrentScreen(int index) {
     const screens = {
       0: Home(),
@@ -38,17 +36,19 @@ class MainScreen extends ConsumerWidget {
       4: Explore(),
       5: Settings(),
     };
-
-    // Return the screen for the given index, or Home as fallback
     return screens[index] ?? const Home();
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentIndex = ref.watch(navigationProvider); // Watch for reactivity
+    final currentIndex = ref.watch(navigationProvider);
 
-    // Reset providers conditionally based on the current index
-    _resetProviders(ref, currentIndex);
+    // Listen to changes in navigationProvider and reset providers only on change
+    ref.listen<int>(navigationProvider, (previous, next) {
+      if (previous != next) {
+        _resetProviders(ref, next);
+      }
+    });
 
     return Scaffold(
       body: _getCurrentScreen(currentIndex),

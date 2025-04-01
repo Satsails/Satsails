@@ -74,7 +74,7 @@ return await showDialog<bool>(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '$amount',
+                        amount,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16.sp, // Using ScreenUtil
@@ -552,8 +552,7 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                                           onTap: () async {
                                             try {
                                               await ref.watch(liquidDrainWalletProvider.future);
-                                              final sendingBalance = ref.watch(assetBalanceProvider);
-                                              controller.text = fiatInDenominationFormatted(sendingBalance);
+                                              controller.text = balanceText;
                                               ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
                                               ref.read(sendTxProvider.notifier).updateDrain(true);
                                             } catch (e) {
@@ -612,7 +611,7 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                         // Show confirmation modal
                         final confirmed = await showConfirmationModal(
                             context,
-                            btcInDenominationFormatted(sendTxState.amount, btcFormat),
+                            fiatInDenominationFormatted(sendTxState.amount),
                             sendTxState.address ?? '',
                             fee,
                             btcFormat,
