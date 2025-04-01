@@ -16,6 +16,7 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
+import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
@@ -912,7 +913,7 @@ Widget buildCoinosSwap(
                       return DropdownMenuItem(
                         value: option,
                         child: Text(
-                          option.capitalize(),
+                          option.toUpperCase(),
                           style: TextStyle(color: Colors.white, fontSize: 16.sp),
                         ),
                       );
@@ -1151,7 +1152,7 @@ Widget buildSideswapInstantSwap(
                         return DropdownMenuItem(
                           value: option,
                           child: Text(
-                            option.capitalize(),
+                            option.toUpperCase(),
                             style: TextStyle(color: Colors.white, fontSize: 16.sp),
                           ),
                         );
@@ -1331,7 +1332,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
                             return DropdownMenuItem(
                               value: option,
                               child: Text(
-                                option.capitalize(),
+                                option.toUpperCase(),
                                 style: TextStyle(color: Colors.white, fontSize: 16.sp),
                               ),
                             );
@@ -1514,7 +1515,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
                             return DropdownMenuItem(
                               value: option,
                               child: Text(
-                                option.capitalize(),
+                                option.toUpperCase(),
                                 style: TextStyle(color: Colors.white, fontSize: 16.sp),
                               ),
                             );
@@ -1973,8 +1974,6 @@ Widget feeSelection(WidgetRef ref) {
   }
 }
 
-
-
 Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
   final status = ref.watch(sideswapStatusProvider);
   final pegStatus = ref.watch(sideswapPegStatusProvider);
@@ -1997,21 +1996,20 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
               }
               await ref.watch(sendLiquidTransactionProvider.future);
               await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
+              showFullscreenExchangeModal(
+                amount: ref.read(sendTxProvider).amount,
+                context: context,
+                swapType: ref.read(swapTypeProvider)!,
+              );
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
-              showMessageSnackBar(
-                message: 'Swap done!',
-                error: false,
-                context: context,
-              );
               Future.microtask(() {
                 ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
                 ref.read(navigationProvider.notifier).state = 0;
               });
               controller.success();
               ref.read(transactionInProgressProvider.notifier).state = false;
-              context.go('/home');
               ref.read(sendTxProvider.notifier).resetToDefault();
             } catch (e) {
               controller.failure();
@@ -2063,21 +2061,20 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
               }
               await ref.watch(sendBitcoinTransactionProvider.future);
               await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
+              showFullscreenExchangeModal(
+                amount: ref.read(sendTxProvider).amount,
+                context: context,
+                swapType: ref.read(swapTypeProvider)!,
+              );
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
-              showMessageSnackBar(
-                message: 'Swap done!',
-                error: false,
-                context: context,
-              );
               Future.microtask(() {
                 ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
                 ref.read(navigationProvider.notifier).state = 0;
               });
               controller.success();
               ref.read(transactionInProgressProvider.notifier).state = false;
-              context.go('/home');
               ref.read(sendTxProvider.notifier).resetToDefault();
             } catch (e) {
               ref.read(transactionInProgressProvider.notifier).state = false;
@@ -2128,6 +2125,11 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
           controller.loading();
           try {
             await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
+            showFullscreenExchangeModal(
+              amount: ref.read(sendTxProvider).amount,
+              context: context,
+              swapType: ref.read(swapTypeProvider)!,
+            );
             ref.read(sendTxProvider.notifier).updateAddress('');
             ref.read(sendTxProvider.notifier).updateAmount(0);
             ref.read(sendBlocksProvider.notifier).state = 1;
@@ -2137,13 +2139,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
             });
             controller.success();
             ref.read(transactionInProgressProvider.notifier).state = false;
-            context.go('/home');
             ref.read(sendTxProvider.notifier).resetToDefault();
-            showMessageSnackBar(
-              message: 'Swap done!'.i18n,
-              error: false,
-              context: context,
-            );
           } catch (e) {
             ref.read(transactionInProgressProvider.notifier).state = false;
             controller.failure();
@@ -2196,14 +2192,13 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               balanceNotifier.updateLightningBalance(lnBalance);
             }
             ref.read(sendBlocksProvider.notifier).state = 1;
-            showMessageSnackBar(
-              message: 'Swap done!'.i18n,
-              error: false,
-              context: context,
-            );
             controller.success();
+            showFullscreenExchangeModal(
+              amount: ref.read(sendTxProvider).amount,
+              context: context,
+              swapType: ref.read(swapTypeProvider)!,
+            );
             ref.read(transactionInProgressProvider.notifier).state = false;
-            context.go('/home');
             ref.read(sendTxProvider.notifier).resetToDefault();
           } catch (e) {
             ref.read(transactionInProgressProvider.notifier).state = false;
@@ -2256,14 +2251,13 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               balanceNotifier.updateLightningBalance(lnBalance);
             }
             ref.read(sendBlocksProvider.notifier).state = 1;
-            showMessageSnackBar(
-              message: 'Swap done!'.i18n,
-              error: false,
-              context: context,
-            );
             controller.success();
+            showFullscreenExchangeModal(
+              amount: ref.read(sendTxProvider).amount,
+              context: context,
+              swapType: ref.read(swapTypeProvider)!,
+            );
             ref.read(transactionInProgressProvider.notifier).state = false;
-            context.go('/home');
             ref.read(sendTxProvider.notifier).resetToDefault();
           } catch (e) {
             ref.read(transactionInProgressProvider.notifier).state = false;

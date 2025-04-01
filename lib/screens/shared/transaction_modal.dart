@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/helpers/swap_helpers.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -42,6 +44,32 @@ void showFullscreenTransactionSendModal({
             isLiquid: isLiquid,
             receiveAddress: receiveAddress,
             confirmationBlocks: confirmationBlocks,
+          ),
+        ),
+      );
+    },
+  );
+}
+
+void showFullscreenExchangeModal({
+  required BuildContext context,
+  required SwapType swapType,
+  required int amount, // Add amount as a required parameter
+}) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (BuildContext context) {
+      return Container(
+        color: Colors.black,
+        padding: EdgeInsets.only(
+          top: MediaQuery.of(context).padding.top,
+        ),
+        child: SafeArea(
+          child: ExchangeTransactionOverlay(
+            swapType: swapType,
+            amount: amount,
           ),
         ),
       );
@@ -542,6 +570,207 @@ class _PaymentTransactionOverlayState
                   ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ExchangeTransactionOverlay extends ConsumerStatefulWidget {
+  final SwapType swapType;
+  final int amount; // Amount is now an integer
+
+  const ExchangeTransactionOverlay({
+    super.key,
+    required this.swapType,
+    required this.amount,
+  });
+
+  @override
+  _ExchangeTransactionOverlayState createState() => _ExchangeTransactionOverlayState();
+}
+
+class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransactionOverlay> {
+  @override
+  Widget build(BuildContext context) {
+    // Get the swap title and parse assets
+    final title = _getSwapTitle(widget.swapType);
+    final assets = _parseAssetsFromTitle(title.replaceAll('.i18n', ''));
+    final fromAsset = assets['from']!;
+    final toAsset = assets['to']!;
+
+    // Format the amount based on the fromAsset type
+    String formattedAmount;
+    if (_isBitcoinLikeAsset(fromAsset)) {
+      final denomination = ref
+          .read(settingsProvider)
+          .btcFormat;
+      formattedAmount =
+          btcInDenominationFormatted(widget.amount, denomination, true);
+    } else {
+      formattedAmount = fiatInDenominationFormatted(widget.amount);
+    }
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.keyboard_arrow_down,
+              color: Colors.grey[400],
+              size: 24,
+            ),
+            const SizedBox(height: 16),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF212121),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    const Color(0xFF212121),
+                    const Color(0xFF1A1A1A),
+                  ],
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  _transactionDetailRow(
+                    label: 'Amount'.i18n,
+                    value: formattedAmount,
+                  ),
+                  const SizedBox(height: 12),
+                  if (fromAsset.isNotEmpty)
+                    _transactionDetailRow(
+                      label: 'From'.i18n,
+                      value: fromAsset,
+                      assetName: fromAsset,
+                    ),
+                  const SizedBox(height: 12),
+                  if (toAsset.isNotEmpty)
+                    _transactionDetailRow(
+                      label: 'To'.i18n,
+                      value: toAsset,
+                      assetName: toAsset,
+                    ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper method to determine the swap title
+  String _getSwapTitle(SwapType swapType) {
+    switch (swapType) {
+      case SwapType.sideswapBtcToLbtc:
+        return 'Bitcoin to Liquid Bitcoin Swap'.i18n;
+      case SwapType.sideswapLbtcToBtc:
+        return 'Liquid Bitcoin to Bitcoin Swap'.i18n;
+      case SwapType.coinosLnToBTC:
+        return 'Lightning to Bitcoin Swap'.i18n;
+      case SwapType.coinosLnToLBTC:
+        return 'Lightning to Liquid Bitcoin Swap'.i18n;
+      case SwapType.coinosBtcToLn:
+        return 'Bitcoin to Lightning Swap'.i18n;
+      case SwapType.coinosLbtcToLn:
+        return 'Liquid Bitcoin to Lightning Swap'.i18n;
+      case SwapType.sideswapUsdtToLbtc:
+        return 'USDT to Liquid Bitcoin Swap'.i18n;
+      case SwapType.sideswapEuroxToLbtc:
+        return 'EUROX to Liquid Bitcoin Swap'.i18n;
+      case SwapType.sideswapDepixToLbtc:
+        return 'DEPIX to Liquid Bitcoin Swap'.i18n;
+      case SwapType.sideswapLbtcToUsdt:
+        return 'Liquid Bitcoin to USDT Swap'.i18n;
+      case SwapType.sideswapLbtcToEurox:
+        return 'Liquid Bitcoin to EUROX Swap'.i18n;
+      case SwapType.sideswapLbtcToDepix:
+        return 'Liquid Bitcoin to DEPIX Swap'.i18n;
+      default:
+        return 'Exchange Transaction'.i18n;
+    }
+  }
+
+  // Helper method to parse assets from the title
+  Map<String, String> _parseAssetsFromTitle(String title) {
+    final parts = title.replaceAll(' Swap', '').split(' to ');
+    if (parts.length == 2) {
+      return {
+        'from': parts[0],
+        'to': parts[1],
+      };
+    }
+    return {'from': '', 'to': ''};
+  }
+
+  // Helper method to check if an asset is Bitcoin-like (Liquid Bitcoin or Lightning)
+  bool _isBitcoinLikeAsset(String asset) {
+    return asset == 'Liquid Bitcoin' || asset == 'Lightning';
+  }
+
+  // Helper method to build transaction detail rows
+  Widget _transactionDetailRow({
+    required String label,
+    required String value,
+    String? assetName,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.grey[400],
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Row(
+            children: [
+              if (assetName != null) ...[
+                getAssetImage(assetName, width: 28.sp, height: 28.sp),
+                SizedBox(width: 12.w),
+              ],
+              Text(
+                value,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ],
       ),
