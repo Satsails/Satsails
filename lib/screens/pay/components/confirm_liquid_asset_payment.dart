@@ -555,6 +555,7 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                                               final sendingBalance = ref.watch(assetBalanceProvider);
                                               controller.text = fiatInDenominationFormatted(sendingBalance);
                                               ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
+                                              ref.read(sendTxProvider.notifier).updateDrain(true);
                                             } catch (e) {
                                               showMessageSnackBar(
                                                 message: e.toString().i18n,
