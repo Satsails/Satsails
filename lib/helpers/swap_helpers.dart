@@ -596,7 +596,7 @@ Future<void> handleLiquidBitcoinToLightning(WidgetRef ref, TextEditingController
 }
 
 
-Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingController controller) {
+Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingController controller) {
   final fromAsset = ref.watch(fromAssetProvider);
   final toAsset = ref.watch(toAssetProvider);
 
@@ -605,7 +605,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     elevation: 4,
     child: Padding(
-      padding: EdgeInsets.all(30.0.w),
+      padding: EdgeInsets.all(12.0.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -619,14 +619,14 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                     'From Asset'.i18n,
                     style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 12.h), // Increased from 8.h
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: fromAsset,
                       dropdownColor: const Color(0xFF212121),
                       borderRadius: const BorderRadius.all(Radius.circular(12.0)),
                       items: getAssets(ref)
-                          .where((asset) => asset != toAsset) // Exclude the currently selected toAsset
+                          .where((asset) => asset != toAsset)
                           .map((asset) => DropdownMenuItem(
                         value: asset,
                         child: Row(
@@ -647,7 +647,9 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           ref.read(sendBlocksProvider.notifier).state = 1;
                           ref.read(fromAssetProvider.notifier).state = value;
-                          final availableSwaps = getAvailableSwaps(value, ref).where((swap) => swap != value).toList();
+                          final availableSwaps = getAvailableSwaps(value, ref)
+                              .where((swap) => swap != value)
+                              .toList();
                           if (!availableSwaps.contains(toAsset)) {
                             ref.read(toAssetProvider.notifier).state = availableSwaps.first;
                           }
@@ -658,8 +660,8 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                         padding: EdgeInsets.only(left: 8.0.w),
                         child: const Icon(Icons.arrow_drop_down, color: Colors.white),
                       ),
-                      isDense: true, // Ensures tight alignment with text
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp), // Dropdown text style
+                      isDense: true,
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
                     ),
                   ),
                 ],
@@ -670,17 +672,17 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
               ),
             ],
           ),
-          SizedBox(height: 14.h),
+          SizedBox(height: 24.h), // Increased from 14.h
           Row(
             children: [
-              SizedBox(width: 16.w),
+              SizedBox(width: 24.w), // Increased from 16.w
               const Expanded(
                 child: Divider(
                   color: Colors.grey,
                   thickness: 1,
                 ),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: 24.w), // Increased from 16.w
               GestureDetector(
                 onTap: () {
                   controller.text = '';
@@ -707,6 +709,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
               ),
             ],
           ),
+          SizedBox(height: 24.h), // Added new spacing
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -717,7 +720,7 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                     'To Asset'.i18n,
                     style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 12.h), // Increased from 8.h
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: toAsset,
@@ -745,7 +748,6 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                           ref.read(sendBlocksProvider.notifier).state = 1;
                           controller.text = '';
                           ref.read(toAssetProvider.notifier).state = value;
-
                           final availableSwaps = getAssets(ref).where((swap) => swap != value).toList();
                           if (!availableSwaps.contains(fromAsset)) {
                             ref.read(fromAssetProvider.notifier).state = availableSwaps.first;
@@ -757,8 +759,8 @@ Widget buildExchangeCard (BuildContext context, WidgetRef ref, TextEditingContro
                         padding: EdgeInsets.only(left: 8.0.w),
                         child: const Icon(Icons.arrow_drop_down, color: Colors.white),
                       ),
-                      isDense: true, // Ensures tight alignment with text
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp), // Dropdown text style
+                      isDense: true,
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
                     ),
                   ),
                 ],
@@ -835,7 +837,8 @@ Widget buildCoinosSwap(
   final currencyRate = ref.read(selectedCurrencyProvider(currency));
   final sideSwapStatus = ref.watch(sideswapStatusProvider);
 
-  final valueToReceive = ref.watch(sendTxProvider).amount * (1 - (receiveAsset ? sideSwapStatus.serverFeePercentPegOut / 100 : 0.001));
+  final valueToReceive = ref.watch(sendTxProvider).amount *
+      (1 - (receiveAsset ? sideSwapStatus.serverFeePercentPegOut / 100 : 0.001));
 
   final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormat);
   final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
@@ -896,67 +899,60 @@ Widget buildCoinosSwap(
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            GestureDetector(
-              onTap: () {
-                ref.read(inputInFiatProvider.notifier).state = !inputInFiat;
-
-                if (inputInFiat) {
-                  String btcValue = btcFormat == 'sats'
-                      ? calculateAmountToDisplayFromFiatInSats(
-                    controller.text,
-                    currency,
-                    ref.watch(currencyNotifierProvider),
-                  )
-                      : calculateAmountToDisplayFromFiat(
-                    controller.text,
-                    currency,
-                    ref.watch(currencyNotifierProvider),
-                  );
-                  controller.text = btcFormat == 'sats'
-                      ? btcInDenominationFormatted(double.parse(btcValue), btcFormat)
-                      : btcValue;
-                } else {
-                  String fiatValue = calculateAmountInSelectedCurrency(
-                    ref.watch(sendTxProvider).amount,
-                    currency,
-                    ref.watch(currencyNotifierProvider),
-                  );
-                  ref.read(precisionFiatValueProvider.notifier).state = fiatValue;
-                  controller.text = double.parse(fiatValue) < 0.01
-                      ? ''
-                      : double.parse(fiatValue).toStringAsFixed(2);
-                }
-              },
-              child: inputInFiat
-                  ? Row(
-                children: [
-                  Text(
-                    btcInDenominationFormatted(
-                        ref.watch(sendTxProvider).amount.toDouble(), btcFormat),
-                    style: TextStyle(fontSize: 20.sp, color: Colors.white),
-                  ),
-                  SizedBox(width: 2.w),
-                  Text(
-                    btcFormat,
-                    style: TextStyle(fontSize: 8.sp, color: Colors.grey),
-                  ),
-                ],
-              )
-                  : Row(
-                children: [
-                  Text(
-                    valueToSendInCurrency,
-                    style: TextStyle(fontSize: 20.sp, color: Colors.grey),
-                  ),
-                  SizedBox(width: 2.w),
-                  Text(
-                    currency,
-                    style: TextStyle(fontSize: 8.sp, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
+            // Dropdown for unit selection
             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: inputInFiat ? currency : btcFormat,
+                    dropdownColor: const Color(0xFF212121),
+                    borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                    items: [currency, btcFormat].map((option) {
+                      return DropdownMenuItem(
+                        value: option,
+                        child: Text(
+                          option.capitalize(),
+                          style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (newUnit) {
+                      if (newUnit != null && newUnit != (inputInFiat ? currency : btcFormat)) {
+                        final isSwitchingToFiat = newUnit == currency;
+                        ref.read(inputInFiatProvider.notifier).state = isSwitchingToFiat;
+                        if (isSwitchingToFiat) {
+                          String fiatValue = calculateAmountInSelectedCurrency(
+                            ref.watch(sendTxProvider).amount,
+                            currency,
+                            ref.watch(currencyNotifierProvider),
+                          );
+                          controller.text = double.parse(fiatValue) < 0.01
+                              ? ''
+                              : double.parse(fiatValue).toStringAsFixed(2);
+                        } else {
+                          String btcValue = btcInDenominationFormatted(
+                            ref.watch(sendTxProvider).amount.toDouble(),
+                            btcFormat,
+                          );
+                          controller.text = btcValue;
+                        }
+                      }
+                    },
+                    icon: Padding(
+                      padding: EdgeInsets.only(left: 8.0.w),
+                      child: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                    ),
+                    isDense: true,
+                    style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8.h),
+            // Input field
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IntrinsicWidth(
                   child: TextFormField(
@@ -973,18 +969,15 @@ Widget buildCoinosSwap(
                           ? DecimalTextInputFormatter(decimalRange: 0)
                           : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),
                     ],
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.right,
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: '0',
-                      hintStyle: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 20.sp,
-                      ),
+                      hintStyle: TextStyle(color: Colors.grey, fontSize: 28.sp),
                     ),
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 20.sp,
+                      fontSize: controller.text.length > 10 ? 20.sp : 28.sp,
                     ),
                     onChanged: (value) async {
                       if (inputInFiat) {
@@ -994,9 +987,15 @@ Widget buildCoinosSwap(
                         } else {
                           String send = btcFormat == 'sats'
                               ? calculateAmountToDisplayFromFiatInSats(
-                              value, currency, ref.watch(currencyNotifierProvider))
+                            value,
+                            currency,
+                            ref.watch(currencyNotifierProvider),
+                          )
                               : calculateAmountToDisplayFromFiat(
-                              value, currency, ref.watch(currencyNotifierProvider));
+                            value,
+                            currency,
+                            ref.watch(currencyNotifierProvider),
+                          );
                           ref.read(sendTxProvider.notifier).updateAmountFromInput(send, btcFormat);
                           ref.read(sendTxProvider.notifier).updateDrain(false);
                         }
@@ -1012,17 +1011,6 @@ Widget buildCoinosSwap(
                     },
                   ),
                 ),
-                SizedBox(width: 2.w),
-                if (!inputInFiat)
-                  Text(
-                    btcFormat,
-                    style: TextStyle(color: Colors.grey, fontSize: 8.sp),
-                  ),
-                if (inputInFiat)
-                  Text(
-                    currency,
-                    style: TextStyle(color: Colors.grey, fontSize: 8.sp),
-                  ),
               ],
             ),
           ],
@@ -1030,7 +1018,6 @@ Widget buildCoinosSwap(
     ],
   );
 }
-
 
 Widget buildSideswapInstantSwap(
     WidgetRef ref,
@@ -1043,6 +1030,15 @@ Widget buildSideswapInstantSwap(
   final currency = ref.read(settingsProvider).currency;
   final currencyRate = ref.read(selectedCurrencyProvider(currency));
   final inputInFiat = ref.watch(inputInFiatProvider);
+  final fromAsset = ref.watch(fromAssetProvider);
+
+  // Determine the current unit for the dropdown
+  String currentUnit = inputInFiat ? currency : btcFormat;
+
+  // Dropdown options (only shown when fiat switching is allowed)
+  List<String> options = fiatDisplayAllowedSwapTypes.contains(ref.watch(swapTypeProvider))
+      ? [currency, btcFormat]
+      : [];
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.end,
@@ -1097,7 +1093,7 @@ Widget buildSideswapInstantSwap(
                               style: TextStyle(color: Colors.white, fontSize: 20.sp),
                             ),
                             SizedBox(width: 2.w),
-                            if(!sendBitcoin)
+                            if (!sendBitcoin)
                               Text(
                                 btcFormat,
                                 style: TextStyle(color: Colors.grey, fontSize: 8.sp),
@@ -1141,72 +1137,78 @@ Widget buildSideswapInstantSwap(
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            if (fiatDisplayAllowedSwapTypes.contains(ref.watch(swapTypeProvider)))
-              GestureDetector(
-                onTap: () {
-                  ref.read(inputInFiatProvider.notifier).state = !inputInFiat;
-
-                  if (inputInFiat) {
-                    String btcValue = btcFormat == 'sats'
-                        ? calculateAmountToDisplayFromFiatInSats(controller.text, currency, ref.watch(currencyNotifierProvider))
-                        : calculateAmountToDisplayFromFiat(controller.text, currency, ref.watch(currencyNotifierProvider));
-                    controller.text = btcFormat == 'sats'
-                        ? btcInDenominationFormatted(double.parse(btcValue), btcFormat)
-                        : btcValue;
-                  } else {
-                    // Switching to Fiat
-                    String fiatValue = calculateAmountInSelectedCurrency(
-                        ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
-                    ref.read(precisionFiatValueProvider.notifier).state = fiatValue;
-                    controller.text = double.parse(fiatValue) < 0.01
-                        ? ''
-                        : double.parse(fiatValue).toStringAsFixed(2);
-                  }
-                },
-                child: inputInFiat
-                    ? Row(
-                  children: [
-                    Text(
-                      btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat),
-                      style: TextStyle(fontSize: 20.sp, color: Colors.white),
+            // Dropdown or unit text (positioned above the input field)
+            if (options.isNotEmpty)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: currentUnit,
+                      dropdownColor: const Color(0xFF212121),
+                      borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                      items: options.map((option) {
+                        return DropdownMenuItem(
+                          value: option,
+                          child: Text(
+                            option.capitalize(),
+                            style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (newUnit) {
+                        if (newUnit != null && newUnit != currentUnit) {
+                          final isSwitchingToFiat = newUnit == currency;
+                          ref.read(inputInFiatProvider.notifier).state = isSwitchingToFiat;
+                          if (isSwitchingToFiat) {
+                            String fiatValue = calculateAmountInSelectedCurrency(
+                                ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
+                            controller.text = double.parse(fiatValue) < 0.01
+                                ? ''
+                                : double.parse(fiatValue).toStringAsFixed(2);
+                          } else {
+                            String btcValue = btcFormat == 'sats'
+                                ? calculateAmountToDisplayFromFiatInSats(controller.text, currency, ref.watch(currencyNotifierProvider))
+                                : calculateAmountToDisplayFromFiat(controller.text, currency, ref.watch(currencyNotifierProvider));
+                            controller.text = btcFormat == 'sats'
+                                ? btcInDenominationFormatted(double.parse(btcValue), btcFormat)
+                                : btcValue;
+                          }
+                        }
+                      },
+                      icon: Padding(
+                        padding: EdgeInsets.only(left: 8.0.w),
+                        child: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                      ),
+                      isDense: true,
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
                     ),
-                    SizedBox(width: 2.w),
-                    Text(
-                      btcFormat,
-                      style: TextStyle(fontSize: 8.sp, color: Colors.grey),
-                    ),
-                  ],
-                )
-                    : Row(
-                  children: [
-                    Text(
-                      currencyFormat(ref.watch(sendTxProvider).amount / 100000000 * currencyRate, currency),
-                      style: TextStyle(fontSize: 20.sp, color: Colors.grey),
-                    ),
-                    SizedBox(width: 2.w),
-                    Text(
-                      currency,
-                      style: TextStyle(fontSize: 8.sp, color: Colors.grey),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
+              )
+            else
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    fromAsset,
+                    style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                  ),
+                ],
               ),
+            SizedBox(height: 8.h), // Vertical spacing between dropdown and input field
+            // Input field
             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IntrinsicWidth(
                   child: TextFormField(
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     controller: controller,
                     inputFormatters: inputInFiat
-                        ? [
-                      CommaTextInputFormatter(),
-                      DecimalTextInputFormatter(decimalRange: 2, integerRange: 7),
-                    ]
-                        : fiatAssets.contains(ref.watch(fromAssetProvider))
-                        ? [
-                      CommaTextInputFormatter(),
-                      DecimalTextInputFormatter(decimalRange: 2, integerRange: 7),
-                    ]
+                        ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2, integerRange: 7)]
+                        : fiatAssets.contains(fromAsset)
+                        ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2, integerRange: 7)]
                         : [
                       CommaTextInputFormatter(),
                       btcFormat == 'sats'
@@ -1217,14 +1219,11 @@ Widget buildSideswapInstantSwap(
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: '0',
-                      hintStyle: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 20.sp,
-                      ),
+                      hintStyle: TextStyle(color: Colors.grey, fontSize: 28.sp),
                     ),
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 20.sp,
+                      fontSize: controller.text.length > 10 ? 20.sp : 28.sp,
                     ),
                     onChanged: (value) async {
                       if (inputInFiat) {
@@ -1250,17 +1249,6 @@ Widget buildSideswapInstantSwap(
                     },
                   ),
                 ),
-                SizedBox(width: 2.w),
-                if(!inputInFiat && !fiatAssets.contains(ref.watch(fromAssetProvider)))
-                  Text(
-                    btcFormat,
-                    style: TextStyle(fontSize: 8.sp, color: Colors.grey),
-                  ),
-                if(inputInFiat)
-                  Text(
-                    currency,
-                    style: TextStyle(fontSize: 8.sp, color: Colors.grey),
-                  ),
               ],
             ),
           ],
@@ -1271,7 +1259,7 @@ Widget buildSideswapInstantSwap(
 
 Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controller) {
   final sideSwapStatus = ref.watch(sideswapStatusProvider);
-  final valueToReceive = ref.watch(sendTxProvider).amount * (1 - sideSwapStatus.serverFeePercentPegOut / 100) -  ref.watch(pegOutBitcoinCostProvider);
+  final valueToReceive = ref.watch(sendTxProvider).amount * (1 - sideSwapStatus.serverFeePercentPegOut / 100) - ref.watch(pegOutBitcoinCostProvider);
   final btcFormat = ref.watch(settingsProvider).btcFormat;
   final currency = ref.read(settingsProvider).currency;
   final currencyRate = ref.read(selectedCurrencyProvider(currency));
@@ -1279,7 +1267,6 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
   final sideSwapPeg = ref.watch(sideswapPegProvider);
   final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
   final valueInCurrency = currencyFormat(double.parse(formattedValueInBtc) * currencyRate, currency);
-  final valueToSendInCurrency = currencyFormat(ref.watch(sendTxProvider).amount / 100000000 * currencyRate, currency);
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.end,
@@ -1323,134 +1310,124 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
       else
         sideSwapPeg.when(
           data: (peg) {
+            // Define dropdown options (assuming fiat input is always allowed for peg-out)
+            final options = [currency, btcFormat];
+            final currentUnit = ref.watch(inputInFiatProvider) ? currency : btcFormat;
+
             return Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    bool currentIsFiat = ref.read(inputInFiatProvider);
-                    if (currentIsFiat) {
-                      String btcValue = btcFormat == 'sats'
-                          ? calculateAmountToDisplayFromFiatInSats(ref.watch(precisionFiatValueProvider), currency, ref.watch(currencyNotifierProvider))
-                          : calculateAmountToDisplayFromFiat(ref.watch(precisionFiatValueProvider), currency, ref.watch(currencyNotifierProvider));
-
-                      controller.text = btcFormat == 'sats' ? btcInDenominationFormatted(double.parse(btcValue), btcFormat) : btcValue;
-                    } else {
-                      String fiatValue = calculateAmountInSelectedCurrency(ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
-                      ref.read(precisionFiatValueProvider.notifier).state = fiatValue;
-                      controller.text = double.parse(fiatValue) < 0.01 ? '' : double.parse(fiatValue).toStringAsFixed(2);
-                    }
-                    ref.read(inputInFiatProvider.notifier).state = !currentIsFiat;
-                  },
-                  child: ref.watch(inputInFiatProvider)
-                      ? Row(
+                // Dropdown for unit selection
+                if (options.isNotEmpty)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text(
-                        btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat),
-                        style: TextStyle(fontSize: 20.sp, color: Colors.white),
-                      ),
-                      SizedBox(width: 2.w),
-                      Text(
-                        btcFormat,
-                        style: TextStyle(fontSize: 8.sp, color: Colors.grey),
+                      DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: currentUnit,
+                          dropdownColor: const Color(0xFF212121),
+                          borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                          items: options.map((option) {
+                            return DropdownMenuItem(
+                              value: option,
+                              child: Text(
+                                option.capitalize(),
+                                style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (newUnit) {
+                            if (newUnit != null && newUnit != currentUnit) {
+                              final isSwitchingToFiat = newUnit == currency;
+                              ref.read(inputInFiatProvider.notifier).state = isSwitchingToFiat;
+                              if (isSwitchingToFiat) {
+                                String fiatValue = calculateAmountInSelectedCurrency(
+                                    ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
+                                controller.text = double.parse(fiatValue) < 0.01
+                                    ? ''
+                                    : double.parse(fiatValue).toStringAsFixed(2);
+                              } else {
+                                String btcValue = btcInDenominationFormatted(
+                                    ref.watch(sendTxProvider).amount.toDouble(), btcFormat);
+                                controller.text = btcValue;
+                              }
+                            }
+                          },
+                          icon: Padding(
+                            padding: EdgeInsets.only(left: 8.0.w),
+                            child: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                          ),
+                          isDense: true,
+                          style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                        ),
                       ),
                     ],
                   )
-                      : Row(
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        valueToSendInCurrency,
-                        style: TextStyle(fontSize: 20.sp, color: Colors.grey),
-                      ),
-                      SizedBox(width: 2.w),
-                      Text(
-                        currency,
-                        style: TextStyle(fontSize: 8.sp, color: Colors.grey),
+                        btcFormat,
+                        style: TextStyle(fontSize: 16.sp, color: Colors.grey),
                       ),
                     ],
                   ),
-                ),
+                SizedBox(height: 8.h), // Spacing between dropdown and input field
+                // Input field
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if (!ref.watch(inputInFiatProvider))
-                      Row(
-                        children: [
-                          IntrinsicWidth(
-                            child: TextFormField(
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              controller: controller,
-                              inputFormatters: [
-                                CommaTextInputFormatter(),
-                                btcFormat == 'sats'
-                                    ? DecimalTextInputFormatter(decimalRange: 0)
-                                    : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),
-                              ],
-                              style: TextStyle(color: Colors.white, fontSize: 20.sp),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: '0',
-                                hintStyle: TextStyle(color: Colors.grey, fontSize: 20.sp),
-                              ),
-                              onChanged: (value) async {
-                                if (value.isEmpty) {
-                                  ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
-                                  ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                                  ref.read(sendTxProvider.notifier).updateDrain(false);
-                                }
-                                ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
-                                ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                                ref.read(sendTxProvider.notifier).updateDrain(false);
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 2.w),
-                          Text(
-                            btcFormat,
-                            style: TextStyle(fontSize: 8.sp, color: Colors.grey),
-                          ),
+                    IntrinsicWidth(
+                      child: TextFormField(
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        controller: controller,
+                        inputFormatters: ref.watch(inputInFiatProvider)
+                            ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2, integerRange: 7)]
+                            : [
+                          CommaTextInputFormatter(),
+                          btcFormat == 'sats'
+                              ? DecimalTextInputFormatter(decimalRange: 0)
+                              : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),
                         ],
+                        textAlign: TextAlign.right,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: '0',
+                          hintStyle: TextStyle(color: Colors.grey, fontSize: 28.sp),
+                        ),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: controller.text.length > 10 ? 20.sp : 28.sp,
+                        ),
+                        onChanged: (value) async {
+                          if (ref.watch(inputInFiatProvider)) {
+                            if (value.isEmpty) {
+                              ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                              ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                              ref.read(sendTxProvider.notifier).updateDrain(false);
+                            } else {
+                              String send = btcFormat == 'sats'
+                                  ? calculateAmountToDisplayFromFiatInSats(value, currency, ref.watch(currencyNotifierProvider))
+                                  : calculateAmountToDisplayFromFiat(value, currency, ref.watch(currencyNotifierProvider));
+                              ref.read(sendTxProvider.notifier).updateAmountFromInput(send, btcFormat);
+                              ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                              ref.read(sendTxProvider.notifier).updateDrain(false);
+                            }
+                          } else {
+                            if (value.isEmpty) {
+                              ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                              ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                              ref.read(sendTxProvider.notifier).updateDrain(false);
+                            } else {
+                              ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
+                              ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                              ref.read(sendTxProvider.notifier).updateDrain(false);
+                            }
+                          }
+                        },
                       ),
-                    if (ref.watch(inputInFiatProvider))
-                      Row(
-                        children: [
-                          IntrinsicWidth(
-                            child: TextFormField(
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              controller: controller,
-                              inputFormatters: [
-                                CommaTextInputFormatter(),
-                                DecimalTextInputFormatter(decimalRange: 2, integerRange: 7),
-                              ],
-                              style: TextStyle(color: Colors.white, fontSize: 20.sp),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: '0',
-                                hintStyle: TextStyle(color: Colors.grey, fontSize: 20.sp),
-                              ),
-                              onChanged: (value) async {
-                                if (value.isEmpty) {
-                                  ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
-                                  ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                                  ref.read(sendTxProvider.notifier).updateDrain(false);
-                                }
-                                String send = btcFormat == 'sats'
-                                    ? calculateAmountToDisplayFromFiatInSats(controller.text, currency, ref.watch(currencyNotifierProvider))
-                                    : calculateAmountToDisplayFromFiat(controller.text, currency, ref.watch(currencyNotifierProvider));
-
-                                ref.read(sendTxProvider.notifier).updateAmountFromInput(send, btcFormat);
-                                ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                                ref.read(sendTxProvider.notifier).updateDrain(false);
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 2.w),
-                          Text(
-                            currency,
-                            style: TextStyle(fontSize: 8.sp, color: Colors.grey),
-                          ),
-                        ],
-                      ),
+                    ),
                   ],
                 ),
               ],
@@ -1473,7 +1450,6 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
   final valueInCurrency = currencyFormat(double.parse(formattedValueInBtc) * currencyRate, currency);
   final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormat);
   final sideSwapPeg = ref.watch(sideswapPegProvider);
-  final valueToSendInCurrency = currencyFormat(ref.watch(sendTxProvider).amount / 100000000 * currencyRate, currency);
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.end,
@@ -1517,134 +1493,124 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
       else
         sideSwapPeg.when(
           data: (peg) {
+            // Define dropdown options (assuming fiat input is always allowed for peg-out)
+            final options = [currency, btcFormat];
+            final currentUnit = ref.watch(inputInFiatProvider) ? currency : btcFormat;
+
             return Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    bool currentIsFiat = ref.read(inputInFiatProvider);
-                    if (currentIsFiat) {
-                      String btcValue = btcFormat == 'sats'
-                          ? calculateAmountToDisplayFromFiatInSats(ref.watch(precisionFiatValueProvider), currency, ref.watch(currencyNotifierProvider))
-                          : calculateAmountToDisplayFromFiat(ref.watch(precisionFiatValueProvider), currency, ref.watch(currencyNotifierProvider));
-
-                      controller.text = btcFormat == 'sats' ? btcInDenominationFormatted(double.parse(btcValue), btcFormat) : btcValue;
-                    } else {
-                      String fiatValue = calculateAmountInSelectedCurrency(ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
-                      ref.read(precisionFiatValueProvider.notifier).state = fiatValue;
-                      controller.text = double.parse(fiatValue) < 0.01 ? '' : double.parse(fiatValue).toStringAsFixed(2);
-                    }
-                    ref.read(inputInFiatProvider.notifier).state = !currentIsFiat;
-                  },
-                  child: ref.watch(inputInFiatProvider)
-                      ? Row(
+                // Dropdown for unit selection
+                if (options.isNotEmpty)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text(
-                        btcInDenominationFormatted(ref.watch(sendTxProvider).amount.toDouble(), btcFormat),
-                        style: TextStyle(fontSize: 20.sp, color: Colors.grey),
-                      ),
-                      SizedBox(width: 2.w),
-                      Text(
-                        btcFormat,
-                        style: TextStyle(fontSize: 8.sp, color: Colors.grey),
+                      DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: currentUnit,
+                          dropdownColor: const Color(0xFF212121),
+                          borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                          items: options.map((option) {
+                            return DropdownMenuItem(
+                              value: option,
+                              child: Text(
+                                option.capitalize(),
+                                style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (newUnit) {
+                            if (newUnit != null && newUnit != currentUnit) {
+                              final isSwitchingToFiat = newUnit == currency;
+                              ref.read(inputInFiatProvider.notifier).state = isSwitchingToFiat;
+                              if (isSwitchingToFiat) {
+                                String fiatValue = calculateAmountInSelectedCurrency(
+                                    ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
+                                controller.text = double.parse(fiatValue) < 0.01
+                                    ? ''
+                                    : double.parse(fiatValue).toStringAsFixed(2);
+                              } else {
+                                String btcValue = btcInDenominationFormatted(
+                                    ref.watch(sendTxProvider).amount.toDouble(), btcFormat);
+                                controller.text = btcValue;
+                              }
+                            }
+                          },
+                          icon: Padding(
+                            padding: EdgeInsets.only(left: 8.0.w),
+                            child: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                          ),
+                          isDense: true,
+                          style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                        ),
                       ),
                     ],
                   )
-                      : Row(
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        valueToSendInCurrency,
-                        style: TextStyle(fontSize: 20.sp, color: Colors.grey),
-                      ),
-                      SizedBox(width: 2.w),
-                      Text(
-                        currency,
-                        style: TextStyle(fontSize: 8.sp, color: Colors.grey),
+                        btcFormat,
+                        style: TextStyle(fontSize: 16.sp, color: Colors.grey),
                       ),
                     ],
                   ),
-                ),
+                SizedBox(height: 8.h), // Spacing between dropdown and input field
+                // Input field
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if (!ref.watch(inputInFiatProvider))
-                      Row(
-                        children: [
-                          IntrinsicWidth(
-                            child: TextFormField(
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              controller: controller,
-                              inputFormatters: [
-                                CommaTextInputFormatter(),
-                                btcFormat == 'sats'
-                                    ? DecimalTextInputFormatter(decimalRange: 0)
-                                    : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),
-                              ],
-                              style: TextStyle(color: Colors.white, fontSize: 20.sp),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: '0',
-                                hintStyle: TextStyle(color: Colors.grey, fontSize: 20.sp),
-                              ),
-                              onChanged: (value) async {
-                                if (value.isEmpty) {
-                                  ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
-                                  ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                                  ref.read(sendTxProvider.notifier).updateDrain(false);
-                                }
-                                ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
-                                ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                                ref.read(sendTxProvider.notifier).updateDrain(false);
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 2.w),
-                          Text(
-                            btcFormat,
-                            style: TextStyle(fontSize: 8.sp, color: Colors.grey),
-                          ),
+                    IntrinsicWidth(
+                      child: TextFormField(
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        controller: controller,
+                        inputFormatters: ref.watch(inputInFiatProvider)
+                            ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2, integerRange: 7)]
+                            : [
+                          CommaTextInputFormatter(),
+                          btcFormat == 'sats'
+                              ? DecimalTextInputFormatter(decimalRange: 0)
+                              : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),
                         ],
+                        textAlign: TextAlign.right,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: '0',
+                          hintStyle: TextStyle(color: Colors.grey, fontSize: 28.sp),
+                        ),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: controller.text.length > 10 ? 20.sp : 28.sp,
+                        ),
+                        onChanged: (value) async {
+                          if (ref.watch(inputInFiatProvider)) {
+                            if (value.isEmpty) {
+                              ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                              ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                              ref.read(sendTxProvider.notifier).updateDrain(false);
+                            } else {
+                              String send = btcFormat == 'sats'
+                                  ? calculateAmountToDisplayFromFiatInSats(value, currency, ref.watch(currencyNotifierProvider))
+                                  : calculateAmountToDisplayFromFiat(value, currency, ref.watch(currencyNotifierProvider));
+                              ref.read(sendTxProvider.notifier).updateAmountFromInput(send, btcFormat);
+                              ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                              ref.read(sendTxProvider.notifier).updateDrain(false);
+                            }
+                          } else {
+                            if (value.isEmpty) {
+                              ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                              ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                              ref.read(sendTxProvider.notifier).updateDrain(false);
+                            } else {
+                              ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
+                              ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
+                              ref.read(sendTxProvider.notifier).updateDrain(false);
+                            }
+                          }
+                        },
                       ),
-                    if (ref.watch(inputInFiatProvider))
-                      Row(
-                        children: [
-                          IntrinsicWidth(
-                            child: TextFormField(
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              controller: controller,
-                              inputFormatters: [
-                                CommaTextInputFormatter(),
-                                DecimalTextInputFormatter(decimalRange: 2, integerRange: 7),
-                              ],
-                              style: TextStyle(color: Colors.white, fontSize: 20.sp),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: '0',
-                                hintStyle: TextStyle(color: Colors.grey, fontSize: 20.sp),
-                              ),
-                              onChanged: (value) async {
-                                if (value.isEmpty) {
-                                  ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
-                                  ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                                  ref.read(sendTxProvider.notifier).updateDrain(false);
-                                }
-                                String send = btcFormat == 'sats'
-                                    ? calculateAmountToDisplayFromFiatInSats(controller.text, currency, ref.watch(currencyNotifierProvider))
-                                    : calculateAmountToDisplayFromFiat(controller.text, currency, ref.watch(currencyNotifierProvider));
-
-                                ref.read(sendTxProvider.notifier).updateAmountFromInput(send, btcFormat);
-                                ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? '');
-                                ref.read(sendTxProvider.notifier).updateDrain(false);
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 2.w),
-                          Text(
-                            currency,
-                            style: TextStyle(fontSize: 8.sp, color: Colors.grey),
-                          ),
-                        ],
-                      ),
+                    ),
                   ],
                 ),
               ],
@@ -1937,12 +1903,7 @@ Widget pickBitcoinFeeSuggestionsPegOut(WidgetRef ref) {
 
   // If empty, show a placeholder message or return an empty widget
   if (reversedStatus.isEmpty) {
-    return Center(
-      child: Text(
-        'No fee data available',
-        style: TextStyle(fontSize: 14.sp),
-      ),
-    );
+    return SizedBox.shrink();
   }
 
   final indexFromBlocks = reversedStatus.indexWhere((item) => item["blocks"] == selectedBlocks);

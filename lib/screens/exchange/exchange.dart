@@ -52,7 +52,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
         body: SafeArea(
           child: KeyboardDismissOnTap(
             child: Padding(
-              padding: EdgeInsets.all(16.sp),
+              padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.sp),
               child: ListView(
                 children: [
                   buildBalanceCardWithMaxButton(ref, controller),
