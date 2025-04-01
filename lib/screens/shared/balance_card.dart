@@ -105,7 +105,7 @@ class MiniExpensesGraph extends ConsumerWidget {
           asyncData = AsyncValue.data(ref.watch(bitcoinBalanceInFormatByDayProvider));
           break;
         case 'Liquid network':
-          final assetId = AssetMapper.reverseMapTicker(AssetId.LBTC); // L-BTC asset ID
+          final assetId = AssetMapper.reverseMapTicker(AssetId.LBTC);
           asyncData = AsyncValue.data(ref.watch(liquidBalancePerDayInFormatProvider(assetId)));
           break;
         case 'Lightning network':
@@ -293,7 +293,8 @@ class BalanceCard extends ConsumerWidget {
             onPressed: () {
               ref.read(sendTxProvider.notifier).resetToDefault();
               ref.read(sendBlocksProvider.notifier).state = 1;
-              context.push('/home/pay', extra: 'liquid');
+              ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.BRL));
+              context.push('/home/pay', extra: 'liquid_asset');
             },
             icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.w),
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),

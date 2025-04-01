@@ -13,6 +13,7 @@ import 'package:Satsails/screens/creation/confirm_pin.dart';
 import 'package:Satsails/screens/login/seed_words_pin.dart';
 import 'package:Satsails/screens/pay/components/camera.dart';
 import 'package:Satsails/screens/pay/components/confirm_custodial_lightning_payment.dart';
+import 'package:Satsails/screens/pay/components/confirm_liquid_asset_payment.dart';
 import 'package:Satsails/screens/shared/affiliate_screen.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
@@ -246,6 +247,8 @@ class AppRouter {
                     return state.namedLocation('pay_bitcoin');
                   case 'liquid':
                     return state.namedLocation('pay_liquid');
+                  case 'liquid_asset':
+                    return state.namedLocation('pay_liquid_asset');
                   case 'lightning':
                     return state.namedLocation('pay_lightning');
                 }
@@ -265,6 +268,14 @@ class AppRouter {
                   name: 'pay_liquid',
                   pageBuilder: (context, state) => _buildFadeScalePage(
                     child: ConfirmLiquidPayment(key: UniqueKey()),
+                    state: state,
+                  ),
+                ),
+                GoRoute(
+                  path: 'confirm_liquid_asset_payment', // Added :assetId parameter
+                  name: 'pay_liquid_asset',
+                  pageBuilder: (context, state) => _buildFadeScalePage(
+                    child: ConfirmLiquidAssetPayment(key: UniqueKey()),
                     state: state,
                   ),
                 ),
