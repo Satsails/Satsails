@@ -10,7 +10,7 @@ extension DateTimeExtension on DateTime {
   DateTime dateOnly() => DateTime(year, month, day);
 }
 
-class ProfessionalLineChart extends StatefulWidget {
+class Chart extends StatefulWidget {
   final List<DateTime> selectedDays;
   final Map<DateTime, num> feeData;
   final Map<DateTime, num> incomeData;
@@ -24,7 +24,7 @@ class ProfessionalLineChart extends StatefulWidget {
   final bool isCurrency;
   final String btcFormat;
 
-  const ProfessionalLineChart({
+  const Chart({
     super.key,
     required this.selectedDays,
     required this.feeData,
@@ -41,10 +41,10 @@ class ProfessionalLineChart extends StatefulWidget {
   });
 
   @override
-  State<ProfessionalLineChart> createState() => _ProfessionalLineChartState();
+  State<Chart> createState() => _ChartState();
 }
 
-class _ProfessionalLineChartState extends State<ProfessionalLineChart> with TickerProviderStateMixin {
+class _ChartState extends State<Chart> with TickerProviderStateMixin {
   late AnimationController _lineController;
   late Animation<double> _lineAnimation;
   late AnimationController _backgroundController;
@@ -80,7 +80,6 @@ class _ProfessionalLineChartState extends State<ProfessionalLineChart> with Tick
   @override
   void dispose() {
     _lineController.dispose();
-    _backgroundController.dispose();
     super.dispose();
   }
 
@@ -97,110 +96,62 @@ class _ProfessionalLineChartState extends State<ProfessionalLineChart> with Tick
 
     final sortedDays = List<DateTime>.from(widget.selectedDays)..sort((a, b) => a.compareTo(b));
 
-    return Stack(
-      children: [
-        // Animated Background
-        AnimatedBuilder(
-          animation: _backgroundController,
-          builder: (context, child) {
-            return Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [_bgColorAnimation1.value!, _bgColorAnimation2.value!],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-            );
-          },
-        ),
-        // Chart Content
-        Padding(
-          padding: const EdgeInsets.only(right: 18.0, left: 8.0, top: 24, bottom: 12),
-          child: Column(
-            children: [
-              // Dynamic Legend
-              if (!widget.isShowingMainData)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildLegendItem('Income', Colors.green),
-                    const SizedBox(width: 16),
-                    _buildLegendItem('Spending', Colors.red),
-                    const SizedBox(width: 16),
-                    _buildLegendItem('Fees', Colors.grey),
-                  ],
-                )
-              else
-                _buildLegendItem('Main Data', Colors.orangeAccent),
-              const SizedBox(height: 8),
-              Expanded(
-                child: AnimatedBuilder(
-                  animation: _lineAnimation,
-                  builder: (context, child) {
-                    final animationValue = _lineAnimation.value;
-                    final lineBarsData = _buildLineBarsData(animationValue, sortedDays);
-                    final bounds = _calculateAxisBounds(
-                      widget.isShowingMainData && widget.mainData != null
-                          ? [widget.mainData!]
-                          : [widget.incomeData, widget.spendingData, widget.feeData],
-                      sortedDays,
-                    );
+    return Container(
+      color: Colors.black, // Set background to black
+      child: Padding(
+        padding: const EdgeInsets.only(right: 18.0, left: 8.0, top: 24, bottom: 12),
+        child: Column(
+          children: [
+            Expanded(
+              child: AnimatedBuilder(
+                animation: _lineAnimation,
+                builder: (context, child) {
+                  final animationValue = _lineAnimation.value;
+                  final lineBarsData = _buildLineBarsData(animationValue, sortedDays);
+                  final bounds = _calculateAxisBounds(
+                    widget.isShowingMainData && widget.mainData != null
+                        ? [widget.mainData!]
+                        : [widget.incomeData, widget.spendingData, widget.feeData],
+                    sortedDays,
+                  );
 
-                    return LineChart(
-                      LineChartData(
-                        lineTouchData: _buildLineTouchData(context, sortedDays),
-                        gridData: FlGridData(
-                          show: true,
-                          drawVerticalLine: true,
-                          drawHorizontalLine: true,
-                          horizontalInterval: bounds.horizontalInterval,
-                          verticalInterval: 1,
-                          getDrawingHorizontalLine: (value) => const FlLine(color: Colors.white10, strokeWidth: 1),
-                          getDrawingVerticalLine: (value) {
-                            final interval = _calculateDateInterval(sortedDays.length);
-                            return value % interval == 0 ? const FlLine(color: Colors.white10, strokeWidth: 1) : const FlLine(color: Colors.transparent);
-                          },
-                        ),
-                        borderData: FlBorderData(
-                          show: true,
-                          border: Border.all(color: Colors.white24, width: 1),
-                        ),
-                        titlesData: FlTitlesData(
-                          show: true,
-                          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 30,
-                              interval: _calculateDateInterval(sortedDays.length),
-                              getTitlesWidget: (value, meta) => _bottomTitleWidgets(value, meta, sortedDays),
-                            ),
-                          ),
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 55,
-                              getTitlesWidget: (value, meta) => _leftTitleWidgets(value, meta, bounds.maxY),
-                              interval: bounds.horizontalInterval,
-                            ),
-                          ),
-                        ),
-                        minX: 0,
-                        maxX: (sortedDays.length - 1).toDouble().clamp(0, double.infinity),
-                        minY: bounds.minY,
-                        maxY: bounds.maxY,
-                        lineBarsData: lineBarsData,
+                  return LineChart(
+                    LineChartData(
+                      lineTouchData: _buildLineTouchData(context, sortedDays),
+                      borderData: FlBorderData(
+                        show: true,
+                        border: Border.all(color: Colors.white24, width: 1),
                       ),
-                    );
-                  },
-                ),
+                      titlesData: FlTitlesData(
+                        show: true,
+                        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 30,
+                            interval: _calculateDateInterval(sortedDays.length),
+                          ),
+                        ),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 55,
+                            interval: bounds.horizontalInterval,
+                          ),
+                        ),
+                      ),
+                      minX: 0,
+                      maxX: (sortedDays.length - 1).toDouble().clamp(0, double.infinity),
+                      lineBarsData: lineBarsData,
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -304,35 +255,6 @@ class _ProfessionalLineChartState extends State<ProfessionalLineChart> with Tick
     if (numberOfDays <= 90) return 10;
     if (numberOfDays <= 180) return 20;
     return (numberOfDays / 7).ceilToDouble();
-  }
-
-  Widget _bottomTitleWidgets(double value, TitleMeta meta, List<DateTime> sortedDays) {
-    const style = TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 10);
-    final index = value.toInt();
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 8.0,
-      child: index >= 0 && index < sortedDays.length ? Text(sortedDays[index].formatMD(), style: style) : const Text('', style: style),
-    );
-  }
-
-  Widget _leftTitleWidgets(double value, TitleMeta meta, double maxValue) {
-    if (value == meta.min && meta.min != 0) return Container();
-    if (value != meta.max && value > meta.max - (meta.max - meta.min) * 0.05) return Container();
-    const style = TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 10);
-    String text;
-    if (widget.isCurrency) {
-      text = NumberFormat.compactSimpleCurrency(name: widget.selectedCurrency == 'USD' ? '' : widget.selectedCurrency).format(value);
-    } else {
-      if (value.abs() >= 1000 || widget.btcFormat == 'Sats') {
-        text = NumberFormat.compact().format(value);
-      } else if (value.abs() >= 0.00001) {
-        text = value.toStringAsFixed(5);
-      } else {
-        text = value.toStringAsFixed(0);
-      }
-    }
-    return Text(text, style: style, textAlign: TextAlign.left);
   }
 
   LineTouchData _buildLineTouchData(BuildContext context, List<DateTime> sortedDays) {
@@ -463,22 +385,5 @@ class _ProfessionalLineChartState extends State<ProfessionalLineChart> with Tick
     minY = (minY / interval).floor() * interval;
 
     return (minY: minY, maxY: maxY, horizontalInterval: interval);
-  }
-
-  Widget _buildLegendItem(String label, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 16,
-          height: 16,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(color: Colors.white70)),
-      ],
-    );
   }
 }

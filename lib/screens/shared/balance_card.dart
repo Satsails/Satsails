@@ -122,8 +122,8 @@ class MiniExpensesGraph extends ConsumerWidget {
     }
 
     return Container(
-      width: 150.w,
-      height: 30.h,
+      width: 170.w,
+      height: 50.h,
       child: asyncData.when(
         data: (data) => Padding(
           padding: EdgeInsets.all(4.0.sp),
@@ -281,59 +281,53 @@ class BalanceCard extends ConsumerWidget {
       }
     }
 
-    final bottomButtons = Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF212121),
-        borderRadius: BorderRadius.circular(30.r),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          IconButton(
-            onPressed: () {
-              ref.read(sendTxProvider.notifier).resetToDefault();
-              ref.read(sendBlocksProvider.notifier).state = 1;
+    final bottomButtons = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        IconButton(
+          onPressed: () {
+            ref.read(sendTxProvider.notifier).resetToDefault();
+            ref.read(sendBlocksProvider.notifier).state = 1;
 
-              if (assetName == 'Bitcoin') {
-                if (networkFilter == 'Bitcoin network') {
-                  context.push('/home/pay', extra: 'bitcoin');
-                } else if (networkFilter == 'Liquid network') {
-                  ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
-                  context.push('/home/pay', extra: 'liquid');
-                } else if (networkFilter == 'Lightning network') {
-                  context.push('/home/pay', extra: 'lightning');
-                }
-              } else {
-                // Map non-Bitcoin assets to their AssetId
-                late String assetToUpdate; // Declare as late to ensure assignment in switch
-                switch (assetName) {
-                  case 'Depix':
-                    assetToUpdate = AssetMapper.reverseMapTicker(AssetId.BRL);
-                    break;
-                  case 'USDT':
-                    assetToUpdate = AssetMapper.reverseMapTicker(AssetId.USD);
-                    break;
-                  case 'EURx':
-                    assetToUpdate = AssetMapper.reverseMapTicker(AssetId.EUR);
-                    break;
-                }
-                ref.read(sendTxProvider.notifier).updateAssetId(assetToUpdate);
-                context.push('/home/pay', extra: 'liquid_asset');
+            if (assetName == 'Bitcoin') {
+              if (networkFilter == 'Bitcoin network') {
+                context.push('/home/pay', extra: 'bitcoin');
+              } else if (networkFilter == 'Liquid network') {
+                ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+                context.push('/home/pay', extra: 'liquid');
+              } else if (networkFilter == 'Lightning network') {
+                context.push('/home/pay', extra: 'lightning');
               }
-            },
-            icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.w),
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-          ),
-          IconButton(
-            onPressed: () {
-              ref.read(selectedNetworkTypeProvider.notifier).state = networkFilter;
-              context.push('/home/receive');
-            },
-            icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.w),
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-          ),
-        ],
-      ),
+            } else {
+              // Map non-Bitcoin assets to their AssetId
+              late String assetToUpdate; // Declare as late to ensure assignment in switch
+              switch (assetName) {
+                case 'Depix':
+                  assetToUpdate = AssetMapper.reverseMapTicker(AssetId.BRL);
+                  break;
+                case 'USDT':
+                  assetToUpdate = AssetMapper.reverseMapTicker(AssetId.USD);
+                  break;
+                case 'EURx':
+                  assetToUpdate = AssetMapper.reverseMapTicker(AssetId.EUR);
+                  break;
+              }
+              ref.read(sendTxProvider.notifier).updateAssetId(assetToUpdate);
+              context.push('/home/pay', extra: 'liquid_asset');
+            }
+          },
+          icon: Icon(Icons.arrow_upward, color: Color(0xFF212121), size: 28.w),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+        ),
+        IconButton(
+          onPressed: () {
+            ref.read(selectedNetworkTypeProvider.notifier).state = networkFilter;
+            context.push('/home/receive');
+          },
+          icon: Icon(Icons.arrow_downward, color: Color(0xFF212121), size: 28.w),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+        ),
+      ],
     );
 
     return GestureDetector(
@@ -355,7 +349,7 @@ class BalanceCard extends ConsumerWidget {
               left: 0,
               right: 0,
               child: Padding(
-                padding: EdgeInsets.all(16.sp),
+                padding: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -403,7 +397,7 @@ class BalanceCard extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.h),
+                    SizedBox(height: 16.h),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -454,11 +448,12 @@ class BalanceCard extends ConsumerWidget {
               child: Icon(
                 Icons.touch_app,
                 color: Colors.black,
-                size: 24.sp,
+                size: 28.sp,
               ),
             ),
             Positioned(
-              bottom: -25.h,
+              bottom: 2.h,
+              left: 16.w,
               child: bottomButtons,
             ),
           ],

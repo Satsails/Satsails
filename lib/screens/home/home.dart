@@ -189,7 +189,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
                   ],
                 ),
                 SizedBox(
-                  height: 0.23.sh,
+                  height: 0.25.sh,
                   child: Padding(
                     padding: EdgeInsets.only(bottom: 10.sp),
                     child: BalanceCard(

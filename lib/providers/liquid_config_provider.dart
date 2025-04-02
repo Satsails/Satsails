@@ -10,27 +10,17 @@ final liquidConfigProvider = FutureProvider<LiquidConfig>((ref) async {
     throw Exception('Mnemonic is null or empty');
   }
 
-  try {
-    final wallet = await LiquidConfigModel.createWallet(mnemonic, Network.mainnet);
-    return LiquidConfig(
-      mnemonic: mnemonic,
-      network: Network.mainnet,
-      wallet: wallet,
-    );
-  } catch (e) {
-    final errorMessage = e.toString();
-    if (errorMessage.contains('UpdateHeightTooOld') ||
-        errorMessage.contains('UpdateOnDifferentStatus')) {
-      // Delete database only for specific errors
-      await authModel.deleteLwkDb();
+  while (true) {
+    try {
       final wallet = await LiquidConfigModel.createWallet(mnemonic, Network.mainnet);
       return LiquidConfig(
         mnemonic: mnemonic,
         network: Network.mainnet,
         wallet: wallet,
       );
-    } else {
-      throw Exception('Error please contact support: Failure to launch liquid wallet');
+    } catch (e) {
+      await authModel.deleteLwkDb();
+      await Future.delayed(Duration(seconds: 1)); // Wait 1 second before retrying
     }
   }
 });
