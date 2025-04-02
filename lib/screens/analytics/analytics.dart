@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:intl/intl.dart';
 
 class Analytics extends ConsumerStatefulWidget {
   const Analytics({super.key});
@@ -17,15 +18,48 @@ class Analytics extends ConsumerStatefulWidget {
 }
 
 class _AnalyticsState extends ConsumerState<Analytics> {
-  int viewMode = 0; // 0: BTC Balance, 1: Currency Balance, 2: Statistics
+  int viewMode = 0; // 0: BTC Balance, 1: Currency Valuation
   DateTime? _startDate;
   DateTime? _endDate;
   String _selectedRange = '30 days'; // Default to 30 days
 
-  // Helper to get normalized date range or default to last 30 days
+  // Helper method to compute the normalized date range, including "ALL" option
   List<DateTime> _getNormalizedDateRange() {
     final now = DateTime.now().dateOnly();
-    final start = _startDate ?? now.subtract(const Duration(days: 29));
+    DateTime start;
+
+    // Get transactions and determine the first transaction date
+    final transactions = ref.read(transactionNotifierProvider).bitcoinTransactions;
+
+    // Sort transactions by confirmation time, handling nulls as in bitcoinBalanceOverPeriod
+    transactions.sort((a, b) {
+      if (a.btcDetails.confirmationTime == null && b.btcDetails.confirmationTime == null) {
+        return 0;
+      } else if (a.btcDetails.confirmationTime == null) {
+        return -1;
+      } else if (b.btcDetails.confirmationTime == null) {
+        return 1;
+      } else {
+        return a.btcDetails.confirmationTime!.timestamp.compareTo(b.btcDetails.confirmationTime!.timestamp);
+      }
+    });
+
+    // Find the first valid transaction date
+    DateTime? firstTransactionDate;
+    for (var transaction in transactions) {
+      if (transaction.btcDetails.confirmationTime != null && transaction.btcDetails.confirmationTime!.timestamp != 0) {
+        firstTransactionDate = DateTime.fromMillisecondsSinceEpoch(
+          transaction.btcDetails.confirmationTime!.timestamp.toInt() * 1000,
+        ).dateOnly();
+        break; // Stop at the first valid transaction
+      }
+    }
+
+    if (_selectedRange == 'ALL') {
+      start = firstTransactionDate ?? now.subtract(const Duration(days: 29));
+    } else {
+      start = _startDate ?? now.subtract(const Duration(days: 29));
+    }
     final end = _endDate ?? now;
 
     final days = <DateTime>[];
@@ -34,7 +68,8 @@ class _AnalyticsState extends ConsumerState<Analytics> {
       days.add(current.dateOnly());
       current = current.add(const Duration(days: 1));
     }
-    // Update state if not already set
+
+    // Update state if not already set (runs after build)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_startDate == null || _endDate == null) {
         setState(() {
@@ -49,6 +84,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   @override
   void initState() {
     super.initState();
+    // Initialize date range based on provider or default to 30 days
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final currentSelection = ref.read(selectedDaysDateArrayProvider);
       if (currentSelection.isEmpty) {
@@ -84,15 +120,12 @@ class _AnalyticsState extends ConsumerState<Analytics> {
 
     final selectedDays = _getNormalizedDateRange();
 
-    final feeData = ref.watch(bitcoinFeeSpentPerDayProvider);
-    final incomeData = ref.watch(bitcoinIncomePerDayProvider);
-    final spendingData = ref.watch(bitcoinSpentPerDayProvider);
     final bitcoinBalanceByDayFormatted = ref.watch(bitcoinBalanceInFormatByDayProvider);
     final bitcoinBalanceByDayUnformatted = ref.watch(bitcoinBalanceInBtcByDayProvider);
     final marketDataAsync = ref.watch(bitcoinHistoricalMarketDataProvider);
     final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormat));
 
-    // Calculate dollar balance and price by day
+    // Calculate dollar balance and price by day from market data
     final (dollarBalanceByDay, priceByDay) = marketDataAsync.when(
       data: (marketData) {
         final dailyPrices = <DateTime, num>{};
@@ -122,7 +155,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     );
 
     // Determine main data based on view mode
-    final mainData = viewMode == 0 ? bitcoinBalanceByDayFormatted : viewMode == 1 ? dollarBalanceByDay : null;
+    final mainData = viewMode == 0 ? bitcoinBalanceByDayFormatted : dollarBalanceByDay;
 
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -130,22 +163,38 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Analytics'),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            // Reset to default settings before navigating back
+            setState(() {
+              _selectedRange = '30 days';
+              final now = DateTime.now().dateOnly();
+              _startDate = now.subtract(const Duration(days: 29));
+              _endDate = now;
+              final days = <DateTime>[];
+              DateTime current = _startDate!;
+              while (!current.isAfter(_endDate!)) {
+                days.add(current.dateOnly());
+                current = current.add(const Duration(days: 1));
+              }
+              ref.read(selectedDaysDateArrayProvider.notifier).state = days;
+              viewMode = 0; // Reset to BTC Balance
+            });
+            Navigator.of(context).pop(); // Navigate back after reset
+          },
         ),
         actions: [
-          // Date Range Dropdown
+          // Date Range Dropdown with "ALL" option
           DropdownButton<String>(
             value: _selectedRange,
             icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
             style: const TextStyle(color: Colors.white),
             dropdownColor: Colors.grey[800],
             underline: const SizedBox(),
-            items: ['7 days', '30 days', '6 months'].map((String option) {
+            items: ['7 days', '30 days', '6 months', 'ALL'].map((String option) {
               return DropdownMenuItem<String>(
                 value: option,
                 child: Text(option),
@@ -156,6 +205,32 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                 setState(() {
                   _selectedRange = newValue;
                   final now = DateTime.now().dateOnly();
+                  final transactions = ref.read(transactionNotifierProvider).bitcoinTransactions;
+
+                  // Sort transactions as in bitcoinBalanceOverPeriod
+                  transactions.sort((a, b) {
+                    if (a.btcDetails.confirmationTime == null && b.btcDetails.confirmationTime == null) {
+                      return 0;
+                    } else if (a.btcDetails.confirmationTime == null) {
+                      return -1;
+                    } else if (b.btcDetails.confirmationTime == null) {
+                      return 1;
+                    } else {
+                      return a.btcDetails.confirmationTime!.timestamp.compareTo(b.btcDetails.confirmationTime!.timestamp);
+                    }
+                  });
+
+                  // Find the first valid transaction date
+                  DateTime? firstTransactionDate;
+                  for (var transaction in transactions) {
+                    if (transaction.btcDetails.confirmationTime != null && transaction.btcDetails.confirmationTime!.timestamp != 0) {
+                      firstTransactionDate = DateTime.fromMillisecondsSinceEpoch(
+                        transaction.btcDetails.confirmationTime!.timestamp.toInt() * 1000,
+                      ).dateOnly();
+                      break;
+                    }
+                  }
+
                   switch (newValue) {
                     case '7 days':
                       _startDate = now.subtract(const Duration(days: 6));
@@ -165,6 +240,9 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                       break;
                     case '6 months':
                       _startDate = now.subtract(const Duration(days: 182));
+                      break;
+                    case 'ALL':
+                      _startDate = firstTransactionDate ?? now.subtract(const Duration(days: 29));
                       break;
                   }
                   _endDate = now;
@@ -179,7 +257,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
               }
             },
           ),
-          // Calendar Button
+          // Calendar Button with updated styling
           IconButton(
             icon: const Icon(Icons.calendar_today, color: Colors.white),
             onPressed: () async {
@@ -187,27 +265,24 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                 context: context,
                 config: CalendarDatePicker2WithActionButtonsConfig(
                   calendarType: CalendarDatePicker2Type.range,
-                  firstDate: DateTime(2009, 1, 3),
-                  lastDate: DateTime.now().add(const Duration(days: 1)),
-                  currentDate: _endDate ?? DateTime.now(),
-                  selectedRangeHighlightColor: Colors.orange.withOpacity(0.3),
-                  centerAlignModePicker: true,
-                  controlsTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime.now(),
+                  currentDate: _startDate ?? DateTime.now(),
                   dayTextStyle: const TextStyle(color: Colors.white),
-                  disabledDayTextStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-                  weekdayLabelTextStyle: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
-                  selectedDayTextStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                  selectedDayHighlightColor: Colors.orange,
+                  weekdayLabelTextStyle: const TextStyle(color: Colors.white),
+                  controlsTextStyle: const TextStyle(color: Colors.white),
+                  selectedDayTextStyle: const TextStyle(color: Colors.black),
+                  selectedDayHighlightColor: Colors.orange, // Round orange selection
+                  selectedRangeHighlightColor: Colors.orange.withOpacity(0.3), // Subtle range fill
+                  disabledDayTextStyle: const TextStyle(color: Colors.grey),
                   yearTextStyle: const TextStyle(color: Colors.white),
-                  selectedYearTextStyle: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
-                  dayBorderRadius: BorderRadius.circular(4),
-                  okButton: Text('OK', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-                  cancelButton: Text('CANCEL', style: TextStyle(color: Colors.white70)),
+                  lastMonthIcon: const Icon(Icons.arrow_back, color: Colors.white),
+                  nextMonthIcon: const Icon(Icons.arrow_forward, color: Colors.white),
+                  okButton: const Text('OK', style: TextStyle(color: Colors.orange)),
+                  cancelButton: const Text('CANCEL', style: TextStyle(color: Colors.white)),
                 ),
                 dialogSize: const Size(325, 400),
-                value: (_startDate != null && _endDate != null) ? [_startDate, _endDate] : [],
-                borderRadius: BorderRadius.circular(15),
-                dialogBackgroundColor: Colors.grey[900],
+                dialogBackgroundColor: const Color(0xFF212121), // Dark grey background
               );
 
               if (selectedDateRange != null && selectedDateRange.isNotEmpty) {
@@ -228,45 +303,19 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                   setState(() {
                     _startDate = effectiveStart;
                     _endDate = effectiveEnd;
-                    // Update dropdown to reflect custom range (optional)
-                    _selectedRange = 'Custom'; // You can add "Custom" to the dropdown options if desired
+                    _selectedRange = 'Custom'; // Reflect custom range
                   });
                   ref.read(selectedDaysDateArrayProvider.notifier).state = days;
                 }
               }
             },
           ),
-          // Reset Button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TextButton(
-              onPressed: () {
-                setState(() {
-                  _selectedRange = '30 days';
-                  final now = DateTime.now().dateOnly();
-                  _startDate = now.subtract(const Duration(days: 29));
-                  _endDate = now;
-                  final days = <DateTime>[];
-                  DateTime current = _startDate!;
-                  while (!current.isAfter(_endDate!)) {
-                    days.add(current.dateOnly());
-                    current = current.add(const Duration(days: 1));
-                  }
-                  ref.read(selectedDaysDateArrayProvider.notifier).state = days;
-                  viewMode = 0; // Reset to BTC Balance
-                });
-              },
-              child: const Text(
-                'Reset',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
+          // Reset button removed from here
         ],
       ),
       body: Column(
         children: [
-          // Balance Card
+          // Balance Card displaying current Bitcoin balance
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Card(
@@ -301,11 +350,11 @@ class _AnalyticsState extends ConsumerState<Analytics> {
               ),
             ),
           ),
-          // View Mode Toggle Buttons (Button Slider Selector)
+          // Toggle Buttons to switch between BTC Balance and Currency Valuation
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: ToggleButtons(
-              isSelected: [viewMode == 0, viewMode == 1, viewMode == 2],
+              isSelected: [viewMode == 0, viewMode == 1],
               onPressed: (index) {
                 setState(() {
                   viewMode = index;
@@ -327,28 +376,21 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Text('$selectedCurrency Valuation'),
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text('Statistics'),
-                ),
               ],
             ),
           ),
-          // Graph
+          // Graph displaying the selected data
           Expanded(
             child: marketDataAsync.when(
               data: (_) {
                 return Chart(
                   selectedDays: selectedDays,
-                  feeData: feeData,
-                  incomeData: incomeData,
-                  spendingData: spendingData,
                   mainData: mainData,
                   bitcoinBalanceByDayUnformatted: bitcoinBalanceByDayUnformatted,
                   dollarBalanceByDay: dollarBalanceByDay,
                   priceByDay: priceByDay,
                   selectedCurrency: selectedCurrency,
-                  isShowingMainData: viewMode != 2,
+                  isShowingMainData: true, // Always show main data
                   isCurrency: viewMode == 1,
                   btcFormat: btcFormat,
                 );
