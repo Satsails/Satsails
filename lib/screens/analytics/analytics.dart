@@ -1,81 +1,201 @@
-import 'package:Satsails/providers/coinos_provider.dart';
-import 'package:Satsails/screens/analytics/components/lightning_expenses_diagram.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/providers/analytics_provider.dart';
+import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/providers/coingecko_provider.dart';
+import 'package:Satsails/screens/analytics/components/bitcoin_expenses_graph.dart';
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/screens/analytics/components/bitcoin_expenses_diagram.dart';
+import 'package:Satsails/providers/settings_provider.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-import 'components/calendar.dart';
-
-final selectedExpenseTypeProvider = StateProvider<String>((ref) => "Bitcoin");
-
-class Analytics extends ConsumerWidget {
+class Analytics extends ConsumerStatefulWidget {
   const Analytics({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _AnalyticsState createState() => _AnalyticsState();
+}
+
+class _AnalyticsState extends ConsumerState<Analytics> {
+  int viewMode = 0; // 0: BTC Balance, 1: Currency Balance, 2: Statistics
+  DateTime? _startDate;
+  DateTime? _endDate;
+
+  @override
+  Widget build(BuildContext context) {
+    // Watch providers
+    final selectedCurrency = ref.watch(settingsProvider).currency;
+    final selectedDays = ref.watch(selectedDaysDateArrayProvider);
+    final feeData = ref.watch(bitcoinFeeSpentPerDayProvider);
+    final incomeData = ref.watch(bitcoinIncomePerDayProvider);
+    final spendingData = ref.watch(bitcoinSpentPerDayProvider);
+    final bitcoinBalanceByDay = ref.watch(bitcoinBalanceInFormatByDayProvider);
+    final bitcoinBalanceByDayUnformatted = ref.watch(bitcoinBalanceInBtcByDayProvider);
+    final marketDataAsync = ref.watch(bitcoinHistoricalMarketDataProvider);
+    final btcFormat = ref.watch(settingsProvider).btcFormat;
+    final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(btcFormat));
+
+    // Compute dollar balance by day
+    final dollarBalanceByDay = marketDataAsync.when(
+      data: (marketData) {
+        final priceByDay = <DateTime, num>{};
+        for (var data in marketData) {
+          final date = data.date.toLocal().dateOnly();
+          priceByDay[date] = data.price ?? 0;
+        }
+        return {
+          for (var day in selectedDays)
+            if (bitcoinBalanceByDayUnformatted.containsKey(day) && priceByDay.containsKey(day))
+              day: bitcoinBalanceByDayUnformatted[day]! * priceByDay[day]!
+        };
+      },
+      loading: () => <DateTime, num>{},
+      error: (_, __) => <DateTime, num>{},
+    );
+
+    // Determine main data based on view mode
+    final mainData = viewMode == 0 ? bitcoinBalanceByDay : viewMode == 1 ? dollarBalanceByDay : null;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.black,
-      body: SafeArea(child: _buildBody(context, ref)),
-    );
-  }
-
-  Widget _buildBody(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final transactionType = ref.watch(selectedExpenseTypeProvider);
-    final hasLightning = ref.watch(coinosLnProvider).token.isNotEmpty;
-
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: 16),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
+      appBar: AppBar(
+        title: const Text('Bitcoin Expenses'),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
               color: Colors.grey[900],
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
-                  offset: const Offset(0, 4),
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            child: DropdownButton<String>(
-              value: transactionType,
-              isExpanded: true,
-              dropdownColor: Colors.grey[900],
-              icon: Icon(Icons.arrow_drop_down, color: Colors.orange, size: screenWidth * 0.08),
-              underline: const SizedBox(),
-              style: TextStyle(color: Colors.orange, fontSize: screenWidth * 0.05, fontWeight: FontWeight.w500),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  ref.read(selectedButtonProvider.notifier).state = 1;
-                  ref.read(selectedExpenseTypeProvider.notifier).state = newValue;
-                }
-              },
-              items: <String>["Bitcoin", "Liquid", "Swaps", if (hasLightning) "Lightning"]
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      value.i18n,
-                      style: TextStyle(color: Colors.orange, fontSize: screenWidth * 0.045),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Bitcoin Balance',
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
                     ),
-                  ),
-                );
-              }).toList(),
+                    const SizedBox(height: 8),
+                    Text(
+                      '$btcBalanceInFormat $btcFormat',
+                      style: TextStyle(
+                        fontSize: screenWidth / 12,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-        if (transactionType == 'Bitcoin') const BitcoinExpensesDiagram(),
-        // if (transactionType == 'Liquid') const LiquidExpensesDiagram(),
-        // if (transactionType == 'Swaps') const Expanded(child: SwapsBuilder()),
-        if (transactionType == 'Lightning' && hasLightning) const LightningExpensesDiagram(),
-      ],
+          // Dropdown and Date Picker
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              DropdownButton<int>(
+                value: viewMode,
+                icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                dropdownColor: const Color(0xFF212121),
+                underline: Container(),
+                items: [
+                  const DropdownMenuItem(value: 0, child: Text('BTC Balance', style: TextStyle(color: Colors.white))),
+                  DropdownMenuItem(value: 1, child: Text('$selectedCurrency Balance', style: const TextStyle(color: Colors.white))),
+                  const DropdownMenuItem(value: 2, child: Text('Statistics', style: TextStyle(color: Colors.white))),
+                ],
+                onChanged: (int? newValue) {
+                  if (newValue != null) {
+                    setState(() => viewMode = newValue);
+                  }
+                },
+              ),
+              const SizedBox(width: 16),
+              IconButton(
+                icon: const Icon(Icons.calendar_today, color: Colors.white),
+                onPressed: () async {
+                  final selectedDate = await showCalendarDatePicker2Dialog(
+                    context: context,
+                    config: CalendarDatePicker2WithActionButtonsConfig(
+                      calendarType: CalendarDatePicker2Type.range,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                      currentDate: _startDate ?? DateTime.now(),
+                      dayTextStyle: const TextStyle(color: Colors.white),
+                      weekdayLabelTextStyle: const TextStyle(color: Colors.white),
+                      controlsTextStyle: const TextStyle(color: Colors.white),
+                      selectedDayTextStyle: const TextStyle(color: Colors.black),
+                      selectedDayHighlightColor: Colors.orange,
+                    ),
+                    dialogSize: const Size(325, 400),
+                  );
+
+                  if (selectedDate != null && selectedDate.isNotEmpty) {
+                    setState(() {
+                      _startDate = selectedDate.first;
+                      _endDate = selectedDate.length > 1 ? selectedDate.last : selectedDate.first;
+                      final days = <DateTime>[];
+                      for (var date = _startDate!;
+                      date.isBefore(_endDate!.add(const Duration(days: 1)));
+                      date = date.add(const Duration(days: 1))) {
+                        days.add(date.dateOnly());
+                      }
+                      ref.read(selectedDaysDateArrayProvider.notifier).state = days;
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
+          // Line Chart with Fixed Height
+          Expanded(
+            child: marketDataAsync.when(
+              data: (_) => ProfessionalLineChart(
+                selectedDays: selectedDays,
+                feeData: feeData,
+                incomeData: incomeData,
+                spendingData: spendingData,
+                mainData: mainData,
+                bitcoinBalanceByDayUnformatted: bitcoinBalanceByDayUnformatted,
+                dollarBalanceByDay: dollarBalanceByDay,
+                selectedCurrency: selectedCurrency,
+                isShowingMainData: viewMode != 2,
+                isCurrency: viewMode == 1,
+                btcFormat: 'BTC',
+              ),
+              loading: () => Center(
+                child: LoadingAnimationWidget.fourRotatingDots(
+                  color: Colors.orangeAccent,
+                  size: screenHeight * 0.08,
+                ),
+              ),
+              error: (error, _) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Error: $error', style: const TextStyle(color: Colors.red)),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => ref.refresh(bitcoinHistoricalMarketDataProvider),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent),
+                      child: const Text('Retry', style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

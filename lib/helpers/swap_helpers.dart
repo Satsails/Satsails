@@ -14,7 +14,6 @@ import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
-import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -22,7 +21,6 @@ import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 enum SwapType {
@@ -2005,7 +2003,6 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
               Future.microtask(() {
-                ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
                 ref.read(navigationProvider.notifier).state = 0;
               });
               controller.success();
@@ -2070,7 +2067,6 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
               ref.read(sendTxProvider.notifier).updateAmount(0);
               ref.read(sendBlocksProvider.notifier).state = 1;
               Future.microtask(() {
-                ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
                 ref.read(navigationProvider.notifier).state = 0;
               });
               controller.success();
@@ -2134,7 +2130,6 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
             ref.read(sendTxProvider.notifier).updateAmount(0);
             ref.read(sendBlocksProvider.notifier).state = 1;
             Future.microtask(() {
-              ref.read(selectedExpenseTypeProvider.notifier).state = "Swaps";
               ref.read(navigationProvider.notifier).state = 0;
             });
             controller.success();

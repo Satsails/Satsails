@@ -3,7 +3,6 @@ import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/screens/analytics/components/calendar.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -211,7 +210,7 @@ class _LightningExpensesGraphState extends ConsumerState<LightningExpensesGraph>
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const Calendar(),
+            // const Calendar(),
             Expanded(
               child: LightningLineChartSample(
                 selectedDays: selectedDays,

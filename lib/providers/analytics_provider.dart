@@ -81,8 +81,8 @@ final bitcoinFeeSpentPerDayProvider = StateProvider.autoDispose<Map<DateTime, nu
 
 final bitcoinIncomePerDayProvider = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
   final List<DateTime> selectedDays = ref.watch(selectedDaysDateArrayProvider);
-  final transactions = ref.watch(bitcoinTransactionsByDate);
-  final btcFormat = ref.watch(settingsProvider).btcFormat;
+  final transactions = ref.read(bitcoinTransactionsByDate);
+  final btcFormat = ref.read(settingsProvider).btcFormat;
   final Map<DateTime, num> valueIncomePerDay = {};
 
   for (DateTime day in selectedDays) {
@@ -106,8 +106,8 @@ final bitcoinIncomePerDayProvider = StateProvider.autoDispose<Map<DateTime, num>
 
 final bitcoinSpentPerDayProvider = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
   final List<DateTime> selectedDays = ref.watch(selectedDaysDateArrayProvider);
-  final transactions = ref.watch(bitcoinTransactionsByDate);
-  final btcFormat = ref.watch(settingsProvider).btcFormat;
+  final transactions = ref.read(bitcoinTransactionsByDate);
+  final btcFormat = ref.read(settingsProvider).btcFormat;
   final Map<DateTime, num> valueSpentPerDay = {};
 
   for (DateTime day in selectedDays) {
@@ -130,7 +130,7 @@ final bitcoinSpentPerDayProvider = StateProvider.autoDispose<Map<DateTime, num>>
 });
 
 final bitcoinBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
-  final transactions = ref.watch(transactionNotifierProvider).bitcoinTransactions;
+  final transactions = ref.read(transactionNotifierProvider).bitcoinTransactions;
   final Map<DateTime, num> balancePerDay = {};
 
   transactions.sort((a, b) {
@@ -165,7 +165,7 @@ final bitcoinBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((
 });
 
 final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
-  final balanceOverPeriod = ref.watch(bitcoinBalanceOverPeriod);
+  final balanceOverPeriod = ref.read(bitcoinBalanceOverPeriod);
   final selectedDays = ref.watch(selectedDaysDateArrayProvider);
 
   final Map<DateTime, num> balancePerDay = {};
@@ -216,7 +216,7 @@ final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<Date
 
 
 final bitcoinBalanceInFormatByDayProvider = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
-  final balanceByDay = ref.watch(bitcoinBalanceOverPeriodByDayProvider);
+  final balanceByDay = ref.read(bitcoinBalanceOverPeriodByDayProvider);
   final btcFormat = ref.watch(settingsProvider).btcFormat;
 
   final Map<DateTime, num> balanceInFormatByDay = {};
@@ -242,8 +242,8 @@ final bitcoinBalanceInBtcByDayProvider = StateProvider.autoDispose<Map<DateTime,
 
 final liquidFeePerDayProvider = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
   final List<DateTime> selectedDays = ref.watch(selectedDaysDateArrayProvider);
-  final transactions = ref.watch(liquidTransactionsByDate);
-  final btcFormat = ref.watch(settingsProvider).btcFormat;
+  final transactions = ref.read(liquidTransactionsByDate);
+  final btcFormat = ref.read(settingsProvider).btcFormat;
   final Map<DateTime, num> valueSpentPerDay = {};
 
   for (DateTime day in selectedDays) {
@@ -272,8 +272,8 @@ final liquidFeePerDayProvider = StateProvider.autoDispose.family<Map<DateTime, n
 
 final liquidIncomePerDayProvider = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
   final List<DateTime> selectedDays = ref.watch(selectedDaysDateArrayProvider);
-  final transactions = ref.watch(liquidTransactionsByDate);
-  final btcFormat = ref.watch(settingsProvider).btcFormat;
+  final transactions = ref.read(liquidTransactionsByDate);
+  final btcFormat = ref.read(settingsProvider).btcFormat;
   final Map<DateTime, num> valueIncomePerDay = {};
 
   for (DateTime day in selectedDays) {
@@ -307,8 +307,8 @@ final liquidIncomePerDayProvider = StateProvider.autoDispose.family<Map<DateTime
 
 final liquidSpentPerDayProvider = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
   final List<DateTime> selectedDays = ref.watch(selectedDaysDateArrayProvider);
-  final transactions = ref.watch(liquidTransactionsByDate);
-  final btcFormat = ref.watch(settingsProvider).btcFormat;
+  final transactions = ref.read(liquidTransactionsByDate);
+  final btcFormat = ref.read(settingsProvider).btcFormat;
   final Map<DateTime, num> valueSpentPerDay = {};
 
   // Initialize the map for each selected day
@@ -345,7 +345,7 @@ final liquidSpentPerDayProvider = StateProvider.autoDispose.family<Map<DateTime,
 });
 
 final liquidBalanceOverPeriod = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
-  final transactions = ref.watch(transactionNotifierProvider).liquidTransactions;
+  final transactions = ref.read(transactionNotifierProvider).liquidTransactions;
   final Map<DateTime, num> balancePerDay = {};
 
   transactions.sort((a, b) {
@@ -381,7 +381,7 @@ final liquidBalanceOverPeriod = StateProvider.autoDispose.family<Map<DateTime, n
 });
 
 final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
-  final balanceOverPeriod = ref.watch(liquidBalanceOverPeriod(asset));
+  final balanceOverPeriod = ref.read(liquidBalanceOverPeriod(asset));
   final selectedDays = ref.watch(selectedDaysDateArrayProvider);
 
   final Map<DateTime, num> balancePerDay = {};
@@ -431,7 +431,7 @@ final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Ma
 });
 
 final liquidBalancePerDayInBTCFormatProvider = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
-  final balanceByDay = ref.watch(liquidBalanceOverPeriodByDayProvider(asset));
+  final balanceByDay = ref.read(liquidBalanceOverPeriodByDayProvider(asset));
   final isBtc = asset == AssetMapper.reverseMapTicker(AssetId.LBTC);
 
   final Map<DateTime, num> balanceInFormatByDay = {};
@@ -444,9 +444,9 @@ final liquidBalancePerDayInBTCFormatProvider = StateProvider.autoDispose.family<
 });
 
 final liquidBalancePerDayInFormatProvider = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
-  final balanceByDay = ref.watch(liquidBalanceOverPeriodByDayProvider(asset));
+  final balanceByDay = ref.read(liquidBalanceOverPeriodByDayProvider(asset));
   final isBtc = asset == AssetMapper.reverseMapTicker(AssetId.LBTC);
-  final btcFormat = ref.watch(settingsProvider).btcFormat;
+  final btcFormat = ref.read(settingsProvider).btcFormat;
 
   final Map<DateTime, num> balanceInFormatByDay = {};
 
@@ -459,7 +459,7 @@ final liquidBalancePerDayInFormatProvider = StateProvider.autoDispose.family<Map
 
 // Provider to compute cumulative Lightning balance over time
 final lightningBalanceOverPeriod = FutureProvider.autoDispose<Map<DateTime, num>>((ref) async {
-  final transactions = await ref.watch(getTransactionsProvider.future).then(
+  final transactions = await ref.read(getTransactionsProvider.future).then(
         (value) => value as List<CoinosPayment>?,
   );
 
@@ -503,7 +503,7 @@ final lightningBalanceOverPeriod = FutureProvider.autoDispose<Map<DateTime, num>
 
 // Provider to map the cumulative balance over selected days
 final lightningBalanceOverPeriodByDayProvider = FutureProvider.autoDispose<Map<DateTime, num>>((ref) async {
-  final balanceOverPeriod = await ref.watch(lightningBalanceOverPeriod.future);
+  final balanceOverPeriod = await ref.read(lightningBalanceOverPeriod.future);
   final selectedDays = ref.watch(selectedDaysDateArrayProvider);
 
   final Map<DateTime, num> balancePerDay = {};

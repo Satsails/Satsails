@@ -1,6 +1,5 @@
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
-import 'package:Satsails/screens/analytics/components/calendar.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -369,7 +368,6 @@ class _ExpensesGraphState extends ConsumerState<ExpensesGraph> {
             if (isBtc) _buildLegend('Fee'.i18n, Colors.orangeAccent),
           ],
         ),
-        const Calendar(),
         Expanded(
           child: LiquidExpensesGraph(
             selectedDays: selectedDays,
