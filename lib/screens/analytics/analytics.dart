@@ -2,7 +2,7 @@ import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
-import 'package:Satsails/screens/analytics/components/bitcoin_expenses_graph.dart';
+import 'package:Satsails/screens/analytics/components/chart.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -1,7 +1,7 @@
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
-import 'package:Satsails/screens/analytics/components/peg_details.dart';
+import 'package:Satsails/screens/shared/peg_details.dart';
 import 'package:Satsails/screens/explore/components/deposit_bitcoin_pix_nox.dart';
 import 'package:Satsails/screens/explore/components/deposit_method.dart';
 import 'package:Satsails/screens/explore/components/deposit_depix_pix_eulen.dart';
@@ -18,7 +18,7 @@ import 'package:Satsails/screens/shared/affiliate_screen.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
 import 'package:go_router/go_router.dart';
-import 'package:Satsails/screens/analytics/components/pix_transaction_details.dart';
+import 'package:Satsails/screens/shared/pix_transaction_details.dart';
 import 'package:Satsails/screens/home/main_screen.dart';
 import 'package:Satsails/screens/settings/components/support.dart';
 import 'package:Satsails/screens/creation/start.dart';
