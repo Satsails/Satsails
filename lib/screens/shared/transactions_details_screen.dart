@@ -22,7 +22,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'Transaction Details'.i18n,
-          style: const TextStyle(color: Colors.white), // Responsive font size
+          style: TextStyle(color: Colors.white, fontSize: 20.sp),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(

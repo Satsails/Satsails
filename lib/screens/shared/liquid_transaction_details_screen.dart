@@ -22,7 +22,7 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'Liquid Transaction Details'.i18n,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white, fontSize: 20.sp),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(

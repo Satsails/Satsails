@@ -44,6 +44,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
         appBar: AppBar(
           backgroundColor: Colors.black,
           centerTitle: true,
+          automaticallyImplyLeading: false,
           title: Text(
             'Exchange'.i18n,
             style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),

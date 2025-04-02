@@ -36,6 +36,7 @@ class Explore extends ConsumerWidget {
         appBar: AppBar(
           backgroundColor: Colors.black,
           centerTitle: true,
+          automaticallyImplyLeading: false,
           title: Text(
             'Explore',
             style: TextStyle(

@@ -8,6 +8,7 @@ import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
@@ -39,7 +40,7 @@ class Receive extends ConsumerWidget {
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title: Text('Receive on ${selectedType.i18n}', style: const TextStyle(color: Colors.white)),
+          title: Text('Receive on ${selectedType.i18n}', style: TextStyle(color: Colors.white, fontSize: 20.sp)),
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {

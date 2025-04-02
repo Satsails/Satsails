@@ -33,7 +33,7 @@ class PegDetails extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'Details'.i18n,
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white, fontSize: 20.sp),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
