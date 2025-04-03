@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 // Helper extension for date formatting
@@ -41,48 +42,45 @@ class Chart extends StatefulWidget {
 class _ChartState extends State<Chart> with TickerProviderStateMixin {
   late AnimationController _lineController;
   late Animation<double> _lineAnimation;
-  late AnimationController _backgroundController;
-  late Animation<Color?> _bgColorAnimation1;
-  late Animation<Color?> _bgColorAnimation2;
+  late AnimationController _glowController;
+  late Animation<double> _glowAnimation;
 
   @override
   void initState() {
     super.initState();
     _lineController = AnimationController(
-      duration: const Duration(seconds: 1),
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _lineAnimation = CurvedAnimation(parent: _lineController, curve: Curves.easeOut);
+    _lineAnimation = CurvedAnimation(parent: _lineController, curve: Curves.easeOutCubic);
     _lineController.forward();
 
-    _backgroundController = AnimationController(
-      duration: const Duration(seconds: 10),
+    _glowController = AnimationController(
+      duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
-    _bgColorAnimation1 = ColorTween(
-      begin: Colors.blue.withOpacity(0.1),
-      end: Colors.purple.withOpacity(0.1),
-    ).animate(_backgroundController);
-    _bgColorAnimation2 = ColorTween(
-      begin: Colors.purple.withOpacity(0.1),
-      end: Colors.blue.withOpacity(0.1),
-    ).animate(_backgroundController);
+    _glowAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
   }
 
   @override
   void dispose() {
     _lineController.dispose();
-    _backgroundController.dispose();
+    _glowController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.selectedDays.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'Select a date range to view chart data.',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 16.sp,
+          ),
         ),
       );
     }
@@ -92,15 +90,21 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     return Container(
       color: Colors.black,
       child: Padding(
-        padding: const EdgeInsets.only(right: 18.0, left: 8.0, top: 24, bottom: 12),
+        padding: EdgeInsets.only(
+          right: 18.w,
+          left: 8.w,
+          top: 24.h,
+          bottom: 12.h,
+        ),
         child: Column(
           children: [
             Expanded(
               child: AnimatedBuilder(
-                animation: _lineAnimation,
+                animation: Listenable.merge([_lineAnimation, _glowAnimation]),
                 builder: (context, child) {
                   final animationValue = _lineAnimation.value;
-                  final lineBarsData = _buildLineBarsData(animationValue, sortedDays);
+                  final glowValue = _glowAnimation.value;
+                  final lineBarsData = _buildLineBarsData(animationValue, sortedDays, glowValue);
                   final bounds = _calculateAxisBounds(
                     widget.mainData != null ? [widget.mainData!] : [],
                     sortedDays,
@@ -112,16 +116,11 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                       gridData: FlGridData(
                         show: true,
                         drawHorizontalLine: true,
-                        drawVerticalLine: true,
+                        drawVerticalLine: false,
                         horizontalInterval: bounds.horizontalInterval,
-                        verticalInterval: _calculateDateInterval(sortedDays.length),
                         getDrawingHorizontalLine: (value) => FlLine(
                           color: Colors.white.withOpacity(0.2),
-                          strokeWidth: 0.5,
-                        ),
-                        getDrawingVerticalLine: (value) => FlLine(
-                          color: Colors.white.withOpacity(0.2),
-                          strokeWidth: 0.5,
+                          strokeWidth: 0.5.w,
                         ),
                       ),
                       borderData: FlBorderData(show: false),
@@ -132,7 +131,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            reservedSize: 30,
+                            reservedSize: 30.h,
                             interval: _calculateDateInterval(sortedDays.length),
                             getTitlesWidget: (value, meta) {
                               final index = value.toInt();
@@ -141,7 +140,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                                 axisSide: meta.axisSide,
                                 child: Text(
                                   sortedDays[index].formatMD(),
-                                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                                  style: TextStyle(color: Colors.white, fontSize: 12.sp),
                                 ),
                               );
                             },
@@ -150,7 +149,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                         leftTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            reservedSize: 55,
+                            reservedSize: 70.w,
                             interval: bounds.horizontalInterval,
                             getTitlesWidget: (value, meta) {
                               final decimals = widget.btcFormat == 'BTC' && !widget.isCurrency ? 8 : 2;
@@ -164,7 +163,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                                 axisSide: meta.axisSide,
                                 child: Text(
                                   formattedValue,
-                                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                                  style: TextStyle(color: Colors.white, fontSize: 12.sp),
                                 ),
                               );
                             },
@@ -189,15 +188,15 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
 
   // --- Helper Methods ---
 
-  List<LineChartBarData> _buildLineBarsData(double animationValue, List<DateTime> sortedDays) {
+  List<LineChartBarData> _buildLineBarsData(double animationValue, List<DateTime> sortedDays, double glowValue) {
     final List<LineChartBarData> lineBarsData = [];
     if (widget.mainData != null) {
       lineBarsData.add(_createAnimatedLineBarData(
         data: widget.mainData!,
         sortedDays: sortedDays,
-        color: Colors.orangeAccent,
-        barWidth: 3,
+        barWidth: 2.5.w,
         animationValue: animationValue,
+        glowValue: glowValue,
         isMainData: true,
       ));
     }
@@ -207,9 +206,9 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
   LineChartBarData _createAnimatedLineBarData({
     required Map<DateTime, num> data,
     required List<DateTime> sortedDays,
-    required Color color,
     required double barWidth,
     required double animationValue,
+    required double glowValue,
     bool isMainData = false,
   }) {
     final spots = _createSpots(data, sortedDays).map((spot) => FlSpot(spot.x, spot.y * animationValue)).toList();
@@ -218,23 +217,28 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
       isCurved: true,
       preventCurveOverShooting: true,
       gradient: LinearGradient(
-        colors: isMainData ? [Colors.orangeAccent, Colors.yellow] : [color.withOpacity(0.5), color],
+        colors: [Colors.cyanAccent, Colors.blueAccent],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
       barWidth: barWidth,
       isStrokeCapRound: true,
       dotData: const FlDotData(show: false),
-      belowBarData: isMainData
-          ? BarAreaData(
+      belowBarData: BarAreaData(
         show: true,
         gradient: LinearGradient(
-          colors: [Colors.orange.withOpacity(0.3), Colors.orange.withOpacity(0)],
+          colors: [
+            Colors.cyanAccent.withOpacity(0.2 * glowValue),
+            Colors.transparent,
+          ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
-      )
-          : BarAreaData(show: false),
+      ),
+      shadow: Shadow(
+        color: Colors.cyanAccent.withOpacity(0.3 * glowValue),
+        blurRadius: 8,
+      ),
     );
   }
 
@@ -260,17 +264,23 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
   }
 
   LineTouchData _buildLineTouchData(BuildContext context, List<DateTime> sortedDays) {
-    final currencyFormat = NumberFormat.currency(symbol: widget.selectedCurrency == 'USD' ? '\$' : widget.selectedCurrency, decimalDigits: 2);
+    final currencyFormat = NumberFormat.currency(
+      symbol: widget.selectedCurrency == 'USD' ? '\$' : widget.selectedCurrency,
+      decimalDigits: 2,
+    );
     final btcAmountFormat = NumberFormat("0.########", "en_US");
-    final priceCurrencyFormat = NumberFormat.currency(symbol: widget.selectedCurrency == 'USD' ? '\$' : '', decimalDigits: 2);
+    final priceCurrencyFormat = NumberFormat.currency(
+      symbol: widget.selectedCurrency == 'USD' ? '\$' : '',
+      decimalDigits: 2,
+    );
 
     return LineTouchData(
       handleBuiltInTouches: true,
       touchTooltipData: LineTouchTooltipData(
         tooltipBgColor: Colors.black.withOpacity(0.9),
-        tooltipRoundedRadius: 8,
-        tooltipPadding: const EdgeInsets.all(12),
-        maxContentWidth: 200,
+        tooltipRoundedRadius: 8.r,
+        tooltipPadding: EdgeInsets.all(12.w),
+        maxContentWidth: 200.w,
         getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
           if (touchedBarSpots.isEmpty) return [];
           final flSpot = touchedBarSpots.first;
@@ -281,10 +291,10 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
           List<TextSpan> children = [
             TextSpan(
               text: '${date.formatYMD()}\n',
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: 16.sp,
               ),
             ),
           ];
@@ -300,23 +310,24 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
               children.addAll([
                 TextSpan(
                   text: 'Total Value: $formattedValuation\n',
-                  style: const TextStyle(color: Colors.orangeAccent, fontSize: 14),
+                  style: TextStyle(color: Colors.cyanAccent, fontSize: 14.sp),
                 ),
                 TextSpan(
                   text: 'BTC: $formattedBtcBalance\n',
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                 ),
                 TextSpan(
                   text: 'Price: $formattedPrice/BTC',
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                 ),
               ]);
             } else {
-              final formattedValue = '${value.toStringAsFixed(widget.btcFormat == 'BTC' ? 8 : 0)} ${widget.btcFormat}';
+              final formattedValue =
+                  '${value.toStringAsFixed(widget.btcFormat == 'BTC' ? 8 : 0)} ${widget.btcFormat}';
               children.add(
                 TextSpan(
                   text: 'Balance: $formattedValue',
-                  style: const TextStyle(color: Colors.orangeAccent, fontSize: 14),
+                  style: TextStyle(color: Colors.cyanAccent, fontSize: 14.sp),
                 ),
               );
             }
@@ -335,8 +346,8 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
         return spotIndexes.map((index) {
           return TouchedSpotIndicatorData(
             FlLine(
-              color: barData.gradient?.colors.first ?? Colors.orange,
-              strokeWidth: 1,
+              color: Colors.cyanAccent.withOpacity(0.7),
+              strokeWidth: 1.w,
               dashArray: [4, 4],
             ),
             FlDotData(show: false),
@@ -349,7 +360,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
   ({double minY, double maxY, double horizontalInterval}) _calculateAxisBounds(
       List<Map<DateTime, num>> activeDataSets, List<DateTime> sortedDays) {
     if (activeDataSets.isEmpty || sortedDays.isEmpty) {
-      return (minY: 0, maxY: 0.00000001, horizontalInterval: 0.000000002); // Adjusted for BTC sensitivity
+      return (minY: 0, maxY: 0.00000001, horizontalInterval: 0.000000002);
     }
 
     double minY = double.maxFinite;
@@ -365,15 +376,15 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
 
     if (minY == double.maxFinite || maxY == double.negativeInfinity || minY.isNaN || maxY.isNaN) {
       minY = 0;
-      maxY = 0.00000001; // Small default max for BTC
+      maxY = 0.00000001;
     } else if (minY == maxY) {
-      double padding = (maxY.abs() * 0.2).clamp(0.00000001, double.infinity); // Fine padding for BTC
+      double padding = (maxY.abs() * 0.2).clamp(0.00000001, double.infinity);
       if (maxY == 0) padding = 0.00000001;
       minY = minY - padding;
       maxY = maxY + padding;
     } else {
       final range = maxY - minY;
-      final padding = (range * 0.1).clamp(0.00000001, double.infinity); // Fine padding for BTC
+      final padding = (range * 0.1).clamp(0.00000001, double.infinity);
       maxY += padding;
       bool allNonNegative = allSpots.every((spots) => spots.every((spot) => spot.y >= 0));
       minY = allNonNegative ? 0 : minY - padding;
@@ -383,8 +394,9 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     if (minY < 0 && maxY < 0) maxY = 0;
 
     final range = maxY - minY;
-    double interval = range > 0 && range.isFinite ? (range / 8) : 0.000000002; // Fine interval for BTC
-    double magnitude = pow(10, interval.abs().toStringAsFixed(8).split('.').last.indexOf(RegExp(r'[1-9]')) - 1).toDouble();
+    double interval = range > 0 && range.isFinite ? (range / 8) : 0.000000002;
+    double magnitude =
+    pow(10, interval.abs().toStringAsFixed(8).split('.').last.indexOf(RegExp(r'[1-9]')) - 1).toDouble();
 
     double normalizedInterval = interval / magnitude;
     if (normalizedInterval >= 5) {
@@ -397,12 +409,13 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
 
     if (interval * 2 > range) {
       interval = range / 4;
-      magnitude = pow(10, interval.abs().toStringAsFixed(8).split('.').last.indexOf(RegExp(r'[1-9]')) - 1).toDouble();
+      magnitude =
+          pow(10, interval.abs().toStringAsFixed(8).split('.').last.indexOf(RegExp(r'[1-9]')) - 1).toDouble();
       interval = (interval / magnitude).ceil() * magnitude;
     }
 
     if (interval <= 0 || !interval.isFinite) interval = (maxY - minY) / 5;
-    if (interval <= 0 || !interval.isFinite) interval = 0.00000001; // Fine default interval for BTC
+    if (interval <= 0 || !interval.isFinite) interval = 0.00000001;
 
     minY = (minY / interval).floor() * interval;
 
