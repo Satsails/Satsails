@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:intl/intl.dart';
 
 class Analytics extends ConsumerStatefulWidget {
   const Analytics({super.key});
@@ -24,80 +25,84 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   String _selectedRange = '30 days'; // Default to 30 days
   String _selectedAsset = 'Bitcoin'; // Default to Bitcoin
 
-  @override
-  Widget build(BuildContext context) {
-    List<DateTime> _getNormalizedDateRange() {
-      // Get the current date (normalized to start of day)
-      final now = DateTime.now().dateOnly();
-      DateTime start;
+  // Helper method to compute the normalized date range, including "ALL" option
+  List<DateTime> _getNormalizedDateRange() {
+    final now = DateTime.now().dateOnly();
+    DateTime start;
 
-      // Step 1: Fetch transactions based on the selected asset
-      final transactions = _selectedAsset == 'Bitcoin'
-          ? ref.read(transactionNotifierProvider).bitcoinTransactions
-          : ref.read(transactionNotifierProvider).liquidTransactions;
+    // Get transactions based on the selected asset
+    final transactions = _selectedAsset == 'Bitcoin'
+        ? ref.read(transactionNotifierProvider).bitcoinTransactions
+        : ref.read(transactionNotifierProvider).liquidTransactions;
 
-      // Step 2: Sort transactions by confirmation time
-      transactions.sort((a, b) {
-        // Get confirmation time based on asset
-        final aTime = _selectedAsset == 'Bitcoin'
-            ? a.timestamp ?? DateTime.now()
-            : a.timestamp ?? DateTime.now();
-        final bTime = _selectedAsset == 'Bitcoin'
-            ? b.timestamp ?? DateTime.now()
-            : b.timestamp ?? DateTime.now();
-
-        // Handle null cases for sorting
-        if (aTime == null && bTime == null) return 0;
-        if (aTime == null) return -1;
-        if (bTime == null) return 1;
-        return aTime.compareTo(bTime);
-      });
-
-      // Step 3: Find the first valid transaction date
-      DateTime? firstTransactionDate;
-      for (var transaction in transactions) {
-        final time = _selectedAsset == 'Bitcoin'
-            ? transaction.timestamp
-            : transaction.timestamp;
-        if (time != null && time != 0) {
-          firstTransactionDate = time.dateOnly();
-          break;
-        }
+    // Find the first valid transaction date
+    DateTime? firstTransactionDate;
+    for (var transaction in transactions) {
+      final time = transaction.timestamp;
+      if (time != null && time != 0) {
+        firstTransactionDate = time.dateOnly();
+        break;
       }
-
-      // Step 4: Calculate the start date based on selected range
-      if (_selectedRange == 'ALL') {
-        // Use the first transaction date, or default to 30 days ago if none exist
-        start = firstTransactionDate ?? now.subtract(const Duration(days: 29));
-      } else {
-        // Use existing start date or default to 30 days ago for other ranges
-        start = _startDate ?? now.subtract(const Duration(days: 29));
-        // Note: For specific ranges (e.g., 7D, 30D), this could be adjusted in the range selector logic
-      }
-      final end = _endDate ?? now;
-
-      // Step 5: Generate the list of days
-      final days = <DateTime>[];
-      DateTime current = start;
-      while (!current.isAfter(end)) {
-        days.add(current.dateOnly());
-        current = current.add(const Duration(days: 1));
-      }
-
-      // Step 6: Update state if not already set
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_startDate == null || _endDate == null) {
-          setState(() {
-            _startDate = start;
-            _endDate = end;
-          });
-        }
-      });
-
-      return days;
     }
 
+    if (_selectedRange == 'ALL') {
+      start = firstTransactionDate ?? now.subtract(const Duration(days: 29));
+    } else {
+      start = _startDate ?? now.subtract(const Duration(days: 29));
+    }
+    final end = _endDate ?? now;
 
+    final days = <DateTime>[];
+    DateTime current = start;
+    while (!current.isAfter(end)) {
+      days.add(current.dateOnly());
+      current = current.add(const Duration(days: 1));
+    }
+
+    // Update state if not already set
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_startDate == null || _endDate == null) {
+        setState(() {
+          _startDate = start;
+          _endDate = end;
+        });
+      }
+    });
+    return days;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize date range based on provider or default to 30 days
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final currentSelection = ref.read(selectedDaysDateArrayProvider);
+      if (currentSelection.isEmpty) {
+        final now = DateTime.now().dateOnly();
+        final defaultStart = now.subtract(const Duration(days: 29));
+        final defaultEnd = now;
+        final defaultDays = <DateTime>[];
+        DateTime current = defaultStart;
+        while (!current.isAfter(defaultEnd)) {
+          defaultDays.add(current.dateOnly());
+          current = current.add(const Duration(days: 1));
+        }
+        setState(() {
+          _startDate = defaultStart;
+          _endDate = defaultEnd;
+        });
+        ref.read(selectedDaysDateArrayProvider.notifier).state = defaultDays;
+      } else {
+        setState(() {
+          _startDate = currentSelection.first;
+          _endDate = currentSelection.last;
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
     final selectedCurrency = settings.currency;
     final btcFormat = settings.btcFormat;
@@ -192,7 +197,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
             style: const TextStyle(color: Colors.white),
             dropdownColor: Colors.grey[800],
             underline: const SizedBox(),
-            items: ['7 days', '30 days', '6 months', 'ALL'].map((String option) {
+            items: ['7 days', '30 days', '6 months', 'ALL', 'Custom'].map((String option) {
               return DropdownMenuItem<String>(
                 value: option,
                 child: Text(option),
@@ -202,7 +207,46 @@ class _AnalyticsState extends ConsumerState<Analytics> {
               if (newValue != null) {
                 setState(() {
                   _selectedRange = newValue;
-                  // Update date range logic here (existing code omitted for brevity)
+                  final now = DateTime.now().dateOnly();
+                  final transactions = _selectedAsset == 'Bitcoin'
+                      ? ref.read(transactionNotifierProvider).bitcoinTransactions
+                      : ref.read(transactionNotifierProvider).liquidTransactions;
+
+                  // Find the first valid transaction date
+                  DateTime? firstTransactionDate;
+                  for (var transaction in transactions) {
+                    final time = transaction.timestamp;
+                    if (time != null && time != 0) {
+                      firstTransactionDate = time.dateOnly();
+                      break;
+                    }
+                  }
+
+                  switch (newValue) {
+                    case '7 days':
+                      _startDate = now.subtract(const Duration(days: 6));
+                      break;
+                    case '30 days':
+                      _startDate = now.subtract(const Duration(days: 29));
+                      break;
+                    case '6 months':
+                      _startDate = now.subtract(const Duration(days: 182));
+                      break;
+                    case 'ALL':
+                      _startDate = firstTransactionDate ?? now.subtract(const Duration(days: 29));
+                      break;
+                    case 'Custom':
+                    // Do nothing, let the calendar handle custom ranges
+                      return;
+                  }
+                  _endDate = now;
+                  final days = <DateTime>[];
+                  DateTime current = _startDate!;
+                  while (!current.isAfter(_endDate!)) {
+                    days.add(current.dateOnly());
+                    current = current.add(const Duration(days: 1));
+                  }
+                  ref.read(selectedDaysDateArrayProvider.notifier).state = days;
                 });
               }
             },
@@ -235,7 +279,53 @@ class _AnalyticsState extends ConsumerState<Analytics> {
           IconButton(
             icon: const Icon(Icons.calendar_today, color: Colors.white),
             onPressed: () async {
-              // Calendar picker logic here (existing code omitted for brevity)
+              final selectedDateRange = await showCalendarDatePicker2Dialog(
+                context: context,
+                config: CalendarDatePicker2WithActionButtonsConfig(
+                  calendarType: CalendarDatePicker2Type.range,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime.now(),
+                  currentDate: _startDate ?? DateTime.now(),
+                  dayTextStyle: const TextStyle(color: Colors.white),
+                  weekdayLabelTextStyle: const TextStyle(color: Colors.white),
+                  controlsTextStyle: const TextStyle(color: Colors.white),
+                  selectedDayTextStyle: const TextStyle(color: Colors.black),
+                  selectedDayHighlightColor: Colors.orange,
+                  selectedRangeHighlightColor: Colors.orange.withOpacity(0.3),
+                  disabledDayTextStyle: const TextStyle(color: Colors.grey),
+                  yearTextStyle: const TextStyle(color: Colors.white),
+                  lastMonthIcon: const Icon(Icons.arrow_back, color: Colors.white),
+                  nextMonthIcon: const Icon(Icons.arrow_forward, color: Colors.white),
+                  okButton: const Text('OK', style: TextStyle(color: Colors.orange)),
+                  cancelButton: const Text('CANCEL', style: TextStyle(color: Colors.white)),
+                ),
+                dialogSize: const Size(325, 400),
+                dialogBackgroundColor: const Color(0xFF212121),
+              );
+
+              if (selectedDateRange != null && selectedDateRange.isNotEmpty) {
+                final newStart = selectedDateRange.first?.dateOnly();
+                final newEnd = (selectedDateRange.length > 1 ? selectedDateRange.last?.dateOnly() : newStart);
+
+                if (newStart != null && newEnd != null) {
+                  final DateTime effectiveStart = newStart.isAfter(newEnd) ? newEnd : newStart;
+                  final DateTime effectiveEnd = newStart.isAfter(newEnd) ? newStart : newEnd;
+
+                  final days = <DateTime>[];
+                  DateTime current = effectiveStart;
+                  while (!current.isAfter(effectiveEnd)) {
+                    days.add(current.dateOnly());
+                    current = current.add(const Duration(days: 1));
+                  }
+
+                  setState(() {
+                    _startDate = effectiveStart;
+                    _endDate = effectiveEnd;
+                    _selectedRange = 'Custom';
+                  });
+                  ref.read(selectedDaysDateArrayProvider.notifier).state = days;
+                }
+              }
             },
           ),
         ],
