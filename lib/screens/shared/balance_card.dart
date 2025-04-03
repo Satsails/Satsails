@@ -165,16 +165,23 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(currentPrice.toStringAsFixed(2), style:TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold
-          )),
-          SizedBox(width: 4), // Spacing only if icon exists
-          if (icon != null) Icon(icon, size: 16.sp, color: textColor),
+          Text(
+            currentPrice.toStringAsFixed(2),
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
+          ),
+          SizedBox(width: 8.w), // Increased spacing for clarity
+          if (icon != null) Icon(icon, size: 16.sp, color: textColor, weight: 700), // Bold arrow
           SizedBox(width: icon != null ? 4.0 : 0), // Spacing only if icon exists
           Text(
             displayText,
-            style: TextStyle(fontSize: 16.sp, color: textColor, fontWeight: FontWeight.bold
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: textColor,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
@@ -209,7 +216,6 @@ class BalanceCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final currency = ref.watch(settingsProvider).currency;
-    // Watch the visibility state
     final isBalanceVisible = ref.watch(isBalanceVisibleProvider);
 
     final Map<String, String> _networkImages = {
@@ -236,10 +242,12 @@ class BalanceCard extends ConsumerWidget {
     final btcBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).btcBalance, btcFormat);
     final liquidBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBalance, btcFormat);
     final lightningBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).lightningBalance ?? 0, btcFormat);
+    final totalBalance = ref.watch(totalBalanceInDenominationProvider(btcFormat));
 
-    // Determine balances based on visibility state
     String nativeBalance;
     String equivalentBalance = '';
+    String totalBalanceDisplay = isBalanceVisible ? totalBalance : '****';
+
     if (assetName == 'Bitcoin') {
       switch (networkFilter) {
         case 'Bitcoin network':
@@ -299,8 +307,7 @@ class BalanceCard extends ConsumerWidget {
                 context.push('/home/pay', extra: 'lightning');
               }
             } else {
-              // Map non-Bitcoin assets to their AssetId
-              late String assetToUpdate; // Declare as late to ensure assignment in switch
+              late String assetToUpdate;
               switch (assetName) {
                 case 'Depix':
                   assetToUpdate = AssetMapper.reverseMapTicker(AssetId.BRL);
@@ -316,7 +323,7 @@ class BalanceCard extends ConsumerWidget {
               context.push('/home/pay', extra: 'liquid_asset');
             }
           },
-          icon: Icon(Icons.arrow_upward, color: Color(0xFF212121), size: 28.w),
+          icon: Icon(Icons.arrow_upward, color: Color(0xFF212121), size: 28.w, weight: 700), // Bold arrow
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
         ),
         IconButton(
@@ -324,7 +331,7 @@ class BalanceCard extends ConsumerWidget {
             ref.read(selectedNetworkTypeProvider.notifier).state = networkFilter;
             context.push('/home/receive');
           },
-          icon: Icon(Icons.arrow_downward, color: Color(0xFF212121), size: 28.w),
+          icon: Icon(Icons.arrow_downward, color: Color(0xFF212121), size: 28.w, weight: 700), // Bold arrow
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
         ),
       ],
@@ -353,6 +360,27 @@ class BalanceCard extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (assetName == 'Bitcoin')
+                    SizedBox(height: 8.h),
+                    if (assetName == 'Bitcoin')
+                    Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Text(
+                          'Total Bitcoin: $totalBalanceDisplay',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
                     Row(
                       children: [
                         if (assetName == 'Bitcoin')
@@ -397,7 +425,7 @@ class BalanceCard extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 8.h),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -413,7 +441,7 @@ class BalanceCard extends ConsumerWidget {
                                 color: Colors.black,
                               ),
                             ),
-                            if (assetName == 'Bitcoin')
+                            if (assetName == 'Bitcoin') ...[
                               Text(
                                 equivalentBalance,
                                 style: TextStyle(
@@ -421,6 +449,7 @@ class BalanceCard extends ConsumerWidget {
                                   color: Colors.black,
                                 ),
                               ),
+                            ],
                           ],
                         ),
                         Spacer(),
