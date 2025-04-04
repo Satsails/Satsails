@@ -310,7 +310,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
               children.addAll([
                 TextSpan(
                   text: 'Total Value: $formattedValuation\n',
-                  style: TextStyle(color: Colors.cyanAccent, fontSize: 14.sp),
+                  style: TextStyle(color: Colors.white70, fontSize: 14.sp),
                 ),
                 TextSpan(
                   text: 'BTC: $formattedBtcBalance\n',
@@ -327,7 +327,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
               children.add(
                 TextSpan(
                   text: 'Balance: $formattedValue',
-                  style: TextStyle(color: Colors.cyanAccent, fontSize: 14.sp),
+                  style: TextStyle(color: Colors.white70, fontSize: 14.sp),
                 ),
               );
             }
