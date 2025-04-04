@@ -15,7 +15,11 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+// Existing provider for network type
 final selectedNetworkTypeProvider = StateProvider<String>((ref) => "Bitcoin network");
+
+// New provider for selected asset
+final selectedAssetProvider = StateProvider<String>((ref) => 'Bitcoin (Mainnet)');
 
 class SimplifiedExpensesGraph extends StatelessWidget {
   final Map<DateTime, num> dataToDisplay;
@@ -338,13 +342,21 @@ class BalanceCard extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
+        String fullAsset;
+        if (assetName == 'Bitcoin') {
+          fullAsset = 'Bitcoin (${networkShortNames[networkFilter] ?? networkFilter})';
+        } else {
+          fullAsset = '$assetName (Liquid)';
+        }
+
+        ref.read(selectedAssetProvider.notifier).state = fullAsset;
         context.pushNamed('analytics');
       },
       child: Container(
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: Colors.black.withOpacity(0.1), width: 1), // Subtle card border
+          border: Border.all(color: Colors.black.withOpacity(0.1), width: 1),
         ),
         clipBehavior: Clip.none,
         child: Stack(
@@ -356,7 +368,7 @@ class BalanceCard extends ConsumerWidget {
               left: 0,
               right: 0,
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 12.sp, horizontal: 16.sp), // Consistent padding
+                padding: EdgeInsets.symmetric(vertical: 12.sp, horizontal: 16.sp),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -387,7 +399,7 @@ class BalanceCard extends ConsumerWidget {
                           ' (${networkShortNames[networkFilter] ?? networkFilter})',
                           style: TextStyle(
                             fontSize: 16.sp,
-                            color: Colors.black.withOpacity(0.7), // Lighter for hierarchy
+                            color: Colors.black.withOpacity(0.7),
                           ),
                         ),
                         Spacer(),
