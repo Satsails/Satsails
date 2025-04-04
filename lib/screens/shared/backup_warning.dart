@@ -2,6 +2,7 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 class BackupWarning extends ConsumerWidget {
@@ -9,10 +10,7 @@ class BackupWarning extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenSize = MediaQuery.of(context).size;
     final backupWarning = ref.watch(settingsProvider).backup;
-
-    final dynamicFontSize = screenSize.width * 0.04;
 
     return !backupWarning
         ? Row(
@@ -30,13 +28,20 @@ class BackupWarning extends ConsumerWidget {
                 'Backup your wallet'.i18n,
                 style: TextStyle(
                   color: Colors.red,
-                  fontSize: dynamicFontSize,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ],
         )
-        : Container();
+        : Text(
+      'Transactions'.i18n,
+      style: TextStyle(
+        fontSize: 24.sp,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
+    );
   }
 }

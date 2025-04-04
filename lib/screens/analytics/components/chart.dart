@@ -21,6 +21,7 @@ class Chart extends StatefulWidget {
   final bool isShowingMainData;
   final bool isCurrency;
   final String btcFormat;
+  final bool isBitcoinAsset; // New parameter to determine asset type
 
   const Chart({
     super.key,
@@ -33,6 +34,7 @@ class Chart extends StatefulWidget {
     required this.isShowingMainData,
     required this.isCurrency,
     required this.btcFormat,
+    required this.isBitcoinAsset, // Added to constructor
   });
 
   @override
@@ -149,12 +151,18 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                         leftTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            reservedSize: 70.w,
+                            reservedSize: 90.w, // Increased from 70.w to 90.w for more space
                             interval: bounds.horizontalInterval,
                             getTitlesWidget: (value, meta) {
-                              final decimals = widget.btcFormat == 'BTC' && !widget.isCurrency ? 8 : 2;
+                              final decimals = widget.isBitcoinAsset
+                                  ? (widget.btcFormat == 'BTC' && !widget.isCurrency ? 8 : 2)
+                                  : 2; // 2 decimals for non-Bitcoin assets
                               String formattedValue;
-                              if (value.abs() < 1 && widget.btcFormat == 'BTC' && !widget.isCurrency) {
+                              if (!widget.isBitcoinAsset) {
+                                // Convert from sats-like (1M) to BTC-like unit
+                                final adjustedValue = value / 1000000;
+                                formattedValue = adjustedValue.toStringAsFixed(2);
+                              } else if (value.abs() < 1 && widget.btcFormat == 'BTC' && !widget.isCurrency) {
                                 formattedValue = value.toStringAsFixed(8);
                               } else {
                                 formattedValue = value.toStringAsFixed(decimals);
@@ -211,13 +219,16 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     required double glowValue,
     bool isMainData = false,
   }) {
-    final spots = _createSpots(data, sortedDays).map((spot) => FlSpot(spot.x, spot.y * animationValue)).toList();
+    final spots = _createSpots(data, sortedDays).map((spot) => FlSpot(
+      spot.x,
+      (widget.isBitcoinAsset ? spot.y : spot.y / 1000000) * animationValue, // Adjust non-Bitcoin assets
+    )).toList();
     return LineChartBarData(
       spots: spots,
       isCurved: true,
       preventCurveOverShooting: true,
       gradient: LinearGradient(
-        colors: [Colors.cyanAccent, Colors.blueAccent],
+        colors: [Colors.greenAccent, Colors.green], // Changed to green shades
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
@@ -228,7 +239,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
         show: true,
         gradient: LinearGradient(
           colors: [
-            Colors.cyanAccent.withOpacity(0.2 * glowValue),
+            Colors.greenAccent.withOpacity(0.2 * glowValue), // Changed to green shade
             Colors.transparent,
           ],
           begin: Alignment.topCenter,
@@ -236,7 +247,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
         ),
       ),
       shadow: Shadow(
-        color: Colors.cyanAccent.withOpacity(0.3 * glowValue),
+        color: Colors.greenAccent.withOpacity(0.3 * glowValue), // Changed to green shade
         blurRadius: 8,
       ),
     );
@@ -269,6 +280,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
       decimalDigits: 2,
     );
     final btcAmountFormat = NumberFormat("0.########", "en_US");
+    final nonBtcAmountFormat = NumberFormat("0.00", "en_US"); // For non-Bitcoin assets
     final priceCurrencyFormat = NumberFormat.currency(
       symbol: widget.selectedCurrency == 'USD' ? '\$' : '',
       decimalDigits: 2,
@@ -322,8 +334,10 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                 ),
               ]);
             } else {
-              final formattedValue =
-                  '${value.toStringAsFixed(widget.btcFormat == 'BTC' ? 8 : 0)} ${widget.btcFormat}';
+              final adjustedValue = widget.isBitcoinAsset ? value : value / 1000000; // Adjust non-Bitcoin assets
+              final formattedValue = widget.isBitcoinAsset
+                  ? '${value.toStringAsFixed(widget.btcFormat == 'BTC' ? 8 : 0)} ${widget.btcFormat}'
+                  : nonBtcAmountFormat.format(adjustedValue);
               children.add(
                 TextSpan(
                   text: 'Balance: $formattedValue',
@@ -346,7 +360,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
         return spotIndexes.map((index) {
           return TouchedSpotIndicatorData(
             FlLine(
-              color: Colors.cyanAccent.withOpacity(0.7),
+              color: Colors.greenAccent.withOpacity(0.7), // Changed to green shade
               strokeWidth: 1.w,
               dashArray: [4, 4],
             ),
@@ -369,8 +383,9 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
 
     for (var spots in allSpots) {
       for (var spot in spots) {
-        if (spot.y < minY) minY = spot.y;
-        if (spot.y > maxY) maxY = spot.y;
+        final adjustedY = widget.isBitcoinAsset ? spot.y : spot.y / 1000000; // Adjust non-Bitcoin assets
+        if (adjustedY < minY) minY = adjustedY;
+        if (adjustedY > maxY) maxY = adjustedY;
       }
     }
 
@@ -386,7 +401,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
       final range = maxY - minY;
       final padding = (range * 0.1).clamp(0.00000001, double.infinity);
       maxY += padding;
-      bool allNonNegative = allSpots.every((spots) => spots.every((spot) => spot.y >= 0));
+      bool allNonNegative = allSpots.every((spots) => spots.every((spot) => (widget.isBitcoinAsset ? spot.y : spot.y / 1000000) >= 0));
       minY = allNonNegative ? 0 : minY - padding;
     }
 

@@ -228,7 +228,6 @@ class Home extends ConsumerWidget {
         body: SafeArea(
           child: Column(
             children: [
-              const BackupWarning(), // Takes its intrinsic height
               const Expanded(
                 flex: 4,
                 child: BalanceScreen(),

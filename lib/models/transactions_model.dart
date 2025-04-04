@@ -179,6 +179,11 @@ class Transaction {
     return swaps;
   }
 
+  DateTime? get earliestTimestamp {
+    if (allTransactions.isEmpty) return null;
+    return allTransactions.map((tx) => tx.timestamp).reduce((a, b) => a.isBefore(b) ? a : b);
+  }
+
   factory Transaction.empty() {
     return Transaction(
       bitcoinTransactions: [],
