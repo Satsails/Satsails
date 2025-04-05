@@ -18,6 +18,59 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+class ViewModeSelector extends StatelessWidget {
+  final int selectedIndex; // 0 for Balance, 1 for USD Valuation
+  final Function(int) onSelected;
+
+  const ViewModeSelector({
+    required this.selectedIndex,
+    required this.onSelected,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade800, // Background matches your dark theme
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildSegment(0, 'Balance'),
+          _buildSegment(1, 'USD Valuation'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSegment(int index, String text) {
+    final isSelected = index == selectedIndex;
+    return GestureDetector(
+      onTap: () => onSelected(index),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.orangeAccent : Colors.transparent,
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isSelected ? Colors.black : Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 14.sp,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class BalanceCardWithDropdown extends StatelessWidget {
   final String selectedAsset;
   final Function(String) onAssetChanged;
@@ -34,6 +87,50 @@ class BalanceCardWithDropdown extends StatelessWidget {
     super.key,
   });
 
+  // Function to show the custom popup menu
+  void _showAssetMenu(BuildContext context, Offset tapPosition) async {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final selected = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        tapPosition.dx,
+        tapPosition.dy,
+        overlay.size.width - tapPosition.dx,
+        overlay.size.height - tapPosition.dy,
+      ),
+      items: assetOptions.map((String option) {
+        return PopupMenuItem<String>(
+          value: option,
+          child: Row(
+            children: [
+              Image.asset(
+                assetImages[option]!,
+                width: 35.sp,
+                height: 35.sp,
+              ),
+              SizedBox(width: 10.sp),
+              Text(
+                option,
+                style: TextStyle(
+                  color: option == selectedAsset ? Colors.orange : Colors.white,
+                  fontSize: 14.sp,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+      color: const Color(0xFF212121),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+    );
+
+    if (selected != null) {
+      onAssetChanged(selected);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -43,73 +140,46 @@ class BalanceCardWithDropdown extends StatelessWidget {
         color: const Color(0xFF212121),
         borderRadius: BorderRadius.circular(12.r),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Image.asset(
-            assetImages[selectedAsset]!,
-            width: 35.sp,
-            height: 35.sp,
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.sp),
-              child: Text(
-                balanceWithUnit,
-                style: TextStyle(
-                  fontSize: 24.sp,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
+      child: InkWell(
+        onTap: () {
+          // Get the tap position relative to the card
+          final RenderBox box = context.findRenderObject() as RenderBox;
+          final position = box.localToGlobal(Offset.zero);
+          _showAssetMenu(context, position + Offset(box.size.width - 50.w, 0)); // Position near the right side
+        },
+        borderRadius: BorderRadius.circular(12.r),
+        splashColor: Colors.orange.withOpacity(0.2),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Image.asset(
+              assetImages[selectedAsset]!,
+              width: 35.sp,
+              height: 35.sp,
             ),
-          ),
-          Theme(
-            data: Theme.of(context).copyWith(
-              popupMenuTheme: PopupMenuThemeData(
-                color: const Color(0xFF212121),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-              ),
-            ),
-            child: PopupMenuButton<String>(
-              icon: Icon(
-                Icons.arrow_drop_down,
-                color: Colors.white,
-                size: 24.sp,
-              ),
-              onSelected: (String value) {
-                onAssetChanged(value);
-              },
-              itemBuilder: (BuildContext context) => assetOptions.map((String option) {
-                return PopupMenuItem<String>(
-                  value: option,
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        assetImages[option]!,
-                        width: 35.sp,
-                        height: 35.sp,
-                      ),
-                      SizedBox(width: 10.sp),
-                      Text(
-                        option,
-                        style: TextStyle(
-                          color: option == selectedAsset ? Colors.orange : Colors.white,
-                          fontSize: 14.sp,
-                        ),
-                      ),
-                    ],
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.sp),
+                child: Text(
+                  balanceWithUnit,
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
-                );
-              }).toList(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
-          ),
-        ],
+            Icon(
+              Icons.arrow_drop_down,
+              color: Colors.white,
+              size: 24.sp,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -413,54 +483,16 @@ class _AnalyticsState extends ConsumerState<Analytics> {
             icon: const Icon(Icons.arrow_back, color: Colors.white),
           ),
           actions: [
-            if (isBitcoinAsset) // Only show dropdown for Bitcoin assets
+            if (isBitcoinAsset) // Only show for Bitcoin assets
               Padding(
                 padding: EdgeInsets.only(right: 8.sp),
-                child: Theme(
-                  data: Theme.of(context).copyWith(
-                    popupMenuTheme: PopupMenuThemeData(
-                      color: const Color(0xFF212121),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                    ),
-                  ),
-                  child: PopupMenuButton<int>(
-                    icon: Icon(
-                      Icons.arrow_drop_down_circle_outlined,
-                      color: Colors.white,
-                      size: 24.sp,
-                    ),
-                    onSelected: (int value) {
-                      setState(() {
-                        viewMode = value;
-                      });
-                    },
-                    itemBuilder: (BuildContext context) => [
-                      PopupMenuItem<int>(
-                        value: 0,
-                        child: Text(
-                          'Balance'.i18n,
-                          style: TextStyle(
-                            color: viewMode == 0 ? Colors.orangeAccent : Colors.white,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      PopupMenuItem<int>(
-                        value: 1,
-                        child: Text(
-                          'USD Valuation',
-                          style: TextStyle(
-                            color: viewMode == 1 ? Colors.orangeAccent : Colors.white,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                child: ViewModeSelector(
+                  selectedIndex: viewMode,
+                  onSelected: (index) {
+                    setState(() {
+                      viewMode = index; // Update viewMode (0 for Balance, 1 for USD Valuation)
+                    });
+                  },
                 ),
               ),
           ],

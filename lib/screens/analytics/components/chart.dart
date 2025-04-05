@@ -1,4 +1,7 @@
 import 'dart:math';
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/helpers/string_extension.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,7 +24,7 @@ class Chart extends StatefulWidget {
   final bool isShowingMainData;
   final bool isCurrency;
   final String btcFormat;
-  final bool isBitcoinAsset; // New parameter to determine asset type
+  final bool isBitcoinAsset;
 
   const Chart({
     super.key,
@@ -34,7 +37,7 @@ class Chart extends StatefulWidget {
     required this.isShowingMainData,
     required this.isCurrency,
     required this.btcFormat,
-    required this.isBitcoinAsset, // Added to constructor
+    required this.isBitcoinAsset,
   });
 
   @override
@@ -151,15 +154,14 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                         leftTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            reservedSize: 90.w, // Increased from 70.w to 90.w for more space
+                            reservedSize: 90.w,
                             interval: bounds.horizontalInterval,
                             getTitlesWidget: (value, meta) {
                               final decimals = widget.isBitcoinAsset
                                   ? (widget.btcFormat == 'BTC' && !widget.isCurrency ? 8 : 2)
-                                  : 2; // 2 decimals for non-Bitcoin assets
+                                  : 2;
                               String formattedValue;
                               if (!widget.isBitcoinAsset) {
-                                // Convert from sats-like (1M) to BTC-like unit
                                 final adjustedValue = value / 1000000;
                                 formattedValue = adjustedValue.toStringAsFixed(2);
                               } else if (value.abs() < 1 && widget.btcFormat == 'BTC' && !widget.isCurrency) {
@@ -202,7 +204,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
       lineBarsData.add(_createAnimatedLineBarData(
         data: widget.mainData!,
         sortedDays: sortedDays,
-        barWidth: 2.5.w,
+        barWidth: 3.5.w, // Increased from 2.5.w to 3.5.w
         animationValue: animationValue,
         glowValue: glowValue,
         isMainData: true,
@@ -221,14 +223,14 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
   }) {
     final spots = _createSpots(data, sortedDays).map((spot) => FlSpot(
       spot.x,
-      (widget.isBitcoinAsset ? spot.y : spot.y / 1000000) * animationValue, // Adjust non-Bitcoin assets
+      (widget.isBitcoinAsset ? spot.y : spot.y / 1000000) * animationValue,
     )).toList();
     return LineChartBarData(
       spots: spots,
       isCurved: true,
       preventCurveOverShooting: true,
       gradient: LinearGradient(
-        colors: [Colors.greenAccent, Colors.green], // Changed to green shades
+        colors: [Colors.greenAccent, Colors.green],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
@@ -239,7 +241,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
         show: true,
         gradient: LinearGradient(
           colors: [
-            Colors.greenAccent.withOpacity(0.2 * glowValue), // Changed to green shade
+            Colors.greenAccent.withOpacity(0.2 * glowValue),
             Colors.transparent,
           ],
           begin: Alignment.topCenter,
@@ -247,7 +249,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
         ),
       ),
       shadow: Shadow(
-        color: Colors.greenAccent.withOpacity(0.3 * glowValue), // Changed to green shade
+        color: Colors.greenAccent.withOpacity(0.3 * glowValue),
         blurRadius: 8,
       ),
     );
@@ -259,7 +261,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     for (int i = 0; i < sortedDays.length; i++) {
       final day = sortedDays[i];
       if (data.containsKey(day)) lastValue = data[day]!;
-      spots.add(FlSpot(i.toDouble(), lastValue.toDouble()));
+      spots.add(FlSpot(i.toDouble(), max(0, lastValue.toDouble()))); // Clamp to >= 0
     }
     return spots;
   }
@@ -275,17 +277,6 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
   }
 
   LineTouchData _buildLineTouchData(BuildContext context, List<DateTime> sortedDays) {
-    final currencyFormat = NumberFormat.currency(
-      symbol: widget.selectedCurrency == 'USD' ? '\$' : widget.selectedCurrency,
-      decimalDigits: 2,
-    );
-    final btcAmountFormat = NumberFormat("0.########", "en_US");
-    final nonBtcAmountFormat = NumberFormat("0.00", "en_US"); // For non-Bitcoin assets
-    final priceCurrencyFormat = NumberFormat.currency(
-      symbol: widget.selectedCurrency == 'USD' ? '\$' : '',
-      decimalDigits: 2,
-    );
-
     return LineTouchData(
       handleBuiltInTouches: true,
       touchTooltipData: LineTouchTooltipData(
@@ -293,6 +284,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
         tooltipRoundedRadius: 8.r,
         tooltipPadding: EdgeInsets.all(12.w),
         maxContentWidth: 200.w,
+        fitInsideHorizontally: true,
         getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
           if (touchedBarSpots.isEmpty) return [];
           final flSpot = touchedBarSpots.first;
@@ -313,12 +305,12 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
 
           if (widget.mainData != null) {
             final value = widget.mainData![date] ?? 0;
-            if (widget.isCurrency) {
-              final formattedValuation = currencyFormat.format(value);
+            if (widget.isCurrency && widget.isBitcoinAsset) {
+              final formattedValuation = currencyFormat(value.toDouble(), widget.selectedCurrency);
               final btcBalance = widget.bitcoinBalanceByDayUnformatted[date] ?? 0;
-              final formattedBtcBalance = btcAmountFormat.format(btcBalance);
+              final formattedBtcBalance = btcInDenominationFormatted(btcBalance, widget.btcFormat, true);
               final price = widget.priceByDay[date] ?? 0;
-              final formattedPrice = priceCurrencyFormat.format(price);
+              final formattedPrice = currencyFormat(price.toDouble(), widget.selectedCurrency);
               children.addAll([
                 TextSpan(
                   text: 'Total Value: $formattedValuation\n',
@@ -334,16 +326,23 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                 ),
               ]);
             } else {
-              final adjustedValue = widget.isBitcoinAsset ? value : value / 1000000; // Adjust non-Bitcoin assets
-              final formattedValue = widget.isBitcoinAsset
-                  ? '${value.toStringAsFixed(widget.btcFormat == 'BTC' ? 8 : 0)} ${widget.btcFormat}'
-                  : nonBtcAmountFormat.format(adjustedValue);
-              children.add(
-                TextSpan(
-                  text: 'Balance: $formattedValue',
-                  style: TextStyle(color: Colors.white70, fontSize: 14.sp),
-                ),
-              );
+              if (widget.isBitcoinAsset) {
+                children.add(
+                  TextSpan(
+                    text: 'Balance: $value',
+                    style: TextStyle(color: Colors.white70, fontSize: 14.sp),
+                  ),
+                );
+              } else {
+                final amount = value.round(); // Assuming value is in smallest unit
+                final formattedValue = fiatInDenominationFormatted(amount);
+                children.add(
+                  TextSpan(
+                    text: 'Balance: $formattedValue',
+                    style: TextStyle(color: Colors.white70, fontSize: 14.sp),
+                  ),
+                );
+              }
             }
           }
 
@@ -360,7 +359,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
         return spotIndexes.map((index) {
           return TouchedSpotIndicatorData(
             FlLine(
-              color: Colors.greenAccent.withOpacity(0.7), // Changed to green shade
+              color: Colors.greenAccent.withOpacity(0.7),
               strokeWidth: 1.w,
               dashArray: [4, 4],
             ),
@@ -383,7 +382,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
 
     for (var spots in allSpots) {
       for (var spot in spots) {
-        final adjustedY = widget.isBitcoinAsset ? spot.y : spot.y / 1000000; // Adjust non-Bitcoin assets
+        final adjustedY = widget.isBitcoinAsset ? spot.y : spot.y / 1000000;
         if (adjustedY < minY) minY = adjustedY;
         if (adjustedY > maxY) maxY = adjustedY;
       }
@@ -402,7 +401,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
       final padding = (range * 0.1).clamp(0.00000001, double.infinity);
       maxY += padding;
       bool allNonNegative = allSpots.every((spots) => spots.every((spot) => (widget.isBitcoinAsset ? spot.y : spot.y / 1000000) >= 0));
-      minY = allNonNegative ? 0 : minY - padding;
+      minY = allNonNegative ? 0 : minY - padding; // Will always be 0 due to clamping
     }
 
     if (maxY > 0 && minY > 0) minY = 0;

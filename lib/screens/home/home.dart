@@ -173,7 +173,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
         }
 
         return Padding(
-          padding: EdgeInsets.only(left: 16.sp),
+          padding: EdgeInsets.only(left: 18.sp),
           child: SizedBox(
             height: 200.sp,
             child: Column(
