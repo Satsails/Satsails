@@ -315,11 +315,7 @@ class _ActionCards extends ConsumerWidget {
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
                   onTap: () {
-                    showMessageSnackBar(
-                      message: "Coming soon".i18n,
-                      context: context,
-                      error: true,
-                    );
+                    context.push('/services');
                   },
                   child: AspectRatio(
                     aspectRatio: 1.2,

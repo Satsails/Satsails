@@ -206,8 +206,8 @@ class AppRouter {
           ),
         ),
         GoRoute(
-          path: '/apps',
-          name: 'apps',
+          path: '/services',
+          name: 'services',
           pageBuilder: (context, state) => _buildFadeScalePage(
             child: const Services(),
             state: state,
