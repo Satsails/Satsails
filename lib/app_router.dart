@@ -20,7 +20,6 @@ import 'package:Satsails/screens/shared/transactions_details_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/screens/shared/pix_transaction_details.dart';
 import 'package:Satsails/screens/home/main_screen.dart';
-import 'package:Satsails/screens/settings/components/support.dart';
 import 'package:Satsails/screens/creation/start.dart';
 import 'package:Satsails/screens/pay/components/confirm_liquid_payment.dart';
 import 'package:Satsails/screens/settings/components/seed_words.dart';
@@ -405,14 +404,6 @@ class AppRouter {
           name: 'pix_transaction_details',
           pageBuilder: (context, state) => _buildFadeScalePage(
             child: const PixTransactionDetails(),
-            state: state,
-          ),
-        ),
-        GoRoute(
-          path: '/support',
-          name: 'support',
-          pageBuilder: (context, state) => _buildFadeScalePage(
-            child: const Support(),
             state: state,
           ),
         ),

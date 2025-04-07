@@ -1,4 +1,3 @@
-import 'package:Satsails/screens/shared/backup_warning.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

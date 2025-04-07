@@ -89,7 +89,6 @@ class _AccountsState extends ConsumerState<Accounts> {
                           ],
                         ),
                         SizedBox(height: 16.h),
-                        // Lightning Section (Always Visible)
                         _buildSectionHeader('Lightning Network'),
                         SizedBox(height: 8.h),
                         Wrap(

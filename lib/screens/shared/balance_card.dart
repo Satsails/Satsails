@@ -203,8 +203,6 @@ Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref) {
   );
 }
 
-final isBalanceVisibleProvider = StateProvider<bool>((ref) => true);
-
 class BalanceCard extends ConsumerWidget {
   final String assetName;
   final Color color;
@@ -221,7 +219,7 @@ class BalanceCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final currency = ref.watch(settingsProvider).currency;
-    final isBalanceVisible = ref.watch(isBalanceVisibleProvider);
+    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
 
     final Map<String, String> _networkImages = {
       'Bitcoin network': 'lib/assets/bitcoin-logo.png',
@@ -405,8 +403,7 @@ class BalanceCard extends ConsumerWidget {
                         Spacer(),
                         IconButton(
                           onPressed: () {
-                            ref.read(isBalanceVisibleProvider.notifier).state =
-                            !ref.read(isBalanceVisibleProvider);
+                            ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible);
                           },
                           icon: Icon(
                             isBalanceVisible ? Icons.remove_red_eye : Icons.visibility_off,
