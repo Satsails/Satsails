@@ -17,7 +17,7 @@ extension DateTimeExtension on DateTime {
 class Chart extends StatefulWidget {
   final List<DateTime> selectedDays;
   final Map<DateTime, num>? mainData;
-  final Map<DateTime, num> bitcoinBalanceByDayUnformatted;
+  final Map<DateTime, num> bitcoinBalanceByDayformatted;
   final Map<DateTime, num> dollarBalanceByDay;
   final Map<DateTime, num> priceByDay;
   final String selectedCurrency;
@@ -30,7 +30,7 @@ class Chart extends StatefulWidget {
     super.key,
     required this.selectedDays,
     this.mainData,
-    required this.bitcoinBalanceByDayUnformatted,
+    required this.bitcoinBalanceByDayformatted,
     required this.dollarBalanceByDay,
     required this.priceByDay,
     required this.selectedCurrency,
@@ -204,7 +204,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
       lineBarsData.add(_createAnimatedLineBarData(
         data: widget.mainData!,
         sortedDays: sortedDays,
-        barWidth: 3.5.w, // Increased from 2.5.w to 3.5.w
+        barWidth: 3.5.w,
         animationValue: animationValue,
         glowValue: glowValue,
         isMainData: true,
@@ -258,11 +258,24 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
   List<FlSpot> _createSpots(Map<DateTime, num> data, List<DateTime> sortedDays) {
     List<FlSpot> spots = [];
     num lastValue = 0;
+
+    // Create a map with normalized keys (year, month, day only)
+    final normalizedData = {
+      for (var entry in data.entries)
+        DateTime(entry.key.year, entry.key.month, entry.key.day): entry.value
+    };
+
     for (int i = 0; i < sortedDays.length; i++) {
       final day = sortedDays[i];
-      if (data.containsKey(day)) lastValue = data[day]!;
-      spots.add(FlSpot(i.toDouble(), max(0, lastValue.toDouble()))); // Clamp to >= 0
+      // Normalize day to year, month, day only (though sortedDays should already be at midnight)
+      final normalizedDay = DateTime(day.year, day.month, day.day);
+
+      if (normalizedData.containsKey(normalizedDay)) {
+        lastValue = normalizedData[normalizedDay]!;
+      }
+      spots.add(FlSpot(i.toDouble(), max(0, lastValue.toDouble())));
     }
+
     return spots;
   }
 
@@ -304,12 +317,10 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
           ];
 
           if (widget.mainData != null) {
-            final value = widget.mainData![date] ?? 0;
+            final value = _getValueForDate(widget.mainData!, date);
             if (widget.isCurrency && widget.isBitcoinAsset) {
-              final formattedValuation = currencyFormat(value.toDouble(), widget.selectedCurrency);
-              final btcBalance = widget.bitcoinBalanceByDayUnformatted[date] ?? 0;
-              final formattedBtcBalance = btcInDenominationFormatted(btcBalance, widget.btcFormat, true);
-              final price = widget.priceByDay[date] ?? 0;
+              final price = _getValueForDate(widget.priceByDay, date);
+              final formattedValuation = currencyFormat(widget.btcFormat == 'sats' ? value.toDouble() : value.toDouble() * 100000000, widget.selectedCurrency);
               final formattedPrice = currencyFormat(price.toDouble(), widget.selectedCurrency);
               children.addAll([
                 TextSpan(
@@ -317,7 +328,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                   style: TextStyle(color: Colors.white70, fontSize: 14.sp),
                 ),
                 TextSpan(
-                  text: 'BTC: $formattedBtcBalance\n',
+                  text: 'BTC: $value\n',
                   style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                 ),
                 TextSpan(
@@ -334,7 +345,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                   ),
                 );
               } else {
-                final amount = value.round(); // Assuming value is in smallest unit
+                final amount = value.round();
                 final formattedValue = fiatInDenominationFormatted(amount);
                 children.add(
                   TextSpan(
@@ -370,6 +381,16 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     );
   }
 
+  num _getValueForDate(Map<DateTime, num> data, DateTime date) {
+    final normalizedDate = DateTime(date.year, date.month, date.day);
+    return data.entries.firstWhere(
+          (entry) => entry.key.year == normalizedDate.year &&
+          entry.key.month == normalizedDate.month &&
+          entry.key.day == normalizedDate.day,
+      orElse: () => MapEntry(DateTime(0), 0),
+    ).value;
+  }
+
   ({double minY, double maxY, double horizontalInterval}) _calculateAxisBounds(
       List<Map<DateTime, num>> activeDataSets, List<DateTime> sortedDays) {
     if (activeDataSets.isEmpty || sortedDays.isEmpty) {
@@ -401,7 +422,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
       final padding = (range * 0.1).clamp(0.00000001, double.infinity);
       maxY += padding;
       bool allNonNegative = allSpots.every((spots) => spots.every((spot) => (widget.isBitcoinAsset ? spot.y : spot.y / 1000000) >= 0));
-      minY = allNonNegative ? 0 : minY - padding; // Will always be 0 due to clamping
+      minY = allNonNegative ? 0 : minY - padding;
     }
 
     if (maxY > 0 && minY > 0) minY = 0;

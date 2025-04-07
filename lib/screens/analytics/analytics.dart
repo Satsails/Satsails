@@ -18,9 +18,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 class ViewModeSelector extends StatelessWidget {
   final int selectedIndex; // 0 for Balance, 1 for USD Valuation
   final Function(int) onSelected;
@@ -398,21 +395,8 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     final balanceWithUnit = '$currentBalanceFormatted ${isBitcoinAsset ? btcFormat : _selectedAsset!.split(' ')[0]}';
 
     final balanceByDay = _selectedAsset == 'Bitcoin (Mainnet)'
-        ? ref.watch(bitcoinBalanceOverPeriodByDayProvider)
-        : ref.watch(liquidBalanceOverPeriodByDayProvider(_assetIdMap[_selectedAsset!]!));
-
-    final balanceByDayNum = <DateTime, num>{};
-    for (var entry in balanceByDay.entries) {
-      final day = entry.key;
-      final balance = entry.value;
-      if (isBitcoinAsset) {
-        balanceByDayNum[day] = btcInDenominationNum(balance, btcFormat);
-      } else {
-        final assetId = _assetIdMap[_selectedAsset!]!;
-        final precision = _assetPrecisionMap[assetId] ?? 8;
-        balanceByDayNum[day] = balance / pow(10, precision);
-      }
-    }
+        ? ref.watch(bitcoinBalanceInFormatByDayProvider)
+        : ref.watch(liquidBalancePerDayInFormatProvider(_assetIdMap[_selectedAsset!]!));
 
     final marketDataAsync = ref.watch(bitcoinHistoricalMarketDataProvider);
 
@@ -462,7 +446,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
       }
     }
 
-    final mainData = viewMode == 0 ? balanceByDayNum : dollarBalanceByDay;
+    final mainData = viewMode == 0 ? balanceByDay : dollarBalanceByDay;
 
     return SafeArea(
       child: Scaffold(
@@ -521,7 +505,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                       selectedDays: selectedDays,
                       isBitcoinAsset: isBitcoinAsset,
                       mainData: mainData,
-                      bitcoinBalanceByDayUnformatted: balanceByDay,
+                      bitcoinBalanceByDayformatted: balanceByDay,
                       dollarBalanceByDay: dollarBalanceByDay,
                       priceByDay: priceByDay,
                       selectedCurrency: selectedCurrency,
