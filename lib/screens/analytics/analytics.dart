@@ -554,7 +554,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: ['7D', '1M', '3M', '6M', '1Y', 'ALL'].map((range) {
+                children: ['7D', '1M', '3M', '1Y', 'ALL'].map((range) {
                   return TextButton(
                     onPressed: () {
                       setState(() {
@@ -579,9 +579,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                               break;
                             case '3M':
                               start = now.subtract(const Duration(days: 89));
-                              break;
-                            case '6M':
-                              start = now.subtract(const Duration(days: 179));
                               break;
                             case '1Y':
                               start = now.subtract(const Duration(days: 364));

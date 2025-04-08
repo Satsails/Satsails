@@ -322,13 +322,14 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
               final price = _getValueForDate(widget.priceByDay, date);
               final formattedValuation = currencyFormat(widget.btcFormat == 'sats' ? value.toDouble() : value.toDouble() * 100000000, widget.selectedCurrency);
               final formattedPrice = currencyFormat(price.toDouble(), widget.selectedCurrency);
+              final btcBalance = _getValueForDate(widget.bitcoinBalanceByDayformatted, date);
               children.addAll([
                 TextSpan(
                   text: 'Total Value: $formattedValuation\n',
                   style: TextStyle(color: Colors.white70, fontSize: 14.sp),
                 ),
                 TextSpan(
-                  text: 'BTC: $value\n',
+                  text: (widget.btcFormat != 'sats' ? 'BTC' : 'Sats') + ': $btcBalance\n',
                   style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                 ),
                 TextSpan(
@@ -345,11 +346,10 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                   ),
                 );
               } else {
-                final amount = value.round();
-                final formattedValue = fiatInDenominationFormatted(amount);
+                final amount = value;
                 children.add(
                   TextSpan(
-                    text: 'Balance: $formattedValue',
+                    text: 'Balance: $amount',
                     style: TextStyle(color: Colors.white70, fontSize: 14.sp),
                   ),
                 );
