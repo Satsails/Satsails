@@ -21,6 +21,8 @@ class MainScreen extends ConsumerWidget {
         ref.read(shouldUpdateMemoryProvider.notifier).state = false;
       });
     } else {
+       ref.read(sendTxProvider.notifier).resetToDefault();
+       ref.read(sendBlocksProvider.notifier).state = 1;
        ref.read(shouldUpdateMemoryProvider.notifier).state = true;
     }
   }
