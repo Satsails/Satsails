@@ -62,7 +62,7 @@ class Settings extends ConsumerWidget {
           ),
         ),
         body: SingleChildScrollView(
-          padding: EdgeInsets.all(24.sp), // Updated body padding
+          padding: EdgeInsets.all(14.sp), // Updated body padding
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -92,7 +92,7 @@ class Settings extends ConsumerWidget {
     Widget? subtitle,
   }) {
     return Container(
-      margin: EdgeInsets.only(bottom: 20.sp), // Updated margin between sections
+      margin: EdgeInsets.only(bottom: 20.sp),
       decoration: BoxDecoration(
         color: const Color(0xFF212121),
         borderRadius: BorderRadius.circular(12.0),
@@ -105,7 +105,6 @@ class Settings extends ConsumerWidget {
         ],
       ),
       child: ListTile(
-        contentPadding: EdgeInsets.all(24.sp), // Updated internal padding
         leading: Icon(icon, color: Colors.white, size: 24.sp),
         title: Text(
           title.i18n,
@@ -417,7 +416,8 @@ class Settings extends ConsumerWidget {
     return _buildSection(
       context: context,
       ref: ref,
-      title: 'Coinos Migration',
+      title: 'Coinos Migration'.i18n,
+      subtitle: Text('Recover and migrate your lightning balance'.i18n, style: TextStyle(color: Colors.grey, fontSize: 14.sp)),
       icon: Icons.cloud,
       onTap: () {
         _showCustodialWarningModal(context, ref);
