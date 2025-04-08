@@ -18,7 +18,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math';
 
-class ViewModeSelector extends StatelessWidget {
+class ViewModeSelector extends ConsumerWidget {
   final int selectedIndex; // 0 for Balance, 1 for USD Valuation
   final Function(int) onSelected;
 
@@ -29,17 +29,18 @@ class ViewModeSelector extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(settingsProvider).currency;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey.shade800, // Background matches your dark theme
+        color: Colors.grey.shade800,
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildSegment(0, 'Balance'),
-          _buildSegment(1, 'USD Valuation'),
+          _buildSegment(1, '${currency} Valuation'),
         ],
       ),
     );
@@ -84,7 +85,6 @@ class BalanceCardWithDropdown extends StatelessWidget {
     super.key,
   });
 
-  // Function to show the custom popup menu
   void _showAssetMenu(BuildContext context, Offset tapPosition) async {
     final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
     final selected = await showMenu<String>(
@@ -139,10 +139,9 @@ class BalanceCardWithDropdown extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          // Get the tap position relative to the card
           final RenderBox box = context.findRenderObject() as RenderBox;
           final position = box.localToGlobal(Offset.zero);
-          _showAssetMenu(context, position + Offset(box.size.width - 50.w, 0)); // Position near the right side
+          _showAssetMenu(context, position + Offset(box.size.width - 50.w, 0));
         },
         borderRadius: BorderRadius.circular(12.r),
         splashColor: Colors.orange.withOpacity(0.2),
@@ -194,7 +193,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   String _selectedRange = '1M';
   String? _selectedAsset;
 
-  // Asset options for the dropdown
   final List<String> _assetOptions = [
     'Bitcoin (Mainnet)',
     'Bitcoin (Liquid)',
@@ -244,7 +242,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     super.dispose();
   }
 
-  /// Builds the price percentage change ticker (only for Bitcoin assets) as a row with three columns
   Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref, double percentageChange) {
     final format = ref.watch(settingsProvider).btcFormat;
     final currency = ref.watch(settingsProvider).currency;
@@ -267,8 +264,8 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.sp), // Consistent with BalanceCardWithDropdown
-      padding: EdgeInsets.all(16.sp), // Matching padding with BalanceCardWithDropdown
+      margin: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.sp),
+      padding: EdgeInsets.all(16.sp),
       decoration: BoxDecoration(
         color: Colors.grey.shade900,
         borderRadius: BorderRadius.circular(8.r),
@@ -276,7 +273,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Left Column: Total Balance
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,7 +298,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
               ],
             ),
           ),
-          SizedBox(width: 4.sp), // Space between columns
+          SizedBox(width: 4.sp),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -339,7 +335,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
               ],
             ),
           ),
-          SizedBox(width: 4.sp), // Space between columns
+          SizedBox(width: 4.sp),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -467,14 +463,14 @@ class _AnalyticsState extends ConsumerState<Analytics> {
             icon: const Icon(Icons.arrow_back, color: Colors.white),
           ),
           actions: [
-            if (isBitcoinAsset) // Only show for Bitcoin assets
+            if (isBitcoinAsset)
               Padding(
                 padding: EdgeInsets.only(right: 8.sp),
                 child: ViewModeSelector(
                   selectedIndex: viewMode,
                   onSelected: (index) {
                     setState(() {
-                      viewMode = index; // Update viewMode (0 for Balance, 1 for USD Valuation)
+                      viewMode = index;
                     });
                   },
                 ),
@@ -492,6 +488,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                   setState(() {
                     _selectedAsset = newAsset;
                     ref.read(selectedAssetProvider.notifier).state = newAsset;
+                    viewMode = 0; // Reset to balance mode when asset changes
                   });
                 },
                 balanceWithUnit: balanceWithUnit,

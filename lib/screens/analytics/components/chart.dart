@@ -1,6 +1,4 @@
 import 'dart:math';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -158,17 +156,9 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                             interval: bounds.horizontalInterval,
                             getTitlesWidget: (value, meta) {
                               final decimals = widget.isBitcoinAsset
-                                  ? (widget.btcFormat == 'BTC' && !widget.isCurrency ? 8 : 2)
+                                  ? (widget.btcFormat == 'BTC' && !widget.isCurrency ? 8 : (widget.btcFormat == 'sats' && !widget.isCurrency ? 0 : 2))
                                   : 2;
-                              String formattedValue;
-                              if (!widget.isBitcoinAsset) {
-                                final adjustedValue = value / 1000000;
-                                formattedValue = adjustedValue.toStringAsFixed(2);
-                              } else if (value.abs() < 1 && widget.btcFormat == 'BTC' && !widget.isCurrency) {
-                                formattedValue = value.toStringAsFixed(8);
-                              } else {
-                                formattedValue = value.toStringAsFixed(decimals);
-                              }
+                              String formattedValue = value.toStringAsFixed(decimals);
                               return SideTitleWidget(
                                 axisSide: meta.axisSide,
                                 child: Text(
@@ -223,7 +213,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
   }) {
     final spots = _createSpots(data, sortedDays).map((spot) => FlSpot(
       spot.x,
-      (widget.isBitcoinAsset ? spot.y : spot.y / 1000000) * animationValue,
+      spot.y * animationValue, // Use raw spot.y without scaling
     )).toList();
     return LineChartBarData(
       spots: spots,
@@ -374,7 +364,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
               strokeWidth: 1.w,
               dashArray: [4, 4],
             ),
-            FlDotData(show: false),
+            FlDotData(show: true),
           );
         }).toList();
       },
@@ -394,7 +384,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
   ({double minY, double maxY, double horizontalInterval}) _calculateAxisBounds(
       List<Map<DateTime, num>> activeDataSets, List<DateTime> sortedDays) {
     if (activeDataSets.isEmpty || sortedDays.isEmpty) {
-      return (minY: 0, maxY: 0.00000001, horizontalInterval: 0.000000002);
+      return (minY: 0, maxY: 1, horizontalInterval: 0.2);
     }
 
     double minY = double.maxFinite;
@@ -403,57 +393,27 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
 
     for (var spots in allSpots) {
       for (var spot in spots) {
-        final adjustedY = widget.isBitcoinAsset ? spot.y : spot.y / 1000000;
+        double adjustedY = spot.y; // Use raw value directly
         if (adjustedY < minY) minY = adjustedY;
         if (adjustedY > maxY) maxY = adjustedY;
       }
     }
 
+    // Handle edge cases
     if (minY == double.maxFinite || maxY == double.negativeInfinity || minY.isNaN || maxY.isNaN) {
       minY = 0;
-      maxY = 0.00000001;
+      maxY = 1;
     } else if (minY == maxY) {
-      double padding = (maxY.abs() * 0.2).clamp(0.00000001, double.infinity);
-      if (maxY == 0) padding = 0.00000001;
-      minY = minY - padding;
-      maxY = maxY + padding;
-    } else {
-      final range = maxY - minY;
-      final padding = (range * 0.1).clamp(0.00000001, double.infinity);
-      maxY += padding;
-      bool allNonNegative = allSpots.every((spots) => spots.every((spot) => (widget.isBitcoinAsset ? spot.y : spot.y / 1000000) >= 0));
-      minY = allNonNegative ? 0 : minY - padding;
+      minY -= 1; // Simple padding
+      maxY += 1;
     }
 
-    if (maxY > 0 && minY > 0) minY = 0;
-    if (minY < 0 && maxY < 0) maxY = 0;
+    // Ensure minY is never below 0
+    if (minY < 0) minY = 0;
 
     final range = maxY - minY;
-    double interval = range > 0 && range.isFinite ? (range / 8) : 0.000000002;
-    double magnitude =
-    pow(10, interval.abs().toStringAsFixed(8).split('.').last.indexOf(RegExp(r'[1-9]')) - 1).toDouble();
+    final horizontalInterval = range > 0 ? range / 5 : 0.2;
 
-    double normalizedInterval = interval / magnitude;
-    if (normalizedInterval >= 5) {
-      interval = (interval / (magnitude * 5)).ceil() * magnitude * 5;
-    } else if (normalizedInterval >= 2) {
-      interval = (interval / (magnitude * 2)).ceil() * magnitude * 2;
-    } else {
-      interval = (interval / magnitude).ceil() * magnitude;
-    }
-
-    if (interval * 2 > range) {
-      interval = range / 4;
-      magnitude =
-          pow(10, interval.abs().toStringAsFixed(8).split('.').last.indexOf(RegExp(r'[1-9]')) - 1).toDouble();
-      interval = (interval / magnitude).ceil() * magnitude;
-    }
-
-    if (interval <= 0 || !interval.isFinite) interval = (maxY - minY) / 5;
-    if (interval <= 0 || !interval.isFinite) interval = 0.00000001;
-
-    minY = (minY / interval).floor() * interval;
-
-    return (minY: minY, maxY: maxY, horizontalInterval: interval);
+    return (minY: minY, maxY: maxY, horizontalInterval: horizontalInterval);
   }
 }

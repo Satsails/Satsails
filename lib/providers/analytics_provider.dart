@@ -24,28 +24,20 @@ final dateTimeSelectProvider = StateNotifierProvider.autoDispose<DateTimeSelectP
 
 final selectedDaysDateArrayProvider = StateProvider.autoDispose<List<DateTime>>((ref) {
   final DateTimeSelect dateTimeSelect = ref.watch(dateTimeSelectProvider);
-  final DateTime start = DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.start * 1000);
-  final DateTime end = DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.end * 1000);
+  final DateTime start = DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.start * 1000).toLocal();
+  final DateTime currentDay = DateTime.now().toLocal();
+  final DateTime end = DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.end * 1000).toLocal();
+
+  // Use current day as end if it's after the provided end
+  final effectiveEnd = currentDay.isAfter(end) ? currentDay : end;
+
   final List<DateTime> selectedDays = [];
-  for (int i = 0; i <= end.difference(start).inDays; i++) {
-    selectedDays.add(DateTime(start.year, start.month, start.day).add(Duration(days: i)));
+  for (int i = 0; i <= effectiveEnd.difference(start).inDays; i++) {
+    selectedDays.add(start.add(Duration(days: i)));
   }
   return selectedDays;
 });
 
-final moreThanOneMonthProvider = StateProvider.autoDispose<bool>((ref) {
-  final DateTimeSelect dateTimeSelect = ref.watch(dateTimeSelectProvider);
-  final DateTime start = DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.start * 1000);
-  final DateTime end = DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.end * 1000);
-  return end.difference(start).inDays >= 31;
-});
-
-final oneDayProvider = StateProvider.autoDispose<bool>((ref) {
-  final DateTimeSelect dateTimeSelect = ref.watch(dateTimeSelectProvider);
-  final DateTime start = DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.start * 1000);
-  final DateTime end = DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.end * 1000);
-  return end.difference(start).inDays == 0;
-});
 
 DateTime normalizeDate(DateTime date) {
   return DateTime(date.year, date.month, date.day);
