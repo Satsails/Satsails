@@ -13,7 +13,6 @@ import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 
-
 class Receive extends ConsumerWidget {
   const Receive({super.key});
 
@@ -28,10 +27,7 @@ class Receive extends ConsumerWidget {
           ref.read(inputAmountProvider.notifier).state = '0.0';
           ref.invalidate(initialCoinosProvider);
           ref.read(selectedNetworkTypeProvider.notifier).state = "Bitcoin";
-          Future.microtask(() => {
-            ref.read(shouldUpdateMemoryProvider.notifier).state = true,
-          });
-          return true; // Allow the pop to proceed
+          return true; // Prevent default pop behavior
         } catch (e) {
           return false; // Prevent pop if an error occurs
         }
@@ -42,14 +38,11 @@ class Receive extends ConsumerWidget {
           backgroundColor: Colors.black,
           title: Text('Receive on ${selectedType.i18n}', style: TextStyle(color: Colors.white, fontSize: 20.sp)),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
               ref.read(inputAmountProvider.notifier).state = '0.0';
               ref.invalidate(initialCoinosProvider);
               ref.read(selectedNetworkTypeProvider.notifier).state = "Bitcoin";
-              Future.microtask(() => {
-                ref.read(shouldUpdateMemoryProvider.notifier).state = true,
-              });
               context.pop();
             },
           ),

@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -213,6 +214,7 @@ class Home extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Future.microtask(() => {ref.read(shouldUpdateMemoryProvider.notifier).state = true});
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(

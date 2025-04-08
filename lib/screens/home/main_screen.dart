@@ -21,9 +21,7 @@ class MainScreen extends ConsumerWidget {
         ref.read(shouldUpdateMemoryProvider.notifier).state = false;
       });
     } else {
-      Future.microtask(() {
-        ref.read(shouldUpdateMemoryProvider.notifier).state = true;
-      });
+       ref.read(shouldUpdateMemoryProvider.notifier).state = true;
     }
   }
 
