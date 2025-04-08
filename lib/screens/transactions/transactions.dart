@@ -90,12 +90,12 @@ class _TransactionsState extends ConsumerState<Transactions> {
               child: Column(
                 children: [
                   AppBar(
-                    title: const Text(
+                    title: Text(
                       'Transactions',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                        fontSize: 20.sp,
                       ),
                     ),
                     backgroundColor: Colors.black,
@@ -104,7 +104,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                     actions: [
                       // Calendar picker button
                       IconButton(
-                        icon: const Icon(Icons.calendar_today, color: Colors.white),
+                        icon: Icon(Icons.calendar_today, color: Colors.white, size: 24.sp),
                         onPressed: () async {
                           final selectedDate = await showCalendarDatePicker2Dialog(
                             context: context,
@@ -146,7 +146,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                           ),
                         ),
                         child: PopupMenuButton<String>(
-                          icon: const Icon(Icons.sort, color: Colors.white), // Sort icon
+                          icon: Icon(Icons.sort, color: Colors.white, size: 24.sp),
                           onSelected: (String value) {
                             setState(() {
                               _selectedFilter = value; // Update filter on selection
@@ -247,7 +247,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                             ),
                             minimumSize: const Size(60, 30),
                           ),
-                          child: const Text('Reset'),
+                          child: Text('Reset', style: TextStyle(color: Colors.white, fontSize: 16.0.sp)),
                         ),
                       ),
                     ],

@@ -41,12 +41,12 @@ class _AccountsState extends ConsumerState<Accounts> {
             children: [
               // Modern AppBar
               AppBar(
-                title: const Text(
+                title: Text(
                   'Accounts',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 20.sp,
                   ),
                 ),
                 backgroundColor: Colors.black,
