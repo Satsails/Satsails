@@ -62,7 +62,7 @@ class Settings extends ConsumerWidget {
           ),
         ),
         body: SingleChildScrollView(
-          padding: EdgeInsets.all(14.sp), // Updated body padding
+          padding: EdgeInsets.all(14.sp),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -108,7 +108,11 @@ class Settings extends ConsumerWidget {
         leading: Icon(icon, color: Colors.white, size: 24.sp),
         title: Text(
           title.i18n,
-          style: TextStyle(color: Colors.white, fontSize: 16.sp),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold, // Titles are now bold
+          ),
         ),
         subtitle: subtitle,
         onTap: onTap,
@@ -434,7 +438,7 @@ class Settings extends ConsumerWidget {
       isScrollControlled: true,
       builder: (BuildContext context) {
         return Padding(
-          padding: EdgeInsets.all(24.sp), // Updated padding for modal
+          padding: EdgeInsets.all(24.sp),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
