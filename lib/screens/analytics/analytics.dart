@@ -412,7 +412,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
           final normalizedDay = day.dateOnly();
           if (balanceByDay.containsKey(normalizedDay)) {
             lastKnownBalance = balanceByDay[normalizedDay]! /
-                (isBitcoinAsset ? 100000000 : pow(10, _assetPrecisionMap[_assetIdMap[_selectedAsset!]!] ?? 8));
+                (isBitcoinAsset && btcFormat == 'sats' ? 100000000 : (isBitcoinAsset ? 1 : pow(10, _assetPrecisionMap[_assetIdMap[_selectedAsset!]!] ?? 8)));
           }
           if (dailyPrices.containsKey(normalizedDay)) {
             lastKnownPrice = dailyPrices[normalizedDay]!;
@@ -423,7 +423,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
       },
       loading: () => (<DateTime, num>{}, <DateTime, num>{}),
       error: (_, __) => (<DateTime, num>{}, <DateTime, num>{}),
-    );
+    );;
 
     double percentageChange = 0;
     if (isBitcoinAsset && priceByDay.isNotEmpty) {
