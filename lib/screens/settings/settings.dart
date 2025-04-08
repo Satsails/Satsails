@@ -17,7 +17,8 @@ import 'package:crisp_chat/crisp_chat.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:Satsails/providers/coinos_provider.dart'; // Assuming this is where coinosLnProvider is defined
+import 'package:Satsails/providers/coinos_provider.dart';
+import 'package:in_app_review/in_app_review.dart'; // Added for in-app review
 
 class Settings extends ConsumerWidget {
   const Settings({super.key});
@@ -66,15 +67,16 @@ class Settings extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildBlockExplorerSection(context, ref),
-              _buildSeedSection(context, ref),
               _buildChatWithSupportSection(context, ref),
+              _buildRateAppSection(context, ref),
+              _buildSeedSection(context, ref),
               _buildLanguageSection(ref, context),
               _buildCurrencyDenominationSection(ref, context),
               _buildBitcoinUnitSection(ref, context),
               _buildElectrumNodeSection(context, ref),
               _buildAffiliateSection(context, ref),
               if (showCoinosMigration) _buildCoinosMigrationSection(context, ref),
+              _buildBlockExplorerSection(context, ref),
               DeleteWalletSection(ref: ref),
             ],
           ),
@@ -111,12 +113,34 @@ class Settings extends ConsumerWidget {
           style: TextStyle(
             color: Colors.white,
             fontSize: 16.sp,
-            fontWeight: FontWeight.bold, // Titles are now bold
+            fontWeight: FontWeight.bold,
           ),
         ),
         subtitle: subtitle,
         onTap: onTap,
       ),
+    );
+  }
+
+  // New method for Rate the App section
+  Widget _buildRateAppSection(BuildContext context, WidgetRef ref) {
+    return _buildSection(
+      context: context,
+      ref: ref,
+      title: 'Rate the App',
+      icon: Icons.star,
+      subtitle: Text(
+        'Help us improve by rating the app!'.i18n,
+        style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+      ),
+      onTap: () async {
+        final InAppReview inAppReview = InAppReview.instance;
+        if (await inAppReview.isAvailable()) {
+          await inAppReview.requestReview();
+        } else {
+          await inAppReview.openStoreListing(appStoreId: dotenv.env['APP_STORE_ID']!);
+        }
+      },
     );
   }
 
@@ -163,7 +187,7 @@ class Settings extends ConsumerWidget {
       title: 'Chat with support',
       icon: Icons.support_agent,
       subtitle: Text(
-        'Talk to us on Telegram'.i18n,
+        'Chat with us for help!'.i18n,
         style: TextStyle(color: Colors.grey, fontSize: 14.sp),
       ),
       onTap: () async {

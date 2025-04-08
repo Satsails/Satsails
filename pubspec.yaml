@@ -65,6 +65,8 @@ dependencies:
   i18n_extension: ^15.0.4
   firebase_app_check: ^0.3.1
   dot_navigation_bar: ^1.0.2
+  in_app_review: ^2.0.10
+  upgrader: ^11.3.1
 
   riverpod: any
   crypto: any

@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +9,7 @@ import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
+import 'package:upgrader/upgrader.dart';
 
 // Assuming ScreenUtil is used for .sp units
 
@@ -214,36 +218,52 @@ class Home extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Future.microtask(() => {ref.read(shouldUpdateMemoryProvider.notifier).state = true});
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        extendBodyBehindAppBar: true,
-        bottomNavigationBar: CustomBottomNavigationBar(
-          currentIndex: ref.watch(navigationProvider),
-          onTap: (int index) {
-            ref.read(navigationProvider.notifier).state = index;
-          },
-        ),
-        body: SafeArea(
-          child: Column(
-            children: [
-              const Expanded(
-                flex: 4,
-                child: BalanceScreen(),
-              ),
-              Expanded(
-                flex: 6,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.sp),
-                  child: Container(
-                    color: Colors.black,
-                    child: const TransactionList(),
+    Future.microtask(() => ref.read(shouldUpdateMemoryProvider.notifier).state = true);
+
+    // Get the current language from settingsProvider
+    final language = ref.read(settingsProvider).language;
+
+    // Determine dialog style based on platform
+    final dialogStyle = Platform.isIOS ? UpgradeDialogStyle.cupertino : UpgradeDialogStyle.material;
+
+    return UpgradeAlert(
+      dialogStyle: dialogStyle,
+      upgrader: Upgrader(
+        languageCode: language,
+        durationUntilAlertAgain: const Duration(days: 3),
+      ),
+      child: WillPopScope(
+        onWillPop: () async => false,
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          extendBodyBehindAppBar: true,
+          bottomNavigationBar: CustomBottomNavigationBar(
+            currentIndex: ref.watch(navigationProvider),
+            onTap: (int index) {
+              ref.read(navigationProvider.notifier).state = index;
+            },
+          ),
+          body: SafeArea(
+            child: Column(
+              children: [
+                // Existing BalanceScreen
+                const Expanded(
+                  flex: 4,
+                  child: BalanceScreen(),
+                ),
+                // Existing TransactionList
+                Expanded(
+                  flex: 6,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.sp),
+                    child: Container(
+                      color: Colors.black,
+                      child: const TransactionList(),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
