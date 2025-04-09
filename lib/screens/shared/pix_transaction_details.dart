@@ -1,6 +1,8 @@
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -187,6 +189,8 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
 
   Widget _buildTransactionDetails(WidgetRef ref, EulenTransfer transaction) {
     final status = transaction.status;
+    final currency = ref.read(settingsProvider).currency;
+    final currencyConversionFromUsd = ref.read(selectedCurrencyProviderFromUSD(currency));
 
     // Map status values to display text with internationalization
     String statusText;
@@ -250,8 +254,8 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           value: transaction.provider,
         ),
         TransactionDetailRow(
-          label: "Price in USD".i18n,
-          value: transaction.price.toStringAsFixed(2),
+          label: "Price".i18n,
+          value: currencyFormat(transaction.price * currencyConversionFromUsd, currency),
         ),
       ],
     );

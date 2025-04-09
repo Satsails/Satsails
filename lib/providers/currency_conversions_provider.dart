@@ -72,6 +72,21 @@ final selectedCurrencyProvider = StateProvider.autoDispose.family<double, String
   }
 });
 
+final selectedCurrencyProviderFromUSD = StateProvider.autoDispose.family<double, String>((ref, currency) {
+  final currencyModel = ref.watch(currencyNotifierProvider);
+
+  switch (currency) {
+    case 'USD':
+      return 1;
+    case 'EUR':
+      return currencyModel.usdToEur;
+    case 'BRL':
+      return currencyModel.usdToBrl;
+    default:
+      return 0.0;
+  }
+});
+
 final updateCurrencyProvider = FutureProvider.autoDispose<void>((ref) async {
   final currencyModel = ref.watch(currencyNotifierProvider.notifier);
   final settingsModel = ref.read(settingsProvider.notifier);
