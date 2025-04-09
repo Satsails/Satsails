@@ -246,7 +246,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                   Expanded(
                     child: Text(
                       title,
-                      style: TextStyle(fontSize: 20.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -342,7 +342,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                   Expanded(
                     child: Text(
                       title,
-                      style: TextStyle(fontSize: 20.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
