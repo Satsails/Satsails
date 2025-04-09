@@ -63,7 +63,7 @@ class _ServicesState extends ConsumerState<Services> {
         backgroundColor: Colors.black,
         elevation: 0,
         title: Text(
-          'Services',
+          'Market Data'.i18n,
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,

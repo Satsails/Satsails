@@ -325,10 +325,10 @@ class _ActionCards extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.lightbulb, color: Colors.white, size: 20),
+                          const Icon(Icons.analytics, color: Colors.white, size: 20),
                           SizedBox(width: 8.w),
                           Text(
-                            'Services'.i18n,
+                            'Market data'.i18n,
                             style: TextStyle(
                               fontSize: 16.sp,
                               color: Colors.white,

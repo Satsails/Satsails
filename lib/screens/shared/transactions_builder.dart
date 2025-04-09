@@ -258,11 +258,12 @@ class TransactionList extends ConsumerWidget {
       );
     } else {
 
-      return ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: 4,
-        itemBuilder: (context, index) => itemBuilder(index),
+      return Expanded(
+        child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: 4,
+          itemBuilder: (context, index) => itemBuilder(index),
+        ),
       );
     }
   }
@@ -271,8 +272,6 @@ class TransactionList extends ConsumerWidget {
 
   /// Unified method to build transaction items based on type
   Widget _buildUnifiedTransactionItem(dynamic transaction, BuildContext context, WidgetRef ref) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final dynamicFontSize = screenHeight * 0.015;
 
     Widget transactionItem;
     if (transaction is SideswapPegTransaction) {
@@ -282,7 +281,7 @@ class TransactionList extends ConsumerWidget {
     } else if (transaction is LiquidTransaction) {
       transactionItem = _buildLiquidTransactionItem(transaction, context, ref);
     } else if (transaction is EulenTransaction) {
-      transactionItem = _buildEulenTransactionItem(transaction, context, ref, dynamicFontSize);
+      transactionItem = _buildEulenTransactionItem(transaction, context, ref);
     } else {
       transactionItem = const SizedBox();
     }
@@ -373,7 +372,6 @@ class TransactionList extends ConsumerWidget {
       EulenTransaction transaction,
       BuildContext context,
       WidgetRef ref,
-      double fontSize, // Kept from the original signature
       ) {
     final isConfirmed = transaction.isConfirmed || transaction.pixDetails.status == "expired";
     final statusText = transaction.pixDetails.failed
