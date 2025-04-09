@@ -151,7 +151,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
               }
             },
             dropdownColor: const Color(0xFF212121),
-            style: TextStyle(color: Colors.white, fontSize: 14.sp),
+            style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.bold),
             padding: EdgeInsets.zero,
             borderRadius: const BorderRadius.all(Radius.circular(12.0)),
             icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
@@ -169,7 +169,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
             onChanged: null, // Disable interaction
             padding: EdgeInsets.zero,
             dropdownColor: const Color(0xFF212121),
-            style: TextStyle(color: Colors.white, fontSize: 14.sp),
+            style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.bold),
             borderRadius: const BorderRadius.all(Radius.circular(12.0)),
             icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
             underline: const SizedBox(),
