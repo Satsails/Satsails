@@ -254,7 +254,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
           value: transaction.provider,
         ),
         TransactionDetailRow(
-          label: "Price".i18n,
+          label: "Value purchased in".i18n + currency,
           value: currencyFormat(transaction.price * currencyConversionFromUsd, currency),
         ),
       ],
