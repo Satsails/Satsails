@@ -52,6 +52,7 @@ class Settings extends ConsumerWidget {
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
+          automaticallyImplyLeading: false,
           centerTitle: true,
           title: Text(
             'Settings'.i18n,
