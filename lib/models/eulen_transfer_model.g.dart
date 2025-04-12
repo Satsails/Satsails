@@ -34,13 +34,15 @@ class EulenTransferAdapter extends TypeAdapter<EulenTransfer> {
       transactionType: fields[14] as String,
       provider: fields[15] as String,
       price: fields[16] as double,
+      cashback: fields[17] as double,
+      cashbackPayed: fields[18] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, EulenTransfer obj) {
     writer
-      ..writeByte(17)
+      ..writeByte(19)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -74,7 +76,11 @@ class EulenTransferAdapter extends TypeAdapter<EulenTransfer> {
       ..writeByte(15)
       ..write(obj.provider)
       ..writeByte(16)
-      ..write(obj.price);
+      ..write(obj.price)
+      ..writeByte(17)
+      ..write(obj.cashback)
+      ..writeByte(18)
+      ..write(obj.cashbackPayed);
   }
 
   @override

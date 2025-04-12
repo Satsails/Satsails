@@ -138,18 +138,6 @@ class Home extends ConsumerWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(width: 5),
-              Transform.translate(
-                offset: const Offset(0, -2),
-                child: const Text(
-                  'BETA',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
             ],
           ),
         ],

@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/nox_transfer_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
@@ -58,12 +59,22 @@ Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
     );
   }).toList();
   //
-  final purchases = ref.watch(eulenTransferProvider);
-  final pixPurchases = purchases.map((pixTx) {
+  final eulenPurchases = ref.watch(eulenTransferProvider);
+  final eulenTransactions = eulenPurchases.map((pixTx) {
     return EulenTransaction(
       id: pixTx.id.toString(),
       timestamp: pixTx.createdAt,
-      pixDetails: pixTx,
+      details: pixTx,
+      isConfirmed: pixTx.completed,
+    );
+  }).toList();
+
+  final noxPurchases = ref.watch(noxTransferProvider);
+  final noxTransactions = noxPurchases.map((pixTx) {
+    return NoxTransaction(
+      id: pixTx.id.toString(),
+      timestamp: pixTx.createdAt,
+      details: pixTx,
       isConfirmed: pixTx.completed,
     );
   }).toList();
@@ -75,7 +86,8 @@ Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
       liquidTransactions: liquidTransactions,
       sideswapPegTransactions: sideswapPegTransactions,
       sideswapInstantSwapTransactions: sideswapInstantSwapTransactions,
-      pixPurchaseTransactions: pixPurchases,
+      eulenTransactions: eulenTransactions,
+      noxTransactions: noxTransactions,
     ),
   );
 }

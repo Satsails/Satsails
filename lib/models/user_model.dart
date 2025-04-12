@@ -39,6 +39,12 @@ class UserModel extends StateNotifier<User> {
     box.put('hasUploadedAffiliateCode', hasUploadedAffiliateCode);
     state = state.copyWith(hasUploadedAffiliateCode: hasUploadedAffiliateCode);
   }
+
+  Future<void> setHasUploadedLiquidAddress(bool hasUploadedLiquidAddress) async {
+    final box = await Hive.openBox('user');
+    box.put('hasUploadedLiquidAddress', hasUploadedLiquidAddress);
+    state = state.copyWith(hasUploadedLiquidAddress: hasUploadedLiquidAddress);
+  }
 }
 
 class User {
@@ -46,6 +52,7 @@ class User {
   final String paymentId;
   final String? affiliateCode;
   final bool? hasUploadedAffiliateCode;
+  final bool? hasUploadedLiquidAddress;
   final String jwt;
 
   User({
@@ -53,6 +60,7 @@ class User {
     required this.paymentId,
     required this.affiliateCode,
     this.hasUploadedAffiliateCode,
+    this.hasUploadedLiquidAddress,
     required this.jwt,
   });
 
@@ -61,6 +69,7 @@ class User {
     String? paymentId,
     String? affiliateCode,
     bool? hasUploadedAffiliateCode,
+    bool? hasUploadedLiquidAddress,
     String? jwt,
   }) {
     return User(
@@ -68,6 +77,7 @@ class User {
       paymentId: paymentId ?? this.paymentId,
       affiliateCode: affiliateCode ?? this.affiliateCode,
       hasUploadedAffiliateCode: hasUploadedAffiliateCode ?? this.hasUploadedAffiliateCode,
+      hasUploadedLiquidAddress: hasUploadedLiquidAddress ?? this.hasUploadedLiquidAddress,
       jwt: jwt ?? this.jwt,
     );
   }
@@ -153,6 +163,35 @@ class UserService {
         body: jsonEncode({
           'user': {
             'affiliate_code': affiliateCode,
+          }
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: true);
+      } else {
+        String errorMsg = jsonDecode(response.body)['error'] ?? 'Failed to add affiliate code';
+        return Result(error: errorMsg);
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please try again later');
+    }
+  }
+
+  static Future<Result<bool>> addCashbackAddressCode(String cashbackAddress, String auth) async {
+    try {
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
+
+      final response = await http.post(
+        Uri.parse(dotenv.env['BACKEND']! + '/users/add_cashback_address'),
+        body: jsonEncode({
+          'user': {
+            'liquid_address': cashbackAddress,
           }
         }),
         headers: {

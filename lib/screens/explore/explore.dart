@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -20,6 +22,25 @@ class Explore extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isLoading = ref.watch(isLoadingProvider);
+
+    // Check conditions and call addCashbackProvider on page init
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = ref.read(userProvider);
+      final paymentId = user.paymentId;
+      final hasUploadedLiquidAddress = user.hasUploadedLiquidAddress ?? false;
+
+      if (paymentId.isNotEmpty && !hasUploadedLiquidAddress) {
+        ref.read(addCashbackProvider.future).then((_) {
+          // Successfully added cashback address, no further action needed
+        }).catchError((error) {
+          showMessageSnackBar(
+            message: "Failed to add cashback address: $error".i18n,
+            context: context,
+            error: true,
+          );
+        });
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -53,7 +74,7 @@ class Explore extends ConsumerWidget {
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 19.w),
-                  child: _ActionCards(), // Two separate types of cards
+                  child: _ActionCards(),
                 ),
                 SizedBox(height: 16.h),
               ],
@@ -79,6 +100,8 @@ class _BalanceDisplay extends ConsumerWidget {
     final currency = ref.watch(settingsProvider).currency;
     final totalBtcBalance = ref.watch(totalBalanceInDenominationProvider(denomination));
     final totalBalanceInCurrency = ref.watch(totalBalanceInFiatProvider(currency));
+    final transaction = ref.watch(transactionNotifierProvider); // Adjust provider name if needed
+    final cashbackToReceive = btcInDenominationFormatted(transaction.unpaidCashback, denomination);
 
     return Card(
       color: Colors.grey.shade900,
@@ -111,6 +134,24 @@ class _BalanceDisplay extends ConsumerWidget {
               style: TextStyle(
                 fontSize: 20.sp,
                 color: Colors.grey,
+              ),
+            ),
+            SizedBox(height: 16.h), // Space before cashback
+            Text(
+              'Cashback to receive'.i18n,
+              style: TextStyle(
+                fontSize: 16.sp, // Smaller than original balance title
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              cashbackToReceive,
+              style: TextStyle(
+                fontSize: 20.sp, // Smaller than main balance, matches fiat size
+                color: Colors.white, // Matches main balance color
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
@@ -255,7 +296,7 @@ class _ActionCards extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.shopping_cart,color: Colors.white, size: 20),
+                          Icon(Icons.shopping_cart, color: Colors.white, size: 20),
                           SizedBox(width: 8.w),
                           Text(
                             'Store'.i18n,
@@ -280,11 +321,7 @@ class _ActionCards extends ConsumerWidget {
 }
 
 Future<void> _handleOnPress(
-    WidgetRef ref,
-    BuildContext context,
-    String paymentId,
-    bool buy
-    ) async {
+    WidgetRef ref, BuildContext context, String paymentId, bool buy) async {
   final insertedAffiliateCode = ref.watch(userProvider).affiliateCode ?? '';
   final hasUploadedAffiliateCode = ref.watch(userProvider).hasUploadedAffiliateCode ?? false;
   final recoveryCode = ref.watch(userProvider).recoveryCode;
@@ -292,27 +329,20 @@ Future<void> _handleOnPress(
   ref.read(isLoadingProvider.notifier).state = true;
 
   try {
-    // For new users (no paymentId)
     if (paymentId.isEmpty) {
       await ref.watch(createUserProvider.future);
-
       if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
         await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
-
       await _requestNotificationPermissions();
     } else {
-      // For existing users, consider migrating first if recoveryCode is present.
       if (recoveryCode != null && recoveryCode.isNotEmpty) {
         await ref.read(migrateUserToJwtProvider.future);
       }
-
-      // Then update affiliate code if needed.
       if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
         await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
     }
-
     if (buy) {
       context.push('/home/explore/deposit_type');
     } else {
@@ -329,24 +359,16 @@ Future<void> _handleOnPress(
   }
 }
 
-
 Future<void> _requestNotificationPermissions() async {
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   if (Platform.isAndroid) {
-    final androidPlugin =
-    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+    final androidPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
-
-    // On some newer Android versions you might still need user permission
-    // to display notifications, so we request it if the plugin supports it
     await androidPlugin?.requestNotificationsPermission();
   } else if (Platform.isIOS) {
-    final iosPlugin =
-    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+    final iosPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
         IOSFlutterLocalNotificationsPlugin>();
-
     await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
   }
 }
-
