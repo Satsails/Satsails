@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum DepositType { depix, bitcoin, lightning_bitcoin, usdt }
+enum DepositType { depix, bitcoin, lightningBitcoin, usdt, liquidBitcoin }
 enum DepositMethod { pix, credit_card, big_tech_pay, bank_transfer }
 enum DepositProvider { Eulen, NoxPay, Chimera }
 enum CurrencyDeposit { USD, EUR, BRL, CFH }
@@ -28,9 +28,11 @@ final depositMethodBasedOnTypeProvider = StateProvider<Set<DepositMethod>>((ref)
   switch (depositType) {
     case DepositType.depix:
       return {DepositMethod.pix};
+    case DepositType.liquidBitcoin:
+      return {DepositMethod.pix};
     case DepositType.bitcoin:
       return {DepositMethod.pix};
-    case DepositType.lightning_bitcoin:
+    case DepositType.lightningBitcoin:
       return {DepositMethod.pix};
     case DepositType.usdt:
       return {DepositMethod.pix};
