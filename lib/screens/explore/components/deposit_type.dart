@@ -62,7 +62,7 @@ class DepositTypeScreen extends ConsumerWidget {
               // Mode Selector Dropdown
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade900,
+                  color: const Color(0xFF212121),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -83,7 +83,7 @@ class DepositTypeScreen extends ConsumerWidget {
                     ))
                         .toList(),
                     isExpanded: true,
-                    dropdownColor: Colors.grey.shade900,
+                    dropdownColor: const Color(0xFF212121),
                     icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
                   ),
                 ),
@@ -91,7 +91,7 @@ class DepositTypeScreen extends ConsumerWidget {
               SizedBox(height: 16.h),
               // Main Card with dropdowns and Buy button
               Card(
-                color: Colors.grey.shade900,
+                color: const Color(0xFF212121),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r)),
                 elevation: 4,
@@ -203,7 +203,7 @@ class DepositTypeScreen extends ConsumerWidget {
         SizedBox(height: 8.h),
         Container(
           decoration: BoxDecoration(
-            color: Colors.grey.shade900,
+            color: const Color(0xFF212121),
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: DropdownButtonHideUnderline(
@@ -224,7 +224,7 @@ class DepositTypeScreen extends ConsumerWidget {
               ))
                   .toList(),
               isExpanded: true,
-              dropdownColor: Colors.grey.shade900,
+              dropdownColor: const Color(0xFF212121),
               icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
             ),
           ),
@@ -243,7 +243,7 @@ class ProviderDetails extends ConsumerWidget {
     final details = providerDetails[selectedProvider]!;
 
     return Card(
-      color: Colors.grey.shade900,
+      color: const Color(0xFF212121),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.r), // Revert to original radius
       ),
@@ -256,15 +256,15 @@ class ProviderDetails extends ConsumerWidget {
             'Provider: ${formatEnumName(selectedProvider.name)}'.i18n,
             style: TextStyle(
               color: Colors.white,
-              fontSize: 18.sp,
+              fontSize: 16.sp,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
             ),
           ),
           iconColor: Colors.white,
           collapsedIconColor: Colors.white,
-          backgroundColor: Colors.grey.shade900,
-          collapsedBackgroundColor: Colors.grey.shade900,
+          backgroundColor: const Color(0xFF212121),
+          collapsedBackgroundColor: const Color(0xFF212121),
           children: [
             Padding(
               padding: EdgeInsets.all(20.h),
