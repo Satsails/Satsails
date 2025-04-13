@@ -1,94 +1,51 @@
-import 'package:Satsails/providers/deposit_type_provider.dart' as helpers;
+import 'package:Satsails/helpers/deposit_type_helper.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:icons_plus/icons_plus.dart';
 
-// Providers for state management
-final selectedModeProvider = StateProvider<String>((ref) => 'Purchase from Providers');
-final selectedCurrencyProvider = StateProvider<String?>((ref) => 'BRL');
-final selectedPaymentMethodProvider = StateProvider<String?>((ref) => 'PIX');
 
-class DepositType extends ConsumerStatefulWidget {
-  const DepositType({super.key});
+class DepositTypeScreen extends ConsumerWidget {
+  const DepositTypeScreen({super.key});
 
   @override
-  _DepositTypeState createState() => _DepositTypeState();
-}
-
-class _DepositTypeState extends ConsumerState<DepositType> {
-  // Local state for dropdowns
-  String selectedCurrency = 'BRL';
-  String selectedPaymentMethod = 'PIX';
-  String selectedAsset = 'Depix';
-
-  // Dropdown options
-  final List<String> modes = ['P2P (No KYC)', 'Purchase from Providers'];
-  final List<String> currencies = ['EUR', 'BRL', 'USD', 'CHF', 'GBP'];
-  final List<String> paymentMethods = ['PIX', 'Bank Transfer', 'Apple Pay', 'Google Pay', 'Credit Card'];
-  final List<String> assets = ['Depix', 'Bitcoin', 'Lightning Bitcoin', 'USDT', 'Liquid Bitcoin'];
-
-  // Currency flags (using icons_plus for demo)
-  final Map<String, Widget> currencyFlags = {
-    'EUR': Flag(Flags.european_union),
-    'BRL': Flag(Flags.brazil),
-    'USD': Flag(Flags.united_states_of_america),
-    'CHF': Flag(Flags.switzerland),
-    'GBP': Flag(Flags.united_kingdom),
-  };
-
-  // Payment method icons
-  final Map<String, IconData> paymentMethodIcons = {
-    'PIX': Icons.pix,
-    'Bank Transfer': Icons.account_balance,
-    'Apple Pay': Icons.apple,
-    'Google Pay': Icons.android,
-    'Credit Card': Icons.credit_card,
-  };
-
-  // Asset images (simplified; replace with actual asset paths)
-  Widget getAssetImage(String asset) {
-    const Map<String, String> assetImages = {
-      'Depix': 'lib/assets/depix.png',
-      'Bitcoin': 'lib/assets/bitcoin-logo.png',
-      'Lightning Bitcoin': 'lib/assets/Bitcoin_lightning_logo.png',
-      'USDT': 'lib/assets/tether.png',
-      'Liquid Bitcoin': 'lib/assets/l-btc.png',
-    };
-    return Image.asset(
-      assetImages[asset] ?? 'lib/assets/default.png',
-      width: 28.sp,
-      height: 28.sp,
-      errorBuilder: (context, error, stackTrace) => Icon(Icons.image_not_supported, color: Colors.white, size: 28.sp),
-    );
-  }
-
-  helpers.DepositType getDepositTypeFromAsset(String asset) {
-    switch (asset) {
-      case 'Depix':
-        return helpers.DepositType.depix;
-      case 'Bitcoin':
-        return helpers.DepositType.bitcoin;
-      case 'Lightning Bitcoin':
-        return helpers.DepositType.lightningBitcoin;
-      case 'USDT':
-        return helpers.DepositType.usdt;
-      case 'Liquid Bitcoin':
-        return helpers.DepositType.liquidBitcoin;
-      default:
-        throw Exception('Unknown asset');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final selectedMode = ref.watch(selectedModeProvider);
+    final selectedCurrency = ref.watch(selectedCurrencyProvider);
+    final selectedPaymentMethod = ref.watch(selectedPaymentMethodProvider);
+    final selectedAsset = ref.watch(selectedCryptoTypeProvider);
+    final availablePaymentMethods = ref.watch(availablePaymentMethodsProvider);
+    final availableDepositTypes = ref.watch(availableDepositTypesProvider);
+
+    // Reset selected payment method if invalid
+    if (selectedPaymentMethod != null && !availablePaymentMethods.contains(selectedPaymentMethod)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(selectedPaymentMethodProvider.notifier).state =
+        availablePaymentMethods.isNotEmpty ? availablePaymentMethods.first : null;
+      });
+    }
+
+    // Reset selected deposit type if invalid
+    if (!availableDepositTypes.contains(selectedAsset)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(selectedCryptoTypeProvider.notifier).state =
+        availableDepositTypes.isNotEmpty ? availableDepositTypes.first : DepositType.Bitcoin;
+      });
+    }
+
+    bool isConditionMet = selectedCurrency == CurrencyDeposit.BRL &&
+        selectedPaymentMethod == DepositMethod.PIX &&
+        selectedAsset == DepositType.Depix &&
+        selectedMode == 'Purchase from Providers';
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Deposit Type".i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
+        title: Text(
+          "Deposit Type".i18n,
+          style: TextStyle(
+              color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -115,84 +72,115 @@ class _DepositTypeState extends ConsumerState<DepositType> {
                     onChanged: (value) {
                       if (value != null) {
                         ref.read(selectedModeProvider.notifier).state = value;
-                        setState(() {});
                       }
                     },
-                    items: modes.map((mode) => DropdownMenuItem<String>(
+                    items: ['P2P (No KYC)', 'Purchase from Providers']
+                        .map((mode) => DropdownMenuItem<String>(
                       value: mode,
-                      child: Text(mode, style: TextStyle(color: Colors.white, fontSize: 16.sp)),
-                    )).toList(),
+                      child: Text(mode,
+                          style: TextStyle(
+                              color: Colors.white, fontSize: 16.sp)),
+                    ))
+                        .toList(),
                     isExpanded: true,
                     dropdownColor: Colors.grey.shade900,
                     icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                    borderRadius: BorderRadius.circular(12.r),
                   ),
                 ),
               ),
               SizedBox(height: 16.h),
-              // Card with conditional content
+              // Main Card with dropdowns and Buy button
               Card(
                 color: Colors.grey.shade900,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
                 elevation: 4,
                 child: Padding(
-                  padding: EdgeInsets.all(30.w),
+                  padding: EdgeInsets.all(16.h),
                   child: selectedMode == 'P2P (No KYC)'
                       ? Center(
-                    child: Text(
-                      'Coming soon'.i18n,
-                      style: TextStyle(color: Colors.white, fontSize: 20.sp),
-                    ),
-                  )
+                      child: Text('Coming soon'.i18n,
+                          style: TextStyle(
+                              color: Colors.white, fontSize: 20.sp)))
                       : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Currency Dropdown (Pay in)
+                      // Currency Dropdown
                       _buildDropdown(
                         label: 'Pay in'.i18n,
                         value: selectedCurrency,
-                        items: currencies,
-                        getImage: (currency) => currencyFlags[currency] ?? Icon(Icons.flag, color: Colors.white, size: 28.sp),
-                        onChanged: (value) => setState(() => selectedCurrency = value!),
+                        items: CurrencyDeposit.values,
+                        getImage: (currency) =>
+                        currencyFlags[currency] ??
+                            Icon(Icons.flag,
+                                color: Colors.white, size: 28.sp),
+                        getText: (currency) => currency.name,
+                        onChanged: (value) {
+                          if (value != null) {
+                            ref.read(selectedCurrencyProvider.notifier).state = value;
+                          }
+                        },
                       ),
                       SizedBox(height: 14.h),
-                      // Payment Method Dropdown (Method of payment)
+                      // Payment Method Dropdown
                       _buildDropdown(
                         label: 'Method of payment'.i18n,
-                        value: selectedPaymentMethod,
-                        items: paymentMethods,
-                        getImage: (method) => Icon(paymentMethodIcons[method] ?? Icons.help_outline, color: Colors.white, size: 28.sp),
-                        onChanged: (value) => setState(() => selectedPaymentMethod = value!),
+                        value: availablePaymentMethods.contains(selectedPaymentMethod)
+                            ? selectedPaymentMethod
+                            : null,
+                        items: availablePaymentMethods,
+                        getImage: (method) => Icon(
+                            paymentMethodIcons[method] ?? Icons.help_outline,
+                            color: Colors.white,
+                            size: 28.sp),
+                        getText: (method) => formatEnumName(method.name),
+                        onChanged: (value) {
+                          ref.read(selectedPaymentMethodProvider.notifier).state = value;
+                        },
                       ),
                       SizedBox(height: 14.h),
-                      // Asset Dropdown (Asset to receive)
+                      // Deposit Type Dropdown
                       _buildDropdown(
                         label: 'Asset to receive'.i18n,
-                        value: selectedAsset,
-                        items: assets,
+                        value: availableDepositTypes.contains(selectedAsset)
+                            ? selectedAsset
+                            : null,
+                        items: availableDepositTypes,
                         getImage: getAssetImage,
-                        onChanged: (value) => setState(() => selectedAsset = value!),
+                        getText: (asset) => formatEnumName(asset.name),
+                        onChanged: (value) {
+                          if (value != null) {
+                            ref.read(selectedCryptoTypeProvider.notifier).state = value;
+                          }
+                        },
                       ),
                       SizedBox(height: 32.h),
                       // Buy Button
                       ElevatedButton(
-                        onPressed: () {
-                          ref.read(selectedCurrencyProvider.notifier).state = selectedCurrency;
-                          ref.read(selectedPaymentMethodProvider.notifier).state = selectedPaymentMethod;
-                          final depositType = getDepositTypeFromAsset(selectedAsset);
-                          context.push('/home/explore/deposit_type/deposit_method');
-                        },
+                        onPressed: isConditionMet
+                            ? () {
+                          context.pushNamed('DepositPixEulen');
+                        }
+                            : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                          backgroundColor: isConditionMet ? Colors.green : Colors.grey,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r)),
                           padding: EdgeInsets.symmetric(vertical: 16.h),
                         ),
-                        child: Text('Buy'.i18n, style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                        child: Text(
+                          isConditionMet ? 'Buy'.i18n : 'Coming soon'.i18n,
+                          style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
+              // Provider Details Card (expandable)
+              if (isConditionMet) ...[
+                const ProviderDetails(),
+              ],
             ],
           ),
         ),
@@ -200,39 +188,195 @@ class _DepositTypeState extends ConsumerState<DepositType> {
     );
   }
 
-  Widget _buildDropdown({
+  Widget _buildDropdown<T>({
     required String label,
-    required String value,
-    required List<String> items,
-    required Widget Function(String) getImage,
-    required ValueChanged<String?> onChanged,
+    required T? value,
+    required List<T> items,
+    required Widget Function(T) getImage,
+    required String Function(T) getText,
+    required ValueChanged<T?> onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: TextStyle(color: Colors.grey, fontSize: 14.sp)),
         SizedBox(height: 8.h),
-        DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: value,
-            onChanged: onChanged,
-            items: items.map((item) => DropdownMenuItem<String>(
-              value: item,
-              child: Row(
-                children: [
-                  getImage(item),
-                  SizedBox(width: 8.w),
-                  Text(item, style: TextStyle(color: Colors.white, fontSize: 16.sp)),
-                ],
-              ),
-            )).toList(),
-            isExpanded: true,
-            dropdownColor: Colors.grey.shade900,
-            icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey.shade900,
             borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<T>(
+              value: value,
+              onChanged: onChanged,
+              items: items
+                  .map((item) => DropdownMenuItem<T>(
+                value: item,
+                child: Row(
+                  children: [
+                    getImage(item),
+                    SizedBox(width: 8.w),
+                    Text(getText(item),
+                        style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                  ],
+                ),
+              ))
+                  .toList(),
+              isExpanded: true,
+              dropdownColor: Colors.grey.shade900,
+              icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+            ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class ProviderDetails extends ConsumerWidget {
+  const ProviderDetails({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedProvider = ref.watch(selectedDepositProvider);
+    final details = providerDetails[selectedProvider]!;
+
+    return Card(
+      color: Colors.grey.shade900,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.r), // Revert to original radius
+      ),
+      elevation: 6,
+      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12.r), // Ensure clipping for rounded corners
+        child: ExpansionTile(
+          title: Text(
+            'Provider: ${formatEnumName(selectedProvider.name)}'.i18n,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+          ),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white,
+          backgroundColor: Colors.grey.shade900,
+          collapsedBackgroundColor: Colors.grey.shade900,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(20.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle_outline,
+                        color: Colors.greenAccent,
+                        size: 24.sp,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Advantages'.i18n,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12.h),
+                  ...details.advantages.map(
+                        (advantage) => Padding(
+                      padding: EdgeInsets.only(bottom: 8.h, left: 12.w),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.fiber_manual_record,
+                            color: Colors.greenAccent,
+                            size: 12.sp,
+                          ),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: Text(
+                              advantage,
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14.sp,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  Divider(
+                    color: Colors.grey.shade700,
+                    thickness: 0.5,
+                    indent: 12.w,
+                    endIndent: 12.w,
+                  ),
+                  SizedBox(height: 20.h),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.orangeAccent,
+                        size: 24.sp,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Disadvantages'.i18n,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12.h),
+                  ...details.disadvantages.map(
+                        (disadvantage) => Padding(
+                      padding: EdgeInsets.only(bottom: 8.h, left: 12.w),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.fiber_manual_record,
+                            color: Colors.orangeAccent,
+                            size: 12.sp,
+                          ),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: Text(
+                              disadvantage,
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14.sp,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

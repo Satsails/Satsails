@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -28,6 +27,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
   bool _isLoading = false;
   double _amountToReceive = 0;
   double feePercentage = 0;
+  double cashBack = 0;
   String amountPurchasedToday = '0';
   String registeredTaxId = 'Loading...';
   bool pixPayed = false;
@@ -146,8 +146,8 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
         _pixQRCode = purchase.pixKey;
         _isLoading = false;
         _amountToReceive = purchase.receivedAmount;
-        feePercentage =
-            (1 - (purchase.receivedAmount / purchase.originalAmount)) * 100;
+        feePercentage = (1 - (purchase.receivedAmount / purchase.originalAmount)) * 100;
+        cashBack = purchase.cashback;
       });
     } catch (e) {
       setState(() {
@@ -163,12 +163,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
 
   @override
   Widget build(BuildContext context) {
-    // Watch the currency conversion provider to calculate minimum purchase in BRL.
-    final currencyConversions = ref.watch(currencyNotifierProvider);
-    // Calculate the required BRL amount for 0.001 BTC.
-    final minBtcInBRL =
-    (0.001 / currencyConversions.brlToBtc).toStringAsFixed(2);
-
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -346,6 +340,28 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                                   ),
                                 ],
                               ),
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Cash back'.i18n,
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      color: Colors.grey[400],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    cashBack.toString(),
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      color: Colors.grey[400],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                               SizedBox(height: 10.h),
                               if (!pixPayed)
                                 Row(
@@ -490,31 +506,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 8.h),
-                              // Row 4: Minimum purchase for on-chain BTC conversion.
-                              Row(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.currency_bitcoin,
-                                      color: Colors.grey,
-                                      size: 20.sp),
-                                  SizedBox(width: 8.w),
-                                  Expanded(
-                                    child: Text(
-                                      'Min purchase for on-chain BTC conversion:'
-                                          .i18n +
-                                          ' R\$ $minBtcInBRL',
-                                      style: TextStyle(
-                                        fontSize: 16.sp,
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 16.h),
                             ],
                           ),
                         ),
