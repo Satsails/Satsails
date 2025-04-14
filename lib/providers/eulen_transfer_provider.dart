@@ -53,12 +53,10 @@ final getRegisteredTaxIdProvider = FutureProvider.autoDispose<String>((ref) asyn
   }
 });
 
-final createEulenTransferRequestProvider = FutureProvider.autoDispose.family<EulenTransfer, ({int amount, String? taxId})>((ref, params) async {
+final createEulenTransferRequestProvider = FutureProvider.autoDispose.family<EulenTransfer, int>((ref, amount) async {
   final auth = ref.read(userProvider).jwt!;
   final liquidAddress = await ref.read(liquidAddressProvider.future);
-  // Use params.taxId if provided, otherwise fall back to eulenParams.cpf
-  final taxId = params.taxId;
-  final result = await EulenService.createTransaction(auth, params.amount, liquidAddress.confidential, taxId);
+  final result = await EulenService.createTransaction(auth, amount, liquidAddress.confidential);
   if (result.isSuccess && result.data != null) {
     ref.read(eulenTransferProvider.notifier).mergeTransfer(result.data!);
     return result.data!;
