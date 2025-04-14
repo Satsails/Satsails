@@ -50,6 +50,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                   ),
                 ),
                 backgroundColor: Colors.black,
+                automaticallyImplyLeading: false,
                 centerTitle: true,
                 elevation: 0,
               ),
