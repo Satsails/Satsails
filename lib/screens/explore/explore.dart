@@ -101,7 +101,7 @@ class _BalanceDisplay extends ConsumerWidget {
     final totalBtcBalance = ref.watch(totalBalanceInDenominationProvider(denomination));
     final totalBalanceInCurrency = ref.watch(totalBalanceInFiatProvider(currency));
     final transaction = ref.watch(transactionNotifierProvider); // Adjust provider name if needed
-    final cashbackToReceive = btcInDenominationFormatted(transaction.unpaidCashback, denomination);
+    final cashbackToReceive = btcInDenominationFormatted(transaction.unpaidCashback * 100000000, denomination);
 
     return Card(
       color: Colors.grey.shade900,

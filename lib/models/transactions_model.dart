@@ -176,28 +176,27 @@ class Transaction {
   double get totalCashback {
     final eulenSum = eulenTransactions.fold<double>(
       0.0,
-          (sum, tx) => sum + tx.details.cashback,
+          (sum, tx) => sum + (tx.details.cashback ?? 0.0),
     );
     final noxSum = noxTransactions.fold<double>(
       0.0,
-          (sum, tx) => sum + tx.details.cashback,
+          (sum, tx) => sum + (tx.details.cashback ?? 0.0),
     );
     return eulenSum + noxSum;
   }
 
-  /// Sums up all cashback where cashbackPayed is false from EulenTransaction and NoxTransaction.
   double get unpaidCashback {
     final eulenUnpaidSum = eulenTransactions
-        .where((tx) => !tx.details.cashbackPayed && tx.details.completed)
+        .where((tx) => (tx.details.cashbackPayed ?? false) == false && tx.details.completed)
         .fold<double>(
       0.0,
-          (sum, tx) => sum + tx.details.cashback,
+          (sum, tx) => sum + (tx.details.cashback ?? 0.0),
     );
     final noxUnpaidSum = noxTransactions
-        .where((tx) => !tx.details.cashbackPayed && tx.details.completed)
+        .where((tx) => (tx.details.cashbackPayed ?? false) == false && tx.details.completed)
         .fold<double>(
       0.0,
-          (sum, tx) => sum + tx.details.cashback,
+          (sum, tx) => sum + (tx.details.cashback ?? 0.0),
     );
     return eulenUnpaidSum + noxUnpaidSum;
   }

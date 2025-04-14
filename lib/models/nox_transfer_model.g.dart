@@ -30,11 +30,11 @@ class NoxTransferAdapter extends TypeAdapter<NoxTransfer> {
       paymentMethod: fields[11] as String?,
       to_currency: fields[12] as String?,
       from_currency: fields[13] as String?,
-      transactionType: fields[14] as String,
-      provider: fields[15] as String,
-      price: fields[16] as double,
-      cashback: fields[17] as double,
-      cashbackPayed: fields[18] as bool,
+      transactionType: fields[14] as String?,
+      provider: fields[15] as String?,
+      price: fields[16] as double?,
+      cashback: fields[17] as double?,
+      cashbackPayed: fields[18] as bool?,
     );
   }
 

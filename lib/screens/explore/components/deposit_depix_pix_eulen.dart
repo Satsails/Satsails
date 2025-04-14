@@ -142,7 +142,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
         _isLoading = false;
         _amountToReceive = purchase.receivedAmount;
         feePercentage = (1 - (purchase.receivedAmount / purchase.originalAmount)) * 100;
-        cashBack = purchase.cashback;
+        cashBack = purchase.cashback ?? 0;
       });
     } catch (e) {
       setState(() => _isLoading = false);

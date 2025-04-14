@@ -149,19 +149,19 @@ class EulenTransfer extends HiveObject {
   final String? from_currency;
 
   @HiveField(14)
-  final String transactionType;
+  final String? transactionType;
 
   @HiveField(15)
-  final String provider;
+  final String? provider;
 
   @HiveField(16)
-  final double price;
+  final double? price;
 
   @HiveField(17)
-  final double cashback;
+  final double? cashback;
 
   @HiveField(18)
-  final bool cashbackPayed;
+  final bool? cashbackPayed;
 
   EulenTransfer({
     required this.id,
@@ -205,7 +205,7 @@ class EulenTransfer extends HiveObject {
       transactionType: data['type']?.toString() ?? 'BUY',
       provider: 'Eulen',
       price: double.tryParse(data['price']?.toString() ?? '') ?? 0.0,
-      cashback: double.tryParse(data['cashback_to_pay_user']?.toString() ?? '') ?? 0.0, // Default to 0.0
+      cashback: double.tryParse(data['cashback_to_pay_user_in_bitcoin']?.toString() ?? '') ?? 0.0, // Default to 0.0
       cashbackPayed: data['cashback_payed'] ?? false, // Default to false
     );
   }
