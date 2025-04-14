@@ -163,7 +163,8 @@ class DepositTypeScreen extends ConsumerWidget {
                         }
                             : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: isConditionMet ? Colors.green : Colors.grey,
+                          backgroundColor: Colors.green,
+                          disabledBackgroundColor: Colors.green, // Ensures green color when disabled
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12.r)),
                           padding: EdgeInsets.symmetric(vertical: 16.h),
