@@ -77,7 +77,7 @@ class DepositTypeScreen extends ConsumerWidget {
                     items: ['P2P (No KYC)', 'Purchase from Providers']
                         .map((mode) => DropdownMenuItem<String>(
                       value: mode,
-                      child: Text(mode,
+                      child: Text(mode.i18n,
                           style: TextStyle(
                               color: Colors.white, fontSize: 16.sp)),
                     ))
@@ -305,7 +305,7 @@ class ProviderDetails extends ConsumerWidget {
                           SizedBox(width: 8.w),
                           Expanded(
                             child: Text(
-                              advantage,
+                              advantage.i18n,
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14.sp,
@@ -359,7 +359,7 @@ class ProviderDetails extends ConsumerWidget {
                           SizedBox(width: 8.w),
                           Expanded(
                             child: Text(
-                              disadvantage,
+                              disadvantage.i18n,
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14.sp,

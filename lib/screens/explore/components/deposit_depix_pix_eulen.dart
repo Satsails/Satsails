@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:cpf_cnpj_validator/cnpj_validator.dart';
+import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -22,6 +24,7 @@ class DepositDepixPixEulen extends ConsumerStatefulWidget {
 
 class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
   final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _taxIdController = TextEditingController();
   String _pixQRCode = '';
   bool _isLoading = false;
   double _amountToReceive = 0;
@@ -80,12 +83,14 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
   @override
   void dispose() {
     _amountController.dispose();
+    _taxIdController.dispose();
     _paymentCheckTimer?.cancel();
     super.dispose();
   }
 
   Future<void> _generateQRCode() async {
     final amount = _amountController.text;
+    final rawTaxId = _taxIdController.text.trim();
 
     if (amount.isEmpty) {
       showMessageSnackBar(context: context, message: 'Amount cannot be empty'.i18n, error: true);
@@ -103,10 +108,33 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
       return;
     }
 
+    String? strippedTaxId;
+    if (rawTaxId.isNotEmpty) {
+      final digitsOnly = rawTaxId.replaceAll(RegExp(r'[^0-9]'), '');
+      if (digitsOnly.length == 11) {
+        strippedTaxId = CPFValidator.strip(rawTaxId);
+        if (!CPFValidator.isValid(rawTaxId)) {
+          showMessageSnackBar(context: context, message: 'Invalid CPF'.i18n, error: true);
+          return;
+        }
+      } else if (digitsOnly.length == 14) {
+        strippedTaxId = CNPJValidator.strip(rawTaxId);
+        if (!CNPJValidator.isValid(rawTaxId)) {
+          showMessageSnackBar(context: context, message: 'Invalid CNPJ'.i18n, error: true);
+          return;
+        }
+      } else {
+        showMessageSnackBar(context: context, message: 'Invalid CPF/CNPJ length'.i18n, error: true);
+        return;
+      }
+    }
+
     setState(() => _isLoading = true);
 
     try {
-      final purchase = await ref.read(createEulenTransferRequestProvider(amountInInt).future);
+      final purchase = await ref.read(
+        createEulenTransferRequestProvider((amount: amountInInt, taxId: strippedTaxId)).future,
+      );
       _checkPixPayment(purchase.transactionId);
 
       setState(() {
@@ -154,7 +182,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Amount input section
                 if (_pixQRCode.isEmpty) ...[
                   Text(
                     'Amount'.i18n,
@@ -177,7 +204,44 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                       contentPadding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
                     ),
                   ),
-                  SizedBox(height: 32.h),
+                  SizedBox(height: 16.h),
+                  Card(
+                    color: const Color(0xFF212121),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                    child: ExpansionTile(
+                      title: Text(
+                        'Set a cpf/cnpj to receive from a different account from the registered (optional)'.i18n,
+                        style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
+                      ),
+                      iconColor: Colors.white,
+                      collapsedIconColor: Colors.white,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                          child: TextField(
+                            controller: _taxIdController,
+                            keyboardType: TextInputType.text,
+                            inputFormatters: [
+                              LengthLimitingTextInputFormatter(18),
+                            ],
+                            style: TextStyle(fontSize: 16.sp, color: Colors.white),
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: const Color(0xFF212121),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                                borderSide: BorderSide.none,
+                              ),
+                              contentPadding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+                              hintText: 'Enter CPF or CNPJ'.i18n,
+                              hintStyle: TextStyle(color: Colors.grey[400]),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
                   ElevatedButton(
                     onPressed: _generateQRCode,
                     style: ElevatedButton.styleFrom(
@@ -205,7 +269,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                               SizedBox(width: 8.w),
                               Expanded(
                                 child: Text(
-                                  'Transfer limit: R\$ 6000'.i18n,
+                                  'Transfer limit: R\$ 5000 per CPF/CNPJ'.i18n,
                                   style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -231,7 +295,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                               SizedBox(width: 8.w),
                               Expanded(
                                 child: Text(
-                                  'Registered Tax id: $registeredTaxId'.i18n,
+                                  'Registered Tax id: '.i18n + '$registeredTaxId'.i18n,
                                   style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -242,8 +306,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                     ),
                   ),
                 ],
-
-                // QR Code section (centered with black background)
                 if (_pixQRCode.isNotEmpty && !pixPayed) ...[
                   SizedBox(height: 24.h),
                   Center(
@@ -253,8 +315,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                   buildAddressText(_pixQRCode, context, ref),
                   SizedBox(height: 24.h),
                 ],
-
-                // Success indicator
                 if (pixPayed) ...[
                   SizedBox(height: 24.h),
                   Center(
@@ -273,8 +333,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                   ),
                   SizedBox(height: 24.h),
                 ],
-
-                // Payment details
                 if (_pixQRCode.isNotEmpty)
                   Card(
                     color: const Color(0xFF212121),
@@ -315,8 +373,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                       ),
                     ),
                   ),
-
-                // Loading indicator
                 if (_isLoading)
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 24.h),
@@ -327,7 +383,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                       ),
                     ),
                   ),
-
                 SizedBox(height: 24.h),
                 Center(
                   child: TextButton(
