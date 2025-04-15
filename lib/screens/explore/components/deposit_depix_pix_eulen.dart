@@ -189,7 +189,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                     ),
                     child: Text(
                       'Generate QR Code'.i18n,
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      style: TextStyle(color: Colors.black, fontSize: 16.sp),
                     ),
                   ),
                   SizedBox(height: 24.h),

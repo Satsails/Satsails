@@ -172,7 +172,7 @@ class DepositTypeScreen extends ConsumerWidget {
                         ),
                         child: Text(
                           isConditionMet ? 'Buy'.i18n : 'Coming soon'.i18n,
-                          style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                          style: TextStyle(color: Colors.black, fontSize: 16.sp),
                         ),
                       ),
                     ],
