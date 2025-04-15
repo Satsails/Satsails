@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:Satsails/handlers/response_handlers.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -17,73 +18,56 @@ class NoxTransferNotifier extends StateNotifier<List<NoxTransfer>> {
     return state.firstWhere((purchase) => purchase.id == id, orElse: () => NoxTransfer.empty());
   }
 
-  /// **Loads purchases from Hive & sets up a listener**
   Future<void> _loadPurchases() async {
     final box = await Hive.openBox<NoxTransfer>('noxTransfersBox');
-
-    // **Listen for real-time updates in Hive**
     box.watch().listen((event) => _updateTransfers());
-
-    // **Initial state update**
     _updateTransfers();
   }
 
-  /// **Updates the provider's state with the latest purchases**
   void _updateTransfers() {
     final box = Hive.box<NoxTransfer>('noxTransfersBox');
     final purchases = box.values.toList();
-
-    // **Sort purchases by `createdAt` (newest first)**
     purchases.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
     state = purchases;
   }
 
-  /// **Merge a single purchase into Hive and update state**
   Future<void> mergeTransfer(NoxTransfer serverData) async {
     final box = Hive.box<NoxTransfer>('noxTransfersBox');
-
-    // Get the existing purchase if it exists
     final existingPurchase = box.get(serverData.id);
 
-    // If no existing purchase, add the new one directly
     if (existingPurchase == null) {
       await box.put(serverData.id, serverData);
       _updateTransfers();
       return;
     }
 
-    // **Merge updated fields** (ensure no data is lost)
     final updatedPurchase = existingPurchase.copyWith(
       transactionId: serverData.transactionId,
       originalAmount: serverData.originalAmount,
       completed: serverData.completed,
       failed: serverData.failed,
-      userId: serverData.userId ?? existingPurchase.userId,
-      createdAt: existingPurchase.createdAt ?? serverData.createdAt,
+      userId: serverData.userId ?? existingPurchase?.userId,
+      createdAt: existingPurchase?.createdAt ?? serverData.createdAt,
       updatedAt: serverData.updatedAt,
       receivedAmount: serverData.receivedAmount,
-      status: serverData.status ?? existingPurchase.status,
-      paymentMethod: serverData.paymentMethod ?? existingPurchase.paymentMethod,
-      to_currency: serverData.to_currency ?? existingPurchase.to_currency,
-      from_currency: serverData.from_currency ?? existingPurchase.from_currency,
+      status: serverData.status ?? existingPurchase?.status,
+      paymentMethod: serverData.paymentMethod ?? existingPurchase?.paymentMethod,
+      to_currency: serverData.to_currency ?? existingPurchase?.to_currency,
+      from_currency: serverData.from_currency ?? existingPurchase?.from_currency,
       transactionType: serverData.transactionType,
       price: serverData.price,
+      cashback: serverData.cashback,
+      cashbackPayed: serverData.cashbackPayed,
     );
 
-    // If the purchase has **no changes**, skip saving
     if (existingPurchase == updatedPurchase) {
       return;
     }
 
-    // Save the updated purchase
     await box.put(serverData.id, updatedPurchase);
-
-    // Update state
     _updateTransfers();
   }
 
-  /// **Merge a list of purchases, ensuring updates only when necessary**
   Future<void> mergePurchases(List<NoxTransfer> serverDatas) async {
     final box = Hive.box<NoxTransfer>('noxTransfersBox');
 
@@ -95,19 +79,20 @@ class NoxTransferNotifier extends StateNotifier<List<NoxTransfer>> {
         originalAmount: serverData.originalAmount,
         completed: serverData.completed,
         failed: serverData.failed,
-        userId: serverData.userId ?? existingPurchase.userId,
-        createdAt: existingPurchase.createdAt ?? serverData.createdAt,
+        userId: serverData.userId ?? existingPurchase?.userId,
+        createdAt: existingPurchase?.createdAt ?? serverData.createdAt,
         updatedAt: serverData.updatedAt,
         receivedAmount: serverData.receivedAmount,
-        status: serverData.status ?? existingPurchase.status,
-        paymentMethod: serverData.paymentMethod ?? existingPurchase.paymentMethod,
-        to_currency: serverData.to_currency ?? existingPurchase.to_currency,
-        from_currency: serverData.from_currency ?? existingPurchase.from_currency,
+        status: serverData.status ?? existingPurchase?.status,
+        paymentMethod: serverData.paymentMethod ?? existingPurchase?.paymentMethod,
+        to_currency: serverData.to_currency ?? existingPurchase?.to_currency,
+        from_currency: serverData.from_currency ?? existingPurchase?.from_currency,
         transactionType: serverData.transactionType,
         price: serverData.price,
+        cashback: serverData.cashback,
+        cashbackPayed: serverData.cashbackPayed,
       ) ?? serverData;
 
-      // Save only if changes exist
       if (existingPurchase == null || existingPurchase != updatedPurchase) {
         await box.put(serverData.id, updatedPurchase);
       }
@@ -123,35 +108,55 @@ class NoxTransfer extends HiveObject {
   final int id;
 
   @HiveField(1)
-  final String transactionId; // formerly transferId
+  final String transactionId;
+
   @HiveField(2)
   final double originalAmount;
+
   @HiveField(3)
   final bool completed;
+
   @HiveField(4)
   final bool failed;
+
   @HiveField(5)
   final int? userId;
+
   @HiveField(6)
   final DateTime createdAt;
+
   @HiveField(7)
   final DateTime updatedAt;
+
   @HiveField(8)
   final double receivedAmount;
+
   @HiveField(10)
   final String? status;
+
   @HiveField(11)
   final String? paymentMethod;
+
   @HiveField(12)
   final String? to_currency;
+
   @HiveField(13)
   final String? from_currency;
+
   @HiveField(14)
-  final String transactionType; // e.g., "BUY" or "SELL"
+  final String? transactionType;
+
   @HiveField(15)
-  final String provider; // e.g. "Nox"
+  final String? provider;
+
   @HiveField(16)
-  final double price; // e.g. "Nox"
+  final double? price;
+
+  @HiveField(17)
+  final double? cashback;
+
+  @HiveField(18)
+  final bool? cashbackPayed;
 
   NoxTransfer({
     required this.id,
@@ -170,6 +175,8 @@ class NoxTransfer extends HiveObject {
     this.transactionType = 'BUY',
     this.provider = 'Nox',
     this.price = 0.0,
+    this.cashback = 0.0, // Default to 0.0
+    this.cashbackPayed = false, // Default to false
   });
 
   factory NoxTransfer.fromJson(Map<String, dynamic> json) {
@@ -191,6 +198,8 @@ class NoxTransfer extends HiveObject {
       transactionType: data['type']?.toString() ?? 'BUY',
       provider: 'Nox',
       price: double.tryParse(data['price']?.toString() ?? '') ?? 0.0,
+      cashback: double.tryParse(data['cashback_to_pay_user_in_bitcoin']?.toString() ?? '') ?? 0.0, // Default to 0.0
+      cashbackPayed: data['cashback_payed'] ?? false, // Default to false
     );
   }
 
@@ -210,9 +219,11 @@ class NoxTransfer extends HiveObject {
     String? transactionType,
     String? provider,
     double? price,
+    double? cashback,
+    bool? cashbackPayed,
   }) {
     return NoxTransfer(
-      id: id,
+      id: this.id,
       transactionId: transactionId ?? this.transactionId,
       originalAmount: originalAmount ?? this.originalAmount,
       completed: completed ?? this.completed,
@@ -228,6 +239,8 @@ class NoxTransfer extends HiveObject {
       transactionType: transactionType ?? this.transactionType,
       provider: provider ?? this.provider,
       price: price ?? this.price,
+      cashback: cashback ?? this.cashback,
+      cashbackPayed: cashbackPayed ?? this.cashbackPayed,
     );
   }
 
@@ -248,16 +261,16 @@ class NoxTransfer extends HiveObject {
     transactionType: 'BUY',
     provider: 'Nox',
     price: 0.0,
+    cashback: 0.0, // Default to 0.0
+    cashbackPayed: false, // Default to false
   );
 }
 
 class NoxService {
-  /// Creates a new Nox transaction (purchase or sale).
   static Future<Result<String>> createTransaction(String auth, String quoteId, String address, {String transactionType = 'BUY'}) async {
     try {
-      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final response = await http.post(
-        Uri.parse('${dotenv.env['BACKEND']!}/nox_transfers'),
+        Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers'),
         body: jsonEncode({
           'transfer': {
             'quote_id': quoteId,
@@ -268,7 +281,6 @@ class NoxService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -283,18 +295,14 @@ class NoxService {
     }
   }
 
-  /// Retrieves a list of Nox transactions.
   static Future<Result<List<NoxTransfer>>> getTransfers(String auth) async {
     try {
-      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
-      final uri = Uri.parse('${dotenv.env['BACKEND']!}/nox_transfers');
-
+      final uri = Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers');
       final response = await http.get(
         uri,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -315,9 +323,7 @@ class NoxService {
   static Future<Result<NoxTransfer>> getQuote(
       String auth, String fromCurrency, String toCurrency, String amount) async {
     try {
-      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
-      // Build the URI with query parameters for from_currency, to_currency, and value_set_to_receive.
-      final uri = Uri.parse('${dotenv.env['BACKEND']!}/nox_transfers/quote')
+      final uri = Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers/quote')
           .replace(queryParameters: {
         'from_currency': fromCurrency,
         'to_currency': toCurrency,
@@ -329,7 +335,6 @@ class NoxService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -342,5 +347,4 @@ class NoxService {
       return Result(error: 'An error has occurred. Please try again later');
     }
   }
-
 }

@@ -1,4 +1,4 @@
-import 'package:Satsails/providers/deposit_type_provider.dart' as helpers;
+import 'package:Satsails/helpers/deposit_type_helper.dart' as helpers;
 import 'package:Satsails/helpers/swap_helpers.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -121,6 +121,4 @@ class _SellOption extends StatelessWidget {
 }
 
 void handleBitcoinSelection(BuildContext context, WidgetRef ref) {
-  ref.read(helpers.depositTypeProvider.notifier).state = helpers.DepositType.bitcoin;
-  context.push('/home/explore/deposit_type/deposit_method');
 }

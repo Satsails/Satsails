@@ -12,14 +12,14 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class PixTransactionDetails extends ConsumerStatefulWidget {
-  const PixTransactionDetails({super.key});
+class EulenTransactionDetails extends ConsumerStatefulWidget {
+  const EulenTransactionDetails({super.key});
 
   @override
-  _PixTransactionDetailsState createState() => _PixTransactionDetailsState();
+  _EulenTransactionDetailsState createState() => _EulenTransactionDetailsState();
 }
 
-class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
+class _EulenTransactionDetailsState extends ConsumerState<EulenTransactionDetails> {
   @override
   Widget build(BuildContext context) {
     final transaction = ref.watch(singleEulenTransfersDetailsProvider);
@@ -118,7 +118,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
         Icon(statusIcon, color: statusColor, size: 40.w),
         SizedBox(height: 8.h),
         Text(
-          transaction.transactionType.i18n,
+          transaction.transactionType?.i18n ?? 'Unknown'.i18n,
           style: TextStyle(
             fontSize: 18.sp,
             fontWeight: FontWeight.bold,
@@ -230,7 +230,7 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
         ),
         TransactionDetailRow(
           label: "Transaction Type".i18n,
-          value: transaction.transactionType.i18n,
+          value: transaction.transactionType?.i18n ?? 'Unknown'.i18n,
         ),
         TransactionDetailRow(
           label: "From".i18n,
@@ -251,11 +251,11 @@ class _PixTransactionDetailsState extends ConsumerState<PixTransactionDetails> {
         ),
         TransactionDetailRow(
           label: "Provider".i18n,
-          value: transaction.provider,
+          value: transaction.provider ?? "N/A",
         ),
         TransactionDetailRow(
           label: "Value purchased in".i18n + currency,
-          value: currencyFormat(transaction.price * currencyConversionFromUsd, currency),
+          value: currencyFormat(transaction.price ?? 0 * currencyConversionFromUsd, currency),
         ),
       ],
     );

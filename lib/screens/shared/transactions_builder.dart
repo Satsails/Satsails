@@ -373,17 +373,17 @@ class TransactionList extends ConsumerWidget {
       BuildContext context,
       WidgetRef ref,
       ) {
-    final isConfirmed = transaction.isConfirmed || transaction.pixDetails.status == "expired";
-    final statusText = transaction.pixDetails.failed
+    final isConfirmed = transaction.isConfirmed || transaction.details.status == "expired";
+    final statusText = transaction.details.failed
         ? "Failed".i18n
-        : transaction.pixDetails.completed
+        : transaction.details.completed
         ? "Completed".i18n
         : "Pending".i18n;
-    final status = transaction.pixDetails.status;
+    final status = transaction.details.status;
 
-    final type = transaction.pixDetails.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
-    final title = "${transaction.pixDetails.paymentMethod} $type";
-    final amount = transaction.pixDetails.receivedAmount.toString();
+    final type = transaction.details.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
+    final title = "${transaction.details.paymentMethod} $type";
+    final amount = transaction.details.receivedAmount.toString();
     final formattedDate = DateFormat('d, MMMM, HH:mm').format(transaction.timestamp);
 
     // Check if the transaction is failed or expired
@@ -391,7 +391,7 @@ class TransactionList extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
-        ref.read(selectedEulenTransferIdProvider.notifier).state = transaction.pixDetails.id;
+        ref.read(selectedEulenTransferIdProvider.notifier).state = transaction.details.id;
         context.pushNamed('pix_transaction_details');
       },
       behavior: HitTestBehavior.opaque,
@@ -454,7 +454,7 @@ class TransactionList extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            "$amount ${transaction.pixDetails.from_currency}",
+                            "$amount ${transaction.details.from_currency}",
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.bold,
@@ -462,7 +462,7 @@ class TransactionList extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            '${transaction.pixDetails.price} USD',
+                            '${transaction.details.price} USD',
                             style: TextStyle(
                               fontSize: 12.sp,
                               color: Colors.grey[400],

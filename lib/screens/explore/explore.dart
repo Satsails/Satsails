@@ -4,6 +4,7 @@ import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
@@ -23,6 +24,25 @@ class Explore extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isLoading = ref.watch(isLoadingProvider);
+
+    // Check conditions and call addCashbackProvider on page init
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = ref.read(userProvider);
+      final paymentId = user.paymentId;
+      final hasUploadedLiquidAddress = user.hasUploadedLiquidAddress ?? false;
+
+      if (paymentId.isNotEmpty && !hasUploadedLiquidAddress) {
+        ref.read(addCashbackProvider.future).then((_) {
+          // Successfully added cashback address, no further action needed
+        }).catchError((error) {
+          showMessageSnackBar(
+            message: "Failed to add cashback address: $error".i18n,
+            context: context,
+            error: true,
+          );
+        });
+      }
+    });
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -109,6 +129,8 @@ class _BalanceDisplay extends ConsumerWidget {
     final lightningBalance = btcInDenominationFormatted(ref
         .watch(balanceNotifierProvider)
         .lightningBalance ?? 0, denomination);
+    final transaction = ref.watch(transactionNotifierProvider); // Adjust provider name if needed
+    final cashbackToReceive = btcInDenominationFormatted(transaction.unpaidCashback * 100000000, denomination);
 
     return Card(
       color: Colors.grey.shade900,
@@ -158,6 +180,23 @@ class _BalanceDisplay extends ConsumerWidget {
                   color: const Color(0xFF003399),
                   label: 'EURx'.i18n,
                   balance: euroBalance.toString(),
+                ),
+                Text(
+                  'Cashback to receive'.i18n,
+                  style: TextStyle(
+                    fontSize: 16.sp, // Smaller than original balance title
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  cashbackToReceive,
+                  style: TextStyle(
+                    fontSize: 20.sp, // Smaller than main balance, matches fiat size
+                    color: Colors.white, // Matches main balance color
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -403,23 +442,17 @@ Future<void> _handleOnPress(
   ref.read(isLoadingProvider.notifier).state = true;
 
   try {
-    // For new users (no paymentId)
     if (paymentId.isEmpty) {
       await ref.watch(createUserProvider.future);
-
       await _requestNotificationPermissions();
     } else {
-      // For existing users, consider migrating first if recoveryCode is present.
       if (recoveryCode != null && recoveryCode.isNotEmpty) {
         await ref.read(migrateUserToJwtProvider.future);
       }
-
-      // Then update affiliate code if needed.
       if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
         await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
       }
     }
-
     if (buy) {
       context.push('/home/explore/deposit_type');
     } else {
@@ -440,18 +473,12 @@ Future<void> _requestNotificationPermissions() async {
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   if (Platform.isAndroid) {
-    final androidPlugin =
-    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+    final androidPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
-
-    // On some newer Android versions you might still need user permission
-    // to display notifications, so we request it if the plugin supports it
     await androidPlugin?.requestNotificationsPermission();
   } else if (Platform.isIOS) {
-    final iosPlugin =
-    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+    final iosPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
         IOSFlutterLocalNotificationsPlugin>();
-
     await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
   }
 }

@@ -3,9 +3,7 @@ import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/screens/shared/peg_details.dart';
 import 'package:Satsails/screens/explore/components/deposit_bitcoin_pix_nox.dart';
-import 'package:Satsails/screens/explore/components/deposit_method.dart';
 import 'package:Satsails/screens/explore/components/deposit_depix_pix_eulen.dart';
-import 'package:Satsails/screens/explore/components/deposit_provider.dart';
 import 'package:Satsails/screens/explore/components/deposit_type.dart';
 import 'package:Satsails/screens/explore/components/sell_type.dart';
 import 'package:Satsails/screens/explore/explore.dart';
@@ -18,7 +16,7 @@ import 'package:Satsails/screens/shared/affiliate_screen.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
 import 'package:go_router/go_router.dart';
-import 'package:Satsails/screens/shared/pix_transaction_details.dart';
+import 'package:Satsails/screens/shared/eulen_transaction_details.dart';
 import 'package:Satsails/screens/home/main_screen.dart';
 import 'package:Satsails/screens/creation/start.dart';
 import 'package:Satsails/screens/pay/components/confirm_liquid_payment.dart';
@@ -289,13 +287,6 @@ class AppRouter {
               ],
             ),
             GoRoute(
-              path: '/deposit_type',
-              pageBuilder: (context, state) => _buildFadeScalePage(
-                child: const DepositType(),
-                state: state,
-              ),
-            ),
-            GoRoute(
               path: '/receive',
               pageBuilder: (context, state) => _buildFadeScalePage(
                 child: const Receive(),
@@ -319,42 +310,25 @@ class AppRouter {
                 GoRoute(
                   path: 'deposit_type',
                   pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: const DepositType(),
+                    child: DepositTypeScreen(),
                     state: state,
                   ),
                   routes: [
-                    GoRoute(
-                      path: 'deposit_method',
-                      pageBuilder: (context, state) => _buildFadeScalePage(
-                        child: const DepositMethod(),
-                        state: state,
-                      ),
-                      routes: [
-                        GoRoute(
-                          path: 'deposit_provider',
-                          pageBuilder: (context, state) => _buildFadeScalePage(
-                            child: const DepositProvider(),
-                            state: state,
-                          ),
-                          routes: [
-                            GoRoute(
-                              path: 'deposit_pix_eulen',
-                              pageBuilder: (context, state) => _buildFadeScalePage(
-                                child: const DepositDepixPixEulen(),
-                                state: state,
-                              ),
-                            ),
-                            GoRoute(
-                              path: 'deposit_pix_nox',
-                              pageBuilder: (context, state) => _buildFadeScalePage(
-                                child: const DepositBitcoinPixNox(),
-                                state: state,
-                              ),
-                            ),
-                          ],
+                      GoRoute(
+                        path: '/deposit_pix_eulen',
+                        name: 'DepositPixEulen',
+                        pageBuilder: (context, state) => _buildFadeScalePage(
+                          child: DepositDepixPixEulen(),
+                          state: state,
                         ),
-                      ],
-                    ),
+                      ),
+                      GoRoute(
+                        path: 'deposit_pix_nox',
+                        pageBuilder: (context, state) => _buildFadeScalePage(
+                          child: DepositBitcoinPixNox(),
+                          state: state,
+                        ),
+                      ),
                   ],
                 ),
               ],
@@ -403,7 +377,7 @@ class AppRouter {
           path: '/pix_transaction_details',
           name: 'pix_transaction_details',
           pageBuilder: (context, state) => _buildFadeScalePage(
-            child: const PixTransactionDetails(),
+            child: const EulenTransactionDetails(),
             state: state,
           ),
         ),

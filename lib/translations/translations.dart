@@ -2328,8 +2328,8 @@ extension Localization on String {
       }
       +
       {
-        'en': "Transfer limit: R\$ 6000",
-        'pt': "Limite de Transferência: R\$ 6000",
+        'en': "Transfer limit: R\$ 5000 per CPF/CNPJ",
+        'pt': "Limite de Transferência: R\$ 5000 por CPF/CNPJ",
       }
       +
       {
@@ -2437,6 +2437,70 @@ extension Localization on String {
       {
         'en': "Address is invalid",
         'pt': "Endereço inválido"
+      }+
+      {
+        'en': "Cashback to receive",
+        'pt': "Cashback a receber",
+      }+
+      {
+        'en': "Purchase from Providers",
+        'pt': "Comprar de fornecedores",
+      }+
+      {
+        'en': "P2P (No KYC)",
+        'pt': "P2P (Sem KYC)",
+      }+
+      {
+        'en': "Pay in",
+        'pt': "Pagar em",
+      }+
+      {
+        'en': "Method of payment",
+        'pt': "Método de pagamento",
+      }+
+      {
+        'en': "Asset to receive",
+        'pt': "Receber em",
+      }+
+      {
+        'en': "Cashback available",
+        'pt': "Cashback disponível",
+      }+
+      {
+        'en': "Advantages",
+        'pt': "Vantagens",
+      }+
+      {
+        'en': "Disadvantages",
+        'pt': "Desvantagens",
+      }+
+      {
+        'en': "Provider: Eulen",
+        'pt': "Fornecedor: Eulen",
+      }+
+      {
+        'en': "Set a cpf/cnpj to receive from a different account from the registered (optional)",
+        'pt': "Defina um CPF/CNPJ para receber de uma conta diferente da registrada (opcional)",
+      }+
+      {
+        'en': "Cashback in bitcoin",
+        'pt': "Cashback em Bitcoin",
+      }+
+      {
+        'en': "Invalid CNPJ",
+        'pt': "CNPJ inválido",
+      }+
+      {
+        'en': "Invalid CPF",
+        'pt': "CPF inválido",
+      }+
+      {
+        'en': "Invalid CPF/CNPJ lenght",
+        'pt': "Tamanho inválido do CPF/CNPJ",
+      }+
+      {
+        'en': "Invalid bank account number",
+        'pt': "Número de conta bancária inválido",
       };
 
   String get i18n => localize(this, _t);

@@ -1,6 +1,7 @@
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/models/user_model.dart';
+import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
@@ -14,12 +15,14 @@ final initializeUserProvider = FutureProvider<User>((ref) async {
   final hasUploadedAffiliateCode = box.get('hasUploadedAffiliateCode', defaultValue: false);
   final jwt = await _storage.read(key: 'backendJwt') ?? '';
   final recoveryCode = await _storage.read(key: 'recoveryCode') ?? '';
+  final hasUploadedLiquidAddress = box.get('hasUploadedLiquidAddress', defaultValue: false);
 
   return User(
     recoveryCode: recoveryCode,
     paymentId: paymentId,
     affiliateCode: affiliateCode,
     hasUploadedAffiliateCode: hasUploadedAffiliateCode ?? false,
+    hasUploadedLiquidAddress: hasUploadedLiquidAddress ?? false,
     jwt: jwt,
   );
 });
@@ -34,6 +37,7 @@ final userProvider = StateNotifierProvider<UserModel, User>((ref) {
       recoveryCode: '',
       paymentId: '',
       jwt: '',
+      hasUploadedLiquidAddress: false,
       hasUploadedAffiliateCode: false,
     ),
     error: (Object error, StackTrace stackTrace) {
@@ -51,6 +55,19 @@ final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>
     ref.read(userProvider.notifier).setHasUploadedAffiliateCode(true);
   } else {
     ref.read(userProvider.notifier).setAffiliateCode('');
+    throw result.error!;
+  }
+});
+
+final addCashbackProvider = FutureProvider.autoDispose<bool>((ref) async {
+  final auth = ref.read(userProvider).jwt!;
+  final cashbackAddress = await ref.read(liquidAddressProvider.future);
+  final result = await UserService.addCashbackAddressCode(cashbackAddress.confidential, auth);
+
+  if (result.isSuccess && result.data == true) {
+    ref.read(userProvider.notifier).setHasUploadedLiquidAddress(true);
+    return result.data!;
+  } else {
     throw result.error!;
   }
 });
@@ -79,6 +96,7 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
     if (affiliateCodeFromLink.isNotEmpty) {
       await ref.read(addAffiliateCodeProvider(affiliateCodeFromLink).future);
     }
+    await ref.read(addCashbackProvider.future);
   } else {
     throw result.error!;
   }
@@ -95,6 +113,7 @@ final migrateUserToJwtProvider = FutureProvider.autoDispose<void>((ref) async {
     ref.read(userProvider.notifier).setJwt(result.data!);
     ref.read(userProvider.notifier).setRecoveryCode('');
     await FirebaseService.storeTokenOnbackend();
+    await ref.read(addCashbackProvider.future);
   } else {
     throw result.error!;
   }
