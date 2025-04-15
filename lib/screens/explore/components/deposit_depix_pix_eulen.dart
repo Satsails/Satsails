@@ -315,7 +315,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 24.h),
                     child: Center(
-                      child: LoadingAnimationWidget.threeArchedCircle(
+                      child: LoadingAnimationWidget.fourRotatingDots(
                         size: 0.1.sh,
                         color: Colors.orange,
                       ),

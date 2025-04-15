@@ -254,7 +254,7 @@ class _EulenTransactionDetailsState extends ConsumerState<EulenTransactionDetail
           value: transaction.provider ?? "N/A",
         ),
         TransactionDetailRow(
-          label: "Value purchased in".i18n + currency,
+          label: "Value purchased in".i18n + ' ' + currency,
           value: currencyFormat(transaction.price ?? 0 * currencyConversionFromUsd, currency),
         ),
       ],

@@ -49,8 +49,8 @@ class _TransactionsState extends ConsumerState<Transactions> {
         case 'Liquid':
           filteredTransactions = transactionState.filterLiquidTransactions(dateRange);
           break;
-        case 'Pix Purchases':
-          filteredTransactions = transactionState.filterPixPurchases(dateRange);
+        case 'Purchases and Sales':
+          filteredTransactions = transactionState.buyAndSell(dateRange);
           break;
         case 'Swaps':
           filteredTransactions = transactionState.filterSwapTransactions();
@@ -181,11 +181,11 @@ class _TransactionsState extends ConsumerState<Transactions> {
                               ),
                             ),
                             PopupMenuItem<String>(
-                              value: 'Pix Purchases',
+                              value: 'Purchases and Sales',
                               child: Text(
-                                'Pix Purchases',
+                                'Purchases and Sales',
                                 style: TextStyle(
-                                  color: _selectedFilter == 'Pix Purchases' ? Colors.orange : Colors.white,
+                                  color: _selectedFilter == 'Purchases and Sales' ? Colors.orange : Colors.white,
                                 ),
                               ),
                             ),

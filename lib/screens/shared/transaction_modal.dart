@@ -78,7 +78,6 @@ void showFullscreenExchangeModal({
 }
 
 class ReceiveTransactionOverlay extends ConsumerStatefulWidget {
-
   const ReceiveTransactionOverlay({
     super.key,
     required this.amount,
@@ -107,7 +106,7 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
   void initState() {
     super.initState();
 
-    // Initialize an animation controller for a "pop" effect
+    // Set up the animation controller for the checkmark "pop" effect
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -118,7 +117,7 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
       curve: Curves.easeOutBack,
     );
 
-    // Delay, then show the checkmark + vibrate
+    // Trigger the checkmark animation and vibration after a 500ms delay
     Future.delayed(const Duration(milliseconds: 500), () {
       setState(() {
         checked = true;
@@ -141,105 +140,105 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
 
   String getFiatSymbol(String asset) {
     final upper = asset.toUpperCase();
-
-    if (upper.contains('DEPIX')) {
-      return 'R\$'; // Brazilian Real
-    } else if (upper.contains('EUROX') || upper.contains('EURX')) {
-      return '€';   // Euro
-    } else if (upper.contains('USDT')) {
-      return '\$';  // US Dollar
-    }
-    // Default fallback (could be $ or something else)
-    return '\$';
+    if (upper.contains('DEPIX')) return 'R\$'; // Brazilian Real
+    if (upper.contains('EUROX') || upper.contains('EURX')) return '€'; // Euro
+    if (upper.contains('USDT')) return '\$'; // US Dollar
+    return '\$'; // Default fallback
   }
 
-
-  /// Returns the full display text for the amount,
-  /// e.g. "R\$100" for DEPIX, or "€50" for EUROX, etc.
   String get displayAmount {
-    // If it's fiat, use [fiatAmount] and prefix the correct symbol
     if (widget.fiat && widget.fiatAmount != null && widget.asset != null) {
       final symbol = getFiatSymbol(widget.asset!);
       return '$symbol${widget.fiatAmount}';
-    } else {
-      // Otherwise, show the plain crypto or numeric value
-      return widget.amount;
     }
+    return widget.amount;
   }
-
   @override
   Widget build(BuildContext context) {
     final assetName = widget.asset ?? '';
 
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ScaleTransition(
-            scale: _scaleAnimation,
-            child: MSHCheckbox(
-              size: 100,
-              value: checked,
-              colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
-                checkedColor: Colors.green,
-                uncheckedColor: Colors.white,
-                disabledColor: Colors.grey,
-              ),
-              style: MSHCheckboxStyle.stroke,
-              duration: const Duration(milliseconds: 500),
-              onChanged: (_) {},
-            ),
-          ),
-          SizedBox(height: 20.h),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.easeInOut,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: checked ? Colors.greenAccent.withOpacity(0.3) : Colors.transparent,
-                    width: checked ? 1.5 : 0,
-                  ),
-                ),
-                child: getAssetImage(assetName, width: 100.sp, height: 100.sp),
-              ),
-              SizedBox(width: 8.h),
-              Text(
-                displayAmount, // The amount received (Fiat or Crypto)
-                style: TextStyle(
-                  fontSize: 48.sp,
-                  color: Colors.green,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10.h),
-          if (assetName.isNotEmpty)
-            AnimatedOpacity(
-              opacity: checked ? 1.0 : 0.5, // Fade-in effect
-              duration: const Duration(milliseconds: 500),
-              child: Text(
-                assetName,
-                style: TextStyle(
-                  fontSize: 40.sp,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey,
-                  letterSpacing: 0.8,
-                  shadows: [
-                    Shadow(
-                      color: checked ? Colors.green.withOpacity(0.4) : Colors.transparent,
-                      blurRadius: 10,
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Asset icon and name (only if provided)
+            if (assetName.isNotEmpty)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: checked ? Colors.greenAccent.withOpacity(0.3) : Colors.transparent,
+                        width: checked ? 1.5 : 0,
+                      ),
                     ),
-                  ],
+                    child: getAssetImage(assetName, width: 24.sp, height: 24.sp),
+                  ),
+                  SizedBox(width: 8.w),
+                  AnimatedOpacity(
+                    opacity: checked ? 1.0 : 0.5,
+                    duration: const Duration(milliseconds: 500),
+                    child: Text(
+                      assetName,
+                      style: TextStyle(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        letterSpacing: 0.8,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            if (assetName.isNotEmpty) SizedBox(height: 20.h),
+            // Animated checkmark
+            ScaleTransition(
+              scale: _scaleAnimation,
+              child: MSHCheckbox(
+                size: 100,
+                value: checked,
+                colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
+                  checkedColor: Colors.green,
+                  uncheckedColor: Colors.white,
+                  disabledColor: Colors.grey,
                 ),
-                textAlign: TextAlign.center,
+                style: MSHCheckboxStyle.stroke,
+                duration: const Duration(milliseconds: 500),
+                onChanged: (_) {},
               ),
             ),
-        ],
+            SizedBox(height: 20.h),
+            // Transaction amount
+            Text(
+              displayAmount,
+              style: TextStyle(
+                fontSize: 40.sp,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 10.h), // Adds spacing between amount and new text
+            // New translatable text
+            Text(
+              'Payment successfully received'.i18n,
+              style: TextStyle(
+                fontSize: 18.sp,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -18,6 +18,49 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 final isLoadingProvider = StateProvider<bool>((ref) => false);
 
+class _CashbackDisplay extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final denomination = ref.watch(settingsProvider).btcFormat;
+    final transaction = ref.watch(transactionNotifierProvider);
+    final cashbackToReceive = btcInDenominationFormatted(
+      transaction.unpaidCashback * 100000000,
+      denomination,
+    );
+
+    return Card(
+      color: Colors.grey.shade900,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 2,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Cashback to receive'.i18n,
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(width: 8.w),
+            Text(
+              cashbackToReceive,
+              style: TextStyle(
+                fontSize: 20.sp,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class Explore extends ConsumerWidget {
   const Explore({super.key});
 
@@ -33,7 +76,7 @@ class Explore extends ConsumerWidget {
 
       if (paymentId.isNotEmpty && !hasUploadedLiquidAddress) {
         ref.read(addCashbackProvider.future).then((_) {
-          // Successfully added cashback address, no further action needed
+          // Successfully added cashback address
         }).catchError((error) {
           showMessageSnackBar(
             message: "Failed to add cashback address: $error".i18n,
@@ -82,10 +125,20 @@ class Explore extends ConsumerWidget {
                       child: _BalanceDisplay(),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.sp),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.sp,
+                        vertical: 8.h,
+                      ),
+                      child: _CashbackDisplay(),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.sp,
+                        vertical: 8.h,
+                      ),
                       child: const _ActionCards(),
                     ),
-                    SizedBox(height: 16.h),
+                    // Removed SizedBox(height: 16.h) to maintain equal spacing
                   ],
                 ),
               ),
@@ -107,30 +160,20 @@ class Explore extends ConsumerWidget {
 class _BalanceDisplay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final denomination = ref
-        .watch(settingsProvider)
-        .btcFormat;
+    final denomination = ref.watch(settingsProvider).btcFormat;
 
-    final depixBalance = fiatInDenominationFormatted(ref
-        .watch(balanceNotifierProvider)
-        .brlBalance);
-    final usdBalance = fiatInDenominationFormatted(ref
-        .watch(balanceNotifierProvider)
-        .usdBalance);
-    final euroBalance = fiatInDenominationFormatted(ref
-        .watch(balanceNotifierProvider)
-        .eurBalance);
-    final btcBalance = btcInDenominationFormatted(ref
-        .watch(balanceNotifierProvider)
-        .btcBalance, denomination);
-    final liquidBalance = btcInDenominationFormatted(ref
-        .watch(balanceNotifierProvider)
-        .liquidBalance, denomination);
-    final lightningBalance = btcInDenominationFormatted(ref
-        .watch(balanceNotifierProvider)
-        .lightningBalance ?? 0, denomination);
-    final transaction = ref.watch(transactionNotifierProvider); // Adjust provider name if needed
-    final cashbackToReceive = btcInDenominationFormatted(transaction.unpaidCashback * 100000000, denomination);
+    final depixBalance = fiatInDenominationFormatted(
+        ref.watch(balanceNotifierProvider).brlBalance);
+    final usdBalance = fiatInDenominationFormatted(
+        ref.watch(balanceNotifierProvider).usdBalance);
+    final euroBalance = fiatInDenominationFormatted(
+        ref.watch(balanceNotifierProvider).eurBalance);
+    final btcBalance = btcInDenominationFormatted(
+        ref.watch(balanceNotifierProvider).btcBalance, denomination);
+    final liquidBalance = btcInDenominationFormatted(
+        ref.watch(balanceNotifierProvider).liquidBalance, denomination);
+    final lightningBalance = btcInDenominationFormatted(
+        ref.watch(balanceNotifierProvider).lightningBalance ?? 0, denomination);
 
     return Card(
       color: Colors.grey.shade900,
@@ -180,23 +223,6 @@ class _BalanceDisplay extends ConsumerWidget {
                   color: const Color(0xFF003399),
                   label: 'EURx'.i18n,
                   balance: euroBalance.toString(),
-                ),
-                Text(
-                  'Cashback to receive'.i18n,
-                  style: TextStyle(
-                    fontSize: 16.sp, // Smaller than original balance title
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  cashbackToReceive,
-                  style: TextStyle(
-                    fontSize: 20.sp, // Smaller than main balance, matches fiat size
-                    color: Colors.white, // Matches main balance color
-                    fontWeight: FontWeight.bold,
-                  ),
                 ),
               ],
             ),
@@ -272,6 +298,56 @@ class _BalanceDisplay extends ConsumerWidget {
       ),
     );
   }
+}
+
+Widget _buildBalanceRow({
+  required String imagePath,
+  required Color color,
+  required String label,
+  required String balance,
+}) {
+  return Expanded(
+    child: Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(6.w),
+          child: ClipOval(
+            child: Image.asset(
+              imagePath,
+              width: 24.sp,
+              height: 24.sp,
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+        SizedBox(width: 5.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                balance,
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _ActionCards extends ConsumerWidget {
@@ -360,12 +436,17 @@ class _ActionCards extends ConsumerWidget {
                     aspectRatio: 1.2,
                     child: Container(
                       alignment: Alignment.center,
-                      child: Row(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.analytics, color: Colors.white, size: 20),
-                          SizedBox(width: 8.w),
+                          Image.asset(
+                            'lib/assets/Ice-Logo.png',
+                            width: 90.sp,
+                            height: 90.sp,
+                            fit: BoxFit.contain,
+                          ),
+                          SizedBox(height: 8.w),
                           Text(
                             'Market data'.i18n,
                             style: TextStyle(
@@ -401,12 +482,18 @@ class _ActionCards extends ConsumerWidget {
                     aspectRatio: 1.2,
                     child: Container(
                       alignment: Alignment.center,
-                      child: Row(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.shopping_cart, color: Colors.white, size: 20),
-                          SizedBox(width: 8.w),
+                          Image.asset(
+                            'lib/assets/bitrefill.png',
+                            width: 90.sp,
+                            height: 90.sp,
+                            fit: BoxFit.contain,
+                            color: Colors.white,
+                          ),
+                          SizedBox(height: 8.w),
                           Text(
                             'Store'.i18n,
                             style: TextStyle(

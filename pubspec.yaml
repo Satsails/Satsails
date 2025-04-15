@@ -89,6 +89,8 @@ flutter:
   assets:
     - lib/assets/app_icon.png
     - lib/assets/satsails.png
+    - lib/assets/Ice-Logo.png
+    - lib/assets/bitrefill.png
     - lib/assets/initialLogo.svg
     - lib/assets/nox.svg
     - lib/assets/satsails.svg

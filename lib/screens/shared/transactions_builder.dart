@@ -382,7 +382,7 @@ class TransactionList extends ConsumerWidget {
     final status = transaction.details.status;
 
     final type = transaction.details.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
-    final title = "${transaction.details.paymentMethod} $type";
+    final title = "${transaction.details.to_currency} $type";
     final amount = transaction.details.receivedAmount.toString();
     final formattedDate = DateFormat('d, MMMM, HH:mm').format(transaction.timestamp);
 

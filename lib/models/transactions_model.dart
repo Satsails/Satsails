@@ -177,8 +177,15 @@ class Transaction {
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
-  List<EulenTransaction> filterPixPurchases(DateTimeSelect range) {
-    return eulenTransactions.where((tx) {
+  List<BaseTransaction> buyAndSell(DateTimeSelect range) {
+    // Combine eulenTransactions and noxTransactions
+    List<BaseTransaction> buyAndSellTxs = [
+      ...eulenTransactions,
+      ...noxTransactions,
+    ];
+
+    // Filter by date range and sort by timestamp descending
+    return buyAndSellTxs.where((tx) {
       return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(range.start * 1000)) &&
           tx.timestamp.isBefore(DateTime.fromMillisecondsSinceEpoch(range.end * 1000));
     }).toList()
