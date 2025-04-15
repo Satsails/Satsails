@@ -1,5 +1,6 @@
 import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
+import 'package:Satsails/models/nox_transfer_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
@@ -47,12 +48,23 @@ class LiquidTransaction extends BaseTransaction {
 }
 
 class EulenTransaction extends BaseTransaction {
-  final EulenTransfer pixDetails;
+  final EulenTransfer details;
 
   EulenTransaction({
     required String id,
     required DateTime timestamp,
-    required this.pixDetails,
+    required this.details,
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp);
+}
+
+class NoxTransaction extends BaseTransaction {
+  final NoxTransfer details;
+
+  NoxTransaction({
+    required String id,
+    required DateTime timestamp,
+    required this.details,
     required bool isConfirmed,
   }) : super(id: id, timestamp: timestamp);
 }
@@ -84,14 +96,16 @@ class Transaction {
   final List<LiquidTransaction> liquidTransactions;
   final List<SideswapPegTransaction> sideswapPegTransactions;
   final List<SideswapInstantSwapTransaction> sideswapInstantSwapTransactions;
-  final List<EulenTransaction> pixPurchaseTransactions;
+  final List<EulenTransaction> eulenTransactions;
+  final List<NoxTransaction> noxTransactions;
 
   Transaction({
     required this.bitcoinTransactions,
     required this.liquidTransactions,
     required this.sideswapPegTransactions,
     required this.sideswapInstantSwapTransactions,
-    required this.pixPurchaseTransactions,
+    required this.eulenTransactions,
+    required this.noxTransactions,
   });
 
   Transaction copyWith({
@@ -99,14 +113,16 @@ class Transaction {
     List<LiquidTransaction>? liquidTransactions,
     List<SideswapPegTransaction>? sideswapPegTransactions,
     List<SideswapInstantSwapTransaction>? sideswapInstantSwapTransactions,
-    List<EulenTransaction>? pixPurchaseTransactions,
+    List<EulenTransaction>? eulenTransactions,
+    List<NoxTransaction>? noxTransactions,
   }) {
     return Transaction(
       bitcoinTransactions: bitcoinTransactions ?? this.bitcoinTransactions,
       liquidTransactions: liquidTransactions ?? this.liquidTransactions,
       sideswapPegTransactions: sideswapPegTransactions ?? this.sideswapPegTransactions,
       sideswapInstantSwapTransactions: sideswapInstantSwapTransactions ?? this.sideswapInstantSwapTransactions,
-      pixPurchaseTransactions: pixPurchaseTransactions ?? this.pixPurchaseTransactions,
+      eulenTransactions: eulenTransactions ?? this.eulenTransactions,
+      noxTransactions: noxTransactions ?? this.noxTransactions
     );
   }
 
@@ -157,13 +173,42 @@ class Transaction {
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
+  double get totalCashback {
+    final eulenSum = eulenTransactions.fold<double>(
+      0.0,
+          (sum, tx) => sum + (tx.details.cashback ?? 0.0),
+    );
+    final noxSum = noxTransactions.fold<double>(
+      0.0,
+          (sum, tx) => sum + (tx.details.cashback ?? 0.0),
+    );
+    return eulenSum + noxSum;
+  }
+
+  double get unpaidCashback {
+    final eulenUnpaidSum = eulenTransactions
+        .where((tx) => (tx.details.cashbackPayed ?? false) == false && tx.details.completed)
+        .fold<double>(
+      0.0,
+          (sum, tx) => sum + (tx.details.cashback ?? 0.0),
+    );
+    final noxUnpaidSum = noxTransactions
+        .where((tx) => (tx.details.cashbackPayed ?? false) == false && tx.details.completed)
+        .fold<double>(
+      0.0,
+          (sum, tx) => sum + (tx.details.cashback ?? 0.0),
+    );
+    return eulenUnpaidSum + noxUnpaidSum;
+  }
+
   factory Transaction.empty() {
     return Transaction(
       bitcoinTransactions: [],
       liquidTransactions: [],
       sideswapPegTransactions: [],
       sideswapInstantSwapTransactions: [],
-      pixPurchaseTransactions: [],
+      eulenTransactions: [],
+      noxTransactions: [],
     );
   }
 }

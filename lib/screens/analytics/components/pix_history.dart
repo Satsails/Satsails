@@ -11,9 +11,9 @@ class PixHistory extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final pixHistory = ref.watch(transactionNotifierProvider).pixPurchaseTransactions;
+    final pixHistory = ref.watch(transactionNotifierProvider).eulenTransactions;
 
-    pixHistory.sort((a, b) => b.pixDetails.createdAt.compareTo(a.pixDetails.createdAt));
+    pixHistory.sort((a, b) => b.details.createdAt.compareTo(a.details.createdAt));
 
     return ListView.builder(
       itemCount: pixHistory.length,
@@ -28,32 +28,32 @@ class PixHistory extends ConsumerWidget {
           ),
           child: InkWell(
             onTap: () {
-              ref.read(selectedEulenTransferIdProvider.notifier).state = pix.pixDetails.id;
+              ref.read(selectedEulenTransferIdProvider.notifier).state = pix.details.id;
               context.push('/pix_transaction_details');
             },
             child: ListTile(
               leading: Icon(
-                pix.pixDetails.failed
+                pix.details.failed
                     ? Icons.error_rounded
-                    : pix.pixDetails.completed
+                    : pix.details.completed
                     ? Icons.check_circle_rounded
                     : Icons.arrow_downward_rounded,
-                color: pix.pixDetails.failed
+                color: pix.details.failed
                     ? Colors.red
-                    : pix.pixDetails.completed
+                    : pix.details.completed
                     ? Colors.green
                     : Colors.orange,
               ),
               title: Text(
-                pix.pixDetails.failed
+                pix.details.failed
                     ? "Transaction failed".i18n
-                    : pix.pixDetails.completed
-                    ? "${"Received".i18n} ${pix.pixDetails.receivedAmount % 1 == 0 ? pix.pixDetails.receivedAmount.toInt() : pix.pixDetails.receivedAmount.toStringAsFixed(3)}"
+                    : pix.details.completed
+                    ? "${"Received".i18n} ${pix.details.receivedAmount % 1 == 0 ? pix.details.receivedAmount.toInt() : pix.details.receivedAmount.toStringAsFixed(3)}"
                     : "Pending payment".i18n,
                 style: TextStyle(
-                  color: pix.pixDetails.failed
+                  color: pix.details.failed
                       ? Colors.red
-                      : pix.pixDetails.completed
+                      : pix.details.completed
                       ? Colors.green
                       : Colors.orange,
                 ),
@@ -63,13 +63,13 @@ class PixHistory extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (pix.pixDetails.completed)
+                    if (pix.details.completed)
                       Text(
                         "Completed".i18n,
                         style: const TextStyle(color: Colors.green),
                       ),
                     Text(
-                      DateFormat('yyyy-MM-dd HH:mm').format(pix.pixDetails.createdAt.toLocal()),
+                      DateFormat('yyyy-MM-dd HH:mm').format(pix.details.createdAt.toLocal()),
                       style: const TextStyle(color: Colors.grey),
                     ),
                   ],

@@ -48,18 +48,6 @@ class Start extends ConsumerWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(width: 5),
-                          Transform.translate(
-                            offset: const Offset(0, -1),
-                            child: Text(
-                              'BETA',
-                              style: TextStyle(
-                                fontSize: screenWidth * 0.03,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                       Text(
