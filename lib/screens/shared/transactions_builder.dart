@@ -227,10 +227,10 @@ class TransactionList extends ConsumerWidget {
                 if (!showAll)
                   TextButton(
                     onPressed: () {
-                      ref.read(navigationProvider.notifier).state = 3;
+                      context.pushNamed('transactions');
                     },
-                    child: const Text(
-                      'See all',
+                    child: Text(
+                      'See all transactions'.i18n,
                       style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),

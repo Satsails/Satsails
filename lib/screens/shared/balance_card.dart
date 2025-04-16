@@ -58,7 +58,7 @@ class SimplifiedExpensesGraph extends StatelessWidget {
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  graphColor,
+                  graphColor.withOpacity(0.4),
                   Colors.transparent,
                 ],
                 begin: Alignment.topCenter,

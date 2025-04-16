@@ -32,9 +32,8 @@ class MainScreen extends ConsumerWidget {
       0: Home(),
       1: Accounts(),
       2: Exchange(),
-      3: Transactions(),
-      4: Explore(),
-      5: Settings(),
+      3: Explore(),
+      4: Settings(),
     };
     return screens[index] ?? const Home();
   }

@@ -11,8 +11,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:upgrader/upgrader.dart';
 
-// Assuming ScreenUtil is used for .sp units
-
 class BalanceScreen extends StatefulWidget {
   const BalanceScreen({super.key});
 
@@ -43,7 +41,10 @@ class _BalanceScreenState extends State<BalanceScreen> {
       {'name': 'EURx', 'color': const Color(0xFF003399)},
     ];
     // Set "Bitcoin network" for Bitcoin, "Liquid network" for others
-    _selectedFilters = _assets.map((asset) => asset['name'] == 'Bitcoin' ? 'Bitcoin network' : 'Liquid network').toList();
+    _selectedFilters = _assets
+        .map((asset) =>
+    asset['name'] == 'Bitcoin' ? 'Bitcoin network' : 'Liquid network')
+        .toList();
     _controller = PageController(
       viewportFraction: 0.9,
       initialPage: 0,
@@ -59,9 +60,8 @@ class _BalanceScreenState extends State<BalanceScreen> {
   void _updateController(int page) {
     if (page == _assets.length - 1) {
       if (_controller.viewportFraction != 0.95) {
-        _controller.dispose(); // Dispose of the old controller
         _controller = PageController(
-          viewportFraction: 0.98,
+          viewportFraction: 0.95,
           initialPage: page,
         );
         setState(() {});
@@ -77,7 +77,6 @@ class _BalanceScreenState extends State<BalanceScreen> {
       }
     } else {
       if (_controller.viewportFraction != 0.9) {
-        _controller.dispose(); // Dispose of the old controller
         _controller = PageController(
           viewportFraction: 0.9,
           initialPage: page,
@@ -114,104 +113,103 @@ class _BalanceScreenState extends State<BalanceScreen> {
     );
   }
 
+  /// Builds the dropdown widget for the current asset
+  Widget _buildDropdown(int index) {
+    return Container(
+      width: 220.sp, // Reduced width for a slightly smaller dropdown
+      height: 40.sp, // Height kept the same, sufficient for content
+      child: DropdownButton<String>(
+        value: _selectedFilters[index],
+        items: (_assets[index]['name'] == 'Bitcoin'
+            ? [
+          'Bitcoin network',
+          'Liquid network',
+          'Lightning network',
+        ]
+            : ['Liquid network'])
+            .map((network) {
+          return DropdownMenuItem<String>(
+            value: network,
+            child: Container(
+              width: 200.sp, // Reduced width for dropdown items
+              child: _buildNetworkRow(network),
+            ),
+          );
+        }).toList(),
+        onChanged: _assets[index]['name'] == 'Bitcoin'
+            ? (String? newValue) {
+          if (newValue != null) {
+            setState(() {
+              _selectedFilters[index] = newValue;
+            });
+          }
+        }
+            : null, // Disable interaction for non-Bitcoin assets
+        dropdownColor: const Color(0xFF212121),
+        style: TextStyle(
+            color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.bold),
+        padding: EdgeInsets.symmetric(horizontal: 10.sp),
+        borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+        icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
+        underline: const SizedBox(),
+        isExpanded: true, // Ensures the dropdown button fills the container
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return PageView.builder(
-      itemCount: _assets.length,
-      controller: _controller,
-      clipBehavior: Clip.none,
-      padEnds: false,
-      onPageChanged: (int page) {
-        setState(() {
-          currentPage = page;
-        });
-        _updateController(page);
-      },
-      itemBuilder: (context, index) {
-        // Define the dropdown widget based on the asset
-        Widget dropdown;
-        if (_assets[index]['name'] == 'Bitcoin') {
-          dropdown = DropdownButton<String>(
-            value: _selectedFilters[index],
-            items: [
-              'Bitcoin network',
-              'Liquid network',
-              'Lightning network',
-            ].map((network) {
-              return DropdownMenuItem<String>(
-                value: network,
-                child: _buildNetworkRow(network),
-              );
-            }).toList(),
-            onChanged: (String? newValue) {
-              if (newValue != null) {
-                setState(() {
-                  _selectedFilters[index] = newValue;
-                });
-              }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        // Static dropdown at the top
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 18.sp, vertical: 8.sp),
+          child: _buildDropdown(currentPage),
+        ),
+        // PageView for cards
+        Expanded(
+          child: PageView.builder(
+            itemCount: _assets.length,
+            controller: _controller,
+            clipBehavior: Clip.none,
+            padEnds: false,
+            onPageChanged: (int page) {
+              setState(() {
+                currentPage = page;
+              });
+              _updateController(page);
             },
-            dropdownColor: const Color(0xFF212121),
-            style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.bold),
-            padding: EdgeInsets.zero,
-            borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-            icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
-            underline: const SizedBox(),
-          );
-        } else {
-          dropdown = DropdownButton<String>(
-            value: _selectedFilters[index],
-            items: [
-              DropdownMenuItem<String>(
-                value: 'Liquid network',
-                child: _buildNetworkRow('Liquid network'),
-              ),
-            ],
-            onChanged: null, // Disable interaction
-            padding: EdgeInsets.zero,
-            dropdownColor: const Color(0xFF212121),
-            style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.bold),
-            borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-            icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
-            underline: const SizedBox(),
-          );
-        }
-
-        return Padding(
-          padding: EdgeInsets.only(left: 18.sp),
-          child: SizedBox(
-            height: 200.sp,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0.sp),
-                      child: dropdown,
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 0.25.sh,
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: 10.sp),
-                    child: BalanceCard(
-                      assetName: _assets[index]['name'] as String,
-                      color: _assets[index]['color'] as Color,
-                      networkFilter: _selectedFilters[index],
-                    ),
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: EdgeInsets.only(left: 18.sp),
+                child: SizedBox(
+                  height: 200.sp,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        height: 0.25.sh,
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: 10.sp),
+                          child: BalanceCard(
+                            assetName: _assets[index]['name'] as String,
+                            color: _assets[index]['color'] as Color,
+                            networkFilter: _selectedFilters[index],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 }
-
 
 class Home extends ConsumerWidget {
   const Home({super.key});

@@ -15,6 +15,7 @@ import 'package:Satsails/screens/pay/components/confirm_liquid_asset_payment.dar
 import 'package:Satsails/screens/shared/affiliate_screen.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
+import 'package:Satsails/screens/transactions/transactions.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/screens/shared/eulen_transaction_details.dart';
 import 'package:Satsails/screens/home/main_screen.dart';
@@ -344,6 +345,14 @@ class AppRouter {
               path: 'settings',
               pageBuilder: (context, state) => _buildFadeScalePage(
                 child: const Settings(),
+                state: state,
+              ),
+            ),
+            GoRoute(
+              path: '/transactions',
+              name: 'transactions',
+              pageBuilder: (context, state) => _buildFadeScalePage(
+                child: const Transactions(),
                 state: state,
               ),
             ),
