@@ -68,6 +68,7 @@ class Settings extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (showCoinosMigration) _buildCoinosMigrationSection(context, ref),
               _buildChatWithSupportSection(context, ref),
               _buildRateAppSection(context, ref),
               _buildSeedSection(context, ref),
@@ -76,7 +77,6 @@ class Settings extends ConsumerWidget {
               _buildBitcoinUnitSection(ref, context),
               _buildElectrumNodeSection(context, ref),
               _buildAffiliateSection(context, ref),
-              if (showCoinosMigration) _buildCoinosMigrationSection(context, ref),
               _buildBlockExplorerSection(context, ref),
               DeleteWalletSection(ref: ref),
             ],
@@ -470,7 +470,7 @@ class Settings extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Custodial Lightning Warning'.i18n,
+                  'Lightning Migration Warning'.i18n,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18.sp,
