@@ -16,10 +16,10 @@ class Services extends ConsumerStatefulWidget {
 
 class _ServicesState extends ConsumerState<Services> {
   late WebViewController _webViewController;
-  String _currentTitle = 'Dashboards';
   bool _isLoading = true;
   String _currentUrl = 'https://bitcoincounterflow.com/satsails/dashboards-iframe';
   int _selectedIndex = 0; // Track selected item
+  String _currentTitle = 'Dashboards'; // Track current title
 
   @override
   void initState() {
@@ -164,10 +164,11 @@ class _ServicesState extends ConsumerState<Services> {
     };
 
     return Drawer(
+      backgroundColor: Colors.transparent, // Set transparent to avoid default grey
       child: Container(
         decoration: BoxDecoration(
-          color: Color(0x333333).withOpacity(0.4),
-          borderRadius: BorderRadius.only(
+          color: const Color(0xFF212121), // Desired semi-transparent color
+          borderRadius: const BorderRadius.only(
             topRight: Radius.circular(15.0),
             bottomRight: Radius.circular(15.0),
           ),
@@ -177,7 +178,7 @@ class _ServicesState extends ConsumerState<Services> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Color(0x333333).withOpacity(0.4),
+                color: const Color(0xFF212121), // Match header to drawer
               ),
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.h),

@@ -10,7 +10,7 @@ PODS:
   - Crisp (2.8.2):
     - Crisp/Crisp (= 2.8.2)
   - Crisp/Crisp (2.8.2)
-  - crisp_chat (2.2.4):
+  - crisp_chat (2.2.5):
     - Crisp (~> 2.8.2)
     - Flutter
   - device_info_plus (0.0.1):
@@ -303,7 +303,7 @@ SPEC CHECKSUMS:
   boltz: 6388ec2412f3753b63a9e65c97f87ea26f43bddc
   BranchSDK: a12f9aa63d7ba562fdff5509d4aed081f1098ec0
   Crisp: 6747c96b2b2c2a81babf1eaecd1688a65d98edd4
-  crisp_chat: 3cd3aedf7ff8ebed6822b05a8fae8f14920db259
+  crisp_chat: c2cfeeafbbda0d36465128982ba121b227755c5a
   device_info_plus: 71ffc6ab7634ade6267c7a93088ed7e4f74e5896
   Firebase: 9f574c08c2396885b5e7e100ed4293d956218af9
   firebase_app_check: 870914f655d2b63c776373c80b9d53635b42e7d3

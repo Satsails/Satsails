@@ -146,7 +146,7 @@ class TransactionList extends ConsumerWidget {
 
     final buyButton = GestureDetector(
       onTap: () {
-        ref.read(navigationProvider.notifier).state = 4;
+        ref.read(navigationProvider.notifier).state = 3;
       },
       child: Container(
         decoration: BoxDecoration(
