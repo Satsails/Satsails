@@ -38,7 +38,7 @@ class SimplifiedExpensesGraph extends StatelessWidget {
     final minY = spots.isNotEmpty ? spots.map((s) => s.y).reduce((a, b) => a < b ? a : b) : 0.0;
     final maxY = spots.isNotEmpty ? spots.map((s) => s.y).reduce((a, b) => a > b ? a : b) : 1.0;
 
-    final graphColor = Color(0xFF212121);
+    final graphColor = Color(0xFF212121).withOpacity(1);
 
     return LineChart(
       LineChartData(
@@ -58,7 +58,7 @@ class SimplifiedExpensesGraph extends StatelessWidget {
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  graphColor.withOpacity(0.3),
+                  graphColor,
                   Colors.transparent,
                 ],
                 begin: Alignment.topCenter,
@@ -324,7 +324,7 @@ class BalanceCard extends ConsumerWidget {
               context.push('/home/pay', extra: 'liquid_asset');
             }
           },
-          icon: Icon(Icons.arrow_upward, color: Color(0xFF212121), size: 28.w, weight: 700),
+          icon: Icon(Icons.arrow_upward, color: Colors.black, size: 28.w, weight: 700),
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
         ),
         IconButton(
@@ -332,7 +332,7 @@ class BalanceCard extends ConsumerWidget {
             ref.read(selectedNetworkTypeProvider.notifier).state = networkFilter;
             context.push('/home/receive');
           },
-          icon: Icon(Icons.arrow_downward, color: Color(0xFF212121), size: 28.w, weight: 700),
+          icon: Icon(Icons.arrow_downward, color: Colors.black, size: 28.w, weight: 700),
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
         ),
       ],
@@ -468,7 +468,7 @@ class BalanceCard extends ConsumerWidget {
               right: 16.w,
               child: Icon(
                 Icons.touch_app,
-                color: Color(0xFF212121),
+                color: Colors.black,
                 size: 28.sp,
               ),
             ),

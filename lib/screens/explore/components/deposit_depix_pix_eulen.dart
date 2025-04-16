@@ -194,7 +194,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                   ),
                   SizedBox(height: 24.h),
                   Card(
-                    color: const Color(0xFF212121),
+                    color: const Color(0x333333).withOpacity(0.4),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                     child: Padding(
                       padding: EdgeInsets.all(16.h),
@@ -273,7 +273,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                 ],
                 if (_pixQRCode.isNotEmpty)
                   Card(
-                    color: const Color(0xFF212121),
+                    color: const Color(0x333333).withOpacity(0.4),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                     child: Padding(
                       padding: EdgeInsets.all(16.h),
@@ -289,7 +289,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                             width: double.infinity,
                             padding: EdgeInsets.symmetric(vertical: 16.h),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF212121),
+                              color: const Color(0x333333).withOpacity(0.4),
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Text(

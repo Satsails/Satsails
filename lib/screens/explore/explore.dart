@@ -29,7 +29,7 @@ class _CashbackDisplay extends ConsumerWidget {
     );
 
     return Card(
-      color: Colors.grey.shade900,
+      color: Color(0x333333).withOpacity(0.4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 2,
       child: Padding(
@@ -176,7 +176,7 @@ class _BalanceDisplay extends ConsumerWidget {
         ref.watch(balanceNotifierProvider).lightningBalance ?? 0, denomination);
 
     return Card(
-      color: Colors.grey.shade900,
+      color: Color(0x333333).withOpacity(0.4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 2,
       child: Padding(
@@ -426,7 +426,7 @@ class _ActionCards extends ConsumerWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                color: Colors.grey.shade900,
+                color: Color(0x333333).withOpacity(0.4),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
                   onTap: () {
@@ -468,7 +468,7 @@ class _ActionCards extends ConsumerWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                color: Colors.grey.shade900,
+                color: Color(0x333333).withOpacity(0.4),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
                   onTap: () {

@@ -62,7 +62,7 @@ class DepositTypeScreen extends ConsumerWidget {
               // Mode Selector Dropdown
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF212121),
+                  color: const Color(0x333333).withOpacity(0.4),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -92,7 +92,7 @@ class DepositTypeScreen extends ConsumerWidget {
               SizedBox(height: 16.h),
               // Main Card with dropdowns and Buy button
               Card(
-                color: const Color(0xFF212121),
+                color: const Color(0x333333).withOpacity(0.4),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r)),
                 elevation: 4,
@@ -205,7 +205,7 @@ class DepositTypeScreen extends ConsumerWidget {
         SizedBox(height: 8.h),
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF212121),
+            color: Colors.transparent,
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: DropdownButtonHideUnderline(
@@ -246,7 +246,7 @@ class ProviderDetails extends ConsumerWidget {
     final details = providerDetails[selectedProvider]!;
 
     return Card(
-      color: const Color(0xFF212121),
+      color: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.r), // Revert to original radius
       ),
@@ -266,7 +266,7 @@ class ProviderDetails extends ConsumerWidget {
           ),
           iconColor: Colors.white,
           collapsedIconColor: Colors.white,
-          backgroundColor: const Color(0xFF212121),
+          backgroundColor: const Color(0x333333).withOpacity(0.4),
           collapsedBackgroundColor: const Color(0xFF212121),
           children: [
             Padding(

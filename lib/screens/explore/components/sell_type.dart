@@ -83,7 +83,7 @@ class _SellOption extends StatelessWidget {
       onTap: isAvailable ? onTap : null,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey.shade900,
+          color: Color(0x333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(10),
         ),
         padding:EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),

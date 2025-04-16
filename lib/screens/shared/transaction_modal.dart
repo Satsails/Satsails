@@ -400,7 +400,7 @@ class _PaymentTransactionOverlayState
             // Main Card
             Container(
               decoration: BoxDecoration(
-                color: Color(0xFF212121),
+                color: Color(0x333333).withOpacity(0.4),
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -625,7 +625,7 @@ class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransaction
             const SizedBox(height: 16),
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF212121),
+                color: const Color(0x333333).withOpacity(0.4),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(

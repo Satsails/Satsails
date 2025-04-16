@@ -397,7 +397,7 @@ Widget buildBalanceCardWithMaxButton(WidgetRef ref, TextEditingController contro
     child: SizedBox(
       width: double.infinity,
       child: Card(
-        color: Colors.grey.shade900,
+        color: Color(0x333333).withOpacity(0.4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
         elevation: 4,
         child: Padding(
@@ -600,7 +600,7 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
   final toAsset = ref.watch(toAssetProvider);
 
   return Card(
-    color: Colors.grey.shade900,
+    color: Color(0x333333).withOpacity(0.4),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     elevation: 4,
     child: Padding(
@@ -1624,7 +1624,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
 
 Widget buildAdvancedOptionsCard(WidgetRef ref) {
   return Card(
-    color: Colors.grey.shade900,
+    color: Color(0x333333).withOpacity(0.4),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
     elevation: 4,
     child: Padding(

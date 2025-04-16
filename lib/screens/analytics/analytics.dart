@@ -117,7 +117,7 @@ class BalanceCardWithDropdown extends StatelessWidget {
           ),
         );
       }).toList(),
-      color: const Color(0xFF212121),
+      color: const Color(0x333333).withOpacity(0.4),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.r),
       ),
@@ -134,7 +134,7 @@ class BalanceCardWithDropdown extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.sp),
       padding: EdgeInsets.all(16.sp),
       decoration: BoxDecoration(
-        color: const Color(0xFF212121),
+        color: const Color(0x333333).withOpacity(0.4),
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: InkWell(
@@ -267,7 +267,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
       margin: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.sp),
       padding: EdgeInsets.all(16.sp),
       decoration: BoxDecoration(
-        color: Colors.grey.shade900,
+        color: Color(0x333333).withOpacity(0.4),
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Row(

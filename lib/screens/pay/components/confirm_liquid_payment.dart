@@ -41,7 +41,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
         backgroundColor: Colors.transparent, // Transparent background around the card
         child: Center(
           child: Card(
-            color: const Color(0xFF212121), // Dark background like a dialog
+            color: const Color(0x333333).withOpacity(0.4), // Dark background like a dialog
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 8, // Shadow effect
             child: Padding(
@@ -212,7 +212,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
 
 Widget buildTransactionDetailsCard(WidgetRef ref) {
   return Card(
-    color: Color(0xFF212121),
+    color: Color(0x333333).withOpacity(0.4),
     margin: EdgeInsets.zero,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
     elevation: 4,
@@ -434,7 +434,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                             padding: EdgeInsets.all(16.sp),
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF212121),
+                              color: const Color(0x333333).withOpacity(0.4),
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Column(
@@ -476,7 +476,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                               Container(
                                 padding: EdgeInsets.symmetric(vertical: 8.h),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF212121),
+                                  color: const Color(0x333333).withOpacity(0.4),
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: TextFormField(
@@ -525,7 +525,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF212121),
+                                  color: const Color(0x333333).withOpacity(0.4),
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: Padding(

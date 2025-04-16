@@ -332,7 +332,6 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
                   onPressed: () => _recoverAccount(context),
                   primaryColor: Colors.green,
                   secondaryColor: Colors.green,
-                  textColor: Colors.white,
                 ),
               ),
             ],

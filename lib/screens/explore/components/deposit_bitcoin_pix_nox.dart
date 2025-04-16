@@ -77,7 +77,7 @@ class _DepositBitcoinPixNoxState extends ConsumerState<DepositBitcoinPixNox> {
                   ),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Colors.grey.shade900,
+                    fillColor: Color(0x333333).withOpacity(0.4),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
                       borderSide: BorderSide(color: Colors.grey[600]!),

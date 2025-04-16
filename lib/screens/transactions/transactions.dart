@@ -139,7 +139,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                       Theme(
                         data: Theme.of(context).copyWith(
                           popupMenuTheme: PopupMenuThemeData(
-                            color: const Color(0xFF212121), // Dark background
+                            color: Color(0xFF212121), // Dark background
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15.0), // Rounded corners
                             ),

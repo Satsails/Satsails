@@ -223,7 +223,7 @@ class _AccountsState extends ConsumerState<Accounts> {
         width: 190.w,
         height: 200.h,
         decoration: BoxDecoration(
-          color: const Color(0xFF212121),
+          color: const Color(0x333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
@@ -319,7 +319,7 @@ class _AccountsState extends ConsumerState<Accounts> {
         width: 190.w,
         height: 200.h,
         decoration: BoxDecoration(
-          color: const Color(0xFF212121),
+          color: const Color(0x333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(

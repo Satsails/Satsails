@@ -165,8 +165,8 @@ class _ServicesState extends ConsumerState<Services> {
 
     return Drawer(
       child: Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFF212121),
+        decoration: BoxDecoration(
+          color: Color(0x333333).withOpacity(0.4),
           borderRadius: BorderRadius.only(
             topRight: Radius.circular(15.0),
             bottomRight: Radius.circular(15.0),
@@ -176,8 +176,8 @@ class _ServicesState extends ConsumerState<Services> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Color(0xFF212121),
+              decoration: BoxDecoration(
+                color: Color(0x333333).withOpacity(0.4),
               ),
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.h),

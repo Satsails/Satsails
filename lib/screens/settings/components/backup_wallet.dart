@@ -135,10 +135,10 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
                     padding: EdgeInsets.symmetric(vertical: 8.h),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF212121),
+                        color: const Color(0x333333).withOpacity(0.4),
                         borderRadius: BorderRadius.circular(8.r),
                         border: Border.all(
-                          color: const Color(0xFF212121),
+                          color: const Color(0x333333).withOpacity(0.4),
                           width: 1.0,
                         ),
                         boxShadow: [

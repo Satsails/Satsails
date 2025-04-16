@@ -56,7 +56,7 @@ void showMessageSnackBarInfo({
   DelightToastBar(
     snackbarDuration: const Duration(seconds: 3),
     builder: (context) => ToastCard(
-      color: Colors.grey.shade900,
+      color: Color(0x333333).withOpacity(0.4),
       leading: const Icon(
         Icons.info,
         size: 28,

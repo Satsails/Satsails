@@ -70,7 +70,7 @@ class _AffiliateScreenState extends ConsumerState<AffiliateScreen> {
             Container(
               padding: EdgeInsets.all(24.w), // Larger padding for prominence
               decoration: BoxDecoration(
-                color: const Color(0xFF212121), // Dark grey background
+                color: const Color(0x333333).withOpacity(0.4), // Dark grey background
                 borderRadius: BorderRadius.circular(15), // Rounded corners
               ),
               constraints: BoxConstraints(maxWidth: 350.w), // Slightly larger card

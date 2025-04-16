@@ -100,7 +100,7 @@ class TransactionListByWeek extends ConsumerWidget {
           ),
         ),
         Card(
-          color: const Color(0xFF212121),
+          color: const Color(0x333333).withOpacity(0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
@@ -150,7 +150,7 @@ class TransactionList extends ConsumerWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Color(0xFF212121),
+          color: Color(0x333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(12.r),
         ),
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
@@ -205,7 +205,7 @@ class TransactionList extends ConsumerWidget {
         if (!showAll) const SizedBox(height: 8),
         Expanded(
           child: Card(
-            color: const Color(0xFF212121),
+            color: const Color(0x333333).withOpacity(0.4),
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
