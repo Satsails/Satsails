@@ -25,13 +25,7 @@ final coinGeckoBitcoinMarketDataProvider = FutureProvider.autoDispose<List<Marke
   return market;
 });
 
-final bitcoinPriceChangeProvider = FutureProvider.autoDispose.family<double, String>((ref, currency) async {
-  final coingeckoModel = CoingeckoModel();
-  return await coingeckoModel.getBitcoinChangePercentage(currency);
-});
-
-
-final bitcoinHistoricalMarketDataProvider = FutureProvider.autoDispose<List<MarketChartData>>((ref) async {
+final bitcoinHistoricalMarketDataProvider = FutureProvider<List<MarketChartData>>((ref) async {
   final selectedDays = ref.watch(selectedDaysDateArrayProvider);
   if (selectedDays.isEmpty) return [];
 

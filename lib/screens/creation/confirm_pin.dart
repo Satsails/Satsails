@@ -37,11 +37,6 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin> {
         await authModel.setMnemonic(await authModel.generateMnemonic());
       }
       ref.read(pinProvider.notifier).state = '';
-      try {
-        await ref.read(registerProvider.future);
-      } catch (e) {
-        // Ignore errors
-      }
       if (mounted) {
         ref.read(appLockedProvider.notifier).state = false;
         ref.invalidate(bitcoinConfigProvider);

@@ -169,11 +169,6 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
               debugPrint('Bitcoin sync failed: $e');
               return null;
             }),
-            ref.refresh(coinosBalanceProvider.future).catchError((e) {
-              // Handle coinos balance error
-              debugPrint('Coinos balance fetch failed: $e');
-              return null;
-            }),
           ];
 
           final results = await Future.wait(futures);
