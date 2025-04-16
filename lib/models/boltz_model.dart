@@ -267,6 +267,7 @@ class LbtcBoltz {
         network: Chain.liquid,
         electrumUrl: electrumUrl,
         boltzUrl: 'https://api.boltz.exchange/v2',
+        referralId: 'satsails',
       );
     } catch (e) {
       throw 'Error creating swap';
@@ -286,6 +287,7 @@ class LbtcBoltz {
       blindingKey: result.blindingKey,
       electrumUrl: electrumUrl,
       boltzUrl: result.boltzUrl,
+
     );
 
     return LbtcBoltz(
@@ -327,6 +329,7 @@ class LbtcBoltz {
         network: Chain.liquid,
         electrumUrl: electrumUrl,
         boltzUrl: 'https://api.boltz.exchange/v2',
+        referralId: 'satsails',
       );
     } catch (e) {
       throw 'Error creating swap';
@@ -366,19 +369,20 @@ class LbtcBoltz {
     LbtcLnSwap? claimToInvoice;
     try {
       claimToInvoice = await LbtcLnSwap.newInstance(
-        id: swap.id,
-        kind: swap.kind,
-        network: swap.network,
-        keyIndex: swap.keyIndex,
-        keys: keys,
-        preimage: preimage,
-        swapScript: swapScript,
-        invoice: swap.invoice,
-        outAmount: BigInt.from(swap.outAmount),
-        outAddress: swap.scriptAddress,
-        blindingKey: swap.blindingKey,
-        electrumUrl: electrumUrl,
-        boltzUrl: swap.boltzUrl,
+          id: swap.id,
+          kind: swap.kind,
+          network: swap.network,
+          keyIndex: swap.keyIndex,
+          keys: keys,
+          preimage: preimage,
+          swapScript: swapScript,
+          invoice: swap.invoice,
+          outAmount: BigInt.from(swap.outAmount),
+          outAddress: swap.scriptAddress,
+          blindingKey: swap.blindingKey,
+          electrumUrl: electrumUrl,
+          boltzUrl: swap.boltzUrl,
+          referralId: 'satsails'
       );
       final hex = await claimToInvoice.claim(
         outAddress: receiveAddress,
@@ -401,19 +405,20 @@ class LbtcBoltz {
     LbtcLnSwap? refund;
     try {
       refund = await LbtcLnSwap.newInstance(
-        id: swap.id,
-        kind: swap.kind,
-        network: swap.network,
-        keyIndex: swap.keyIndex,
-        keys: keys,
-        preimage: preimage,
-        swapScript: swapScript,
-        invoice: swap.invoice,
-        outAmount: BigInt.from(swap.outAmount),
-        outAddress: swap.scriptAddress,
-        blindingKey: swap.blindingKey,
-        electrumUrl: electrumUrl,
-        boltzUrl: swap.boltzUrl,
+          id: swap.id,
+          kind: swap.kind,
+          network: swap.network,
+          keyIndex: swap.keyIndex,
+          keys: keys,
+          preimage: preimage,
+          swapScript: swapScript,
+          invoice: swap.invoice,
+          outAmount: BigInt.from(swap.outAmount),
+          outAddress: swap.scriptAddress,
+          blindingKey: swap.blindingKey,
+          electrumUrl: electrumUrl,
+          boltzUrl: swap.boltzUrl,
+          referralId: 'satsails'
       );
       final hex = await refund.refund(
         outAddress: outAddress,
@@ -434,19 +439,20 @@ class LbtcBoltz {
       throw 'Not a submarine swap';
     }
     final lbtcLnSwap = await LbtcLnSwap.newInstance(
-      id: swap.id,
-      kind: swap.kind,
-      network: swap.network,
-      keys: keys,
-      keyIndex: swap.keyIndex,
-      preimage: preimage,
-      swapScript: swapScript,
-      invoice: swap.invoice,
-      outAmount: BigInt.from(swap.outAmount),
-      outAddress: swap.scriptAddress,
-      blindingKey: swap.blindingKey,
-      electrumUrl: electrumUrl,
-      boltzUrl: swap.boltzUrl,
+        id: swap.id,
+        kind: swap.kind,
+        network: swap.network,
+        keys: keys,
+        keyIndex: swap.keyIndex,
+        preimage: preimage,
+        swapScript: swapScript,
+        invoice: swap.invoice,
+        outAmount: BigInt.from(swap.outAmount),
+        outAddress: swap.scriptAddress,
+        blindingKey: swap.blindingKey,
+        electrumUrl: electrumUrl,
+        boltzUrl: swap.boltzUrl,
+        referralId: 'satsails'
     );
     await lbtcLnSwap.coopCloseSubmarine();
   }
