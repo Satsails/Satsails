@@ -201,8 +201,7 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('settings');
     await Hive.deleteBoxFromDisk('bitcoinTransactions');
     await Hive.deleteBoxFromDisk('liquidTransactions');
-    await Hive.deleteBoxFromDisk('receiveBoltz');
-    await Hive.deleteBoxFromDisk('payBoltz');
+    await Hive.deleteBoxFromDisk('boltzSwapsBox');
     await Hive.deleteBoxFromDisk('sideswapStatus');
     await Hive.deleteBoxFromDisk('sideswapSwapData');
     await Hive.deleteBoxFromDisk('pix');

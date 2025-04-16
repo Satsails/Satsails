@@ -1,20 +1,19 @@
+import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/transactions_model.dart';
-import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 
-// StateNotifierProvider to hold transaction state
+
+
 final transactionNotifierProvider = StateNotifierProvider<TransactionModel, Transaction>((ref) {
   return TransactionModel();
 });
 
-// Function to fetch transactions and update the provider
 Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
-  // if i manage to speed this up problem is fixed
   final bitcoinTxs = await ref.watch(getBitcoinTransactionsProvider.future);
   final bitcoinTransactions = bitcoinTxs.map((btcTx) {
     return BitcoinTransaction(
@@ -58,7 +57,7 @@ Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
       isConfirmed: instantSwapTx.txid.isNotEmpty,
     );
   }).toList();
-  //
+
   final eulenPurchases = ref.watch(eulenTransferProvider);
   final eulenTransactions = eulenPurchases.map((pixTx) {
     return EulenTransaction(
@@ -79,6 +78,16 @@ Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
     );
   }).toList();
 
+  final boltzSwaps = ref.watch(boltzSwapProvider);
+  final boltzTransactions = boltzSwaps.map((swap) {
+    return BoltzTransaction(
+      id: swap.swap.id,
+      timestamp: DateTime.fromMillisecondsSinceEpoch(swap.timestamp),
+      details: swap,
+      isConfirmed: swap.completed ?? false,
+    );
+  }).toList();
+
   final transactionNotifier = ref.read(transactionNotifierProvider.notifier);
   transactionNotifier.updateTransactions(
     Transaction(
@@ -88,27 +97,7 @@ Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
       sideswapInstantSwapTransactions: sideswapInstantSwapTransactions,
       eulenTransactions: eulenTransactions,
       noxTransactions: noxTransactions,
+      boltzTransactions: boltzTransactions,
     ),
   );
 }
-
-// StateProviders to filter transactions by date
-final bitcoinTransactionsByDate = StateProvider.autoDispose<List<BitcoinTransaction>>((ref) {
-  final transactionState = ref.watch(transactionNotifierProvider);
-  final dateTimeRange = ref.watch(dateTimeSelectProvider);
-
-  return transactionState.bitcoinTransactions.where((tx) {
-    return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(dateTimeRange.start * 1000)) &&
-        tx.timestamp.isBefore(DateTime.fromMillisecondsSinceEpoch(dateTimeRange.end * 1000));
-  }).toList();
-});
-
-final liquidTransactionsByDate = StateProvider.autoDispose<List<LiquidTransaction>>((ref) {
-  final transactionState = ref.watch(transactionNotifierProvider);
-  final dateTimeRange = ref.watch(dateTimeSelectProvider);
-
-  return transactionState.liquidTransactions.where((tx) {
-    return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(dateTimeRange.start * 1000)) &&
-        tx.timestamp.isBefore(DateTime.fromMillisecondsSinceEpoch(dateTimeRange.end * 1000));
-  }).toList();
-});

@@ -5,6 +5,7 @@ PODS:
     - PromisesObjC (~> 2.4)
   - bdk_flutter (0.31.2):
     - Flutter
+  - boltz (0.1.6)
   - BranchSDK (3.9.1)
   - Crisp (2.8.2):
     - Crisp/Crisp (= 2.8.2)
@@ -190,6 +191,7 @@ PODS:
 
 DEPENDENCIES:
   - bdk_flutter (from `.symlinks/plugins/bdk_flutter/ios`)
+  - boltz (from `.symlinks/plugins/boltz/ios`)
   - crisp_chat (from `.symlinks/plugins/crisp_chat/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - firebase_app_check (from `.symlinks/plugins/firebase_app_check/ios`)
@@ -246,6 +248,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   bdk_flutter:
     :path: ".symlinks/plugins/bdk_flutter/ios"
+  boltz:
+    :path: ".symlinks/plugins/boltz/ios"
   crisp_chat:
     :path: ".symlinks/plugins/crisp_chat/ios"
   device_info_plus:
@@ -296,6 +300,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
   bdk_flutter: 08274535b7bd58a09bfa9c3733474fb44133484c
+  boltz: 6388ec2412f3753b63a9e65c97f87ea26f43bddc
   BranchSDK: a12f9aa63d7ba562fdff5509d4aed081f1098ec0
   Crisp: 6747c96b2b2c2a81babf1eaecd1688a65d98edd4
   crisp_chat: 3cd3aedf7ff8ebed6822b05a8fae8f14920db259

@@ -1,3 +1,4 @@
+import 'package:Satsails/models/boltz_model.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
@@ -93,6 +94,17 @@ class SideswapInstantSwapTransaction extends BaseTransaction {
   });
 }
 
+class BoltzTransaction extends BaseTransaction {
+  final LbtcBoltz details;
+
+  BoltzTransaction({
+    required super.id,
+    required super.timestamp,
+    required this.details,
+    required super.isConfirmed,
+  });
+}
+
 class Transaction {
   final List<BitcoinTransaction> bitcoinTransactions;
   final List<LiquidTransaction> liquidTransactions;
@@ -100,6 +112,7 @@ class Transaction {
   final List<SideswapInstantSwapTransaction> sideswapInstantSwapTransactions;
   final List<EulenTransaction> eulenTransactions;
   final List<NoxTransaction> noxTransactions;
+  final List<BoltzTransaction> boltzTransactions;
 
   Transaction({
     required this.bitcoinTransactions,
@@ -108,6 +121,7 @@ class Transaction {
     required this.sideswapInstantSwapTransactions,
     required this.eulenTransactions,
     required this.noxTransactions,
+    required this.boltzTransactions,
   });
 
   Transaction copyWith({
@@ -117,6 +131,7 @@ class Transaction {
     List<SideswapInstantSwapTransaction>? sideswapInstantSwapTransactions,
     List<EulenTransaction>? eulenTransactions,
     List<NoxTransaction>? noxTransactions,
+    List<BoltzTransaction>? boltzTransactions,
   }) {
     return Transaction(
       bitcoinTransactions: bitcoinTransactions ?? this.bitcoinTransactions,
@@ -124,11 +139,11 @@ class Transaction {
       sideswapPegTransactions: sideswapPegTransactions ?? this.sideswapPegTransactions,
       sideswapInstantSwapTransactions: sideswapInstantSwapTransactions ?? this.sideswapInstantSwapTransactions,
       eulenTransactions: eulenTransactions ?? this.eulenTransactions,
-      noxTransactions: noxTransactions ?? this.noxTransactions
+      noxTransactions: noxTransactions ?? this.noxTransactions,
+      boltzTransactions: boltzTransactions ?? this.boltzTransactions,
     );
   }
 
-  /// Combines all transactions into a single list.
   List<BaseTransaction> get allTransactions {
     return [
       ...bitcoinTransactions,
@@ -137,10 +152,10 @@ class Transaction {
       ...sideswapInstantSwapTransactions,
       ...eulenTransactions,
       ...noxTransactions,
+      ...boltzTransactions,
     ];
   }
 
-  /// Sorts all transactions based on their timestamp in descending order.
   List<BaseTransaction> get allTransactionsSorted {
     List<BaseTransaction> sorted = List.from(allTransactions);
     sorted.sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -178,13 +193,11 @@ class Transaction {
   }
 
   List<BaseTransaction> buyAndSell(DateTimeSelect range) {
-    // Combine eulenTransactions and noxTransactions
     List<BaseTransaction> buyAndSellTxs = [
       ...eulenTransactions,
       ...noxTransactions,
     ];
 
-    // Filter by date range and sort by timestamp descending
     return buyAndSellTxs.where((tx) {
       return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(range.start * 1000)) &&
           tx.timestamp.isBefore(DateTime.fromMillisecondsSinceEpoch(range.end * 1000));
@@ -194,11 +207,9 @@ class Transaction {
 
   List<BaseTransaction> filterSwapTransactions() {
     List<BaseTransaction> swaps = [];
-    // Add all sideswapPegTransactions
     swaps.addAll(sideswapPegTransactions);
-    // Add LiquidTransaction objects where lwkDetails.kind is 'unknown'
     swaps.addAll(liquidTransactions.where((tx) => tx.lwkDetails.kind == 'unknown'));
-    // Sort by timestamp in descending order
+    swaps.addAll(boltzTransactions);
     swaps.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return swaps;
   }
@@ -244,6 +255,7 @@ class Transaction {
       sideswapInstantSwapTransactions: [],
       eulenTransactions: [],
       noxTransactions: [],
+      boltzTransactions: [],
     );
   }
 }

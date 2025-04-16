@@ -16,6 +16,7 @@ import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
 import 'package:Satsails/screens/spash/splash.dart';
+import 'package:boltz/boltz.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -70,6 +71,7 @@ Future<void> main() async {
   Hive.registerAdapter(EulenTransferAdapter());
 
   await LibLwk.init();
+  await BoltzCore.init();
 
   try {
     await FlutterBranchSdk.init(enableLogging: false, branchAttributionLevel: BranchAttributionLevel.NONE);

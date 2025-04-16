@@ -33,6 +33,7 @@ dependencies:
   bitcoin_message_signer: ^1.0.2
   bolt11_decoder: ^1.0.2
   lwk: ^0.1.7
+  boltz: ^0.1.10
   forex_currency_conversion: ^0.9.1
   icons_plus: ^5.0.0
   loading_animation_widget: ^1.2.1
@@ -43,7 +44,7 @@ dependencies:
   url_launcher: ^6.2.6
   path_provider: ^2.1.4
   decimal: ^2.3.2
-  web_socket_channel: ^2.1.0
+  web_socket_channel: ^3.0.2
   permission_handler: ^11.3.1
   segmented_button_slide: ^1.0.4
   flutter_branch_sdk: ^8.3.1
