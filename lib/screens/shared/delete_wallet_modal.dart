@@ -38,7 +38,7 @@ class DeleteWalletSection extends StatelessWidget {
       ),
       child: ListTile(
         leading: const Icon(Icons.delete, color: Colors.white),
-        title: Text(title.i18n, style: const TextStyle(color: Colors.white)),
+        title: Text(title.i18n, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         onTap: () {
           _showDeleteDialog(context, authModel, ref);
         },

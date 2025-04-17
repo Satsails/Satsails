@@ -1,9 +1,7 @@
 import 'package:Satsails/providers/background_sync_provider.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
-import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:Satsails/screens/shared/delete_wallet_modal.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -43,13 +41,7 @@ class Settings extends ConsumerWidget {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        bottomNavigationBar: CustomBottomNavigationBar(
-          currentIndex: ref.watch(navigationProvider),
-          onTap: (int index) {
-            ref.read(navigationProvider.notifier).state = index;
-          },
-        ),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.transparent, // Transparent to show extended body
         appBar: AppBar(
           backgroundColor: Colors.black,
           automaticallyImplyLeading: false,
@@ -63,22 +55,39 @@ class Settings extends ConsumerWidget {
             ),
           ),
         ),
-        body: SingleChildScrollView(
-          padding: EdgeInsets.all(14.sp),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+        body: SafeArea(
+          bottom: false, // Allow content to extend to bottom
+          child: Stack(
             children: [
-              if (showCoinosMigration) _buildCoinosMigrationSection(context, ref),
-              _buildChatWithSupportSection(context, ref),
-              _buildRateAppSection(context, ref),
-              _buildSeedSection(context, ref),
-              _buildLanguageSection(ref, context),
-              _buildCurrencyDenominationSection(ref, context),
-              _buildBitcoinUnitSection(ref, context),
-              _buildElectrumNodeSection(context, ref),
-              _buildAffiliateSection(context, ref),
-              _buildBlockExplorerSection(context, ref),
-              DeleteWalletSection(ref: ref),
+              // Background for content area
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.black, // Content background
+                  ),
+                ),
+              ),
+              SingleChildScrollView(
+                padding: EdgeInsets.all(14.sp),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (showCoinosMigration) _buildCoinosMigrationSection(context, ref),
+                    _buildChatWithSupportSection(context, ref),
+                    _buildRateAppSection(context, ref),
+                    _buildSeedSection(context, ref),
+                    _buildLanguageSection(ref, context),
+                    _buildCurrencyDenominationSection(ref, context),
+                    _buildBitcoinUnitSection(ref, context),
+                    _buildElectrumNodeSection(context, ref),
+                    _buildAffiliateSection(context, ref),
+                    _buildBlockExplorerSection(context, ref),
+                    DeleteWalletSection(ref: ref),
+                    // Bottom padding to scroll past nav bar
+                    SizedBox(height: 100.sp),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

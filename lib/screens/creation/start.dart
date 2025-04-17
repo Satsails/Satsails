@@ -71,121 +71,122 @@ class _StartState extends ConsumerState<Start> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final logoSize = screenHeight < 800 ? 300.w : 450.w; // Shrink logo on smaller screens
+    final logoSize = 300.h;
 
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.black, Colors.grey[900]!],
+    return SafeArea(
+      child: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.black, Colors.grey[900]!],
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top: 70.h),
-              child: FadeTransition(
-                opacity: _logoOpacity,
-                child: ScaleTransition(
-                  scale: _logoScale,
-                  child: SlideTransition(
-                    position: _logoOffset,
-                    child: SizedBox(
-                      width: logoSize,
-                      height: logoSize,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: 70.h),
+                child: FadeTransition(
+                  opacity: _logoOpacity,
+                  child: ScaleTransition(
+                    scale: _logoScale,
+                    child: SlideTransition(
+                      position: _logoOffset,
+                      child: SizedBox(
+                        width: logoSize,
+                        height: logoSize,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.5),
+                                blurRadius: 10,
+                                spreadRadius: 2,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const InitialLogo(),
                         ),
-                        child: const InitialLogo(),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: 50.h),
-            FadeTransition(
-              opacity: _textOpacity,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Satsails',
-                      style: TextStyle(
-                        foreground: Paint()..shader = createGradientShader(Rect.fromLTWH(0.0, 0.0, 0.6.sw, 0.1.sh)),
-                        fontSize: 60.sp,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withOpacity(0.5),
-                            blurRadius: 5,
-                            offset: const Offset(2, 2),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10.h),
-                    Text(
-                      'Become sovereign and freely opt out of the system.'.i18n,
-                      style: TextStyle(
-                        fontSize: 24.sp,
-                        color: Colors.white70,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withOpacity(0.5),
-                            blurRadius: 3,
-                            offset: const Offset(1, 1),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const Spacer(),
-            SlideTransition(
-              position: _buttonsOffset,
-              child: FadeTransition(
-                opacity: _buttonsOpacity,
+              SizedBox(height: 50.h),
+              FadeTransition(
+                opacity: _textOpacity,
                 child: Padding(
-                  padding: EdgeInsets.all(20.w),
+                  padding: EdgeInsets.symmetric(horizontal: 30.w),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CustomButton(
-                        text: 'Create wallet'.i18n,
-                        onPressed: () => context.push('/set_pin'),
-                        primaryColor: Colors.orange,
-                        secondaryColor: Colors.orange,
-                        textColor: Colors.black,
+                      Text(
+                        'Satsails',
+                        style: TextStyle(
+                          foreground: Paint()..shader = createGradientShader(Rect.fromLTWH(0.0, 0.0, 0.6.sw, 0.1.sh)),
+                          fontSize: 60.sp,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 5,
+                              offset: const Offset(2, 2),
+                            ),
+                          ],
+                        ),
                       ),
                       SizedBox(height: 10.h),
-                      CustomButton(
-                        text: 'Recover wallet'.i18n,
-                        onPressed: () => context.push('/recover_wallet'),
-                        primaryColor: Colors.white24,
-                        secondaryColor: Colors.white24,
-                        textColor: Colors.white,
+                      Text(
+                        'Become sovereign and freely opt out of the system.'.i18n,
+                        style: TextStyle(
+                          fontSize: 24.sp,
+                          color: Colors.white70,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 3,
+                              offset: const Offset(1, 1),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
-            ),
-          ],
+              const Spacer(),
+              SlideTransition(
+                position: _buttonsOffset,
+                child: FadeTransition(
+                  opacity: _buttonsOpacity,
+                  child: Padding(
+                    padding: EdgeInsets.all(20.w),
+                    child: Column(
+                      children: [
+                        CustomButton(
+                          text: 'Create wallet'.i18n,
+                          onPressed: () => context.push('/set_pin'),
+                          primaryColor: Colors.orange,
+                          secondaryColor: Colors.orange,
+                          textColor: Colors.black,
+                        ),
+                        SizedBox(height: 10.h),
+                        CustomButton(
+                          text: 'Recover wallet'.i18n,
+                          onPressed: () => context.push('/recover_wallet'),
+                          primaryColor: Colors.white24,
+                          secondaryColor: Colors.white24,
+                          textColor: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

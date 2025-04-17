@@ -52,9 +52,10 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
 
     return DotNavigationBar(
       items: bottomBarItems,
+      enablePaddingAnimation:false,
       currentIndex: widget.currentIndex,
       onTap: widget.onTap,
-      backgroundColor: const Color(0x333333).withOpacity(0.4), // Your preferred background color
+      backgroundColor: const Color(0xFF212121),
       dotIndicatorColor: Colors.transparent,
       unselectedItemColor: Colors.grey[300],
       marginR: EdgeInsets.zero, // Key change to remove external space

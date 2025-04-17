@@ -3,12 +3,12 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/settings/settings.dart';
-import 'package:Satsails/screens/transactions/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/screens/home/home.dart';
 import 'package:Satsails/screens/accounts/accounts.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
+import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
@@ -21,9 +21,9 @@ class MainScreen extends ConsumerWidget {
         ref.read(shouldUpdateMemoryProvider.notifier).state = false;
       });
     } else {
-       ref.read(sendTxProvider.notifier).resetToDefault();
-       ref.read(sendBlocksProvider.notifier).state = 1;
-       ref.read(shouldUpdateMemoryProvider.notifier).state = true;
+      ref.read(sendTxProvider.notifier).resetToDefault();
+      ref.read(sendBlocksProvider.notifier).state = 1;
+      ref.read(shouldUpdateMemoryProvider.notifier).state = true;
     }
   }
 
@@ -50,7 +50,15 @@ class MainScreen extends ConsumerWidget {
     });
 
     return Scaffold(
+      extendBody: currentIndex != 0,
+      backgroundColor: Colors.black,
       body: _getCurrentScreen(currentIndex),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: currentIndex,
+        onTap: (index) {
+          ref.read(navigationProvider.notifier).state = index;
+        },
+      ),
     );
   }
 }

@@ -5,8 +5,6 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
-import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:upgrader/upgrader.dart';
@@ -235,12 +233,6 @@ class Home extends ConsumerWidget {
         child: Scaffold(
           backgroundColor: Colors.black,
           extendBodyBehindAppBar: true,
-          bottomNavigationBar: CustomBottomNavigationBar(
-            currentIndex: ref.watch(navigationProvider),
-            onTap: (int index) {
-              ref.read(navigationProvider.notifier).state = index;
-            },
-          ),
           body: SafeArea(
             child: Column(
               children: [

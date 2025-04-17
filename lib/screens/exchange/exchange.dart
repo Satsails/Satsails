@@ -1,6 +1,4 @@
 import 'package:Satsails/helpers/swap_helpers.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
-import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -30,17 +28,10 @@ class _ExchangeState extends ConsumerState<Exchange> {
 
   @override
   Widget build(BuildContext context) {
-
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: Colors.black,
-        bottomNavigationBar: CustomBottomNavigationBar(
-          currentIndex: ref.watch(navigationProvider),
-          onTap: (int index) {
-            ref.read(navigationProvider.notifier).state = index;
-          },
-        ),
+        backgroundColor: Colors.transparent, // Transparent to show extended body
         appBar: AppBar(
           backgroundColor: Colors.black,
           centerTitle: true,
@@ -51,21 +42,33 @@ class _ExchangeState extends ConsumerState<Exchange> {
           ),
         ),
         body: SafeArea(
-          child: KeyboardDismissOnTap(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.sp),
-              child: ListView(
-                children: [
-                  buildBalanceCardWithMaxButton(ref, controller),
-                  SizedBox(height: 0.01.sh),
-                  buildExchangeCard(context, ref, controller),
-                  SizedBox(height: 0.01.sh),
-                  buildAdvancedOptionsCard(ref),
-                  feeSelection(ref),
-                  slideToSend(ref, context),
-                ],
+          bottom: false, // Allow content to extend to bottom
+          child: Stack(
+            children: [
+              // Background for content area
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.black, // Content background
+                  ),
+                ),
               ),
-            ),
+              KeyboardDismissOnTap(
+                child: ListView(
+                  children: [
+                    buildBalanceCardWithMaxButton(ref, controller),
+                    SizedBox(height: 0.01.sh),
+                    buildExchangeCard(context, ref, controller),
+                    SizedBox(height: 0.01.sh),
+                    buildAdvancedOptionsCard(ref),
+                    feeSelection(ref),
+                    slideToSend(ref, context),
+                    // Add bottom padding to scroll past nav bar
+                    SizedBox(height: 100.sp),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

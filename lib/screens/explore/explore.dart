@@ -2,11 +2,9 @@ import 'dart:io';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/balance_provider.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
-import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -90,18 +88,13 @@ class Explore extends ConsumerWidget {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        bottomNavigationBar: CustomBottomNavigationBar(
-          currentIndex: ref.watch(navigationProvider),
-          onTap: (int index) {
-            ref.read(navigationProvider.notifier).state = index;
-          },
-        ),
+        backgroundColor: Colors.transparent, // Transparent to show extended body
         appBar: AppBar(
           backgroundColor: Colors.black,
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: Text(
-            'Explore',
+            'Explore'.i18n,
             style: TextStyle(
               color: Colors.white,
               fontSize: 20.sp,
@@ -109,11 +102,19 @@ class Explore extends ConsumerWidget {
             ),
           ),
         ),
-        backgroundColor: Colors.black,
-        body: Stack(
-          children: [
-            Positioned.fill(
-              child: SingleChildScrollView(
+        body: SafeArea(
+          bottom: false, // Allow content to extend to bottom
+          child: Stack(
+            children: [
+              // Background for content area
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.black, // Content background
+                  ),
+                ),
+              ),
+              SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -138,19 +139,20 @@ class Explore extends ConsumerWidget {
                       ),
                       child: const _ActionCards(),
                     ),
-                    // Removed SizedBox(height: 16.h) to maintain equal spacing
+                    // Bottom padding to scroll past nav bar
+                    SizedBox(height: 50.sp),
                   ],
                 ),
               ),
-            ),
-            if (isLoading)
-              Center(
-                child: LoadingAnimationWidget.fourRotatingDots(
-                  color: Colors.orangeAccent,
-                  size: 40.sp,
+              if (isLoading)
+                Center(
+                  child: LoadingAnimationWidget.fourRotatingDots(
+                    color: Colors.orangeAccent,
+                    size: 40.sp,
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -298,56 +300,6 @@ class _BalanceDisplay extends ConsumerWidget {
       ),
     );
   }
-}
-
-Widget _buildBalanceRow({
-  required String imagePath,
-  required Color color,
-  required String label,
-  required String balance,
-}) {
-  return Expanded(
-    child: Row(
-      children: [
-        Container(
-          padding: EdgeInsets.all(6.w),
-          child: ClipOval(
-            child: Image.asset(
-              imagePath,
-              width: 24.sp,
-              height: 24.sp,
-              fit: BoxFit.contain,
-            ),
-          ),
-        ),
-        SizedBox(width: 5.w),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(height: 2.h),
-              Text(
-                balance,
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
 }
 
 class _ActionCards extends ConsumerWidget {
@@ -511,6 +463,8 @@ class _ActionCards extends ConsumerWidget {
             ),
           ],
         ),
+        // Add bottom padding to scroll past nav bar
+        SizedBox(height: 100.sp),
       ],
     );
   }
