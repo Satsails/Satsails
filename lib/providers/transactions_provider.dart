@@ -101,3 +101,8 @@ Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
     ),
   );
 }
+
+final getFiatPuchasesProvider = FutureProvider<void>((ref) async {
+  await ref.read(getNoxUserPurchasesProvider.future);
+  await ref.read(getEulenUserPurchasesProvider.future);
+});

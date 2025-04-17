@@ -1,6 +1,7 @@
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
+import 'package:Satsails/screens/shared/nox_transaction_details.dart';
 import 'package:Satsails/screens/shared/peg_details.dart';
 import 'package:Satsails/screens/explore/components/deposit_bitcoin_pix_nox.dart';
 import 'package:Satsails/screens/explore/components/deposit_depix_pix_eulen.dart';
@@ -324,7 +325,8 @@ class AppRouter {
                         ),
                       ),
                       GoRoute(
-                        path: 'deposit_pix_nox',
+                        path: '/deposit_pix_nox',
+                        name: 'DepositPixNox',
                         pageBuilder: (context, state) => _buildFadeScalePage(
                           child: DepositBitcoinPixNox(),
                           state: state,
@@ -383,10 +385,18 @@ class AppRouter {
           ),
         ),
         GoRoute(
-          path: '/pix_transaction_details',
-          name: 'pix_transaction_details',
+          path: '/eulen_transaction_details',
+          name: 'eulen_transaction_details',
           pageBuilder: (context, state) => _buildFadeScalePage(
             child: const EulenTransactionDetails(),
+            state: state,
+          ),
+        ),
+        GoRoute(
+          path: '/nox_transaction_details',
+          name: 'nox_transaction_details',
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const NoxTransactionDetails(),
             state: state,
           ),
         ),

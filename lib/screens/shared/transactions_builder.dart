@@ -5,6 +5,7 @@ import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
+import 'package:Satsails/providers/nox_transfer_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
@@ -282,6 +283,8 @@ class TransactionList extends ConsumerWidget {
       transactionItem = _buildLiquidTransactionItem(transaction, context, ref);
     } else if (transaction is EulenTransaction) {
       transactionItem = _buildEulenTransactionItem(transaction, context, ref);
+    } else if (transaction is NoxTransaction) {
+      transactionItem = _buildNoxTransactionItem(transaction, context, ref);
     } else {
       transactionItem = const SizedBox();
     }
@@ -392,7 +395,7 @@ class TransactionList extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         ref.read(selectedEulenTransferIdProvider.notifier).state = transaction.details.id;
-        context.pushNamed('pix_transaction_details');
+        context.pushNamed('eulen_transaction_details');
       },
       behavior: HitTestBehavior.opaque,
       child: Padding(
@@ -480,6 +483,121 @@ class TransactionList extends ConsumerWidget {
       ),
     );
   }
+
+Widget _buildNoxTransactionItem(
+    NoxTransaction transaction,
+    BuildContext context,
+    WidgetRef ref,
+    ) {
+  final isConfirmed = transaction.isConfirmed || transaction.details.status == "expired";
+  final statusText = transaction.details.failed
+      ? "Failed".i18n
+      : transaction.details.completed
+      ? "Completed".i18n
+      : "Pending".i18n;
+  final status = transaction.details.status;
+
+  final type = transaction.details.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
+  final title = "${transaction.details.to_currency} $type";
+  final amount = transaction.details.receivedAmount.toString();
+  final formattedDate = DateFormat('d, MMMM, HH:mm').format(transaction.timestamp);
+
+  // Check if the transaction is failed or expired
+  final isFailedOrExpired = status == "failed" || status == "expired";
+
+  return GestureDetector(
+    onTap: () {
+      ref.read(selectedNoxTransferIdProvider.notifier).state = transaction.details.id;
+      context.pushNamed('nox_transaction_details');
+    },
+    behavior: HitTestBehavior.opaque,
+    child: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Show progress indicator only if transaction is pending (not failed or expired)
+          if (!isConfirmed && !isFailedOrExpired)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: LinearProgressIndicator(
+                backgroundColor: Colors.grey[800],
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                minHeight: 4,
+              ),
+            ),
+          // Main content
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Transaction type icon
+              eulenTransactionTypeIcon(),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 16.sp, // Consistent with Bitcoin item
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          formattedDate,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                        Text(
+                          statusText.toString(),
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors.grey[400],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if(transaction.isConfirmed)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "$amount ${transaction.details.from_currency}",
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            '${transaction.details.price} USD',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+
 
   Widget _buildBitcoinTransactionItem(BitcoinTransaction transaction, BuildContext context, WidgetRef ref) {
     // Determine if the transaction is confirmed

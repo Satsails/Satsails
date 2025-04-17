@@ -19,7 +19,7 @@ final singleEulenTransfersDetailsProvider = StateProvider.autoDispose<EulenTrans
 });
 
 
-final getUserPurchasesProvider = FutureProvider.autoDispose<List<EulenTransfer>>((ref) async {
+final getEulenUserPurchasesProvider = FutureProvider.autoDispose<List<EulenTransfer>>((ref) async {
   final auth = ref.read(userProvider).jwt;
   final transactions = await EulenService.getTransfers(auth);
 

@@ -329,7 +329,7 @@ class _ActionCards extends ConsumerWidget {
                       'Buy'.i18n,
                       style: TextStyle(
                         fontSize: 18.sp,
-                        color: Colors.white,
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -360,7 +360,7 @@ class _ActionCards extends ConsumerWidget {
                       'Sell'.i18n,
                       style: TextStyle(
                         fontSize: 18.sp,
-                        color: Colors.white,
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
