@@ -99,7 +99,7 @@ class UserService {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
 
       final response = await http.post(
-        Uri.parse(dotenv.env['BACKEND']! + '/users'),
+        Uri.parse('${dotenv.env['BACKEND']!}/users'),
         body: jsonEncode({
           'user': {
             'challenge': challenge,
@@ -129,7 +129,7 @@ class UserService {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
 
       final response = await http.post(
-        Uri.parse(dotenv.env['BACKEND']! + '/users/migrate'),
+        Uri.parse('${dotenv.env['BACKEND']!}/users/migrate'),
         body: jsonEncode({
           'user': {
             'challenge': challenge,
@@ -159,7 +159,7 @@ class UserService {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
 
       final response = await http.post(
-        Uri.parse(dotenv.env['BACKEND']! + '/users/add_affiliate'),
+        Uri.parse('${dotenv.env['BACKEND']!}/users/add_affiliate'),
         body: jsonEncode({
           'user': {
             'affiliate_code': affiliateCode,

@@ -169,11 +169,6 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
               debugPrint('Bitcoin sync failed: $e');
               return null;
             }),
-            ref.refresh(coinosBalanceProvider.future).catchError((e) {
-              // Handle coinos balance error
-              debugPrint('Coinos balance fetch failed: $e');
-              return null;
-            }),
           ];
 
           final results = await Future.wait(futures);
@@ -181,7 +176,8 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
           // Extract results from Future.wait
           final liquidBalances = results[0] as Balances;
           final bitcoinBalance = results[1] as int;
-          final lightningBalance = results[2] as int?;
+          // final lightningBalance = results[2] as int?;
+          final lightningBalance = 0;
 
           // Update the WalletBalance model
           final balanceData = WalletBalance.updateFromAssets(
@@ -312,3 +308,5 @@ final backgroundSyncNotifierProvider =
 AsyncNotifierProvider<BackgroundSyncNotifier, WalletBalance>(BackgroundSyncNotifier.new);
 
 final backgroundSyncInProgressProvider = StateProvider<bool>((ref) => false);
+
+final shouldUpdateMemoryProvider = StateProvider<bool>((ref) => true);

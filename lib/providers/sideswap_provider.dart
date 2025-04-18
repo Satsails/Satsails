@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_price_model.dart';

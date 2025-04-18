@@ -1,6 +1,4 @@
 // this screen needs some heavy refactoring. On version "Unyielding conviction" we shall totally redo this spaghetti code. We must use some better way to translate the app"
-import 'package:Satsails/providers/settings_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
@@ -2340,7 +2338,7 @@ extension Localization on String {
       }
       +
       {
-        'en': "If a purchase exceeds R\$6000 from the same person, the excess amount will be refunded automatically to the sender\'s bank account.",
+        'en': "If a purchase exceeds R\$6000 from the same person, the excess amount will be refunded automatically to the sender's bank account.",
         'pt': "Se um comprimento for superior a R\$6000 da mesma pessoa, o valor será devolvido automaticamente para o cartão de crédito do recebedor.",
       }
       +
@@ -2385,8 +2383,8 @@ extension Localization on String {
         'pt': "Sem registro",
       }+
       {
-        'en': "Registered Tax id: ",
-        'pt': "Tax ID registrado: "
+        'en': "Only accepted deposits from: ",
+        'pt': "Apenas depósitos aceites de: ",
       } +
       {
         'en': "Enrollment process required",
@@ -2421,6 +2419,26 @@ extension Localization on String {
         'pt': "As compras de depix são devolvidas ao banco do remetente se o CPF/CNPJ divergem do registrado",
       }+
       {
+        'en': "Enter your key. Carefully enter your seed words below to recover your Bitcoin account.",
+        'pt': "Insira sua chave. Insira as palavras-chave abaixo para recuperar sua conta de Bitcoin.",
+      }+
+      {
+        'en': "Enter your 6-digit PIN",
+        'pt': "Digite o seu PIN",
+      }+
+      {
+        'en': "Next",
+        'pt': "Próximo",
+      }+
+      {
+        'en': "Enter your 6-digit PIN to view seed words",
+        'pt': " Digite o seu PIN para ver as palavras-chave",
+      }+
+      {
+        'en': "Address is invalid",
+        'pt': "Endereço inválido"
+      }+
+      {
         'en': "Cashback to receive",
         'pt': "Cashback a receber",
       }+
@@ -2429,8 +2447,8 @@ extension Localization on String {
         'pt': "Comprar de fornecedores",
       }+
       {
-        'en': "P2P (No KYC)",
-        'pt': "P2P (Sem KYC)",
+        'en': "Purchase with P2P (No KYC)",
+        'pt': "Comprar com P2P (Sem KYC)",
       }+
       {
         'en': "Pay in",

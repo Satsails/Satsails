@@ -8,7 +8,7 @@ part of 'nox_transfer_model.dart';
 
 class NoxTransferAdapter extends TypeAdapter<NoxTransfer> {
   @override
-  final int typeId = 28;
+  final int typeId = 29;
 
   @override
   NoxTransfer read(BinaryReader reader) {

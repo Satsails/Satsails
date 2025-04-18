@@ -1,10 +1,8 @@
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
-import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/screens/analytics/components/calendar.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,7 +42,7 @@ class LightningLineChartSample extends StatelessWidget {
       ),
       child: LineChart(
         LineChartData(
-          clipData: FlClipData.all(),
+          clipData: const FlClipData.all(),
           backgroundColor: Colors.transparent,
           lineTouchData: LineTouchData(
             enabled: true,
@@ -84,7 +82,7 @@ class LightningLineChartSample extends StatelessWidget {
               },
             ),
           ),
-          gridData: FlGridData(
+          gridData: const FlGridData(
             show: false,
           ),
           titlesData: FlTitlesData(
@@ -102,10 +100,10 @@ class LightningLineChartSample extends StatelessWidget {
                 reservedSize: 70,
               ),
             ),
-            topTitles: AxisTitles(
+            topTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
-            rightTitles: AxisTitles(
+            rightTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
           ),
@@ -122,7 +120,7 @@ class LightningLineChartSample extends StatelessWidget {
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
-                dotData: FlDotData(show: false),
+                dotData: const FlDotData(show: false),
                 belowBarData: BarAreaData(
                   show: true,
                   gradient: LinearGradient(
@@ -212,7 +210,7 @@ class _LightningExpensesGraphState extends ConsumerState<LightningExpensesGraph>
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Calendar(),
+            // const Calendar(),
             Expanded(
               child: LightningLineChartSample(
                 selectedDays: selectedDays,

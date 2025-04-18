@@ -7,7 +7,7 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>1zl8l.app.link</string>
-		<string>1zl8l-alternate.app.link</string>
+		<string>links.satsails.com</string>
 	</array>
 </dict>
 </plist>

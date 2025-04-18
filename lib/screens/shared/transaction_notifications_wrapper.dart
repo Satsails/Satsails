@@ -12,8 +12,7 @@ import 'package:overlay_support/overlay_support.dart';
 class TransactionNotificationsListener extends ConsumerStatefulWidget {
   final Widget child;
 
-  const TransactionNotificationsListener({Key? key, required this.child})
-      : super(key: key);
+  const TransactionNotificationsListener({super.key, required this.child});
 
   @override
   _TransactionNotificationsListenerState createState() =>
@@ -75,7 +74,7 @@ class _TransactionNotificationsListenerState
           ),
         );
       },
-      duration: Duration(seconds: 5),
+      duration: const Duration(seconds: 5),
     );
   }
 }

@@ -46,15 +46,15 @@ class EulenTransferNotifier extends StateNotifier<List<EulenTransfer>> {
       originalAmount: serverData.originalAmount,
       completed: serverData.completed,
       failed: serverData.failed,
-      userId: serverData.userId ?? existingPurchase?.userId,
-      createdAt: existingPurchase?.createdAt ?? serverData.createdAt,
+      userId: serverData.userId ?? existingPurchase.userId,
+      createdAt: existingPurchase.createdAt ?? serverData.createdAt,
       updatedAt: serverData.updatedAt,
       receivedAmount: serverData.receivedAmount,
       pixKey: serverData.pixKey,
-      status: serverData.status ?? existingPurchase?.status,
-      paymentMethod: serverData.paymentMethod ?? existingPurchase?.paymentMethod,
-      to_currency: serverData.to_currency ?? existingPurchase?.to_currency,
-      from_currency: serverData.from_currency ?? existingPurchase?.from_currency,
+      status: serverData.status ?? existingPurchase.status,
+      paymentMethod: serverData.paymentMethod ?? existingPurchase.paymentMethod,
+      to_currency: serverData.to_currency ?? existingPurchase.to_currency,
+      from_currency: serverData.from_currency ?? existingPurchase.from_currency,
       transactionType: serverData.transactionType,
       price: serverData.price,
       cashback: serverData.cashback,
@@ -80,15 +80,15 @@ class EulenTransferNotifier extends StateNotifier<List<EulenTransfer>> {
         originalAmount: serverData.originalAmount,
         completed: serverData.completed,
         failed: serverData.failed,
-        userId: serverData.userId ?? existingPurchase?.userId,
-        createdAt: existingPurchase?.createdAt ?? serverData.createdAt,
+        userId: serverData.userId ?? existingPurchase.userId,
+        createdAt: existingPurchase.createdAt ?? serverData.createdAt,
         updatedAt: serverData.updatedAt,
         receivedAmount: serverData.receivedAmount,
         pixKey: serverData.pixKey,
-        status: serverData.status ?? existingPurchase?.status,
-        paymentMethod: serverData.paymentMethod ?? existingPurchase?.paymentMethod,
-        to_currency: serverData.to_currency ?? existingPurchase?.to_currency,
-        from_currency: serverData.from_currency ?? existingPurchase?.from_currency,
+        status: serverData.status ?? existingPurchase.status,
+        paymentMethod: serverData.paymentMethod ?? existingPurchase.paymentMethod,
+        to_currency: serverData.to_currency ?? existingPurchase.to_currency,
+        from_currency: serverData.from_currency ?? existingPurchase.from_currency,
         transactionType: serverData.transactionType,
         price: serverData.price,
         cashback: serverData.cashback,
@@ -231,7 +231,7 @@ class EulenTransfer extends HiveObject {
     bool? cashbackPayed,
   }) {
     return EulenTransfer(
-      id: this.id,
+      id: id,
       transactionId: transactionId ?? this.transactionId,
       originalAmount: originalAmount ?? this.originalAmount,
       completed: completed ?? this.completed,
@@ -282,7 +282,7 @@ class EulenService {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final response = await http.post(
-        Uri.parse(dotenv.env['BACKEND']! + '/eulen_transfers'),
+        Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers'),
         body: jsonEncode({
           'transfer': {
             'value_set_to_receive': amount,
@@ -313,7 +313,7 @@ class EulenService {
   static Future<Result<List<EulenTransfer>>> getTransfers(String auth) async {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
-      final uri = Uri.parse(dotenv.env['BACKEND']! + '/eulen_transfers');
+      final uri = Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers');
 
       final response = await http.get(
         uri,
@@ -342,7 +342,7 @@ class EulenService {
   static Future<Result<String>> getAmountTransferred(String auth) async {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
-      final uri = Uri.parse(dotenv.env['BACKEND']! + '/eulen_transfers/amount_transfered_by_day');
+      final uri = Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers/amount_transfered_by_day');
 
       final response = await http.get(
         uri,
@@ -366,7 +366,7 @@ class EulenService {
   static Future<Result<String>> getRegisteredTaxId(String auth) async {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
-      final uri = Uri.parse(dotenv.env['BACKEND']! + '/eulen_transfers/check_registered_tax_id');
+      final uri = Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers/check_registered_tax_id');
 
       final response = await http.get(
         uri,
@@ -391,7 +391,7 @@ class EulenService {
   static Future<Result<bool>> getTransactionPaymentState(String transactionId, String auth) async {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
-      final uri = Uri.parse(dotenv.env['BACKEND']! + '/eulen_transfers/check_purchase_state')
+      final uri = Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers/check_purchase_state')
           .replace(queryParameters: {'transfer[txid]': transactionId,
       });
 

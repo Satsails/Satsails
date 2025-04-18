@@ -189,12 +189,12 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                     ),
                     child: Text(
                       'Generate QR Code'.i18n,
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      style: TextStyle(color: Colors.black, fontSize: 16.sp),
                     ),
                   ),
                   SizedBox(height: 24.h),
                   Card(
-                    color: const Color(0xFF212121),
+                    color: const Color(0x333333).withOpacity(0.4),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                     child: Padding(
                       padding: EdgeInsets.all(16.h),
@@ -273,7 +273,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                 ],
                 if (_pixQRCode.isNotEmpty)
                   Card(
-                    color: const Color(0xFF212121),
+                    color: const Color(0x333333).withOpacity(0.4),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                     child: Padding(
                       padding: EdgeInsets.all(16.h),
@@ -289,7 +289,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                             width: double.infinity,
                             padding: EdgeInsets.symmetric(vertical: 16.h),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF212121),
+                              color: const Color(0x333333).withOpacity(0.4),
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Text(
@@ -315,7 +315,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 24.h),
                     child: Center(
-                      child: LoadingAnimationWidget.threeArchedCircle(
+                      child: LoadingAnimationWidget.fourRotatingDots(
                         size: 0.1.sh,
                         color: Colors.orange,
                       ),

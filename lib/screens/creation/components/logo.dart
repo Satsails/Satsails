@@ -18,3 +18,16 @@ class Logo extends StatelessWidget {
     );
   }
 }
+
+
+class InitialLogo extends StatelessWidget {
+  const InitialLogo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SvgPicture.asset(
+      'lib/assets/initialLogo.svg',
+      fit: BoxFit.contain, // Ensures the SVG scales proportionally
+    );
+  }
+}

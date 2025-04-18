@@ -14,18 +14,35 @@ class DeleteWalletSection extends StatelessWidget {
   final WidgetRef ref;
   final String title;
 
-  const DeleteWalletSection(
-      {super.key, required this.ref, this.title = 'Delete Wallet'});
+  const DeleteWalletSection({
+    super.key,
+    required this.ref,
+    this.title = 'Delete Wallet',
+  });
 
   @override
   Widget build(BuildContext context) {
     final authModel = ref.read(authModelProvider);
-    return ListTile(
-      leading: const Icon(Icons.delete, color: Colors.white),
-      title: Text(title.i18n, style: const TextStyle(color: Colors.white)),
-      onTap: () {
-        _showDeleteDialog(context, authModel, ref);
-      },
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8.0),
+      decoration: BoxDecoration(
+        color: Colors.redAccent, // Red background for the card
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 4.0,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        leading: const Icon(Icons.delete, color: Colors.white),
+        title: Text(title.i18n, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        onTap: () {
+          _showDeleteDialog(context, authModel, ref);
+        },
+      ),
     );
   }
 
@@ -35,14 +52,13 @@ class DeleteWalletSection extends StatelessWidget {
       type: QuickAlertType.error,
       title: 'Delete Wallet?'.i18n,
       text: 'Are you sure you want to delete the wallet?'.i18n,
-      titleColor: Colors.redAccent, // Consistent title color
+      titleColor: Colors.redAccent,
       textColor: Colors.white70,
       backgroundColor: Colors.black87,
       headerBackgroundColor: Colors.black87,
       showCancelBtn: false,
       showConfirmBtn: false,
-      widget:
-      Padding(
+      widget: Padding(
         padding: const EdgeInsets.only(top: 16),
         child: CustomElevatedButton(
           onPressed: () {
@@ -51,14 +67,13 @@ class DeleteWalletSection extends StatelessWidget {
               type: QuickAlertType.error,
               title: 'Delete Wallet?'.i18n,
               text: 'Are you sure? This action cannot be undone.'.i18n,
-              titleColor: Colors.redAccent, // Consistent title color
+              titleColor: Colors.redAccent,
               textColor: Colors.white70,
               backgroundColor: Colors.black87,
               headerBackgroundColor: Colors.black87,
               showCancelBtn: false,
               showConfirmBtn: false,
-              widget:
-              Padding(
+              widget: Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: CustomElevatedButton(
                   onPressed: () async {
@@ -69,8 +84,7 @@ class DeleteWalletSection extends StatelessWidget {
                     ref.invalidate(liquidConfigProvider);
                     RestartWidget.restartApp(context);
                   },
-                  text:
-                  'Delete wallet'.i18n,
+                  text: 'Delete wallet'.i18n,
                   backgroundColor: Colors.redAccent,
                 ),
               ),
@@ -83,4 +97,3 @@ class DeleteWalletSection extends StatelessWidget {
     );
   }
 }
-

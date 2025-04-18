@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomElevatedButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -16,10 +17,10 @@ class CustomElevatedButton extends StatelessWidget {
     required this.text,
     this.controller,
     this.fontSize = 16.0,
-    this.backgroundColor = const Color(0xFFFFA726),
+    this.backgroundColor = Colors.green,
     this.textColor = Colors.black,
     this.elevation = 0.0,
-    this.borderRadius = 8.0,
+    this.borderRadius = 12,
   });
 
   @override
@@ -32,7 +33,7 @@ class CustomElevatedButton extends StatelessWidget {
         elevation: WidgetStateProperty.all<double>(elevation),
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
+            borderRadius: BorderRadius.circular(borderRadius.r),
           ),
         ),
         padding: WidgetStateProperty.all<EdgeInsetsGeometry>(

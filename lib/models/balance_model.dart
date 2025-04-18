@@ -1,6 +1,5 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/currency_conversions.dart';
-import 'package:Satsails/providers/balance_provider.dart';
 import 'package:hive/hive.dart';
 import 'package:lwk/lwk.dart';
 import 'package:riverpod/riverpod.dart';

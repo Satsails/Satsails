@@ -45,7 +45,7 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Color.fromRGBO(29, 31, 49, 1.0),
+      backgroundColor: const Color.fromRGBO(29, 31, 49, 1.0),
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(29, 31, 49, 1.0),
         title: Text(

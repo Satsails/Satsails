@@ -17,11 +17,6 @@ Widget buildAddressText(String address, BuildContext context, WidgetRef ref, [do
           duration: const Duration(seconds: 1),
           curve: Curves.easeIn,
           padding: const EdgeInsets.all(8.0),
-          decoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(10.0),
-            border: Border.all(color: Colors.grey.withOpacity(0.5), width: 1.0),
-          ),
           child: Padding(
             padding:EdgeInsets.symmetric(horizontal: 8.w),
             child: Center(

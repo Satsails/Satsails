@@ -20,7 +20,7 @@ class Splash extends StatelessWidget {
               'lib/assets/satsails.svg',
             ),
             SizedBox(height: screenHeight * 0.03),
-            LoadingAnimationWidget.threeArchedCircle(size: dynamicAnimationSize, color: Colors.orange),
+            LoadingAnimationWidget.fourRotatingDots(size: dynamicAnimationSize, color: Colors.orange),
           ],
         ),
       ),

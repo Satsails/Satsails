@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:Satsails/helpers/string_extension.dart';
+import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
@@ -15,6 +15,49 @@ import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 final isLoadingProvider = StateProvider<bool>((ref) => false);
+
+class _CashbackDisplay extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final denomination = ref.watch(settingsProvider).btcFormat;
+    final transaction = ref.watch(transactionNotifierProvider);
+    final cashbackToReceive = btcInDenominationFormatted(
+      transaction.unpaidCashback * 100000000,
+      denomination,
+    );
+
+    return Card(
+      color: Color(0x333333).withOpacity(0.4),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 2,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Cashback to receive'.i18n,
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(width: 8.w),
+            Text(
+              cashbackToReceive,
+              style: TextStyle(
+                fontSize: 20.sp,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class Explore extends ConsumerWidget {
   const Explore({super.key});
@@ -31,7 +74,7 @@ class Explore extends ConsumerWidget {
 
       if (paymentId.isNotEmpty && !hasUploadedLiquidAddress) {
         ref.read(addCashbackProvider.future).then((_) {
-          // Successfully added cashback address, no further action needed
+          // Successfully added cashback address
         }).catchError((error) {
           showMessageSnackBar(
             message: "Failed to add cashback address: $error".i18n,
@@ -42,52 +85,75 @@ class Explore extends ConsumerWidget {
       }
     });
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          'Explore',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20.sp,
-            fontWeight: FontWeight.bold,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        backgroundColor: Colors.transparent, // Transparent to show extended body
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+          title: Text(
+            'Explore'.i18n,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.pop(),
-        ),
-      ),
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 16.h,
+        body: SafeArea(
+          bottom: false, // Allow content to extend to bottom
+          child: Stack(
+            children: [
+              // Background for content area
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.black, // Content background
                   ),
-                  child: _BalanceDisplay(),
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 19.w),
-                  child: _ActionCards(),
-                ),
-                SizedBox(height: 16.h),
-              ],
-            ),
-          ),
-          if (isLoading)
-            Center(
-              child: LoadingAnimationWidget.threeArchedCircle(
-                size: 80.h,
-                color: Colors.orange,
               ),
-            ),
-        ],
+              SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.sp,
+                        vertical: 8.h,
+                      ),
+                      child: _BalanceDisplay(),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.sp,
+                        vertical: 8.h,
+                      ),
+                      child: _CashbackDisplay(),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.sp,
+                        vertical: 8.h,
+                      ),
+                      child: const _ActionCards(),
+                    ),
+                    // Bottom padding to scroll past nav bar
+                    SizedBox(height: 50.sp),
+                  ],
+                ),
+              ),
+              if (isLoading)
+                Center(
+                  child: LoadingAnimationWidget.fourRotatingDots(
+                    color: Colors.orangeAccent,
+                    size: 40.sp,
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -97,72 +163,147 @@ class _BalanceDisplay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final denomination = ref.watch(settingsProvider).btcFormat;
-    final currency = ref.watch(settingsProvider).currency;
-    final totalBtcBalance = ref.watch(totalBalanceInDenominationProvider(denomination));
-    final totalBalanceInCurrency = ref.watch(totalBalanceInFiatProvider(currency));
-    final transaction = ref.watch(transactionNotifierProvider); // Adjust provider name if needed
-    final cashbackToReceive = btcInDenominationFormatted(transaction.unpaidCashback * 100000000, denomination);
+
+    final depixBalance = fiatInDenominationFormatted(
+        ref.watch(balanceNotifierProvider).brlBalance);
+    final usdBalance = fiatInDenominationFormatted(
+        ref.watch(balanceNotifierProvider).usdBalance);
+    final euroBalance = fiatInDenominationFormatted(
+        ref.watch(balanceNotifierProvider).eurBalance);
+    final btcBalance = btcInDenominationFormatted(
+        ref.watch(balanceNotifierProvider).btcBalance, denomination);
+    final liquidBalance = btcInDenominationFormatted(
+        ref.watch(balanceNotifierProvider).liquidBalance, denomination);
+    final lightningBalance = btcInDenominationFormatted(
+        ref.watch(balanceNotifierProvider).lightningBalance ?? 0, denomination);
 
     return Card(
-      color: Colors.grey.shade900,
+      color: Color(0x333333).withOpacity(0.4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 2,
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.h),
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Bitcoin balance'.i18n,
+              'Your Balances'.i18n,
               style: TextStyle(
                 fontSize: 20.sp,
                 color: Colors.grey,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(height: 8.h),
-            Text(
-              totalBtcBalance,
-              style: TextStyle(
-                fontSize: 25.sp,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+            SizedBox(height: 16.h),
+            Row(
+              children: [
+                _buildBalanceRow(
+                  imagePath: 'lib/assets/bitcoin-logo.png',
+                  color: const Color(0xFFFF9800),
+                  label: 'Bitcoin'.i18n,
+                  balance: btcBalance,
+                ),
+                _buildBalanceRow(
+                  imagePath: 'lib/assets/Bitcoin_lightning_logo.png',
+                  color: const Color(0xFFFF9800),
+                  label: 'Lightning'.i18n,
+                  balance: lightningBalance,
+                ),
+              ],
             ),
-            SizedBox(height: 8.h),
-            Text(
-              currencyFormat(double.parse(totalBalanceInCurrency), currency),
-              style: TextStyle(
-                fontSize: 20.sp,
-                color: Colors.grey,
-              ),
+            SizedBox(height: 12.h),
+            Row(
+              children: [
+                _buildBalanceRow(
+                  imagePath: 'lib/assets/l-btc.png',
+                  color: const Color(0xFFFF9800),
+                  label: 'Liquid'.i18n,
+                  balance: liquidBalance,
+                ),
+                _buildBalanceRow(
+                  imagePath: 'lib/assets/eurx.png',
+                  color: const Color(0xFF003399),
+                  label: 'EURx'.i18n,
+                  balance: euroBalance.toString(),
+                ),
+              ],
             ),
-            SizedBox(height: 16.h), // Space before cashback
-            Text(
-              'Cashback to receive'.i18n,
-              style: TextStyle(
-                fontSize: 16.sp, // Smaller than original balance title
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              cashbackToReceive,
-              style: TextStyle(
-                fontSize: 20.sp, // Smaller than main balance, matches fiat size
-                color: Colors.white, // Matches main balance color
-                fontWeight: FontWeight.bold,
-              ),
+            SizedBox(height: 12.h),
+            Row(
+              children: [
+                _buildBalanceRow(
+                  imagePath: 'lib/assets/depix.png',
+                  color: const Color(0xFF009C3B),
+                  label: 'Depix'.i18n,
+                  balance: depixBalance.toString(),
+                ),
+                _buildBalanceRow(
+                  imagePath: 'lib/assets/tether.png',
+                  color: const Color(0xFF008001),
+                  label: 'USDT'.i18n,
+                  balance: usdBalance.toString(),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildBalanceRow({
+    required String imagePath,
+    required Color color,
+    required String label,
+    required String balance,
+  }) {
+    return Expanded(
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(6.w),
+            child: ClipOval(
+              child: Image.asset(
+                imagePath,
+                width: 24.sp,
+                height: 24.sp,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          SizedBox(width: 5.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  balance,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ActionCards extends ConsumerWidget {
-  const _ActionCards({Key? key}) : super(key: key);
+  const _ActionCards();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -188,7 +329,7 @@ class _ActionCards extends ConsumerWidget {
                       'Buy'.i18n,
                       style: TextStyle(
                         fontSize: 18.sp,
-                        color: Colors.white,
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -196,7 +337,7 @@ class _ActionCards extends ConsumerWidget {
                 ),
               ),
             ),
-            SizedBox(width: 12.w),
+            SizedBox(width: 2.w),
             Expanded(
               child: Card(
                 shape: RoundedRectangleBorder(
@@ -219,7 +360,7 @@ class _ActionCards extends ConsumerWidget {
                       'Sell'.i18n,
                       style: TextStyle(
                         fontSize: 18.sp,
-                        color: Colors.white,
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -237,28 +378,29 @@ class _ActionCards extends ConsumerWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                color: Colors.grey.shade900,
+                color: Color(0x333333).withOpacity(0.4),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
                   onTap: () {
-                    showMessageSnackBar(
-                      message: "Coming soon".i18n,
-                      context: context,
-                      error: true,
-                    );
+                    context.push('/services');
                   },
                   child: AspectRatio(
                     aspectRatio: 1.2,
                     child: Container(
                       alignment: Alignment.center,
-                      child: Row(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.lightbulb, color: Colors.white, size: 20),
-                          SizedBox(width: 8.w),
+                          Image.asset(
+                            'lib/assets/Ice-Logo.png',
+                            width: 90.sp,
+                            height: 90.sp,
+                            fit: BoxFit.contain,
+                          ),
+                          SizedBox(height: 8.w),
                           Text(
-                            'Services'.i18n,
+                            'Market data'.i18n,
                             style: TextStyle(
                               fontSize: 16.sp,
                               color: Colors.white,
@@ -272,13 +414,13 @@ class _ActionCards extends ConsumerWidget {
                 ),
               ),
             ),
-            SizedBox(width: 12.w),
+            SizedBox(width: 2.w),
             Expanded(
               child: Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                color: Colors.grey.shade900,
+                color: Color(0x333333).withOpacity(0.4),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
                   onTap: () {
@@ -292,12 +434,18 @@ class _ActionCards extends ConsumerWidget {
                     aspectRatio: 1.2,
                     child: Container(
                       alignment: Alignment.center,
-                      child: Row(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.shopping_cart, color: Colors.white, size: 20),
-                          SizedBox(width: 8.w),
+                          Image.asset(
+                            'lib/assets/bitrefill.png',
+                            width: 90.sp,
+                            height: 90.sp,
+                            fit: BoxFit.contain,
+                            color: Colors.white,
+                          ),
+                          SizedBox(height: 8.w),
                           Text(
                             'Store'.i18n,
                             style: TextStyle(
@@ -315,13 +463,19 @@ class _ActionCards extends ConsumerWidget {
             ),
           ],
         ),
+        // Add bottom padding to scroll past nav bar
+        SizedBox(height: 100.sp),
       ],
     );
   }
 }
 
 Future<void> _handleOnPress(
-    WidgetRef ref, BuildContext context, String paymentId, bool buy) async {
+    WidgetRef ref,
+    BuildContext context,
+    String paymentId,
+    bool buy,
+    ) async {
   final insertedAffiliateCode = ref.watch(userProvider).affiliateCode ?? '';
   final hasUploadedAffiliateCode = ref.watch(userProvider).hasUploadedAffiliateCode ?? false;
   final recoveryCode = ref.watch(userProvider).recoveryCode;
@@ -331,9 +485,6 @@ Future<void> _handleOnPress(
   try {
     if (paymentId.isEmpty) {
       await ref.watch(createUserProvider.future);
-      if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
-        await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
-      }
       await _requestNotificationPermissions();
     } else {
       if (recoveryCode != null && recoveryCode.isNotEmpty) {

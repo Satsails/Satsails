@@ -135,7 +135,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
 
   Future<int> getBalance() async {
     final token = state.token;
-    if (token == null || token.isEmpty) {
+    if (token.isEmpty) {
       return 0;
     }
 
@@ -149,7 +149,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
 
   Future<String> createInvoice(int amount, {String type = 'lightning'}) async {
     final token = state.token;
-    if (token == null || token.isEmpty) {
+    if (token.isEmpty) {
       throw 'Token is missing or invalid';
     }
 
@@ -172,7 +172,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
 
   Future<void> sendPayment(String address, int amount) async {
     final token = state.token;
-    if (token == null || token.isEmpty) {
+    if (token.isEmpty) {
       throw 'Token is missing or invalid';
     }
 
@@ -184,7 +184,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
 
   Future<void> sendBitcoinPayment(String address, int amount, double fee) async {
     final token = state.token;
-    if (token == null || token.isEmpty) {
+    if (token.isEmpty) {
       throw 'Token is missing or invalid';
     }
 
@@ -196,7 +196,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
 
   Future<void> sendLiquidPayment(String address, int amount, double fee) async {
     final token = state.token;
-    if (token == null || token.isEmpty) {
+    if (token.isEmpty) {
       throw 'Token is missing or invalid';
     }
 
@@ -208,7 +208,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
 
   Future<List<CoinosPayment>> getTransactions() async {
     final token = state.token;
-    if (token == null || token.isEmpty) {
+    if (token.isEmpty) {
       return [];
     }
 
@@ -290,7 +290,7 @@ class CoinosLnService {
       );
       if (response.statusCode == 200) {
         final username = jsonDecode(response.body)['user']['username'];
-        return Result(data: username ?? null);
+        return Result(data: username);
       } else {
         return Result(error: 'Failed to get invoices: ${response.body}');
       }
@@ -318,7 +318,7 @@ class CoinosLnService {
         if (response.body.contains('Insufficient funds')) {
           return Result(error: 'Insufficient funds to pay for fees');
         } else {
-          return Result(error: '${response.body}');
+          return Result(error: response.body);
         }
       }
     } catch (e) {
@@ -345,7 +345,7 @@ class CoinosLnService {
         if (response.body.contains('Insufficient funds')) {
           return Result(error: 'Insufficient funds to pay for fees');
         } else {
-          return Result(error: '${response.body}');
+          return Result(error: response.body);
         }
       }
     } catch (e) {
@@ -370,7 +370,7 @@ class CoinosLnService {
         if (response.body.contains('Insufficient funds')) {
           return Result(error: 'Insufficient funds to pay for fees');
         } else {
-          return Result(error: '${response.body}');
+          return Result(error: response.body);
         }
       }
     } catch (e) {

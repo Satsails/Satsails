@@ -1,3 +1,4 @@
+import 'package:Satsails/models/boltz_model.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
@@ -18,10 +19,12 @@ class TransactionModel extends StateNotifier<Transaction> {
 abstract class BaseTransaction {
   final String id;
   final DateTime timestamp;
+  final bool isConfirmed;
 
   BaseTransaction({
     required this.id,
     required this.timestamp,
+    required this.isConfirmed,
   });
 }
 
@@ -29,66 +32,77 @@ class BitcoinTransaction extends BaseTransaction {
   final bdk.TransactionDetails btcDetails;
 
   BitcoinTransaction({
-    required String id,
-    required DateTime timestamp,
-    required bool isConfirmed,
+    required super.id,
+    required super.timestamp,
+    required super.isConfirmed,
     required this.btcDetails,
-  }) : super(id: id, timestamp: timestamp);
+  });
 }
 
 class LiquidTransaction extends BaseTransaction {
   final lwk.Tx lwkDetails;
 
   LiquidTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.lwkDetails,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp);
+    required super.isConfirmed,
+  });
 }
 
 class EulenTransaction extends BaseTransaction {
   final EulenTransfer details;
 
   EulenTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.details,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp);
+    required super.isConfirmed,
+  });
 }
 
 class NoxTransaction extends BaseTransaction {
   final NoxTransfer details;
 
   NoxTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.details,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp);
+    required super.isConfirmed,
+  });
 }
 
 class SideswapPegTransaction extends BaseTransaction {
   final SideswapPegStatus sideswapPegDetails;
 
   SideswapPegTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.sideswapPegDetails,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp);
+    required super.isConfirmed,
+  });
 }
 
 class SideswapInstantSwapTransaction extends BaseTransaction {
   final SideswapCompletedSwap sideswapInstantSwapDetails;
 
   SideswapInstantSwapTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.sideswapInstantSwapDetails,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp);
+    required super.isConfirmed,
+  });
+}
+
+class BoltzTransaction extends BaseTransaction {
+  final LbtcBoltz details;
+
+  BoltzTransaction({
+    required super.id,
+    required super.timestamp,
+    required this.details,
+    required super.isConfirmed,
+  });
 }
 
 class Transaction {
@@ -98,6 +112,7 @@ class Transaction {
   final List<SideswapInstantSwapTransaction> sideswapInstantSwapTransactions;
   final List<EulenTransaction> eulenTransactions;
   final List<NoxTransaction> noxTransactions;
+  final List<BoltzTransaction> boltzTransactions;
 
   Transaction({
     required this.bitcoinTransactions,
@@ -106,6 +121,7 @@ class Transaction {
     required this.sideswapInstantSwapTransactions,
     required this.eulenTransactions,
     required this.noxTransactions,
+    required this.boltzTransactions,
   });
 
   Transaction copyWith({
@@ -115,6 +131,7 @@ class Transaction {
     List<SideswapInstantSwapTransaction>? sideswapInstantSwapTransactions,
     List<EulenTransaction>? eulenTransactions,
     List<NoxTransaction>? noxTransactions,
+    List<BoltzTransaction>? boltzTransactions,
   }) {
     return Transaction(
       bitcoinTransactions: bitcoinTransactions ?? this.bitcoinTransactions,
@@ -122,21 +139,23 @@ class Transaction {
       sideswapPegTransactions: sideswapPegTransactions ?? this.sideswapPegTransactions,
       sideswapInstantSwapTransactions: sideswapInstantSwapTransactions ?? this.sideswapInstantSwapTransactions,
       eulenTransactions: eulenTransactions ?? this.eulenTransactions,
-      noxTransactions: noxTransactions ?? this.noxTransactions
+      noxTransactions: noxTransactions ?? this.noxTransactions,
+      boltzTransactions: boltzTransactions ?? this.boltzTransactions,
     );
   }
 
-  /// Combines all transactions into a single list.
   List<BaseTransaction> get allTransactions {
     return [
       ...bitcoinTransactions,
       ...liquidTransactions,
       ...sideswapPegTransactions,
       ...sideswapInstantSwapTransactions,
+      ...eulenTransactions,
+      ...noxTransactions,
+      ...boltzTransactions,
     ];
   }
 
-  /// Sorts all transactions based on their timestamp.
   List<BaseTransaction> get allTransactionsSorted {
     List<BaseTransaction> sorted = List.from(allTransactions);
     sorted.sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -171,6 +190,33 @@ class Transaction {
       return tx.lwkDetails.kind == kind;
     }).toList()
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
+  List<BaseTransaction> buyAndSell(DateTimeSelect range) {
+    List<BaseTransaction> buyAndSellTxs = [
+      ...eulenTransactions,
+      ...noxTransactions,
+    ];
+
+    return buyAndSellTxs.where((tx) {
+      return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(range.start * 1000)) &&
+          tx.timestamp.isBefore(DateTime.fromMillisecondsSinceEpoch(range.end * 1000));
+    }).toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
+  List<BaseTransaction> filterSwapTransactions() {
+    List<BaseTransaction> swaps = [];
+    swaps.addAll(sideswapPegTransactions);
+    swaps.addAll(liquidTransactions.where((tx) => tx.lwkDetails.kind == 'unknown'));
+    swaps.addAll(boltzTransactions);
+    swaps.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    return swaps;
+  }
+
+  DateTime? get earliestTimestamp {
+    if (allTransactions.isEmpty) return null;
+    return allTransactions.map((tx) => tx.timestamp).reduce((a, b) => a.isBefore(b) ? a : b);
   }
 
   double get totalCashback {
@@ -209,6 +255,7 @@ class Transaction {
       sideswapInstantSwapTransactions: [],
       eulenTransactions: [],
       noxTransactions: [],
+      boltzTransactions: [],
     );
   }
 }

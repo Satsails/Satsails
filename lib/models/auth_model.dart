@@ -32,8 +32,6 @@ class BackendAuth {
         scriptType: P2PKH(compressed: true)
       );
 
-      if (challengeResponse == null) return null;
-
       final signature = signer.signMessage(message: challengeResponse);
       return signature;
     } catch (e) {
@@ -103,7 +101,20 @@ class AuthModel {
   }
 
   Future<String?> getMnemonic() async {
-    return await _storage.read(key: 'mnemonic');
+    return await getMnemonicWithRetry();
+  }
+
+  // New method with retry logic
+  Future<String?> getMnemonicWithRetry() async {
+    for (int i = 0; i < 3; i++) {
+      final mnemonic = await _storage.read(key: 'mnemonic');
+      if (mnemonic != null) {
+        return mnemonic;
+      }
+      // Wait 500ms before the next attempt
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+    return null;
   }
 
   Future<String?> getPin() async {
@@ -191,12 +202,12 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('settings');
     await Hive.deleteBoxFromDisk('bitcoinTransactions');
     await Hive.deleteBoxFromDisk('liquidTransactions');
-    await Hive.deleteBoxFromDisk('receiveBoltz');
-    await Hive.deleteBoxFromDisk('payBoltz');
+    await Hive.deleteBoxFromDisk('boltzSwapsBox');
     await Hive.deleteBoxFromDisk('sideswapStatus');
     await Hive.deleteBoxFromDisk('sideswapSwapData');
     await Hive.deleteBoxFromDisk('pix');
     await Hive.deleteBoxFromDisk('eulenTransfersBox');
+    await Hive.deleteBoxFromDisk('noxTransfersBox');
     await Hive.deleteBoxFromDisk('user');
     await Hive.deleteBoxFromDisk('affiliate');
     await Hive.deleteBoxFromDisk('addresses');
