@@ -438,7 +438,7 @@ class Settings extends ConsumerWidget {
             GestureDetector(
               onTap: () => _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref),
               child: Text(
-                'Insert an affiliate code to get a discount'.i18n,
+                'Insert an affiliate code to get 6.67% cashback on purchases'.i18n,
                 style: TextStyle(color: Colors.grey, fontSize: 14.sp),
               ),
             ),

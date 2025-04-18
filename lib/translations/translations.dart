@@ -2447,8 +2447,8 @@ extension Localization on String {
         'pt': "Comprar de fornecedores",
       }+
       {
-        'en': "P2P (No KYC)",
-        'pt': "P2P (Sem KYC)",
+        'en': "Purchase with P2P (No KYC)",
+        'pt': "Comprar com P2P (Sem KYC)",
       }+
       {
         'en': "Pay in",
