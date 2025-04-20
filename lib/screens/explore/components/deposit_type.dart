@@ -268,7 +268,7 @@ class ProviderDetails extends ConsumerWidget {
           iconColor: Colors.white,
           collapsedIconColor: Colors.white,
           backgroundColor: const Color(0xFF333333).withOpacity(0.4),
-          collapsedBackgroundColor: const Color(0xFF212121),
+          collapsedBackgroundColor: const Color(0xFF333333).withOpacity(0.4),
           children: [
             Padding(
               padding: EdgeInsets.all(20.h),
