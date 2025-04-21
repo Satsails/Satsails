@@ -22,7 +22,7 @@ class SideswapCompletedSwapAdapter extends TypeAdapter<SideswapCompletedSwap> {
       sendAmount: fields[2] as num,
       recvAsset: fields[3] as String,
       recvAmount: fields[4] as num,
-      orderId: fields[5] as String,
+      quoteId: fields[5] as int,
       timestamp: fields[6] as int,
     );
   }
@@ -42,7 +42,7 @@ class SideswapCompletedSwapAdapter extends TypeAdapter<SideswapCompletedSwap> {
       ..writeByte(4)
       ..write(obj.recvAmount)
       ..writeByte(5)
-      ..write(obj.orderId)
+      ..write(obj.quoteId)
       ..writeByte(6)
       ..write(obj.timestamp);
   }

@@ -4,6 +4,7 @@ import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
+import 'package:Satsails/models/sideswap/sideswap_quote_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
@@ -36,6 +37,11 @@ enum SwapType {
   sideswapLbtcToUsdt,
   sideswapLbtcToEurox,
   sideswapLbtcToDepix,
+  sideswapEuroxToUsdt,
+  sideswapUsdtToEurox,
+  sideswapUsdtToDepix,
+  sideswapDepixToUsdt,
+
 }
 
 const List<SwapType> fiatDisplayAllowedSwapTypes = [
@@ -48,6 +54,10 @@ const List<SwapType> fiatDisplayAllowedSwapTypes = [
   SwapType.coinosLnToLBTC,
   SwapType.coinosBtcToLn,
   SwapType.coinosLbtcToLn,
+  SwapType.sideswapEuroxToUsdt,
+  SwapType.sideswapUsdtToEurox,
+  SwapType.sideswapUsdtToDepix,
+  SwapType.sideswapDepixToUsdt,
 ];
 
 const List<String> fiatAssets = [
@@ -112,6 +122,19 @@ final swapTypeProvider = StateProvider.autoDispose<SwapType?>((ref) {
     case 'L-BTC-Depix':
       return SwapType.sideswapLbtcToDepix;
 
+    case 'USDT-Depix':
+      return SwapType.sideswapUsdtToDepix;
+
+    case 'Depix-USDT':
+      return SwapType.sideswapDepixToUsdt;
+
+    case 'Eurox-USDT':
+      return SwapType.sideswapEuroxToUsdt;
+
+    case 'USDT-Eurox':
+      return SwapType.sideswapUsdtToEurox;
+
+
     default:
       return null;
   }
@@ -123,106 +146,125 @@ class SwapTypeNotifier extends StateNotifier<void> {
   final Ref ref;
 
   void updateProviders(SwapType? swapType) {
+    if (swapType == null) return;
+
+    // Default settings for all swaps
+    ref.read(inputInFiatProvider.notifier).state = false;
+    ref.read(pegOutBlocksProvider.notifier).state = 2;
+
     switch (swapType) {
       case SwapType.sideswapUsdtToLbtc:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
-        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
         ref.read(sendBitcoinProvider.notifier).state = false;
-        ref.read(inputInFiatProvider.notifier).state = false;
-        ref.read(pegOutBlocksProvider.notifier).state = 2;
+        break;
+
+      case SwapType.sideswapUsdtToDepix:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.BRL);
+        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
+        ref.read(sendBitcoinProvider.notifier).state = false;
+        break;
+
+      case SwapType.sideswapUsdtToEurox:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.EUR);
+        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
+        ref.read(sendBitcoinProvider.notifier).state = false;
         break;
 
       case SwapType.sideswapEuroxToLbtc:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.EUR);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.EUR));
-        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.EUR);
         ref.read(sendBitcoinProvider.notifier).state = false;
-        ref.read(inputInFiatProvider.notifier).state = false;
-        ref.read(pegOutBlocksProvider.notifier).state = 2;
+        break;
+
+      case SwapType.sideswapEuroxToUsdt:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.EUR);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
+        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.EUR));
+        ref.read(sendBitcoinProvider.notifier).state = false;
         break;
 
       case SwapType.sideswapDepixToLbtc:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.BRL);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.BRL));
-        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.BRL);
         ref.read(sendBitcoinProvider.notifier).state = false;
-        ref.read(inputInFiatProvider.notifier).state = false;
-        ref.read(pegOutBlocksProvider.notifier).state = 2;
+        break;
+
+      case SwapType.sideswapDepixToUsdt:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.BRL);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
+        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.BRL));
+        ref.read(sendBitcoinProvider.notifier).state = false;
         break;
 
       case SwapType.sideswapLbtcToUsdt:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
-        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
         ref.read(sendBitcoinProvider.notifier).state = true;
-        ref.read(pegOutBlocksProvider.notifier).state = 2;
-        ref.read(inputInFiatProvider.notifier).state = false;
         break;
 
       case SwapType.sideswapLbtcToEurox:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.EUR);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
-        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.EUR);
         ref.read(sendBitcoinProvider.notifier).state = true;
-        ref.read(inputInFiatProvider.notifier).state = false;
-        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.sideswapLbtcToDepix:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.BRL);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
-        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.BRL);
         ref.read(sendBitcoinProvider.notifier).state = true;
-        ref.read(inputInFiatProvider.notifier).state = false;
-        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.sideswapBtcToLbtc:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
-        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendBitcoinProvider.notifier).state = true;
-        ref.read(inputInFiatProvider.notifier).state = false;
-        ref.read(pegOutBlocksProvider.notifier).state = 2;
         ref.read(pegInProvider.notifier).state = true;
         break;
 
       case SwapType.sideswapLbtcToBtc:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
-        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendBitcoinProvider.notifier).state = true;
-        ref.read(inputInFiatProvider.notifier).state = false;
-        ref.read(pegOutBlocksProvider.notifier).state = 2;
         ref.read(pegInProvider.notifier).state = false;
         break;
 
       case SwapType.coinosLnToBTC:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
-        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendBitcoinProvider.notifier).state = false;
-        ref.read(inputInFiatProvider.notifier).state = false;
-        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.coinosLnToLBTC:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
-        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendBitcoinProvider.notifier).state = false;
-        ref.read(inputInFiatProvider.notifier).state = false;
-        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.coinosBtcToLn:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
-        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendBitcoinProvider.notifier).state = true;
-        ref.read(inputInFiatProvider.notifier).state = false;
-        ref.read(pegOutBlocksProvider.notifier).state = 2;
         break;
 
       case SwapType.coinosLbtcToLn:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
-        ref.read(assetExchangeProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendBitcoinProvider.notifier).state = true;
-        ref.read(inputInFiatProvider.notifier).state = false;
-        ref.read(pegOutBlocksProvider.notifier).state = 2;
-        break;
-
-      default:
         break;
     }
   }
@@ -253,10 +295,14 @@ final balanceFromAssetProvider = StateProvider.autoDispose<String>((ref) {
     case SwapType.coinosLnToLBTC:
       return btcInDenominationFormatted(balance.lightningBalance!.toInt(), btcFormat);
     case SwapType.sideswapUsdtToLbtc:
+    case SwapType.sideswapUsdtToDepix:
+    case SwapType.sideswapUsdtToEurox:
       return fiatInDenominationFormatted(balance.usdBalance);
     case SwapType.sideswapEuroxToLbtc:
+    case SwapType.sideswapEuroxToUsdt:
       return fiatInDenominationFormatted(balance.eurBalance);
     case SwapType.sideswapDepixToLbtc:
+    case SwapType.sideswapDepixToUsdt:
       return fiatInDenominationFormatted(balance.brlBalance);
     default:
       return '0';
@@ -275,9 +321,11 @@ List<String> getAvailableSwaps(String asset, WidgetRef ref) {
     case 'Lightning':
       return lightningAvailable ? ['Bitcoin', 'L-BTC'] : [];
     case 'USDT':
+      return ['Depix', 'Eurox', 'L-BTC'];
     case 'Eurox':
+      return ['USDT', 'L-BTC'];
     case 'Depix':
-      return ['L-BTC'];
+      return ['USDT', 'L-BTC'];
     default:
       return [];
   }
@@ -453,6 +501,8 @@ Future<void> handleMaxButtonPress(
 
   switch (swapType) {
     case SwapType.sideswapUsdtToLbtc:
+    case SwapType.sideswapUsdtToDepix:
+    case SwapType.sideswapUsdtToEurox:
       balance = ref.read(balanceNotifierProvider).usdBalance;
       controller.text = fiatInDenominationFormatted(balance);
       ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
@@ -461,6 +511,7 @@ Future<void> handleMaxButtonPress(
       break;
 
     case SwapType.sideswapEuroxToLbtc:
+    case SwapType.sideswapEuroxToUsdt:
       balance = ref.read(balanceNotifierProvider).eurBalance;
       controller.text = fiatInDenominationFormatted(balance);
       ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.EUR));
@@ -469,6 +520,7 @@ Future<void> handleMaxButtonPress(
       break;
 
     case SwapType.sideswapDepixToLbtc:
+    case SwapType.sideswapDepixToUsdt:
       balance = ref.read(balanceNotifierProvider).brlBalance;
       controller.text = fiatInDenominationFormatted(balance);
       ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.BRL));
@@ -805,18 +857,15 @@ Widget assetLogic(
     case SwapType.sideswapUsdtToLbtc:
     case SwapType.sideswapEuroxToLbtc:
     case SwapType.sideswapDepixToLbtc:
-      child = buildSideswapInstantSwap(ref, context, receiveAsset, controller);
-      break;
     case SwapType.sideswapLbtcToUsdt:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToDepix:
-      child = buildSideswapInstantSwap(ref, context, receiveAsset, controller);
+      child = buildSideswapInstantSwap(ref, context, controller, receiveAsset: receiveAsset);
       break;
     default:
       child = Container();
   }
 
-  // Wrap the child in a SizedBox to enforce consistent height
   return SizedBox(
     height: widgetHeight,
     child: child,
@@ -1021,239 +1070,195 @@ Widget buildCoinosSwap(
 Widget buildSideswapInstantSwap(
     WidgetRef ref,
     BuildContext context,
-    bool receiveAsset,
-    TextEditingController controller,
-    ) {
+    TextEditingController controller, {
+      bool receiveAsset = true,
+    }) {
   final btcFormat = ref.read(settingsProvider).btcFormat;
   final sendBitcoin = ref.watch(sendBitcoinProvider);
   final currency = ref.read(settingsProvider).currency;
   final currencyRate = ref.read(selectedCurrencyProvider(currency));
   final inputInFiat = ref.watch(inputInFiatProvider);
   final fromAsset = ref.watch(fromAssetProvider);
+  final toAsset = ref.watch(toAssetProvider);
 
-  // Determine the current unit for the dropdown
   String currentUnit = inputInFiat ? currency : btcFormat;
-
-  // Dropdown options (only shown when fiat switching is allowed)
   List<String> options = fiatDisplayAllowedSwapTypes.contains(ref.watch(swapTypeProvider))
       ? [currency, btcFormat]
       : [];
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.end,
-    children: [
-      if (receiveAsset)
-        Consumer(
-          builder: (context, watch, child) {
-            final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
-            return sideswapPriceStreamAsyncValue.when(
-              data: (value) {
-                if (value.errorMsg != null && (value.errorMsg!.contains('Max') || value.errorMsg!.contains('Min'))) {
-                  final parts = value.errorMsg!.split(' ');
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        parts[0],
-                        style: TextStyle(color: Colors.grey, fontSize: 20.sp),
-                      ),
-                      Text(
-                        parts.sublist(1).join(' '),
-                        style: TextStyle(color: Colors.grey, fontSize: 20.sp),
-                      ),
-                    ],
-                  );
-                } else {
-                  final valueToReceive = value.recvAmount!;
-                  final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
-                  final valueInCurrency = receiveAsset
-                      ? currencyFormat(double.parse(formattedValueInBtc) * currencyRate, currency)
-                      : '';
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      SizedBox(height: 20.h),
-                      if (!fiatAssets.contains(ref.watch(toAssetProvider)))
-                        Row(
-                          children: [
-                            Text(
-                              valueInCurrency,
-                              style: TextStyle(fontSize: 20.sp, color: Colors.grey),
-                            ),
-                            SizedBox(width: 2.w),
-                            Text(currency, style: TextStyle(fontSize: 8.sp, color: Colors.grey)),
-                          ],
-                        ),
-                      IntrinsicWidth(
-                        child: Row(
-                          children: [
-                            Text(
-                              btcInDenominationFormatted(valueToReceive.toDouble(), btcFormat, !sendBitcoin),
-                              style: TextStyle(color: Colors.white, fontSize: 20.sp),
-                            ),
-                            SizedBox(width: 2.w),
-                            if (!sendBitcoin)
-                              Text(
-                                btcFormat,
-                                style: TextStyle(color: Colors.grey, fontSize: 8.sp),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                }
-              },
-              loading: () => controller.text.isEmpty
-                  ? Column(
-                children: [
-                  SizedBox(height: 20.h),
-                  Text(
-                    "0",
-                    style: TextStyle(color: Colors.grey, fontSize: 20.sp),
-                  ),
-                ],
-              )
-                  : Center(
-                child: Column(
-                  children: [
-                    SizedBox(height: 20.h),
-                    LoadingAnimationWidget.progressiveDots(
-                      size: 16.w,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-              ),
-              error: (error, stack) => Text(
-                'Error: $error',
-                style: TextStyle(color: Colors.white, fontSize: 20.sp),
-              ),
-            );
-          },
-        )
-      else
-        Column(
+
+  final quote = ref.watch(sideswapQuoteProvider);
+
+  if (receiveAsset) {
+    switch (quote.status) {
+      case 'Success':
+        final receiveAmount = quote.receiveAmount!;
+        final formattedAmount = btcInDenominationFormatted(receiveAmount, btcFormat);
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // Dropdown or unit text (positioned above the input field)
-            if (options.isNotEmpty)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: currentUnit,
-                      dropdownColor: const Color(0xFF212121),
-                      borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-                      items: options.map((option) {
-                        return DropdownMenuItem(
-                          value: option,
-                          child: Text(
-                            option.toUpperCase(),
-                            style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (newUnit) {
-                        if (newUnit != null && newUnit != currentUnit) {
-                          final isSwitchingToFiat = newUnit == currency;
-                          ref.read(inputInFiatProvider.notifier).state = isSwitchingToFiat;
-                          if (isSwitchingToFiat) {
-                            String fiatValue = calculateAmountInSelectedCurrency(
-                                ref.watch(sendTxProvider).amount, currency, ref.watch(currencyNotifierProvider));
-                            controller.text = double.parse(fiatValue) < 0.01
-                                ? ''
-                                : double.parse(fiatValue).toStringAsFixed(2);
-                          } else {
-                            String btcValue = btcFormat == 'sats'
-                                ? calculateAmountToDisplayFromFiatInSats(controller.text, currency, ref.watch(currencyNotifierProvider))
-                                : calculateAmountToDisplayFromFiat(controller.text, currency, ref.watch(currencyNotifierProvider));
-                            controller.text = btcFormat == 'sats'
-                                ? btcInDenominationFormatted(double.parse(btcValue), btcFormat)
-                                : btcValue;
-                          }
-                        }
-                      },
-                      icon: Padding(
-                        padding: EdgeInsets.only(left: 8.0.w),
-                        child: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                      ),
-                      isDense: true,
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                    ),
-                  ),
-                ],
-              )
-            else
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    fromAsset,
-                    style: TextStyle(fontSize: 16.sp, color: Colors.grey),
-                  ),
-                ],
+            Text(
+              formattedAmount,
+              style: TextStyle(color: Colors.white, fontSize: 20.sp),
+            ),
+            if (!fiatAssets.contains(toAsset)) ...[
+              SizedBox(height: 4.h),
+              Text(
+                currencyFormat(double.parse(formattedAmount) * currencyRate, currency),
+                style: TextStyle(color: Colors.grey, fontSize: 16.sp),
               ),
-            SizedBox(height: 8.h), // Vertical spacing between dropdown and input field
-            // Input field
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IntrinsicWidth(
-                  child: TextFormField(
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    controller: controller,
-                    inputFormatters: inputInFiat
-                        ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2, integerRange: 7)]
-                        : fiatAssets.contains(fromAsset)
-                        ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2, integerRange: 7)]
-                        : [
-                      CommaTextInputFormatter(),
-                      btcFormat == 'sats'
-                          ? DecimalTextInputFormatter(decimalRange: 0)
-                          : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),
-                    ],
-                    textAlign: TextAlign.right,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: '0',
-                      hintStyle: TextStyle(color: Colors.grey, fontSize: 28.sp),
-                    ),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: controller.text.length > 10 ? 20.sp : 28.sp,
-                    ),
-                    onChanged: (value) async {
-                      if (inputInFiat) {
-                        if (value.isEmpty) {
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
-                          ref.read(sendTxProvider.notifier).updateDrain(false);
-                        } else {
-                          String send = btcFormat == 'sats'
-                              ? calculateAmountToDisplayFromFiatInSats(value, currency, ref.watch(currencyNotifierProvider))
-                              : calculateAmountToDisplayFromFiat(value, currency, ref.watch(currencyNotifierProvider));
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput(send, btcFormat);
-                          ref.read(sendTxProvider.notifier).updateDrain(false);
-                        }
+            ],
+          ],
+        );
+      case 'LowBalance':
+        return Text(
+          'Insufficient balance: available ${quote.available}',
+          style: TextStyle(color: Colors.red, fontSize: 16.sp),
+        );
+      case 'Error':
+        return Text(
+          'Error: ${quote.errorMsg}',
+          style: TextStyle(color: Colors.red, fontSize: 16.sp),
+        );
+      case 'Loading':
+        return Center(
+          child: LoadingAnimationWidget.progressiveDots(
+            size: 16.w,
+            color: Colors.white,
+          ),
+        );
+      default:
+        return Text(
+          'Waiting for quote...',
+          style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+        );
+    }
+  } else {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        if (options.isNotEmpty)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: currentUnit,
+                  dropdownColor: const Color(0xFF212121),
+                  borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                  items: options.map((option) {
+                    return DropdownMenuItem(
+                      value: option,
+                      child: Text(
+                        option.toUpperCase(),
+                        style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (newUnit) {
+                    if (newUnit != null && newUnit != currentUnit) {
+                      final isSwitchingToFiat = newUnit == currency;
+                      ref.read(inputInFiatProvider.notifier).state = isSwitchingToFiat;
+                      if (isSwitchingToFiat) {
+                        String fiatValue = calculateAmountInSelectedCurrency(
+                          ref.watch(sendTxProvider).amount,
+                          currency,
+                          ref.watch(currencyNotifierProvider),
+                        );
+                        controller.text = double.parse(fiatValue) < 0.01
+                            ? ''
+                            : double.parse(fiatValue).toStringAsFixed(2);
                       } else {
-                        if (value.isEmpty) {
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
-                          ref.read(sendTxProvider.notifier).updateDrain(false);
-                        } else {
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
-                          ref.read(sendTxProvider.notifier).updateDrain(false);
-                        }
+                        String btcValue = btcFormat == 'sats'
+                            ? calculateAmountToDisplayFromFiatInSats(
+                            controller.text, currency, ref.watch(currencyNotifierProvider))
+                            : calculateAmountToDisplayFromFiat(
+                            controller.text, currency, ref.watch(currencyNotifierProvider));
+                        controller.text = btcFormat == 'sats'
+                            ? btcInDenominationFormatted(double.parse(btcValue), btcFormat)
+                            : btcValue;
                       }
-                    },
+                    }
+                  },
+                  icon: Padding(
+                    padding: EdgeInsets.only(left: 8.0.w),
+                    child: const Icon(Icons.arrow_drop_down, color: Colors.white),
                   ),
+                  isDense: true,
+                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
                 ),
-              ],
+              ),
+            ],
+          )
+        else
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                fromAsset,
+                style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+              ),
+            ],
+          ),
+        SizedBox(height: 8.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            IntrinsicWidth(
+              child: TextFormField(
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                controller: controller,
+                inputFormatters: inputInFiat
+                    ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2, integerRange: 7)]
+                    : fiatAssets.contains(fromAsset)
+                    ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2, integerRange: 7)]
+                    : [
+                  CommaTextInputFormatter(),
+                  btcFormat == 'sats'
+                      ? DecimalTextInputFormatter(decimalRange: 0)
+                      : DecimalTextInputFormatter(decimalRange: 8, integerRange: 3),
+                ],
+                textAlign: TextAlign.right,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: '0',
+                  hintStyle: TextStyle(color: Colors.grey, fontSize: 28.sp),
+                ),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: controller.text.length > 10 ? 20.sp : 28.sp,
+                ),
+                onChanged: (value) async {
+                  if (inputInFiat) {
+                    if (value.isEmpty) {
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                    } else {
+                      String send = btcFormat == 'sats'
+                          ? calculateAmountToDisplayFromFiatInSats(
+                          value, currency, ref.watch(currencyNotifierProvider))
+                          : calculateAmountToDisplayFromFiat(
+                          value, currency, ref.watch(currencyNotifierProvider));
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput(send, btcFormat);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                    }
+                  } else {
+                    if (value.isEmpty) {
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                    } else {
+                      ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
+                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                    }
+                  }
+                },
+              ),
             ),
           ],
         ),
-    ],
-  );
+      ],
+    );
+  }
 }
 
 Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controller) {
@@ -1822,43 +1827,43 @@ List<Widget> _getFeeRows(WidgetRef ref) {
     case SwapType.sideswapLbtcToUsdt:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToDepix:
-      final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
-      return sideswapPriceStreamAsyncValue.when(
-        data: (value) {
-          if (value.errorMsg != null) {
-            return [
-              Text(
-                value.errorMsg!,
-                style: TextStyle(color: Colors.grey, fontSize: 14.sp),
-                textAlign: TextAlign.center,
-              )
-            ];
-          } else {
-            final fixedFee = value.fixedFee ?? 0;
-
-            return [
-              _feeRow('Asset price', value.price?.toStringAsFixed(0) ?? "N/A", ref),
-              _feeRow(
-                'Fixed Fee',
-                btcInDenominationFormatted(fixedFee.toDouble(), btcFormat, true),
-                ref,
-              ),
-            ];
-          }
-        },
-        loading: () {
-          return [
-            _feeRow('Price', '0', ref),
-            _feeRow('Fixed Fee', '0', ref),
-          ];
-        },
-        error: (error, stack) {
-          return [
-            _feeRow('Price', '0', ref),
-            _feeRow('Fixed Fee', '0', ref),
-          ];
-        },
-      );
+      // final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
+      // return sideswapPriceStreamAsyncValue.when(
+      //   data: (value) {
+      //     if (value.errorMsg != null) {
+      //       return [
+      //         Text(
+      //           value.errorMsg!,
+      //           style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+      //           textAlign: TextAlign.center,
+      //         )
+      //       ];
+      //     } else {
+      //       final fixedFee = value.fixedFee ?? 0;
+      //
+      //       return [
+      //         _feeRow('Asset price', value.price?.toStringAsFixed(0) ?? "N/A", ref),
+      //         _feeRow(
+      //           'Fixed Fee',
+      //           btcInDenominationFormatted(fixedFee.toDouble(), btcFormat, true),
+      //           ref,
+      //         ),
+      //       ];
+      //     }
+      //   },
+      //   loading: () {
+      //     return [
+      //       _feeRow('Price', '0', ref),
+      //       _feeRow('Fixed Fee', '0', ref),
+      //     ];
+      //   },
+      //   error: (error, stack) {
+      //     return [
+      //       _feeRow('Price', '0', ref),
+      //       _feeRow('Fixed Fee', '0', ref),
+      //     ];
+      //   },
+      // );
 
     default:
       return [
@@ -2120,7 +2125,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
           ref.read(transactionInProgressProvider.notifier).state = true;
           controller.loading();
           try {
-            await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
+            // await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
             showFullscreenExchangeModal(
               amount: ref.read(sendTxProvider).amount,
               context: context,

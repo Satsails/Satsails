@@ -1,187 +1,30 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:lwk/lwk.dart';
 
 part 'sideswap_exchange_model.g.dart';
 
-class SideswapStartExchange {
-  String orderId;
-  String sendAsset;
-  num sendAmount;
-  String recvAsset;
-  num recvAmount;
-  String uploadUrl;
+class SideswapQuotePset {
+  final String pset;
+  final int ttl;
+  final int quoteId;
 
-  SideswapStartExchange({
-    required this.orderId,
-    required this.sendAsset,
-    required this.sendAmount,
-    required this.recvAsset,
-    required this.recvAmount,
-    required this.uploadUrl,
+  SideswapQuotePset({
+    required this.pset,
+    required this.ttl,
+    required this.quoteId,
   });
 
-  factory SideswapStartExchange.fromJson(Map<String, dynamic> json) {
-    var result = json['result'];
-    return SideswapStartExchange(
-      orderId: result['order_id'],
-      sendAsset: result['send_asset'],
-      sendAmount: result['send_amount'],
-      recvAsset: result['recv_asset'],
-      recvAmount: result['recv_amount'],
-      uploadUrl: result['upload_url'],
+  factory SideswapQuotePset.fromJson(Map<String, dynamic> json, int quoteId) {
+    final result = json['result']['get_quote'];
+    return SideswapQuotePset(
+      pset: result['pset'],
+      ttl: result['ttl'],
+      quoteId: quoteId,
     );
   }
-
-  Future<SideswapPsetToSign> uploadInputs(String returnAddress, List<TxOut> inputs, String receiveAddress, int sendAmount) async {
-
-    final List<TxOut> assetInputs = inputs.where((TxOut utxo) => utxo.unblinded.asset == sendAsset).toList();
-
-    List<TxOut> assetInputForAmount = [];
-    int total = 0;
-
-    for (TxOut utxo in assetInputs) {
-      if (total >= sendAmount) {
-        break;
-      }
-      total += utxo.unblinded.value.toInt();
-      assetInputForAmount.add(utxo);
-    }
-
-    List<Map<String, dynamic>> generateTransactionInputs(List<TxOut> assetInputForAmount) {
-      List<Map<String, dynamic>> formattedTransactionInputs = [];
-
-      for (TxOut utxo in assetInputForAmount) {
-        Map<String, dynamic> transactionInput = {
-          "asset": sendAsset,
-          "asset_bf": utxo.unblinded.assetBf,
-          "redeem_script": utxo.scriptPubkey,
-          "txid": utxo.outpoint.txid,
-          "value": utxo.unblinded.value.toInt(),
-          "value_bf": utxo.unblinded.valueBf,
-          "vout": utxo.outpoint.vout,
-        };
-        formattedTransactionInputs.add(transactionInput);
-      }
-
-      return formattedTransactionInputs;
-    }
-
-
-    final Map<String, dynamic> requestData = {
-      "id": 1,
-      "method": "swap_start",
-      "params": {
-        "change_addr": returnAddress,
-        "inputs": generateTransactionInputs(assetInputForAmount),
-        "order_id": orderId,
-        "recv_addr": receiveAddress,
-        "recv_amount": recvAmount,
-        "recv_asset": recvAsset,
-        "send_amount": sendAmount,
-        "send_asset": sendAsset,
-      },
-    };
-
-
-    final uri = Uri.parse(uploadUrl);
-      final response = await http.post(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(requestData),
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        return SideswapPsetToSign.fromJson(responseData, orderId);
-      } else {
-        response.body.contains("UTXO amount") ? throw Exception('Balance insufficient.') :
-        throw 'Swap failed, please try again';
-      }
-  }
-
-
-  Future<SideswapCompletedSwap> uploadPset(String pset, String submitId) async {
-    final uri = Uri.parse(uploadUrl);
-
-    final Map<String, dynamic> requestData = {
-      "id": 1,
-      "method": "swap_sign",
-      "params": {
-        "order_id": orderId,
-        "submit_id": submitId,
-        "pset": pset,
-      },
-    };
-
-    final response = await http.post(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode(requestData),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
-      return  SideswapCompletedSwap(
-        txid: responseData['result']['txid'],
-        sendAsset: sendAsset,
-        sendAmount: sendAmount,
-        recvAsset: recvAsset,
-        recvAmount: recvAmount,
-        orderId: orderId,
-        timestamp: DateTime.now().millisecondsSinceEpoch,
-      );
-    } else {
-      throw 'Swap failed, please try again';
-    }
-  }
 }
-
-class SideswapSwapsNotifier extends StateNotifier<List<SideswapCompletedSwap>> {
-  SideswapSwapsNotifier() : super([]) {
-    _loadSwaps();
-  }
-
-  Future<void> _loadSwaps() async {
-    final box = await Hive.openBox<SideswapCompletedSwap>('sideswapSwapData');
-
-    /// **Listen for Hive Box changes and auto-update state**
-    box.watch().listen((event) => _updateSwaps());
-
-    _updateSwaps();
-  }
-
-  void _updateSwaps() {
-    final box = Hive.box<SideswapCompletedSwap>('sideswapSwapData');
-    final swaps = box.values.toList();
-
-    /// **Update provider state with latest swaps**
-    state = swaps;
-  }
-
-  /// **🔹 Add or update a swap without duplicating entries**
-  Future<void> addOrUpdateSwap(SideswapCompletedSwap newSwap) async {
-    final box = Hive.box<SideswapCompletedSwap>('sideswapSwapData');
-
-    /// **Check if swap already exists**
-    final existingSwap = box.get(newSwap.txid);
-
-    if (existingSwap == null) {
-      await box.put(newSwap.txid, newSwap);
-    }
-
-    /// **Refresh state**
-    _updateSwaps();
-  }
-}
-
 
 @HiveType(typeId: 11)
 class SideswapCompletedSwap {
@@ -196,7 +39,7 @@ class SideswapCompletedSwap {
   @HiveField(4)
   final num recvAmount;
   @HiveField(5)
-  final String orderId;
+  final int quoteId;
   @HiveField(6)
   final int timestamp;
 
@@ -206,69 +49,51 @@ class SideswapCompletedSwap {
     required this.sendAmount,
     required this.recvAsset,
     required this.recvAmount,
-    required this.orderId,
+    required this.quoteId,
     required this.timestamp,
   });
 }
 
-class SideswapPsetToSign {
-  final String pset;
-  final String submitId;
-  final String orderId;
+class SideswapSwapsNotifier extends StateNotifier<List<SideswapCompletedSwap>> {
+  SideswapSwapsNotifier() : super([]) {
+    _loadSwaps();
+  }
 
-  SideswapPsetToSign({required this.pset, required this.submitId, required this.orderId});
+  Future<void> _loadSwaps() async {
+    final box = await Hive.openBox<SideswapCompletedSwap>('sideswapSwapData');
+    box.watch().listen((event) => _updateSwaps());
+    _updateSwaps();
+  }
 
-  factory SideswapPsetToSign.fromJson(Map<String, dynamic> json, String orderId) {
-    return SideswapPsetToSign(
-      pset: json['result']['pset'],
-      submitId: json['result']['submit_id'],
-      orderId: orderId,
-    );
+  void _updateSwaps() {
+    final box = Hive.box<SideswapCompletedSwap>('sideswapSwapData');
+    final swaps = box.values.toList();
+    state = swaps;
+  }
+
+  Future<void> addOrUpdateSwap(SideswapCompletedSwap newSwap) async {
+    final box = Hive.box<SideswapCompletedSwap>('sideswapSwapData');
+    final existingSwap = box.get(newSwap.txid);
+
+    if (existingSwap == null) {
+      await box.put(newSwap.txid, newSwap);
+    }
+    _updateSwaps();
   }
 }
 
-class SideswapExchangeStateModel extends StateNotifier<SideswapExchangeState> {
-  SideswapExchangeStateModel(super.state);
+class QuoteExecutionRequest {
+  final int quoteId;
+  final String sendAsset;
+  final num sendAmount;
+  final String recvAsset;
+  final num recvAmount;
 
-  void update(SideswapExchangeState state) {
-    state = state;
-  }
-}
-
-class SideswapExchangeState {
-  String orderId;
-  String status;
-  int price;
-  String sendAsset;
-  int sendAmount;
-  String recvAsset;
-  int recvAmount;
-  String? txid;
-  int? networkFee;
-
-  SideswapExchangeState({
-    required this.orderId,
-    required this.status,
-    required this.price,
+  QuoteExecutionRequest({
+    required this.quoteId,
     required this.sendAsset,
     required this.sendAmount,
     required this.recvAsset,
     required this.recvAmount,
-    this.txid,
-    this.networkFee,
   });
-
-  factory SideswapExchangeState.fromJson(Map<String, dynamic> json) {
-    return SideswapExchangeState(
-      orderId: json['order_id'],
-      status: json['status'],
-      price: json['price'],
-      sendAsset: json['send_asset'],
-      sendAmount: json['send_amount'],
-      recvAsset: json['recv_asset'],
-      recvAmount: json['recv_amount'],
-      txid: json['txid'],
-      networkFee: json['network_fee'],
-    );
-  }
 }

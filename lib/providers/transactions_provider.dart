@@ -51,7 +51,7 @@ Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
   final sideswapInstantSwapTxs = ref.watch(sideswapGetSwapsProvider);
   final sideswapInstantSwapTransactions = sideswapInstantSwapTxs.map((instantSwapTx) {
     return SideswapInstantSwapTransaction(
-      id: instantSwapTx.orderId,
+      id: instantSwapTx.quoteId.toString(),
       timestamp: DateTime.fromMillisecondsSinceEpoch(instantSwapTx.timestamp),
       sideswapInstantSwapDetails: instantSwapTx,
       isConfirmed: instantSwapTx.txid.isNotEmpty,
