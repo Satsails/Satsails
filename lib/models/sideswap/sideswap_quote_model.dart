@@ -147,16 +147,18 @@ class SideswapQuote {
       ttl = success['ttl'];
 
       final totalFee = (fixedFee ?? 0) + (serverFee ?? 0);
-      if (quote['trade_dir'] == 'Sell' && quote['asset_type'] == quote['fee_asset']) {
+
+
+      if (quote['trade_dir'] == 'Sell' && quote['asset_type'] == 'Base') {
         deliverAmount = baseAmount! + totalFee;
         receiveAmount = quoteAmount;
-      } else if (quote['trade_dir'] == 'Sell') {
+      } else if (quote['trade_dir'] == 'Sell' && quote['asset_type'] == 'Quote') {
         deliverAmount = baseAmount;
-        receiveAmount = quoteAmount! - totalFee;
-      } else if (quote['trade_dir'] == 'Buy' && quote['asset_type'] == quote['fee_asset']) {
+        receiveAmount = quoteAmount! + totalFee;
+      } else if (quote['trade_dir'] == 'Buy' && quote['asset_type'] == 'Base') {
         deliverAmount = quoteAmount;
-        receiveAmount = baseAmount! - totalFee;
-      } else {
+        receiveAmount = baseAmount! + totalFee;
+      } else if (quote['trade_dir'] == 'Buy' && quote['asset_type'] == 'Quote') {
         deliverAmount = quoteAmount! + totalFee;
         receiveAmount = baseAmount;
       }

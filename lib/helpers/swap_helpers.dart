@@ -1076,7 +1076,7 @@ Widget buildSideswapInstantSwap(
   final btcFormat = ref.read(settingsProvider).btcFormat;
   final sendBitcoin = ref.watch(sendBitcoinProvider);
   final currency = ref.read(settingsProvider).currency;
-  final currencyRate = ref.read(selectedCurrencyProvider(currency));
+  final currencyRateFromBitcoin = ref.read(selectedCurrencyProvider(currency));
   final inputInFiat = ref.watch(inputInFiatProvider);
   final fromAsset = ref.watch(fromAssetProvider);
   final toAsset = ref.watch(toAssetProvider);
@@ -1089,10 +1089,10 @@ Widget buildSideswapInstantSwap(
 
   final quote = ref.watch(sideswapQuoteProvider);
 
-  if (receiveAsset) {
+  if (!sendBitcoin && receiveAsset) {
     switch (quote.status) {
       case 'Success':
-        final receiveAmount = quote.receiveAmount!;
+        final receiveAmount = quote.deliverAmount ?? 0;
         final formattedAmount = btcInDenominationFormatted(receiveAmount, btcFormat);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -1104,7 +1104,7 @@ Widget buildSideswapInstantSwap(
             if (!fiatAssets.contains(toAsset)) ...[
               SizedBox(height: 4.h),
               Text(
-                currencyFormat(double.parse(formattedAmount) * currencyRate, currency),
+                currencyFormat(double.parse(formattedAmount) * currencyRateFromBitcoin, currency),
                 style: TextStyle(color: Colors.grey, fontSize: 16.sp),
               ),
             ],
