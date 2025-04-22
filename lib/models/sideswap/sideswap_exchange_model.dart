@@ -1,6 +1,6 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'dart:async';
 import 'package:lwk/lwk.dart';
 
 part 'sideswap_exchange_model.g.dart';
@@ -60,19 +60,19 @@ class SideswapSwapsNotifier extends StateNotifier<List<SideswapCompletedSwap>> {
   }
 
   Future<void> _loadSwaps() async {
-    final box = await Hive.openBox<SideswapCompletedSwap>('sideswapSwapData');
+    final box = await Hive.openBox<SideswapCompletedSwap>('sideswapSwapNewData');
     box.watch().listen((event) => _updateSwaps());
     _updateSwaps();
   }
 
   void _updateSwaps() {
-    final box = Hive.box<SideswapCompletedSwap>('sideswapSwapData');
+    final box = Hive.box<SideswapCompletedSwap>('sideswapSwapNewData');
     final swaps = box.values.toList();
     state = swaps;
   }
 
   Future<void> addOrUpdateSwap(SideswapCompletedSwap newSwap) async {
-    final box = Hive.box<SideswapCompletedSwap>('sideswapSwapData');
+    final box = Hive.box<SideswapCompletedSwap>('sideswapSwapNewData');
     final existingSwap = box.get(newSwap.txid);
 
     if (existingSwap == null) {
@@ -97,3 +97,7 @@ class QuoteExecutionRequest {
     required this.recvAmount,
   });
 }
+
+
+
+// Future

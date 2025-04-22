@@ -1855,46 +1855,46 @@ List<Widget> _getFeeRows(WidgetRef ref) {
     case SwapType.sideswapUsdtToLbtc:
     case SwapType.sideswapEuroxToLbtc:
     case SwapType.sideswapDepixToLbtc:
+    case SwapType.sideswapDepixToUsdt:
+    case SwapType.sideswapUsdtToEurox:
+    case SwapType.sideswapUsdtToDepix:
+    case SwapType.sideswapEuroxToUsdt:
     case SwapType.sideswapLbtcToUsdt:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToDepix:
-      // final sideswapPriceStreamAsyncValue = ref.watch(sideswapPriceStreamProvider);
-      // return sideswapPriceStreamAsyncValue.when(
-      //   data: (value) {
-      //     if (value.errorMsg != null) {
-      //       return [
-      //         Text(
-      //           value.errorMsg!,
-      //           style: TextStyle(color: Colors.grey, fontSize: 14.sp),
-      //           textAlign: TextAlign.center,
-      //         )
-      //       ];
-      //     } else {
-      //       final fixedFee = value.fixedFee ?? 0;
-      //
-      //       return [
-      //         _feeRow('Asset price', value.price?.toStringAsFixed(0) ?? "N/A", ref),
-      //         _feeRow(
-      //           'Fixed Fee',
-      //           btcInDenominationFormatted(fixedFee.toDouble(), btcFormat, true),
-      //           ref,
-      //         ),
-      //       ];
-      //     }
-      //   },
-      //   loading: () {
-      //     return [
-      //       _feeRow('Price', '0', ref),
-      //       _feeRow('Fixed Fee', '0', ref),
-      //     ];
-      //   },
-      //   error: (error, stack) {
-      //     return [
-      //       _feeRow('Price', '0', ref),
-      //       _feeRow('Fixed Fee', '0', ref),
-      //     ];
-      //   },
-      // );
+    final quote = ref.watch(sideswapQuoteProvider);
+    switch (quote.status) {
+      case 'Success':
+        final fixedFee = quote.fixedFee ?? 0;
+        final serverFee = quote.serverFee ?? 0;
+        final feeAsset = ref.read(toAssetProvider);
+        final btcFormat = ref.read(settingsProvider).btcFormat;
+        final fixedFeeStr = formatAssetAmount(feeAsset, fixedFee, btcFormat);
+        final serverFeeStr = formatAssetAmount(feeAsset, serverFee, btcFormat);
+        return [
+          _feeRow('Fixed fee', fixedFeeStr, ref),
+          _feeRow('Server fee', serverFeeStr, ref),
+        ];
+      case 'LowBalance':
+        return [
+          Text(
+            'Insufficient balance',
+            style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+            textAlign: TextAlign.center,
+          ),
+        ];
+      case 'Loading':
+      case 'Initial':
+        return [
+          _feeRow('Fixed fee', 'Loading...', ref),
+          _feeRow('Server fee', 'Loading...', ref),
+        ];
+      default:
+        return [
+          _feeRow('Fixed fee', formatAssetAmount(quote.feeAsset, 0, btcFormat), ref),
+          _feeRow('Server fee', formatAssetAmount(quote.feeAsset, 0, btcFormat), ref),
+        ];
+    }
 
     default:
       return [
@@ -2156,7 +2156,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
           ref.read(transactionInProgressProvider.notifier).state = true;
           controller.loading();
           try {
-            // await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
+            await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
             showFullscreenExchangeModal(
               amount: ref.read(sendTxProvider).amount,
               context: context,
@@ -2334,6 +2334,10 @@ Widget slideToSend(WidgetRef ref, BuildContext context) {
     case SwapType.sideswapUsdtToLbtc:
     case SwapType.sideswapEuroxToLbtc:
     case SwapType.sideswapDepixToLbtc:
+    case SwapType.sideswapDepixToUsdt:
+    case SwapType.sideswapUsdtToEurox:
+    case SwapType.sideswapUsdtToDepix:
+    case SwapType.sideswapEuroxToUsdt:
     case SwapType.sideswapLbtcToUsdt:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToDepix:

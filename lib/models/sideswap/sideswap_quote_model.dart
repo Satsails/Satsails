@@ -68,7 +68,6 @@ class QuoteRequest {
         utxos = [];
 }
 
-// SideswapQuote class (unchanged, included for completeness)
 class SideswapQuote {
   final int quoteSubId;
   final String baseAsset;

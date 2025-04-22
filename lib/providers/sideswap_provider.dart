@@ -204,7 +204,6 @@ final quoteRequestProvider = FutureProvider.autoDispose<QuoteRequest>((ref) asyn
       value: utxo.unblinded.value.toInt(),
       assetBf: utxo.unblinded.assetBf,
       valueBf: utxo.unblinded.valueBf,
-      redeemScript: utxo.scriptPubkey,
     ));
   }
 
@@ -242,51 +241,126 @@ final sideswapQuoteProvider = StateNotifierProvider<SideswapQuoteModel, Sideswap
 });
 
 
-final sideswapGetQuotePsetProvider = StreamProvider.autoDispose.family<SideswapQuotePset, int>((ref, quoteId) {
-  final service = ref.watch(sideswapServiceProvider);
+final sideswapGetQuotePsetProvider = FutureProvider.autoDispose<SideswapQuotePset>((ref) async {
+  final completer = Completer<SideswapQuotePset>();
+  final service = ref.read(sideswapServiceProvider);
+  final quoteId = ref.read(sideswapQuoteProvider).quoteId ?? 0; // Fallback to 0 if null
+
+  // Listen to the quotePsetStream
+  StreamSubscription? subscription;
+  subscription = service.quotePsetStream.listen(
+        (event) {
+      try {
+        // Parse the event to SideswapQuotePset
+        final quotePset = SideswapQuotePset.fromJson(event, quoteId);
+        // Complete the Future with the parsed result
+        completer.complete(quotePset);
+        // Cancel the subscription to avoid memory leaks
+        subscription?.cancel();
+      } catch (e, stackTrace) {
+        // Complete with error if parsing fails
+        completer.completeError(e, stackTrace);
+        subscription?.cancel();
+      }
+    },
+    onError: (error, stackTrace) {
+      // Complete with error if the stream emits an error
+      completer.completeError(error, stackTrace);
+      subscription?.cancel();
+    },
+    onDone: () {
+      // If the stream closes without emitting a value, complete with an error
+      if (!completer.isCompleted) {
+        completer.completeError(Exception('quotePsetStream closed without emitting a quote PSET'));
+      }
+      subscription?.cancel();
+    },
+  );
+
+  // Trigger the request
   service.getQuotePset(quoteId: quoteId);
-  return service.quotePsetStream.map((event) => SideswapQuotePset.fromJson(event, quoteId));
+
+  // Return the Future
+  return completer.future;
 });
 
-final sideswapUploadAndSignInputsProvider = FutureProvider.autoDispose.family<SideswapCompletedSwap, QuoteExecutionRequest>((ref, request) async {
-  final service = ref.watch(sideswapServiceProvider);
-  final quotePset = await ref.watch(sideswapGetQuotePsetProvider(request.quoteId).future);
-  final signedPset = await ref.watch(signLiquidPsetStringProvider(quotePset.pset).future);
+// FutureProvider for uploading and signing inputs
+final sideswapUploadAndSignInputsProvider = FutureProvider.autoDispose<SideswapCompletedSwap>((ref) async {
+  final completer = Completer<SideswapCompletedSwap>();
+  final service = ref.read(sideswapServiceProvider);
+  final quoteRequest = await ref.watch(quoteRequestProvider.future);
 
-  // Call signQuotePset, which triggers a WebSocket message
-  service.signQuotePset(quoteId: request.quoteId, pset: signedPset);
-
-  // Listen to the signedSwapStream for the response
-  final transaction = await service.signedSwapStream.firstWhere((event) {
-    return event['result']?['taker_sign'] != null;
-  });
-
-  final completedSwap = SideswapCompletedSwap(
-    txid: transaction['result']['taker_sign']['txid'],
-    sendAsset: request.sendAsset,
-    sendAmount: request.sendAmount,
-    recvAsset: request.recvAsset,
-    recvAmount: request.recvAmount,
-    quoteId: request.quoteId,
-    timestamp: DateTime.now().millisecondsSinceEpoch,
+  // Construct QuoteExecutionRequest from QuoteRequest
+  final request = QuoteExecutionRequest(
+    quoteId: ref.read(sideswapQuoteProvider).quoteId ?? 0, // Fallback to 0 if null
+    sendAsset: quoteRequest.assetType == 'Base' ? quoteRequest.baseAsset : quoteRequest.quoteAsset,
+    sendAmount: quoteRequest.amount,
+    recvAsset: quoteRequest.assetType == 'Base' ? quoteRequest.quoteAsset : quoteRequest.baseAsset,
+    recvAmount: quoteRequest.amount, // Assume 1:1 for simplicity; adjust if needed
   );
-  ref.read(sideswapGetSwapsProvider.notifier).addOrUpdateSwap(completedSwap);
-  return completedSwap;
+
+  try {
+    // Await the quote PSET from sideswapGetQuotePsetProvider
+    final quotePset = await ref.watch(sideswapGetQuotePsetProvider.future);
+
+    // Sign the PSET
+    final signedPset = await ref.read(signLiquidPsetStringProvider(quotePset.pset).future);
+
+    // Listen to the signedSwapStream
+    StreamSubscription? subscription;
+    subscription = service.signedSwapStream.listen(
+          (event) {
+        try {
+          // Check for taker_sign event
+          if (event['result']?['taker_sign'] != null) {
+            // Construct the completed swap
+            final completedSwap = SideswapCompletedSwap(
+              txid: event['result']['taker_sign']['txid'],
+              sendAsset: request.sendAsset,
+              sendAmount: request.sendAmount,
+              recvAsset: request.recvAsset,
+              recvAmount: request.recvAmount,
+              quoteId: request.quoteId,
+              timestamp: DateTime.now().millisecondsSinceEpoch,
+            );
+            // Update the swaps provider
+            ref.read(sideswapGetSwapsProvider.notifier).addOrUpdateSwap(completedSwap);
+            // Complete the Future
+            completer.complete(completedSwap);
+            // Cancel the subscription
+            subscription?.cancel();
+          }
+        } catch (e, stackTrace) {
+          // Complete with error if processing fails
+          completer.completeError(e, stackTrace);
+          subscription?.cancel();
+        }
+      },
+      onError: (error, stackTrace) {
+        // Complete with error if the stream emits an error
+        completer.completeError(error, stackTrace);
+        subscription?.cancel();
+      },
+      onDone: () {
+        // If the stream closes without a taker_sign event, complete with an error
+        if (!completer.isCompleted) {
+          completer.completeError(Exception('signedSwapStream closed without a taker_sign event'));
+        }
+        subscription?.cancel();
+      },
+    );
+
+    // Trigger the signQuotePset request
+    service.signQuotePset(quoteId: request.quoteId, pset: signedPset);
+  } catch (e, stackTrace) {
+    // Complete with error if any step fails
+    completer.completeError(e, stackTrace);
+  }
+
+  // Return the Future
+  return completer.future;
 });
 
 final sideswapGetSwapsProvider = StateNotifierProvider.autoDispose<SideswapSwapsNotifier, List<SideswapCompletedSwap>>((ref) {
   return SideswapSwapsNotifier();
 });
-
-// final sideswapUploadAndSignInputsProvider = FutureProvider.autoDispose<SideswapCompletedSwap>((ref) async {
-//   final state = await ref.read(sideswapStartExchangeProvider.future).then((value) => value);
-//   final receiveAddress = await ref.read(liquidAddressProvider.future).then((value) => value);
-//   final returnAddress = await ref.read(liquidNextAddressProvider.future).then((value) => value);
-//   final liquidUnspentUtxos = await ref.refresh(liquidUnspentUtxosProvider.future).then((value) => value);
-//   final sendAmount = ref.read(sideswapPriceProvider).sendAmount!;
-//   final inputsUpload =  await state.uploadInputs(returnAddress, liquidUnspentUtxos, receiveAddress.confidential, sendAmount).then((value) => value);
-//   final signedPset = await ref.read(signLiquidPsetStringProvider(inputsUpload.pset).future).then((value) => value);
-//   final transaction = await state.uploadPset(signedPset, inputsUpload.submitId).then((value) => value);
-//   ref.read(sideswapGetSwapsProvider.notifier).addOrUpdateSwap(transaction);
-//   return transaction;
-// });
