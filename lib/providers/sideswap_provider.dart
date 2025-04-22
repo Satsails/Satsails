@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:Satsails/models/sideswap/sideswap_markets_model.dart';
+import 'package:Satsails/models/sideswap/sideswap_payjoin.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
@@ -363,4 +364,57 @@ final sideswapUploadAndSignInputsProvider = FutureProvider.autoDispose<SideswapC
 
 final sideswapGetSwapsProvider = StateNotifierProvider.autoDispose<SideswapSwapsNotifier, List<SideswapCompletedSwap>>((ref) {
   return SideswapSwapsNotifier();
+});
+
+final sideswapPayjoinStreamProvider = StreamProvider.autoDispose<SideswapPayjoin>((ref) async* {
+  final service = ref.watch(sideswapServiceProvider);
+  final assetId = ref.watch(assetToSellProvider); // Use assetToSellProvider for asset ID
+
+  // Trigger the payjoin request
+  service.startPayjoin(assetId: assetId);
+
+  // Map the payjoinStream to SideswapPayjoin
+  yield* service.payjoinStream.map((event) => SideswapPayjoin.fromJson(event));
+});
+
+// Payjoin Signer Provider
+final sideswapPayjoinSignProvider = FutureProvider.autoDispose<SideswapPayjoin>((ref) async {
+  final completer = Completer<SideswapPayjoin>();
+  final service = ref.read(sideswapServiceProvider);
+  final payjoin = await ref.watch(sideswapPayjoinStreamProvider.future);
+  final orderId = payjoin.orderId;
+  // Listen to the payjoinSigningStream
+  StreamSubscription? subscription;
+  subscription = service.payjoinSigningStream.listen(
+        (signedPsetResponse) {
+      try {
+
+        completer.complete(updatedPayjoin);
+        // Cancel the subscription
+        subscription?.cancel();
+      } catch (e, stackTrace) {
+        // Complete with error if processing fails
+        completer.completeError(e, stackTrace);
+        subscription?.cancel();
+      }
+    },
+    onError: (error, stackTrace) {
+      // Complete with error if the stream emits an error
+      completer.completeError(error, stackTrace);
+      subscription?.cancel();
+    },
+    onDone: () {
+      // If the stream closes without emitting a value, complete with an error
+      if (!completer.isCompleted) {
+        completer.completeError(Exception('payjoinSigningStream closed without emitting a signed PSET'));
+      }
+      subscription?.cancel();
+    },
+  );
+
+  // Trigger the signPayjoin request
+  service.signPayjoin(orderId: orderId, pset: signedPset);
+
+  // Return the Future
+  return completer.future;
 });
