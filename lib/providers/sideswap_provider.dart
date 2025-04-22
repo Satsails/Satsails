@@ -190,9 +190,13 @@ final quoteRequestProvider = FutureProvider.autoDispose<QuoteRequest>((ref) asyn
 
   // Select UTXOs to cover the amount
   List<Utxo> formattedUtxos = [];
-  // calculate only necessary utxo for the amount
+  int total = 0;
 
   for (var utxo in assetUtxos) {
+    if (total >= sendAmount) {
+      break;
+    }
+    total += utxo.unblinded.value.toInt();
     formattedUtxos.add(Utxo(
       txid: utxo.outpoint.txid,
       vout: utxo.outpoint.vout,
