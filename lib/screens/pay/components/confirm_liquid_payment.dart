@@ -41,7 +41,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
         backgroundColor: Colors.transparent, // Transparent background around the card
         child: Center(
           child: Card(
-            color: const Color(0x333333).withOpacity(0.4), // Dark background like a dialog
+            color: Color(0xFF333333), // Dark background like a dialog
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 8, // Shadow effect
             child: Padding(
