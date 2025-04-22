@@ -714,6 +714,14 @@ class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransaction
         return 'Liquid Bitcoin to EUROX Swap'.i18n;
       case SwapType.sideswapLbtcToDepix:
         return 'Liquid Bitcoin to DEPIX Swap'.i18n;
+      case SwapType.sideswapDepixToUsdt:
+        return 'DEPIX to USDT Swap'.i18n;
+      case SwapType.sideswapUsdtToEurox:
+        return 'USDT to EUROX Swap'.i18n;
+      case SwapType.sideswapUsdtToDepix:
+        return 'USDT to DEPIX Swap'.i18n;
+      case SwapType.sideswapEuroxToUsdt:
+        return 'EUROX to USDT Swap'.i18n;
       default:
         return 'Exchange Transaction'.i18n;
     }
