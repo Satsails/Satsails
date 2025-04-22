@@ -158,6 +158,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
         ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(fiatToFiatSwap.notifier).state = false;
         break;
 
       case SwapType.sideswapUsdtToDepix:
@@ -165,6 +166,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.BRL);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
         ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(fiatToFiatSwap.notifier).state = true;
         break;
 
       case SwapType.sideswapUsdtToEurox:
@@ -172,6 +174,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.EUR);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
         ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(fiatToFiatSwap.notifier).state = true;
         break;
 
       case SwapType.sideswapEuroxToLbtc:
@@ -179,6 +182,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.EUR));
         ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(fiatToFiatSwap.notifier).state = false;
         break;
 
       case SwapType.sideswapEuroxToUsdt:
@@ -186,6 +190,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.EUR));
         ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(fiatToFiatSwap.notifier).state = true;
         break;
 
       case SwapType.sideswapDepixToLbtc:
@@ -193,6 +198,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.BRL));
         ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(fiatToFiatSwap.notifier).state = false;
         break;
 
       case SwapType.sideswapDepixToUsdt:
@@ -200,6 +206,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.BRL));
         ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(fiatToFiatSwap.notifier).state = true;
         break;
 
       case SwapType.sideswapLbtcToUsdt:
@@ -207,6 +214,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.USD);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         ref.read(sendBitcoinProvider.notifier).state = true;
+        ref.read(fiatToFiatSwap.notifier).state = false;
         break;
 
       case SwapType.sideswapLbtcToEurox:
@@ -214,6 +222,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.EUR);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         ref.read(sendBitcoinProvider.notifier).state = true;
+        ref.read(fiatToFiatSwap.notifier).state = false;
         break;
 
       case SwapType.sideswapLbtcToDepix:
@@ -221,6 +230,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.BRL);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         ref.read(sendBitcoinProvider.notifier).state = true;
+        ref.read(fiatToFiatSwap.notifier).state = false;
         break;
 
       case SwapType.sideswapBtcToLbtc:
@@ -229,6 +239,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         ref.read(sendBitcoinProvider.notifier).state = true;
         ref.read(pegInProvider.notifier).state = true;
+        ref.read(fiatToFiatSwap.notifier).state = false;
         break;
 
       case SwapType.sideswapLbtcToBtc:
@@ -237,6 +248,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         ref.read(sendBitcoinProvider.notifier).state = true;
         ref.read(pegInProvider.notifier).state = false;
+        ref.read(fiatToFiatSwap.notifier).state = false;
         break;
 
       case SwapType.coinosLnToBTC:
@@ -244,6 +256,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(fiatToFiatSwap.notifier).state = false;
         break;
 
       case SwapType.coinosLnToLBTC:
@@ -251,6 +264,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(fiatToFiatSwap.notifier).state = false;
         break;
 
       case SwapType.coinosBtcToLn:
@@ -258,6 +272,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         ref.read(sendBitcoinProvider.notifier).state = true;
+        ref.read(fiatToFiatSwap.notifier).state = false;
         break;
 
       case SwapType.coinosLbtcToLn:
@@ -265,6 +280,7 @@ class SwapTypeNotifier extends StateNotifier<void> {
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         ref.read(sendBitcoinProvider.notifier).state = true;
+        ref.read(fiatToFiatSwap.notifier).state = false;
         break;
     }
   }
@@ -360,6 +376,7 @@ Widget getAssetImage(String? asset, {double? width, double? height}) {
 
 final transactionInProgressProvider = StateProvider.autoDispose<bool>((ref) => false);
 final fromAssetProvider = StateProvider.autoDispose<String>((ref) => 'Depix');
+final fiatToFiatSwap = StateProvider.autoDispose<bool>((ref) =>  false);
 final toAssetProvider = StateProvider.autoDispose<String>((ref) => 'L-BTC');
 final inputInFiatProvider = StateProvider.autoDispose<bool>((ref) => false);
 final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');
@@ -857,6 +874,10 @@ Widget assetLogic(
     case SwapType.sideswapUsdtToLbtc:
     case SwapType.sideswapEuroxToLbtc:
     case SwapType.sideswapDepixToLbtc:
+    case SwapType.sideswapDepixToUsdt:
+    case SwapType.sideswapUsdtToEurox:
+    case SwapType.sideswapUsdtToDepix:
+    case SwapType.sideswapEuroxToUsdt:
     case SwapType.sideswapLbtcToUsdt:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToDepix:
@@ -1074,25 +1095,57 @@ Widget buildSideswapInstantSwap(
       bool receiveAsset = true,
     }) {
   final btcFormat = ref.read(settingsProvider).btcFormat;
-  final sendBitcoin = ref.watch(sendBitcoinProvider);
   final currency = ref.read(settingsProvider).currency;
-  final currencyRateFromBitcoin = ref.read(selectedCurrencyProvider(currency));
+  final currencyRateFromBitcoin = ref.watch(selectedCurrencyProvider(currency));
   final inputInFiat = ref.watch(inputInFiatProvider);
-  final fromAsset = ref.watch(fromAssetProvider);
+  final assetToSell = ref.watch(assetToSellProvider);
   final toAsset = ref.watch(toAssetProvider);
+  final fromAsset = ref.watch(fromAssetProvider);
+  final fiatToFiat = ref.watch(fiatToFiatSwap);
 
   String currentUnit = inputInFiat ? currency : btcFormat;
   List<String> options = fiatDisplayAllowedSwapTypes.contains(ref.watch(swapTypeProvider))
       ? [currency, btcFormat]
       : [];
 
-
   final quote = ref.watch(sideswapQuoteProvider);
 
-  if (!sendBitcoin && receiveAsset) {
+  if (receiveAsset) {
     switch (quote.status) {
       case 'Success':
-        final receiveAmount = quote.deliverAmount ?? 0;
+        final receiveAmount = assetToSell != quote.baseAsset ? quote.deliverAmount ?? 0 : quote.receiveAmount ?? 0;
+        final formattedAmount = assetToSell != quote.baseAsset ? btcInDenominationFormatted(receiveAmount, btcFormat) : btcInDenominationFormatted(receiveAmount, btcFormat, false);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            SizedBox(height: 4.h),
+            Text(
+              formattedAmount,
+              style: TextStyle(color: Colors.white, fontSize: 20.sp),
+            ),
+            if (!fiatAssets.contains(toAsset)) ...[
+              Text(
+                currencyFormat(double.parse(formattedAmount) * currencyRateFromBitcoin, currency),
+                style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+              ),
+            ],
+          ],
+        );
+      case 'LowBalance':
+        return Text(
+          'Insufficient balance',
+          style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+        );
+      case 'Loading':
+      case 'Initial':
+        return Center(
+          child: LoadingAnimationWidget.progressiveDots(
+            size: 16.w,
+            color: Colors.white,
+          ),
+        );
+      default:
+        final receiveAmount = 0;
         final formattedAmount = btcInDenominationFormatted(receiveAmount, btcFormat);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -1104,40 +1157,18 @@ Widget buildSideswapInstantSwap(
             if (!fiatAssets.contains(toAsset)) ...[
               SizedBox(height: 4.h),
               Text(
-                currencyFormat(double.parse(formattedAmount) * currencyRateFromBitcoin, currency),
+                currencyFormat(0.0, currency),
                 style: TextStyle(color: Colors.grey, fontSize: 16.sp),
               ),
             ],
           ],
-        );
-      case 'LowBalance':
-        return Text(
-          'Insufficient balance: available ${quote.available}',
-          style: TextStyle(color: Colors.red, fontSize: 16.sp),
-        );
-      case 'Error':
-        return Text(
-          'Error: ${quote.errorMsg}',
-          style: TextStyle(color: Colors.red, fontSize: 16.sp),
-        );
-      case 'Loading':
-        return Center(
-          child: LoadingAnimationWidget.progressiveDots(
-            size: 16.w,
-            color: Colors.white,
-          ),
-        );
-      default:
-        return Text(
-          'Waiting for quote...',
-          style: TextStyle(color: Colors.grey, fontSize: 16.sp),
         );
     }
   } else {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if (options.isNotEmpty)
+        if (options.isNotEmpty && !fiatToFiat)
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

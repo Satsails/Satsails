@@ -212,7 +212,7 @@ final quoteRequestProvider = FutureProvider.autoDispose<QuoteRequest>((ref) asyn
     baseAsset: baseAsset,
     quoteAsset: quoteAsset,
     assetType: assetToSell == baseAsset ? 'Base' : 'Quote',
-    tradeDir: assetToSell == baseAsset ? 'Buy' : 'Sell',
+    tradeDir: 'Sell',
     amount: sendAmount,
     receiveAddress: receiveAddress.confidential,
     changeAddress: returnAddress,
