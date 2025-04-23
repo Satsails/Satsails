@@ -89,7 +89,7 @@ class LiquidModel {
       final pset = await config.liquid.wallet.buildAssetTx(
         sats: BigInt.from(params.amount),
         outAddress: params.outAddress,
-        feeRate: 300,
+        feeRate: params.fee * 100 < 104 ? 104 : params.fee * 100,
         asset: params.assetId,
       );
       return pset;

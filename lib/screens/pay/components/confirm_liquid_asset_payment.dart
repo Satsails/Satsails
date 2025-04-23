@@ -723,10 +723,10 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                         );
 
                         if (confirmed) {
-                          // final tx = isPayjoinAsset
-                          //     ? await ref.watch(liquidPayjoinTransaction.future)
-                          //     : await ref.watch(sendLiquidTransactionProvider.future);
-                          final tx =  await ref.watch(sendLiquidTransactionProvider.future);
+                          final tx = isPayjoinAsset
+                              ? await ref.watch(liquidPayjoinTransaction.future)
+                              : await ref.watch(sendLiquidTransactionProvider.future);
+                          // final tx =  await ref.watch(sendLiquidTransactionProvider.future);
 
                           showFullscreenTransactionSendModal(
                             context: context,
