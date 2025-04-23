@@ -31,7 +31,6 @@ dependencies:
   flutter_riverpod: ^2.5.1
   bdk_flutter: ^0.31.2
   bitcoin_message_signer: ^1.0.2
-  bolt11_decoder: ^1.0.2
   lwk: ^0.1.7
   boltz: ^0.1.10
   forex_currency_conversion: ^0.9.1

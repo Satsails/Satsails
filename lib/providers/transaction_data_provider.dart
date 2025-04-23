@@ -1,4 +1,5 @@
 import 'package:Satsails/providers/coinos_provider.dart';
+import 'package:boltz/boltz.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
@@ -21,7 +22,7 @@ final setAddressAndAmountProvider = FutureProvider.autoDispose.family<AddressAnd
   } catch (e) {
     if (ref.read(coinosLnProvider).token.isNotEmpty) {
       try {
-        await checkForValidLnurl(address);
+        await validateLnurl(lnurl: address);
         ref.read(sendTxProvider.notifier).updateAddress(address);
         ref.read(sendTxProvider.notifier).updateAmount(0);
         ref.read(sendTxProvider.notifier).updatePaymentType(PaymentType.Lightning);
