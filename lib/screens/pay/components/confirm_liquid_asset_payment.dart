@@ -8,6 +8,9 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
+import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -19,12 +22,16 @@ import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
-import 'package:Satsails/providers/send_tx_provider.dart';
-import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
 
+final Map<String, String> _assetImages = {
+  'Liquid Bitcoin': 'lib/assets/l-btc.png',
+  'Depix': 'lib/assets/depix.png',
+  'USDT': 'lib/assets/tether.png',
+  'EURx': 'lib/assets/eurx.png',
+};
+
 Future<bool> showConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
-  // Function to shorten the address for display
   String shortenAddress(String value) {
     if (value.length <= 12) return value;
     return '${value.substring(0, 6)}...${value.substring(value.length - 6)}';
@@ -32,22 +39,21 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
 
   return await showDialog<bool>(
     context: context,
-    barrierDismissible: false, // Prevents dismissal by tapping outside
+    barrierDismissible: false,
     builder: (BuildContext context) {
       return Dialog(
-        backgroundColor: Colors.transparent, // Transparent background around the card
+        backgroundColor: Colors.transparent,
         child: Center(
           child: Card(
-            color:  Color(0xFF333333), // Dark background like a dialog
+            color: Color(0xFF333333),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 8, // Shadow effect
+            elevation: 8,
             child: Padding(
-              padding: const EdgeInsets.all(24), // Inner padding
+              padding: const EdgeInsets.all(24),
               child: Column(
-                mainAxisSize: MainAxisSize.min, // Compact size
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title
                   Center(
                     child: Text(
                       'Confirm Transaction',
@@ -59,8 +65,6 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                     ),
                   ),
                   SizedBox(height: 24),
-
-                  // Amount Section
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Row(
@@ -89,11 +93,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                       ],
                     ),
                   ),
-
-                  // Divider
                   Divider(color: Colors.grey[700], height: 20),
-
-                  // Recipient Section
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Column(
@@ -126,11 +126,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                       ],
                     ),
                   ),
-
-                  // Divider
                   Divider(color: Colors.grey[700], height: 20),
-
-                  // Fee Section
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Row(
@@ -154,8 +150,6 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                       ],
                     ),
                   ),
-
-                  // Action Buttons
                   SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -197,10 +191,10 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
         ),
       );
     },
-  ) ?? false; // Default to false if dialog is dismissed without a result
+  ) ?? false;
 }
 
-Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controller) {
+Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controller, String selectedFeeAsset) {
   return Card(
     color: Color(0x333333).withOpacity(0.4),
     margin: EdgeInsets.zero,
@@ -235,11 +229,11 @@ Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controll
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                  'Amount:'.i18n,
-                  style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold)
+                'Amount:'.i18n,
+                style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold),
               ),
               Text(
-                controller.text,  // Removed parentheses since text is a property, not a method
+                controller.text,
                 style: TextStyle(fontSize: 16.sp, color: Colors.white),
               ),
             ],
@@ -264,7 +258,7 @@ Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controll
             loading: () => LoadingAnimationWidget.progressiveDots(size: 16.sp, color: Colors.white),
             error: (error, stack) => TextButton(
               onPressed: () {
-                ref.refresh(feeProvider);
+                ref.refresh(liquidFeeProvider);
               },
               child: Text(
                 ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n,
@@ -295,13 +289,47 @@ Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controll
               style: TextStyle(color: Colors.white, fontSize: 14.sp),
             ),
           ),
+          if (selectedFeeAsset != 'Liquid Bitcoin') ...[
+            SizedBox(height: 8.h),
+            ref.watch(liquidFeeProvider).when(
+              data: (int fee) {
+                final feeInBtc = fee / 100000000;
+                String currency;
+                if (selectedFeeAsset == 'USDT' || selectedFeeAsset == 'Depix') {
+                  currency = 'USD';
+                } else if (selectedFeeAsset == 'EURx') {
+                  currency = 'EUR';
+                } else {
+                  currency = '';
+                }
+                if (currency.isNotEmpty) {
+                  final rate = ref.read(selectedCurrencyProvider(currency));
+                  final feeInAsset = feeInBtc * rate;
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Fee equivalent in $selectedFeeAsset:'.i18n,
+                        style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '${feeInAsset.toStringAsFixed(2)} $selectedFeeAsset',
+                        style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  );
+                }
+                return SizedBox.shrink();
+              },
+              loading: () => SizedBox.shrink(),
+              error: (error, stack) => SizedBox.shrink(),
+            ),
+          ],
         ],
       ),
     ),
   );
 }
-
-
 
 class ConfirmLiquidAssetPayment extends ConsumerStatefulWidget {
   const ConfirmLiquidAssetPayment({super.key});
@@ -320,6 +348,7 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
   late String assetName;
   late double currencyRate;
   late String balanceText;
+  late String selectedFeeAsset;
 
   void updateControllerText(int satsAmount) {
     final selectedCurrency = ref.read(inputCurrencyProvider);
@@ -372,8 +401,10 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
         balanceText = fiatInDenominationFormatted(balance.brlBalance);
         break;
       default:
-        balanceText = '';  // Added default case to handle all possibilities
+        balanceText = '';
     }
+
+    selectedFeeAsset = 'Liquid Bitcoin';
   }
 
   @override
@@ -435,7 +466,6 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          // Balance Card
                           Container(
                             padding: EdgeInsets.all(16.sp),
                             width: double.infinity,
@@ -534,7 +564,6 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                                   padding: EdgeInsets.symmetric(vertical: 8.h),
                                   child: Row(
                                     children: [
-                                      // Input Field
                                       Expanded(
                                         child: TextFormField(
                                           controller: controller,
@@ -561,8 +590,11 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                                           onTap: () async {
                                             try {
                                               await ref.watch(liquidDrainWalletProvider.future);
-                                              controller.text = balanceText;
+                                              final isSameAsset = ref.read(sendTxProvider).assetId == ref.read(chosenAssetForPayjoin) && ref.read(chosenAssetForPayjoin) != '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d';
+                                              final amount = double.parse(balanceText);
+                                              final adjustedAmount = isSameAsset ? amount * 0.95 : amount;
                                               ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
+                                              controller.text = adjustedAmount.toString();
                                               ref.read(sendTxProvider.notifier).updateDrain(true);
                                             } catch (e) {
                                               showMessageSnackBar(
@@ -596,7 +628,70 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                             ],
                           ),
                           SizedBox(height: 16.h),
-                          buildTransactionDetailsCard(ref, controller)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 8.h),
+                                child: Text(
+                                  'Choose asset to pay fee'.i18n,
+                                  style: TextStyle(
+                                    fontSize: 18.sp,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: const Color(0x333333).withOpacity(0.4),
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                                child: DropdownButton<String>(
+                                  value: selectedFeeAsset,
+                                  isExpanded: true,
+                                  dropdownColor: const Color(0xFF333333),
+                                  icon: Icon(Icons.arrow_drop_down, color: Colors.white),
+                                  iconSize: 24.sp,
+                                  elevation: 16,
+                                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                                  underline: Container(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectedFeeAsset = newValue!;
+                                    });
+                                    ref.read(chosenAssetForPayjoin.notifier).state = AssetMapper.reverseMapTickerFromString(newValue!);
+                                    ref.read(sendTxProvider.notifier).updateAmount(0);
+                                    controller.text = '0';
+                                  },
+                                  items: <String>['Liquid Bitcoin', 'Depix', 'USDT', 'EURx']
+                                      .map<DropdownMenuItem<String>>((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Row(
+                                        children: [
+                                          Image.asset(_assetImages[value]!, width: 24.w, height: 24.h),
+                                          SizedBox(width: 8.w),
+                                          Text(
+                                            value,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16.sp,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16.h),
+                          buildTransactionDetailsCard(ref, controller, selectedFeeAsset),
                         ],
                       ),
                     ),
@@ -613,23 +708,25 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                       controller.loading();
 
                       try {
-                        // Get the current transaction details
                         final sendTxState = ref.read(sendTxProvider);
                         final fee = await ref.read(liquidFeeProvider.future);
 
-                        // Show confirmation modal
+                        final isPayjoinAsset = ref.read(chosenAssetForPayjoin) != '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d';
+
                         final confirmed = await showConfirmationModal(
-                            context,
-                            fiatInDenominationFormatted(sendTxState.amount),
-                            sendTxState.address ?? '',
-                            fee,
-                            btcFormat,
-                            ref);
+                          context,
+                          fiatInDenominationFormatted(sendTxState.amount),
+                          sendTxState.address ?? '',
+                          fee,
+                          btcFormat,
+                          ref,
+                        );
 
                         if (confirmed) {
-                          // Proceed with transaction only if user confirms
-                          // await ref.read(sideswapPayjoinSignProvider.future);
-                          final tx = await ref.watch(sendLiquidTransactionProvider.future);
+                          // final tx = isPayjoinAsset
+                          //     ? await ref.watch(liquidPayjoinTransaction.future)
+                          //     : await ref.watch(sendLiquidTransactionProvider.future);
+                          final tx =  await ref.watch(sendLiquidTransactionProvider.future);
 
                           showFullscreenTransactionSendModal(
                             context: context,

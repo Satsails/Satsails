@@ -12,7 +12,7 @@ class LiquidModel {
 
   Future<int> getAddress() async {
     final address = await config.liquid.wallet.addressLastUnused();
-    return address.index;
+    return address.index!;
   }
 
   Future<Address> getAddressOfIndex(int index) async {
@@ -84,7 +84,6 @@ class LiquidModel {
   }
 
 
-  // Future<String> buildAssetTx(TransactionBuilder params, {List<ExternalUtxo>? ExternalUtxo}) async {
   Future<String> buildAssetTx(TransactionBuilder params) async {
     try {
       final pset = await config.liquid.wallet.buildAssetTx(
@@ -92,7 +91,25 @@ class LiquidModel {
         outAddress: params.outAddress,
         feeRate: 300,
         asset: params.assetId,
-        // externalUtxos: ExternalUtxo,
+      );
+      return pset;
+    } catch (e) {
+      if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
+        throw "Insufficient funds, or not enough liquid bitcoin to pay fees.";
+      } else if (e.toString().contains("LwkError(msg: Base58(TooShort(TooShortError { length: 0 })))") || e.toString().contains("InvalidChecksum")) {
+        throw "Address is invalid";
+      }
+      throw e.toString();
+    }
+  }
+
+  Future<String> buildPayjoinAssetTx(TransactionBuilder params) async {
+    try {
+      final pset = await config.liquid.wallet.buildPayjoinTx(
+        sats: BigInt.from(params.amount),
+        outAddress: params.outAddress,
+        asset: params.assetId,
+        network: config.liquid.network
       );
       return pset;
     } catch (e) {
@@ -178,14 +195,12 @@ class TransactionBuilder {
   final String outAddress;
   final double fee;
   final String assetId;
-  // List<ExternalUtxo>? externalUtxos;
 
   TransactionBuilder({
     required this.amount,
     required this.outAddress,
     required this.fee,
     required this.assetId,
-    // this.externalUtxos,
   });
 }
 

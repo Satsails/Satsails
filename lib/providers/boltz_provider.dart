@@ -89,7 +89,7 @@ final boltzReceiveProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   final receive = await LbtcBoltz.createBoltzReceive(
     fees: fees,
     mnemonic: mnemonic!,
-    index: address.index,
+    index: address.index!,
     address: address.confidential,
     amount: amount,
     electrumUrl: electrumUrl,
@@ -133,7 +133,7 @@ final boltzPayProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
     mnemonic: mnemonic!,
     invoice: sendTx.state.address,
     amount: sendTx.state.amount,
-    index: address.index,
+    index: address.index!,
     electrumUrl: electrumUrl,
   );
   await ref.read(boltzSwapProvider.notifier).addSwap(pay);

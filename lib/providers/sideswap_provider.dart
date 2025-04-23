@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:Satsails/models/liquid_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_markets_model.dart';
-import 'package:Satsails/models/sideswap/sideswap_payjoin.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
-import 'package:boltz/boltz.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
@@ -14,7 +11,6 @@ import 'package:Satsails/models/sideswap/sideswap_status_model.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/services/sideswap/sideswap.dart';
-import 'package:lwk/lwk.dart';
 
 final appLifecycleStateProvider = StateProvider.autoDispose<AppLifecycleState>((ref) => AppLifecycleState.resumed);
 
@@ -369,34 +365,4 @@ final sideswapGetSwapsProvider = StateNotifierProvider.autoDispose<SideswapSwaps
   return SideswapSwapsNotifier();
 });
 
-// Payjoin Future Provider
-// final sideswapPayjoinProvider = FutureProvider.autoDispose.family<SideswapPayjoin, String>((ref, assetId) async {
-//
-//   // Trigger the payjoin request
-//   final response = await SideswapHttp.startPayjoin(assetId: assetId);
-//
-//   // Parse and update the payjoin model
-//   final payjoin = SideswapPayjoin.fromJson(response);
-//   ref.read(sideswapPayjoinModelProvider.notifier).updatePayjoin(payjoin);
-//   return payjoin;
-// });
-//
-// // Payjoin Sign Provider
-// final sideswapPayjoinSignProvider = FutureProvider.autoDispose<SideswapPayjoin>((ref) async {
-//   final payjoin = await ref.watch(sideswapPayjoinProvider.future);
-//   final orderId = payjoin.orderId;
-//
-//   // Get the unsigned PSET
-//   final unsignedPset = await ref.read(liquidPsetWithExternalUtxoProvider(payjoin.utxos).future);
-//
-//   final decode = await ref.read(decodeLiquidPsetProvider(unsignedPset).future);
-//   // Trigger the signPayjoin request
-//   final sideswapSignedPsetResponse = await SideswapHttp.signPayjoin(orderId: orderId, pset: unsignedPset);
-//
-//   final signedPset = await ref.read(signLiquidPsetStringProvider(sideswapSignedPsetResponse).future);
-//   // Update the payjoin model with the signed PSET
-//   ref.read(sideswapPayjoinModelProvider.notifier).updatePayjoinSigning(signedPset);
-//
-//   // Return the updated payjoin state
-//   return ref.read(sideswapPayjoinModelProvider);
-// });
+final chosenAssetForPayjoin = StateProvider<String>((ref) => '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d');

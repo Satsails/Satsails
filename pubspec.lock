@@ -1093,10 +1093,9 @@ packages:
   lwk:
     dependency: "direct main"
     description:
-      name: lwk
-      sha256: "22fa0f9b1eeee59a8c8f25c3bba87e3ae02e1e507e48c78aecb6da6027d10631"
-      url: "https://pub.dev"
-    source: hosted
+      path: "/Users/joaolobo/code/project/libraries/lwk-dart"
+      relative: false
+    source: path
     version: "0.1.7"
   macros:
     dependency: transitive
