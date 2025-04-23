@@ -166,4 +166,17 @@ final sendLiquidTransactionProvider = FutureProvider.autoDispose<String>((ref) a
   return ref.watch(broadcastLiquidTransactionProvider(signedTxBytes).future);
 });
 
+// final liquidPsetWithExternalUtxoProvider = FutureProvider.autoDispose.family<String, List<ExternalUtxo>>((ref, externalUtxo) async {
+//   final feeRate = await ref.watch(getCustomFeeRateProvider.future);
+//   final sendTx = ref.read(sendTxProvider);
+//   final transactionBuilder = TransactionBuilder(
+//     amount: sendTx.amount,
+//     outAddress: sendTx.address,
+//     fee: feeRate,
+//     assetId: sendTx.assetId,
+//     externalUtxos: externalUtxo,
+//   );
+//   return await ref.watch(buildLiquidAssetTransactionProvider(transactionBuilder).future);
+// });
+
 

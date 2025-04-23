@@ -628,6 +628,7 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
 
                         if (confirmed) {
                           // Proceed with transaction only if user confirms
+                          // await ref.read(sideswapPayjoinSignProvider.future);
                           final tx = await ref.watch(sendLiquidTransactionProvider.future);
 
                           showFullscreenTransactionSendModal(

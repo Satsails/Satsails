@@ -84,13 +84,15 @@ class LiquidModel {
   }
 
 
+  // Future<String> buildAssetTx(TransactionBuilder params, {List<ExternalUtxo>? ExternalUtxo}) async {
   Future<String> buildAssetTx(TransactionBuilder params) async {
     try {
       final pset = await config.liquid.wallet.buildAssetTx(
         sats: BigInt.from(params.amount),
         outAddress: params.outAddress,
-        feeRate: params.fee * 100 < 104 ? 104 : params.fee * 100,
+        feeRate: 300,
         asset: params.assetId,
+        // externalUtxos: ExternalUtxo,
       );
       return pset;
     } catch (e) {
@@ -176,12 +178,14 @@ class TransactionBuilder {
   final String outAddress;
   final double fee;
   final String assetId;
+  // List<ExternalUtxo>? externalUtxos;
 
   TransactionBuilder({
     required this.amount,
     required this.outAddress,
     required this.fee,
     required this.assetId,
+    // this.externalUtxos,
   });
 }
 

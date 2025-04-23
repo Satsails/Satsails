@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:Satsails/models/sideswap/sideswap_quote_model.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:http/http.dart' as http;
 
 class Sideswap {
   late WebSocketChannel _channel;
@@ -13,8 +14,6 @@ class Sideswap {
   final _quoteController = StreamController<Map<String, dynamic>>.broadcast();
   final _quotePsetController = StreamController<Map<String, dynamic>>.broadcast();
   final _signedSwapController = StreamController<Map<String, dynamic>>.broadcast();
-  final _payjoinController = StreamController<Map<String, dynamic>>.broadcast();
-  final _payjoinSigningController = StreamController<String>.broadcast();
 
   Stream<Map<String, dynamic>> get loginStream => _loginController.stream;
   Stream<Map<String, dynamic>> get statusStream => _statusController.stream;
@@ -24,8 +23,6 @@ class Sideswap {
   Stream<Map<String, dynamic>> get quoteStream => _quoteController.stream;
   Stream<Map<String, dynamic>> get quotePsetStream => _quotePsetController.stream;
   Stream<Map<String, dynamic>> get signedSwapStream => _signedSwapController.stream;
-  Stream<Map<String, dynamic>> get payjoinStream => _payjoinController.stream;
-  Stream<String> get payjoinSigningStream => _payjoinSigningController.stream;
 
   void connect() {
     try {
@@ -68,13 +65,6 @@ class Sideswap {
           _quotePsetController.add(decodedMessage);
         } else if (decodedMessage['result']?['taker_sign'] != null) {
           _signedSwapController.add(decodedMessage);
-        }
-        break;
-      case 'payjoin':
-        if (decodedMessage['result']?['start'] != null) {
-          _payjoinController.add(decodedMessage);
-        } else if (decodedMessage['result']?['sign'] != null) {
-          _payjoinSigningController.add(decodedMessage['result']['sign']);
         }
         break;
       default:
@@ -201,33 +191,6 @@ class Sideswap {
     }));
   }
 
-  void startPayjoin({required String assetId}) {
-    _channel.sink.add(json.encode({
-      'id': 1,
-      'method': 'payjoin',
-      'params': {
-        'start': {
-          'asset_id': assetId,
-          'user_agent': 'satsails',
-        }
-      }
-    }));
-  }
-
-  // New method to sign payjoin
-  void signPayjoin({required String orderId, required String pset}) {
-    _channel.sink.add(json.encode({
-      'id': 1,
-      'method': 'payjoin',
-      'params': {
-        'sign': {
-          'order_id': orderId,
-          'pset': pset,
-        }
-      }
-    }));
-  }
-
   void close() {
     _channel.sink.close();
     _loginController.close();
@@ -238,7 +201,50 @@ class Sideswap {
     _quoteController.close();
     _quotePsetController.close();
     _signedSwapController.close();
-    _payjoinController.close();
-    _payjoinSigningController.close(); // Close payjoin signing controller
+  }
+}
+
+
+class SideswapHttp {
+
+  static Future<Map<String, dynamic>> startPayjoin({required String assetId}) async {
+    final url = Uri.parse('https://api.sideswap.io/payjoin');
+    final body = json.encode({
+      'start': {
+        'asset_id': assetId,
+        'user_agent': 'satsails',
+      }
+    });
+    final response = await http.post(
+      url,
+      body: body,
+      headers: {'Content-Type': 'application/json'},
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to start payjoin: ${response.statusCode}');
+    }
+  }
+
+  static Future<String> signPayjoin({required String orderId, required String pset}) async {
+    final url = Uri.parse('https://api.sideswap.io/payjoin');
+    final body = json.encode({
+      'sign': {
+        'order_id': orderId,
+        'pset': pset,
+      }
+    });
+    final response = await http.post(
+      url,
+      body: body,
+      headers: {'Content-Type': 'application/json'},
+    );
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+      return decoded['pset'];
+    } else {
+      throw Exception('Failed to sign payjoin: ${response.statusCode} - ${response.body}');
+    }
   }
 }
