@@ -912,8 +912,6 @@ Widget buildCoinosSwap(
   final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormat);
   final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
   final valueInCurrency = currencyFormat(double.parse(formattedValueInBtc) * currencyRate, currency);
-  final valueToSendInCurrency =
-  currencyFormat(ref.watch(sendTxProvider).amount / 100000000 * currencyRate, currency);
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.end,
@@ -1125,7 +1123,7 @@ Widget buildSideswapInstantSwap(
             ),
             if (!fiatAssets.contains(toAsset)) ...[
               Text(
-                currencyFormat(double.parse(formattedAmount) * currencyRateFromBitcoin, currency),
+                currencyFormat((btcFormat == 'sats' ? double.parse(formattedAmount) / 100000000 : double.parse(formattedAmount)) * currencyRateFromBitcoin, currency),
                 style: TextStyle(color: Colors.grey, fontSize: 16.sp),
               ),
             ],

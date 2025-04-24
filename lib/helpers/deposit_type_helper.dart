@@ -50,6 +50,7 @@ final Map<DepositProvider, ProviderDetails> providerDetails = {
       "Cashback available"
     ],
     disadvantages: [
+      "Some limitation on purchases due to freer nature of depix compared to other assets"
       "Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payer's name",
       "Depix token purchases are returned to the sender bank if CPF/CNPJ diverges for the one registered",
       "Not possible to send documentation and unlock higher purchase amounts.",

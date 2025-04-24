@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:upgrader/upgrader.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class BalanceScreen extends StatefulWidget {
   const BalanceScreen({super.key});
@@ -22,27 +23,39 @@ class _BalanceScreenState extends State<BalanceScreen> {
   late List<String> _selectedFilters;
   int currentPage = 0;
 
-  // Map of network names to their icon paths
-  final Map<String, String> _networkImages = {
-    'Bitcoin network': 'lib/assets/bitcoin-logo.png',
-    'Liquid network': 'lib/assets/l-btc.png',
-    'Lightning network': 'lib/assets/Bitcoin_lightning_logo.png',
-  };
-
   @override
   void initState() {
     super.initState();
     _assets = [
-      {'name': 'Bitcoin', 'color': const Color(0xFFFF9800)},
-      {'name': 'Depix', 'color': const Color(0xFF009C3B)},
-      {'name': 'USDT', 'color': const Color(0xFF008001)},
-      {'name': 'EURx', 'color': const Color(0xFF003399)},
+      {
+        'name': 'Bitcoin Network',
+        'color': const Color(0xFFFF9800),
+        'logo': 'lib/assets/bitcoin-logo.svg',
+        'assets': [
+          {'name': 'Bitcoin (mainnet)', 'icon': 'lib/assets/bitcoin-logo.png'}
+        ]
+      },
+      {
+        'name': 'Spark Network',
+        'color': const Color(0xFF212121),
+        'logo': 'lib/assets/logo-spark.svg',
+        'assets': [
+          {'name': 'Lightning Bitcoin', 'icon': 'lib/assets/Bitcoin_lightning_logo.png'}
+        ]
+      },
+      {
+        'name': 'Liquid Network',
+        'color': const Color(0xFFFFFFFF),
+        'logo': 'lib/assets/liquid-logo.png',
+        'assets': [
+          {'name': 'Liquid Bitcoin', 'icon': 'lib/assets/l-btc.png'},
+          {'name': 'USDT', 'icon': 'lib/assets/tether.png'},
+          {'name': 'EURx', 'icon': 'lib/assets/eurx.png'},
+          {'name': 'Depix', 'icon': 'lib/assets/depix.png'}
+        ]
+      },
     ];
-    // Set "Bitcoin network" for Bitcoin, "Liquid network" for others
-    _selectedFilters = _assets
-        .map((asset) =>
-    asset['name'] == 'Bitcoin' ? 'Bitcoin network' : 'Liquid network')
-        .toList();
+    _selectedFilters = _assets.map((asset) => asset['assets'][0]['name'] as String).toList();
     _controller = PageController(
       viewportFraction: 0.9,
       initialPage: 0,
@@ -93,64 +106,57 @@ class _BalanceScreenState extends State<BalanceScreen> {
     }
   }
 
-  /// Builds a Row with the network icon and text
-  Widget _buildNetworkRow(String network) {
-    return Row(
-      children: [
-        Image.asset(
-          _networkImages[network]!,
-          width: 24.sp,
-          height: 24.sp,
-        ),
-        SizedBox(width: 10.sp),
-        Text(
-          network,
-          style: TextStyle(color: Colors.white, fontSize: 16.sp),
-        ),
-      ],
-    );
-  }
-
-  /// Builds the dropdown widget for the current asset
   Widget _buildDropdown(int index) {
+    final networkAssets = _assets[index]['assets'] as List<Map<String, String>>;
     return Container(
-      width: 220.sp, // Reduced width for a slightly smaller dropdown
-      height: 40.sp, // Height kept the same, sufficient for content
+      width: 220.sp,
+      height: 40.sp,
       child: DropdownButton<String>(
         value: _selectedFilters[index],
-        items: (_assets[index]['name'] == 'Bitcoin'
-            ? [
-          'Bitcoin network',
-          'Liquid network',
-          'Lightning network',
-        ]
-            : ['Liquid network'])
-            .map((network) {
+        items: networkAssets.map((asset) {
           return DropdownMenuItem<String>(
-            value: network,
-            child: Container(
-              width: 200.sp, // Reduced width for dropdown items
-              child: _buildNetworkRow(network),
+            value: asset['name'],
+            child: Row(
+              children: [
+                if (asset['icon']!.endsWith('.svg'))
+                  SvgPicture.asset(
+                    asset['icon']!,
+                    width: 24.sp,
+                    height: 24.sp,
+                  )
+                else
+                  Image.asset(
+                    asset['icon']!,
+                    width: 24.sp,
+                    height: 24.sp,
+                  ),
+                SizedBox(width: 10.sp),
+                Text(
+                  asset['name']!,
+                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                ),
+              ],
             ),
           );
         }).toList(),
-        onChanged: _assets[index]['name'] == 'Bitcoin'
-            ? (String? newValue) {
+        onChanged: (String? newValue) {
           if (newValue != null) {
             setState(() {
               _selectedFilters[index] = newValue;
             });
           }
-        }
-            : null, // Disable interaction for non-Bitcoin assets
+        },
         dropdownColor: const Color(0xFF212121),
         style: TextStyle(
-            color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.bold),
+          color: Colors.white,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.bold,
+        ),
         padding: EdgeInsets.symmetric(horizontal: 10.sp),
         borderRadius: const BorderRadius.all(Radius.circular(12.0)),
         icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
         underline: const SizedBox(),
-        isExpanded: true, // Ensures the dropdown button fills the container
+        isExpanded: true,
       ),
     );
   }
@@ -160,12 +166,10 @@ class _BalanceScreenState extends State<BalanceScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        // Static dropdown at the top
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 18.sp, vertical: 8.sp),
           child: _buildDropdown(currentPage),
         ),
-        // PageView for cards
         Expanded(
           child: PageView.builder(
             itemCount: _assets.length,
@@ -179,6 +183,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
               _updateController(page);
             },
             itemBuilder: (context, index) {
+              final selectedAssetName = _selectedFilters[index];
               return Padding(
                 padding: EdgeInsets.only(left: 18.sp),
                 child: SizedBox(
@@ -191,9 +196,10 @@ class _BalanceScreenState extends State<BalanceScreen> {
                         child: Padding(
                           padding: EdgeInsets.only(bottom: 10.sp),
                           child: BalanceCard(
-                            assetName: _assets[index]['name'] as String,
+                            network: _assets[index]['name'] as String,
+                            selectedAsset: selectedAssetName,
+                            iconPath: _assets[index]['logo'] as String,
                             color: _assets[index]['color'] as Color,
-                            networkFilter: _selectedFilters[index],
                           ),
                         ),
                       ),
@@ -216,10 +222,7 @@ class Home extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Future.microtask(() => ref.read(shouldUpdateMemoryProvider.notifier).state = true);
 
-    // Get the current language from settingsProvider
     final language = ref.read(settingsProvider).language;
-
-    // Determine dialog style based on platform
     final dialogStyle = Platform.isIOS ? UpgradeDialogStyle.cupertino : UpgradeDialogStyle.material;
 
     return UpgradeAlert(
@@ -236,12 +239,10 @@ class Home extends ConsumerWidget {
           body: SafeArea(
             child: Column(
               children: [
-                // Existing BalanceScreen
                 const Expanded(
                   flex: 4,
                   child: BalanceScreen(),
                 ),
-                // Existing TransactionList
                 Expanded(
                   flex: 6,
                   child: Padding(

@@ -117,7 +117,7 @@ class BalanceCardWithDropdown extends StatelessWidget {
           ),
         );
       }).toList(),
-      color: const Color(0x333333).withOpacity(0.4),
+      color: const Color(0xFF212121),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.r),
       ),
