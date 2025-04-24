@@ -610,7 +610,6 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                                               final adjustedAmount = isPayjoinTx ? amount * 0.95 : amount;
                                               ref.read(sendTxProvider.notifier).updateAmountFromInput(adjustedAmount.toString(), btcFormat);
                                               controller.text = adjustedAmount.toStringAsFixed(2);
-                                              ref.read(sendTxProvider.notifier).updateDrain(true);
                                             } catch (e) {
                                               showMessageSnackBar(
                                                 message: e.toString().i18n,
