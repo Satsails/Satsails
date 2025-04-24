@@ -342,7 +342,6 @@ final sideswapUploadAndSignInputsProvider = FutureProvider.autoDispose<SideswapC
         subscription?.cancel();
       },
       onDone: () {
-        // If the stream closes without a taker_sign event, complete with an error
         if (!completer.isCompleted) {
           completer.completeError(Exception('signedSwapStream closed without a taker_sign event'));
         }
@@ -365,4 +364,4 @@ final sideswapGetSwapsProvider = StateNotifierProvider.autoDispose<SideswapSwaps
   return SideswapSwapsNotifier();
 });
 
-final chosenAssetForPayjoin = StateProvider.autoDispose<String>((ref) => '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d');
+final isPayjoin = StateProvider.autoDispose<bool>((ref) => false);

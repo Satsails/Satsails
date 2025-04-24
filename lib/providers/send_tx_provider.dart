@@ -1,5 +1,5 @@
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:Satsails/providers/sideswap_provider.dart' show chosenAssetForPayjoin;
+import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk/lwk.dart';
@@ -89,7 +89,7 @@ final liquidFeeProvider = FutureProvider.autoDispose<int>((ref) async {
     final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
     return decodedPset.absoluteFees.toInt();
   } else {
-    if (ref.read(chosenAssetForPayjoin) == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
+    if (!ref.watch(isPayjoin)) {
       final transaction = await ref.read(liquidProvider.buildLiquidAssetTransactionProvider(transactionBuilder).future).then((value) => value);
       final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
       return decodedPset.absoluteFees.toInt();

@@ -24,15 +24,8 @@ import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dar
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:action_slider/action_slider.dart';
 
-final Map<String, String> _assetImages = {
-  'Liquid Bitcoin': 'lib/assets/l-btc.png',
-  'Depix': 'lib/assets/depix.png',
-  'USDT': 'lib/assets/tether.png',
-  'EURx': 'lib/assets/eurx.png',
-};
-
 Future<bool> showConfirmationModal(
-    BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref, bool isPayjoinAsset, String payjoinAsset) async {
+    BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref, bool isPayjoinTx, String asset) async {
   String shortenAddress(String value) {
     if (value.length <= 12) return value;
     return '${value.substring(0, 6)}...${value.substring(value.length - 6)}';
@@ -86,7 +79,7 @@ Future<bool> showConfirmationModal(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                amount,
+                                '$amount $asset',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20.sp,
@@ -155,7 +148,7 @@ Future<bool> showConfirmationModal(
                         ],
                       ),
                     ),
-                    if (isPayjoinAsset)
+                    if (isPayjoinTx)
                       ref.watch(payjoinFeeProvider).when(
                         data: (String fee) {
                           return Padding(
@@ -171,7 +164,7 @@ Future<bool> showConfirmationModal(
                                   ),
                                 ),
                                 Text(
-                                  '$fee $payjoinAsset',
+                                  '$fee $asset',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20.sp,
@@ -230,7 +223,7 @@ Future<bool> showConfirmationModal(
   ) ?? false;
 }
 
-Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controller, String selectedFeeAsset, bool isPayjoinAsset, String payjoinAsset) {
+Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controller, String asset, bool isPayjoinTx) {
   return Card(
     color: Color(0x333333).withOpacity(0.4),
     margin: EdgeInsets.zero,
@@ -326,7 +319,7 @@ Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controll
             ),
           ),
           SizedBox(height: 8.h),
-          if (isPayjoinAsset) ...[
+          if (isPayjoinTx) ...[
             ref.watch(payjoinFeeProvider).when(
               data: (String fee) {
                 return Row(
@@ -337,7 +330,7 @@ Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controll
                       style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      '$fee $payjoinAsset',
+                      '$fee $asset',
                       style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -370,7 +363,6 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
   late String assetName;
   late double currencyRate;
   late String balanceText;
-  late String selectedFeeAsset;
 
   void updateControllerText(int satsAmount) {
     final selectedCurrency = ref.read(inputCurrencyProvider);
@@ -425,8 +417,6 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
       default:
         balanceText = '';
     }
-
-    selectedFeeAsset = 'Liquid Bitcoin';
   }
 
   @override
@@ -438,8 +428,7 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
 
   @override
   Widget build(BuildContext context) {
-    final isPayjoinAsset = ref.watch(chosenAssetForPayjoin) != '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d';
-    final payjoinAsset = AssetMapper.mapAsset(ref.watch(chosenAssetForPayjoin));
+    final isPayjoinTx = ref.watch(isPayjoin);
 
     Future.microtask(() => {
       ref.read(shouldUpdateMemoryProvider.notifier).state = false,
@@ -593,7 +582,10 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                                         child: TextFormField(
                                           controller: controller,
                                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                          inputFormatters: [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
+                                          inputFormatters: [
+                                            CommaTextInputFormatter(),
+                                            DecimalTextInputFormatter(decimalRange: 2)
+                                          ],
                                           validator: (value) {},
                                           style: TextStyle(fontSize: 24.sp, color: Colors.white),
                                           textAlign: TextAlign.left,
@@ -614,12 +606,10 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                                         child: GestureDetector(
                                           onTap: () async {
                                             try {
-                                              await ref.watch(liquidDrainWalletProvider.future);
-                                              final isSameAsset = ref.read(sendTxProvider).assetId == ref.read(chosenAssetForPayjoin) && ref.read(chosenAssetForPayjoin) != '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d';
                                               final amount = double.parse(balanceText);
-                                              final adjustedAmount = isSameAsset ? amount * 0.95 : amount;
-                                              ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
-                                              controller.text = adjustedAmount.toString();
+                                              final adjustedAmount = isPayjoinTx ? amount * 0.95 : amount;
+                                              ref.read(sendTxProvider.notifier).updateAmountFromInput(adjustedAmount.toString(), btcFormat);
+                                              controller.text = adjustedAmount.toStringAsFixed(2);
                                               ref.read(sendTxProvider.notifier).updateDrain(true);
                                             } catch (e) {
                                               showMessageSnackBar(
@@ -653,70 +643,40 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                             ],
                           ),
                           SizedBox(height: 16.h),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 8.h),
-                                child: Text(
-                                  'Choose asset to pay fee'.i18n,
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: const Color(0x333333).withOpacity(0.4),
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  'Pay fee in $assetName',
                                   style: TextStyle(
-                                    fontSize: 18.sp,
                                     color: Colors.white,
+                                    fontSize: 16.sp,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: const Color(0x333333).withOpacity(0.4),
-                                  borderRadius: BorderRadius.circular(12.r),
-                                ),
-                                child: DropdownButton<String>(
-                                  value: selectedFeeAsset,
-                                  isExpanded: true,
-                                  dropdownColor: const Color(0xFF333333),
-                                  icon: Icon(Icons.arrow_drop_down, color: Colors.white),
-                                  iconSize: 24.sp,
-                                  elevation: 16,
-                                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                                  underline: Container(),
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      selectedFeeAsset = newValue!;
-                                    });
-                                    ref.read(chosenAssetForPayjoin.notifier).state = AssetMapper.reverseMapTickerFromString(newValue!);
+                                Spacer(),
+                                Checkbox(
+                                  value: ref.watch(isPayjoin),
+                                  onChanged: (bool? value) {
+                                    ref.read(isPayjoin.notifier).state = value ?? false;
+                                    ref.read(sendTxProvider.notifier).updateDrain(false);
                                     ref.read(sendTxProvider.notifier).updateAmount(0);
                                     controller.text = '0';
                                   },
-                                  items: <String>['Liquid Bitcoin', 'Depix', 'USDT', 'EURx']
-                                      .map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Row(
-                                        children: [
-                                          Image.asset(_assetImages[value]!, width: 24.w, height: 24.h),
-                                          SizedBox(width: 8.w),
-                                          Text(
-                                            value,
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16.sp,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
+                                  activeColor: Colors.white,
+                                  checkColor: Colors.black,
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           SizedBox(height: 16.h),
-                          buildTransactionDetailsCard(ref, controller, selectedFeeAsset, isPayjoinAsset , selectedFeeAsset),
+                          buildTransactionDetailsCard(ref, controller, assetName, isPayjoinTx),
                         ],
                       ),
                     ),
@@ -743,16 +703,17 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                           fee,
                           btcFormat,
                           ref,
-                          isPayjoinAsset,
-                          payjoinAsset.name
+                          isPayjoinTx,
+                          assetName,
                         );
 
                         if (confirmed) {
-                          final tx = isPayjoinAsset
-                              ? await ref.watch(liquidPayjoinTransaction.future)
-                              : await ref.watch(sendLiquidTransactionProvider.future);
-                          // final tx =  await ref.watch(sendLiquidTransactionProvider.future);
-
+                          final tx;
+                          if (isPayjoinTx) {
+                            tx = await ref.watch(liquidPayjoinTransaction.future);
+                          } else {
+                            tx = await ref.watch(sendLiquidTransactionProvider.future);
+                          }
                           showFullscreenTransactionSendModal(
                             context: context,
                             asset: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).name,

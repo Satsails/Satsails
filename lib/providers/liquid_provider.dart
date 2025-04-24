@@ -182,14 +182,13 @@ final sendLiquidTransactionProvider = FutureProvider.autoDispose<String>((ref) a
 });
 
 final liquidPayjoinTransaction = FutureProvider.autoDispose<String>((ref) async {
-  final asset = ref.watch(chosenAssetForPayjoin);
   final feeRate = await ref.watch(getCustomFeeRateProvider.future);
   final sendTx = ref.watch(sendTxProvider);
   final transactionBuilder = TransactionBuilder(
     amount: sendTx.amount,
     outAddress: sendTx.address,
     fee: feeRate,
-    assetId: asset,
+    assetId: sendTx.assetId,
   );
   final unsigedPset =  await ref.read(buildLiquidPayjoinTransactionProvider(transactionBuilder).future);
 
