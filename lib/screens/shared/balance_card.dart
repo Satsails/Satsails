@@ -57,7 +57,7 @@ class BalanceCard extends ConsumerWidget {
     String equivalentBalance = '';
 
     switch (selectedAsset) {
-      case 'Bitcoin (mainnet)':
+      case 'Bitcoin (Mainnet)':
         nativeBalance = isBalanceVisible ? btcBalance : '****';
         equivalentBalance = isBalanceVisible
             ? currencyFormat(ref.watch(balanceNotifierProvider).btcBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
@@ -98,7 +98,7 @@ class BalanceCard extends ConsumerWidget {
             ref.read(sendBlocksProvider.notifier).state = 1;
 
             switch (selectedAsset) {
-              case 'Bitcoin (mainnet)':
+              case 'Bitcoin (Mainnet)':
                 context.push('/home/pay', extra: 'bitcoin');
                 break;
               case 'Lightning Bitcoin':
@@ -220,7 +220,7 @@ class BalanceCard extends ConsumerWidget {
                                   color: textColor,
                                 ),
                               ),
-                              if (['Bitcoin (mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(selectedAsset)) ...[
+                              if (['Bitcoin (Mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(selectedAsset)) ...[
                                 SizedBox(height: 4.h),
                                 Text(
                                   equivalentBalance,
@@ -241,7 +241,7 @@ class BalanceCard extends ConsumerWidget {
                               selectedAsset: selectedAsset,
                               textColor: textColor,
                             ),
-                            if (['Bitcoin (mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(selectedAsset)) ...[
+                            if (['Bitcoin (Mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(selectedAsset)) ...[
                               SizedBox(height: 8.h),
                               _buildPricePercentageChangeTicker(context, ref, textColor),
                             ],
@@ -351,7 +351,7 @@ class MiniExpensesGraph extends ConsumerWidget {
     late final AsyncValue<Map<DateTime, num>> asyncData;
 
     switch (selectedAsset) {
-      case 'Bitcoin (mainnet)':
+      case 'Bitcoin (Mainnet)':
         asyncData = AsyncValue.data(ref.watch(bitcoinBalanceInFormatByDayProvider));
         break;
       case 'Lightning Bitcoin':

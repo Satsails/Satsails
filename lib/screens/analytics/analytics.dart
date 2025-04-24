@@ -18,6 +18,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math';
 
+// ViewModeSelector widget remains unchanged
 class ViewModeSelector extends ConsumerWidget {
   final int selectedIndex; // 0 for Balance, 1 for USD Valuation
   final Function(int) onSelected;
@@ -69,6 +70,7 @@ class ViewModeSelector extends ConsumerWidget {
   }
 }
 
+// BalanceCardWithDropdown widget remains unchanged
 class BalanceCardWithDropdown extends StatelessWidget {
   final String selectedAsset;
   final Function(String) onAssetChanged;
@@ -193,29 +195,35 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   String _selectedRange = '1M';
   String? _selectedAsset;
 
+  // Updated asset options with Lightning Bitcoin and labels
   final List<String> _assetOptions = [
     'Bitcoin (Mainnet)',
-    'Bitcoin (Liquid)',
-    'Depix (Liquid)',
-    'USDT (Liquid)',
-    'EURx (Liquid)',
+    'Lightning Bitcoin',
+    'Liquid Bitcoin',
+    'Depix',
+    'USDT',
+    'EURx',
   ];
 
+  // Updated asset images with Lightning Bitcoin
   final Map<String, String> _assetImages = {
     'Bitcoin (Mainnet)': 'lib/assets/bitcoin-logo.png',
-    'Bitcoin (Liquid)': 'lib/assets/l-btc.png',
-    'Depix (Liquid)': 'lib/assets/depix.png',
-    'USDT (Liquid)': 'lib/assets/tether.png',
-    'EURx (Liquid)': 'lib/assets/eurx.png',
+    'Lightning Bitcoin': 'lib/assets/Bitcoin_lightning_logo.png',
+    'Liquid Bitcoin': 'lib/assets/l-btc.png',
+    'Depix': 'lib/assets/depix.png',
+    'USDT': 'lib/assets/tether.png',
+    'EURx': 'lib/assets/eurx.png',
   };
 
+  // Asset ID map for Liquid assets only
   final Map<String, String> _assetIdMap = {
-    'Bitcoin (Liquid)': AssetMapper.reverseMapTicker(AssetId.LBTC),
-    'Depix (Liquid)': AssetMapper.reverseMapTicker(AssetId.BRL),
-    'USDT (Liquid)': AssetMapper.reverseMapTicker(AssetId.USD),
-    'EURx (Liquid)': AssetMapper.reverseMapTicker(AssetId.EUR),
+    'Liquid Bitcoin': AssetMapper.reverseMapTicker(AssetId.LBTC),
+    'Depix': AssetMapper.reverseMapTicker(AssetId.BRL),
+    'USDT': AssetMapper.reverseMapTicker(AssetId.USD),
+    'EURx': AssetMapper.reverseMapTicker(AssetId.EUR),
   };
 
+  // Precision map for Liquid assets
   final Map<String, int> _assetPrecisionMap = {
     AssetMapper.reverseMapTicker(AssetId.LBTC): 8,
     AssetMapper.reverseMapTicker(AssetId.BRL): 2,
@@ -242,6 +250,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     super.dispose();
   }
 
+  // _buildPricePercentageChangeTicker remains unchanged
   Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref, double percentageChange) {
     final format = ref.watch(settingsProvider).btcFormat;
     final currency = ref.watch(settingsProvider).currency;
@@ -370,27 +379,35 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     final settings = ref.watch(settingsProvider);
     final selectedCurrency = settings.currency;
     final btcFormat = settings.btcFormat;
+
+    // Fetch balances for all assets
     final depixBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
     final usdBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance);
     final euroBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance);
     final btcBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).btcBalance, btcFormat);
     final liquidBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBalance, btcFormat);
+    final lightningBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).lightningBalance ?? 0, btcFormat);
 
     final selectedDays = ref.watch(selectedDaysDateArrayProvider);
-    final isBitcoinAsset = _selectedAsset == 'Bitcoin (Mainnet)' || _selectedAsset == 'Bitcoin (Liquid)';
 
+    // Updated to include Lightning Bitcoin as a Bitcoin asset
+    final isBitcoinAsset = _selectedAsset == 'Bitcoin (Mainnet)' || _selectedAsset == 'Lightning Bitcoin' || _selectedAsset == 'Liquid Bitcoin';
+
+    // Updated balance switch to include Lightning Bitcoin
     final currentBalanceFormatted = switch (_selectedAsset) {
       'Bitcoin (Mainnet)' => btcBalance,
-      'Bitcoin (Liquid)' => liquidBalance,
-      'Depix (Liquid)' => depixBalance,
-      'USDT (Liquid)' => usdBalance,
-      'EURx (Liquid)' => euroBalance,
+      'Lightning Bitcoin' => lightningBalance,
+      'Liquid Bitcoin' => liquidBalance,
+      'Depix' => depixBalance,
+      'USDT' => usdBalance,
+      'EURx' => euroBalance,
       _ => throw ArgumentError('Unsupported asset: $_selectedAsset'),
     };
 
     final balanceWithUnit = '$currentBalanceFormatted ${isBitcoinAsset ? btcFormat : _selectedAsset!.split(' ')[0]}';
 
-    final balanceByDay = _selectedAsset == 'Bitcoin (Mainnet)'
+    // Updated balance by day to handle Lightning Bitcoin
+    final balanceByDay = _selectedAsset == 'Bitcoin (Mainnet)' || _selectedAsset == 'Lightning Bitcoin'
         ? ref.watch(bitcoinBalanceInFormatByDayProvider)
         : ref.watch(liquidBalancePerDayInFormatProvider(_assetIdMap[_selectedAsset!]!));
 
@@ -423,7 +440,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
       },
       loading: () => (<DateTime, num>{}, <DateTime, num>{}),
       error: (_, __) => (<DateTime, num>{}, <DateTime, num>{}),
-    );;
+    );
 
     double percentageChange = 0;
     if (isBitcoinAsset && priceByDay.isNotEmpty) {

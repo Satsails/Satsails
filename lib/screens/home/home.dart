@@ -32,7 +32,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
         'color': const Color(0xFFFF9800),
         'logo': 'lib/assets/bitcoin-logo.svg',
         'assets': [
-          {'name': 'Bitcoin (mainnet)', 'icon': 'lib/assets/bitcoin-logo.png'}
+          {'name': 'Bitcoin (Mainnet)', 'icon': 'lib/assets/bitcoin-logo.png'}
         ]
       },
       {
