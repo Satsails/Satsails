@@ -1,3 +1,4 @@
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/providers/sideswap_provider.dart' show chosenAssetForPayjoin;
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -78,27 +79,36 @@ final liquidFeeProvider = FutureProvider.autoDispose<int>((ref) async {
   final drain = ref.watch(sendTxProvider).drain;
   final FeeCalculationParams params = ref.watch(feeParamsProvider);
   final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(params.amount).future).then((value) => value);
-if (asset == AssetMapper.reverseMapTicker(AssetId.LBTC)) {
-  if (drain) {
-    final transaction = await ref.read(liquidProvider.buildDrainLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
+  if (asset == AssetMapper.reverseMapTicker(AssetId.LBTC)) {
+    if (drain) {
+      final transaction = await ref.read(liquidProvider.buildDrainLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
+      final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
+      return decodedPset.absoluteFees.toInt();
+    }
+    final transaction = await ref.read(liquidProvider.buildLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
     final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
     return decodedPset.absoluteFees.toInt();
+  } else {
+    if (ref.read(chosenAssetForPayjoin) == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
+      final transaction = await ref.read(liquidProvider.buildLiquidAssetTransactionProvider(transactionBuilder).future).then((value) => value);
+      final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
+      return decodedPset.absoluteFees.toInt();
+    } else{
+      final transaction = await ref.read(liquidProvider.buildLiquidPayjoinTransactionProvider(transactionBuilder).future).then((value) => value);
+      return transaction.networkFee.toInt();
+    }
   }
-  final transaction = await ref.read(liquidProvider.buildLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
-  final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
-  return decodedPset.absoluteFees.toInt();
-} else {
-  if (ref.read(chosenAssetForPayjoin) == '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d') {
-    final transaction = await ref.read(liquidProvider.buildLiquidAssetTransactionProvider(transactionBuilder).future).then((value) => value);
-    final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
-    return decodedPset.absoluteFees.toInt();
-  } else{
-    final transaction = await ref.read(liquidProvider.buildLiquidPayjoinTransactionProvider(transactionBuilder).future).then((value) => value);
-    final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
-    return decodedPset.absoluteFees.toInt();
-  }
-}
 });
+
+final payjoinFeeProvider = FutureProvider.autoDispose<String>((ref) async {
+    final FeeCalculationParams params = ref.watch(feeParamsProvider);
+    final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(params.amount).future);
+    final transaction = await ref.read(liquidProvider.buildLiquidPayjoinTransactionProvider(transactionBuilder).future);
+    final feeInSatoshis = transaction.assetFee.toInt(); // Ensure integer
+    final feeInBtc = feeInSatoshis / 100000000; // Convert satoshis to BTC
+    return feeInBtc.toStringAsFixed(2); // Format to 2 decimal places (e.g., "0.01")
+});
+
 
 final liquidDrainWalletProvider = FutureProvider.autoDispose<PsetAmounts>((ref) async {
   final asset = ref.watch(sendTxProvider).assetId;

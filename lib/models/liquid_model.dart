@@ -103,13 +103,13 @@ class LiquidModel {
     }
   }
 
-  Future<String> buildPayjoinAssetTx(TransactionBuilder params) async {
+  Future<PayjoinTx> buildPayjoinAssetTx(TransactionBuilder params) async {
     try {
       final pset = await config.liquid.wallet.buildPayjoinTx(
-        sats: BigInt.from(params.amount),
-        outAddress: params.outAddress,
-        asset: params.assetId,
-        network: config.liquid.network
+          sats: BigInt.from(params.amount),
+          outAddress: params.outAddress,
+          asset: params.assetId,
+          network: config.liquid.network
       );
       return pset;
     } catch (e) {
@@ -149,6 +149,16 @@ class LiquidModel {
     }
   }
 
+  Future<Uint8List> extractTxFromPset(String pset) async {
+    try {
+      final txBytes = await Wallet.extractTx(pset: pset);
+
+      return txBytes;
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
   Future<String> broadcast(Uint8List signedTxBytes) async {
     try {
       final tx = await Wallet.broadcastTx(electrumUrl: config.electrumUrl, txBytes: signedTxBytes);
@@ -157,7 +167,6 @@ class LiquidModel {
       throw e.toString();
     }
   }
-
 
   Future<double> getLiquidFees(int blocks) async {
     try {

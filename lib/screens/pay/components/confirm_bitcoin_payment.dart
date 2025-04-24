@@ -22,7 +22,8 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-Future<bool> showConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
+Future<bool> showConfirmationModal(
+    BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
   final settings = ref.read(settingsProvider);
   final currency = settings.currency;
   final amountInCurrency = ref.read(bitcoinValueInCurrencyProvider);
@@ -40,167 +41,172 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
       return Dialog(
         backgroundColor: Colors.transparent, // Transparent background around the card
         child: Center(
-          child: Card(
-            color: const  Color(0xFF333333), // Dark background like a dialog
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 8, // Shadow effect
-            child: Padding(
-              padding: const EdgeInsets.all(24), // Inner padding
-              child: Column(
-                mainAxisSize: MainAxisSize.min, // Compact size
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Center(
-                    child: Text(
-                      'Confirm Transaction',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.8, // Limit to 80% of screen width
+            ),
+            child: Card(
+              color: const Color(0xFF333333), // Dark background
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+              elevation: 8, // Shadow effect
+              child: Padding(
+                padding: EdgeInsets.all(24.w), // Scaled padding
+                child: Column(
+                  mainAxisSize: MainAxisSize.min, // Compact size
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Center(
+                      child: Text(
+                        'Confirm Transaction',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24.sp, // Scaled font size
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 24),
+                    SizedBox(height: 24.h), // Scaled spacing
 
-                  // Amount Section
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Amount',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 20,
+                    // Amount Section
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Amount',
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 20.sp,
+                            ),
                           ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '$amount $btcFormat',
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '$amount $btcFormat',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                '${currencyFormat(amountInCurrency, currency)} $currency',
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 18.sp,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Divider
+                    Divider(color: Colors.grey[700], height: 20.h),
+
+                    // Recipient Section
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Recipient',
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 20.sp,
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[800],
+                              borderRadius: BorderRadius.circular(6.r),
+                            ),
+                            child: Text(
+                              shortenAddress(address),
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 20,
+                                fontSize: 18.sp,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            Text(
-                              '${currencyFormat(amountInCurrency, currency)} $currency',
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
 
-                  // Divider
-                  Divider(color: Colors.grey[700], height: 20),
+                    // Divider
+                    Divider(color: Colors.grey[700], height: 20.h),
 
-                  // Recipient Section
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Recipient',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 20,
+                    // Fee Section
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Fee',
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 20.sp,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[800],
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            shortenAddress(address),
+                          Text(
+                            '$fee sats',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Action Buttons
+                    SizedBox(height: 24.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 16.w), // Scaled horizontal spacing
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.r)),
+                            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
+                          ),
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: Text(
+                            'Confirm',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-
-                  // Divider
-                  Divider(color: Colors.grey[700], height: 20),
-
-                  // Fee Section
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Fee',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 20,
-                          ),
-                        ),
-                        Text(
-                          '$fee sats',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Action Buttons
-                  SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                        ),
-                        onPressed: () => Navigator.of(context).pop(true),
-                        child: Text(
-                          'Confirm',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

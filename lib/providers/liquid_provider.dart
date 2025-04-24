@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/auth_provider.dart';
@@ -105,7 +104,7 @@ final buildLiquidAssetTransactionProvider = FutureProvider.family.autoDispose<St
   });
 });
 
-final buildLiquidPayjoinTransactionProvider = FutureProvider.family.autoDispose<String, TransactionBuilder>((ref, params) {
+final buildLiquidPayjoinTransactionProvider = FutureProvider.family.autoDispose<PayjoinTx, TransactionBuilder>((ref, params) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     return liquidModel.buildPayjoinAssetTx(params);
@@ -156,6 +155,13 @@ final broadcastLiquidTransactionProvider = FutureProvider.family.autoDispose<Str
   });
 });
 
+final psetBytesExtractorProvider = FutureProvider.family.autoDispose<Uint8List, String>((ref, pset) {
+  return ref.watch(initializeLiquidProvider.future).then((liquid) {
+    LiquidModel liquidModel = LiquidModel(liquid);
+    return liquidModel.extractTxFromPset(pset);
+  });
+});
+
 final sendLiquidTransactionProvider = FutureProvider.autoDispose<String>((ref) async {
   final feeRate = await ref.watch(getCustomFeeRateProvider.future);
   final sendTx = ref.read(sendTxProvider);
@@ -176,23 +182,22 @@ final sendLiquidTransactionProvider = FutureProvider.autoDispose<String>((ref) a
 });
 
 final liquidPayjoinTransaction = FutureProvider.autoDispose<String>((ref) async {
-  final asset = ref.read(chosenAssetForPayjoin);
+  final asset = ref.watch(chosenAssetForPayjoin);
   final feeRate = await ref.watch(getCustomFeeRateProvider.future);
-  final sendTx = ref.read(sendTxProvider);
+  final sendTx = ref.watch(sendTxProvider);
   final transactionBuilder = TransactionBuilder(
     amount: sendTx.amount,
     outAddress: sendTx.address,
     fee: feeRate,
     assetId: asset,
   );
-  final unsigedPset =  await ref.watch(buildLiquidPayjoinTransactionProvider(transactionBuilder).future);
+  final unsigedPset =  await ref.read(buildLiquidPayjoinTransactionProvider(transactionBuilder).future);
 
-  final pset = await ref.watch(signLiquidPsetStringProvider(unsigedPset).future);
+  final pset = await ref.read(signLiquidPsetStringProvider(unsigedPset.pset).future);
 
-  // not working need fixing
-  final txBytes = base64.decode(pset);
+  final txBytes = await ref.read(psetBytesExtractorProvider(pset).future);
 
-  return await ref.watch(broadcastLiquidTransactionProvider(txBytes).future);
+  return await ref.read(broadcastLiquidTransactionProvider(txBytes).future);
 });
 
 

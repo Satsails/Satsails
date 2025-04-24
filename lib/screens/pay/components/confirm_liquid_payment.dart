@@ -22,6 +22,9 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 Future<bool> showConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
   final settings = ref.read(settingsProvider);
   final currency = settings.currency;
@@ -41,11 +44,11 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
         backgroundColor: Colors.transparent, // Transparent background around the card
         child: Center(
           child: Card(
-            color: Color(0xFF333333), // Dark background like a dialog
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            color: const Color(0xFF333333), // Dark background like a dialog
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
             elevation: 8, // Shadow effect
             child: Padding(
-              padding: const EdgeInsets.all(24), // Inner padding
+              padding: EdgeInsets.all(24.w), // Responsive inner padding
               child: Column(
                 mainAxisSize: MainAxisSize.min, // Compact size
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,16 +59,16 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                       'Confirm Transaction',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 24,
+                        fontSize: 24.sp, // Responsive font size
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  SizedBox(height: 24),
+                  SizedBox(height: 24.h), // Responsive height
 
                   // Amount Section
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -73,7 +76,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                           'Amount',
                           style: TextStyle(
                             color: Colors.grey[400],
-                            fontSize: 20,
+                            fontSize: 20.sp,
                           ),
                         ),
                         Column(
@@ -83,7 +86,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                               '$amount $btcFormat',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 20,
+                                fontSize: 20.sp,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -91,7 +94,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                               '${currencyFormat(amountInCurrency, currency)} $currency',
                               style: TextStyle(
                                 color: Colors.grey[400],
-                                fontSize: 18,
+                                fontSize: 18.sp,
                               ),
                             ),
                           ],
@@ -101,11 +104,11 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                   ),
 
                   // Divider
-                  Divider(color: Colors.grey[700], height: 20),
+                  Divider(color: Colors.grey[700], height: 20.h),
 
                   // Recipient Section
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -113,22 +116,22 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                           'Recipient',
                           style: TextStyle(
                             color: Colors.grey[400],
-                            fontSize: 20,
+                            fontSize: 20.sp,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        SizedBox(height: 8.h),
                         Container(
                           width: double.infinity,
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                           decoration: BoxDecoration(
                             color: Colors.grey[800],
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: BorderRadius.circular(6.r),
                           ),
                           child: Text(
                             shortenAddress(address),
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -138,11 +141,11 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                   ),
 
                   // Divider
-                  Divider(color: Colors.grey[700], height: 20),
+                  Divider(color: Colors.grey[700], height: 20.h),
 
                   // Fee Section
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -150,14 +153,14 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                           'Fee',
                           style: TextStyle(
                             color: Colors.grey[400],
-                            fontSize: 20,
+                            fontSize: 20.sp,
                           ),
                         ),
                         Text(
                           '$fee sats',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: 20.sp,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -166,7 +169,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                   ),
 
                   // Action Buttons
-                  SizedBox(height: 24),
+                  SizedBox(height: 24.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -176,24 +179,24 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                           'Cancel',
                           style: TextStyle(
                             color: Colors.grey[400],
-                            fontSize: 18,
+                            fontSize: 18.sp,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                      SizedBox(width: 16),
+                      SizedBox(width: 16.w), // Responsive width
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.r)),
+                          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
                         ),
                         onPressed: () => Navigator.of(context).pop(true),
                         child: Text(
                           'Confirm',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 18,
+                            fontSize: 18.sp,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

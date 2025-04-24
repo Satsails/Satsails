@@ -31,7 +31,8 @@ final Map<String, String> _assetImages = {
   'EURx': 'lib/assets/eurx.png',
 };
 
-Future<bool> showConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
+Future<bool> showConfirmationModal(
+    BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref, bool isPayjoinAsset, String payjoinAsset) async {
   String shortenAddress(String value) {
     if (value.length <= 12) return value;
     return '${value.substring(0, 6)}...${value.substring(value.length - 6)}';
@@ -44,147 +45,182 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
       return Dialog(
         backgroundColor: Colors.transparent,
         child: Center(
-          child: Card(
-            color: Color(0xFF333333),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 8,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Text(
-                      'Confirm Transaction',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.8,
+            ),
+            child: Card(
+              color: Color(0xFF333333),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+              elevation: 8,
+              child: Padding(
+                padding: EdgeInsets.all(24.w),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text(
+                        'Confirm Transaction',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 24),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Amount',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 20,
+                    SizedBox(height: 24.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Amount',
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 20.sp,
+                            ),
                           ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              amount,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                amount,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Divider(color: Colors.grey[700], height: 20.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Recipient',
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 20.sp,
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[800],
+                              borderRadius: BorderRadius.circular(6.r),
+                            ),
+                            child: Text(
+                              shortenAddress(address),
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 20,
+                                fontSize: 20.sp,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Divider(color: Colors.grey[700], height: 20),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Recipient',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 20,
+                    Divider(color: Colors.grey[700], height: 20.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Fee',
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 20.sp,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[800],
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            shortenAddress(address),
+                          Text(
+                            '$fee sats',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (isPayjoinAsset)
+                      ref.watch(payjoinFeeProvider).when(
+                        data: (String fee) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8.h),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Payjoin fee'.i18n,
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 20.sp,
+                                  ),
+                                ),
+                                Text(
+                                  '$fee $payjoinAsset',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        loading: () => SizedBox.shrink(),
+                        error: (error, stack) => SizedBox.shrink(),
+                      ),
+                    SizedBox(height: 24.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 16.w),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.r)),
+                            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
+                          ),
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: Text(
+                            'Confirm',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Divider(color: Colors.grey[700], height: 20),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Fee',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 20,
-                          ),
-                        ),
-                        Text(
-                          '$fee sats',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                        ),
-                        onPressed: () => Navigator.of(context).pop(true),
-                        child: Text(
-                          'Confirm',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -194,7 +230,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
   ) ?? false;
 }
 
-Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controller, String selectedFeeAsset) {
+Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controller, String selectedFeeAsset, bool isPayjoinAsset, String payjoinAsset) {
   return Card(
     color: Color(0x333333).withOpacity(0.4),
     margin: EdgeInsets.zero,
@@ -289,42 +325,28 @@ Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controll
               style: TextStyle(color: Colors.white, fontSize: 14.sp),
             ),
           ),
-          if (selectedFeeAsset != 'Liquid Bitcoin') ...[
-            SizedBox(height: 8.h),
-            ref.watch(liquidFeeProvider).when(
-              data: (int fee) {
-                final feeInBtc = fee / 100000000;
-                String currency;
-                if (selectedFeeAsset == 'USDT' || selectedFeeAsset == 'Depix') {
-                  currency = 'USD';
-                } else if (selectedFeeAsset == 'EURx') {
-                  currency = 'EUR';
-                } else {
-                  currency = '';
-                }
-                if (currency.isNotEmpty) {
-                  final rate = ref.read(selectedCurrencyProvider(currency));
-                  final feeInAsset = feeInBtc * rate;
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Fee equivalent in $selectedFeeAsset:'.i18n,
-                        style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        '${feeInAsset.toStringAsFixed(2)} $selectedFeeAsset',
-                        style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  );
-                }
-                return SizedBox.shrink();
+          SizedBox(height: 8.h),
+          if (isPayjoinAsset) ...[
+            ref.watch(payjoinFeeProvider).when(
+              data: (String fee) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Payjoin Fee'.i18n,
+                      style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '$fee $payjoinAsset',
+                      style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                );
               },
               loading: () => SizedBox.shrink(),
               error: (error, stack) => SizedBox.shrink(),
             ),
-          ],
+          ]
         ],
       ),
     ),
@@ -416,6 +438,9 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
 
   @override
   Widget build(BuildContext context) {
+    final isPayjoinAsset = ref.watch(chosenAssetForPayjoin) != '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d';
+    final payjoinAsset = AssetMapper.mapAsset(ref.watch(chosenAssetForPayjoin));
+
     Future.microtask(() => {
       ref.read(shouldUpdateMemoryProvider.notifier).state = false,
     });
@@ -691,7 +716,7 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                             ],
                           ),
                           SizedBox(height: 16.h),
-                          buildTransactionDetailsCard(ref, controller, selectedFeeAsset),
+                          buildTransactionDetailsCard(ref, controller, selectedFeeAsset, isPayjoinAsset , selectedFeeAsset),
                         ],
                       ),
                     ),
@@ -711,8 +736,6 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                         final sendTxState = ref.read(sendTxProvider);
                         final fee = await ref.read(liquidFeeProvider.future);
 
-                        final isPayjoinAsset = ref.read(chosenAssetForPayjoin) != '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d';
-
                         final confirmed = await showConfirmationModal(
                           context,
                           fiatInDenominationFormatted(sendTxState.amount),
@@ -720,6 +743,8 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                           fee,
                           btcFormat,
                           ref,
+                          isPayjoinAsset,
+                          payjoinAsset.name
                         );
 
                         if (confirmed) {
