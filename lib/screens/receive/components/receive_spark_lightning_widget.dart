@@ -235,9 +235,9 @@ class _ReceiveSparkLightningWidgetState extends ConsumerState<ReceiveSparkLightn
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
+          color: isSelected ? const Color(0xFF212121) : Colors.transparent,
           borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(color: Colors.white, width: 2),
+          border: isSelected ? Border.all(color: Colors.white, width: 2) : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -251,7 +251,7 @@ class _ReceiveSparkLightningWidgetState extends ConsumerState<ReceiveSparkLightn
             Text(
               option,
               style: TextStyle(
-                color: isSelected ? Colors.black : Colors.white,
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 16.sp,
               ),

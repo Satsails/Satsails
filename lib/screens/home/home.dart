@@ -115,6 +115,7 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
         padding: EdgeInsets.symmetric(horizontal: 10.sp),
         icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
         underline: const SizedBox(),
+        borderRadius: const BorderRadius.all(Radius.circular(12.0)),
         isExpanded: true,
       ),
     );
