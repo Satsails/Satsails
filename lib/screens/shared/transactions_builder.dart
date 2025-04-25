@@ -159,7 +159,7 @@ class TransactionList extends ConsumerWidget {
           'Buy',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 16.sp,
+            fontSize: 17.sp,
             fontWeight: FontWeight.bold,
           ),
         ),

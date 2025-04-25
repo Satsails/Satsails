@@ -13,6 +13,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Accounts extends ConsumerStatefulWidget {
   const Accounts({super.key});
@@ -32,17 +33,15 @@ class _AccountsState extends ConsumerState<Accounts> {
           bottom: false,
           child: Stack(
             children: [
-              // Background for content area
               Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: Colors.black, // Content background
+                    color: Colors.black,
                   ),
                 ),
               ),
               Column(
                 children: [
-                  // Modern AppBar
                   AppBar(
                     title: Text(
                       'Accounts',
@@ -57,7 +56,6 @@ class _AccountsState extends ConsumerState<Accounts> {
                     centerTitle: true,
                     elevation: 0,
                   ),
-                  // Scrollable content
                   Expanded(
                     child: SingleChildScrollView(
                       child: Padding(
@@ -65,8 +63,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Bitcoin Section
-                            _buildSectionHeader('Bitcoin Network'),
+                            _buildSectionHeader('Bitcoin Network', 'lib/assets/bitcoin-logo-white.svg', null),
                             SizedBox(height: 12.h),
                             Wrap(
                               alignment: WrapAlignment.center,
@@ -75,25 +72,24 @@ class _AccountsState extends ConsumerState<Accounts> {
                                 _buildAccountCard(
                                   context,
                                   ref,
-                                  'Bitcoin',
+                                  'Bitcoin', // Added title
                                   btcInDenominationFormatted(
                                     ref.watch(balanceNotifierProvider).btcBalance,
                                     ref.watch(settingsProvider).btcFormat,
                                   ),
-                                  Image.asset('lib/assets/bitcoin-logo.png', width: 32.w, height: 32.w),
+                                  Image.asset('lib/assets/bitcoin-logo.png', width: 32.sp, height: 32.sp),
                                   ref.watch(bitcoinAddressProvider.future),
                                   ref.watch(currentBitcoinPriceInCurrencyProvider(
                                     CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).btcBalance),
                                   )).toStringAsFixed(2),
                                   ref.watch(settingsProvider).currency,
                                   ref.watch(settingsProvider).btcFormat,
-                                  'Bitcoin network',
+                                  'Bitcoin Network',
                                 ),
                               ],
                             ),
                             SizedBox(height: 24.h),
-                            // Lightning Section
-                            _buildSectionHeader('Lightning Network'),
+                            _buildSectionHeader('Spark Network', 'lib/assets/logo-spark.svg', Colors.white),
                             SizedBox(height: 12.h),
                             Wrap(
                               alignment: WrapAlignment.center,
@@ -103,14 +99,14 @@ class _AccountsState extends ConsumerState<Accounts> {
                                 _buildAccountCard(
                                   context,
                                   ref,
-                                  'Lightning',
+                                  'Lightning', // Added title
                                   ref.watch(coinosLnProvider).token.isNotEmpty
                                       ? btcInDenominationFormatted(
                                     ref.watch(balanceNotifierProvider).lightningBalance!,
                                     ref.watch(settingsProvider).btcFormat,
                                   )
                                       : '',
-                                  Image.asset('lib/assets/Bitcoin_lightning_logo.png', width: 32.w, height: 32.w),
+                                  Image.asset('lib/assets/Bitcoin_lightning_logo.png', width: 32.sp, height: 32.sp),
                                   null,
                                   ref.watch(coinosLnProvider).token.isNotEmpty
                                       ? ref.watch(currentBitcoinPriceInCurrencyProvider(
@@ -119,14 +115,13 @@ class _AccountsState extends ConsumerState<Accounts> {
                                       : '',
                                   ref.watch(coinosLnProvider).token.isNotEmpty ? ref.watch(settingsProvider).currency : '',
                                   ref.watch(settingsProvider).btcFormat,
-                                  'Lightning network',
+                                  'Lightning Network',
                                   isLightning: true,
                                 ),
                               ],
                             ),
                             SizedBox(height: 24.h),
-                            // Liquid Network Section
-                            _buildSectionHeader('Liquid Network'),
+                            _buildSectionHeader('Liquid Network', 'lib/assets/liquid-logo-white.png', null),
                             SizedBox(height: 12.h),
                             Wrap(
                               alignment: WrapAlignment.center,
@@ -136,51 +131,50 @@ class _AccountsState extends ConsumerState<Accounts> {
                                 _buildAccountCard(
                                   context,
                                   ref,
-                                  'Bitcoin',
+                                  'Bitcoin', // Added title
                                   btcInDenominationFormatted(
                                     ref.watch(balanceNotifierProvider).liquidBalance,
                                     ref.watch(settingsProvider).btcFormat,
                                   ),
-                                  Image.asset('lib/assets/l-btc.png', width: 32.w, height: 32.w),
+                                  Image.asset('lib/assets/l-btc.png', width: 32.sp, height: 32.sp),
                                   ref.watch(liquidAddressProvider.future),
                                   ref.watch(currentBitcoinPriceInCurrencyProvider(
                                     CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).liquidBalance),
                                   )).toStringAsFixed(2),
                                   ref.watch(settingsProvider).currency,
                                   ref.watch(settingsProvider).btcFormat,
-                                  'Liquid network',
+                                  'Liquid Network',
                                 ),
                                 _buildStableCard(
                                   context,
                                   ref,
-                                  'Depix',
+                                  'Depix', // Added title
                                   fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance),
-                                  Image.asset('lib/assets/depix.png', width: 32.w, height: 32.w),
+                                  Image.asset('lib/assets/depix.png', width: 32.sp, height: 32.sp),
                                   ref.watch(liquidAddressProvider.future),
                                   AssetId.BRL,
                                 ),
                                 _buildStableCard(
                                   context,
                                   ref,
-                                  'USDt',
+                                  'USDT', // Added title
                                   fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance),
-                                  Image.asset('lib/assets/tether.png', width: 32.w, height: 32.w),
+                                  Image.asset('lib/assets/tether.png', width: 32.sp, height: 32.sp),
                                   ref.watch(liquidAddressProvider.future),
                                   AssetId.USD,
                                 ),
                                 _buildStableCard(
                                   context,
                                   ref,
-                                  'EURx',
+                                  'EURx', // Added title
                                   fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance),
-                                  Image.asset('lib/assets/eurx.png', width: 32.w, height: 32.w),
+                                  Image.asset('lib/assets/eurx.png', width: 32.sp, height: 32.sp),
                                   ref.watch(liquidAddressProvider.future),
                                   AssetId.EUR,
                                 ),
                               ],
                             ),
-                            // Add bottom padding to allow scrolling past the navigation bar
-                            SizedBox(height: 100.sp),// Adjust based on nav bar height
+                            SizedBox(height: 100.sp),
                           ],
                         ),
                       ),
@@ -195,38 +189,51 @@ class _AccountsState extends ConsumerState<Accounts> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String NetworkName, String logoPath, Color? color) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Colors.white),
-        ),
+        _buildNetworkLogo(logoPath, color),
         SizedBox(height: 6.h),
         Container(width: 60.w, height: 3.h, color: Colors.orange),
       ],
     );
   }
 
+  Widget _buildNetworkLogo(String logoPath, Color? color) {
+    if (logoPath.endsWith('.svg')) {
+      return SvgPicture.asset(
+        logoPath,
+        width: 25.sp,
+        height: 25.sp,
+        color: color,
+      );
+    } else {
+      return Image.asset(
+        logoPath,
+        width: 100.sp,
+      );
+    }
+  }
+
   Widget _buildAccountCard(
       BuildContext context,
       WidgetRef ref,
-      String title,
+      String title, // Added title parameter
       String balanceText,
       Widget icon,
       dynamic addressFuture,
       String fiatBalance,
       String fiatDenomination,
       String format,
-      String network, {
+      String Network, {
         bool isLightning = false,
       }) {
     return GestureDetector(
       onTapDown: (_) => setState(() {}),
       child: Container(
-        width: 190.w,
-        height: 200.h,
+        width: 190.sp,
+        height: 200.sp,
         decoration: BoxDecoration(
           color: const Color(0x333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(20.r),
@@ -278,24 +285,24 @@ class _AccountsState extends ConsumerState<Accounts> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      ref.read(selectedNetworkTypeProvider.notifier).state = network;
+                      ref.read(selectedNetworkTypeProvider.notifier).state = Network;
                       context.push('/home/receive');
                     },
-                    icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.w),
+                    icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.sp),
                     splashRadius: 28.w,
                     tooltip: 'Receive',
                   ),
                   IconButton(
                     onPressed: () {
                       ref.read(sendTxProvider.notifier).resetToDefault();
-                      if (network == 'Bitcoin network') context.push('/home/pay', extra: 'bitcoin');
-                      else if (network == 'Lightning network') context.push('/home/pay', extra: 'lightning');
-                      else if (network == 'Liquid network') {
+                      if (Network == 'Bitcoin Network') context.push('/home/pay', extra: 'bitcoin');
+                      else if (Network == 'Lightning Network') context.push('/home/pay', extra: 'lightning');
+                      else if (Network == 'Liquid Network') {
                         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
                         context.push('/home/pay', extra: 'liquid');
                       }
                     },
-                    icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.w),
+                    icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.sp),
                     splashRadius: 28.w,
                     tooltip: 'Send',
                   ),
@@ -311,7 +318,7 @@ class _AccountsState extends ConsumerState<Accounts> {
   Widget _buildStableCard(
       BuildContext context,
       WidgetRef ref,
-      String title,
+      String title, // Added title parameter
       String balanceText,
       Widget icon,
       dynamic addressFuture,
@@ -320,8 +327,8 @@ class _AccountsState extends ConsumerState<Accounts> {
     return GestureDetector(
       onTapDown: (_) => setState(() {}),
       child: Container(
-        width: 190.w,
-        height: 200.h,
+        width: 190.sp,
+        height: 200.sp,
         decoration: BoxDecoration(
           color: const Color(0x333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(20.r),
@@ -363,10 +370,10 @@ class _AccountsState extends ConsumerState<Accounts> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      ref.read(selectedNetworkTypeProvider.notifier).state = 'Liquid network';
+                      ref.read(selectedNetworkTypeProvider.notifier).state = 'Liquid Network';
                       context.push('/home/receive');
                     },
-                    icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.w),
+                    icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.sp),
                     splashRadius: 28.w,
                     tooltip: 'Receive',
                   ),
@@ -376,7 +383,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                       ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(assetId));
                       context.push('/home/pay', extra: 'liquid_asset');
                     },
-                    icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.w),
+                    icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.sp),
                     splashRadius: 28.w,
                     tooltip: 'Send',
                   ),

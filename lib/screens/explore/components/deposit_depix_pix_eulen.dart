@@ -88,18 +88,18 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
     final amount = _amountController.text;
 
     if (amount.isEmpty) {
-      showMessageSnackBar(context: context, message: 'Amount cannot be empty'.i18n, error: true);
+      showMessageSnackBar(context: context, message: 'Amount cannot be empty'.i18n, error: true, top: true);
       return;
     }
 
     final int? amountInInt = int.tryParse(amount);
     if (amountInInt == null || amountInInt <= 0) {
-      showMessageSnackBar(context: context, message: 'Please enter a valid amount.'.i18n, error: true);
+      showMessageSnackBar(context: context, message: 'Please enter a valid amount.'.i18n, error: true, top: true);
       return;
     }
 
     if (amountInInt > 5000) {
-      showMessageSnackBar(context: context, message: 'The maximum allowed transfer amount is 5000 BRL'.i18n, error: true);
+      showMessageSnackBar(context: context, message: 'The maximum allowed transfer amount is 5000 BRL'.i18n, error: true, top: true);
       return;
     }
 
@@ -121,7 +121,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      showMessageSnackBar(context: context, message: e.toString().i18n, error: true);
+      showMessageSnackBar(context: context, message: e.toString().i18n, error: true, top: true);
     }
   }
 

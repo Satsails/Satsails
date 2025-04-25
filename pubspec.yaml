@@ -101,7 +101,10 @@ flutter:
     - lib/assets/eulen-logo.svg
     - lib/assets/logo-spark.svg
     - lib/assets/liquid-logo.png
+    - lib/assets/liquid-logo-white.png
     - lib/assets/bitcoin-logo.svg
+    - lib/assets/bitcoin-logo-white.svg
+    - lib/assets/sideshift.png
     - lib/assets/frame.svg
     - lib/assets/depix.png
     - lib/assets/eurx.png

@@ -26,7 +26,6 @@ class Receive extends ConsumerWidget {
         try {
           ref.read(inputAmountProvider.notifier).state = '0.0';
           ref.invalidate(initialCoinosProvider);
-          ref.read(selectedNetworkTypeProvider.notifier).state = "Bitcoin Network";
           return true; // Prevent default pop behavior
         } catch (e) {
           return false; // Prevent pop if an error occurs
@@ -42,7 +41,6 @@ class Receive extends ConsumerWidget {
             onPressed: () {
               ref.read(inputAmountProvider.notifier).state = '0.0';
               ref.invalidate(initialCoinosProvider);
-              ref.read(selectedNetworkTypeProvider.notifier).state = "Bitcoin Network";
               context.pop();
             },
           ),
@@ -53,7 +51,7 @@ class Receive extends ConsumerWidget {
             children: [
               if (selectedType == 'Bitcoin Network') const BitcoinWidget(),
               if (selectedType == 'Liquid Network') const LiquidWidget(),
-              if (selectedType == 'Lightning network') const CustodialLightningWidget(),
+              if (selectedType == 'Spark Network') const CustodialLightningWidget(),
             ],
           ),
         ),

@@ -35,15 +35,18 @@ class BalanceCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 400;
+
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final currency = ref.watch(settingsProvider).currency;
     final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
 
     final textColor = network == 'Spark Network' ? Colors.white : Colors.black;
     final assetNameColor = network == 'Spark Network'
-        ? Colors.grey[400]! // Light grey for Spark Network
+        ? Colors.grey[400]!
         : network == 'Liquid Network'
-        ? Colors.grey[600]! // Lighter shade for Liquid Network
+        ? Colors.grey[600]!
         : textColor;
 
     final depixBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
@@ -141,98 +144,94 @@ class BalanceCard extends ConsumerWidget {
       ],
     );
 
-    return GestureDetector(
-      onTap: () {
-        ref.read(selectedAssetProvider.notifier).state = selectedAsset;
-        context.pushNamed('analytics');
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: Colors.black.withOpacity(0.1), width: 1),
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: Colors.black.withOpacity(0.1), width: 1),
+      ),
+      clipBehavior: Clip.none,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
         clipBehavior: Clip.none,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          clipBehavior: Clip.none,
-          children: [
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 12.sp, horizontal: 16.sp),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        if (iconPath.endsWith('.svg'))
-                          SvgPicture.asset(
-                            iconPath,
-                            width: selectedAsset == 'Liquid Bitcoin' ? 50.w : 24.w, // Increased size for Liquid Bitcoin
-                            height: selectedAsset == 'Liquid Bitcoin' ? 50.w : 24.w,
-                            color: network == 'Spark Network' ? Colors.white : null,
-                          )
-                        else
-                          Image.asset(
-                            iconPath,
-                            width: 100.sp,
-                          ),
-                        SizedBox(width: 8.w),
-                        if (network == 'Spark Network' || network == 'Liquid Network')
-                          Text(
-                            selectedAsset,
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
-                              color: assetNameColor,
-                            ),
-                          ),
-                        Spacer(),
-                        IconButton(
-                          onPressed: () {
-                            ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible);
-                          },
-                          icon: Icon(
-                            isBalanceVisible ? Icons.remove_red_eye : Icons.visibility_off,
-                            color: textColor,
-                            size: 24.sp,
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      if (iconPath.endsWith('.svg'))
+                        SvgPicture.asset(
+                          iconPath,
+                          width: selectedAsset == 'Liquid Bitcoin' ? 50.w : 24.w,
+                          height: selectedAsset == 'Liquid Bitcoin' ? 50.w : 24.w,
+                          color: network == 'Spark Network' ? Colors.white : null,
+                        )
+                      else
+                        Image.asset(
+                          iconPath,
+                          width: 100.sp,
+                        ),
+                      SizedBox(width: isSmallScreen ? 4.w : 8.w),
+                      if (network == 'Spark Network' || network == 'Liquid Network')
+                        Text(
+                          selectedAsset,
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.bold,
+                            color: assetNameColor,
                           ),
                         ),
-                      ],
-                    ),
-                    SizedBox(height: 16.h),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
+                      Spacer(),
+                      IconButton(
+                        onPressed: () {
+                          ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible);
+                        },
+                        icon: Icon(
+                          isBalanceVisible ? Icons.remove_red_eye : Icons.visibility_off,
+                          color: textColor,
+                          size: 24.sp,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: isSmallScreen ? 8.h : 16.h),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              nativeBalance,
+                              style: TextStyle(
+                                fontSize: 24.sp,
+                                fontWeight: FontWeight.bold,
+                                color: textColor,
+                              ),
+                            ),
+                            if (['Bitcoin (Mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(selectedAsset)) ...[
+                              SizedBox(height: 4.h),
                               Text(
-                                nativeBalance,
+                                equivalentBalance,
                                 style: TextStyle(
-                                  fontSize: 24.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: textColor,
+                                  fontSize: 16.sp,
+                                  color: textColor.withOpacity(0.7),
                                 ),
                               ),
-                              if (['Bitcoin (Mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(selectedAsset)) ...[
-                                SizedBox(height: 4.h),
-                                Text(
-                                  equivalentBalance,
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    color: textColor.withOpacity(0.7),
-                                  ),
-                                ),
-                              ],
                             ],
-                          ),
+                          ],
                         ),
+                      ),
+                      if (!isSmallScreen)
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -247,28 +246,45 @@ class BalanceCard extends ConsumerWidget {
                             ],
                           ],
                         ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 2.h,
+            right: 16.w,
+            child: TextButton(
+              onPressed: () {
+                ref.read(selectedAssetProvider.notifier).state = selectedAsset;
+                context.pushNamed('analytics');
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.r),
+                  side: BorderSide(color: textColor.withOpacity(0.6), width: 1.5),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 12.sp, vertical: 6.sp),
+                elevation: 0,
+              ),
+              child: Text(
+                'Analytics',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            Positioned(
-              bottom: 16.h,
-              right: 16.w,
-              child: Icon(
-                Icons.touch_app,
-                color: textColor,
-                size: 28.sp,
-              ),
-            ),
-            Positioned(
-              bottom: 2.h,
-              left: 16.w,
-              child: bottomButtons,
-            ),
-          ],
-        ),
+          ),
+          Positioned(
+            bottom: 2.h,
+            left: 16.w,
+            child: bottomButtons,
+          ),
+        ],
       ),
     );
   }
@@ -355,7 +371,7 @@ class MiniExpensesGraph extends ConsumerWidget {
         asyncData = AsyncValue.data(ref.watch(bitcoinBalanceInFormatByDayProvider));
         break;
       case 'Lightning Bitcoin':
-        asyncData = AsyncValue.data(ref.watch(bitcoinBalanceInFormatByDayProvider)); // Same as Bitcoin for now
+        asyncData = AsyncValue.data(ref.watch(bitcoinBalanceInFormatByDayProvider));
         break;
       case 'Liquid Bitcoin':
         final assetId = AssetMapper.reverseMapTicker(AssetId.LBTC);
