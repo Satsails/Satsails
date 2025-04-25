@@ -572,7 +572,7 @@ class Settings extends ConsumerWidget {
     final hasNotCreatedUser = ref.watch(userProvider).paymentId.isEmpty;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0x333333).withOpacity(0.4),
+      backgroundColor: Colors.black,
       isScrollControlled: true,
       builder: (BuildContext context) {
         return SafeArea(

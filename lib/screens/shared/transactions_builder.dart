@@ -262,7 +262,7 @@ class TransactionList extends ConsumerWidget {
       return Expanded(
         child: ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: 4,
+          itemCount: itemCount < 4 ? itemCount : 4,
           itemBuilder: (context, index) => itemBuilder(index),
         ),
       );
