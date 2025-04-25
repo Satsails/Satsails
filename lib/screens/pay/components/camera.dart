@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:quickalert/quickalert.dart';
 
+
 class Camera extends ConsumerStatefulWidget {
   final PaymentType paymentType;
 
@@ -83,23 +84,30 @@ class _CameraState extends ConsumerState<Camera> {
         await ref.refresh(setAddressAndAmountProvider(code).future);
         final providerPaymentType = ref.read(sendTxProvider).type;
 
-        if (providerPaymentType != widget.paymentType) {
+        if (widget.paymentType == PaymentType.Spark) {
+          if (providerPaymentType == PaymentType.Lightning ||
+              providerPaymentType == PaymentType.Bitcoin) {
+            context.pop(code);
+          } else {
+            _showErrorDialog(
+              context,
+              'Invalid payment type for Spark. Expected Lightning or Bitcoin.',
+            );
+          }
+        } else if (providerPaymentType == widget.paymentType) {
+          context.pop(code);
+        } else {
           _showErrorDialog(
             context,
             'Scanned payment type does not match expected type',
           );
-          break;
         }
-
-        context.pop();
       } catch (e) {
         _showErrorDialog(context, e.toString());
-        break;
       }
       break;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

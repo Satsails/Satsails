@@ -5,6 +5,7 @@ enum PaymentType {
   Bitcoin,
   Liquid,
   Lightning,
+  Spark,
   Unknown
 }
 
