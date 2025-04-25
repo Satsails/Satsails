@@ -150,7 +150,6 @@ class _ReceiveSparkLightningWidgetState extends ConsumerState<ReceiveSparkLightn
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        SizedBox(height: 16.h),
         _buildReceiveOptionButtons(),
         SizedBox(height: 24.h),
         if (invoiceCreated) ...[
@@ -240,13 +239,24 @@ class _ReceiveSparkLightningWidgetState extends ConsumerState<ReceiveSparkLightn
           borderRadius: BorderRadius.circular(8.r),
           border: Border.all(color: Colors.white, width: 2),
         ),
-        child: Text(
-          option,
-          style: TextStyle(
-            color: isSelected ? Colors.black : Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 16.sp,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              option == 'Bitcoin' ? 'lib/assets/bitcoin-logo.png' : 'lib/assets/Bitcoin_lightning_logo.png',
+              width: 24.w,
+              height: 24.h,
+            ),
+            SizedBox(width: 8.w),
+            Text(
+              option,
+              style: TextStyle(
+                color: isSelected ? Colors.black : Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16.sp,
+              ),
+            ),
+          ],
         ),
       ),
     );

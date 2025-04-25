@@ -13,6 +13,7 @@ import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
+import 'package:i18n_extension/default.i18n.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -260,17 +261,8 @@ class BalanceCard extends ConsumerWidget {
                 ref.read(selectedAssetProvider.notifier).state = selectedAsset;
                 context.pushNamed('analytics');
               },
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.r),
-                  side: BorderSide(color: textColor.withOpacity(0.6), width: 1.5),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 12.sp, vertical: 6.sp),
-                elevation: 0,
-              ),
               child: Text(
-                'Analytics',
+                'Expand graph'.i18n,
                 style: TextStyle(
                   color: textColor,
                   fontSize: 14.sp,
