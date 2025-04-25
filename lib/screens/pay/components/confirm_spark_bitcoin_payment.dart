@@ -17,15 +17,15 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
-class ConfirmCustodialLightningPayment extends ConsumerStatefulWidget {
-  const ConfirmCustodialLightningPayment({super.key});
+class ConfirmSparkBitcoinPayment extends ConsumerStatefulWidget {
+  const ConfirmSparkBitcoinPayment({super.key});
 
   @override
-  _ConfirmCustodialLightningPaymentState createState() =>
-      _ConfirmCustodialLightningPaymentState();
+  _ConfirmSparkBitcoinPaymentState createState() =>
+      _ConfirmSparkBitcoinPaymentState();
 }
 
-class _ConfirmCustodialLightningPaymentState extends ConsumerState<ConfirmCustodialLightningPayment> {
+class _ConfirmSparkBitcoinPaymentState extends ConsumerState<ConfirmSparkBitcoinPayment> {
   final TextEditingController controller = TextEditingController();
   bool isProcessing = false;
   bool isInputBlocked = false;

@@ -131,7 +131,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                                 _buildAccountCard(
                                   context,
                                   ref,
-                                  'Bitcoin', // Added title
+                                  'L-BTC', // Added title
                                   btcInDenominationFormatted(
                                     ref.watch(balanceNotifierProvider).liquidBalance,
                                     ref.watch(settingsProvider).btcFormat,

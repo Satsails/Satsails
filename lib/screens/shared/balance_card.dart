@@ -182,6 +182,8 @@ class BalanceCard extends ConsumerWidget {
                       SizedBox(width: isSmallScreen ? 4.w : 8.w),
                       if (network == 'Spark Network' || network == 'Liquid Network')
                         Text(
+                          selectedAsset == 'Lightning Bitcoin' ? 'Lightning' :
+                          selectedAsset == 'Liquid Bitcoin' ? 'L-BTC' :
                           selectedAsset,
                           style: TextStyle(
                             fontSize: 18.sp,

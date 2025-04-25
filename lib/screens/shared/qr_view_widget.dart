@@ -110,7 +110,7 @@ class _QRViewWidgetState extends ConsumerState<QRViewWidget> {
         context.pushReplacement('/home/pay/confirm_bitcoin_payment');
         break;
       case PaymentType.Lightning:
-        context.pushReplacement('/home/pay/confirm_custodial_lightning_payment');
+        context.pushReplacement('/home/pay/confirm_spark_bitcoin_payment');
         break;
       case PaymentType.Liquid:
         context.pushReplacement('/home/pay/confirm_liquid_payment');
