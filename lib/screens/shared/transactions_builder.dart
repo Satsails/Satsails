@@ -149,18 +149,21 @@ class TransactionList extends ConsumerWidget {
       onTap: () {
         ref.read(navigationProvider.notifier).state = 3;
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Color(0x333333).withOpacity(0.4),
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
-        child: Text(
-          'Buy',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 17.sp,
-            fontWeight: FontWeight.bold,
+      child: Padding(
+        padding: EdgeInsets.only(right: 8.sp),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Color(0x333333).withOpacity(0.4),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
+          child: Text(
+            'Buy',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 17.sp,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -176,31 +179,7 @@ class TransactionList extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 child: BackupWarning(),
               ),
-              Row(
-                children: [
-                  buyButton,
-                  ref.watch(backgroundSyncInProgressProvider)
-                      ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: LoadingAnimationWidget.beat(
-                      color: Colors.green,
-                      size: 20,
-                    ),
-                  )
-                      : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: GestureDetector(
-                      onTap: () {
-                        ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-                      },
-                      child: LoadingAnimationWidget.beat(
-                        color: ref.read(settingsProvider).online ? Colors.green : Colors.red,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              buyButton,
             ],
           ),
         if (!showAll) const SizedBox(height: 8),

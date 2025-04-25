@@ -2,7 +2,7 @@ import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
-import 'package:Satsails/screens/receive/components/custodial_lightning_widget.dart';
+import 'package:Satsails/screens/receive/components/receive_spark_lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +51,7 @@ class Receive extends ConsumerWidget {
             children: [
               if (selectedType == 'Bitcoin Network') const BitcoinWidget(),
               if (selectedType == 'Liquid Network') const LiquidWidget(),
-              if (selectedType == 'Spark Network') const CustodialLightningWidget(),
+              if (selectedType == 'Spark Network') const ReceiveSparkLightningWidget(),
             ],
           ),
         ),

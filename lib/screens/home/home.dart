@@ -1,23 +1,24 @@
 import 'dart:io';
-
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:upgrader/upgrader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class BalanceScreen extends StatefulWidget {
+class BalanceScreen extends ConsumerStatefulWidget {
   const BalanceScreen({super.key});
 
   @override
   _BalanceScreenState createState() => _BalanceScreenState();
 }
 
-class _BalanceScreenState extends State<BalanceScreen> {
+class _BalanceScreenState extends ConsumerState<BalanceScreen> {
   late PageController _controller;
   late List<Map<String, dynamic>> _assets;
   late List<String> _selectedFilters;
@@ -56,54 +57,13 @@ class _BalanceScreenState extends State<BalanceScreen> {
       },
     ];
     _selectedFilters = _assets.map((asset) => asset['assets'][0]['name'] as String).toList();
-    _controller = PageController(
-      viewportFraction: 0.9,
-      initialPage: 0,
-    );
+    _controller = PageController(viewportFraction: 0.9, initialPage: 0);
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  void _updateController(int page) {
-    if (page == _assets.length - 1) {
-      if (_controller.viewportFraction != 0.95) {
-        _controller = PageController(
-          viewportFraction: 0.95,
-          initialPage: page,
-        );
-        setState(() {});
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_controller.hasClients) {
-            _controller.animateToPage(
-              page,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.ease,
-            );
-          }
-        });
-      }
-    } else {
-      if (_controller.viewportFraction != 0.9) {
-        _controller = PageController(
-          viewportFraction: 0.9,
-          initialPage: page,
-        );
-        setState(() {});
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_controller.hasClients) {
-            _controller.animateToPage(
-              page,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.ease,
-            );
-          }
-        });
-      }
-    }
   }
 
   Widget _buildDropdown(int index) {
@@ -153,7 +113,6 @@ class _BalanceScreenState extends State<BalanceScreen> {
           fontWeight: FontWeight.bold,
         ),
         padding: EdgeInsets.symmetric(horizontal: 10.sp),
-        borderRadius: const BorderRadius.all(Radius.circular(12.0)),
         icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
         underline: const SizedBox(),
         isExpanded: true,
@@ -163,12 +122,52 @@ class _BalanceScreenState extends State<BalanceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isSyncing = ref.watch(backgroundSyncInProgressProvider);
+    final isOnline = ref.watch(settingsProvider).online;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 18.sp, vertical: 8.sp),
-          child: _buildDropdown(currentPage),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: isSyncing
+                    ? null
+                    : () {
+                  ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+                },
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.sp),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 10.sp,
+                        height: 10.sp,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isSyncing
+                              ? Colors.orange
+                              : isOnline
+                              ? Colors.green
+                              : Colors.red,
+                        ),
+                      ),
+                      SizedBox(width: 4.sp),
+                      Text(
+                        isSyncing ? 'Syncing'.i18n : isOnline ? 'Online' : 'Offline',
+                        style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              _buildDropdown(currentPage),
+            ],
+          ),
         ),
         Expanded(
           child: PageView.builder(
@@ -180,7 +179,6 @@ class _BalanceScreenState extends State<BalanceScreen> {
               setState(() {
                 currentPage = page;
               });
-              _updateController(page);
             },
             itemBuilder: (context, index) {
               final selectedAssetName = _selectedFilters[index];

@@ -285,7 +285,8 @@ class _AccountsState extends ConsumerState<Accounts> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      ref.read(selectedNetworkTypeProvider.notifier).state = Network;
+                      // quick fix while we do not have assets on spark
+                      ref.read(selectedNetworkTypeProvider.notifier).state = Network == 'Lightning Network' ? 'Spark Network' : Network;
                       context.push('/home/receive');
                     },
                     icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.sp),
