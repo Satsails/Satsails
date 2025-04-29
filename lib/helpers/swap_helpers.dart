@@ -1865,7 +1865,7 @@ List<Widget> _getFeeRows(WidgetRef ref) {
       case 'Success':
         final fixedFee = quote.fixedFee ?? 0;
         final serverFee = quote.serverFee ?? 0;
-        final feeAsset = ref.read(toAssetProvider);
+        final feeAsset = ref.read(fromAssetProvider);
         final btcFormat = ref.read(settingsProvider).btcFormat;
         final fixedFeeStr = formatAssetAmount(feeAsset, fixedFee, btcFormat);
         final serverFeeStr = formatAssetAmount(feeAsset, serverFee, btcFormat);

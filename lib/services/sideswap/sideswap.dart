@@ -24,19 +24,32 @@ class Sideswap {
   Stream<Map<String, dynamic>> get quotePsetStream => _quotePsetController.stream;
   Stream<Map<String, dynamic>> get signedSwapStream => _signedSwapController.stream;
 
-  void connect() {
-    try {
-      _channel = WebSocketChannel.connect(Uri.parse('wss://api.sideswap.io/json-rpc-ws'));
-      _channel.stream.listen(
-        handleIncomingMessage,
-        onError: (error) {
-          throw Exception('Error connecting to WebSocket: $error');
-        },
-        cancelOnError: true,
-      );
-    } catch (e) {
-      throw Exception('Error connecting to WebSocket: $e');
+  Future<void> connect() async {
+    const maxAttempts = 3;
+    const delayBetweenAttempts = Duration(seconds: 1);
+
+    for (int attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        _channel = WebSocketChannel.connect(Uri.parse('wss://api.sideswap.io/json-rpc-ws'));
+        _channel.stream.listen(
+          handleIncomingMessage,
+          onError: (error) {
+            throw Exception('Error connecting to WebSocket: $error');
+          },
+          cancelOnError: true,
+        );
+        print('Connected successfully on attempt $attempt');
+        return; // Exit the function on successful connection
+      } catch (e) {
+        print('Attempt $attempt failed: $e');
+        if (attempt < maxAttempts - 1) {
+          await Future.delayed(delayBetweenAttempts); // Wait before next attempt
+        }
+      }
     }
+
+    // If all attempts fail, throw an exception
+    throw Exception('Failed to connect after $maxAttempts attempts');
   }
 
   void handleIncomingMessage(dynamic message) {
