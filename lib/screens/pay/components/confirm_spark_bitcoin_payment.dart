@@ -1,14 +1,11 @@
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
-import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:Satsails/validations/address_validation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,13 +13,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
-import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
-
-import '../../../providers/coinos_provider.dart';
 
 class ConfirmSparkBitcoinPayment extends ConsumerStatefulWidget {
   const ConfirmSparkBitcoinPayment({super.key});

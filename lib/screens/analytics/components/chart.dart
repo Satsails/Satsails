@@ -3,6 +3,8 @@ import 'package:Satsails/helpers/string_extension.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:Satsails/translations/translations.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
 
 // Helper extension for date formatting
@@ -79,7 +81,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     if (widget.selectedDays.isEmpty) {
       return Center(
         child: Text(
-          'Select a date range to view chart data.',
+          'Select a date range to view chart data.'.i18n,
           style: TextStyle(
             color: Colors.white70,
             fontSize: 16.sp,
@@ -310,28 +312,32 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
             final value = _getValueForDate(widget.mainData!, date);
             if (widget.isCurrency && widget.isBitcoinAsset) {
               final price = _getValueForDate(widget.priceByDay, date);
-              final formattedValuation = currencyFormat(widget.btcFormat == 'sats' ? value.toDouble() : value.toDouble() * 100000000, widget.selectedCurrency);
+              final formattedValuation = currencyFormat(value.toDouble(), widget.selectedCurrency);
               final formattedPrice = currencyFormat(price.toDouble(), widget.selectedCurrency);
               final btcBalance = _getValueForDate(widget.bitcoinBalanceByDayformatted, date);
               children.addAll([
                 TextSpan(
-                  text: 'Total Value: $formattedValuation\n',
+                  text: 'Total Value: %s\n'.i18n.fill([formattedValuation]),
                   style: TextStyle(color: Colors.white70, fontSize: 14.sp),
                 ),
                 TextSpan(
-                  text: (widget.btcFormat != 'sats' ? 'BTC' : 'Sats') + ': $btcBalance\n',
+                  text: '%s: %s\n'.i18n.fill([
+                    widget.btcFormat != 'sats' ? 'BTC' : 'Sats',
+                    btcBalance,
+                  ]),
                   style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                 ),
                 TextSpan(
-                  text: 'Price: $formattedPrice/BTC',
+                  text: 'Price: %s/BTC'.i18n.fill([formattedPrice]),
                   style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                 ),
               ]);
+
             } else {
               if (widget.isBitcoinAsset) {
                 children.add(
                   TextSpan(
-                    text: 'Balance: $value',
+                    text: 'Balance: %s'.i18n.fill([value]),
                     style: TextStyle(color: Colors.white70, fontSize: 14.sp),
                   ),
                 );
@@ -339,7 +345,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                 final amount = value;
                 children.add(
                   TextSpan(
-                    text: 'Balance: $amount',
+                    text: 'Balance: %s'.i18n.fill([amount]),
                     style: TextStyle(color: Colors.white70, fontSize: 14.sp),
                   ),
                 );

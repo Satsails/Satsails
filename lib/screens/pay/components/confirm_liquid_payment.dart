@@ -56,7 +56,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                   // Title
                   Center(
                     child: Text(
-                      'Confirm Transaction',
+                      'Confirm Transaction'.i18n,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24.sp, // Responsive font size
@@ -73,7 +73,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Amount',
+                          'Amount'.i18n,
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 20.sp,
@@ -113,7 +113,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Recipient',
+                          'Recipient'.i18n,
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 20.sp,
@@ -150,7 +150,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Fee',
+                          'Fee'.i18n,
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 20.sp,
@@ -176,7 +176,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(false),
                         child: Text(
-                          'Cancel',
+                          'Cancel'.i18n,
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 18.sp,
@@ -193,7 +193,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                         ),
                         onPressed: () => Navigator.of(context).pop(true),
                         child: Text(
-                          'Confirm',
+                          'Confirm'.i18n,
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 18.sp,

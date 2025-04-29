@@ -14,7 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:i18n_extension/default.i18n.dart';
+import 'package:Satsails/translations/translations.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -26,7 +27,7 @@ Widget buildNoTransactionsFound(double screenHeight) {
     mainAxisSize: MainAxisSize.min,
     children: [
       Text(
-        'No transactions found',
+        'No transactions found'.i18n,
         style: TextStyle(
           fontSize: 16.sp,
           color: Colors.grey,
@@ -86,13 +87,14 @@ class TransactionListByWeek extends ConsumerWidget {
       WidgetRef ref,
       DateTime month,
       List<BaseTransaction> transactions,) {
+    String locale = I18n.locale?.languageCode ?? 'en';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Text(
-            DateFormat('MMMM yyyy').format(month), // e.g., "October 2024"
+            DateFormat('MMMM yyyy', locale).format(month),
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -158,7 +160,7 @@ class TransactionList extends ConsumerWidget {
           ),
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
           child: Text(
-            'Buy',
+            'Buy'.i18n,
             style: TextStyle(
               color: Colors.white,
               fontSize: 17.sp,

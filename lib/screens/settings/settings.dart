@@ -119,7 +119,7 @@ class Settings extends ConsumerWidget {
       child: ListTile(
         leading: Icon(icon, color: Colors.white, size: 24.sp),
         title: Text(
-          title.i18n,
+          title,
           style: TextStyle(
             color: Colors.white,
             fontSize: 16.sp,
@@ -137,7 +137,7 @@ class Settings extends ConsumerWidget {
     return _buildSection(
       context: context,
       ref: ref,
-      title: 'Rate the App',
+      title: 'Rate the App'.i18n,
       icon: Icons.star,
       subtitle: Text(
         'Help us improve by rating the app!'.i18n,
@@ -158,7 +158,7 @@ class Settings extends ConsumerWidget {
     return _buildSection(
       context: context,
       ref: ref,
-      title: 'Search the blockchain',
+      title: 'Search the blockchain'.i18n,
       icon: Clarity.block_solid,
       subtitle: Text(
         'mempool.com',
@@ -176,7 +176,7 @@ class Settings extends ConsumerWidget {
     return _buildSection(
       context: context,
       ref: ref,
-      title: 'View Seed Words',
+      title: 'View Seed Words'.i18n,
       icon: Icons.currency_bitcoin,
       subtitle: Text(
         'Write them down and keep them safe!'.i18n,
@@ -194,7 +194,7 @@ class Settings extends ConsumerWidget {
     return _buildSection(
       context: context,
       ref: ref,
-      title: 'Chat with support',
+      title: 'Chat with support'.i18n,
       icon: Icons.support_agent,
       subtitle: Text(
         'Chat with us for help!'.i18n,
@@ -211,7 +211,7 @@ class Settings extends ConsumerWidget {
     return _buildSection(
       context: context,
       ref: ref,
-      title: 'Language',
+      title: 'Language'.i18n,
       icon: Icons.language,
       subtitle: Text(
         settings.language.toUpperCase(),
@@ -288,7 +288,7 @@ class Settings extends ConsumerWidget {
     return _buildSection(
       context: context,
       ref: ref,
-      title: 'Currency Denomination',
+      title: 'Currency Denomination'.i18n,
       icon: Icons.currency_exchange,
       subtitle: Text(
         settings.currency.toUpperCase(),
@@ -315,7 +315,7 @@ class Settings extends ConsumerWidget {
     return _buildSection(
       context: context,
       ref: ref,
-      title: 'Bitcoin unit',
+      title: 'Bitcoin unit'.i18n,
       icon: Icons.currency_bitcoin,
       subtitle: Text(
         settings.btcFormat == 'sats' ? 'Sats' : 'Bitcoin',
@@ -341,7 +341,7 @@ class Settings extends ConsumerWidget {
     return _buildSection(
       context: context,
       ref: ref,
-      title: 'Select Electrum Node',
+      title: 'Select Electrum Node'.i18n,
       icon: Icons.cloud,
       subtitle: Text(
         ref.watch(settingsProvider).nodeType,
@@ -424,7 +424,7 @@ class Settings extends ConsumerWidget {
     return _buildSection(
       context: context,
       ref: ref,
-      title: 'Affiliate Section',
+      title: 'Affiliate Section'.i18n,
       icon: Icons.account_circle_sharp,
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -551,7 +551,7 @@ class Settings extends ConsumerWidget {
           icon: const Icon(Icons.copy, color: Colors.white),
           onPressed: () {
             Clipboard.setData(ClipboardData(text: value));
-            showMessageSnackBar(context: context, message: '$label copied to clipboard!', error: false);
+            showMessageSnackBar(context: context, message: '$label copied to clipboard!'.i18n, error: false);
           },
         ),
       ],

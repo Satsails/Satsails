@@ -91,7 +91,7 @@ class _CameraState extends ConsumerState<Camera> {
           } else {
             _showErrorDialog(
               context,
-              'Invalid payment type for Spark. Expected Lightning or Bitcoin.',
+              'Invalid payment type for Spark. Expected Lightning or Bitcoin.'.i18n,
             );
           }
         } else if (providerPaymentType == widget.paymentType) {
@@ -99,7 +99,7 @@ class _CameraState extends ConsumerState<Camera> {
         } else {
           _showErrorDialog(
             context,
-            'Scanned payment type does not match expected type',
+            'Scanned payment type does not match expected type'.i18n,
           );
         }
       } catch (e) {

@@ -35,7 +35,7 @@ class Receive extends ConsumerWidget {
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title: Text('Receive on ${selectedType.i18n}', style: TextStyle(color: Colors.white, fontSize: 20.sp)),
+          title: Text('Receive on ${selectedType}'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {

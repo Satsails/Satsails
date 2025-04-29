@@ -2,6 +2,7 @@ import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/balance_model.dart';
@@ -44,7 +45,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                 children: [
                   AppBar(
                     title: Text(
-                      'Accounts',
+                      'Accounts'.i18n,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

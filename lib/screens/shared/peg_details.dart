@@ -275,7 +275,7 @@ class PegDetailRow extends StatelessWidget {
                       onCopy?.call(); // Copy the full value
                       showMessageSnackBar(
                         context: context,
-                        message: 'Copied to clipboard',
+                        message: 'Copied to clipboard'.i18n,
                         error: false,
                         info: true,
                       );

@@ -1,10 +1,9 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
-import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
@@ -144,7 +143,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                           PopupMenuItem<String>(
                             value: 'All',
                             child: Text(
-                              'All',
+                              'All'.i18n,
                               style: TextStyle(
                                 color: _selectedFilter == 'All' ? Colors.orange : Colors.white,
                               ),
@@ -171,7 +170,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                           PopupMenuItem<String>(
                             value: 'Purchases and Sales',
                             child: Text(
-                              'Purchases and Sales',
+                              'Purchases and Sales'.i18n,
                               style: TextStyle(
                                 color: _selectedFilter == 'Purchases and Sales' ? Colors.orange : Colors.white,
                               ),
@@ -180,7 +179,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                           PopupMenuItem<String>(
                             value: 'Swaps',
                             child: Text(
-                              'Swaps',
+                              'Swaps'.i18n,
                               style: TextStyle(
                                 color: _selectedFilter == 'Swaps' ? Colors.orange : Colors.white,
                               ),
@@ -189,7 +188,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                           PopupMenuItem<String>(
                             value: 'DePIX',
                             child: Text(
-                              'DePIX',
+                              'Depix',
                               style: TextStyle(
                                 color: _selectedFilter == 'DePIX' ? Colors.orange : Colors.white,
                               ),
@@ -207,7 +206,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                           PopupMenuItem<String>(
                             value: 'EUR',
                             child: Text(
-                              'EUR',
+                              'EURx',
                               style: TextStyle(
                                 color: _selectedFilter == 'EUR' ? Colors.orange : Colors.white,
                               ),
@@ -235,7 +234,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                           ),
                           minimumSize: const Size(60, 30),
                         ),
-                        child: Text('Reset', style: TextStyle(color: Colors.white, fontSize: 16.0.sp)),
+                        child: Text('Reset'.i18n, style: TextStyle(color: Colors.white, fontSize: 16.0.sp)),
                       ),
                     ),
                   ],

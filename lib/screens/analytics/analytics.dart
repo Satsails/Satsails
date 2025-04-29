@@ -13,7 +13,7 @@ import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:i18n_extension/default.i18n.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math';
@@ -466,7 +466,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
         backgroundColor: Colors.black,
         appBar: AppBar(
           title: Text(
-            'Analytics',
+            'Analytics'.i18n,
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -542,14 +542,14 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                         children: [
                           const Icon(Icons.error_outline, color: Colors.red, size: 48),
                           const SizedBox(height: 16),
-                          const Text(
-                            'Error Loading Market Data',
+                           Text(
+                            'Error Loading Market Data'.i18n,
                             style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Please check your connection and try again.\n$error',
+                            'Please check your connection and try again.\n$error'.i18n,
                             style: TextStyle(color: Colors.red.shade200, fontSize: 12),
                             textAlign: TextAlign.center,
                           ),
@@ -608,7 +608,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                       });
                     },
                     child: Text(
-                      range,
+                      range.i18n,
                       style: TextStyle(
                         fontSize: 14.sp,
                         color: _selectedRange == range ? Colors.orangeAccent : Colors.white,

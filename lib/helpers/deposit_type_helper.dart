@@ -82,7 +82,7 @@ final Map<DepositProvider, KYCAassessment> kycAssessment = {
     details: [
       "Depix purchases are reported to the Brazilian federal revenue agency.",
       "Depix tokens are registered under the payer's name.",
-      "Conversions to Bitcoin are not reported, allowing for relatively anonymous Bitcoin purchases.",
+      "Conversions to Bitcoin are not reported automatically, allowing for relatively anonymous Bitcoin purchases.",
       "*Always comply with the laws of your jurisdiction."
     ],
     rating: 4.8,
