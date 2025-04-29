@@ -2602,10 +2602,18 @@ extension Localization on String {
       {
         'en': 'Chat with us for help!',
         'pt': 'Pergunte para nós!',
-      }  +
+      } +
       {
         'en': 'Chat with support',
         'pt': 'Converse com suporte',
+      } +
+      {
+        'en': 'Pay fee in %s',
+        'pt': 'Pagar taxa em %s',
+      } +
+      {
+        'en': 'Error building payjoin asset transaction',
+        'pt': 'Erro ao construir transação',
       };
 
       String get i18n => localize(this, _t);

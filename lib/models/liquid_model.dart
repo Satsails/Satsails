@@ -118,7 +118,7 @@ class LiquidModel {
       } else if (e.toString().contains("LwkError(msg: Base58(TooShort(TooShortError { length: 0 })))") || e.toString().contains("InvalidChecksum")) {
         throw "Address is invalid";
       }
-      throw e.toString();
+      throw 'Error building payjoin asset transaction';
     }
   }
 

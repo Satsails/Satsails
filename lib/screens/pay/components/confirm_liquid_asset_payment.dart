@@ -19,6 +19,7 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
@@ -652,7 +653,7 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                             child: Row(
                               children: [
                                 Text(
-                                  'Pay fee in $assetName',
+                                  'Pay fee in %s'.i18n.fill([assetName]),
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16.sp,
