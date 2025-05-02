@@ -46,8 +46,7 @@ class Receive extends ConsumerWidget {
           ),
         ),
         body: KeyboardDismissOnTap(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: ListView(
             children: [
               if (selectedType == 'Bitcoin Network') const BitcoinWidget(),
               if (selectedType == 'Liquid Network') const LiquidWidget(),

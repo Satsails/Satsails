@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:bech32/bech32.dart';
 import 'package:lwk/lwk.dart';
 import 'package:Satsails/models/liquid_config_model.dart';
 import 'dart:convert';
@@ -26,7 +25,7 @@ class LiquidModel {
   }
 
   Future<bool> sync() async {
-    await config.liquid.wallet.sync(electrumUrl: config.electrumUrl, validateDomain: true);
+    await config.liquid.wallet.sync_(electrumUrl: config.electrumUrl, validateDomain: true);
     return true;
   }
 
@@ -127,7 +126,7 @@ class LiquidModel {
     return decodedPset;
   }
 
-  Future<Uint8List> sign(SignParams params) async {
+  Future<String> sign(SignParams params) async {
     try {
       final signedTxBytes =
       await config.liquid.wallet.signTx(network: config.liquid.network, pset: params.pset, mnemonic: params.mnemonic);
@@ -149,19 +148,9 @@ class LiquidModel {
     }
   }
 
-  Future<Uint8List> extractTxFromPset(String pset) async {
+  Future<String> broadcast(String pset) async {
     try {
-      final txBytes = await Wallet.extractTx(pset: pset);
-
-      return txBytes;
-    } catch (e) {
-      throw e.toString();
-    }
-  }
-
-  Future<String> broadcast(Uint8List signedTxBytes) async {
-    try {
-      final tx = await Wallet.broadcastTx(electrumUrl: config.electrumUrl, txBytes: signedTxBytes);
+      final tx = await Blockchain.broadcastSignedPset(electrumUrl: config.electrumUrl, signedPset: pset);
       return tx;
     } catch (e) {
       throw e.toString();

@@ -124,7 +124,7 @@ final decodeLiquidPsetProvider = FutureProvider.family.autoDispose<PsetAmounts, 
   return await liquidModel.decode(pset);
 });
 
-final signLiquidPsetProvider = FutureProvider.family.autoDispose<Uint8List, String>((ref, pset) async {
+final signLiquidPsetProvider = FutureProvider.family.autoDispose<String, String>((ref, pset) async {
   final liquid = await ref.watch(initializeLiquidProvider.future);
   final LiquidModel liquidModel = LiquidModel(liquid);
   final authModel = ref.read(authModelProvider);
@@ -148,17 +148,10 @@ final signLiquidPsetStringProvider = FutureProvider.family.autoDispose<String, S
   return await liquidModel.signedPsetString(signParams);
 });
 
-final broadcastLiquidTransactionProvider = FutureProvider.family.autoDispose<String, Uint8List>((ref, signedTxBytes) {
+final broadcastLiquidTransactionProvider = FutureProvider.family.autoDispose<String, String>((ref, signedPset) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
-    return liquidModel.broadcast(signedTxBytes);
-  });
-});
-
-final psetBytesExtractorProvider = FutureProvider.family.autoDispose<Uint8List, String>((ref, pset) {
-  return ref.watch(initializeLiquidProvider.future).then((liquid) {
-    LiquidModel liquidModel = LiquidModel(liquid);
-    return liquidModel.extractTxFromPset(pset);
+    return liquidModel.broadcast(signedPset);
   });
 });
 
@@ -194,9 +187,7 @@ final liquidPayjoinTransaction = FutureProvider.autoDispose<String>((ref) async 
 
   final pset = await ref.read(signLiquidPsetStringProvider(unsigedPset.pset).future);
 
-  final txBytes = await ref.read(psetBytesExtractorProvider(pset).future);
-
-  return await ref.read(broadcastLiquidTransactionProvider(txBytes).future);
+  return await ref.read(broadcastLiquidTransactionProvider(pset).future);
 });
 
 

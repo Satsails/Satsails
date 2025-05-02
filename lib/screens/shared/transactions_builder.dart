@@ -2,11 +2,9 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
 import 'package:Satsails/models/transactions_model.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
-import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/shared/backup_warning.dart';
@@ -17,10 +15,6 @@ import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
-
-
-
 
 Widget buildNoTransactionsFound(double screenHeight) {
   return Column(

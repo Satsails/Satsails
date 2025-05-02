@@ -29,13 +29,23 @@ dependencies:
   fl_chart: ^0.66.2
   bip39: ^1.0.6
   flutter_riverpod: ^2.5.1
-  bdk_flutter: ^0.31.2
+#  bdk_flutter: ^0.31.2
+  bdk_flutter:
+    git:
+      url: https://github.com/LtbLightning/bdk-flutter
+      ref: frb-upgrade
   bitcoin_message_signer: ^1.0.2
   bolt11_decoder: ^1.0.2
-#  lwk: ^0.1.7
+  boltz:
+    # 0.1.10
+    git:
+      url: https://github.com/SatoshiPortal/boltz-dart.git
+      ref: develop
   lwk:
-    path: /Users/joaolobo/code/project/libraries/lwk-dart
-  boltz: ^0.1.10
+      # 0.1.7
+    git:
+      url: https://github.com/SatoshiPortal/lwk-dart.git
+      ref: develop
   forex_currency_conversion: ^0.9.1
   icons_plus: ^5.0.0
   loading_animation_widget: ^1.2.1
