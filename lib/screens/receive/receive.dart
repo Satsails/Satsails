@@ -1,6 +1,5 @@
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
 import 'package:Satsails/screens/receive/components/receive_spark_lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
