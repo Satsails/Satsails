@@ -22,8 +22,8 @@ class InitialLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset(
-      'lib/assets/initialLogo.svg',
+    return Image.asset(
+      'lib/assets/initialLogo.png',
       fit: BoxFit.contain,
     );
   }

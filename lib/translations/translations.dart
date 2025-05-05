@@ -84,7 +84,7 @@ extension Localization on String {
       } +
       {
         'en': 'Analytics',
-        'pt': 'Análises',
+        'pt': 'Analíticas',
       } +
       {
         'en': 'Currency',
@@ -2618,6 +2618,10 @@ extension Localization on String {
       {
         'en': 'Your Balances',
         'pt': 'Seus Saldos',
+      } +
+      {
+        'en': 'Transactions hidden',
+        'pt': 'Transações ocultas',
       };
 
       String get i18n => localize(this, _t);

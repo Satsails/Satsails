@@ -105,7 +105,7 @@ flutter:
     - lib/assets/satsails.png
     - lib/assets/Ice-Logo.png
     - lib/assets/bitrefill.png
-    - lib/assets/initialLogo.svg
+    - lib/assets/initialLogo.png
     - lib/assets/nox.svg
     - lib/assets/satsails.svg
     - lib/assets/eulen-logo.svg

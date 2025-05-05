@@ -1,5 +1,6 @@
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -26,6 +27,8 @@ class Accounts extends ConsumerStatefulWidget {
 class _AccountsState extends ConsumerState<Accounts> {
   @override
   Widget build(BuildContext context) {
+    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
+
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -54,7 +57,22 @@ class _AccountsState extends ConsumerState<Accounts> {
                     ),
                     backgroundColor: Colors.black,
                     automaticallyImplyLeading: false,
-                    centerTitle: true,
+                    centerTitle: false,
+                    actions: [
+                      Padding(
+                        padding: EdgeInsets.only(right: 16.w),
+                        child: IconButton(
+                          onPressed: () {
+                            ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible);
+                          },
+                          icon: Icon(
+                            isBalanceVisible ? Icons.remove_red_eye : Icons.visibility_off,
+                            color: Colors.white,
+                            size: 24.sp,
+                          ),
+                        ),
+                      ),
+                    ],
                     elevation: 0,
                   ),
                   Expanded(
@@ -73,18 +91,24 @@ class _AccountsState extends ConsumerState<Accounts> {
                                 _buildAccountCard(
                                   context,
                                   ref,
-                                  'Bitcoin', // Added title
-                                  btcInDenominationFormatted(
+                                  'Bitcoin',
+                                  isBalanceVisible
+                                      ? btcInDenominationFormatted(
                                     ref.watch(balanceNotifierProvider).btcBalance,
                                     ref.watch(settingsProvider).btcFormat,
-                                  ),
+                                  )
+                                      : '***',
                                   Image.asset('lib/assets/bitcoin-logo.png', width: 32.sp, height: 32.sp),
                                   ref.watch(bitcoinAddressProvider.future),
-                                  ref.watch(currentBitcoinPriceInCurrencyProvider(
-                                    CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).btcBalance),
-                                  )).toStringAsFixed(2),
+                                  isBalanceVisible
+                                      ? currencyFormat(
+                                    ref.watch(currentBitcoinPriceInCurrencyProvider(
+                                      CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).btcBalance),
+                                    )).toDouble(),
+                                    ref.watch(settingsProvider).currency,
+                                  )
+                                      : '***',
                                   ref.watch(settingsProvider).currency,
-                                  ref.watch(settingsProvider).btcFormat,
                                   'Bitcoin Network',
                                 ),
                               ],
@@ -100,22 +124,24 @@ class _AccountsState extends ConsumerState<Accounts> {
                                 _buildAccountCard(
                                   context,
                                   ref,
-                                  'Lightning', // Added title
-                                  ref.watch(coinosLnProvider).token.isNotEmpty
+                                  'Lightning',
+                                  ref.watch(coinosLnProvider).token.isNotEmpty && isBalanceVisible
                                       ? btcInDenominationFormatted(
                                     ref.watch(balanceNotifierProvider).lightningBalance!,
                                     ref.watch(settingsProvider).btcFormat,
                                   )
-                                      : '',
+                                      : '***',
                                   Image.asset('lib/assets/Bitcoin_lightning_logo.png', width: 32.sp, height: 32.sp),
                                   null,
-                                  ref.watch(coinosLnProvider).token.isNotEmpty
-                                      ? ref.watch(currentBitcoinPriceInCurrencyProvider(
-                                    CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).lightningBalance!),
-                                  )).toStringAsFixed(2)
-                                      : '',
-                                  ref.watch(coinosLnProvider).token.isNotEmpty ? ref.watch(settingsProvider).currency : '',
-                                  ref.watch(settingsProvider).btcFormat,
+                                  ref.watch(coinosLnProvider).token.isNotEmpty && isBalanceVisible
+                                      ? currencyFormat(
+                                    ref.watch(currentBitcoinPriceInCurrencyProvider(
+                                      CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).lightningBalance!),
+                                    )).toDouble(),
+                                    ref.watch(settingsProvider).currency,
+                                  )
+                                      : '***',
+                                  ref.watch(settingsProvider).currency,
                                   'Lightning Network',
                                   isLightning: true,
                                 ),
@@ -132,25 +158,31 @@ class _AccountsState extends ConsumerState<Accounts> {
                                 _buildAccountCard(
                                   context,
                                   ref,
-                                  'L-BTC', // Added title
-                                  btcInDenominationFormatted(
+                                  'L-BTC',
+                                  isBalanceVisible
+                                      ? btcInDenominationFormatted(
                                     ref.watch(balanceNotifierProvider).liquidBalance,
                                     ref.watch(settingsProvider).btcFormat,
-                                  ),
+                                  )
+                                      : '***',
                                   Image.asset('lib/assets/l-btc.png', width: 32.sp, height: 32.sp),
                                   ref.watch(liquidAddressProvider.future),
-                                  ref.watch(currentBitcoinPriceInCurrencyProvider(
-                                    CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).liquidBalance),
-                                  )).toStringAsFixed(2),
+                                  isBalanceVisible
+                                      ? currencyFormat(
+                                    ref.watch(currentBitcoinPriceInCurrencyProvider(
+                                      CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).liquidBalance),
+                                    )).toDouble(),
+                                    ref.watch(settingsProvider).currency,
+                                  )
+                                      : '***',
                                   ref.watch(settingsProvider).currency,
-                                  ref.watch(settingsProvider).btcFormat,
                                   'Liquid Network',
                                 ),
                                 _buildStableCard(
                                   context,
                                   ref,
-                                  'Depix', // Added title
-                                  fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance),
+                                  'Depix',
+                                  isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance) : '***',
                                   Image.asset('lib/assets/depix.png', width: 32.sp, height: 32.sp),
                                   ref.watch(liquidAddressProvider.future),
                                   AssetId.BRL,
@@ -158,8 +190,8 @@ class _AccountsState extends ConsumerState<Accounts> {
                                 _buildStableCard(
                                   context,
                                   ref,
-                                  'USDT', // Added title
-                                  fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance),
+                                  'USDT',
+                                  isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance) : '***',
                                   Image.asset('lib/assets/tether.png', width: 32.sp, height: 32.sp),
                                   ref.watch(liquidAddressProvider.future),
                                   AssetId.USD,
@@ -167,8 +199,8 @@ class _AccountsState extends ConsumerState<Accounts> {
                                 _buildStableCard(
                                   context,
                                   ref,
-                                  'EURx', // Added title
-                                  fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance),
+                                  'EURx',
+                                  isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance) : '***',
                                   Image.asset('lib/assets/eurx.png', width: 32.sp, height: 32.sp),
                                   ref.watch(liquidAddressProvider.future),
                                   AssetId.EUR,
@@ -220,13 +252,12 @@ class _AccountsState extends ConsumerState<Accounts> {
   Widget _buildAccountCard(
       BuildContext context,
       WidgetRef ref,
-      String title, // Added title parameter
+      String title,
       String balanceText,
       Widget icon,
       dynamic addressFuture,
       String fiatBalance,
       String fiatDenomination,
-      String format,
       String Network, {
         bool isLightning = false,
       }) {
@@ -270,13 +301,13 @@ class _AccountsState extends ConsumerState<Accounts> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    balanceText.isNotEmpty ? '$balanceText $format' : 'Loading...',
+                    balanceText.isNotEmpty ? balanceText : 'Loading...',
                     style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.w600),
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (fiatBalance.isNotEmpty)
                     Text(
-                      '$fiatBalance $fiatDenomination',
+                      fiatBalance,
                       style: TextStyle(fontSize: 14.sp, color: Colors.white70),
                     ),
                 ],
@@ -286,7 +317,6 @@ class _AccountsState extends ConsumerState<Accounts> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      // quick fix while we do not have assets on spark
                       ref.read(selectedNetworkTypeProvider.notifier).state = Network == 'Lightning Network' ? 'Spark Network' : Network;
                       context.push('/home/receive');
                     },
@@ -320,7 +350,7 @@ class _AccountsState extends ConsumerState<Accounts> {
   Widget _buildStableCard(
       BuildContext context,
       WidgetRef ref,
-      String title, // Added title parameter
+      String title,
       String balanceText,
       Widget icon,
       dynamic addressFuture,

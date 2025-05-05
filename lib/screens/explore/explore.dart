@@ -19,12 +19,15 @@ final isLoadingProvider = StateProvider<bool>((ref) => false);
 class _CashbackDisplay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
     final denomination = ref.watch(settingsProvider).btcFormat;
     final transaction = ref.watch(transactionNotifierProvider);
-    final cashbackToReceive = btcInDenominationFormatted(
+    final cashbackToReceive = isBalanceVisible
+        ? btcInDenominationFormatted(
       transaction.unpaidCashback * 100000000,
       denomination,
-    );
+    )
+        : '***';
 
     return Card(
       color: Color(0x333333).withOpacity(0.4),
@@ -65,8 +68,8 @@ class Explore extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isLoading = ref.watch(isLoadingProvider);
+    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
 
-    // Check conditions and call addCashbackProvider on page init
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = ref.read(userProvider);
       final paymentId = user.paymentId;
@@ -88,10 +91,10 @@ class Explore extends ConsumerWidget {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: Colors.transparent, // Transparent to show extended body
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.black,
-          centerTitle: true,
+          centerTitle: false, // Align title to the left
           automaticallyImplyLeading: false,
           title: Text(
             'Explore'.i18n,
@@ -101,16 +104,26 @@ class Explore extends ConsumerWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible);
+              },
+              icon: Icon(
+                isBalanceVisible ? Icons.remove_red_eye : Icons.visibility_off,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
         body: SafeArea(
-          bottom: false, // Allow content to extend to bottom
+          bottom: false,
           child: Stack(
             children: [
-              // Background for content area
               Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: Colors.black, // Content background
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -139,7 +152,6 @@ class Explore extends ConsumerWidget {
                       ),
                       child: const _ActionCards(),
                     ),
-                    // Bottom padding to scroll past nav bar
                     SizedBox(height: 50.sp),
                   ],
                 ),
@@ -162,20 +174,27 @@ class Explore extends ConsumerWidget {
 class _BalanceDisplay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
     final denomination = ref.watch(settingsProvider).btcFormat;
 
-    final depixBalance = fiatInDenominationFormatted(
-        ref.watch(balanceNotifierProvider).brlBalance);
-    final usdBalance = fiatInDenominationFormatted(
-        ref.watch(balanceNotifierProvider).usdBalance);
-    final euroBalance = fiatInDenominationFormatted(
-        ref.watch(balanceNotifierProvider).eurBalance);
-    final btcBalance = btcInDenominationFormatted(
-        ref.watch(balanceNotifierProvider).btcBalance, denomination);
-    final liquidBalance = btcInDenominationFormatted(
-        ref.watch(balanceNotifierProvider).liquidBalance, denomination);
-    final lightningBalance = btcInDenominationFormatted(
-        ref.watch(balanceNotifierProvider).lightningBalance ?? 0, denomination);
+    final depixBalance = isBalanceVisible
+        ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance)
+        : '***';
+    final usdBalance = isBalanceVisible
+        ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance)
+        : '***';
+    final euroBalance = isBalanceVisible
+        ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance)
+        : '***';
+    final btcBalance = isBalanceVisible
+        ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).btcBalance, denomination)
+        : '***';
+    final liquidBalance = isBalanceVisible
+        ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBalance, denomination)
+        : '***';
+    final lightningBalance = isBalanceVisible
+        ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).lightningBalance ?? 0, denomination)
+        : '***';
 
     return Card(
       color: Color(0x333333).withOpacity(0.4),
@@ -224,7 +243,7 @@ class _BalanceDisplay extends ConsumerWidget {
                   imagePath: 'lib/assets/eurx.png',
                   color: const Color(0xFF003399),
                   label: 'EURx'.i18n,
-                  balance: euroBalance.toString(),
+                  balance: euroBalance,
                 ),
               ],
             ),
@@ -235,13 +254,13 @@ class _BalanceDisplay extends ConsumerWidget {
                   imagePath: 'lib/assets/depix.png',
                   color: const Color(0xFF009C3B),
                   label: 'Depix'.i18n,
-                  balance: depixBalance.toString(),
+                  balance: depixBalance,
                 ),
                 _buildBalanceRow(
                   imagePath: 'lib/assets/tether.png',
                   color: const Color(0xFF008001),
                   label: 'USDT'.i18n,
-                  balance: usdBalance.toString(),
+                  balance: usdBalance,
                 ),
               ],
             ),
@@ -463,7 +482,6 @@ class _ActionCards extends ConsumerWidget {
             ),
           ],
         ),
-        // Add bottom padding to scroll past nav bar
         SizedBox(height: 100.sp),
       ],
     );
