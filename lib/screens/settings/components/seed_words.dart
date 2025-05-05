@@ -24,7 +24,7 @@ class SeedWords extends ConsumerWidget {
           style: const TextStyle(color: Colors.white),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white, size: 24.sp),
+          icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.sp),
           onPressed: () {
             context.pop();
           },
@@ -125,7 +125,7 @@ class SeedWords extends ConsumerWidget {
                       onPressed: () {},
                       primaryColor: Colors.green,
                       secondaryColor: Colors.green,
-                      textColor: Colors.white,
+                      textColor: Colors.black,
                     )
                         : CustomButton(
                       text: 'Backup Wallet'.i18n,
@@ -134,7 +134,7 @@ class SeedWords extends ConsumerWidget {
                       },
                       primaryColor: Colors.green,
                       secondaryColor: Colors.green,
-                      textColor: Colors.white,
+                      textColor: Colors.black,
                     ),
                   ),
                 ],

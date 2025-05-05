@@ -215,7 +215,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
         title: Text('Recover Account'.i18n, style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () {
             context.pop();
           },

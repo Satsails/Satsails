@@ -53,7 +53,7 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
           style: const TextStyle(color: Colors.white),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white, size: screenHeight * 0.03),
+          icon: Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => context.pop(),
         ),
       ),

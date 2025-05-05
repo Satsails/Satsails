@@ -911,8 +911,8 @@ extension Localization on String {
         'pt': 'Pix recebido, mas o limite de transferência foi excedido, você receberá o valor em 24h. Se desejar recebê-lo mais cedo, entre em contato com o suporte',
       } +
       {
-        'en': 'Become sovereign and freely opt out of the system.',
-        'pt': 'Seja soberano e opte por sair do sistema livremente.',
+        'en': 'Your gateway to financial freedom.',
+        'pt': 'Seja soberano e opte por sair do sistema',
       } +
       {
         'en': 'Total bitcoin balance:',

@@ -71,7 +71,7 @@ class _ServicesState extends ConsumerState<Services> {
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white, size: 24.w),
+          icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.w),
           onPressed: () async {
             context.pop();
           },
@@ -113,7 +113,7 @@ class _ServicesState extends ConsumerState<Services> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white, size: 24.w),
+                  icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.w),
                   onPressed: () async {
                     if (await _webViewController.canGoBack()) {
                       _webViewController.goBack();
