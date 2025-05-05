@@ -2622,6 +2622,22 @@ extension Localization on String {
       {
         'en': 'Transactions hidden',
         'pt': 'Transações ocultas',
+      } +
+      {
+        'en': 'Mark as Migrated',
+        'pt': 'Marcar como Migrado',
+      } +
+      {
+        'en': 'Lightning migration',
+        'pt': 'Migração Lightning',
+      } +
+      {
+        'en': 'You can retrieve your past Coinos balances since we have migrated to Spark',
+        'pt': 'Você pode recuperar seus saldos anteriores de Coinos desde que fizemos a migração para Spark.',
+      } +
+      {
+        'en': 'Lightning Migration Warning',
+        'pt': 'Aviso de Migração Lightning',
       };
 
       String get i18n => localize(this, _t);

@@ -82,23 +82,46 @@ class CoinosPayment {
   }
 }
 
-
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 
+@HiveType(typeId: 28)
 class CoinosLn {
+  @HiveField(0)
   final String token;
+
+  @HiveField(1)
   final String username;
+
+  @HiveField(2)
   final String password;
+
+  @HiveField(3)
   final List<CoinosPayment> transactions;
 
-  CoinosLn({required this.token, required this.username, this.password = '', required this.transactions});
+  @HiveField(4)
+  final bool isMigrated;
 
-  CoinosLn copyWith({String? token, String? username, String? password, List<CoinosPayment>? transactions}) {
+  CoinosLn({
+    required this.token,
+    required this.username,
+    this.password = '',
+    required this.transactions,
+    this.isMigrated = false,
+  });
+
+  CoinosLn copyWith({
+    String? token,
+    String? username,
+    String? password,
+    List<CoinosPayment>? transactions,
+    bool? isMigrated,
+  }) {
     return CoinosLn(
       token: token ?? this.token,
       username: username ?? this.username,
       password: password ?? this.password,
       transactions: transactions ?? this.transactions,
+      isMigrated: isMigrated ?? this.isMigrated,
     );
   }
 }
@@ -124,6 +147,12 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     final box = await Hive.openBox<List<CoinosPayment>>('coinosPayments');
     await box.put('transactions', transactions);
     state = state.copyWith(transactions: transactions);
+  }
+
+  Future<void> setMigrated(bool migrated) async {
+    final box = await Hive.openBox('coinosLn');
+    await box.put('isMigrated', migrated);
+    state = state.copyWith(isMigrated: migrated);
   }
 
   Future<void> register() async {
@@ -301,8 +330,6 @@ class CoinosLnService {
 
   static Future<Result<void>> sendPayment(String token, String address, int amount) async {
     try {
-      // final int maxFee = (amount * 0.1).toInt().clamp(1, double.infinity).toInt();
-
       final response = await http.post(
         Uri.parse('$baseUrl/payments'),
         headers: {
@@ -328,8 +355,6 @@ class CoinosLnService {
 
   static Future<Result<void>> sendBitcoinPayment(String token, String address, int amount, double fee) async {
     try {
-      // final int maxFee = (amount * 0.1).toInt().clamp(1, double.infinity).toInt();
-
       final response = await http.post(
         Uri.parse('$baseUrl/bitcoin/send'),
         headers: {
@@ -398,7 +423,6 @@ class CoinosLnService {
     }
   }
 
-
   static Future<Result<List<CoinosPayment>>> getTransactions(String token) async {
     try {
       final response = await http.get(
@@ -411,9 +435,7 @@ class CoinosLnService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         final List<CoinosPayment> payments = data['payments'].map<CoinosPayment>((json) => CoinosPayment.fromJson(json)).toList();
-
         return Result(data: payments);
       } else {
         return Result(error: 'Failed to fetch balance and transactions: ${response.body}');
