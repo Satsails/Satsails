@@ -46,7 +46,7 @@ class DepositTypeScreen extends ConsumerWidget {
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => context.pop(),
         ),
       ),
@@ -152,8 +152,8 @@ class DepositTypeScreen extends ConsumerWidget {
                         }
                             : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          disabledBackgroundColor: Colors.green,
+                          backgroundColor: isConditionMet ? Colors.green : Colors.red,
+                          disabledBackgroundColor: isConditionMet ? Colors.green : Colors.red,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12.r)),
                           padding: EdgeInsets.symmetric(vertical: 16.h),

@@ -91,7 +91,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
             style: const TextStyle(color: Colors.white),
           ),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white, size: 24.sp),
+            icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.sp),
             onPressed: () => context.pop(),
           ),
         ),
@@ -108,7 +108,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
           style: const TextStyle(color: Colors.white),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white, size: 24.sp),
+          icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.sp),
           onPressed: () => context.pop(),
         ),
       ),

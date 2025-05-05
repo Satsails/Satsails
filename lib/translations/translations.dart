@@ -84,7 +84,7 @@ extension Localization on String {
       } +
       {
         'en': 'Analytics',
-        'pt': 'Análises',
+        'pt': 'Analíticas',
       } +
       {
         'en': 'Currency',
@@ -911,8 +911,8 @@ extension Localization on String {
         'pt': 'Pix recebido, mas o limite de transferência foi excedido, você receberá o valor em 24h. Se desejar recebê-lo mais cedo, entre em contato com o suporte',
       } +
       {
-        'en': 'Become sovereign and freely opt out of the system.',
-        'pt': 'Seja soberano e opte por sair do sistema livremente.',
+        'en': 'Your gateway to financial freedom.',
+        'pt': 'Seja soberano e opte por sair do sistema',
       } +
       {
         'en': 'Total bitcoin balance:',
@@ -2614,6 +2614,30 @@ extension Localization on String {
       {
         'en': 'Error building payjoin asset transaction',
         'pt': 'Erro ao construir transação',
+      } +
+      {
+        'en': 'Your Balances',
+        'pt': 'Seus Saldos',
+      } +
+      {
+        'en': 'Transactions hidden',
+        'pt': 'Transações ocultas',
+      } +
+      {
+        'en': 'Mark as Migrated',
+        'pt': 'Marcar como Migrado',
+      } +
+      {
+        'en': 'Lightning migration',
+        'pt': 'Migração Lightning',
+      } +
+      {
+        'en': 'You can retrieve your past Coinos balances since we have migrated to Spark',
+        'pt': 'Você pode recuperar seus saldos anteriores de Coinos desde que fizemos a migração para Spark.',
+      } +
+      {
+        'en': 'Lightning Migration Warning',
+        'pt': 'Aviso de Migração Lightning',
       };
 
       String get i18n => localize(this, _t);

@@ -26,7 +26,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white, size: 24.w), // Responsive icon size
+          icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.w), // Responsive icon size
           onPressed: () => context.pop(),
         ),
       ),

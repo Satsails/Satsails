@@ -33,7 +33,7 @@ class _NoxTransactionDetailsState extends ConsumerState<NoxTransactionDetails> {
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white, size: 24.w),
+          icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.w),
           onPressed: () => context.pop(),
         ),
       ),

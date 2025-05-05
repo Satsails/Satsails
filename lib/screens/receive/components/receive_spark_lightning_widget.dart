@@ -1,3 +1,4 @@
+import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -200,10 +201,11 @@ class _ReceiveSparkLightningWidgetState extends ConsumerState<ReceiveSparkLightn
         ),
         Padding(
           padding: EdgeInsets.all(16.h),
-          child: CustomElevatedButton(
+          child: CustomButton(
             onPressed: selectedOption == 'Bitcoin' ? _onCreateBitcoinAddress : _onCreateLnurl,
             text: selectedOption == 'Bitcoin' ? 'Create Address'.i18n : 'Create Invoice'.i18n,
-            controller: controller,
+            primaryColor: Colors.green,
+            secondaryColor: Colors.green,
           ),
         ),
       ],

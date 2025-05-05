@@ -13,64 +13,59 @@ class CustomKeypad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 3,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 10.w,           // Scaled horizontal spacing
-      mainAxisSpacing: 10.h,            // Scaled vertical spacing
-      childAspectRatio: 1.0,            // Square buttons
-      padding: EdgeInsets.symmetric(horizontal: 20.w), // Scaled padding
-      children: [
-        for (int i = 1; i <= 9; i++)
-          ElevatedButton(
-            onPressed: () => onDigitPressed(i.toString()),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r), // Scaled radius
+    // Get the screen width in pixels
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Set keypad width to 80% of screen width, capped at 300 pixels
+    final keypadWidth = (screenWidth * 0.8).clamp(0.0, 300.0);
+
+    final buttonStyle = ElevatedButton.styleFrom(
+      backgroundColor: Colors.black,
+      foregroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      minimumSize: const Size(0, 0),
+    );
+
+    return Center(
+      child: Container(
+        width: keypadWidth,
+        child: GridView.count(
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          childAspectRatio: 1.0,
+          children: [
+            for (int i = 1; i <= 9; i++)
+              ElevatedButton(
+                onPressed: () => onDigitPressed(i.toString()),
+                style: buttonStyle,
+                child: Text(
+                  i.toString(),
+                  style: TextStyle(fontSize: 24.sp),
+                ),
               ),
-              minimumSize: const Size(0, 0), // Allow grid to control size
+            const SizedBox.shrink(),
+            ElevatedButton(
+              onPressed: () => onDigitPressed('0'),
+              style: buttonStyle,
+              child: Text(
+                '0',
+                style: TextStyle(fontSize: 24.sp),
+              ),
             ),
-            child: Text(
-              i.toString(),
-              style: TextStyle(fontSize: 24.sp), // Scaled font size
+            ElevatedButton(
+              onPressed: onBackspacePressed,
+              style: buttonStyle,
+              child: Icon(
+                Icons.backspace,
+                size: 24.sp,
+                color: Colors.white,
+              ),
             ),
-          ),
-        const SizedBox(), // Empty space for bottom-left corner
-        ElevatedButton(
-          onPressed: () => onDigitPressed('0'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            minimumSize: const Size(0, 0),
-          ),
-          child: Text(
-            '0',
-            style: TextStyle(fontSize: 24.sp),
-          ),
+          ],
         ),
-        ElevatedButton(
-          onPressed: onBackspacePressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            minimumSize: const Size(0, 0),
-          ),
-          child: Icon(
-            Icons.backspace,
-            size: 24.sp, // Scaled icon size
-            color: Colors.white,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

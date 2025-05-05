@@ -1,6 +1,5 @@
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
 import 'package:Satsails/screens/receive/components/receive_spark_lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
@@ -37,7 +36,7 @@ class Receive extends ConsumerWidget {
           backgroundColor: Colors.black,
           title: Text('Receive on ${selectedType}'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
             onPressed: () {
               ref.read(inputAmountProvider.notifier).state = '0.0';
               ref.invalidate(initialCoinosProvider);
@@ -46,8 +45,7 @@ class Receive extends ConsumerWidget {
           ),
         ),
         body: KeyboardDismissOnTap(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: ListView(
             children: [
               if (selectedType == 'Bitcoin Network') const BitcoinWidget(),
               if (selectedType == 'Liquid Network') const LiquidWidget(),

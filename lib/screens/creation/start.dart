@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import './components/logo.dart'; // Assuming this is your logo widget
-import 'package:Satsails/translations/translations.dart'; // For translations
+import './components/logo.dart';
+import 'package:Satsails/translations/translations.dart'; 
 
 class Start extends ConsumerStatefulWidget {
   const Start({super.key});
@@ -139,7 +139,7 @@ class _StartState extends ConsumerState<Start> with SingleTickerProviderStateMix
                       ),
                       SizedBox(height: 10.h),
                       Text(
-                        'Become sovereign and freely opt out of the system.'.i18n,
+                        'Your gateway to financial freedom.'.i18n,
                         style: TextStyle(
                           fontSize: 24.sp,
                           color: Colors.white70,

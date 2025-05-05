@@ -34,7 +34,6 @@ class _ExchangeState extends ConsumerState<Exchange> {
         backgroundColor: Colors.transparent, // Transparent to show extended body
         appBar: AppBar(
           backgroundColor: Colors.black,
-          centerTitle: true,
           automaticallyImplyLeading: false,
           title: Text(
             'Exchange'.i18n,

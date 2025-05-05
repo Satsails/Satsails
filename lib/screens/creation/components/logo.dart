@@ -9,12 +9,9 @@ class Logo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
     return SvgPicture.asset(
       'lib/assets/satsails.svg',
-      width: screenWidth * (widthFactor ?? 0.9),
-      height: screenHeight * (heightFactor ?? 0.25),
+      fit: BoxFit.contain, // Ensures the SVG scales proportionally
     );
   }
 }
@@ -25,9 +22,9 @@ class InitialLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset(
-      'lib/assets/initialLogo.svg',
-      fit: BoxFit.contain, // Ensures the SVG scales proportionally
+    return Image.asset(
+      'lib/assets/initialLogo.png',
+      fit: BoxFit.contain,
     );
   }
 }

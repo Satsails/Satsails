@@ -1,10 +1,10 @@
+import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
-import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -63,10 +63,11 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
         ),
         Padding(
           padding: EdgeInsets.all(16.h), // Increased from 8.12.h
-          child: CustomElevatedButton(
+          child: CustomButton(
             onPressed: _onCreateAddress,
             text: 'Create Address'.i18n,
-            controller: controller,
+            primaryColor: Colors.green,
+            secondaryColor: Colors.green,
           ),
         ),
       ],

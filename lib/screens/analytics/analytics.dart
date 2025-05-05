@@ -477,7 +477,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
           elevation: 0,
           leading: IconButton(
             onPressed: () => context.pop(),
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           ),
           actions: [
             if (isBitcoinAsset)

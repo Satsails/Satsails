@@ -45,7 +45,6 @@ class Settings extends ConsumerWidget {
         appBar: AppBar(
           backgroundColor: Colors.black,
           automaticallyImplyLeading: false,
-          centerTitle: true,
           title: Text(
             'Settings'.i18n,
             style: TextStyle(
@@ -458,12 +457,12 @@ class Settings extends ConsumerWidget {
       subtitle: Text('Recover and migrate your lightning balance'.i18n, style: TextStyle(color: Colors.grey, fontSize: 14.sp)),
       icon: Icons.cloud,
       onTap: () {
-        _showCustodialWarningModal(context, ref);
+        showCustodialWarningModal(context, ref);
       },
     );
   }
 
-  void _showCustodialWarningModal(BuildContext context, WidgetRef ref) {
+  void showCustodialWarningModal(BuildContext context, WidgetRef ref) {
     final coinosLn = ref.watch(coinosLnProvider);
 
     showModalBottomSheet(
@@ -488,7 +487,7 @@ class Settings extends ConsumerWidget {
                 ),
                 SizedBox(height: 16.sp),
                 Text(
-                  'You can retreive your past coinos balances since we have migrated to spark'.i18n,
+                  'You can retrieve your past Coinos balances since we have migrated to Spark'.i18n,
                   style: TextStyle(color: Colors.white70, fontSize: 14.sp),
                 ),
                 SizedBox(height: 24.sp),
@@ -497,23 +496,49 @@ class Settings extends ConsumerWidget {
                 _buildCopyableField(label: 'Password', value: coinosLn.password, context: context),
                 SizedBox(height: 24.sp),
                 Center(
-                  child: TextButton(
-                    onPressed: () => _launchURL('https://coinos.io/login'),
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 24.sp),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                  child: Column(
+                    children: [
+                      TextButton(
+                        onPressed: () => _launchURL('https://coinos.io/login'),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(horizontal: 24.sp),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        child: Text(
+                          'Visit Coinos'.i18n,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      'Visit Coinos'.i18n,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
+                      SizedBox(height: 16.sp),
+                      TextButton(
+                        onPressed: () {
+                          ref.read(coinosLnProvider.notifier).setMigrated(true);
+                          Navigator.pop(context); // Close the modal after setting migrated to true
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: EdgeInsets.symmetric(horizontal: 24.sp),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        child: Text(
+                          'Mark as Migrated'.i18n,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ],

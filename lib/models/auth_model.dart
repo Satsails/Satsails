@@ -197,6 +197,7 @@ class AuthModel {
     await _storage.delete(key: 'fcmToken');
     await Hive.deleteBoxFromDisk('bitcoin');
     await Hive.deleteBoxFromDisk('liquid');
+    await Hive.deleteBoxFromDisk('coinosLn');
     await Hive.deleteBoxFromDisk('affiliateCode');
     await Hive.deleteBoxFromDisk('balanceBox');
     await Hive.deleteBoxFromDisk('settings');

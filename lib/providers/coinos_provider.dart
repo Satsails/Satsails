@@ -11,19 +11,27 @@ const FlutterSecureStorage _storage = FlutterSecureStorage();
 
 final initialCoinosProvider = FutureProvider.autoDispose<CoinosLn>((ref) async {
   final transactionBox = await Hive.openBox('transactions');
+  final coinosLnBox = await Hive.openBox('coinosLn');
   final token = await _storage.read(key: 'coinosToken') ?? '';
   final username = await _storage.read(key: 'coinosUsername') ?? '';
   final password = await _storage.read(key: 'coinosPassword') ?? '';
   final transactions = transactionBox.get('transactions', defaultValue: <CoinosPayment>[]);
-  return CoinosLn(token: token, username: username, password: password, transactions: transactions);
+  final isMigrated = coinosLnBox.get('isMigrated', defaultValue: false);
+  return CoinosLn(
+    token: token,
+    username: username,
+    password: password,
+    transactions: transactions,
+    isMigrated: isMigrated,
+  );
 });
 
 final coinosLnProvider = StateNotifierProvider.autoDispose<CoinosLnModel, CoinosLn>((ref) {
   final initialCoinos = ref.watch(initialCoinosProvider);
 
   return initialCoinos.when(
-    data: (coinos) => CoinosLnModel(CoinosLn(token: coinos.token, username: coinos.username, password: coinos.password, transactions: coinos.transactions)),
-    loading: () => CoinosLnModel(CoinosLn(token: '', username: '', password: '', transactions: [])),
+    data: (coinos) => CoinosLnModel(coinos),
+    loading: () => CoinosLnModel(CoinosLn(token: '', username: '', password: '', transactions: [], isMigrated: false)),
     error: (error, stackTrace) {
       throw error;
     },
