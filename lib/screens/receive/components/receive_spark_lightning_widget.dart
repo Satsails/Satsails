@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +10,6 @@ import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import '../../../providers/bitcoin_provider.dart';
 
 final selectedReceiveOptionProvider = StateProvider<String>((ref) => 'Lightning');
 final lnurlNameProvider = StateProvider<String>((ref) => '');
@@ -155,7 +155,7 @@ class _ReceiveSparkLightningWidgetState extends ConsumerState<ReceiveSparkLightn
         SizedBox(height: 24.h),
         if (invoiceCreated) ...[
           _buildAddressWithAmount(displayAddress),
-        ] else if (selectedOption == 'Bitcoin') ...[
+        ] else if (selectedOption == 'Bitcoin' || selectedOption == 'Spark') ...[
           _buildDefaultAddress(bitcoinAddressAsyncValue),
         ] else if (selectedOption == 'Lightning') ...[
           if (lnurlName.isEmpty) ...[
@@ -195,31 +195,33 @@ class _ReceiveSparkLightningWidgetState extends ConsumerState<ReceiveSparkLightn
             ),
           ],
         ],
-        Padding(
-          padding: EdgeInsets.all(16.h),
-          child: AmountInput(controller: controller),
-        ),
-        Padding(
-          padding: EdgeInsets.all(16.h),
-          child: CustomButton(
-            onPressed: selectedOption == 'Bitcoin' ? _onCreateBitcoinAddress : _onCreateLnurl,
-            text: selectedOption == 'Bitcoin' ? 'Create Address'.i18n : 'Create Invoice'.i18n,
-            primaryColor: Colors.green,
-            secondaryColor: Colors.green,
+        if (selectedOption != 'Spark') ...[
+          Padding(
+            padding: EdgeInsets.all(16.h),
+            child: AmountInput(controller: controller),
           ),
-        ),
+          Padding(
+            padding: EdgeInsets.all(16.h),
+            child: CustomButton(
+              onPressed: selectedOption == 'Bitcoin' ? _onCreateBitcoinAddress : _onCreateLnurl,
+              text: selectedOption == 'Bitcoin' ? 'Create Address'.i18n : 'Create Invoice'.i18n,
+              primaryColor: Colors.green,
+              secondaryColor: Colors.green,
+            ),
+          ),
+        ],
       ],
     );
   }
 
   Widget _buildReceiveOptionButtons() {
     final selectedOption = ref.watch(selectedReceiveOptionProvider);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      spacing: 16.w,
       children: [
         _buildOptionButton('Lightning', selectedOption),
-        SizedBox(width: 16.w),
         _buildOptionButton('Bitcoin', selectedOption),
+        _buildOptionButton('Spark', selectedOption),
       ],
     );
   }
@@ -244,7 +246,13 @@ class _ReceiveSparkLightningWidgetState extends ConsumerState<ReceiveSparkLightn
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
+            option == 'Spark'
+                ? Image.asset(
+              'lib/assets/sparkSmallIcon.png',
+              width: 24.w,
+              height: 24.h,
+            )
+                : Image.asset(
               option == 'Bitcoin' ? 'lib/assets/bitcoin-logo.png' : 'lib/assets/Bitcoin_lightning_logo.png',
               width: 24.w,
               height: 24.h,

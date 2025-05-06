@@ -106,6 +106,7 @@ flutter:
     - lib/assets/Ice-Logo.png
     - lib/assets/bitrefill.png
     - lib/assets/initialLogo.png
+    - lib/assets/sparkSmallIcon.png
     - lib/assets/nox.svg
     - lib/assets/satsails.svg
     - lib/assets/eulen-logo.svg
