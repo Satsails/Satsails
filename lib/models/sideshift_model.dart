@@ -231,27 +231,27 @@ class SideShiftService {
         final shifts = shiftsJson.map((json) => SideShift.fromJson(json)).toList();
         return Result(data: shifts);
       } else {
-        return Result(error: 'Failed to retrieve shifts: ${response.body}');
+        return Result(error: 'Failed to retrieve shifts');
       }
     } catch (e) {
       return Result(error: 'An error occurred. Please try again later');
     }
   }
 
-  static Future<Result<void>> setRefundAddress(String shiftId, String refundAddress) async {
+  static Future<Result<SideShift>> setRefundAddress(String shiftId, String refundAddress) async {
     try {
       final response = await http.post(
         Uri.parse('https://sideshift.ai/api/v2/shifts/$shiftId/set-refund-address'),
-        body: jsonEncode({'refundAddress': refundAddress}),
+        body: jsonEncode({'address': refundAddress}),
         headers: {
           'Content-Type': 'application/json',
         },
       );
 
-      if (response.statusCode == 200) {
-        return Result(data: null);
+      if (response.statusCode == 201) {
+        return Result(data: SideShift.fromJson(jsonDecode(response.body)));
       } else {
-        return Result(error: 'Failed to set refund address: ${response.body}');
+        return Result(error: 'Failed to set refund address');
       }
     } catch (e) {
       return Result(error: 'An error occurred. Please try again later');

@@ -234,12 +234,18 @@ final updateSideShiftShiftsProvider = FutureProvider.family.autoDispose<void, Li
 });
 
 final setRefundAddressProvider = FutureProvider.family.autoDispose<void, RefundAddressParams>((ref, params) async {
-  await SideShiftService.setRefundAddress(params.shiftId, params.refundAddress);
+  final result = await SideShiftService.setRefundAddress(params.shiftId, params.refundAddress);
 
+  if (result.isSuccess) {
+    await ref.read(updateSideShiftShiftsProvider([params.shiftId]).future);
+  } else {
+    throw result.error!;
+  }
+});
 
-  // Update the shift in the Hive box after setting the refund address
-  final shiftIds = [params.shiftId];
-  await ref.read(updateSideShiftShiftsProvider(shiftIds).future);
+final shiftByIdProvider = Provider.family<SideShift, String>((ref, id) {
+  final shifts = ref.watch(sideShiftShiftsProvider);
+  return shifts.firstWhere((shift) => shift.id == id);
 });
 
 class RefundAddressParams {

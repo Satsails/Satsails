@@ -1,3 +1,4 @@
+import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,7 +7,6 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:hive/hive.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/providers/sideshift_provider.dart';
@@ -30,7 +30,7 @@ class SideShiftTransactionDetailsScreen extends ConsumerStatefulWidget {
 class _SideShiftTransactionDetailsScreenState extends ConsumerState<SideShiftTransactionDetailsScreen> {
   @override
   Widget build(BuildContext context) {
-    final details = widget.transaction.details;
+    final details = ref.watch(shiftByIdProvider(widget.transaction.id));
     final statusText = _getStatusText(details.status);
     final formattedDate = DateFormat('d MMMM, HH:mm').format(DateTime.fromMillisecondsSinceEpoch(details.timestamp * 1000));
     final expiresAtText = formatExpiresAt(details.expiresAt);
@@ -144,8 +144,8 @@ class _SideShiftTransactionDetailsScreenState extends ConsumerState<SideShiftTra
                   style: TextStyle(color: Colors.white, fontSize: 16.sp),
                 ),
               ],
-              if (details.status == 'failed' || details.status != 'settled' && details.status != 'expired')
-                ReturnAddressSection(transactionId: widget.transaction.id),
+              if (details.status == 'failed' || (details.status != 'settled' && details.status != 'expired'))
+                ReturnAddressSection(transactionId: widget.transaction.id, details: details),
             ],
           ),
         ),
@@ -329,8 +329,9 @@ class TransactionDetailRow extends StatelessWidget {
 
 class ReturnAddressSection extends ConsumerStatefulWidget {
   final String transactionId;
+  final SideShift details;
 
-  const ReturnAddressSection({super.key, required this.transactionId});
+  const ReturnAddressSection({super.key, required this.transactionId, required this.details});
 
   @override
   _ReturnAddressSectionState createState() => _ReturnAddressSectionState();
@@ -338,42 +339,20 @@ class ReturnAddressSection extends ConsumerStatefulWidget {
 
 class _ReturnAddressSectionState extends ConsumerState<ReturnAddressSection> {
   late TextEditingController _returnAddressController;
-  String? _savedReturnAddress;
 
   @override
   void initState() {
     super.initState();
     _returnAddressController = TextEditingController();
-    _loadReturnAddress();
-  }
-
-  Future<void> _loadReturnAddress() async {
-    final box = await Hive.openBox<String>('returnAddresses');
-    final address = box.get(widget.transactionId);
-    if (address != null) {
-      setState(() {
-        _savedReturnAddress = address;
-        _returnAddressController.text = address;
-      });
-    }
   }
 
   Future<void> _saveReturnAddress() async {
-    final box = await Hive.openBox<String>('returnAddresses');
-    await box.put(widget.transactionId, _returnAddressController.text);
-    setState(() {
-      _savedReturnAddress = _returnAddressController.text;
-    });
-
-    // Set the refund address using the provider
     final refundParams = RefundAddressParams(
       shiftId: widget.transactionId,
       refundAddress: _returnAddressController.text,
     );
     try {
       await ref.read(setRefundAddressProvider(refundParams).future);
-      // Reload the shift after setting the refund address
-      await ref.read(updateSideShiftShiftsProvider([widget.transactionId]).future);
       showMessageSnackBar(
         message: 'Refund address set and shift updated'.i18n,
         error: false,
@@ -396,49 +375,83 @@ class _ReturnAddressSectionState extends ConsumerState<ReturnAddressSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 16.h),
-        Text(
-          'Return Address'.i18n,
-          style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
+    if (widget.details.refundAddress.isNotEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 8.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Return Address'.i18n,
+              style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+            ),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: Text(
+                      shortenAddress(widget.details.refundAddress),
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  IconButton(
+                    icon: Icon(Icons.copy, color: Colors.orange, size: 16.w),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: widget.details.refundAddress));
+                      showMessageSnackBar(
+                        message: 'Copied to clipboard'.i18n,
+                        error: false,
+                        context: context,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        SizedBox(height: 8.h),
-        TextField(
-          controller: _returnAddressController,
-          style: TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            hintText: 'Enter return address'.i18n,
-            hintStyle: TextStyle(color: Colors.grey),
-            filled: true,
-            fillColor: Colors.grey.shade800,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide.none,
+      );
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 16.h),
+          Text(
+            'Return Address'.i18n,
+            style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 8.h),
+          TextField(
+            controller: _returnAddressController,
+            style: TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'Enter return address'.i18n,
+              hintStyle: TextStyle(color: Colors.grey),
+              filled: true,
+              fillColor: Colors.grey.shade800,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: BorderSide.none,
+              ),
             ),
           ),
-        ),
-        SizedBox(height: 8.h),
-        Padding(
-          padding: EdgeInsets.all(16.h),
-          child: CustomButton(
-            onPressed: _saveReturnAddress,
-            text: 'Save'.i18n,
-            primaryColor: Colors.green,
-            secondaryColor: Colors.green,
-          ),
-        ),
-        if (_savedReturnAddress != null) ...[
           SizedBox(height: 8.h),
-          CopyText(
-            text: _savedReturnAddress!,
-            displayText: shortenAddress(_savedReturnAddress!),
-            style: TextStyle(color: Colors.white, fontSize: 16.sp),
+          Padding(
+            padding: EdgeInsets.all(16.h),
+            child: CustomButton(
+              onPressed: _saveReturnAddress,
+              text: 'Save'.i18n,
+              primaryColor: Colors.green,
+              secondaryColor: Colors.green,
+            ),
           ),
         ],
-      ],
-    );
+      );
+    }
   }
 }
 

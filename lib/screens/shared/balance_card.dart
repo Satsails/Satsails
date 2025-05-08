@@ -37,7 +37,7 @@ class BalanceCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 400;
+    final isSmallScreen = screenWidth < 300;
 
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final currency = ref.watch(settingsProvider).currency;
