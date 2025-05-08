@@ -6,6 +6,7 @@ import 'package:Satsails/providers/sideshift_provider.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:Satsails/translations/translations.dart';
 
 class ReceiveNonNativeAsset extends ConsumerWidget {
   const ReceiveNonNativeAsset({super.key});
@@ -21,85 +22,142 @@ class ReceiveNonNativeAsset extends ConsumerWidget {
     final shiftAsync = ref.watch(createSideShiftShiftForPairProvider(shiftPair));
     final assetPair = ref.watch(sideshiftAssetPairProvider(shiftPair));
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(height: 24.h),
-        Text(
-          _getShiftPairDisplayName(shiftPair),
-          style: TextStyle(color: Colors.white, fontSize: 18.sp),
-        ),
-        SizedBox(height: 16.h),
-        shiftAsync.when(
-          data: (shift) => Column(
-            children: [
-              buildQrCode(shift.depositAddress, context),
-              SizedBox(height: 16.h),
-              Padding(
-                padding: EdgeInsets.all(16.h),
-                child: buildAddressText(shift.depositAddress, context, ref),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildTitle(_getShiftPairDisplayName(shiftPair)),
+            SizedBox(height: 16.h),
+            shiftAsync.when(
+              data: (shift) => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(child: buildQrCode(shift.depositAddress, context)),
+                  SizedBox(height: 16.h),
+                  Center(child: buildAddressText(shift.depositAddress, context, ref)),
+                  if (shift.depositMemo != null) ...[
+                    SizedBox(height: 8.h),
+                    Center(
+                      child: Text(
+                        'Memo: ${shift.depositMemo}',
+                        style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      ),
+                    ),
+                  ],
+                  SizedBox(height: 16.h),
+                  _buildSection('Deposit Limits'.i18n, [
+                    {'label': 'Min'.i18n, 'value': '${formatAmount(shift.depositMin, shift.depositCoin)} ${shift.depositCoin}'},
+                    {'label': 'Max'.i18n, 'value': '${formatAmount(shift.depositMax, shift.depositCoin)} ${shift.depositCoin}'},
+                  ]),
+                  _buildSection('Fees'.i18n, [
+                    {'label': 'Network fee'.i18n, 'value': '${formatAmount(shift.settleCoinNetworkFee, shift.settleCoin)} ${shift.settleCoin} (~${formatAmount(shift.networkFeeUsd, 'USD')} USD)'},
+                    {'label': 'Service fee'.i18n, 'value': '1%'},
+                  ]),
+                  _buildWarning(
+                    'Warning: Sending from any other network might result in loss of funds. Ensure you are sending from the ${shift.depositNetwork} network.'.i18n,
+                  ),
+                ],
               ),
-              if (shift.depositMemo != null) ...[
-                SizedBox(height: 8.h),
-                Text('Memo: ${shift.depositMemo}', style: const TextStyle(color: Colors.white)),
-              ],
-              SizedBox(height: 16.h),
-              _buildInfoSection('Deposit Limits', [
-                'Min: ${formatAmount(shift.depositMin, shift.depositCoin)} ${shift.depositCoin}',
-                'Max: ${formatAmount(shift.depositMax, shift.depositCoin)} ${shift.depositCoin}',
-              ]),
-              _buildInfoSection('Expected Settlement', [
-                '${formatAmount(shift.settleAmount, shift.settleCoin)} ${shift.settleCoin}',
-              ]),
-              _buildInfoSection('Fees', [
-                'Network fee: ${formatAmount(shift.settleCoinNetworkFee, shift.settleCoin)} ${shift.settleCoin} (~${formatAmount(shift.networkFeeUsd, 'USD')} USD)',
-              ]),
-              _buildInfoSection('Expiration', [
-                formatExpiresAt(shift.expiresAt),
-              ]),
-              SizedBox(height: 16.h),
-              Container(
-                padding: EdgeInsets.all(16.h),
-                color: Colors.blueGrey[800],
-                child: Text(
-                  'Send ${shift.depositCoin} from your ${shift.depositNetwork} wallet to the address above${shift.depositMemo != null ? ' with the memo: ${shift.depositMemo}' : ''} to receive ${shift.settleCoin} on Liquid.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white),
+              loading: () => Center(
+                child: LoadingAnimationWidget.fourRotatingDots(
+                  size: 70.w,
+                  color: Colors.orange,
                 ),
               ),
-            ],
-          ),
-          loading: () => Center(
-            child: LoadingAnimationWidget.fourRotatingDots(
-              size: 70.w,
-              color: Colors.orange,
+              error: (error, stack) => Center(
+                child: Text(
+                  'Error: $error',
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
             ),
-          ),
-          error: (error, stack) => Center(
-            child: Text(
-              'Error: $error',
-              style: const TextStyle(color: Colors.red),
-            ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildInfoSection(String title, List<String> details) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.h),
+  Widget _buildTitle(String title) {
+    return Text(
+      title,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 20.sp,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget _buildSection(String title, List<Map<String, String>> details) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8.h),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Color(0x333333).withOpacity(0.4),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          ...details.map((detail) => Padding(
-            padding: EdgeInsets.only(left: 16.w, top: 4.h),
-            child: Text(detail, style: const TextStyle(color: Colors.white)),
-          )),
+          SizedBox(height: 8.h),
+          ...details.map(
+                (detail) => Padding(
+              padding: EdgeInsets.symmetric(vertical: 4.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    detail['label']!,
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                  Text(
+                    detail['value']!,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWarning(String message) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8.h),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.red[900],
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.warning, color: Colors.white, size: 24.sp),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(color: Colors.white, fontSize: 16.sp),
+            ),
+          ),
         ],
       ),
     );
@@ -113,28 +171,6 @@ class ReceiveNonNativeAsset extends ConsumerWidget {
 
   bool _isFiat(String coin) {
     return ['USD', 'EUR', 'BRL'].contains(coin.toUpperCase());
-  }
-
-  String formatExpiresAt(String expiresAt) {
-    DateTime expireTime = DateTime.parse(expiresAt);
-    Duration remaining = expireTime.difference(DateTime.now());
-    if (remaining.isNegative) {
-      return 'Expired';
-    } else {
-      return 'Expires in ${_formatDuration(remaining)}';
-    }
-  }
-
-  String _formatDuration(Duration duration) {
-    if (duration.inDays > 0) {
-      return '${duration.inDays} days';
-    } else if (duration.inHours > 0) {
-      return '${duration.inHours} hours';
-    } else if (duration.inMinutes > 0) {
-      return '${duration.inMinutes} minutes';
-    } else {
-      return '${duration.inSeconds} seconds';
-    }
   }
 
   String _getShiftPairDisplayName(ShiftPair pair) {
