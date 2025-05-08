@@ -273,3 +273,24 @@ String valueOfLiquidSubTransaction(AssetId asset, int value, WidgetRef ref) {
       return (value / 100000000).toStringAsFixed(2);
   }
 }
+
+Widget sideshiftTransactionTypeIcon() {
+  Widget circularIcon(IconData icon, Color color) {
+    return Container(
+      width: 40, // Responsive width, matching pegTransactionTypeIcon
+      height: 40, // Responsive height, same as width for a circle
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xFF333333), // Dark gray background, matching pegTransactionTypeIcon
+      ),
+      child: Center(
+        child: Icon(
+          icon,
+          color: color,
+          size: 24.w, // Responsive icon size, matching pegTransactionTypeIcon
+        ),
+      ),
+    );
+  }
+  return circularIcon(Icons.swap_horiz, Colors.orange); // SideShift: swap icon
+}

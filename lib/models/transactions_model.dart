@@ -4,6 +4,7 @@ import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
+import 'package:Satsails/models/sideshift_model.dart'; // Assuming this exists for SideShift
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk/lwk.dart' as lwk;
@@ -105,6 +106,17 @@ class BoltzTransaction extends BaseTransaction {
   });
 }
 
+class SideShiftTransaction extends BaseTransaction {
+  final SideShift details;
+
+  SideShiftTransaction({
+    required super.id,
+    required super.timestamp,
+    required this.details,
+    required super.isConfirmed,
+  });
+}
+
 class Transaction {
   final List<BitcoinTransaction> bitcoinTransactions;
   final List<LiquidTransaction> liquidTransactions;
@@ -113,6 +125,7 @@ class Transaction {
   final List<EulenTransaction> eulenTransactions;
   final List<NoxTransaction> noxTransactions;
   final List<BoltzTransaction> boltzTransactions;
+  final List<SideShiftTransaction> sideShiftTransactions;
 
   Transaction({
     required this.bitcoinTransactions,
@@ -122,6 +135,7 @@ class Transaction {
     required this.eulenTransactions,
     required this.noxTransactions,
     required this.boltzTransactions,
+    required this.sideShiftTransactions,
   });
 
   Transaction copyWith({
@@ -132,6 +146,7 @@ class Transaction {
     List<EulenTransaction>? eulenTransactions,
     List<NoxTransaction>? noxTransactions,
     List<BoltzTransaction>? boltzTransactions,
+    List<SideShiftTransaction>? sideShiftTransactions,
   }) {
     return Transaction(
       bitcoinTransactions: bitcoinTransactions ?? this.bitcoinTransactions,
@@ -141,6 +156,7 @@ class Transaction {
       eulenTransactions: eulenTransactions ?? this.eulenTransactions,
       noxTransactions: noxTransactions ?? this.noxTransactions,
       boltzTransactions: boltzTransactions ?? this.boltzTransactions,
+      sideShiftTransactions: sideShiftTransactions ?? this.sideShiftTransactions,
     );
   }
 
@@ -153,6 +169,7 @@ class Transaction {
       ...eulenTransactions,
       ...noxTransactions,
       ...boltzTransactions,
+      ...sideShiftTransactions,
     ];
   }
 
@@ -210,6 +227,7 @@ class Transaction {
     swaps.addAll(sideswapPegTransactions);
     swaps.addAll(liquidTransactions.where((tx) => tx.lwkDetails.kind == 'unknown'));
     swaps.addAll(boltzTransactions);
+    swaps.addAll(sideShiftTransactions); // Include SideShift in swaps if applicable
     swaps.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return swaps;
   }
@@ -256,6 +274,7 @@ class Transaction {
       eulenTransactions: [],
       noxTransactions: [],
       boltzTransactions: [],
+      sideShiftTransactions: [],
     );
   }
 }

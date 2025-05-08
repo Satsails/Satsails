@@ -126,7 +126,7 @@ class _EulenTransactionDetailsState extends ConsumerState<EulenTransactionDetail
           ),
         ),
         Text(
-          statusText.capitalize(),
+          statusText.capitalize().i18n,
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.bold,

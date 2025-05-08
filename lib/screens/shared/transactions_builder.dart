@@ -257,8 +257,8 @@ class TransactionList extends ConsumerWidget {
   }
 }
 
-Widget _buildUnifiedTransactionItem(
-    dynamic transaction, BuildContext context, WidgetRef ref) {
+Widget _buildUnifiedTransactionItem(dynamic transaction, BuildContext context, WidgetRef ref) {
+
   Widget transactionItem;
   if (transaction is SideswapPegTransaction) {
     transactionItem = _buildSideswapPegTransactionItem(transaction, context, ref);
@@ -270,10 +270,157 @@ Widget _buildUnifiedTransactionItem(
     transactionItem = _buildEulenTransactionItem(transaction, context, ref);
   } else if (transaction is NoxTransaction) {
     transactionItem = _buildNoxTransactionItem(transaction, context, ref);
+  } else if (transaction is SideShiftTransaction) {
+    transactionItem = _buildSideshiftTransactionItem(transaction, context, ref);
   } else {
-    transactionItem = const SizedBox();
+    transactionItem = const SizedBox.shrink();
   }
   return transactionItem;
+}
+
+Widget _buildSideshiftTransactionItem(
+    SideShiftTransaction transaction,
+    BuildContext context,
+    WidgetRef ref,
+    ) {
+  final details = transaction.details;
+
+  // Determine if the transaction is confirmed or pending
+  final isConfirmed = details.status == "settled" || details.status == "expired";
+  final isPending = !isConfirmed && details.status != "failed" && details.status != "expired";
+
+  // Map the status to a user-friendly text
+  String statusText;
+  switch (details.status) {
+    case 'waiting':
+      statusText = 'Waiting for deposit'.i18n;
+      break;
+    case 'pending':
+      statusText = 'Detected'.i18n;
+      break;
+    case 'processing':
+      statusText = 'Confirmed'.i18n;
+      break;
+    case 'review':
+      statusText = 'Under human review'.i18n;
+      break;
+    case 'settling':
+      statusText = 'Settlement in progress'.i18n;
+      break;
+    case 'settled':
+      statusText = 'Settlement completed'.i18n;
+      break;
+    case 'refund':
+      statusText = 'Queued for refund'.i18n;
+      break;
+    case 'refunding':
+      statusText = 'Refund in progress'.i18n;
+      break;
+    case 'refunded':
+      statusText = 'Refund completed'.i18n;
+      break;
+    case 'expired':
+      statusText = 'Shift expired'.i18n;
+      break;
+    case 'multiple':
+      statusText = 'Multiple deposits detected'.i18n;
+      break;
+    default:
+      statusText = 'Unknown'.i18n;
+      break;
+  }
+
+  // Transaction title showing the shift direction
+  final title = "Shift to ${details.settleCoin} on ${details.settleNetwork}".i18n;
+
+  // Format the transaction date
+  final formattedDate = DateFormat('d, MMMM, HH:mm').format(transaction.timestamp);
+
+  return GestureDetector(
+    onTap: () {
+      context.pushNamed('sideshiftTransactionDetails', extra: transaction);
+    },
+    behavior: HitTestBehavior.opaque,
+    child: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Transaction type icon with optional progress indicator
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  sideshiftTransactionTypeIcon(),
+                  if (isPending)
+                    SizedBox(
+                      width: 40.w,
+                      height: 40.w,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                        backgroundColor: Colors.transparent,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          formattedDate,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                        Text(
+                          statusText,
+                          style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Colors.grey[400],
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    if (isConfirmed)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "${details.settleAmount} ${details.settleCoin}",
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 Widget _buildSideswapPegTransactionItem(
@@ -362,20 +509,17 @@ Widget _buildEulenTransactionItem(
     WidgetRef ref,
     ) {
   final isConfirmed = transaction.isConfirmed || transaction.details.status == "expired";
+  final isPending = !isConfirmed && !transaction.details.failed && transaction.details.status != "expired";
   final statusText = transaction.details.failed
       ? "Failed".i18n
       : transaction.details.completed
       ? "Completed".i18n
       : "Pending".i18n;
-  final status = transaction.details.status;
 
   final type = transaction.details.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
   final title = "${transaction.details.to_currency} $type";
   final amount = transaction.details.receivedAmount.toString();
   final formattedDate = DateFormat('d, MMMM, HH:mm').format(transaction.timestamp);
-
-  // Check if the transaction is failed or expired
-  final isFailedOrExpired = status == "failed" || status == "expired";
 
   return GestureDetector(
     onTap: () {
@@ -388,22 +532,26 @@ Widget _buildEulenTransactionItem(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Show progress indicator only if transaction is pending (not failed or expired)
-          if (!isConfirmed && !isFailedOrExpired)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: LinearProgressIndicator(
-                backgroundColor: Colors.grey[800],
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-                minHeight: 4,
-              ),
-            ),
-          // Main content
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Transaction type icon
-              eulenTransactionTypeIcon(),
+              // Transaction type icon with optional progress indicator
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  eulenTransactionTypeIcon(),
+                  if (isPending)
+                    SizedBox(
+                      width: 40.w,
+                      height: 40.w,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                        backgroundColor: Colors.transparent,
+                      ),
+                    ),
+                ],
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Row(
@@ -415,7 +563,7 @@ Widget _buildEulenTransactionItem(
                         Text(
                           title,
                           style: TextStyle(
-                            fontSize: 16.sp, // Consistent with Bitcoin item
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -437,7 +585,7 @@ Widget _buildEulenTransactionItem(
                         ),
                       ],
                     ),
-                    if (transaction.isConfirmed)
+                    if (isConfirmed)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
@@ -475,20 +623,17 @@ Widget _buildNoxTransactionItem(
     WidgetRef ref,
     ) {
   final isConfirmed = transaction.isConfirmed || transaction.details.status == "expired";
+  final isPending = !isConfirmed && !transaction.details.failed && transaction.details.status != "expired";
   final statusText = transaction.details.failed
       ? "Failed".i18n
       : transaction.details.completed
       ? "Completed".i18n
       : "Pending".i18n;
-  final status = transaction.details.status;
 
   final type = transaction.details.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
   final title = "${transaction.details.to_currency} $type";
   final amount = transaction.details.receivedAmount.toString();
   final formattedDate = DateFormat('d, MMMM, HH:mm').format(transaction.timestamp);
-
-  // Check if the transaction is failed or expired
-  final isFailedOrExpired = status == "failed" || status == "expired";
 
   return GestureDetector(
     onTap: () {
@@ -501,22 +646,26 @@ Widget _buildNoxTransactionItem(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Show progress indicator only if transaction is pending (not failed or expired)
-          if (!isConfirmed && !isFailedOrExpired)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: LinearProgressIndicator(
-                backgroundColor: Colors.grey[800],
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-                minHeight: 4,
-              ),
-            ),
-          // Main content
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Transaction type icon
-              eulenTransactionTypeIcon(),
+              // Transaction type icon with optional progress indicator
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  eulenTransactionTypeIcon(), // Note: Assuming Nox uses same icon as Eulen; adjust if different
+                  if (isPending)
+                    SizedBox(
+                      width: 40.w,
+                      height: 40.w,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                        backgroundColor: Colors.transparent,
+                      ),
+                    ),
+                ],
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Row(
@@ -528,7 +677,7 @@ Widget _buildNoxTransactionItem(
                         Text(
                           title,
                           style: TextStyle(
-                            fontSize: 16.sp, // Consistent with Bitcoin item
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -550,7 +699,7 @@ Widget _buildNoxTransactionItem(
                         ),
                       ],
                     ),
-                    if (transaction.isConfirmed)
+                    if (isConfirmed)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
@@ -586,6 +735,7 @@ Widget _buildBitcoinTransactionItem(
     BitcoinTransaction transaction, BuildContext context, WidgetRef ref) {
   // Determine if the transaction is confirmed
   final isConfirmed = transaction.btcDetails.confirmationTime != null;
+  final isPending = !isConfirmed;
 
   // Format the transaction date
   final timestamp = transaction.btcDetails.confirmationTime?.timestamp != null
@@ -598,29 +748,33 @@ Widget _buildBitcoinTransactionItem(
     onTap: () {
       context.pushNamed('transactionDetails', extra: transaction);
     },
-    behavior: HitTestBehavior.opaque, // Makes the entire area tappable
+    behavior: HitTestBehavior.opaque,
     child: Padding(
-      padding: const EdgeInsets.all(12.0), // Consistent padding
+      padding: const EdgeInsets.all(12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Progress indicator for unconfirmed transactions
-          if (!isConfirmed)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: LinearProgressIndicator(
-                backgroundColor: Colors.grey[800],
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-                minHeight: 4,
-              ),
-            ),
-          // Main content
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Transaction type icon
-              transactionTypeIcon(transaction.btcDetails),
-              const SizedBox(width: 12), // Consistent spacing after icon
+              // Transaction type icon with optional progress indicator
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  transactionTypeIcon(transaction.btcDetails),
+                  if (isPending)
+                    SizedBox(
+                      width: 40.w,
+                      height: 40.w,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                        backgroundColor: Colors.transparent,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -631,7 +785,7 @@ Widget _buildBitcoinTransactionItem(
                         Text(
                           "Bitcoin",
                           style: TextStyle(
-                            fontSize: 16.sp, // Matches tickerDisplay
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -639,20 +793,19 @@ Widget _buildBitcoinTransactionItem(
                         Text(
                           formattedDate,
                           style: TextStyle(
-                            fontSize: 14.sp, // Matches date
-                            color: Colors.grey[400], // Lighter color
+                            fontSize: 14.sp,
+                            color: Colors.grey[400],
                           ),
                         ),
                       ],
                     ),
-                    // Transaction amount and fiat value on the right
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           transactionAmount(transaction.btcDetails, ref),
                           style: TextStyle(
-                            fontSize: 14.sp, // Matches balance values
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -660,7 +813,7 @@ Widget _buildBitcoinTransactionItem(
                         Text(
                           transactionAmountInFiat(transaction.btcDetails, ref),
                           style: TextStyle(
-                            fontSize: 12.sp, // Matches fiat value
+                            fontSize: 12.sp,
                             color: Colors.grey[400],
                           ),
                         ),
@@ -680,6 +833,7 @@ Widget _buildBitcoinTransactionItem(
 Widget _buildLiquidTransactionItem(
     LiquidTransaction transaction, BuildContext context, WidgetRef ref) {
   final isConfirmed = transaction.lwkDetails.timestamp != null;
+  final isPending = !isConfirmed;
 
   // Format the transaction date
   final timestamp = transaction.lwkDetails.timestamp != null
@@ -728,20 +882,26 @@ Widget _buildLiquidTransactionItem(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Show progress indicator for unconfirmed transactions
-          if (!isConfirmed)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: LinearProgressIndicator(
-                backgroundColor: Colors.grey[800],
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-                minHeight: 4,
-              ),
-            ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              transactionTypeLiquidIcon(transaction.lwkDetails.kind),
+              // Transaction type icon with optional progress indicator
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  transactionTypeLiquidIcon(transaction.lwkDetails.kind),
+                  if (isPending)
+                    SizedBox(
+                      width: 40.w,
+                      height: 40.w,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                        backgroundColor: Colors.transparent,
+                      ),
+                    ),
+                ],
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -766,7 +926,6 @@ Widget _buildLiquidTransactionItem(
                   ],
                 ),
               ),
-              // Display filtered balances
               if (balancesToShow.isNotEmpty)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,

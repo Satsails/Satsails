@@ -5,6 +5,7 @@ import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
+import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
@@ -70,6 +71,7 @@ Future<void> main() async {
   Hive.registerAdapter(CoinosPaymentAdapter());
   Hive.registerAdapter(EulenTransferAdapter());
   Hive.registerAdapter(NoxTransferAdapter());
+  Hive.registerAdapter(SideShiftAdapter());
 
   await LibLwk.init();
   await BoltzCore.init();

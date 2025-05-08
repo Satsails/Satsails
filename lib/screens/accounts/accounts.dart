@@ -16,6 +16,7 @@ import 'package:go_router/go_router.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:Satsails/providers/sideshift_provider.dart';
 
 class Accounts extends ConsumerStatefulWidget {
   const Accounts({super.key});
@@ -25,6 +26,19 @@ class Accounts extends ConsumerStatefulWidget {
 }
 
 class _AccountsState extends ConsumerState<Accounts> {
+  final Map<ShiftPair, Map<String, String>> _logoMap = {
+    ShiftPair.usdcEthToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/eth.svg'},
+    ShiftPair.usdcSolToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/sol.svg'},
+    ShiftPair.usdcPolygonToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/pol.svg'},
+    ShiftPair.usdtEthToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/eth.svg'},
+    ShiftPair.usdtTronToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/trx.svg'},
+    ShiftPair.usdtSolToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/sol.svg'},
+    ShiftPair.usdtPolygonToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/pol.svg'},
+    ShiftPair.ethToLiquidBtc: {'coin': 'lib/assets/eth.svg', 'network': 'lib/assets/eth.svg'},
+    ShiftPair.bnbToLiquidBtc: {'coin': 'lib/assets/bnb.svg', 'network': 'lib/assets/bsc.svg'},
+    ShiftPair.solToLiquidBtc: {'coin': 'lib/assets/sol.svg', 'network': 'lib/assets/sol.svg'},
+  };
+
   @override
   Widget build(BuildContext context) {
     final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
@@ -207,6 +221,26 @@ class _AccountsState extends ConsumerState<Accounts> {
                                 ),
                               ],
                             ),
+                            SizedBox(height: 24.h),
+                            _buildNonNativeAssetsHeader(),
+                            SizedBox(height: 12.h),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 16.w,
+                              runSpacing: 16.h,
+                              children: [
+                                _buildAssetCard(context, ref, ShiftPair.usdcEthToLiquidUsdt, 'ETH USDC'),
+                                _buildAssetCard(context, ref, ShiftPair.usdcSolToLiquidUsdt, 'SOL USDC'),
+                                _buildAssetCard(context, ref, ShiftPair.usdcPolygonToLiquidUsdt, 'POL USDC'),
+                                _buildAssetCard(context, ref, ShiftPair.usdtEthToLiquidUsdt, 'ETH USDT'),
+                                _buildAssetCard(context, ref, ShiftPair.usdtTronToLiquidUsdt, 'TRX USDT'),
+                                _buildAssetCard(context, ref, ShiftPair.usdtSolToLiquidUsdt, 'SOL USDT'),
+                                _buildAssetCard(context, ref, ShiftPair.usdtPolygonToLiquidUsdt, 'POL USDT'),
+                                _buildAssetCard(context, ref, ShiftPair.ethToLiquidBtc, 'ETH'),
+                                _buildAssetCard(context, ref, ShiftPair.bnbToLiquidBtc, 'BNB'),
+                                _buildAssetCard(context, ref, ShiftPair.solToLiquidBtc, 'SOL'),
+                              ],
+                            ),
                             SizedBox(height: 100.sp),
                           ],
                         ),
@@ -228,7 +262,28 @@ class _AccountsState extends ConsumerState<Accounts> {
       children: [
         _buildNetworkLogo(logoPath, color),
         SizedBox(height: 6.h),
-        Container(width: 60.w, height: 3.h, color: Colors.orange),
+      ],
+    );
+  }
+
+  Widget _buildNonNativeAssetsHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Image.asset(
+          'lib/assets/sideshift.png',
+          width: 140.sp,
+        ),
+        SizedBox(height: 6.sp),
+        Text(
+          'Non-Native Assets',
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 12.sp),
       ],
     );
   }
@@ -423,6 +478,113 @@ class _AccountsState extends ConsumerState<Accounts> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAssetCard(
+      BuildContext context,
+      WidgetRef ref,
+      ShiftPair pair,
+      String assetName,
+      ) {
+    final logos = _logoMap[pair];
+    final List<ShiftPair> singleLogoPairs = [
+      ShiftPair.ethToLiquidBtc,
+      ShiftPair.bnbToLiquidBtc,
+      ShiftPair.solToLiquidBtc,
+    ];
+    final List<ShiftPair> usdtShiftPairs = [
+      ShiftPair.usdcEthToLiquidUsdt,
+      ShiftPair.usdcSolToLiquidUsdt,
+      ShiftPair.usdcPolygonToLiquidUsdt,
+      ShiftPair.usdtEthToLiquidUsdt,
+      ShiftPair.usdtPolygonToLiquidUsdt,
+      ShiftPair.usdtTronToLiquidUsdt,
+      ShiftPair.usdtSolToLiquidUsdt,
+    ];
+
+    final Map<ShiftPair, String> displayNames = {
+      ShiftPair.ethToLiquidBtc: 'Ethereum',
+      ShiftPair.bnbToLiquidBtc: 'Binance Coin',
+      ShiftPair.solToLiquidBtc: 'Solana',
+      ShiftPair.usdcEthToLiquidUsdt: 'USDC (Ethereum)',
+      ShiftPair.usdcSolToLiquidUsdt: 'USDC (Solana)',
+      ShiftPair.usdcPolygonToLiquidUsdt: 'USDC (Polygon)',
+      ShiftPair.usdtEthToLiquidUsdt: 'USDT (Ethereum)',
+      ShiftPair.usdtPolygonToLiquidUsdt: 'USDT (Polygon)',
+      ShiftPair.usdtTronToLiquidUsdt: 'USDT (Tron)',
+      ShiftPair.usdtSolToLiquidUsdt: 'USDT (Solana)',
+    };
+
+    final double fontSize = usdtShiftPairs.contains(pair) ? 16.sp : 18.sp;
+
+    return Container(
+      width: 190.sp,
+      height: 200.sp,
+      decoration: BoxDecoration(
+        color: const Color(0x333333).withOpacity(0.4),
+        borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(18.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (logos != null && logos.containsKey('coin'))
+                  SvgPicture.asset(logos['coin']!, width: 32.sp, height: 32.sp),
+                if (!singleLogoPairs.contains(pair) && logos != null && logos.containsKey('network'))
+                  Padding(
+                    padding: EdgeInsets.only(left: 5.w),
+                    child: SvgPicture.asset(logos['network']!, width: 32.sp, height: 32.sp),
+                  ),
+              ],
+            ),
+            Text(
+              displayNames[pair] ?? assetName,
+              style: TextStyle(fontSize: fontSize, color: Colors.white, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    ref.read(selectedNetworkTypeProvider.notifier).state = 'SideShift';
+                    ref.read(selectedShiftPairProvider.notifier).state = pair;
+                    context.push('/home/receive');
+                  },
+                  icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.sp),
+                  splashRadius: 28.w,
+                  tooltip: 'Receive',
+                ),
+                if (usdtShiftPairs.contains(pair))
+                  IconButton(
+                    onPressed: () {
+                      ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
+                      context.push('/home/pay', extra: 'liquid_asset');
+                    },
+                    icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.sp),
+                    splashRadius: 28.w,
+                    tooltip: 'Send',
+                  ),
+              ],
+            ),
+          ],
         ),
       ),
     );

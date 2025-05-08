@@ -15,6 +15,7 @@ import 'package:Satsails/screens/pay/components/confirm_spark_bitcoin_payment.da
 import 'package:Satsails/screens/pay/components/confirm_liquid_asset_payment.dart';
 import 'package:Satsails/screens/shared/affiliate_screen.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
+import 'package:Satsails/screens/shared/sideshift_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
 import 'package:Satsails/screens/transactions/transactions.dart';
 import 'package:go_router/go_router.dart';
@@ -144,6 +145,17 @@ class AppRouter {
             final transaction = state.extra as LiquidTransaction;
             return _buildFadeScalePage(
               child: LiquidTransactionDetailsScreen(transaction: transaction),
+              state: state,
+            );
+          },
+        ),
+        GoRoute(
+          path: '/sideshift-transaction-details',
+          name: 'sideshiftTransactionDetails',
+          pageBuilder: (context, state) {
+            final transaction = state.extra as SideShiftTransaction;
+            return _buildFadeScalePage(
+              child: SideShiftTransactionDetailsScreen(transaction: transaction),
               state: state,
             );
           },

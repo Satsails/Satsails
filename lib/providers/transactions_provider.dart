@@ -6,8 +6,7 @@ import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
-
-
+import 'package:Satsails/providers/sideshift_provider.dart'; // Assuming this exists for SideShift
 
 final transactionNotifierProvider = StateNotifierProvider<TransactionModel, Transaction>((ref) {
   return TransactionModel();
@@ -88,6 +87,16 @@ Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
     );
   }).toList();
 
+  final sideShiftShifts = ref.watch(sideShiftShiftsProvider); // Assuming this provider exists
+  final sideShiftTransactions = sideShiftShifts.map((shift) {
+    return SideShiftTransaction(
+      id: shift.id,
+      timestamp: DateTime.fromMillisecondsSinceEpoch(shift.timestamp * 1000),
+      details: shift,
+      isConfirmed: shift.status == 'settled', // Adjust based on actual status field
+    );
+  }).toList();
+
   final transactionNotifier = ref.read(transactionNotifierProvider.notifier);
   transactionNotifier.updateTransactions(
     Transaction(
@@ -98,6 +107,7 @@ Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
       eulenTransactions: eulenTransactions,
       noxTransactions: noxTransactions,
       boltzTransactions: boltzTransactions,
+      sideShiftTransactions: sideShiftTransactions,
     ),
   );
 }

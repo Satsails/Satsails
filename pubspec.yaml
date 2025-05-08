@@ -125,6 +125,13 @@ flutter:
     - lib/assets/Bitcoin_lightning_logo.png
     - lib/assets/bip39_english.txt
     - .env
+    - lib/assets/usdt.svg
+    - lib/assets/usdc.svg
+    - lib/assets/trx.svg
+    - lib/assets/bnb.svg
+    - lib/assets/sol.svg
+    - lib/assets/eth.svg
+    - lib/assets/pol.svg
 
 flutter_launcher_icons:
   android: true

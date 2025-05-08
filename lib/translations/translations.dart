@@ -2638,7 +2638,57 @@ extension Localization on String {
       {
         'en': 'Lightning Migration Warning',
         'pt': 'Aviso de Migração Lightning',
+      } +
+      {
+        'en': 'Some limitations on purchases due to free nature of depix compared to other assets',
+        'pt': 'Algumas limitações em compras por causa da natureza livre de depix comparada a outros ativos',
+      } +{
+    'en': 'Transaction Type',
+    'pt': 'Tipo de Transação',
+  } +
+      {
+        'en': 'Value purchased in',
+        'pt': 'Valor comprado em',
+      } +
+      {
+        'en': 'Fee Percentage',
+        'pt': 'Porcentagem da Taxa',
+      } +
+      {
+        'en': 'ID',
+        'pt': 'ID',
+      } +
+      {
+        'en': 'Depix Sent',
+        'pt': 'Depix Enviado',
+      } +
+      {
+        'en': 'Under review',
+        'pt': 'Em revisão',
+      } +{
+      'en': 'BUY',
+      'pt': 'COMPRAR',
+     } +
+      {
+        'en': 'From',
+        'pt': 'De',
+      } +
+      {
+        'en': 'To',
+        'pt': 'Para',
+      } +
+      {
+        'en': 'Payment Method',
+        'pt': 'Método de Pagamento',
+      } +
+      {
+        'en': 'Provider',
+        'pt': 'Provedor',
+      } +
+      {
+        'en': 'Pending',
+        'pt': 'Pendente',
       };
 
-      String get i18n => localize(this, _t);
+  String get i18n => localize(this, _t);
 }
