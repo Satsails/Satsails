@@ -1,9 +1,333 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:Satsails/handlers/response_handlers.dart';
 
 part 'sideshift_model.g.dart';
+
+
+class RefundAddressParams {
+  final String shiftId;
+  final String refundAddress;
+
+  RefundAddressParams({required this.shiftId, required this.refundAddress});
+}
+
+enum ShiftPair {
+  // Receiving on Liquid
+  usdtTronToLiquidUsdt,
+  usdtBscToLiquidUsdt,
+  usdtEthToLiquidUsdt,
+  usdtSolToLiquidUsdt,
+  usdtPolygonToLiquidUsdt,
+  usdcEthToLiquidUsdt,
+  usdcTronToLiquidUsdt,
+  usdcBscToLiquidUsdt,
+  usdcSolToLiquidUsdt,
+  usdcPolygonToLiquidUsdt,
+  ethToLiquidBtc,
+  trxToLiquidBtc,
+  bnbToLiquidBtc,
+  solToLiquidBtc,
+  // Sending from Liquid
+  liquidUsdtToUsdtTron,
+  liquidUsdtToUsdtBsc,
+  liquidUsdtToUsdtEth,
+  liquidUsdtToUsdtSol,
+  liquidUsdtToUsdtPolygon,
+  liquidUsdtToUsdcEth,
+  liquidUsdtToUsdcTron,
+  liquidUsdtToUsdcBsc,
+  liquidUsdtToUsdcSol,
+  liquidUsdtToUsdcPolygon,
+}
+
+final shiftParamsMap = {
+  // Receiving on Liquid
+  ShiftPair.usdtTronToLiquidUsdt: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDT',
+    depositNetwork: 'tron',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdtBscToLiquidUsdt: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDT',
+    depositNetwork: 'bsc',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdtEthToLiquidUsdt: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDT',
+    depositNetwork: 'ethereum',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdtSolToLiquidUsdt: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDT',
+    depositNetwork: 'solana',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdtPolygonToLiquidUsdt: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDT',
+    depositNetwork: 'polygon',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdcEthToLiquidUsdt: ShiftParams(
+    depositCoin: 'USDC',
+    settleCoin: 'USDT',
+    depositNetwork: 'ethereum',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdcTronToLiquidUsdt: ShiftParams(
+    depositCoin: 'USDC',
+    settleCoin: 'USDT',
+    depositNetwork: 'tron',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdcBscToLiquidUsdt: ShiftParams(
+    depositCoin: 'USDC',
+    settleCoin: 'USDT',
+    depositNetwork: 'bsc',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdcSolToLiquidUsdt: ShiftParams(
+    depositCoin: 'USDC',
+    settleCoin: 'USDT',
+    depositNetwork: 'solana',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdcPolygonToLiquidUsdt: ShiftParams(
+    depositCoin: 'USDC',
+    settleCoin: 'USDT',
+    depositNetwork: 'polygon',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.ethToLiquidBtc: ShiftParams(
+    depositCoin: 'ETH',
+    settleCoin: 'BTC',
+    depositNetwork: 'ethereum',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.trxToLiquidBtc: ShiftParams(
+    depositCoin: 'TRX',
+    settleCoin: 'BTC',
+    depositNetwork: 'tron',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.bnbToLiquidBtc: ShiftParams(
+    depositCoin: 'BNB',
+    settleCoin: 'BTC',
+    depositNetwork: 'bsc',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.solToLiquidBtc: ShiftParams(
+    depositCoin: 'SOL',
+    settleCoin: 'BTC',
+    depositNetwork: 'solana',
+    settleNetwork: 'liquid',
+  ),
+  // Sending from Liquid
+  ShiftPair.liquidUsdtToUsdtTron: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDT',
+    depositNetwork: 'liquid',
+    settleNetwork: 'tron',
+  ),
+  ShiftPair.liquidUsdtToUsdtBsc: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDT',
+    depositNetwork: 'liquid',
+    settleNetwork: 'bsc',
+  ),
+  ShiftPair.liquidUsdtToUsdtEth: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDT',
+    depositNetwork: 'liquid',
+    settleNetwork: 'ethereum',
+  ),
+  ShiftPair.liquidUsdtToUsdtSol: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDT',
+    depositNetwork: 'liquid',
+    settleNetwork: 'solana',
+  ),
+  ShiftPair.liquidUsdtToUsdtPolygon: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDT',
+    depositNetwork: 'liquid',
+    settleNetwork: 'polygon',
+  ),
+  ShiftPair.liquidUsdtToUsdcEth: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDC',
+    depositNetwork: 'liquid',
+    settleNetwork: 'ethereum',
+  ),
+  ShiftPair.liquidUsdtToUsdcTron: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDC',
+    depositNetwork: 'liquid',
+    settleNetwork: 'tron',
+  ),
+  ShiftPair.liquidUsdtToUsdcBsc: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDC',
+    depositNetwork: 'liquid',
+    settleNetwork: 'bsc',
+  ),
+  ShiftPair.liquidUsdtToUsdcSol: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDC',
+    depositNetwork: 'liquid',
+    settleNetwork: 'solana',
+  ),
+  ShiftPair.liquidUsdtToUsdcPolygon: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'USDC',
+    depositNetwork: 'liquid',
+    settleNetwork: 'polygon',
+  ),
+};
+
+
+
+class ShiftParams {
+  final String depositCoin;
+  final String settleCoin;
+  final String depositNetwork;
+  final String settleNetwork;
+
+  ShiftParams({
+    required this.depositCoin,
+    required this.settleCoin,
+    required this.depositNetwork,
+    required this.settleNetwork,
+  });
+}
+
+class SideShiftShiftsNotifier extends StateNotifier<List<SideShift>> {
+  SideShiftShiftsNotifier() : super([]) {
+    _loadShifts();
+  }
+
+  SideShift getShiftById(String id) {
+    return state.firstWhere((shift) => shift.id == id, orElse: () => throw 'Shift not found');
+  }
+
+  Future<void> _loadShifts() async {
+    final box = await Hive.openBox<SideShift>('sideShiftShifts');
+    box.watch().listen((event) => _updateShifts());
+    _updateShifts();
+  }
+
+  void _updateShifts() {
+    final box = Hive.box<SideShift>('sideShiftShifts');
+    final shifts = box.values.toList();
+    shifts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    state = shifts;
+  }
+
+  Future<void> addShift(SideShift shift) async {
+    final box = Hive.box<SideShift>('sideShiftShifts');
+    await box.put(shift.id, shift);
+    _updateShifts();
+  }
+
+  Future<void> updateShift(SideShift updatedShift) async {
+    final box = Hive.box<SideShift>('sideShiftShifts');
+    await box.put(updatedShift.id, updatedShift);
+    _updateShifts();
+  }
+
+  Future<void> deleteShift(String id) async {
+    final box = Hive.box<SideShift>('sideShiftShifts');
+    await box.delete(id);
+    _updateShifts();
+  }
+
+  Future<void> mergeShift(SideShift serverData) async {
+    final box = Hive.box<SideShift>('sideShiftShifts');
+    final existingShift = box.get(serverData.id);
+
+    if (existingShift == null) {
+      await box.put(serverData.id, serverData);
+      _updateShifts();
+      return;
+    }
+
+    final updatedShift = existingShift.copyWith(
+      depositCoin: serverData.depositCoin ?? existingShift.depositCoin,
+      depositNetwork: serverData.depositNetwork ?? existingShift.depositNetwork,
+      settleCoin: serverData.settleCoin ?? existingShift.settleCoin,
+      settleNetwork: serverData.settleNetwork ?? existingShift.settleNetwork,
+      depositAddress: serverData.depositAddress ?? existingShift.depositAddress,
+      depositMemo: serverData.depositMemo ?? existingShift.depositMemo,
+      depositAmount: serverData.depositAmount ?? existingShift.depositAmount,
+      settleAmount: serverData.settleAmount ?? existingShift.settleAmount,
+      status: serverData.status ?? existingShift.status,
+      timestamp: serverData.timestamp ?? existingShift.timestamp,
+      settleAddress: serverData.settleAddress ?? existingShift.settleAddress,
+      depositMin: serverData.depositMin ?? existingShift.depositMin,
+      depositMax: serverData.depositMax ?? existingShift.depositMax,
+      type: serverData.type ?? existingShift.type,
+      expiresAt: serverData.expiresAt ?? existingShift.expiresAt,
+      averageShiftSeconds: serverData.averageShiftSeconds ?? existingShift.averageShiftSeconds,
+      settleCoinNetworkFee: serverData.settleCoinNetworkFee ?? existingShift.settleCoinNetworkFee,
+      networkFeeUsd: serverData.networkFeeUsd ?? existingShift.networkFeeUsd,
+      settleMemo: serverData.settleMemo ?? existingShift.settleMemo,
+      refundAddress: serverData.refundAddress ?? existingShift.refundAddress,
+      refundMemo: serverData.refundMemo ?? existingShift.refundMemo,
+    );
+
+    if (existingShift == updatedShift) {
+      return;
+    }
+
+    await box.put(serverData.id, updatedShift);
+    _updateShifts();
+  }
+
+  Future<void> mergeShifts(List<SideShift> serverDatas) async {
+    final box = Hive.box<SideShift>('sideShiftShifts');
+
+    for (final serverData in serverDatas) {
+      final existingShift = box.get(serverData.id);
+
+      final updatedShift = existingShift?.copyWith(
+        depositCoin: serverData.depositCoin ?? existingShift.depositCoin,
+        depositNetwork: serverData.depositNetwork ?? existingShift.depositNetwork,
+        settleCoin: serverData.settleCoin ?? existingShift.settleCoin,
+        settleNetwork: serverData.settleNetwork ?? existingShift.settleNetwork,
+        depositAddress: serverData.depositAddress ?? existingShift.depositAddress,
+        depositMemo: serverData.depositMemo ?? existingShift.depositMemo,
+        depositAmount: serverData.depositAmount ?? existingShift.depositAmount,
+        settleAmount: serverData.settleAmount ?? existingShift.settleAmount,
+        status: serverData.status ?? existingShift.status,
+        timestamp: serverData.timestamp ?? existingShift.timestamp,
+        settleAddress: serverData.settleAddress ?? existingShift.settleAddress,
+        depositMin: serverData.depositMin ?? existingShift.depositMin,
+        depositMax: serverData.depositMax ?? existingShift.depositMax,
+        type: serverData.type ?? existingShift.type,
+        expiresAt: serverData.expiresAt ?? existingShift.expiresAt,
+        averageShiftSeconds: serverData.averageShiftSeconds ?? existingShift.averageShiftSeconds,
+        settleCoinNetworkFee: serverData.settleCoinNetworkFee ?? existingShift.settleCoinNetworkFee,
+        networkFeeUsd: serverData.networkFeeUsd ?? existingShift.networkFeeUsd,
+        settleMemo: serverData.settleMemo ?? existingShift.settleMemo,
+        refundAddress: serverData.refundAddress ?? existingShift.refundAddress,
+        refundMemo: serverData.refundMemo ?? existingShift.refundMemo,
+      ) ?? serverData;
+
+      if (existingShift == null || existingShift != updatedShift) {
+        await box.put(serverData.id, updatedShift);
+      }
+    }
+
+    _updateShifts();
+  }
+}
 
 class SideShiftShiftRequest {
   final String settleAddress;
@@ -43,6 +367,7 @@ class SideShiftShiftRequest {
     if (externalId != null) 'externalId': externalId,
   };
 
+  // Factories for receiving on Liquid
   factory SideShiftShiftRequest.usdtToLiquidUsdt({
     required String settleAddress,
     required String refundAddress,
@@ -94,6 +419,137 @@ class SideShiftShiftRequest {
       affiliateId: affiliateId,
     );
   }
+
+  // Factories for sending from Liquid
+  factory SideShiftShiftRequest.liquidUsdtToUsdt({
+    required String settleAddress,
+    required String refundAddress,
+    required String settleNetwork,
+    required String affiliateId,
+  }) {
+    return SideShiftShiftRequest(
+      settleAddress: settleAddress,
+      refundAddress: refundAddress,
+      depositCoin: 'USDT',
+      settleCoin: 'USDT',
+      depositNetwork: 'liquid',
+      settleNetwork: settleNetwork,
+      affiliateId: affiliateId,
+    );
+  }
+
+  factory SideShiftShiftRequest.liquidUsdtToUsdc({
+    required String settleAddress,
+    required String refundAddress,
+    required String settleNetwork,
+    required String affiliateId,
+  }) {
+    return SideShiftShiftRequest(
+      settleAddress: settleAddress,
+      refundAddress: refundAddress,
+      depositCoin: 'USDT',
+      settleCoin: 'USDC',
+      depositNetwork: 'liquid',
+      settleNetwork: settleNetwork,
+      affiliateId: affiliateId,
+    );
+  }
+
+  factory SideShiftShiftRequest.liquidUsdtToUsdtBsc({
+    required String settleAddress,
+    required String refundAddress,
+    required String affiliateId,
+  }) {
+    return SideShiftShiftRequest(
+      settleAddress: settleAddress,
+      refundAddress: refundAddress,
+      depositCoin: 'USDT',
+      settleCoin: 'USDT',
+      depositNetwork: 'liquid',
+      settleNetwork: 'bsc',
+      affiliateId: affiliateId,
+    );
+  }
+
+  factory SideShiftShiftRequest.liquidUsdtToUsdtEth({
+    required String settleAddress,
+    required String refundAddress,
+    required String affiliateId,
+  }) {
+    return SideShiftShiftRequest(
+      settleAddress: settleAddress,
+      refundAddress: refundAddress,
+      depositCoin: 'USDT',
+      settleCoin: 'USDT',
+      depositNetwork: 'liquid',
+      settleNetwork: 'ethereum',
+      affiliateId: affiliateId,
+    );
+  }
+
+  factory SideShiftShiftRequest.liquidUsdtToUsdtSol({
+    required String settleAddress,
+    required String refundAddress,
+    required String affiliateId,
+  }) {
+    return SideShiftShiftRequest(
+      settleAddress: settleAddress,
+      refundAddress: refundAddress,
+      depositCoin: 'USDT',
+      settleCoin: 'USDT',
+      depositNetwork: 'liquid',
+      settleNetwork: 'solana',
+      affiliateId: affiliateId,
+    );
+  }
+
+  factory SideShiftShiftRequest.liquidUsdtToUsdtPolygon({
+    required String settleAddress,
+    required String refundAddress,
+    required String affiliateId,
+  }) {
+    return SideShiftShiftRequest(
+      settleAddress: settleAddress,
+      refundAddress: refundAddress,
+      depositCoin: 'USDT',
+      settleCoin: 'USDT',
+      depositNetwork: 'liquid',
+      settleNetwork: 'polygon',
+      affiliateId: affiliateId,
+    );
+  }
+
+  factory SideShiftShiftRequest.liquidUsdtToUsdcEth({
+    required String settleAddress,
+    required String refundAddress,
+    required String affiliateId,
+  }) {
+    return SideShiftShiftRequest(
+      settleAddress: settleAddress,
+      refundAddress: refundAddress,
+      depositCoin: 'USDT',
+      settleCoin: 'USDC',
+      depositNetwork: 'liquid',
+      settleNetwork: 'ethereum',
+      affiliateId: affiliateId,
+    );
+  }
+
+  factory SideShiftShiftRequest.liquidUsdtToUsdcTron({
+    required String settleAddress,
+    required String refundAddress,
+    required String affiliateId,
+  }) {
+    return SideShiftShiftRequest(
+      settleAddress: settleAddress,
+      refundAddress: refundAddress,
+      depositCoin: 'USDT',
+      settleCoin: 'USDC',
+      depositNetwork: 'liquid',
+      settleNetwork: 'tron',
+      affiliateId: affiliateId,
+    );
+  }
 }
 
 @HiveType(typeId: 30)
@@ -142,6 +598,8 @@ class SideShift {
   final String refundAddress;
   @HiveField(21)
   final String? refundMemo;
+  @HiveField(22)
+  final String shiftFee;
 
   SideShift({
     required this.id,
@@ -166,6 +624,7 @@ class SideShift {
     this.settleMemo,
     required this.refundAddress,
     this.refundMemo,
+    required this.shiftFee,
   });
 
   factory SideShift.fromJson(Map<String, dynamic> json) {
@@ -192,6 +651,59 @@ class SideShift {
       settleMemo: json['settleMemo'] as String?,
       refundAddress: json['refundAddress'] as String? ?? '',
       refundMemo: json['refundMemo'] as String?,
+      shiftFee: json['shiftFee']?.toString() ?? '0',
+    );
+  }
+
+  SideShift copyWith({
+    String? id,
+    String? depositCoin,
+    String? depositNetwork,
+    String? settleCoin,
+    String? settleNetwork,
+    String? depositAddress,
+    String? depositMemo,
+    String? depositAmount,
+    String? settleAmount,
+    String? status,
+    int? timestamp,
+    String? settleAddress,
+    String? depositMin,
+    String? depositMax,
+    String? type,
+    String? expiresAt,
+    String? averageShiftSeconds,
+    String? settleCoinNetworkFee,
+    String? networkFeeUsd,
+    String? settleMemo,
+    String? refundAddress,
+    String? refundMemo,
+    String? shiftFee,
+  }) {
+    return SideShift(
+      id: id ?? this.id,
+      depositCoin: depositCoin ?? this.depositCoin,
+      depositNetwork: depositNetwork ?? this.depositNetwork,
+      settleCoin: settleCoin ?? this.settleCoin,
+      settleNetwork: settleNetwork ?? this.settleNetwork,
+      depositAddress: depositAddress ?? this.depositAddress,
+      depositMemo: depositMemo ?? this.depositMemo,
+      depositAmount: depositAmount ?? this.depositAmount,
+      settleAmount: settleAmount ?? this.settleAmount,
+      status: status ?? this.status,
+      timestamp: timestamp ?? this.timestamp,
+      settleAddress: settleAddress ?? this.settleAddress,
+      depositMin: depositMin ?? this.depositMin,
+      depositMax: depositMax ?? this.depositMax,
+      type: type ?? this.type,
+      expiresAt: expiresAt ?? this.expiresAt,
+      averageShiftSeconds: averageShiftSeconds ?? this.averageShiftSeconds,
+      settleCoinNetworkFee: settleCoinNetworkFee ?? this.settleCoinNetworkFee,
+      networkFeeUsd: networkFeeUsd ?? this.networkFeeUsd,
+      settleMemo: settleMemo ?? this.settleMemo,
+      refundAddress: refundAddress ?? this.refundAddress,
+      refundMemo: refundMemo ?? this.refundMemo,
+      shiftFee: shiftFee ?? this.shiftFee,
     );
   }
 }
@@ -202,9 +714,7 @@ class SideShiftService {
       final response = await http.post(
         Uri.parse('https://sideshift.ai/api/v2/shifts/variable'),
         body: jsonEncode(request.toJson()),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 201) {
@@ -221,9 +731,7 @@ class SideShiftService {
     try {
       final response = await http.get(
         Uri.parse('https://sideshift.ai/api/v2/shifts?ids=${ids.join(',')}'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
@@ -243,9 +751,7 @@ class SideShiftService {
       final response = await http.post(
         Uri.parse('https://sideshift.ai/api/v2/shifts/$shiftId/set-refund-address'),
         body: jsonEncode({'address': refundAddress}),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 201) {

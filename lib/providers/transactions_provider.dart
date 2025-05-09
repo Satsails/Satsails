@@ -112,7 +112,13 @@ Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
   );
 }
 
-final getFiatPuchasesProvider = FutureProvider<void>((ref) async {
-  await ref.read(getNoxUserPurchasesProvider.future);
-  await ref.read(getEulenUserPurchasesProvider.future);
+final getFiatPurchasesProvider = FutureProvider<void>((ref) async {
+  await Future.wait([
+    ref.read(getNoxUserPurchasesProvider.future).catchError((e) {
+      return null; // Continue despite the error
+    }),
+    ref.read(getEulenUserPurchasesProvider.future).catchError((e) {
+      return null; // Continue despite the error
+    }),
+  ]);
 });

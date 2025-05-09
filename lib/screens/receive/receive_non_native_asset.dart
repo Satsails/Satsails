@@ -1,3 +1,4 @@
+import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,8 +20,7 @@ class ReceiveNonNativeAsset extends ConsumerWidget {
       return const Center(child: Text('No ShiftPair selected', style: TextStyle(color: Colors.white)));
     }
 
-    final shiftAsync = ref.watch(createSideShiftShiftForPairProvider(shiftPair));
-    final assetPair = ref.watch(sideshiftAssetPairProvider(shiftPair));
+    final shiftAsync = ref.watch(createReceiveSideShiftShiftProvider(shiftPair));
 
     return SingleChildScrollView(
       child: Padding(

@@ -209,7 +209,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
       final auth = ref.watch(userProvider).jwt;
       final appIsLocked = ref.read(appLockedProvider) == true;
       if (!appIsLocked && auth.isNotEmpty) {
-        ref.read(getFiatPuchasesProvider);
+        ref.read(getFiatPurchasesProvider);
       }
     });
   }

@@ -6,7 +6,8 @@ enum PaymentType {
   Liquid,
   Lightning,
   Spark,
-  Unknown
+  Unknown,
+  NonNative
 }
 
 class AddressAndAmount {

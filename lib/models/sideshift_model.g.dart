@@ -39,13 +39,14 @@ class SideShiftAdapter extends TypeAdapter<SideShift> {
       settleMemo: fields[19] as String?,
       refundAddress: fields[20] as String,
       refundMemo: fields[21] as String?,
+      shiftFee: fields[22] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, SideShift obj) {
     writer
-      ..writeByte(22)
+      ..writeByte(23)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -89,7 +90,9 @@ class SideShiftAdapter extends TypeAdapter<SideShift> {
       ..writeByte(20)
       ..write(obj.refundAddress)
       ..writeByte(21)
-      ..write(obj.refundMemo);
+      ..write(obj.refundMemo)
+      ..writeByte(22)
+      ..write(obj.shiftFee);
   }
 
   @override

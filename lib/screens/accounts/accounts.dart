@@ -1,6 +1,7 @@
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
+import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -37,6 +38,16 @@ class _AccountsState extends ConsumerState<Accounts> {
     ShiftPair.ethToLiquidBtc: {'coin': 'lib/assets/eth.svg', 'network': 'lib/assets/eth.svg'},
     ShiftPair.bnbToLiquidBtc: {'coin': 'lib/assets/bnb.svg', 'network': 'lib/assets/bsc.svg'},
     ShiftPair.solToLiquidBtc: {'coin': 'lib/assets/sol.svg', 'network': 'lib/assets/sol.svg'},
+  };
+
+  final Map<ShiftPair, ShiftPair> receiveToSendMap = {
+    ShiftPair.usdcEthToLiquidUsdt: ShiftPair.liquidUsdtToUsdcEth,
+    ShiftPair.usdcSolToLiquidUsdt: ShiftPair.liquidUsdtToUsdcSol,
+    ShiftPair.usdcPolygonToLiquidUsdt: ShiftPair.liquidUsdtToUsdcPolygon,
+    ShiftPair.usdtEthToLiquidUsdt: ShiftPair.liquidUsdtToUsdtEth,
+    ShiftPair.usdtTronToLiquidUsdt: ShiftPair.liquidUsdtToUsdtTron,
+    ShiftPair.usdtSolToLiquidUsdt: ShiftPair.liquidUsdtToUsdtSol,
+    ShiftPair.usdtPolygonToLiquidUsdt: ShiftPair.liquidUsdtToUsdtPolygon,
   };
 
   @override
@@ -575,8 +586,19 @@ class _AccountsState extends ConsumerState<Accounts> {
                 if (usdtShiftPairs.contains(pair))
                   IconButton(
                     onPressed: () {
-                      ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
-                      context.push('/home/pay', extra: 'liquid_asset');
+                      final sendPair = receiveToSendMap[pair];
+                      if (sendPair != null) {
+                        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
+                        ref.read(selectedSendShiftPairProvider.notifier).state = sendPair;
+                        context.push('/home/pay', extra: 'non_native_asset');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Send not supported for this asset'.i18n),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     },
                     icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.sp),
                     splashRadius: 28.w,

@@ -94,7 +94,8 @@ class _CameraState extends ConsumerState<Camera> {
               'Invalid payment type for Spark. Expected Lightning or Bitcoin.'.i18n,
             );
           }
-        } else if (providerPaymentType == widget.paymentType) {
+        }
+        else if (providerPaymentType == widget.paymentType || widget.paymentType == PaymentType.NonNative) {
           context.pop(code);
         } else {
           _showErrorDialog(
