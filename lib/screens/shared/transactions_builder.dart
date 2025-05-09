@@ -122,21 +122,26 @@ Widget _buildMonthCard(
 
 class TransactionList extends ConsumerWidget {
   final bool showAll;
-  final dynamic transactions; // New parameter for custom transactions
+  final List<BaseTransaction>? transactions;
 
   const TransactionList({
     super.key,
-    this.showAll = false,
-    this.transactions, // Optional parameter, defaults to null
+    required this.showAll,
+    this.transactions,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenHeight = MediaQuery.of(context).size.height;
     final transactionState = ref.watch(transactionNotifierProvider);
-    final List<BaseTransaction> transactionList = transactions != null
-        ? (transactions as List<BaseTransaction>)
-        : transactionState.allTransactionsSorted;
+    final allTransactions = transactions ?? transactionState.allTransactionsSorted;
+
+    final filteredTransactions = showAll
+        ? allTransactions
+        : allTransactions
+        .where((tx) => !(tx is SideShiftTransaction && tx.details.status == 'waiting'))
+        .take(4)
+        .toList();
 
     final buyButton = GestureDetector(
       onTap: () {
@@ -200,18 +205,22 @@ class TransactionList extends ConsumerWidget {
                     ),
                   )
                 else
-                  transactionList.isEmpty
+                  filteredTransactions.isEmpty
                       ? Expanded(
                     child: Center(
                       child: buildNoTransactionsFound(screenHeight),
                     ),
                   )
-                      : _buildTransactionList(
-                    context,
-                    transactionList.length,
-                        (index) => _buildUnifiedTransactionItem(
-                        transactionList[index], context, ref),
-                    showAll,
+                      : Expanded(
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: filteredTransactions.length,
+                      itemBuilder: (context, index) => _buildUnifiedTransactionItem(
+                        filteredTransactions[index],
+                        context,
+                        ref,
+                      ),
+                    ),
                   ),
                 if (!showAll && isBalanceVisible)
                   TextButton(
@@ -230,35 +239,9 @@ class TransactionList extends ConsumerWidget {
       ],
     );
   }
-
-  Widget _buildTransactionList(
-      BuildContext context,
-      int itemCount,
-      Widget Function(int) itemBuilder,
-      bool showAll,
-      ) {
-    if (showAll) {
-      return Expanded(
-        child: ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: itemCount,
-          itemBuilder: (context, index) => itemBuilder(index),
-        ),
-      );
-    } else {
-      return Expanded(
-        child: ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: itemCount < 4 ? itemCount : 4,
-          itemBuilder: (context, index) => itemBuilder(index),
-        ),
-      );
-    }
-  }
 }
 
 Widget _buildUnifiedTransactionItem(dynamic transaction, BuildContext context, WidgetRef ref) {
-
   Widget transactionItem;
   if (transaction is SideswapPegTransaction) {
     transactionItem = _buildSideswapPegTransactionItem(transaction, context, ref);
