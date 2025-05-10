@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
@@ -125,6 +126,7 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
   Widget build(BuildContext context) {
     final isSyncing = ref.watch(backgroundSyncInProgressProvider);
     final isOnline = ref.watch(settingsProvider).online;
+    fetchAndUpdateTransactions(ref);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,

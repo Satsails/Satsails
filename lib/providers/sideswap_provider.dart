@@ -360,7 +360,7 @@ final sideswapUploadAndSignInputsProvider = FutureProvider.autoDispose<SideswapC
   return completer.future;
 });
 
-final sideswapGetSwapsProvider = StateNotifierProvider.autoDispose<SideswapSwapsNotifier, List<SideswapCompletedSwap>>((ref) {
+final sideswapGetSwapsProvider = StateNotifierProvider<SideswapSwapsNotifier, List<SideswapCompletedSwap>>((ref) {
   return SideswapSwapsNotifier();
 });
 

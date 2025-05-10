@@ -491,7 +491,7 @@ Widget _buildEulenTransactionItem(
     BuildContext context,
     WidgetRef ref,
     ) {
-  final isConfirmed = transaction.isConfirmed || transaction.details.status == "expired";
+  final isConfirmed = transaction.isConfirmed;
   final isPending = !isConfirmed && !transaction.details.failed && transaction.details.status != "expired";
   final statusText = transaction.details.failed
       ? "Failed".i18n
@@ -605,7 +605,7 @@ Widget _buildNoxTransactionItem(
     BuildContext context,
     WidgetRef ref,
     ) {
-  final isConfirmed = transaction.isConfirmed || transaction.details.status == "expired";
+  final isConfirmed = transaction.isConfirmed;
   final isPending = !isConfirmed && !transaction.details.failed && transaction.details.status != "expired";
   final statusText = transaction.details.failed
       ? "Failed".i18n

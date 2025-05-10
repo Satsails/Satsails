@@ -2688,7 +2688,13 @@ extension Localization on String {
       {
         'en': 'Pending',
         'pt': 'Pendente',
+      } +
+      {
+        'en': 'Payment successfully received',
+        'pt': 'Pagamento recebido com sucesso',
       };
+
+
 
   String get i18n => localize(this, _t);
 }

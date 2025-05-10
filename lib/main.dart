@@ -7,6 +7,7 @@ import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
 import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
+import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
