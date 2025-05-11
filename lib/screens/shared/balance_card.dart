@@ -36,8 +36,8 @@ class BalanceCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 300;
+    final screenheight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenheight < 650;
 
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final currency = ref.watch(settingsProvider).currency;
@@ -294,8 +294,8 @@ class BalanceCard extends ConsumerWidget {
 
   Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref, Color textColor) {
     final currency = ref.watch(settingsProvider).currency;
-    final coinGeckoData = ref.watch(coinGeckoBitcoinChange(currency.toLowerCase()));
-    final currentPrice = ref.watch(selectedCurrencyProvider(currency)) * 1;
+    final coinGeckoData = ref.read(coinGeckoBitcoinChange(currency.toLowerCase()));
+    final currentPrice = ref.read(selectedCurrencyProvider(currency)) * 1;
 
     return coinGeckoData.when(
       data: (data) {
