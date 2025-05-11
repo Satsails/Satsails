@@ -126,7 +126,6 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
   Widget build(BuildContext context) {
     final isSyncing = ref.watch(backgroundSyncInProgressProvider);
     final isOnline = ref.watch(settingsProvider).online;
-    fetchAndUpdateTransactions(ref);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
