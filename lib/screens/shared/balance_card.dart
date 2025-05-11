@@ -102,7 +102,7 @@ class BalanceCard extends ConsumerWidget {
             context.push('/home/receive');
           },
           icon: Icon(Icons.arrow_downward, color: textColor, size: 28.w, weight: 700),
-          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+          padding: EdgeInsets.symmetric(horizontal: 10.sp, vertical: 12.sp),
         ),
         IconButton(
           onPressed: () {
@@ -257,33 +257,33 @@ class BalanceCard extends ConsumerWidget {
             ),
           ),
           if (isBalanceVisible)
-          Positioned(
-            bottom: 2.h,
-            right: 16.w,
-            child: TextButton(
-              onPressed: () {
-                ref.read(selectedAssetProvider.notifier).state = selectedAsset;
-                context.pushNamed('analytics');
-              },
-              style: TextButton.styleFrom(
-                side: BorderSide(color: textColor, width: 1), // Adds border
-                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 0.sp),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-              ),
-              child: Text(
-                'Analytics'.i18n,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.bold,
+            Positioned(
+              bottom: 8.sp,
+              right: 16.w,
+              child: GestureDetector(
+                onTap: () {
+                  ref.read(selectedAssetProvider.notifier).state = selectedAsset;
+                  context.pushNamed('analytics');
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: textColor, width: 1),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  padding:EdgeInsets.symmetric(horizontal: 10.sp, vertical: 8.sp),
+                  child: Text(
+                    'Analytics'.i18n,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
           Positioned(
-            bottom: 2.h,
+            bottom: 2.sp,
             left: 16.w,
             child: bottomButtons,
           ),
