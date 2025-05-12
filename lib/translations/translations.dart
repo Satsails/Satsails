@@ -2195,7 +2195,7 @@ extension Localization on String {
         'pt': 'Se um usuário enviar mais de 6000 BRL por dia, os reembolsos não são automáticos e podem levar várias horas',
       } +
       {
-        'en': 'Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payer\'s name',
+        'en': 'Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payers name',
         'pt': 'Compras de tokens Depix são reportadas e registradas na Receita Federal Brasileira em nome do pagador',
       } +
       {

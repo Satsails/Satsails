@@ -5,6 +5,7 @@ import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideshift_provider.dart';
+import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/address_provider.dart';
@@ -55,7 +56,7 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
     return await handleSync(
       syncOperation: () async {
         // Await the Bitcoin sync operation
-        await ref.read(syncBitcoinProvider.future);
+        await ref.refresh(syncBitcoinProvider.future);
 
         final addressIndex = await ref.refresh(lastUsedAddressProvider.future);
         final address = await ref.refresh(bitcoinAddressProvider.future);
@@ -92,7 +93,7 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
     return await handleSync(
       syncOperation: () async {
         // Await the Liquid sync operation
-        await ref.read(syncLiquidProvider.future);
+        await ref.refresh(syncLiquidProvider.future);
 
         // Refresh and retrieve the last used Liquid address
         final liquidAddressIndex = await ref.refresh(liquidLastUsedAddressProvider.future);
@@ -194,6 +195,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
 
           // Update SideShift shifts
           await _updateSideShiftShifts();
+          await ref.read(transactionNotifierProvider.notifier).refreshTransactions();
 
           final hiveBox = await Hive.openBox<WalletBalance>('balanceBox');
           await hiveBox.put('balance', balanceData);

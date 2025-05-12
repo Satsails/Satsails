@@ -197,7 +197,6 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
       final appIsLocked = ref.read(appLockedProvider) == true;
       final shouldUpdateMemory = ref.read(shouldUpdateMemoryProvider);
       if (!appIsLocked && shouldUpdateMemory) {
-        fetchAndUpdateTransactions(ref);
         ref.read(backgroundSyncNotifierProvider.notifier).performSync();
       } else {
         print('Skipping sync operations');
@@ -224,7 +223,6 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final language = ref.watch(settingsProvider).language;
-    fetchAndUpdateTransactions(ref);
 
     I18n.define(Locale(language));
 

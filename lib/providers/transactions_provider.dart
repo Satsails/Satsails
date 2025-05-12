@@ -4,7 +4,7 @@ import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 
 final transactionNotifierProvider = StateNotifierProvider<TransactionModel, Transaction>((ref) {
-  return TransactionModel();
+  return TransactionModel(ref);
 });
 
 

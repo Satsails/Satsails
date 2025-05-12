@@ -24,7 +24,7 @@ final bitcoinModelProvider = FutureProvider<BitcoinModel>((ref) async {
 });
 
 // Asynchronous sync operation
-final syncBitcoinProvider = FutureProvider.autoDispose<void>((ref) async {
+final syncBitcoinProvider = FutureProvider<void>((ref) async {
   final bitcoinModel = await ref.watch(bitcoinModelProvider.future);
   return bitcoinModel.sync();
 });
@@ -52,7 +52,7 @@ final bitcoinAddressInfoProvider = FutureProvider.autoDispose<AddressInfo>((ref)
   return bitcoinModel.getAddressInfo(addressIndex);
 });
 
-final getBitcoinTransactionsProvider = FutureProvider.autoDispose<List<TransactionDetails>>((ref) async {
+final getBitcoinTransactionsProvider = FutureProvider<List<TransactionDetails>>((ref) async {
   final bitcoinModel = await ref.watch(bitcoinModelProvider.future);
   return bitcoinModel.getTransactions();
 });

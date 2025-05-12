@@ -1,8 +1,8 @@
 import 'package:Satsails/models/auth_model.dart';
-import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/bitcoin_config_provider.dart';
 import 'package:Satsails/providers/liquid_config_provider.dart';
+import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/custom_keypad.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
@@ -51,7 +51,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
           ref.read(appLockedProvider.notifier).state = false;
           ref.invalidate(bitcoinConfigProvider);
           ref.invalidate(liquidConfigProvider);
-          await fetchAndUpdateTransactions(ref);
+          await ref.read(transactionNotifierProvider.notifier).refreshTransactions();
         } finally {
           // Set loading to false after operations, before navigation
           ref.read(loadingProvider.notifier).state = false;
@@ -103,7 +103,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
             ref.read(appLockedProvider.notifier).state = false;
             ref.invalidate(bitcoinConfigProvider);
             ref.invalidate(liquidConfigProvider);
-            await fetchAndUpdateTransactions(ref);
+            await ref.read(transactionNotifierProvider.notifier).refreshTransactions();
           } finally {
             // Set loading to false after operations, before navigation
             ref.read(loadingProvider.notifier).state = false;

@@ -12,118 +12,115 @@ import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
 import 'package:Satsails/providers/sideshift_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
-import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk/lwk.dart' as lwk;
 
 class TransactionModel extends StateNotifier<Transaction> {
-  TransactionModel() : super(Transaction.empty());
+  final Ref ref;
 
-  void updateTransactions(Transaction newTransactions) {
-    state = newTransactions;
+  TransactionModel(this.ref) : super(Transaction.empty()) {
+    fetchAndUpdateTransactions(); // Initial fetch and state update
   }
-}
-// This is a terrible piece of code, and needs to be optimized, but currently no time. We should work on this later.
 
-Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
-  final bitcoinTxs = await ref.watch(getBitcoinTransactionsProvider.future);
-  final bitcoinTransactions = bitcoinTxs.map((btcTx) {
-    return BitcoinTransaction(
-      id: btcTx.txid,
-      timestamp: btcTx.confirmationTime != null && btcTx.confirmationTime!.timestamp != 0
-          ? DateTime.fromMillisecondsSinceEpoch(btcTx.confirmationTime!.timestamp.toInt() * 1000)
-          : DateTime.now(),
-      btcDetails: btcTx,
-      isConfirmed: btcTx.confirmationTime != null && btcTx.confirmationTime!.timestamp != 0,
-    );
-  }).toList();
+  // Method to refresh transactions when needed
+  Future<void> refreshTransactions() async {
+    await fetchAndUpdateTransactions();
+  }
 
-  final liquidTxs = await ref.watch(liquidTransactionsProvider.future);
-  final liquidTransactions = liquidTxs.map((lwkTx) {
-    return LiquidTransaction(
-      id: lwkTx.txid,
-      timestamp: lwkTx.timestamp != null && lwkTx.timestamp != 0
-          ? DateTime.fromMillisecondsSinceEpoch(lwkTx.timestamp! * 1000)
-          : DateTime.now(),
-      lwkDetails: lwkTx,
-      isConfirmed: lwkTx.timestamp != null && lwkTx.timestamp != 0,
-    );
-  }).toList();
+  Future<void> fetchAndUpdateTransactions() async {
+    // Fetch Bitcoin transactions
+    final bitcoinTxs = await ref.watch(getBitcoinTransactionsProvider.future);
+    final bitcoinTransactions = bitcoinTxs.map((btcTx) {
+      return BitcoinTransaction(
+        id: btcTx.txid,
+        timestamp: btcTx.confirmationTime != null && btcTx.confirmationTime!.timestamp != 0
+            ? DateTime.fromMillisecondsSinceEpoch(btcTx.confirmationTime!.timestamp.toInt() * 1000)
+            : DateTime.now(),
+        btcDetails: btcTx,
+        isConfirmed: btcTx.confirmationTime != null && btcTx.confirmationTime!.timestamp != 0,
+      );
+    }).toList();
 
-  final sideswapPegTxs = ref.watch(sideswapAllPegsProvider);
-  final sideswapPegTransactions = sideswapPegTxs.map((pegTx) {
-    return SideswapPegTransaction(
-      id: pegTx.orderId!,
-      timestamp: DateTime.fromMillisecondsSinceEpoch(pegTx.createdAt!),
-      sideswapPegDetails: pegTx,
-      isConfirmed: pegTx.list!.map((e) => e.status).contains('Done'),
-    );
-  }).toList();
+    // Fetch Liquid transactions
+    final liquidTxs = await ref.watch(liquidTransactionsProvider.future);
+    final liquidTransactions = liquidTxs.map((lwkTx) {
+      return LiquidTransaction(
+        id: lwkTx.txid,
+        timestamp: lwkTx.timestamp != null && lwkTx.timestamp != 0
+            ? DateTime.fromMillisecondsSinceEpoch(lwkTx.timestamp! * 1000)
+            : DateTime.now(),
+        lwkDetails: lwkTx,
+        isConfirmed: lwkTx.timestamp != null && lwkTx.timestamp != 0,
+      );
+    }).toList();
 
-  final sideswapInstantSwapTxs = ref.watch(sideswapGetSwapsProvider);
-  final sideswapInstantSwapTransactions = sideswapInstantSwapTxs.map((instantSwapTx) {
-    return SideswapInstantSwapTransaction(
-      id: instantSwapTx.quoteId.toString(),
-      timestamp: DateTime.fromMillisecondsSinceEpoch(instantSwapTx.timestamp),
-      sideswapInstantSwapDetails: instantSwapTx,
-      isConfirmed: instantSwapTx.txid.isNotEmpty,
-    );
-  }).toList();
+    // Fetch Sideswap Peg transactions
+    final sideswapPegTxs = ref.watch(sideswapAllPegsProvider);
+    final sideswapPegTransactions = sideswapPegTxs.map((pegTx) {
+      return SideswapPegTransaction(
+        id: pegTx.orderId!,
+        timestamp: DateTime.fromMillisecondsSinceEpoch(pegTx.createdAt!),
+        sideswapPegDetails: pegTx,
+        isConfirmed: pegTx.list!.map((e) => e.status).contains('Done'),
+      );
+    }).toList();
 
-  final eulenPurchases = ref.watch(eulenTransferProvider);
-  final eulenTransactions = eulenPurchases.map((pixTx) {
-    return EulenTransaction(
-      id: pixTx.id.toString(),
-      timestamp: pixTx.createdAt,
-      details: pixTx,
-      isConfirmed: pixTx.completed,
-    );
-  }).toList();
+    // Fetch Eulen transactions
+    final eulenPurchases = ref.watch(eulenTransferProvider);
+    final eulenTransactions = eulenPurchases.map((pixTx) {
+      return EulenTransaction(
+        id: pixTx.id.toString(),
+        timestamp: pixTx.createdAt,
+        details: pixTx,
+        isConfirmed: pixTx.completed,
+      );
+    }).toList();
 
-  final noxPurchases = ref.watch(noxTransferProvider);
-  final noxTransactions = noxPurchases.map((pixTx) {
-    return NoxTransaction(
-      id: pixTx.id.toString(),
-      timestamp: pixTx.createdAt,
-      details: pixTx,
-      isConfirmed: pixTx.completed,
-    );
-  }).toList();
+    // Fetch Nox transactions
+    final noxPurchases = ref.watch(noxTransferProvider);
+    final noxTransactions = noxPurchases.map((pixTx) {
+      return NoxTransaction(
+        id: pixTx.id.toString(),
+        timestamp: pixTx.createdAt,
+        details: pixTx,
+        isConfirmed: pixTx.completed,
+      );
+    }).toList();
 
-  final boltzSwaps = ref.watch(boltzSwapProvider);
-  final boltzTransactions = boltzSwaps.map((swap) {
-    return BoltzTransaction(
-      id: swap.swap.id,
-      timestamp: DateTime.fromMillisecondsSinceEpoch(swap.timestamp),
-      details: swap,
-      isConfirmed: swap.completed ?? false,
-    );
-  }).toList();
+    // Fetch Boltz transactions
+    final boltzSwaps = ref.watch(boltzSwapProvider);
+    final boltzTransactions = boltzSwaps.map((swap) {
+      return BoltzTransaction(
+        id: swap.swap.id,
+        timestamp: DateTime.fromMillisecondsSinceEpoch(swap.timestamp),
+        details: swap,
+        isConfirmed: swap.completed ?? false,
+      );
+    }).toList();
 
-  final sideShiftShifts = ref.watch(sideShiftShiftsProvider); // Assuming this provider exists
-  final sideShiftTransactions = sideShiftShifts.map((shift) {
-    return SideShiftTransaction(
-      id: shift.id,
-      timestamp: DateTime.fromMillisecondsSinceEpoch(shift.timestamp * 1000),
-      details: shift,
-      isConfirmed: shift.status == 'settled', // Adjust based on actual status field
-    );
-  }).toList();
+    // Fetch SideShift transactions
+    final sideShiftShifts = ref.watch(sideShiftShiftsProvider);
+    final sideShiftTransactions = sideShiftShifts.map((shift) {
+      return SideShiftTransaction(
+        id: shift.id,
+        timestamp: DateTime.fromMillisecondsSinceEpoch(shift.timestamp * 1000),
+        details: shift,
+        isConfirmed: shift.status == 'settled',
+      );
+    }).toList();
 
-  final transactionNotifier = ref.read(transactionNotifierProvider.notifier);
-  transactionNotifier.updateTransactions(
-    Transaction(
+    // Update the state directly
+    state = Transaction(
       bitcoinTransactions: bitcoinTransactions,
       liquidTransactions: liquidTransactions,
-      sideswapPegTransactions: sideswapPegTransactions,
-      sideswapInstantSwapTransactions: sideswapInstantSwapTransactions,
       eulenTransactions: eulenTransactions,
       noxTransactions: noxTransactions,
+      sideswapPegTransactions: sideswapPegTransactions,
       boltzTransactions: boltzTransactions,
       sideShiftTransactions: sideShiftTransactions,
-    ),
-  );
+    );
+  }
 }
 
 abstract class BaseTransaction {
@@ -230,7 +227,6 @@ class Transaction {
   final List<BitcoinTransaction> bitcoinTransactions;
   final List<LiquidTransaction> liquidTransactions;
   final List<SideswapPegTransaction> sideswapPegTransactions;
-  final List<SideswapInstantSwapTransaction> sideswapInstantSwapTransactions;
   final List<EulenTransaction> eulenTransactions;
   final List<NoxTransaction> noxTransactions;
   final List<BoltzTransaction> boltzTransactions;
@@ -240,7 +236,6 @@ class Transaction {
     required this.bitcoinTransactions,
     required this.liquidTransactions,
     required this.sideswapPegTransactions,
-    required this.sideswapInstantSwapTransactions,
     required this.eulenTransactions,
     required this.noxTransactions,
     required this.boltzTransactions,
@@ -251,7 +246,6 @@ class Transaction {
     List<BitcoinTransaction>? bitcoinTransactions,
     List<LiquidTransaction>? liquidTransactions,
     List<SideswapPegTransaction>? sideswapPegTransactions,
-    List<SideswapInstantSwapTransaction>? sideswapInstantSwapTransactions,
     List<EulenTransaction>? eulenTransactions,
     List<NoxTransaction>? noxTransactions,
     List<BoltzTransaction>? boltzTransactions,
@@ -261,7 +255,6 @@ class Transaction {
       bitcoinTransactions: bitcoinTransactions ?? this.bitcoinTransactions,
       liquidTransactions: liquidTransactions ?? this.liquidTransactions,
       sideswapPegTransactions: sideswapPegTransactions ?? this.sideswapPegTransactions,
-      sideswapInstantSwapTransactions: sideswapInstantSwapTransactions ?? this.sideswapInstantSwapTransactions,
       eulenTransactions: eulenTransactions ?? this.eulenTransactions,
       noxTransactions: noxTransactions ?? this.noxTransactions,
       boltzTransactions: boltzTransactions ?? this.boltzTransactions,
@@ -274,7 +267,6 @@ class Transaction {
       ...bitcoinTransactions,
       ...liquidTransactions,
       ...sideswapPegTransactions,
-      ...sideswapInstantSwapTransactions,
       ...eulenTransactions,
       ...noxTransactions,
       ...boltzTransactions,
@@ -379,7 +371,6 @@ class Transaction {
       bitcoinTransactions: [],
       liquidTransactions: [],
       sideswapPegTransactions: [],
-      sideswapInstantSwapTransactions: [],
       eulenTransactions: [],
       noxTransactions: [],
       boltzTransactions: [],

@@ -24,7 +24,7 @@ final initializeLiquidProvider = FutureProvider<Liquid>((ref) {
   });
 });
 
-final syncLiquidProvider = FutureProvider.autoDispose<void>((ref) {
+final syncLiquidProvider = FutureProvider<void>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     return liquidModel.sync();
@@ -68,7 +68,7 @@ final liquidBalanceProvider = FutureProvider.autoDispose<Balances>((ref) {
   });
 });
 
-final liquidTransactionsProvider = FutureProvider.autoDispose<List<Tx>>((ref) {
+final liquidTransactionsProvider = FutureProvider<List<Tx>>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     return liquidModel.txs();
