@@ -4,6 +4,7 @@ import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
@@ -2267,7 +2268,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
           controller.loading();
           try {
             if (sendLn) {
-              final btcAddress = await ref.read(bitcoinAddressProvider.future);
+              final btcAddress = ref.read(addressProvider).bitcoinAddress;
               ref.read(sendTxProvider.notifier).updateAddress(btcAddress);
               await ref.read(sendCoinosBitcoinProvider.future);
             } else {

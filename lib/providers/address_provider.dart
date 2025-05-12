@@ -1,14 +1,22 @@
 import 'package:Satsails/models/address_model.dart';
+import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
 final initialAddressesProvider = FutureProvider<Address>((ref) async {
   final box = await Hive.openBox('addresses');
-  final liquidAddressIndex = box.get('liquid', defaultValue: 0);
-  final bitcoinAddressIndex = box.get('bitcoin', defaultValue: 0);
+  final bitcoinAddressIndex = box.get('bitcoinIndex', defaultValue: 0);
+  final initialBtcAddress = ref.read(lastUsedAddressProviderString);
+  final bitcoinAddress = box.get('bitcoinAddress', defaultValue: initialBtcAddress);
+  final liquidAddressIndex = box.get('liquidIndex', defaultValue: 0);
+  final liquidAddress = box.get('liquidAddress', defaultValue: '');
 
-
-  return Address(bitcoinAddressIndex: bitcoinAddressIndex, liquidAddressIndex: liquidAddressIndex);
+  return Address(
+    bitcoinAddressIndex: bitcoinAddressIndex,
+    bitcoinAddress: bitcoinAddress,
+    liquidAddressIndex: liquidAddressIndex,
+    liquidAddress: liquidAddress,
+  );
 });
 
 final addressProvider = StateNotifierProvider<AddressModel, Address>((ref) {
@@ -16,7 +24,12 @@ final addressProvider = StateNotifierProvider<AddressModel, Address>((ref) {
 
   return AddressModel(initialSettings.when(
     data: (addresses) => addresses,
-    loading: () => Address(bitcoinAddressIndex: 0, liquidAddressIndex: 0),
+    loading: () => Address(
+      bitcoinAddressIndex: 0,
+      bitcoinAddress: '',
+      liquidAddressIndex: 0,
+      liquidAddress: '',
+    ),
     error: (Object error, StackTrace stackTrace) {
       throw error;
     },

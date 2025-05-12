@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:Satsails/models/sideswap/sideswap_markets_model.dart';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
@@ -64,7 +65,7 @@ final sideswapPegProvider = StreamProvider.autoDispose<SideswapPeg>((ref) async*
   final blocks = ref.watch(pegOutBlocksProvider);
   final service = ref.watch(sideswapServiceProvider);
   final liquidAddress = await ref.watch(liquidAddressProvider.future);
-  final bitcoinAddress = await ref.watch(bitcoinAddressProvider.future);
+  final bitcoinAddress = ref.watch(addressProvider).bitcoinAddress;
   pegIn ? service.peg(recv_addr: liquidAddress.confidential, peg_in: pegIn) : service.peg(recv_addr: bitcoinAddress, peg_in: pegIn, blocks: blocks);
 
   yield* service.pegStream.map((event) => SideswapPeg.fromJson(event));

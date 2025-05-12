@@ -19,44 +19,54 @@ class AddressAndAmount {
   AddressAndAmount(this.address, this.amount, this.assetId, {this.type = PaymentType.Unknown});
 }
 
-class AddressModel extends StateNotifier<Address> {
-  AddressModel(super.state);
-
-  Future<void> setLiquidAddress(int index) async {
-    final box = await Hive.openBox('addresses');
-    final current = box.get('liquid', defaultValue: 0);
-    if (current < index) {
-      box.put('liquid', index);
-      state = state.copyWith(liquidAddressIndex: index);
-    }
-  }
-  Future<void> setBitcoinAddress(int index) async {
-    final box = await Hive.openBox('addresses');
-    final current = box.get('bitcoin', defaultValue: 0);
-    if (current < index) {
-      box.put('bitcoin', index);
-      state = state.copyWith(bitcoinAddressIndex: index);
-    }
-  }
-}
-
 class Address {
   final int bitcoinAddressIndex;
+  final String bitcoinAddress;
   final int liquidAddressIndex;
+  final String liquidAddress;
 
   Address({
     required this.bitcoinAddressIndex,
+    required this.bitcoinAddress,
     required this.liquidAddressIndex,
+    required this.liquidAddress,
   });
-
 
   Address copyWith({
     int? bitcoinAddressIndex,
+    String? bitcoinAddress,
     int? liquidAddressIndex,
+    String? liquidAddress,
   }) {
     return Address(
       bitcoinAddressIndex: bitcoinAddressIndex ?? this.bitcoinAddressIndex,
+      bitcoinAddress: bitcoinAddress ?? this.bitcoinAddress,
       liquidAddressIndex: liquidAddressIndex ?? this.liquidAddressIndex,
+      liquidAddress: liquidAddress ?? this.liquidAddress,
     );
+  }
+}
+
+class AddressModel extends StateNotifier<Address> {
+  AddressModel(super.state);
+
+  Future<void> setLiquidAddress(int index, String address) async {
+    final box = await Hive.openBox('addresses');
+    final currentIndex = box.get('liquidIndex', defaultValue: 0);
+    if (currentIndex <= index) {
+      box.put('liquidIndex', index);
+      box.put('liquidAddress', address);
+      state = state.copyWith(liquidAddressIndex: index, liquidAddress: address);
+    }
+  }
+
+  Future<void> setBitcoinAddress(int index, String address) async {
+    final box = await Hive.openBox('addresses');
+    final currentIndex = box.get('bitcoinIndex', defaultValue: 0);
+    if (currentIndex <= index) {
+      box.put('bitcoinIndex', index);
+      box.put('bitcoinAddress', address);
+      state = state.copyWith(bitcoinAddressIndex: index, bitcoinAddress: address);
+    }
   }
 }

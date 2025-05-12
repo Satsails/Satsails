@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,7 +40,7 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
     ref.read(inputAmountProvider.notifier).state =
     inputValue.isEmpty ? '0.0' : inputValue;
     final bitcoinAddressWithAmountFuture =
-    await ref.watch(bitcoinReceiveAddressAmountProvider.future);
+    ref.watch(bitcoinReceiveAddressAmountProvider);
     setState(() {
       includeAmountInAddress = true;
       bitcoinAddressWithAmount = bitcoinAddressWithAmountFuture;
@@ -48,7 +49,7 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final bitcoinAddressAsyncValue = ref.watch(bitcoinAddressProvider);
+    final bitcoinAddress = ref.watch(addressProvider).bitcoinAddress;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -56,7 +57,7 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
         SizedBox(height: 24.h), // Increased from 16.24.h for more top spacing
         includeAmountInAddress
             ? _buildAddressWithAmount(bitcoinAddressWithAmount)
-            : _buildDefaultAddress(bitcoinAddressAsyncValue),
+            : _buildDefaultAddress(bitcoinAddress),
         Padding(
           padding: EdgeInsets.all(16.h), // Increased from 8.0.sp
           child: AmountInput(controller: controller),
@@ -74,33 +75,17 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
     );
   }
 
-  Widget _buildDefaultAddress(AsyncValue<String> bitcoinAddressAsyncValue) {
-    return bitcoinAddressAsyncValue.when(
-      data: (bitcoinAddress) {
-        return Center( // Added to center the QR code and address horizontally
-          child: Column(
-            children: [
-              buildQrCode(bitcoinAddress, context),
-              SizedBox(height: 16.h), // Added spacing between QR code and address
-              Padding(
-                padding: EdgeInsets.all(16.h), // Increased from 8.12.h
-                child: buildAddressText(bitcoinAddress, context, ref),
-              ),
-            ],
+  Widget _buildDefaultAddress(String bitcoinAddress) {
+    return Center( // Added to center the QR code and address horizontally
+      child: Column(
+        children: [
+          buildQrCode(bitcoinAddress, context),
+          SizedBox(height: 16.h), // Added spacing between QR code and address
+          Padding(
+            padding: EdgeInsets.all(16.h), // Increased from 8.12.h
+            child: buildAddressText(bitcoinAddress, context, ref),
           ),
-        );
-      },
-      loading: () => Center(
-        child: LoadingAnimationWidget.fourRotatingDots(
-          size: 70.w,
-          color: Colors.orange,
-        ),
-      ),
-      error: (error, stack) => const Center(
-        child: Text(
-          'Error loading address',
-          style: TextStyle(color: Colors.red),
-        ),
+        ],
       ),
     );
   }

@@ -15,45 +15,49 @@ class BitcoinModel {
     }
   }
 
-  Future<int> getAddress() async {
+  int getAddress() {
     final address = config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
     return address.index;
   }
 
-  Future<String> getCurrentAddress(int index) async {
+  String getAddressString() {
+    final address = config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
+    return address.address.asString();
+  }
+
+  String getCurrentAddress(int index) {
     final address = config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
     return address.address.asString();
   }
 
-  Future<AddressInfo> getAddressInfo(int index) async {
+  AddressInfo getAddressInfo(int index) {
     final address = config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
     return address;
   }
 
-  Future<Input> getPsbtInput(LocalUtxo utxo, bool onlyWitnessUtxo) async {
-    final input = await config.wallet.getPsbtInput(utxo: utxo, onlyWitnessUtxo: onlyWitnessUtxo);
+  Input getPsbtInput(LocalUtxo utxo, bool onlyWitnessUtxo) {
+    final input = config.wallet.getPsbtInput(utxo: utxo, onlyWitnessUtxo: onlyWitnessUtxo);
     return input;
   }
 
-  Future<List<TransactionDetails>> getTransactions() async {
+  List<TransactionDetails> getTransactions() {
     final res = config.wallet.listTransactions(includeRaw: true);
     return res;
   }
 
-  Future<Balance> getBalance() async {
+  Balance getBalance() {
     final res = config.wallet.getBalance();
     return res;
   }
 
-  Future<List<LocalUtxo>> listUnspend() async {
+  List<LocalUtxo> listUnspend() {
     final res = config.wallet.listUnspent();
     return res;
   }
 
   Future<BitcoinFeeModel> estimateFeeRate() async {
     try {
-      Response response =
-      await get(Uri.parse('https://mempool.space/api/v1/fees/recommended'));
+      Response response = await get(Uri.parse('https://mempool.space/api/v1/fees/recommended'));
       Map<String, dynamic> data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
@@ -64,7 +68,6 @@ class BitcoinModel {
         final minimumFee = data['minimumFee'].toDouble();
 
         return BitcoinFeeModel(fastestFee, halfHourFee, hourFee, economyFee, minimumFee);
-
       } else {
         throw Exception("Getting estimated fees is not successful.");
       }
@@ -73,8 +76,9 @@ class BitcoinModel {
     }
   }
 
-  Future<(PartiallySignedTransaction, TransactionDetails)> buildBitcoinTransaction(TransactionBuilder transaction) async {
-    try{
+  Future<(PartiallySignedTransaction, TransactionDetails)> buildBitcoinTransaction(
+      TransactionBuilder transaction) async {
+    try {
       final txBuilder = TxBuilder();
       final address = await Address.fromString(s: transaction.outAddress, network: config.network);
       final script = address.scriptPubkey();
@@ -90,18 +94,23 @@ class BitcoinModel {
       throw "Insufficient funds";
     } on OutputBelowDustLimitException catch (_) {
       throw 'Amount is too small';
-    } on AddressException catch (_){
+    } on AddressException catch (_) {
       throw 'Address is invalid';
-      }
+    }
   }
 
-  Future<(PartiallySignedTransaction, TransactionDetails)> drainWalletBitcoinTransaction(TransactionBuilder transaction) async {
-    try{
+  Future<(PartiallySignedTransaction, TransactionDetails)> drainWalletBitcoinTransaction(
+      TransactionBuilder transaction) async {
+    try {
       final txBuilder = TxBuilder();
       final address = await Address.fromString(s: transaction.outAddress, network: config.network);
       final script = address.scriptPubkey();
-
-      final txBuilderResult = await txBuilder.drainWallet().drainTo(script).feeRate(transaction.fee).enableRbf().finish(config.wallet);
+      final txBuilderResult = await txBuilder
+          .drainWallet()
+          .drainTo(script)
+          .feeRate(transaction.fee)
+          .enableRbf()
+          .finish(config.wallet);
       return txBuilderResult;
     } on GenericException catch (e) {
       throw e.message!;
@@ -109,16 +118,17 @@ class BitcoinModel {
       throw "Insufficient funds for a transaction this fast";
     } on OutputBelowDustLimitException catch (_) {
       throw 'Amount is too small';
-    } on AddressException catch (_){
+    } on AddressException catch (_) {
       throw 'Address is invalid';
     }
   }
 
-  Future<bool> signBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) txBuilderResult) async {
+  bool signBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) txBuilderResult) {
     return config.wallet.sign(psbt: txBuilderResult.$1);
   }
 
-  Future<String> broadcastBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) signedPsbt) async {
+  Future<String> broadcastBitcoinTransaction(
+      (PartiallySignedTransaction, TransactionDetails) signedPsbt) async {
     try {
       final tx = signedPsbt.$1.extractTx();
       return await config.blockchain!.broadcast(transaction: tx);

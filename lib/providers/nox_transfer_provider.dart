@@ -1,4 +1,5 @@
 import 'package:Satsails/models/nox_transfer_model.dart';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,7 +34,7 @@ final getNoxUserPurchasesProvider = FutureProvider.autoDispose<List<NoxTransfer>
 
 final createNoxTransferRequestProvider = FutureProvider.autoDispose.family<String, int>((ref, amount) async {
   final auth = ref.read(userProvider).jwt;
-  final bitcoinAddress = await ref.read(bitcoinAddressProvider.future);
+  final bitcoinAddress =  ref.read(addressProvider).bitcoinAddress;
   final result = await NoxService.createTransaction(auth, bitcoinAddress, amount * 100);
   if (result.isSuccess && result.data != null) {
     return result.data!;

@@ -26,7 +26,7 @@ class TransactionModel extends StateNotifier<Transaction> {
 }
 
 Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
-  final bitcoinTxs = await ref.watch(getBitcoinTransactionsProvider.future);
+  final bitcoinTxs = await ref.watch(getBitcoinTransactionsProvider);
   final bitcoinTransactions = bitcoinTxs.map((btcTx) {
     return BitcoinTransaction(
       id: btcTx.txid,

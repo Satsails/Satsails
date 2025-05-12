@@ -45,8 +45,8 @@ abstract class SyncNotifier<T> extends AsyncNotifier<T> {
 
 class BitcoinSyncNotifier extends SyncNotifier<int> {
   @override
-  Future<int> build() async {
-    final balance = await ref.read(getBitcoinBalanceProvider.future);
+  int build() {
+    final balance = ref.read(getBitcoinBalanceProvider);
     return balance.total.toInt();
   }
 
@@ -55,9 +55,10 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
     return await handleSync(
       syncOperation: () async {
         await ref.read(syncBitcoinProvider.future);
-        final address = await ref.refresh(lastUsedAddressProvider.future);
-        ref.read(addressProvider.notifier).setBitcoinAddress(address);
-        final balance = await ref.read(getBitcoinBalanceProvider.future);
+        final addressIndex = ref.refresh(lastUsedAddressProvider);
+        final address = ref.refresh(bitcoinAddressProvider);
+        ref.read(addressProvider.notifier).setBitcoinAddress(addressIndex, address);
+        final balance = ref.read(getBitcoinBalanceProvider);
         ref.read(balanceNotifierProvider.notifier).updateBtcBalance(balance.total.toInt());
         return balance.total.toInt();
       },
@@ -83,8 +84,9 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
     return await handleSync(
       syncOperation: () async {
         await ref.read(syncLiquidProvider.future);
-        final liquidAddress = await ref.refresh(liquidLastUsedAddressProvider.future);
-        ref.read(addressProvider.notifier).setLiquidAddress(liquidAddress);
+        final liquidAddressIndex = await ref.refresh(liquidLastUsedAddressProvider.future);
+        final liquidAddress = await ref.refresh(liquidAddressProvider.future);
+        ref.read(addressProvider.notifier).setLiquidAddress(liquidAddressIndex, liquidAddress.confidential);
         final balances = await ref.read(liquidBalanceProvider.future);
         final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
         for (var balance in balances) {

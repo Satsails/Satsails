@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,6 @@ import 'package:Satsails/screens/receive/components/custom_elevated_button.dart'
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 final selectedReceiveOptionProvider = StateProvider<String>((ref) => 'Lightning');
 final lnurlNameProvider = StateProvider<String>((ref) => '');
@@ -42,7 +42,7 @@ class _ReceiveSparkLightningWidgetState extends ConsumerState<ReceiveSparkLightn
   void _onCreateBitcoinAddress() async {
     String inputValue = controller.text;
     ref.read(inputAmountProvider.notifier).state = inputValue.isEmpty ? '0.0' : inputValue;
-    final bitcoinAddress = await ref.read(bitcoinAddressProvider.future);
+    final bitcoinAddress = ref.read(addressProvider).bitcoinAddress;
     final amount = inputValue.isEmpty ? '0' : inputValue;
     setState(() {
       invoiceCreated = true;
@@ -146,7 +146,7 @@ class _ReceiveSparkLightningWidgetState extends ConsumerState<ReceiveSparkLightn
   Widget build(BuildContext context) {
     final selectedOption = ref.watch(selectedReceiveOptionProvider);
     final lnurlName = ref.watch(lnurlNameProvider);
-    final bitcoinAddressAsyncValue = ref.watch(bitcoinAddressProvider);
+    final bitcoinAddresss = ref.watch(addressProvider).bitcoinAddress;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -156,7 +156,7 @@ class _ReceiveSparkLightningWidgetState extends ConsumerState<ReceiveSparkLightn
         if (invoiceCreated) ...[
           _buildAddressWithAmount(displayAddress),
         ] else if (selectedOption == 'Bitcoin' || selectedOption == 'Spark') ...[
-          _buildDefaultAddress(bitcoinAddressAsyncValue),
+          _buildDefaultAddress(bitcoinAddresss),
         ] else if (selectedOption == 'Lightning') ...[
           if (lnurlName.isEmpty) ...[
             Center(
@@ -272,32 +272,16 @@ class _ReceiveSparkLightningWidgetState extends ConsumerState<ReceiveSparkLightn
     );
   }
 
-  Widget _buildDefaultAddress(AsyncValue<String> bitcoinAddressAsyncValue) {
-    return bitcoinAddressAsyncValue.when(
-      data: (bitcoinAddress) => Center(
-        child: Column(
-          children: [
-            buildQrCode(bitcoinAddress, context),
-            SizedBox(height: 16.h),
-            Padding(
-              padding: EdgeInsets.all(16.h),
-              child: buildAddressText(bitcoinAddress, context, ref),
-            ),
-          ],
+  Widget _buildDefaultAddress(String bitcoinAddress) {
+    return Column(
+      children: [
+        buildQrCode(bitcoinAddress, context),
+        SizedBox(height: 16.h),
+        Padding(
+          padding: EdgeInsets.all(16.h),
+          child: buildAddressText(bitcoinAddress, context, ref),
         ),
-      ),
-      loading: () => Center(
-        child: LoadingAnimationWidget.fourRotatingDots(
-          size: 70.w,
-          color: Colors.orange,
-        ),
-      ),
-      error: (error, stack) => const Center(
-        child: Text(
-          'Error loading address',
-          style: TextStyle(color: Colors.red),
-        ),
-      ),
+      ],
     );
   }
 

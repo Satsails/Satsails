@@ -2,6 +2,7 @@ import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/sideshift_model.dart';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -124,7 +125,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                                   )
                                       : '***',
                                   Image.asset('lib/assets/bitcoin-logo.png', width: 32.sp, height: 32.sp),
-                                  ref.watch(bitcoinAddressProvider.future),
+                                  ref.watch(addressProvider).bitcoinAddress,
                                   isBalanceVisible
                                       ? currencyFormat(
                                     ref.watch(currentBitcoinPriceInCurrencyProvider(

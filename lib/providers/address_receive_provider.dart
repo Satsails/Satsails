@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
@@ -101,8 +102,8 @@ String calculateAmountInSelectedCurrency(int sats, String currency, currencyConv
   }
 }
 
-final bitcoinReceiveAddressAmountProvider = FutureProvider.autoDispose<String>((ref) async {
-  final address = await ref.read(bitcoinAddressProvider.future);
+final bitcoinReceiveAddressAmountProvider = Provider.autoDispose<String>((ref) {
+  final address = ref.read(addressProvider).bitcoinAddress;
   final amount = ref.watch(inputAmountProvider);
   final currency = ref.watch(inputCurrencyProvider);
   final currencyConverter = ref.read(currencyNotifierProvider);
