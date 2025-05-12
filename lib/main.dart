@@ -7,7 +7,6 @@ import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
 import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
-import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
@@ -193,7 +192,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   void _startSyncTimer() {
     _cancelSyncTimer();
 
-    _syncTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
+    _syncTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       final appIsLocked = ref.read(appLockedProvider) == true;
       final shouldUpdateMemory = ref.read(shouldUpdateMemoryProvider);
       if (!appIsLocked && shouldUpdateMemory) {

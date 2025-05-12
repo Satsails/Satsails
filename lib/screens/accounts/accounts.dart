@@ -288,7 +288,7 @@ class _AccountsState extends ConsumerState<Accounts> {
         ),
         SizedBox(height: 6.sp),
         Text(
-          'Non-Native Assets',
+          'Non-Native Assets'.i18n,
           style: TextStyle(
             color: Colors.grey,
             fontSize: 14.sp,

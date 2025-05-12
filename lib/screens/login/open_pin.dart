@@ -49,8 +49,6 @@ class _OpenPinState extends ConsumerState<OpenPin> {
         try {
           _attempts = 0;
           ref.read(appLockedProvider.notifier).state = false;
-          ref.invalidate(bitcoinConfigProvider);
-          ref.invalidate(liquidConfigProvider);
           await ref.read(transactionNotifierProvider.notifier).refreshTransactions();
         } finally {
           // Set loading to false after operations, before navigation
@@ -101,8 +99,6 @@ class _OpenPinState extends ConsumerState<OpenPin> {
           ref.read(loadingProvider.notifier).state = true;
           try {
             ref.read(appLockedProvider.notifier).state = false;
-            ref.invalidate(bitcoinConfigProvider);
-            ref.invalidate(liquidConfigProvider);
             await ref.read(transactionNotifierProvider.notifier).refreshTransactions();
           } finally {
             // Set loading to false after operations, before navigation

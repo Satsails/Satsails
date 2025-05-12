@@ -23,14 +23,13 @@ class TransactionModel extends StateNotifier<Transaction> {
     fetchAndUpdateTransactions(); // Initial fetch and state update
   }
 
-  // Method to refresh transactions when needed
   Future<void> refreshTransactions() async {
     await fetchAndUpdateTransactions();
   }
 
   Future<void> fetchAndUpdateTransactions() async {
     // Fetch Bitcoin transactions
-    final bitcoinTxs = await ref.watch(getBitcoinTransactionsProvider.future);
+    final bitcoinTxs = await ref.refresh(getBitcoinTransactionsProvider.future);
     final bitcoinTransactions = bitcoinTxs.map((btcTx) {
       return BitcoinTransaction(
         id: btcTx.txid,
@@ -43,7 +42,7 @@ class TransactionModel extends StateNotifier<Transaction> {
     }).toList();
 
     // Fetch Liquid transactions
-    final liquidTxs = await ref.watch(liquidTransactionsProvider.future);
+    final liquidTxs = await ref.refresh(liquidTransactionsProvider.future);
     final liquidTransactions = liquidTxs.map((lwkTx) {
       return LiquidTransaction(
         id: lwkTx.txid,
@@ -110,18 +109,19 @@ class TransactionModel extends StateNotifier<Transaction> {
       );
     }).toList();
 
-    // Update the state directly
-    state = Transaction(
+    // Update state using copyWith
+    state = state.copyWith(
       bitcoinTransactions: bitcoinTransactions,
       liquidTransactions: liquidTransactions,
+      sideswapPegTransactions: sideswapPegTransactions,
       eulenTransactions: eulenTransactions,
       noxTransactions: noxTransactions,
-      sideswapPegTransactions: sideswapPegTransactions,
       boltzTransactions: boltzTransactions,
       sideShiftTransactions: sideShiftTransactions,
     );
   }
 }
+
 
 abstract class BaseTransaction {
   final String id;
