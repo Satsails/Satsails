@@ -315,9 +315,9 @@ Widget _buildSideshiftTransactionItem(
 
   // Transaction title showing the shift direction
   final title = "Shift to ${details.settleCoin} on ${details.settleNetwork}".i18n;
-
+  String locale = I18n.locale?.languageCode ?? 'en';
   // Format the transaction date
-  final formattedDate = DateFormat('d, MMMM, HH:mm').format(transaction.timestamp);
+  final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(transaction.timestamp);
 
   return GestureDetector(
     onTap: () {
@@ -415,7 +415,9 @@ Widget _buildSideswapPegTransactionItem(
       ? DateTime.fromMillisecondsSinceEpoch(
       sideswapPegDetails.list!.first.createdAt!)
       : transaction.timestamp;
-  final formattedDate = DateFormat('d MMMM, HH:mm').format(date);
+
+  String locale = I18n.locale?.languageCode ?? 'en';
+  final formattedDate = DateFormat('d MMMM, HH:mm', locale).format(date);
 
   // Transaction type
   final transactionType =
@@ -499,10 +501,11 @@ Widget _buildEulenTransactionItem(
       ? "Completed".i18n
       : "Pending".i18n;
 
-  final type = transaction.details.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
+  final type = transaction.details.transactionType.toString() == "BUY" ? "(Purchase)".i18n : "(Withdrawal)".i18n;
   final title = "${transaction.details.to_currency} $type";
   final amount = transaction.details.receivedAmount.toString();
-  final formattedDate = DateFormat('d, MMMM, HH:mm').format(transaction.timestamp);
+  String locale = I18n.locale?.languageCode ?? 'en';
+  final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(transaction.timestamp);
 
   return GestureDetector(
     onTap: () {
@@ -616,7 +619,8 @@ Widget _buildNoxTransactionItem(
   final type = transaction.details.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
   final title = "${transaction.details.to_currency} $type";
   final amount = transaction.details.receivedAmount.toString();
-  final formattedDate = DateFormat('d, MMMM, HH:mm').format(transaction.timestamp);
+  String locale = I18n.locale?.languageCode ?? 'en';
+  final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(transaction.timestamp);
 
   return GestureDetector(
     onTap: () {
@@ -725,7 +729,8 @@ Widget _buildBitcoinTransactionItem(
       ? DateTime.fromMillisecondsSinceEpoch(
       transaction.btcDetails.confirmationTime!.timestamp.toInt() * 1000)
       : transaction.timestamp;
-  final formattedDate = DateFormat('d, MMMM, HH:mm').format(timestamp);
+  String locale = I18n.locale?.languageCode ?? 'en';
+  final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(timestamp);
 
   return GestureDetector(
     onTap: () {
@@ -822,7 +827,8 @@ Widget _buildLiquidTransactionItem(
   final timestamp = transaction.lwkDetails.timestamp != null
       ? DateTime.fromMillisecondsSinceEpoch(transaction.lwkDetails.timestamp! * 1000)
       : transaction.timestamp;
-  final formattedDate = DateFormat('d, MMMM, HH:mm').format(timestamp);
+  String locale = I18n.locale?.languageCode ?? 'en';
+  final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(timestamp);
 
   // Filter balances: exclude small LBTC balances when there are multiple balances
   final balancesToShow = transaction.lwkDetails.balances.where((balance) {

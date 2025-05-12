@@ -1,4 +1,5 @@
 import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/bitcoin_config_provider.dart';
 import 'package:Satsails/providers/liquid_config_provider.dart';
@@ -38,31 +39,47 @@ class _OpenPinState extends ConsumerState<OpenPin> {
   }
 
   Future<void> _checkPin(BuildContext context, WidgetRef ref) async {
-    ref.read(loadingProvider.notifier).state = true;
-    final authModel = AuthModel();
-    final pinText = await authModel.getPin();
+    try {
+      final authModel = AuthModel();
+      final pinText = await authModel.getPin();
 
-    if (pinText == pin) {
-      _attempts = 0;
-      ref.read(appLockedProvider.notifier).state = false;
-      ref.invalidate(bitcoinConfigProvider);
-      ref.invalidate(liquidConfigProvider);
-      context.go('/home');
-    } else {
-      _attempts++;
-      if (_attempts >= 6) {
-        await _forgotPin(context, ref);
+      if (pinText == pin) {
+        // Set loading to true only after PIN is verified
+        ref.read(loadingProvider.notifier).state = true;
+        try {
+          _attempts = 0;
+          ref.read(appLockedProvider.notifier).state = false;
+          ref.invalidate(bitcoinConfigProvider);
+          ref.invalidate(liquidConfigProvider);
+          await fetchAndUpdateTransactions(ref);
+        } finally {
+          // Set loading to false after operations, before navigation
+          ref.read(loadingProvider.notifier).state = false;
+        }
+        context.go('/home');
       } else {
-        int remainingAttempts = 6 - _attempts;
-        showMessageSnackBar(
-          context: context,
-          message: '${'Invalid PIN'.i18n} $remainingAttempts ${'attempts remaining'.i18n}',
-          error: true,
-        );
-        setState(() => pin = '');
+        // Handle incorrect PIN without showing loading
+        _attempts++;
+        if (_attempts >= 6) {
+          await _forgotPin(context, ref);
+        } else {
+          int remainingAttempts = 6 - _attempts;
+          showMessageSnackBar(
+            context: context,
+            message: '${'Invalid PIN'.i18n} $remainingAttempts ${'attempts remaining'.i18n}',
+            error: true,
+          );
+          setState(() => pin = '');
+        }
       }
+    } catch (e) {
+      // Handle any errors during PIN retrieval
+      showMessageSnackBar(
+        context: context,
+        message: 'An error occurred: $e'.i18n,
+        error: true,
+      );
     }
-    ref.read(loadingProvider.notifier).state = false;
   }
 
   Future<void> _checkBiometrics(BuildContext context, WidgetRef ref) async {
@@ -78,15 +95,24 @@ class _OpenPinState extends ConsumerState<OpenPin> {
             biometricOnly: true,
           ),
         );
+
         if (authenticated) {
-          ref.read(appLockedProvider.notifier).state = false;
-          ref.invalidate(bitcoinConfigProvider);
-          ref.invalidate(liquidConfigProvider);
+          // Set loading to true only after successful authentication
+          ref.read(loadingProvider.notifier).state = true;
+          try {
+            ref.read(appLockedProvider.notifier).state = false;
+            ref.invalidate(bitcoinConfigProvider);
+            ref.invalidate(liquidConfigProvider);
+            await fetchAndUpdateTransactions(ref);
+          } finally {
+            // Set loading to false after operations, before navigation
+            ref.read(loadingProvider.notifier).state = false;
+          }
           context.go('/home');
         }
       }
     } catch (e) {
-      // Silently handle errors to avoid disrupting the user
+      // Silently handle errors (e.g., biometric unavailable or user cancels)
     }
     _biometricChecked = true;
   }
@@ -141,7 +167,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 20.sp, // Responsive font size
+                fontSize: 20.sp,
               ),
             ),
           ),
@@ -151,14 +177,14 @@ class _OpenPinState extends ConsumerState<OpenPin> {
         body: Stack(
           children: [
             Center(
-              child: SingleChildScrollView( // Added to make content scrollable
+              child: SingleChildScrollView(
                 child: Padding(
-                  padding: EdgeInsets.all(16.w), // Responsive padding
+                  padding: EdgeInsets.all(16.w),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       PinProgressIndicator(currentLength: pin.length, totalDigits: 6),
-                      SizedBox(height: 40.h), // Responsive height
+                      SizedBox(height: 40.h),
                       CustomKeypad(
                         onDigitPressed: (digit) {
                           if (pin.length < 6) {
@@ -171,20 +197,20 @@ class _OpenPinState extends ConsumerState<OpenPin> {
                           }
                         },
                       ),
-                      SizedBox(height: 40.h), // Responsive height
+                      SizedBox(height: 40.h),
                       CustomButton(
                         text: 'Unlock'.i18n,
                         onPressed: pin.length == 6 ? () => _checkPin(context, ref) : () => {},
                         primaryColor: Colors.green,
                         secondaryColor: Colors.green,
                       ),
-                      SizedBox(height: 20.h), // Responsive height
+                      SizedBox(height: 20.h),
                       TextButton(
                         onPressed: () => _showConfirmationDialog(context, ref),
                         child: Text(
                           'Forgot PIN'.i18n,
                           style: TextStyle(
-                            fontSize: 18.sp, // Responsive font size
+                            fontSize: 18.sp,
                             color: Colors.red,
                           ),
                         ),
@@ -200,7 +226,7 @@ class _OpenPinState extends ConsumerState<OpenPin> {
                 child: Center(
                   child: LoadingAnimationWidget.fourRotatingDots(
                     color: Colors.orange,
-                    size: 50.w, // Responsive size
+                    size: 50.w,
                   ),
                 ),
               ),
@@ -223,9 +249,9 @@ class PinProgressIndicator extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(totalDigits, (index) {
         return Container(
-          margin: EdgeInsets.symmetric(horizontal: 8.w), // Responsive margin
-          width: 16.w, // Responsive width
-          height: 16.w, // Responsive height
+          margin: EdgeInsets.symmetric(horizontal: 8.w),
+          width: 16.w,
+          height: 16.w,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: index < currentLength ? Colors.white : Colors.grey[600],

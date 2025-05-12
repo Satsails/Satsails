@@ -42,7 +42,7 @@ class PegDetails extends ConsumerWidget {
         ),
       ),
       body: status.when(
-        data: (status) => _buildDataView(status, btcFormat, ref),
+        data: (status) => _buildDataView(context, status, btcFormat, ref),
         loading: () => Center(
           child: LoadingAnimationWidget.fourRotatingDots(
             size: 70.w,
@@ -59,7 +59,7 @@ class PegDetails extends ConsumerWidget {
     );
   }
 
-  Widget _buildDataView(SideswapPegStatus status, String btcFormat, WidgetRef ref) {
+  Widget _buildDataView(BuildContext context, SideswapPegStatus status, String btcFormat, WidgetRef ref) {
     return SingleChildScrollView(
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -78,12 +78,12 @@ class PegDetails extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(status, ref),
+            _buildHeader(context, status, ref),
             SizedBox(height: 16.h),
             Divider(color: Colors.grey.shade700),
             SizedBox(height: 16.h),
             Text(
-              "Transactions".i18n,
+              "Transaction Details".i18n,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18.sp,
@@ -98,24 +98,118 @@ class PegDetails extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(SideswapPegStatus status, WidgetRef ref) {
+  Widget _buildHeader(BuildContext context, SideswapPegStatus status, WidgetRef ref) {
+    // Determine overall status based on the first transaction or fallback to "Pending"
+    final firstTransaction = status.list?.isNotEmpty == true ? status.list!.first : null;
+    String statusText;
+    IconData statusIcon;
+    Color statusColor;
+
+    if (firstTransaction != null) {
+      switch (firstTransaction.txState) {
+        case 'InsufficientAmount':
+          statusText = "Insufficient Amount".i18n;
+          statusIcon = Icons.error_rounded;
+          statusColor = Colors.red;
+          break;
+        case 'Detected':
+          statusText = "Detected".i18n;
+          statusIcon = Icons.search_rounded;
+          statusColor = Colors.orange;
+          break;
+        case 'Processing':
+          statusText = "Processing".i18n;
+          statusIcon = Icons.hourglass_empty_rounded;
+          statusColor = Colors.yellow;
+          break;
+        case 'Done':
+          statusText = "Completed".i18n;
+          statusIcon = Icons.check_circle_rounded;
+          statusColor = Colors.green;
+          break;
+        default:
+          statusText = "Unknown".i18n;
+          statusIcon = Icons.help_rounded;
+          statusColor = Colors.grey;
+      }
+    } else {
+      statusText = "Pending".i18n;
+      statusIcon = Icons.access_time_rounded;
+      statusColor = Colors.orange;
+    }
+
     return Center(
       child: Column(
         children: [
-          Icon(Icons.swap_calls_rounded, color: Colors.orange, size: 40.w),
+          Icon(statusIcon, color: statusColor, size: 40.w),
           SizedBox(height: 8.h),
           Text(
-            "${"Order ID".i18n}: ${shortenString(status.orderId ?? "Error".i18n)}",
+            statusText,
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: statusColor,
             ),
           ),
+          SizedBox(height: 16.h),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "${"Order ID".i18n}: ",
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                shortenString(status.orderId ?? "Error".i18n),
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(width: 8.w),
+              IconButton(
+                icon: Icon(Icons.copy, color: Colors.orange, size: 16.w),
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: status.orderId ?? ''));
+                  showMessageSnackBar(
+                    context: context,
+                    message: 'Copied to clipboard'.i18n,
+                    error: false,
+                    info: true,
+                  );
+                },
+              ),
+            ],
+          ),
           SizedBox(height: 8.h),
-          Text(
-            "${"Received at".i18n}: ${shortenString(status.addrRecv ?? "Error".i18n)}",
-            style: TextStyle(fontSize: 16.sp, color: Colors.white),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "${"Received at".i18n}: ",
+                style: TextStyle(fontSize: 16.sp, color: Colors.white),
+              ),
+              Text(
+                shortenString(status.addrRecv ?? "Error".i18n),
+                style: TextStyle(fontSize: 16.sp, color: Colors.white),
+              ),
+              SizedBox(width: 8.w),
+              IconButton(
+                icon: Icon(Icons.copy, color: Colors.orange, size: 16.w),
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: status.addrRecv ?? ''));
+                  showMessageSnackBar(
+                    context: context,
+                    message: 'Copied to clipboard'.i18n,
+                    error: false,
+                    info: true,
+                  );
+                },
+              ),
+            ],
           ),
         ],
       ),
@@ -139,24 +233,24 @@ class PegDetails extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PegDetailRow(
+        TransactionDetailRow(
           label: "Send Transaction".i18n,
           value: transaction.txHash ?? "Error".i18n,
           onCopy: () => Clipboard.setData(ClipboardData(text: transaction.txHash ?? '')),
           shorten: true,
         ),
-        PegDetailRow(
+        TransactionDetailRow(
           label: "Received Transaction".i18n,
           value: transaction.payoutTxid ?? "No Information".i18n,
           onCopy: () => Clipboard.setData(ClipboardData(text: transaction.payoutTxid ?? '')),
           shorten: true,
         ),
-        PegDetailRow(
+        TransactionDetailRow(
           label: "Amount sent".i18n,
           value: btcInDenominationFormatted(transaction.amount!.toDouble(), btcFormat),
           shorten: false,
         ),
-        PegDetailRow(
+        TransactionDetailRow(
           label: "Amount received".i18n,
           value: btcInDenominationFormatted(transaction.payout!.toDouble() ?? 0, btcFormat),
           shorten: false,
@@ -223,18 +317,18 @@ class PegDetails extends ConsumerWidget {
   }
 }
 
-class PegDetailRow extends StatelessWidget {
+class TransactionDetailRow extends StatelessWidget {
   final String label;
   final String value;
   final VoidCallback? onCopy;
   final bool shorten;
 
-  const PegDetailRow({
+  const TransactionDetailRow({
     super.key,
     required this.label,
     required this.value,
     this.onCopy,
-    this.shorten = false, // Default to false
+    this.shorten = false,
   });
 
   String shortenString(String input, {int prefixLength = 5, int suffixLength = 5}) {
@@ -272,7 +366,7 @@ class PegDetailRow extends StatelessWidget {
                   IconButton(
                     icon: Icon(Icons.copy, color: Colors.orange, size: 16.w),
                     onPressed: () {
-                      onCopy?.call(); // Copy the full value
+                      onCopy?.call();
                       showMessageSnackBar(
                         context: context,
                         message: 'Copied to clipboard'.i18n,

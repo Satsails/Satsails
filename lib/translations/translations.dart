@@ -2323,8 +2323,8 @@ extension Localization on String {
         'pt': 'Compras são relatadas à Receita Federal brasileira em nome do pagador',
       } +
       {
-        'en': 'Purchase',
-        'pt': 'Comprar',
+        'en': '(Purchase)',
+        'pt': '(Compra)',
       } +
       {
         'en': 'Depix token purchases are returned to the sender bank if CPF/CNPJ diverges for the one registered',
@@ -2728,6 +2728,74 @@ extension Localization on String {
       {
         'en': 'Registered Tax id: ',
         'pt': 'ID do imposto registrado: ',
+      } +
+      {
+      'en': 'Bitcoin to Liquid Bitcoin Swap',
+      'pt': 'Troca de Bitcoin para Liquid Bitcoin',
+      } +
+      {
+      'en': 'Liquid Bitcoin to Bitcoin Swap',
+      'pt': 'Troca de Liquid Bitcoin para Bitcoin',
+      } +
+      {
+      'en': 'Lightning to Bitcoin Swap',
+      'pt': 'Troca de Lightning para Bitcoin',
+      } +
+      {
+      'en': 'Lightning to Liquid Bitcoin Swap',
+      'pt': 'Troca de Lightning para Liquid Bitcoin',
+      } +
+      {
+      'en': 'Bitcoin to Lightning Swap',
+      'pt': 'Troca de Bitcoin para Lightning',
+      } +
+      {
+      'en': 'Liquid Bitcoin to Lightning Swap',
+      'pt': 'Troca de Liquid Bitcoin para Lightning',
+      } +
+      {
+      'en': 'USDT to Liquid Bitcoin Swap',
+      'pt': 'Troca de USDT para Liquid Bitcoin',
+      } +
+      {
+      'en': 'EUROX to Liquid Bitcoin Swap',
+      'pt': 'Troca de EUROX para Liquid Bitcoin',
+      } +
+      {
+      'en': 'DEPIX to Liquid Bitcoin Swap',
+      'pt': 'Troca de DEPIX para Liquid Bitcoin',
+      } +
+      {
+      'en': 'Liquid Bitcoin to USDT Swap',
+      'pt': 'Troca de Liquid Bitcoin para USDT',
+      } +
+      {
+      'en': 'Liquid Bitcoin to EUROX Swap',
+      'pt': 'Troca de Liquid Bitcoin para EUROX',
+      } +
+      {
+      'en': 'Liquid Bitcoin to DEPIX Swap',
+      'pt': 'Troca de Liquid Bitcoin para DEPIX',
+      } +
+      {
+      'en': 'DEPIX to USDT Swap',
+      'pt': 'Troca de DEPIX para USDT',
+      } +
+      {
+      'en': 'USDT to EUROX Swap',
+      'pt': 'Troca de USDT para EUROX',
+      } +
+      {
+      'en': 'USDT to DEPIX Swap',
+      'pt': 'Troca de USDT para DEPIX',
+      } +
+      {
+      'en': 'EUROX to USDT Swap',
+      'pt': 'Troca de EUROX para USDT',
+      } +
+      {
+      'en': 'Exchange Transaction',
+      'pt': 'Transação de Troca',
       };
 
   String get i18n => localize(this, _t);
