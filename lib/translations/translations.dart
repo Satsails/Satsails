@@ -2692,9 +2692,43 @@ extension Localization on String {
       {
         'en': 'Payment successfully received',
         'pt': 'Pagamento recebido com sucesso',
+      } +
+      {
+        'en': 'Sync',
+        'pt': 'Sincronizar',
+      } +
+      {
+        'en': 'KYC Assessment',
+        'pt': 'Análise de KYC',
+      } +
+      {
+        'en': 'See status',
+        'pt': 'Ver status',
+      } +
+      {
+        'en': 'Receive non native asset',
+        'pt': 'Receber ativo não nativo',
+      } +
+      {
+        'en': 'Deposit Limits',
+        'pt': 'Limites de depósito',
+      } +
+      {
+        'en': 'Min',
+        'pt': 'Mín',
+      } +
+      {
+        'en': 'Max',
+        'pt': 'Máx',
+      } +
+      {
+        'en': 'Service fee',
+        'pt': 'Taxa de serviço',
+      } +
+      {
+        'en': 'Registered Tax id: ',
+        'pt': 'ID do imposto registrado: ',
       };
-
-
 
   String get i18n => localize(this, _t);
 }

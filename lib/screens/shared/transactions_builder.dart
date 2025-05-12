@@ -419,7 +419,7 @@ Widget _buildSideswapPegTransactionItem(
 
   // Transaction type
   final transactionType =
-  sideswapPegDetails.pegIn == true ? 'BTC - L-BTC' : 'L-BTC - BTC';
+  sideswapPegDetails.pegIn == true ? 'BTC -> L-BTC' : 'L-BTC -> BTC';
 
   return GestureDetector(
     onTap: () {

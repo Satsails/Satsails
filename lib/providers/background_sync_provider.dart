@@ -45,8 +45,8 @@ abstract class SyncNotifier<T> extends AsyncNotifier<T> {
 
 class BitcoinSyncNotifier extends SyncNotifier<int> {
   @override
-  int build() {
-    final balance = ref.read(getBitcoinBalanceProvider);
+  Future<int> build() async {
+    final balance = await ref.read(getBitcoinBalanceProvider.future);
     return balance.total.toInt();
   }
 
@@ -54,18 +54,26 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
   Future<int> performSync() async {
     return await handleSync(
       syncOperation: () async {
+        // Await the Bitcoin sync operation
         await ref.read(syncBitcoinProvider.future);
-        final addressIndex = ref.refresh(lastUsedAddressProvider);
-        final address = ref.refresh(bitcoinAddressProvider);
+
+        final addressIndex = await ref.refresh(lastUsedAddressProvider.future);
+        final address = await ref.refresh(bitcoinAddressProvider.future);
         ref.read(addressProvider.notifier).setBitcoinAddress(addressIndex, address);
-        final balance = ref.read(getBitcoinBalanceProvider);
+
+        // Retrieve the Bitcoin balance
+        final balance = await ref.read(getBitcoinBalanceProvider.future);
+
         ref.read(balanceNotifierProvider.notifier).updateBtcBalance(balance.total.toInt());
+
         return balance.total.toInt();
       },
       onSuccess: () {
+        // Optional: Actions on successful sync
         debugPrint('Bitcoin sync successful.');
       },
       onFailure: () {
+        // Update the online status on failure
         debugPrint('Bitcoin sync failed.');
       },
     );
@@ -83,11 +91,18 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
   Future<Balances> performSync() async {
     return await handleSync(
       syncOperation: () async {
+        // Await the Liquid sync operation
         await ref.read(syncLiquidProvider.future);
+
+        // Refresh and retrieve the last used Liquid address
         final liquidAddressIndex = await ref.refresh(liquidLastUsedAddressProvider.future);
         final liquidAddress = await ref.refresh(liquidAddressProvider.future);
         ref.read(addressProvider.notifier).setLiquidAddress(liquidAddressIndex, liquidAddress.confidential);
+
+        // Retrieve the Liquid balances
         final balances = await ref.read(liquidBalanceProvider.future);
+
+        // Update the balances
         final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
         for (var balance in balances) {
           switch (AssetMapper.mapAsset(balance.assetId)) {
@@ -107,12 +122,15 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
               break;
           }
         }
+
         return balances;
       },
       onSuccess: () {
+        // Optional: Actions on successful sync
         debugPrint('Liquid sync successful.');
       },
       onFailure: () {
+        // Update the online status on failure
         debugPrint('Liquid sync failed.');
       },
     );
@@ -120,9 +138,11 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
 }
 
 class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
+
   @override
   Future<WalletBalance> build() async {
     final initialBalance = ref.read(balanceNotifierProvider);
+
     return initialBalance;
   }
 
@@ -140,27 +160,36 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
         try {
           final futures = [
             ref.read(liquidSyncNotifierProvider.notifier).performSync().catchError((e) {
+              // Handle liquid sync error
               debugPrint('Liquid sync failed: $e');
               return null;
             }),
             ref.read(bitcoinSyncNotifierProvider.notifier).performSync().catchError((e) {
+              // Handle bitcoin sync error
               debugPrint('Bitcoin sync failed: $e');
               return null;
             }),
           ];
 
           final results = await Future.wait(futures);
+
+          // Extract results from Future.wait
           final liquidBalances = results[0] as Balances;
           final bitcoinBalance = results[1] as int;
+          // final lightningBalance = results[2] as int?;
           final lightningBalance = 0;
 
+          // Update the WalletBalance model
           final balanceData = WalletBalance.updateFromAssets(
             liquidBalances,
             bitcoinBalance,
-            lightningBalance,
+            lightningBalance ?? 0,
           );
 
+          // Update the balance
           balanceNotifier.updateBalance(balanceData);
+
+          // Compare balances and notify if increased
           _compareBalances(previousBalance, balanceData);
 
           // Update SideShift shifts
@@ -171,6 +200,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
 
           return balanceData;
         } catch (e, stackTrace) {
+          // Capture and rethrow errors to be handled by handleSync
           state = AsyncError(e, stackTrace);
           rethrow;
         } finally {
@@ -266,6 +296,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
     }
   }
 
+  /// Helper method to check balance increase and notify
   void _checkAndNotify({
     required String assetName,
     required int previousAmount,

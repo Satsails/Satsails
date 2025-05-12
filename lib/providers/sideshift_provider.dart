@@ -11,7 +11,7 @@ final sideShiftShiftsProvider = StateNotifierProvider<SideShiftShiftsNotifier, L
 // For receiving on Liquid
 final createReceiveSideShiftShiftProvider = FutureProvider.family.autoDispose<SideShift, ShiftPair>((ref, pair) async {
   final params = shiftParamsMap[pair]!;
-  final liquidAddress = await ref.watch(liquidAddressProvider.future);
+  final liquidAddress = await ref.read(liquidAddressProvider.future);
 
   final request = SideShiftShiftRequest(
     settleAddress: liquidAddress.confidential,

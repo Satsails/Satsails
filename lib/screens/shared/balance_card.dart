@@ -431,15 +431,32 @@ class SimplifiedExpensesGraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spots = dataToDisplay.entries.map((entry) {
+    // Convert dataToDisplay into a list of FlSpot objects
+    List<FlSpot> spots = dataToDisplay.entries.map((entry) {
       return FlSpot(
         entry.key.millisecondsSinceEpoch.toDouble(),
         entry.value.toDouble(),
       );
     }).toList();
 
-    final minY = spots.isNotEmpty ? spots.map((s) => s.y).reduce((a, b) => a < b ? a : b) : 0.0;
-    final maxY = spots.isNotEmpty ? spots.map((s) => s.y).reduce((a, b) => a > b ? a : b) : 1.0;
+    double minY;
+    double maxY;
+
+    // Handle the case where there are no transactions
+    if (spots.isEmpty) {
+      // Create default spots for a straight horizontal line
+      final now = DateTime.now().millisecondsSinceEpoch.toDouble();
+      spots = [
+        FlSpot(now - 100000, 0), // Point slightly in the past
+        FlSpot(now, 0),          // Current point
+      ];
+      minY = 0;  // Minimum y-value for the flat line
+      maxY = 1;  // Small range to ensure the graph renders correctly
+    } else {
+      // Use actual data range when transactions exist
+      minY = spots.map((s) => s.y).reduce((a, b) => a < b ? a : b);
+      maxY = spots.map((s) => s.y).reduce((a, b) => a > b ? a : b);
+    }
 
     return LineChart(
       LineChartData(

@@ -6,7 +6,7 @@ import 'package:hive/hive.dart';
 final initialAddressesProvider = FutureProvider<Address>((ref) async {
   final box = await Hive.openBox('addresses');
   final bitcoinAddressIndex = box.get('bitcoinIndex', defaultValue: 0);
-  final initialBtcAddress = ref.read(lastUsedAddressProviderString);
+  final initialBtcAddress = await ref.read(lastUsedAddressProviderString.future);
   final bitcoinAddress = box.get('bitcoinAddress', defaultValue: initialBtcAddress);
   final liquidAddressIndex = box.get('liquidIndex', defaultValue: 0);
   final liquidAddress = box.get('liquidAddress', defaultValue: '');

@@ -197,7 +197,6 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
       final appIsLocked = ref.read(appLockedProvider) == true;
       final shouldUpdateMemory = ref.read(shouldUpdateMemoryProvider);
       if (!appIsLocked && shouldUpdateMemory) {
-        fetchAndUpdateTransactions(ref);
         ref.read(updateCurrencyProvider);
         ref.read(backgroundSyncNotifierProvider.notifier).performSync();
       } else {

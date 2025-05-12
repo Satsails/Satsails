@@ -24,9 +24,10 @@ class TransactionModel extends StateNotifier<Transaction> {
     state = newTransactions;
   }
 }
+// This is a terrible piece of code, and needs to be optimized, but currently no time. We should work on this later.
 
 Future<void> fetchAndUpdateTransactions(WidgetRef ref) async {
-  final bitcoinTxs = await ref.watch(getBitcoinTransactionsProvider);
+  final bitcoinTxs = await ref.watch(getBitcoinTransactionsProvider.future);
   final bitcoinTransactions = bitcoinTxs.map((btcTx) {
     return BitcoinTransaction(
       id: btcTx.txid,

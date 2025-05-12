@@ -31,20 +31,6 @@ class Address {
     required this.liquidAddressIndex,
     required this.liquidAddress,
   });
-
-  Address copyWith({
-    int? bitcoinAddressIndex,
-    String? bitcoinAddress,
-    int? liquidAddressIndex,
-    String? liquidAddress,
-  }) {
-    return Address(
-      bitcoinAddressIndex: bitcoinAddressIndex ?? this.bitcoinAddressIndex,
-      bitcoinAddress: bitcoinAddress ?? this.bitcoinAddress,
-      liquidAddressIndex: liquidAddressIndex ?? this.liquidAddressIndex,
-      liquidAddress: liquidAddress ?? this.liquidAddress,
-    );
-  }
 }
 
 class AddressModel extends StateNotifier<Address> {
@@ -53,20 +39,44 @@ class AddressModel extends StateNotifier<Address> {
   Future<void> setLiquidAddress(int index, String address) async {
     final box = await Hive.openBox('addresses');
     final currentIndex = box.get('liquidIndex', defaultValue: 0);
+
+    // Only proceed if the index is new or higher
     if (currentIndex <= index) {
       box.put('liquidIndex', index);
       box.put('liquidAddress', address);
-      state = state.copyWith(liquidAddressIndex: index, liquidAddress: address);
+
+      // Check if the values have actually changed
+      if (state.liquidAddressIndex != index || state.liquidAddress != address) {
+        // Update state with a new Address instance
+        state = Address(
+          bitcoinAddressIndex: state.bitcoinAddressIndex,
+          bitcoinAddress: state.bitcoinAddress,
+          liquidAddressIndex: index,
+          liquidAddress: address,
+        );
+      }
     }
   }
 
   Future<void> setBitcoinAddress(int index, String address) async {
     final box = await Hive.openBox('addresses');
     final currentIndex = box.get('bitcoinIndex', defaultValue: 0);
+
+    // Only proceed if the index is new or higher
     if (currentIndex <= index) {
       box.put('bitcoinIndex', index);
       box.put('bitcoinAddress', address);
-      state = state.copyWith(bitcoinAddressIndex: index, bitcoinAddress: address);
+
+      // Check if the values have actually changed
+      if (state.bitcoinAddressIndex != index || state.bitcoinAddress != address) {
+        // Update state with a new Address instance
+        state = Address(
+          bitcoinAddressIndex: index,
+          bitcoinAddress: address,
+          liquidAddressIndex: state.liquidAddressIndex,
+          liquidAddress: state.liquidAddress,
+        );
+      }
     }
   }
 }
