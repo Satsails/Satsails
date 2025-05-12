@@ -193,7 +193,6 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   void _startSyncTimer() {
     _cancelSyncTimer();
 
-     fetchAndUpdateTransactions(ref);
     _syncTimer = Timer.periodic(const Duration(seconds: 20), (timer) {
       final appIsLocked = ref.read(appLockedProvider) == true;
       final shouldUpdateMemory = ref.read(shouldUpdateMemoryProvider);
@@ -225,6 +224,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final language = ref.watch(settingsProvider).language;
+    fetchAndUpdateTransactions(ref);
 
     I18n.define(Locale(language));
 

@@ -294,8 +294,8 @@ class BalanceCard extends ConsumerWidget {
 
   Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref, Color textColor) {
     final currency = ref.watch(settingsProvider).currency;
-    final coinGeckoData = ref.read(coinGeckoBitcoinChange(currency.toLowerCase()));
-    final currentPrice = ref.read(selectedCurrencyProvider(currency)) * 1;
+    final coinGeckoData = ref.watch(coinGeckoBitcoinChange(currency.toLowerCase()));
+    final currentPrice = ref.watch(selectedCurrencyProvider(currency)) * 1;
 
     return coinGeckoData.when(
       data: (data) {

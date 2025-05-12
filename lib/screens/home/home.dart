@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
@@ -8,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:upgrader/upgrader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
