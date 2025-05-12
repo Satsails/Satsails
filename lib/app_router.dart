@@ -297,7 +297,7 @@ class AppRouter {
                   path: 'confirm_spark_bitcoin_payment', // Corrected to relative path
                   name: 'pay_spark_bitcoin',
                   pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: const ConfirmSparkBitcoinPayment(),
+                    child: ConfirmSparkBitcoinPayment(key: UniqueKey()),
                     state: state,
                   ),
                 ),
@@ -305,7 +305,7 @@ class AppRouter {
                   path: 'confirm_non_native_asset_bitcoin_payment', // Corrected to relative path
                   name: 'pay_non_native_asset',
                   pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: const ConfirmNonNativeAssetPayment(),
+                    child: ConfirmNonNativeAssetPayment(key: UniqueKey()),
                     state: state,
                   ),
                 ),

@@ -1,6 +1,7 @@
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/transaction_data_provider.dart';
+import 'package:Satsails/screens/pay/conform_non_native_asset_payment.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:quickalert/quickalert.dart';
-
 
 class Camera extends ConsumerStatefulWidget {
   final PaymentType paymentType;
@@ -81,27 +81,31 @@ class _CameraState extends ConsumerState<Camera> {
       await _controller?.stop();
 
       try {
-        await ref.refresh(setAddressAndAmountProvider(code).future);
-        final providerPaymentType = ref.read(sendTxProvider).type;
+        if (widget.paymentType == PaymentType.NonNative) {
+          ref.read(nonNativeAddressProvider.notifier).state = code;
+          context.pop();
+        } else {
+          await ref.refresh(setAddressAndAmountProvider(code).future);
+          final providerPaymentType = ref.read(sendTxProvider).type;
 
-        if (widget.paymentType == PaymentType.Spark) {
-          if (providerPaymentType == PaymentType.Lightning ||
-              providerPaymentType == PaymentType.Bitcoin) {
+          if (widget.paymentType == PaymentType.Spark) {
+            if (providerPaymentType == PaymentType.Lightning ||
+                providerPaymentType == PaymentType.Bitcoin) {
+              context.pop(code);
+            } else {
+              _showErrorDialog(
+                context,
+                'Invalid payment type for Spark. Expected Lightning or Bitcoin.'.i18n,
+              );
+            }
+          } else if (providerPaymentType == widget.paymentType) {
             context.pop(code);
           } else {
             _showErrorDialog(
               context,
-              'Invalid payment type for Spark. Expected Lightning or Bitcoin.'.i18n,
+              'Scanned payment type does not match expected type'.i18n,
             );
           }
-        }
-        else if (providerPaymentType == widget.paymentType || widget.paymentType == PaymentType.NonNative) {
-          context.pop(code);
-        } else {
-          _showErrorDialog(
-            context,
-            'Scanned payment type does not match expected type'.i18n,
-          );
         }
       } catch (e) {
         _showErrorDialog(context, e.toString());
