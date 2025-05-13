@@ -2209,8 +2209,8 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
           controller.loading();
           try {
             if (sendLn) {
-              final liquidAddress = await ref.read(liquidAddressProvider.future);
-              ref.read(sendTxProvider.notifier).updateAddress(liquidAddress.confidential);
+              final liquidAddress = ref.read(addressProvider).liquidAddress;
+              ref.read(sendTxProvider.notifier).updateAddress(liquidAddress);
               await ref.read(sendCoinosLiquidProvider.future);
             } else {
               final addressFromCoinos = await ref.read(createInvoiceForSwapProvider('liquid').future);

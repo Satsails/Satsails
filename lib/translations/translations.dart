@@ -2796,6 +2796,10 @@ extension Localization on String {
       {
       'en': 'Exchange Transaction',
       'pt': 'Transação de Troca',
+      } +
+      {
+        'en': 'Expired',
+        'pt': 'Expirado',
       };
 
   String get i18n => localize(this, _t);

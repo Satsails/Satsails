@@ -1,4 +1,5 @@
 import 'package:Satsails/models/eulen_transfer_model.dart';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
@@ -55,8 +56,8 @@ final getRegisteredTaxIdProvider = FutureProvider.autoDispose<String>((ref) asyn
 
 final createEulenTransferRequestProvider = FutureProvider.autoDispose.family<EulenTransfer, int>((ref, amount) async {
   final auth = ref.read(userProvider).jwt;
-  final liquidAddress = await ref.read(liquidAddressProvider.future);
-  final result = await EulenService.createTransaction(auth, amount, liquidAddress.confidential);
+  final liquidAddress = ref.read(addressProvider).liquidAddress;
+  final result = await EulenService.createTransaction(auth, amount, liquidAddress);
   if (result.isSuccess && result.data != null) {
     ref.read(eulenTransferProvider.notifier).mergeTransfer(result.data!);
     return result.data!;

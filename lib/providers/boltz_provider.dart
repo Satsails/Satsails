@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/helpers/liquid_block_height.dart';
@@ -83,14 +84,15 @@ final boltzReceiveProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   final fees = await ref.read(boltzReverseFeesProvider.future);
   final authModel = ref.read(authModelProvider);
   final mnemonic = await authModel.getMnemonic();
-  final address = await ref.read(liquidAddressProvider.future);
+  final address = ref.read(addressProvider).liquidAddress;
+  final addressIndex = ref.read(addressProvider).liquidAddressIndex;
   final amount = ref.watch(sendTxProvider).amount == 0 ? await ref.watch(lnAmountProvider.future) : ref.watch(sendTxProvider).amount;
   final electrumUrl = await ref.read(settingsProvider).liquidElectrumNode;
   final receive = await LbtcBoltz.createBoltzReceive(
     fees: fees,
     mnemonic: mnemonic!,
-    index: address.index!,
-    address: address.confidential,
+    index: addressIndex,
+    address: address,
     amount: amount,
     electrumUrl: electrumUrl,
   );
@@ -99,14 +101,14 @@ final boltzReceiveProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
 });
 
 final claimSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<bool, String>((ref, id) async {
-  final receiveAddress = await ref.read(liquidAddressProvider.future);
+  final receiveAddress = ref.read(addressProvider).liquidAddress;
   final fees = await ref.read(boltzReverseFeesProvider.future);
   final box = ref.read(boltzSwapsBoxProvider);
   final boltzSwap = box.get(id) as LbtcBoltz;
   final electrumUrl = ref.read(settingsProvider).liquidElectrumNode;
 
   final received = await boltzSwap.claimBoltzTransaction(
-    receiveAddress: receiveAddress.confidential,
+    receiveAddress: receiveAddress,
     fees: fees,
     electrumUrl: electrumUrl,
   );
@@ -124,7 +126,7 @@ final claimSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<bo
 final boltzPayProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   final fees = await ref.read(boltzSubmarineFeesProvider.future);
   var sendTx = ref.watch(sendTxProvider.notifier);
-  final address = await ref.read(liquidAddressProvider.future);
+  final addressIndex = ref.read(addressProvider).liquidAddressIndex;
   final authModel = ref.read(authModelProvider);
   final mnemonic = await authModel.getMnemonic();
   final electrumUrl = await ref.read(settingsProvider).liquidElectrumNode;
@@ -133,7 +135,7 @@ final boltzPayProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
     mnemonic: mnemonic!,
     invoice: sendTx.state.address,
     amount: sendTx.state.amount,
-    index: address.index!,
+    index: addressIndex,
     electrumUrl: electrumUrl,
   );
   await ref.read(boltzSwapProvider.notifier).addSwap(pay);
@@ -146,7 +148,7 @@ final boltzPayProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
 
 final refundSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<bool, String>((ref, id) async {
   final fees = await ref.read(boltzSubmarineFeesProvider.future);
-  final address = await ref.read(liquidAddressProvider.future);
+  final address = ref.read(addressProvider).liquidAddress;
   final box = ref.read(boltzSwapsBoxProvider);
   final boltzSwap = box.get(id) as LbtcBoltz;
   final electrumUrl = await ref.read(settingsProvider).liquidElectrumNode;
@@ -154,7 +156,7 @@ final refundSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<b
   final refunded = await boltzSwap.refund(
     fees: fees,
     tryCooperate: true,
-    outAddress: address.confidential,
+    outAddress: address,
     electrumUrl: electrumUrl,
   );
 

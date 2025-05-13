@@ -1,6 +1,7 @@
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/models/user_model.dart';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -61,8 +62,8 @@ final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>
 
 final addCashbackProvider = FutureProvider.autoDispose<bool>((ref) async {
   final auth = ref.read(userProvider).jwt!;
-  final cashbackAddress = await ref.read(liquidAddressProvider.future);
-  final result = await UserService.addCashbackAddressCode(cashbackAddress.confidential, auth);
+  final cashbackAddress = ref.read(addressProvider).liquidAddress;
+  final result = await UserService.addCashbackAddressCode(cashbackAddress, auth);
 
   if (result.isSuccess && result.data == true) {
     ref.read(userProvider.notifier).setHasUploadedLiquidAddress(true);

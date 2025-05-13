@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -39,8 +40,7 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
     String inputValue = controller.text;
     ref.read(inputAmountProvider.notifier).state =
     inputValue.isEmpty ? '0.0' : inputValue;
-    final liquidAddressWithAmountAsyncValue =
-    await ref.watch(liquidReceiveAddressAmountProvider.future);
+    final liquidAddressWithAmountAsyncValue = ref.watch(liquidReceiveAddressAmountProvider);
     setState(() {
       includeAmountInAddress = true;
       liquidAddressWithAmount = liquidAddressWithAmountAsyncValue;
@@ -49,7 +49,7 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final liquidAddressAsyncValue = ref.watch(liquidAddressProvider);
+    final liquidAddress = ref.watch(addressProvider).liquidAddress;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -57,7 +57,7 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
         SizedBox(height: 24.h),
         includeAmountInAddress
             ? _buildAddressWithAmount(liquidAddressWithAmount)
-            : _buildDefaultAddress(liquidAddressAsyncValue),
+            : _buildDefaultAddress(liquidAddress),
         Padding(
           padding: EdgeInsets.all(16.h),
           child: AmountInput(controller: controller),
@@ -75,33 +75,19 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
     );
   }
 
-  Widget _buildDefaultAddress(AsyncValue<Address> liquidAddressAsyncValue) {
-    return liquidAddressAsyncValue.when(
-      data: (liquidAddress) {
+  Widget _buildDefaultAddress(String liquidAddress) {
         return Center(
           child: Column(
             children: [
-              buildQrCode(liquidAddress.confidential, context),
+              buildQrCode(liquidAddress, context),
               SizedBox(height: 16.h),
               Padding(
                 padding: EdgeInsets.all(16.h),
-                child: buildAddressText(liquidAddress.confidential, context, ref),
+                child: buildAddressText(liquidAddress, context, ref),
               ),
             ],
           ),
         );
-      },
-      loading: () => LoadingAnimationWidget.fourRotatingDots(
-        size: 70.w,
-        color: Colors.orange,
-      ),
-      error: (error, stack) => const Center(
-        child: Text(
-          'Error loading address',
-          style: TextStyle(color: Colors.red),
-        ),
-      ),
-    );
   }
 
   Widget _buildAddressWithAmount(String liquidAddressWithAmount) {

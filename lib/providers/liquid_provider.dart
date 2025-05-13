@@ -38,18 +38,18 @@ final liquidLastUsedAddressProvider = FutureProvider.autoDispose<int>((ref) asyn
   });
 });
 
+final liquidLastUsedAddressStringProvider = FutureProvider.autoDispose<String>((ref) async {
+  return ref.watch(initializeLiquidProvider.future).then((liquid) {
+    LiquidModel liquidModel = LiquidModel(liquid);
+    return liquidModel.getLatestAddress();
+  });
+});
+
 final liquidAddressProvider = FutureProvider.autoDispose<Address>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     final addressIndex = ref.watch(addressProvider).liquidAddressIndex;
     return liquidModel.getAddressOfIndex(addressIndex);
-  });
-});
-
-final liquidAddressOfIndexProvider = FutureProvider.autoDispose.family<String, int>((ref, index) {
-  return ref.watch(initializeLiquidProvider.future).then((liquid) {
-    LiquidModel liquidModel = LiquidModel(liquid);
-    return liquidModel.getAddressOfIndexString(index);
   });
 });
 

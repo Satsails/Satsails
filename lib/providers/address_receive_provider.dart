@@ -102,7 +102,7 @@ String calculateAmountInSelectedCurrency(int sats, String currency, currencyConv
   }
 }
 
-final bitcoinReceiveAddressAmountProvider = Provider.autoDispose<String>((ref) {
+final bitcoinReceiveAddressAmountProvider = StateProvider.autoDispose<String>((ref) {
   final address = ref.read(addressProvider).bitcoinAddress;
   final amount = ref.watch(inputAmountProvider);
   final currency = ref.watch(inputCurrencyProvider);
@@ -116,8 +116,8 @@ final bitcoinReceiveAddressAmountProvider = Provider.autoDispose<String>((ref) {
   }
 });
 
-final liquidReceiveAddressAmountProvider = FutureProvider.autoDispose<String>((ref) async {
-  final address = await ref.read(liquidAddressProvider.future).then((value) => value.confidential);
+final liquidReceiveAddressAmountProvider = StateProvider.autoDispose<String>((ref) {
+  final address = ref.read(addressProvider).liquidAddress;
   final amount = ref.watch(inputAmountProvider);
   final currency = ref.watch(inputCurrencyProvider);
   final currencyConverter = ref.read(currencyNotifierProvider);

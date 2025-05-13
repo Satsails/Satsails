@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
@@ -11,10 +12,10 @@ final sideShiftShiftsProvider = StateNotifierProvider<SideShiftShiftsNotifier, L
 // For receiving on Liquid
 final createReceiveSideShiftShiftProvider = FutureProvider.family.autoDispose<SideShift, ShiftPair>((ref, pair) async {
   final params = shiftParamsMap[pair]!;
-  final liquidAddress = await ref.read(liquidAddressProvider.future);
+  final liquidAddress = ref.read(addressProvider).liquidAddress;
 
   final request = SideShiftShiftRequest(
-    settleAddress: liquidAddress.confidential,
+    settleAddress: liquidAddress,
     depositCoin: params.depositCoin,
     settleCoin: params.settleCoin,
     depositNetwork: params.depositNetwork,
@@ -36,11 +37,11 @@ final createReceiveSideShiftShiftProvider = FutureProvider.family.autoDispose<Si
 final createSendSideShiftShiftProvider = FutureProvider.family.autoDispose<SideShift, (ShiftPair, String)>((ref, args) async {
   final (pair, settleAddress) = args;
   final params = shiftParamsMap[pair]!;
-  final liquidAddress = await ref.watch(liquidAddressProvider.future);
+  final liquidAddress = ref.watch(addressProvider).liquidAddress;
 
   final request = SideShiftShiftRequest(
     settleAddress: settleAddress,
-    refundAddress: liquidAddress.confidential,
+    refundAddress: liquidAddress,
     depositCoin: params.depositCoin,
     settleCoin: params.settleCoin,
     depositNetwork: params.depositNetwork,

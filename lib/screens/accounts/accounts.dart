@@ -192,7 +192,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                                   )
                                       : '***',
                                   Image.asset('lib/assets/l-btc.png', width: 32.sp, height: 32.sp),
-                                  ref.watch(liquidAddressProvider.future),
+                                  ref.watch(addressProvider).liquidAddress,
                                   isBalanceVisible
                                       ? currencyFormat(
                                     ref.watch(currentBitcoinPriceInCurrencyProvider(
@@ -210,7 +210,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                                   'Depix',
                                   isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance) : '***',
                                   Image.asset('lib/assets/depix.png', width: 32.sp, height: 32.sp),
-                                  ref.watch(liquidAddressProvider.future),
+                                  ref.watch(addressProvider).liquidAddress,
                                   AssetId.BRL,
                                 ),
                                 _buildStableCard(
@@ -219,7 +219,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                                   'USDT',
                                   isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance) : '***',
                                   Image.asset('lib/assets/tether.png', width: 32.sp, height: 32.sp),
-                                  ref.watch(liquidAddressProvider.future),
+                                  ref.watch(addressProvider).liquidAddress,
                                   AssetId.USD,
                                 ),
                                 _buildStableCard(
@@ -228,7 +228,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                                   'EURx',
                                   isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance) : '***',
                                   Image.asset('lib/assets/eurx.png', width: 32.sp, height: 32.sp),
-                                  ref.watch(liquidAddressProvider.future),
+                                  ref.watch(addressProvider).liquidAddress,
                                   AssetId.EUR,
                                 ),
                               ],

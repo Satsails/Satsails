@@ -14,6 +14,11 @@ class LiquidModel {
     return address.index!;
   }
 
+  Future<String> getLatestAddress() async {
+    final address = await config.liquid.wallet.addressLastUnused();
+    return address.confidential!;
+  }
+
   Future<Address> getAddressOfIndex(int index) async {
     final address = await config.liquid.wallet.address(index: index);
     return address;

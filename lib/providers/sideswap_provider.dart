@@ -64,9 +64,9 @@ final sideswapPegProvider = StreamProvider.autoDispose<SideswapPeg>((ref) async*
   final pegIn = ref.watch(pegInProvider);
   final blocks = ref.watch(pegOutBlocksProvider);
   final service = ref.watch(sideswapServiceProvider);
-  final liquidAddress = await ref.watch(liquidAddressProvider.future);
+  final liquidAddress = ref.watch(addressProvider).liquidAddress;
   final bitcoinAddress = ref.watch(addressProvider).bitcoinAddress;
-  pegIn ? service.peg(recv_addr: liquidAddress.confidential, peg_in: pegIn) : service.peg(recv_addr: bitcoinAddress, peg_in: pegIn, blocks: blocks);
+  pegIn ? service.peg(recv_addr: liquidAddress, peg_in: pegIn) : service.peg(recv_addr: bitcoinAddress, peg_in: pegIn, blocks: blocks);
 
   yield* service.pegStream.map((event) => SideswapPeg.fromJson(event));
 });
