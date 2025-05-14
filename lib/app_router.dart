@@ -1,7 +1,7 @@
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
-import 'package:Satsails/screens/pay/conform_non_native_asset_payment.dart';
+import 'package:Satsails/screens/pay/components/confirm_non_native_asset_payment.dart';
 import 'package:Satsails/screens/shared/nox_transaction_details.dart';
 import 'package:Satsails/screens/shared/peg_details.dart';
 import 'package:Satsails/screens/explore/components/deposit_bitcoin_pix_nox.dart';

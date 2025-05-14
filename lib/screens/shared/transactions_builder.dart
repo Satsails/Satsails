@@ -1,5 +1,6 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
+import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
@@ -314,7 +315,12 @@ Widget _buildSideshiftTransactionItem(
   }
 
   // Transaction title showing the shift direction
-  final title = "Shift to ${details.settleCoin} on ${details.settleNetwork}".i18n;
+  String title = '';
+  if (['solana', 'bsc', 'ethereum'].contains(details.depositNetwork.toLowerCase())) {
+    title = "${details.depositCoin} -> ${details.settleNetwork.capitalize()} ${details.settleCoin}";
+  } else {
+    title = "${details.depositNetwork.capitalize()} ${details.depositCoin} -> ${details.settleNetwork.capitalize()} ${details.settleCoin}";
+  }
   String locale = I18n.locale?.languageCode ?? 'en';
   // Format the transaction date
   final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(transaction.timestamp);
@@ -386,7 +392,7 @@ Widget _buildSideshiftTransactionItem(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            "${details.settleAmount} ${details.settleCoin}",
+                            "${double.parse(details.settleAmount).toStringAsFixed(2)} ${details.settleCoin}",
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.bold,

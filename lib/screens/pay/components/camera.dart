@@ -1,7 +1,7 @@
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/transaction_data_provider.dart';
-import 'package:Satsails/screens/pay/conform_non_native_asset_payment.dart';
+import 'package:Satsails/screens/pay/components/confirm_non_native_asset_payment.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

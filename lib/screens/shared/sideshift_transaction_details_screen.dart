@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
@@ -97,7 +98,7 @@ class _SideShiftTransactionDetailsScreenState extends ConsumerState<SideShiftTra
               TransactionDetailRow(label: 'Date'.i18n, value: formattedDate),
               TransactionDetailRow(label: 'ID'.i18n, value: details.id, isCopiable: true),
               TransactionDetailRow(label: 'Status'.i18n, value: statusText),
-              TransactionDetailRow(label: 'Type'.i18n, value: details.type),
+              TransactionDetailRow(label: 'Type'.i18n, value: details.type.i18n),
               TransactionDetailRow(label: 'Expires At'.i18n, value: expiresAtText),
               SizedBox(height: 16.h),
               Text(
@@ -230,21 +231,21 @@ class _SideShiftTransactionDetailsScreenState extends ConsumerState<SideShiftTra
       final expireTime = DateTime.parse(expiresAt);
       final now = DateTime.now();
       if (expireTime.isBefore(now)) {
-        return 'Expired';
+        return 'Expired'.i18n;
       } else {
         final difference = expireTime.difference(now);
         if (difference.inDays > 0) {
-          return 'Expires in ${difference.inDays} days';
+          return '${difference.inDays} days'.i18n.fill(difference.inDays);
         } else if (difference.inHours > 0) {
-          return 'Expires in ${difference.inHours} hours';
+          return '${difference.inHours} hours'.i18n.fill(difference.inHours);
         } else if (difference.inMinutes > 0) {
-          return 'Expires in ${difference.inMinutes} minutes';
+          return '${difference.inMinutes} minutes'.i18n.fill(difference.inMinutes);
         } else {
-          return 'Expires soon';
+          return 'Expires soon'.i18n;
         }
       }
     } catch (e) {
-      return 'Invalid date';
+      return 'Invalid date'.i18n;
     }
   }
 

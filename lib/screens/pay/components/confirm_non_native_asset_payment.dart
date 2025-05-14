@@ -18,7 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-final nonNativeAddressProvider = StateProvider<String?>((ref) => null);
+final nonNativeAddressProvider = StateProvider.autoDispose<String?>((ref) => null);
 
 class ConfirmNonNativeAssetPayment extends ConsumerStatefulWidget {
   const ConfirmNonNativeAssetPayment({super.key});
@@ -460,41 +460,80 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                     });
                     controller.loading();
 
+                    SideShift? shift; // Changed to nullable type
                     try {
-                      final shift = await ref.read(createSendSideShiftShiftProvider((ref.read(selectedSendShiftPairProvider), addressController.text)).future);
+                      // Create the shift
+                      shift = await ref.read(createSendSideShiftShiftProvider((ref.read(selectedSendShiftPairProvider), addressController.text)).future);
 
+                      // Check if amount is within valid range
+                      final amount = ref.read(sendTxProvider).amount;
+                      final depositMin = double.parse(shift!.depositMin) * 100000000;
+                      final depositMax = double.parse(shift!.depositMax) * 100000000;
+                      if (amount < depositMin) {
+                        controller.failure();
+                        ref.read(deleteSideShiftProvider(shift!.id));
+                        showMessageSnackBar(
+                          message: "Amount is too small".i18n,
+                          error: true,
+                          context: context,
+                        );
+                        controller.reset();
+                        return;
+                      } else if (amount > depositMax) {
+                        controller.failure();
+                        ref.read(deleteSideShiftProvider(shift!.id));
+                        showMessageSnackBar(
+                          message: "Amount is too large".i18n,
+                          error: true,
+                          context: context,
+                        );
+                        controller.reset();
+                        return;
+                      }
+
+                      // Show confirmation modal
                       final confirmed = await showConfirmationModal(
                         context,
-                        fiatInDenominationFormatted(ref.read(sendTxProvider).amount),
-                        shift.settleAddress,
-                        shift.networkFeeUsd,
+                        fiatInDenominationFormatted(amount),
+                        shift!.settleAddress,
+                        shift!.networkFeeUsd,
                         btcFormat,
                         ref,
                       );
 
-                      if (confirmed) {
-                        ref.read(sendTxProvider.notifier).updateAddress(shift.depositAddress);
-                        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
-                        final tx = await ref.read(liquidPayjoinTransaction.future);
-
-                        showFullscreenTransactionSendModal(
-                          context: context,
-                          asset: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).name,
-                          amount: btcInDenominationFormatted(ref.watch(sendTxProvider).amount, btcFormat),
-                          fiat: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).isFiat,
-                          fiatAmount: ref.watch(sendTxProvider).amount.toString(),
-                          txid: tx,
-                          isLiquid: true,
-                          receiveAddress: shift.settleAddress,
-                          confirmationBlocks: 1,
-                        );
-
-                        ref.read(sendTxProvider.notifier).resetToDefault();
-                        context.replace('/home');
-                      } else {
+                      if (!confirmed) {
+                        // User canceled, clean up the shift
+                        ref.read(deleteSideShiftProvider(shift!.id));
                         controller.reset();
+                        return;
                       }
+
+                      // Proceed with the transaction
+                      ref.read(sendTxProvider.notifier).updateAddress(shift!.depositAddress);
+                      ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
+                      final tx = await ref.read(liquidPayjoinTransaction.future);
+
+                      // Show transaction success modal
+                      showFullscreenTransactionSendModal(
+                        context: context,
+                        asset: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).name,
+                        amount: btcInDenominationFormatted(ref.watch(sendTxProvider).amount, btcFormat),
+                        fiat: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).isFiat,
+                        fiatAmount: ref.watch(sendTxProvider).amount.toString(),
+                        txid: tx,
+                        isLiquid: true,
+                        receiveAddress: shift!.settleAddress,
+                        confirmationBlocks: 1,
+                      );
+
+                      // Reset state and navigate home
+                      ref.read(sendTxProvider.notifier).resetToDefault();
+                      context.replace('/home');
                     } catch (e) {
+                      // Handle any errors, clean up shift if it was created
+                      if (shift != null) {
+                        ref.read(deleteSideShiftProvider(shift!.id));
+                      }
                       controller.failure();
                       showMessageSnackBar(
                         message: e.toString().i18n,
@@ -503,6 +542,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                       );
                       controller.reset();
                     } finally {
+                      // Ensure isProcessing is reset regardless of outcome
                       setState(() {
                         isProcessing = false;
                       });

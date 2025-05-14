@@ -1,11 +1,11 @@
 import 'package:Satsails/models/sideshift_model.dart';
-import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/providers/sideshift_provider.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/translations/translations.dart';
 
@@ -28,7 +28,6 @@ class ReceiveNonNativeAsset extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildTitle(_getShiftPairDisplayName(shiftPair)),
             SizedBox(height: 16.h),
             shiftAsync.when(
               data: (shift) => Column(
@@ -56,7 +55,7 @@ class ReceiveNonNativeAsset extends ConsumerWidget {
                     {'label': 'Service fee'.i18n, 'value': '1%'},
                   ]),
                   _buildWarning(
-                    'Warning: Sending from any other network might result in loss of funds. Ensure you are sending from the ${shift.depositNetwork} network.'.i18n,
+                    'Warning: Sending from any other network might result in loss of funds.'.i18n
                   ),
                 ],
               ),
@@ -75,18 +74,6 @@ class ReceiveNonNativeAsset extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildTitle(String title) {
-    return Text(
-      title,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: 20.sp,
-        fontWeight: FontWeight.bold,
       ),
     );
   }
@@ -171,40 +158,5 @@ class ReceiveNonNativeAsset extends ConsumerWidget {
 
   bool _isFiat(String coin) {
     return ['USD', 'EUR', 'BRL'].contains(coin.toUpperCase());
-  }
-
-  String _getShiftPairDisplayName(ShiftPair pair) {
-    switch (pair) {
-      case ShiftPair.usdtTronToLiquidUsdt:
-        return 'Receive Liquid USDT from USDT on Tron';
-      case ShiftPair.usdtBscToLiquidUsdt:
-        return 'Receive Liquid USDT from USDT on BSC';
-      case ShiftPair.usdtEthToLiquidUsdt:
-        return 'Receive Liquid USDT from USDT on Ethereum';
-      case ShiftPair.usdtSolToLiquidUsdt:
-        return 'Receive Liquid USDT from USDT on Solana';
-      case ShiftPair.usdtPolygonToLiquidUsdt:
-        return 'Receive Liquid USDT from USDT on Polygon';
-      case ShiftPair.usdcEthToLiquidUsdt:
-        return 'Receive Liquid USDT from USDC on Ethereum';
-      case ShiftPair.usdcTronToLiquidUsdt:
-        return 'Receive Liquid USDT from USDC on Tron';
-      case ShiftPair.usdcBscToLiquidUsdt:
-        return 'Receive Liquid USDT from USDC on BSC';
-      case ShiftPair.usdcSolToLiquidUsdt:
-        return 'Receive Liquid USDT from USDC on Solana';
-      case ShiftPair.usdcPolygonToLiquidUsdt:
-        return 'Receive Liquid USDT from USDC on Polygon';
-      case ShiftPair.ethToLiquidBtc:
-        return 'Receive Liquid BTC from ETH';
-      case ShiftPair.trxToLiquidBtc:
-        return 'Receive Liquid BTC from TRX';
-      case ShiftPair.bnbToLiquidBtc:
-        return 'Receive Liquid BTC from BNB';
-      case ShiftPair.solToLiquidBtc:
-        return 'Receive Liquid BTC from SOL';
-      default:
-        return 'Receive ${pair.toString().split('.').last}';
-    }
   }
 }

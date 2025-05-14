@@ -2666,9 +2666,9 @@ extension Localization on String {
         'en': 'Under review',
         'pt': 'Em revisão',
       } +{
-      'en': 'BUY',
-      'pt': 'COMPRAR',
-     } +
+    'en': 'BUY',
+    'pt': 'COMPRAR',
+  } +
       {
         'en': 'From',
         'pt': 'De',
@@ -2730,76 +2730,440 @@ extension Localization on String {
         'pt': 'ID do imposto registrado: ',
       } +
       {
-      'en': 'Bitcoin to Liquid Bitcoin Swap',
-      'pt': 'Troca de Bitcoin para Liquid Bitcoin',
+        'en': 'Bitcoin to Liquid Bitcoin Swap',
+        'pt': 'Troca de Bitcoin para Liquid Bitcoin',
       } +
       {
-      'en': 'Liquid Bitcoin to Bitcoin Swap',
-      'pt': 'Troca de Liquid Bitcoin para Bitcoin',
+        'en': 'Liquid Bitcoin to Bitcoin Swap',
+        'pt': 'Troca de Liquid Bitcoin para Bitcoin',
       } +
       {
-      'en': 'Lightning to Bitcoin Swap',
-      'pt': 'Troca de Lightning para Bitcoin',
+        'en': 'Lightning to Bitcoin Swap',
+        'pt': 'Troca de Lightning para Bitcoin',
       } +
       {
-      'en': 'Lightning to Liquid Bitcoin Swap',
-      'pt': 'Troca de Lightning para Liquid Bitcoin',
+        'en': 'Lightning to Liquid Bitcoin Swap',
+        'pt': 'Troca de Lightning para Liquid Bitcoin',
       } +
       {
-      'en': 'Bitcoin to Lightning Swap',
-      'pt': 'Troca de Bitcoin para Lightning',
+        'en': 'Bitcoin to Lightning Swap',
+        'pt': 'Troca de Bitcoin para Lightning',
       } +
       {
-      'en': 'Liquid Bitcoin to Lightning Swap',
-      'pt': 'Troca de Liquid Bitcoin para Lightning',
+        'en': 'Liquid Bitcoin to Lightning Swap',
+        'pt': 'Troca de Liquid Bitcoin para Lightning',
       } +
       {
-      'en': 'USDT to Liquid Bitcoin Swap',
-      'pt': 'Troca de USDT para Liquid Bitcoin',
+        'en': 'USDT to Liquid Bitcoin Swap',
+        'pt': 'Troca de USDT para Liquid Bitcoin',
       } +
       {
-      'en': 'EUROX to Liquid Bitcoin Swap',
-      'pt': 'Troca de EUROX para Liquid Bitcoin',
+        'en': 'EUROX to Liquid Bitcoin Swap',
+        'pt': 'Troca de EUROX para Liquid Bitcoin',
       } +
       {
-      'en': 'DEPIX to Liquid Bitcoin Swap',
-      'pt': 'Troca de DEPIX para Liquid Bitcoin',
+        'en': 'DEPIX to Liquid Bitcoin Swap',
+        'pt': 'Troca de DEPIX para Liquid Bitcoin',
       } +
       {
-      'en': 'Liquid Bitcoin to USDT Swap',
-      'pt': 'Troca de Liquid Bitcoin para USDT',
+        'en': 'Liquid Bitcoin to USDT Swap',
+        'pt': 'Troca de Liquid Bitcoin para USDT',
       } +
       {
-      'en': 'Liquid Bitcoin to EUROX Swap',
-      'pt': 'Troca de Liquid Bitcoin para EUROX',
+        'en': 'Liquid Bitcoin to EUROX Swap',
+        'pt': 'Troca de Liquid Bitcoin para EUROX',
       } +
       {
-      'en': 'Liquid Bitcoin to DEPIX Swap',
-      'pt': 'Troca de Liquid Bitcoin para DEPIX',
+        'en': 'Liquid Bitcoin to DEPIX Swap',
+        'pt': 'Troca de Liquid Bitcoin para DEPIX',
       } +
       {
-      'en': 'DEPIX to USDT Swap',
-      'pt': 'Troca de DEPIX para USDT',
+        'en': 'DEPIX to USDT Swap',
+        'pt': 'Troca de DEPIX para USDT',
       } +
       {
-      'en': 'USDT to EUROX Swap',
-      'pt': 'Troca de USDT para EUROX',
+        'en': 'USDT to EUROX Swap',
+        'pt': 'Troca de USDT para EUROX',
       } +
       {
-      'en': 'USDT to DEPIX Swap',
-      'pt': 'Troca de USDT para DEPIX',
+        'en': 'USDT to DEPIX Swap',
+        'pt': 'Troca de USDT para DEPIX',
       } +
       {
-      'en': 'EUROX to USDT Swap',
-      'pt': 'Troca de EUROX para USDT',
+        'en': 'EUROX to USDT Swap',
+        'pt': 'Troca de EUROX para USDT',
       } +
       {
-      'en': 'Exchange Transaction',
-      'pt': 'Transação de Troca',
+        'en': 'Exchange Transaction',
+        'pt': 'Transação de Troca',
       } +
       {
         'en': 'Expired',
         'pt': 'Expirado',
+      } +
+      {
+        'en': 'Backup completed',
+        'pt': 'Backup completo',
+      } +
+      {
+        'en': 'Amount is too small',
+        'pt': 'Quantia demasiado pequena'
+      } +
+      {
+        'en': 'Amount is too large',
+        'pt': 'Quantia demasiado grande'
+      } +{
+    'en': 'Waiting for deposit',
+    'pt': 'A aguardar depósito',
+  } +
+      {
+        'en': 'Detected',
+        'pt': 'Detetado',
+      } +
+      {
+        'en': 'Confirmed',
+        'pt': 'Confirmado',
+      } +
+      {
+        'en': 'Under human review',
+        'pt': 'Em revisão humana',
+      } +
+      {
+        'en': 'Settlement in progress',
+        'pt': 'Liquidação em progresso',
+      } +
+      {
+        'en': 'Settlement completed',
+        'pt': 'Liquidação concluída',
+      } +
+      {
+        'en': 'Queued for refund',
+        'pt': 'Na fila para reembolso',
+      } +
+      {
+        'en': 'Refund in progress',
+        'pt': 'Reembolso em progresso',
+      } +
+      {
+        'en': 'Refund completed',
+        'pt': 'Reembolso concluído',
+      } +
+      {
+        'en': 'Shift expired',
+        'pt': 'Shift expirado',
+      } +
+      {
+        'en': 'Multiple deposits detected',
+        'pt': 'Múltiplos depósitos detetados',
+      } +
+      {
+        'en': 'Unknown',
+        'pt': 'Desconhecido',
+      } +
+      {
+        'en': 'SideShift Transaction Details',
+        'pt': 'Detalhes da Transação SideShift',
+      } +
+      {
+        'en': 'Shift',
+        'pt': 'Shift',
+      } +
+      {
+        'en': 'Transaction Info',
+        'pt': 'Informação da Transação',
+      } +
+      {
+        'en': 'Date',
+        'pt': 'Data',
+      } +
+      {
+        'en': 'ID',
+        'pt': 'ID',
+      } +
+      {
+        'en': 'Status',
+        'pt': 'Estado',
+      } +
+      {
+        'en': 'Type',
+        'pt': 'Tipo',
+      } +
+      {
+        'en': 'Expires At',
+        'pt': 'Expira Em',
+      } +
+      {
+        'en': 'Deposit Details',
+        'pt': 'Detalhes do Depósito',
+      } +
+      {
+        'en': 'Coin',
+        'pt': 'Moeda',
+      } +
+      {
+        'en': 'Network',
+        'pt': 'Rede',
+      } +
+      {
+        'en': 'Amount',
+        'pt': 'Quantia',
+      } +
+      {
+        'en': 'Address',
+        'pt': 'Endereço',
+      } +
+      {
+        'en': 'Memo',
+        'pt': 'Memo',
+      } +
+      {
+        'en': 'Min',
+        'pt': 'Mín',
+      } +
+      {
+        'en': 'Max',
+        'pt': 'Máx',
+      } +
+      {
+        'en': 'Settle Details',
+        'pt': 'Detalhes da Liquidação',
+      } +
+      {
+        'en': 'Network Fee',
+        'pt': 'Taxa de Rede',
+      } +
+      {
+        'en': 'Network Fee USD',
+        'pt': 'Taxa de Rede em USD',
+      } +
+      {
+        'en': 'Additional Info',
+        'pt': 'Informação Adicional',
+      } +
+      {
+        'en': 'Average Shift Time',
+        'pt': 'Tempo Médio de Shift',
+      } +
+      {
+        'en': 'Transaction Failed',
+        'pt': 'Transação Falhou',
+      } +
+      {
+        'en': 'Please provide a return address to receive a refund.',
+        'pt': 'Por favor, forneça um endereço de retorno para receber um reembolso.',
+      } +{
+    'en': 'Return Address',
+    'pt': 'Endereço de Retorno',
+  } +
+      {
+        'en': 'Enter return address',
+        'pt': 'Insira o endereço de retorno',
+      } +
+      {
+        'en': 'Save',
+        'pt': 'Guardar',
+      } +
+      {
+        'en': 'Copied to clipboard',
+        'pt': 'Copiado para a área de transferência',
+      } +
+      {
+        'en': 'Refund address set and shift updated',
+        'pt': 'Endereço de reembolso definido e shift atualizado',
+      } +
+      {
+        'en': 'Failed to set refund address',
+        'pt': 'Falha ao definir endereço de reembolso',
+      } +{
+    'en': 'Expired',
+    'pt': 'Expirado',
+  } +
+      {
+        'en': 'Expires in %1 days',
+        'pt': 'Expira em %1 dias',
+      } +
+      {
+        'en': 'Expires in %1 hours',
+        'pt': 'Expira em %1 horas',
+      } +
+      {
+        'en': 'Expires in %1 minutes',
+        'pt': 'Expira em %1 minutos',
+      } +
+      {
+        'en': 'Expires soon',
+        'pt': 'Expira em breve',
+      } +
+      {
+        'en': 'Invalid date',
+        'pt': 'Data inválida',
+      } +{
+    'en': '%1 seconds',
+    'pt': '%1 segundos',
+  } +
+      {
+        'en': '%1 minutes',
+        'pt': '%1 minutos',
+      } +
+      {
+        'en': '%1 hours',
+        'pt': '%1 horas',
+      } +
+      {
+        'en': 'N/A',
+        'pt': 'N/D',
+      } +{
+    'en': 'No ShiftPair selected',
+    'pt': 'Nenhum ShiftPair selecionado',
+  } +
+      {
+        'en': 'Receive Liquid USDT from USDT on Tron',
+        'pt': 'Receber Liquid USDT de USDT em Tron',
+      } +
+      {
+        'en': 'Receive Liquid USDT from USDT on BSC',
+        'pt': 'Receber Liquid USDT de USDT em BSC',
+      } +
+      {
+        'en': 'Receive Liquid USDT from USDT on Ethereum',
+        'pt': 'Receber Liquid USDT de USDT em Ethereum',
+      } +
+      {
+        'en': 'Receive Liquid USDT from USDT on Solana',
+        'pt': 'Receber Liquid USDT de USDT em Solana',
+      } +
+      {
+        'en': 'Receive Liquid USDT from USDT on Polygon',
+        'pt': 'Receber Liquid USDT de USDT em Polygon',
+      } +
+      {
+        'en': 'Receive Liquid USDT from USDC on Ethereum',
+        'pt': 'Receber Liquid USDT de USDC em Ethereum',
+      } +
+      {
+        'en': 'Receive Liquid USDT from USDC on Tron',
+        'pt': 'Receber Liquid USDT de USDC em Tron',
+      } +
+      {
+        'en': 'Receive Liquid USDT from USDC on BSC',
+        'pt': 'Receber Liquid USDT de USDC em BSC',
+      } +
+      {
+        'en': 'Receive Liquid USDT from USDC on Solana',
+        'pt': 'Receber Liquid USDT de USDC em Solana',
+      } +
+      {
+        'en': 'Receive Liquid USDT from USDC on Polygon',
+        'pt': 'Receber Liquid USDT de USDC em Polygon',
+      } +
+      {
+        'en': 'Receive Liquid BTC from ETH',
+        'pt': 'Receber Liquid BTC de ETH',
+      } +
+      {
+        'en': 'Receive Liquid BTC from TRX',
+        'pt': 'Receber Liquid BTC de TRX',
+      } +
+      {
+        'en': 'Receive Liquid BTC from BNB',
+        'pt': 'Receber Liquid BTC de BNB',
+      } +
+      {
+        'en': 'Receive Liquid BTC from SOL',
+        'pt': 'Receber Liquid BTC de SOL',
+      } +{
+    'en': 'Confirm Non-Native Payment',
+    'pt': 'Confirmar Pagamento Não Nativo',
+  } +
+      {
+        'en': 'Recipient Address (%1 %2)',
+        'pt': 'Endereço do Destinatário (%1 %2)',
+      } +
+      {
+        'en': 'Enter recipient address',
+        'pt': 'Insira o endereço do destinatário',
+      } +
+      {
+        'en': 'Amount',
+        'pt': 'Quantia',
+      } +
+      {
+        'en': 'Max',
+        'pt': 'Máx',
+      } +
+      {
+        'en': 'Slide to send',
+        'pt': 'Deslize para enviar',
+      } +
+      {
+        'en': 'Transaction in progress, please wait.',
+        'pt': 'Transação em progresso, por favor aguarde.',
+      } +
+      {
+        'en': 'Amount is too small',
+        'pt': 'Quantia demasiado pequena',
+      } +
+      {
+        'en': 'Amount is too large',
+        'pt': 'Quantia demasiado grande',
+      } +{
+    'en': 'Confirm Transaction',
+    'pt': 'Confirmar Transação',
+  } +
+      {
+        'en': 'Amount',
+        'pt': 'Quantia',
+      } +
+      {
+        'en': 'Recipient',
+        'pt': 'Destinatário',
+      } +
+      {
+        'en': 'Service Fee',
+        'pt': 'Taxa de Serviço',
+      } +
+      {
+        'en': 'Payjoin fee',
+        'pt': 'Taxa Payjoin',
+      } +
+      {
+        'en': 'Cancel',
+        'pt': 'Cancelar',
+      } +
+      {
+        'en': 'Confirm',
+        'pt': 'Confirmar',
+      } +
+      {
+        'en': 'Warning: Sending from any other network might result in loss of funds.',
+        'pt': 'Aviso: Enviar de qualquer outra rede pode resultar na perda de fundos.',
+      } +
+      {
+        'en': 'variable',
+        'pt': 'variavel',
+      } +{
+    'en': 'Expired',
+    'pt': 'Expirado',
+  } +
+      {
+        'en': '%1 days',
+        'pt': '%1 dias',
+      } +
+      {
+        'en': '%1 hours',
+        'pt': '%1 horas',
+      } +
+      {
+        'en': '%1 minutes',
+        'pt': '%1 minutos',
+      } +
+      {
+        'en': 'Expires soon',
+        'pt': 'Expira em breve',
+      } +
+      {
+        'en': 'Invalid date',
+        'pt': 'Data inválida',
       };
 
   String get i18n => localize(this, _t);

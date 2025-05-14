@@ -1,3 +1,4 @@
+import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
@@ -40,9 +41,12 @@ class Receive extends ConsumerWidget {
           backgroundColor: Colors.black,
           title: Text(
             shiftPair != null && selectedType == 'SideShift'
-                ? 'Receive non native asset'.i18n
+                ? _getShiftPairDisplayName(shiftPair).i18n
                 : 'Receive on $selectedType'.i18n,
-            style: TextStyle(color: Colors.white, fontSize: 20.sp),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: selectedType == 'SideShift' ? 15.sp : 20.sp,
+            ),
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
@@ -65,5 +69,41 @@ class Receive extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+
+String _getShiftPairDisplayName(ShiftPair pair) {
+  switch (pair) {
+    case ShiftPair.usdtTronToLiquidUsdt:
+      return 'Receive Liquid USDT from USDT on Tron';
+    case ShiftPair.usdtBscToLiquidUsdt:
+      return 'Receive Liquid USDT from USDT on BSC';
+    case ShiftPair.usdtEthToLiquidUsdt:
+      return 'Receive Liquid USDT from USDT on Ethereum';
+    case ShiftPair.usdtSolToLiquidUsdt:
+      return 'Receive Liquid USDT from USDT on Solana';
+    case ShiftPair.usdtPolygonToLiquidUsdt:
+      return 'Receive Liquid USDT from USDT on Polygon';
+    case ShiftPair.usdcEthToLiquidUsdt:
+      return 'Receive Liquid USDT from USDC on Ethereum';
+    case ShiftPair.usdcTronToLiquidUsdt:
+      return 'Receive Liquid USDT from USDC on Tron';
+    case ShiftPair.usdcBscToLiquidUsdt:
+      return 'Receive Liquid USDT from USDC on BSC';
+    case ShiftPair.usdcSolToLiquidUsdt:
+      return 'Receive Liquid USDT from USDC on Solana';
+    case ShiftPair.usdcPolygonToLiquidUsdt:
+      return 'Receive Liquid USDT from USDC on Polygon';
+    case ShiftPair.ethToLiquidBtc:
+      return 'Receive Liquid BTC from ETH';
+    case ShiftPair.trxToLiquidBtc:
+      return 'Receive Liquid BTC from TRX';
+    case ShiftPair.bnbToLiquidBtc:
+      return 'Receive Liquid BTC from BNB';
+    case ShiftPair.solToLiquidBtc:
+      return 'Receive Liquid BTC from SOL';
+    default:
+      return 'Receive ${pair.toString().split('.').last}';
   }
 }

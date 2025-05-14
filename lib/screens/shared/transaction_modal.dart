@@ -649,7 +649,7 @@ class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransaction
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    title,
+                    title.i18n,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 22.sp,
@@ -691,39 +691,39 @@ class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransaction
   String _getSwapTitle(SwapType swapType) {
     switch (swapType) {
       case SwapType.sideswapBtcToLbtc:
-        return 'Bitcoin to Liquid Bitcoin Swap'.i18n;
+        return 'Bitcoin to Liquid Bitcoin Swap';
       case SwapType.sideswapLbtcToBtc:
-        return 'Liquid Bitcoin to Bitcoin Swap'.i18n;
+        return 'Liquid Bitcoin to Bitcoin Swap';
       case SwapType.coinosLnToBTC:
-        return 'Lightning to Bitcoin Swap'.i18n;
+        return 'Lightning to Bitcoin Swap';
       case SwapType.coinosLnToLBTC:
-        return 'Lightning to Liquid Bitcoin Swap'.i18n;
+        return 'Lightning to Liquid Bitcoin Swap';
       case SwapType.coinosBtcToLn:
-        return 'Bitcoin to Lightning Swap'.i18n;
+        return 'Bitcoin to Lightning Swap';
       case SwapType.coinosLbtcToLn:
-        return 'Liquid Bitcoin to Lightning Swap'.i18n;
+        return 'Liquid Bitcoin to Lightning Swap';
       case SwapType.sideswapUsdtToLbtc:
-        return 'USDT to Liquid Bitcoin Swap'.i18n;
+        return 'USDT to Liquid Bitcoin Swap';
       case SwapType.sideswapEuroxToLbtc:
-        return 'EUROX to Liquid Bitcoin Swap'.i18n;
+        return 'EUROX to Liquid Bitcoin Swap';
       case SwapType.sideswapDepixToLbtc:
-        return 'DEPIX to Liquid Bitcoin Swap'.i18n;
+        return 'DEPIX to Liquid Bitcoin Swap';
       case SwapType.sideswapLbtcToUsdt:
-        return 'Liquid Bitcoin to USDT Swap'.i18n;
+        return 'Liquid Bitcoin to USDT Swap';
       case SwapType.sideswapLbtcToEurox:
-        return 'Liquid Bitcoin to EUROX Swap'.i18n;
+        return 'Liquid Bitcoin to EUROX Swap';
       case SwapType.sideswapLbtcToDepix:
-        return 'Liquid Bitcoin to DEPIX Swap'.i18n;
+        return 'Liquid Bitcoin to DEPIX Swap';
       case SwapType.sideswapDepixToUsdt:
-        return 'DEPIX to USDT Swap'.i18n;
+        return 'DEPIX to USDT Swap';
       case SwapType.sideswapUsdtToEurox:
-        return 'USDT to EUROX Swap'.i18n;
+        return 'USDT to EUROX Swap';
       case SwapType.sideswapUsdtToDepix:
-        return 'USDT to DEPIX Swap'.i18n;
+        return 'USDT to DEPIX Swap';
       case SwapType.sideswapEuroxToUsdt:
-        return 'EUROX to USDT Swap'.i18n;
+        return 'EUROX to USDT Swap';
       default:
-        return 'Exchange Transaction'.i18n;
+        return 'Exchange Transaction';
     }
   }
 
@@ -741,7 +741,7 @@ class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransaction
 
   // Helper method to check if an asset is Bitcoin-like (Liquid Bitcoin or Lightning)
   bool _isBitcoinLikeAsset(String asset) {
-    return asset == 'Liquid Bitcoin' || asset == 'Lightning';
+    return asset == 'Liquid Bitcoin' || asset == 'Lightning' || asset == 'Bitcoin';
   }
 
   // Helper method to build transaction detail rows

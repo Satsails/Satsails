@@ -210,6 +210,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
                 onPressed: () {
                   if (checkAnswers()) {
                     ref.read(settingsProvider.notifier).setBackup(true);
+                    FocusScope.of(context).unfocus();
                     showMessageSnackBar(
                       message: 'Wallet successfully backed up!'.i18n,
                       error: false,
@@ -217,6 +218,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
                     );
                     context.go('/home');
                   } else {
+                    FocusScope.of(context).unfocus();
                     showMessageSnackBar(
                       message: 'Incorrect selections. Please try again.'.i18n,
                       error: true,
@@ -226,7 +228,7 @@ class _BackupWalletState extends ConsumerState<BackupWallet> {
                 },
                 primaryColor: Colors.green,
                 secondaryColor: Colors.green,
-                textColor: Colors.white,
+                textColor: Colors.black,
               ),
             ),
           ],

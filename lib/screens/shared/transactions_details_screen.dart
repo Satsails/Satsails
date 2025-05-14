@@ -69,7 +69,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
                       confirmationStatus(transaction.btcDetails, ref) == 'Unconfirmed'.i18n
                           ? "Waiting".i18n
                           : transactionAmount(transaction.btcDetails, ref),
-                      style: TextStyle(color: Colors.green, fontSize: 36.sp, fontWeight: FontWeight.bold), // Responsive font size
+                      style: TextStyle(color: Colors.white, fontSize: 24.sp),
                     ),
                   ],
                 ),

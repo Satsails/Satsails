@@ -89,6 +89,10 @@ final updateSideShiftShiftsProvider = FutureProvider.family.autoDispose<void, Li
   }
 });
 
+final deleteSideShiftProvider = FutureProvider.family.autoDispose<void, String>((ref, id) async {
+  await ref.read(sideShiftShiftsProvider.notifier).deleteShift(id);
+});
+
 final setRefundAddressProvider = FutureProvider.family.autoDispose<void, RefundAddressParams>((ref, params) async {
   final result = await SideShiftService.setRefundAddress(params.shiftId, params.refundAddress);
   if (result.isSuccess) {
