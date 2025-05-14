@@ -36,7 +36,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
           margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h), // Responsive margins
           padding: EdgeInsets.all(16.w), // Responsive padding
           decoration: BoxDecoration(
-            color: const Color(0x333333).withOpacity(0.4),
+            color: const Color(0x00333333).withOpacity(0.4),
             borderRadius: BorderRadius.circular(12.r), // Responsive radius
             boxShadow: [
               BoxShadow(

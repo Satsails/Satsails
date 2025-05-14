@@ -218,7 +218,7 @@ Future<bool> showConfirmationModal(
 
 Widget buildTransactionDetailsCard(WidgetRef ref) {
   return Card(
-    color: Color(0x333333).withOpacity(0.4),
+    color: const Color(0x00333333).withOpacity(0.4),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
     margin: EdgeInsets.zero,
     elevation: 4,
@@ -361,12 +361,8 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
     final sendTxState = ref.read(sendTxProvider);
     updateControllerText(sendTxState.amount);
     final address = sendTxState.address;
-    if (address != null) {
-      addressController.text = address;
-    } else {
-      addressController.text = '';
+    addressController.text = address;
     }
-  }
 
   @override
   void dispose() {
@@ -439,7 +435,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                             padding: EdgeInsets.all(16.sp),
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: const Color(0x333333).withOpacity(0.4),
+                              color: const Color(0x00333333).withOpacity(0.4),
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Column(
@@ -481,7 +477,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                               Container(
                                 padding: EdgeInsets.symmetric(vertical: 8.h),
                                 decoration: BoxDecoration(
-                                  color: const Color(0x333333).withOpacity(0.4),
+                                  color: const Color(0x00333333).withOpacity(0.4),
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: TextFormField(
@@ -491,7 +487,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: 'Enter recipient address'.i18n,
-                                    hintStyle: TextStyle(color: Colors.white70),
+                                    hintStyle: const TextStyle(color: Colors.white70),
                                     contentPadding: EdgeInsets.symmetric(
                                       horizontal: 16.w,
                                       vertical: 12.h,
@@ -530,7 +526,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0x333333).withOpacity(0.4),
+                                  color: const Color(0x00333333).withOpacity(0.4),
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: Padding(
@@ -550,7 +546,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                           decoration: InputDecoration(
                                             border: InputBorder.none,
                                             hintText: '0',
-                                            hintStyle: TextStyle(color: Colors.white70),
+                                            hintStyle: const TextStyle(color: Colors.white70),
                                             contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                                           ),
                                           onChanged: (value) async {
@@ -659,7 +655,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                                       ref.read(sendTxProvider.notifier).updateDrain(false);
                                                     },
                                                     icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp), // Added custom icon
-                                                    borderRadius: BorderRadius.all(Radius.circular(12.0)), // Added border radius
+                                                    borderRadius: const BorderRadius.all(Radius.circular(12.0)), // Added border radius
                                                   ),
                                                 ),
                                               ],

@@ -4,7 +4,6 @@ import 'package:Satsails/providers/transaction_data_provider.dart';
 import 'package:Satsails/screens/pay/components/confirm_non_native_asset_payment.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';

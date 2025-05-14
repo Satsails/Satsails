@@ -126,7 +126,7 @@ class KYCAassessment {
 
 // Dropdown options (unchanged)
 final List<String> modes = ['Purchase with P2P (No KYC)', 'Purchase from Providers'];
-final List<CurrencyDeposit> currencies = CurrencyDeposit.values;
+const List<CurrencyDeposit> currencies = CurrencyDeposit.values;
 
 // Currency flags (unchanged)
 final Map<CurrencyDeposit, Widget> currencyFlags = {

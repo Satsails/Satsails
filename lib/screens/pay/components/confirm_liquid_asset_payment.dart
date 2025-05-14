@@ -44,7 +44,7 @@ return await showDialog<bool>(
             maxWidth: MediaQuery.of(context).size.width * 0.8,
           ),
           child: Card(
-            color: Color(0xFF333333),
+            color: const Color(0xFF333333),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
             elevation: 8,
             child: Padding(
@@ -176,8 +176,8 @@ return await showDialog<bool>(
                           ),
                         );
                       },
-                      loading: () => SizedBox.shrink(),
-                      error: (error, stack) => SizedBox.shrink(),
+                      loading: () => const SizedBox.shrink(),
+                      error: (error, stack) => const SizedBox.shrink(),
                     ),
                   SizedBox(height: 24.h),
                   Row(
@@ -226,7 +226,7 @@ return await showDialog<bool>(
 
 Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controller, String asset, bool isPayjoinTx) {
 return Card(
-  color: Color(0x333333).withOpacity(0.4),
+  color: const Color(0x00333333).withOpacity(0.4),
   margin: EdgeInsets.zero,
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
   elevation: 4,
@@ -337,8 +337,8 @@ return Card(
                 ],
               );
             },
-            loading: () => SizedBox.shrink(),
-            error: (error, stack) => SizedBox.shrink(),
+            loading: () => const SizedBox.shrink(),
+            error: (error, stack) => const SizedBox.shrink(),
           ),
         ]
       ],
@@ -398,11 +398,7 @@ void initState() {
   assetName = AssetMapper.mapAsset(assetId).name;
   updateControllerText(sendTxState.amount);
   final address = sendTxState.address;
-  if (address != null) {
-    addressController.text = address;
-  } else {
-    addressController.text = '';
-  }
+  addressController.text = address;
 
   final balance = ref.read(balanceNotifierProvider);
   switch (assetId) {
@@ -485,7 +481,7 @@ Widget build(BuildContext context) {
                           padding: EdgeInsets.all(16.sp),
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: const Color(0x333333).withOpacity(0.4),
+                            color: const Color(0x00333333).withOpacity(0.4),
                             borderRadius: BorderRadius.circular(12.r),
                           ),
                           child: Column(
@@ -523,7 +519,7 @@ Widget build(BuildContext context) {
                             Container(
                               padding: EdgeInsets.symmetric(vertical: 8.h),
                               decoration: BoxDecoration(
-                                color: const Color(0x333333).withOpacity(0.4),
+                                color: const Color(0x00333333).withOpacity(0.4),
                                 borderRadius: BorderRadius.circular(12.r),
                               ),
                               child: TextFormField(
@@ -533,7 +529,7 @@ Widget build(BuildContext context) {
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                   hintText: 'Enter recipient address'.i18n,
-                                  hintStyle: TextStyle(color: Colors.white70),
+                                  hintStyle: const TextStyle(color: Colors.white70),
                                   contentPadding: EdgeInsets.symmetric(
                                     horizontal: 16.w,
                                     vertical: 12.h,
@@ -572,7 +568,7 @@ Widget build(BuildContext context) {
                             ),
                             Container(
                               decoration: BoxDecoration(
-                                color: const Color(0x333333).withOpacity(0.4),
+                                color: const Color(0x00333333).withOpacity(0.4),
                                 borderRadius: BorderRadius.circular(12.r),
                               ),
                               child: Padding(
@@ -587,13 +583,15 @@ Widget build(BuildContext context) {
                                           CommaTextInputFormatter(),
                                           DecimalTextInputFormatter(decimalRange: 2)
                                         ],
-                                        validator: (value) {},
+                                        validator: (value) {
+                                          return null;
+                                        },
                                         style: TextStyle(fontSize: 24.sp, color: Colors.white),
                                         textAlign: TextAlign.left,
                                         decoration: InputDecoration(
                                           border: InputBorder.none,
                                           hintText: '0',
-                                          hintStyle: TextStyle(color: Colors.white70),
+                                          hintStyle: const TextStyle(color: Colors.white70),
                                           contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                                         ),
                                         onChanged: (value) async {
@@ -647,7 +645,7 @@ Widget build(BuildContext context) {
                           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: const Color(0x333333).withOpacity(0.4),
+                            color: const Color(0x00333333).withOpacity(0.4),
                             borderRadius: BorderRadius.circular(12.r),
                           ),
                           child: Row(
@@ -660,7 +658,7 @@ Widget build(BuildContext context) {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Spacer(),
+                              const Spacer(),
                               Checkbox(
                                 value: ref.watch(isPayjoin),
                                 onChanged: (bool? value) {
@@ -708,7 +706,7 @@ Widget build(BuildContext context) {
                       );
 
                       if (confirmed) {
-                        final tx;
+                        final String tx;
                         if (isPayjoinTx) {
                           tx = await ref.watch(liquidPayjoinTransaction.future);
                         } else {

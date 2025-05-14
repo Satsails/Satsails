@@ -1,9 +1,7 @@
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
 
 final isBitcoinInputProvider = StateProvider.autoDispose<bool>((ref) => true);
 final defaultDropdownValueProvider = StateProvider.autoDispose<String>((ref) {

@@ -14,7 +14,7 @@ import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 
 class DepositDepixPixEulen extends ConsumerStatefulWidget {
-  const DepositDepixPixEulen({Key? key}) : super(key: key);
+  const DepositDepixPixEulen({super.key});
 
   @override
   _DepositPixState createState() => _DepositPixState();
@@ -194,7 +194,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                   ),
                   SizedBox(height: 24.h),
                   Card(
-                    color: const Color(0x333333).withOpacity(0.4),
+                    color: const Color(0x00333333).withOpacity(0.4),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                     child: Padding(
                       padding: EdgeInsets.all(16.h),
@@ -233,7 +233,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                               SizedBox(width: 8.w),
                               Expanded(
                                 child: Text(
-                                  'Registered Tax id: '.i18n + '$registeredTaxId'.i18n,
+                                  'Registered Tax id: '.i18n + registeredTaxId.i18n,
                                   style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -273,7 +273,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                 ],
                 if (_pixQRCode.isNotEmpty)
                   Card(
-                    color: const Color(0x333333).withOpacity(0.4),
+                    color: const Color(0x00333333).withOpacity(0.4),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                     child: Padding(
                       padding: EdgeInsets.all(16.h),
@@ -289,7 +289,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                             width: double.infinity,
                             padding: EdgeInsets.symmetric(vertical: 16.h),
                             decoration: BoxDecoration(
-                              color: const Color(0x333333).withOpacity(0.4),
+                              color: const Color(0x00333333).withOpacity(0.4),
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Text(

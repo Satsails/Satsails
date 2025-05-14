@@ -20,7 +20,7 @@ final liquidConfigProvider = FutureProvider<LiquidConfig>((ref) async {
       );
     } catch (e) {
       await authModel.deleteLwkDb();
-      await Future.delayed(Duration(seconds: 1)); // Wait 1 second before retrying
+      await Future.delayed(const Duration(seconds: 1)); // Wait 1 second before retrying
     }
   }
 });

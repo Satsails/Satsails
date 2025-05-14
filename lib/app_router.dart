@@ -335,7 +335,7 @@ class AppRouter {
                 GoRoute(
                   path: 'deposit_type',
                   pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: DepositTypeScreen(),
+                    child: const DepositTypeScreen(),
                     state: state,
                   ),
                   routes: [
@@ -343,7 +343,7 @@ class AppRouter {
                         path: '/deposit_pix_eulen',
                         name: 'DepositPixEulen',
                         pageBuilder: (context, state) => _buildFadeScalePage(
-                          child: DepositDepixPixEulen(),
+                          child: const DepositDepixPixEulen(),
                           state: state,
                         ),
                       ),
@@ -351,7 +351,7 @@ class AppRouter {
                         path: '/deposit_pix_nox',
                         name: 'DepositPixNox',
                         pageBuilder: (context, state) => _buildFadeScalePage(
-                          child: DepositBitcoinPixNox(),
+                          child: const DepositBitcoinPixNox(),
                           state: state,
                         ),
                       ),

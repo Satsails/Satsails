@@ -1,7 +1,6 @@
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/bitcoin_config_provider.dart';
-import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/screens/creation/set_pin.dart';
 import 'package:Satsails/screens/shared/message_display.dart';

@@ -45,7 +45,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
           child: Stack(
             children: [
               // Background for content area
-              Positioned.fill(
+              const Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: Colors.black, // Content background

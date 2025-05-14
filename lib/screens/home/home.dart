@@ -67,7 +67,7 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
 
   Widget _buildDropdown(int index) {
     final networkAssets = _assets[index]['assets'] as List<Map<String, String>>;
-    return Container(
+    return SizedBox(
       width: 220.sp,
       height: 40.sp,
       child: DropdownButton<String>(

@@ -30,7 +30,7 @@ class _CashbackDisplay extends ConsumerWidget {
         : '***';
 
     return Card(
-      color: Color(0x333333).withOpacity(0.4),
+      color: const Color(0x00333333).withOpacity(0.4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 2,
       child: Padding(
@@ -120,7 +120,7 @@ class Explore extends ConsumerWidget {
           bottom: false,
           child: Stack(
             children: [
-              Positioned.fill(
+              const Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: Colors.black,
@@ -197,7 +197,7 @@ class _BalanceDisplay extends ConsumerWidget {
         : '***';
 
     return Card(
-      color: Color(0x333333).withOpacity(0.4),
+      color: const Color(0x00333333).withOpacity(0.4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 2,
       child: Padding(
@@ -397,7 +397,7 @@ class _ActionCards extends ConsumerWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                color: Color(0x333333).withOpacity(0.4),
+                color: const Color(0x00333333).withOpacity(0.4),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
                   onTap: () {
@@ -439,7 +439,7 @@ class _ActionCards extends ConsumerWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                color: Color(0x333333).withOpacity(0.4),
+                color: const Color(0x00333333).withOpacity(0.4),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
                   onTap: () {

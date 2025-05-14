@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:Satsails/handlers/response_handlers.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
@@ -188,7 +187,7 @@ class UserService {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
 
       final response = await http.post(
-        Uri.parse(dotenv.env['BACKEND']! + '/users/add_cashback_address'),
+        Uri.parse('${dotenv.env['BACKEND']!}/users/add_cashback_address'),
         body: jsonEncode({
           'user': {
             'liquid_address': cashbackAddress,

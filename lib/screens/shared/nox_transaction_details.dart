@@ -1,5 +1,4 @@
 import 'package:Satsails/helpers/string_extension.dart';
-import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
@@ -43,7 +42,7 @@ class _NoxTransactionDetailsState extends ConsumerState<NoxTransactionDetails> {
           margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
-            color: const Color(0x333333).withOpacity(0.4),
+            color: const Color(0x00333333).withOpacity(0.4),
             borderRadius: BorderRadius.circular(12.r),
             boxShadow: [
               BoxShadow(
@@ -253,7 +252,7 @@ class _NoxTransactionDetailsState extends ConsumerState<NoxTransactionDetails> {
           value: transaction.provider ?? "N/A",
         ),
         TransactionDetailRow(
-          label: "Value purchased in".i18n + ' ' + currency,
+          label: '${"Value purchased in".i18n} $currency',
           value: currencyFormat(transaction.price ?? 0 * currencyConversionFromUsd, currency),
         ),
       ],

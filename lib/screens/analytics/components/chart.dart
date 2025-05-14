@@ -221,7 +221,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
       spots: spots,
       isCurved: true,
       preventCurveOverShooting: true,
-      gradient: LinearGradient(
+      gradient: const LinearGradient(
         colors: [Colors.greenAccent, Colors.green],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
@@ -370,7 +370,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
               strokeWidth: 1.w,
               dashArray: [4, 4],
             ),
-            FlDotData(show: true),
+            const FlDotData(show: true),
           );
         }).toList();
       },

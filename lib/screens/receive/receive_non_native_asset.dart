@@ -1,11 +1,9 @@
-import 'package:Satsails/models/sideshift_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/providers/sideshift_provider.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
-import 'package:i18n_extension/i18n_extension.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/translations/translations.dart';
 
@@ -83,7 +81,7 @@ class ReceiveNonNativeAsset extends ConsumerWidget {
       margin: EdgeInsets.symmetric(vertical: 8.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Color(0x333333).withOpacity(0.4),
+        color: const Color(0x00333333).withOpacity(0.4),
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(

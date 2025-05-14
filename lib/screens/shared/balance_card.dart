@@ -191,7 +191,7 @@ class BalanceCard extends ConsumerWidget {
                             color: assetNameColor,
                           ),
                         ),
-                      Spacer(),
+                      const Spacer(),
                       IconButton(
                         onPressed: () {
                           ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible);
@@ -393,10 +393,10 @@ class MiniExpensesGraph extends ConsumerWidget {
         asyncData = AsyncValue.data(ref.watch(liquidBalancePerDayInFormatProvider(assetId)));
         break;
       default:
-        asyncData = AsyncValue.data({});
+        asyncData = const AsyncValue.data({});
     }
 
-    return Container(
+    return SizedBox(
       width: 170.w,
       height: 50.h,
       child: asyncData.when(
@@ -413,7 +413,7 @@ class MiniExpensesGraph extends ConsumerWidget {
             size: 20,
           ),
         ),
-        error: (err, stack) => Center(child: Text('Error')),
+        error: (err, stack) => const Center(child: Text('Error')),
       ),
     );
   }
@@ -460,10 +460,10 @@ class SimplifiedExpensesGraph extends StatelessWidget {
 
     return LineChart(
       LineChartData(
-        gridData: FlGridData(show: false),
-        titlesData: FlTitlesData(show: false),
+        gridData: const FlGridData(show: false),
+        titlesData: const FlTitlesData(show: false),
         borderData: FlBorderData(show: false),
-        lineTouchData: LineTouchData(enabled: false),
+        lineTouchData: const LineTouchData(enabled: false),
         minY: minY,
         maxY: maxY,
         lineBarsData: [

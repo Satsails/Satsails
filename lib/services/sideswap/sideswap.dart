@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:Satsails/models/sideswap/sideswap_quote_model.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:http/http.dart' as http;
 
 class Sideswap {
   late WebSocketChannel _channel;

@@ -1,4 +1,3 @@
-import 'package:Satsails/helpers/deposit_type_helper.dart' as helpers;
 import 'package:Satsails/helpers/swap_helpers.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +82,7 @@ class _SellOption extends StatelessWidget {
       onTap: isAvailable ? onTap : null,
       child: Container(
         decoration: BoxDecoration(
-          color: Color(0x333333).withOpacity(0.4),
+          color: const Color(0x00333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(10),
         ),
         padding:EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),

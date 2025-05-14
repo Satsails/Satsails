@@ -59,7 +59,7 @@ class Settings extends ConsumerWidget {
           child: Stack(
             children: [
               // Background for content area
-              Positioned.fill(
+              const Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: Colors.black, // Content background
@@ -105,7 +105,7 @@ class Settings extends ConsumerWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 20.sp),
       decoration: BoxDecoration(
-        color: const Color(0x333333).withOpacity(0.4),
+        color: const Color(0x00333333).withOpacity(0.4),
         borderRadius: BorderRadius.circular(12.0),
         boxShadow: [
           BoxShadow(
@@ -227,7 +227,7 @@ class Settings extends ConsumerWidget {
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
                   decoration: BoxDecoration(
-                    color: const Color(0x333333).withOpacity(0.4),
+                    color: const Color(0x00333333).withOpacity(0.4),
                     borderRadius: BorderRadius.circular(12.0),
                     boxShadow: [
                       BoxShadow(
@@ -252,7 +252,7 @@ class Settings extends ConsumerWidget {
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
                   decoration: BoxDecoration(
-                    color: const Color(0x333333).withOpacity(0.4),
+                    color: const Color(0x00333333).withOpacity(0.4),
                     borderRadius: BorderRadius.circular(12.0),
                     boxShadow: [
                       BoxShadow(
@@ -357,7 +357,7 @@ class Settings extends ConsumerWidget {
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
                   decoration: BoxDecoration(
-                    color: const Color(0x333333).withOpacity(0.4),
+                    color: const Color(0x00333333).withOpacity(0.4),
                     borderRadius: BorderRadius.circular(12.0),
                     boxShadow: [
                       BoxShadow(
@@ -385,7 +385,7 @@ class Settings extends ConsumerWidget {
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
                   decoration: BoxDecoration(
-                    color: const Color(0x333333).withOpacity(0.4),
+                    color: const Color(0x00333333).withOpacity(0.4),
                     borderRadius: BorderRadius.circular(12.0),
                     boxShadow: [
                       BoxShadow(
@@ -607,7 +607,7 @@ class Settings extends ConsumerWidget {
               child: Container(
                 padding: EdgeInsets.all(16.sp),
                 decoration: BoxDecoration(
-                  color: const Color(0x333333).withOpacity(0.4),
+                  color: const Color(0x00333333).withOpacity(0.4),
                   borderRadius: BorderRadius.circular(12.0),
                   boxShadow: [
                     BoxShadow(
@@ -738,7 +738,7 @@ class DenominationChangeModalBottomSheet extends StatelessWidget {
         Container(
           margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
           decoration: BoxDecoration(
-            color: const Color(0x333333).withOpacity(0.4),
+            color: const Color(0x00333333).withOpacity(0.4),
             borderRadius: BorderRadius.circular(12.0),
             boxShadow: [
               BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4.0, offset: const Offset(0, 2)),
@@ -756,7 +756,7 @@ class DenominationChangeModalBottomSheet extends StatelessWidget {
         Container(
           margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
           decoration: BoxDecoration(
-            color: const Color(0x333333).withOpacity(0.4),
+            color: const Color(0x00333333).withOpacity(0.4),
             borderRadius: BorderRadius.circular(12.0),
             boxShadow: [
               BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4.0, offset: const Offset(0, 2)),
@@ -774,7 +774,7 @@ class DenominationChangeModalBottomSheet extends StatelessWidget {
         Container(
           margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
           decoration: BoxDecoration(
-            color: const Color(0x333333).withOpacity(0.4),
+            color: const Color(0x00333333).withOpacity(0.4),
             borderRadius: BorderRadius.circular(12.0),
             boxShadow: [
               BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4.0, offset: const Offset(0, 2)),
@@ -800,7 +800,7 @@ class DenominationChangeModalBottomSheet extends StatelessWidget {
         Container(
           margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
           decoration: BoxDecoration(
-            color: const Color(0x333333).withOpacity(0.4),
+            color: const Color(0x00333333).withOpacity(0.4),
             borderRadius: BorderRadius.circular(12.0),
             boxShadow: [
               BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4.0, offset: const Offset(0, 2)),
@@ -818,7 +818,7 @@ class DenominationChangeModalBottomSheet extends StatelessWidget {
         Container(
           margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
           decoration: BoxDecoration(
-            color: const Color(0x333333).withOpacity(0.4),
+            color: const Color(0x00333333).withOpacity(0.4),
             borderRadius: BorderRadius.circular(12.0),
             boxShadow: [
               BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4.0, offset: const Offset(0, 2)),

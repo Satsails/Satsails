@@ -65,7 +65,7 @@ class SeedWords extends ConsumerWidget {
                                     child: Container(
                                       height: 60.h,
                                       decoration: BoxDecoration(
-                                        color: const Color(0x333333).withOpacity(0.4),
+                                        color: const Color(0x00333333).withOpacity(0.4),
                                         borderRadius: BorderRadius.circular(8.r),
                                         border: Border.all(
                                           color: const Color(0xFF6D6D6D),

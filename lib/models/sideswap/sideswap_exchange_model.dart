@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'package:lwk/lwk.dart';
 
 part 'sideswap_exchange_model.g.dart';
 

@@ -28,7 +28,7 @@ class CustomKeypad extends StatelessWidget {
     );
 
     return Center(
-      child: Container(
+      child: SizedBox(
         width: keypadWidth,
         child: GridView.count(
           crossAxisCount: 3,

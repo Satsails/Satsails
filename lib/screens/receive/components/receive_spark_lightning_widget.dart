@@ -1,5 +1,4 @@
 import 'package:Satsails/providers/address_provider.dart';
-import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -74,7 +73,7 @@ class _ReceiveSparkLightningWidgetState extends ConsumerState<ReceiveSparkLightn
               child: Container(
                 padding: EdgeInsets.all(16.sp),
                 decoration: BoxDecoration(
-                  color: const Color(0x333333).withOpacity(0.4),
+                  color: const Color(0x00333333).withOpacity(0.4),
                   borderRadius: BorderRadius.circular(12.0),
                   boxShadow: [
                     BoxShadow(

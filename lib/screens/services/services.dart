@@ -166,9 +166,9 @@ class _ServicesState extends ConsumerState<Services> {
     return Drawer(
       backgroundColor: Colors.transparent, // Set transparent to avoid default grey
       child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF212121), // Desired semi-transparent color
-          borderRadius: const BorderRadius.only(
+        decoration: const BoxDecoration(
+          color: Color(0xFF212121), // Desired semi-transparent color
+          borderRadius: BorderRadius.only(
             topRight: Radius.circular(15.0),
             bottomRight: Radius.circular(15.0),
           ),
@@ -177,8 +177,8 @@ class _ServicesState extends ConsumerState<Services> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(
-                color: const Color(0xFF212121), // Match header to drawer
+              decoration: const BoxDecoration(
+                color: Color(0xFF212121), // Match header to drawer
               ),
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.h),
@@ -229,7 +229,7 @@ class _ServicesState extends ConsumerState<Services> {
                   Navigator.pop(context);
                 },
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

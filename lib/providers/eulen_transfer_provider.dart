@@ -1,7 +1,6 @@
 import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

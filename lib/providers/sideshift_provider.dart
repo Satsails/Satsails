@@ -1,7 +1,6 @@
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/sideshift_model.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
 
 final selectedSendShiftPairProvider = StateProvider<ShiftPair>((ref) => ShiftPair.liquidUsdtToUsdtTron);
 

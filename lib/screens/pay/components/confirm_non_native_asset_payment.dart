@@ -88,7 +88,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                 maxWidth: MediaQuery.of(context).size.width * 0.8,
               ),
               child: Card(
-                color: Color(0xFF333333),
+                color: const Color(0xFF333333),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                 elevation: 8,
                 child: Padding(
@@ -219,8 +219,8 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                             ),
                           );
                         },
-                        loading: () => SizedBox.shrink(),
-                        error: (error, stack) => SizedBox.shrink(),
+                        loading: () => const SizedBox.shrink(),
+                        error: (error, stack) => const SizedBox.shrink(),
                       ),
                       SizedBox(height: 24.h),
                       Row(
@@ -316,7 +316,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                           padding: EdgeInsets.all(16.sp),
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: const Color(0x333333).withOpacity(0.4),
+                            color: const Color(0x00333333).withOpacity(0.4),
                             borderRadius: BorderRadius.circular(12.r),
                           ),
                           child: Column(
@@ -337,7 +337,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                             Container(
                               padding: EdgeInsets.symmetric(vertical: 8.h),
                               decoration: BoxDecoration(
-                                color: const Color(0x333333).withOpacity(0.4),
+                                color: const Color(0x00333333).withOpacity(0.4),
                                 borderRadius: BorderRadius.circular(12.r),
                               ),
                               child: TextFormField(
@@ -347,7 +347,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                   hintText: 'Enter recipient address'.i18n,
-                                  hintStyle: TextStyle(color: Colors.white70),
+                                  hintStyle: const TextStyle(color: Colors.white70),
                                   contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                                   suffixIcon: IconButton(
                                     icon: Icon(Icons.camera_alt, color: Colors.white, size: 24.w),
@@ -380,7 +380,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                             ),
                             Container(
                               decoration: BoxDecoration(
-                                color: const Color(0x333333).withOpacity(0.4),
+                                color: const Color(0x00333333).withOpacity(0.4),
                                 borderRadius: BorderRadius.circular(12.r),
                               ),
                               child: Padding(
@@ -397,7 +397,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                                         decoration: InputDecoration(
                                           border: InputBorder.none,
                                           hintText: '0',
-                                          hintStyle: TextStyle(color: Colors.white70),
+                                          hintStyle: const TextStyle(color: Colors.white70),
                                           contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                                         ),
                                         onChanged: (value) {
@@ -468,10 +468,10 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                       // Check if amount is within valid range
                       final amount = ref.read(sendTxProvider).amount;
                       final depositMin = double.parse(shift!.depositMin) * 100000000;
-                      final depositMax = double.parse(shift!.depositMax) * 100000000;
+                      final depositMax = double.parse(shift.depositMax) * 100000000;
                       if (amount < depositMin) {
                         controller.failure();
-                        ref.read(deleteSideShiftProvider(shift!.id));
+                        ref.read(deleteSideShiftProvider(shift.id));
                         showMessageSnackBar(
                           message: "Amount is too small".i18n,
                           error: true,
@@ -481,7 +481,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                         return;
                       } else if (amount > depositMax) {
                         controller.failure();
-                        ref.read(deleteSideShiftProvider(shift!.id));
+                        ref.read(deleteSideShiftProvider(shift.id));
                         showMessageSnackBar(
                           message: "Amount is too large".i18n,
                           error: true,
@@ -495,21 +495,21 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                       final confirmed = await showConfirmationModal(
                         context,
                         fiatInDenominationFormatted(amount),
-                        shift!.settleAddress,
-                        shift!.networkFeeUsd,
+                        shift.settleAddress,
+                        shift.networkFeeUsd,
                         btcFormat,
                         ref,
                       );
 
                       if (!confirmed) {
                         // User canceled, clean up the shift
-                        ref.read(deleteSideShiftProvider(shift!.id));
+                        ref.read(deleteSideShiftProvider(shift.id));
                         controller.reset();
                         return;
                       }
 
                       // Proceed with the transaction
-                      ref.read(sendTxProvider.notifier).updateAddress(shift!.depositAddress);
+                      ref.read(sendTxProvider.notifier).updateAddress(shift.depositAddress);
                       ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
                       final tx = await ref.read(liquidPayjoinTransaction.future);
 
@@ -522,7 +522,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                         fiatAmount: ref.watch(sendTxProvider).amount.toString(),
                         txid: tx,
                         isLiquid: true,
-                        receiveAddress: shift!.settleAddress,
+                        receiveAddress: shift.settleAddress,
                         confirmationBlocks: 1,
                       );
 
@@ -532,7 +532,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                     } catch (e) {
                       // Handle any errors, clean up shift if it was created
                       if (shift != null) {
-                        ref.read(deleteSideShiftProvider(shift!.id));
+                        ref.read(deleteSideShiftProvider(shift.id));
                       }
                       controller.failure();
                       showMessageSnackBar(

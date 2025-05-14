@@ -79,7 +79,7 @@ Widget _buildMonthCard(
     WidgetRef ref,
     DateTime month,
     List<BaseTransaction> transactions) {
-  String locale = I18n.locale?.languageCode ?? 'en';
+  String locale = I18n.locale.languageCode ?? 'en';
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -95,7 +95,7 @@ Widget _buildMonthCard(
         ),
       ),
       Card(
-        color: const Color(0x333333).withOpacity(0.4),
+        color: const Color(0x00333333).withOpacity(0.4),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
@@ -152,7 +152,7 @@ class TransactionList extends ConsumerWidget {
         padding: EdgeInsets.only(right: 8.sp),
         child: Container(
           decoration: BoxDecoration(
-            color: Color(0x333333).withOpacity(0.4),
+            color: const Color(0x00333333).withOpacity(0.4),
             borderRadius: BorderRadius.circular(12.r),
           ),
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
@@ -186,7 +186,7 @@ class TransactionList extends ConsumerWidget {
         if (!showAll) const SizedBox(height: 8),
         Expanded(
           child: Card(
-            color: const Color(0x333333).withOpacity(0.4),
+            color: const Color(0x00333333).withOpacity(0.4),
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
@@ -230,7 +230,7 @@ class TransactionList extends ConsumerWidget {
                     },
                     child: Text(
                       'See all transactions'.i18n,
-                      style: TextStyle(color: Colors.white, fontSize: 16),
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
               ],
@@ -321,7 +321,7 @@ Widget _buildSideshiftTransactionItem(
   } else {
     title = "${details.depositNetwork.capitalize()} ${details.depositCoin} -> ${details.settleNetwork.capitalize()} ${details.settleCoin}";
   }
-  String locale = I18n.locale?.languageCode ?? 'en';
+  String locale = I18n.locale.languageCode ?? 'en';
   // Format the transaction date
   final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(transaction.timestamp);
 
@@ -347,7 +347,7 @@ Widget _buildSideshiftTransactionItem(
                     SizedBox(
                       width: 40.w,
                       height: 40.w,
-                      child: CircularProgressIndicator(
+                      child: const CircularProgressIndicator(
                         strokeWidth: 3,
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
                         backgroundColor: Colors.transparent,
@@ -422,7 +422,7 @@ Widget _buildSideswapPegTransactionItem(
       sideswapPegDetails.list!.first.createdAt!)
       : transaction.timestamp;
 
-  String locale = I18n.locale?.languageCode ?? 'en';
+  String locale = I18n.locale.languageCode ?? 'en';
   final formattedDate = DateFormat('d MMMM, HH:mm', locale).format(date);
 
   // Transaction type
@@ -510,7 +510,7 @@ Widget _buildEulenTransactionItem(
   final type = transaction.details.transactionType.toString() == "BUY" ? "(Purchase)".i18n : "(Withdrawal)".i18n;
   final title = "${transaction.details.to_currency} $type";
   final amount = transaction.details.receivedAmount.toString();
-  String locale = I18n.locale?.languageCode ?? 'en';
+  String locale = I18n.locale.languageCode ?? 'en';
   final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(transaction.timestamp);
 
   return GestureDetector(
@@ -536,7 +536,7 @@ Widget _buildEulenTransactionItem(
                     SizedBox(
                       width: 40.w,
                       height: 40.w,
-                      child: CircularProgressIndicator(
+                      child: const CircularProgressIndicator(
                         strokeWidth: 3,
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
                         backgroundColor: Colors.transparent,
@@ -625,7 +625,7 @@ Widget _buildNoxTransactionItem(
   final type = transaction.details.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
   final title = "${transaction.details.to_currency} $type";
   final amount = transaction.details.receivedAmount.toString();
-  String locale = I18n.locale?.languageCode ?? 'en';
+  String locale = I18n.locale.languageCode ?? 'en';
   final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(transaction.timestamp);
 
   return GestureDetector(
@@ -651,7 +651,7 @@ Widget _buildNoxTransactionItem(
                     SizedBox(
                       width: 40.w,
                       height: 40.w,
-                      child: CircularProgressIndicator(
+                      child: const CircularProgressIndicator(
                         strokeWidth: 3,
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
                         backgroundColor: Colors.transparent,
@@ -735,7 +735,7 @@ Widget _buildBitcoinTransactionItem(
       ? DateTime.fromMillisecondsSinceEpoch(
       transaction.btcDetails.confirmationTime!.timestamp.toInt() * 1000)
       : transaction.timestamp;
-  String locale = I18n.locale?.languageCode ?? 'en';
+  String locale = I18n.locale.languageCode ?? 'en';
   final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(timestamp);
 
   return GestureDetector(
@@ -760,7 +760,7 @@ Widget _buildBitcoinTransactionItem(
                     SizedBox(
                       width: 40.w,
                       height: 40.w,
-                      child: CircularProgressIndicator(
+                      child: const CircularProgressIndicator(
                         strokeWidth: 3,
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
                         backgroundColor: Colors.transparent,
@@ -833,7 +833,7 @@ Widget _buildLiquidTransactionItem(
   final timestamp = transaction.lwkDetails.timestamp != null
       ? DateTime.fromMillisecondsSinceEpoch(transaction.lwkDetails.timestamp! * 1000)
       : transaction.timestamp;
-  String locale = I18n.locale?.languageCode ?? 'en';
+  String locale = I18n.locale.languageCode ?? 'en';
   final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(timestamp);
 
   // Filter balances: exclude small LBTC balances when there are multiple balances
@@ -889,7 +889,7 @@ Widget _buildLiquidTransactionItem(
                     SizedBox(
                       width: 40.w,
                       height: 40.w,
-                      child: CircularProgressIndicator(
+                      child: const CircularProgressIndicator(
                         strokeWidth: 3,
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
                         backgroundColor: Colors.transparent,

@@ -178,7 +178,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
           final liquidBalances = results[0] as Balances;
           final bitcoinBalance = results[1] as int;
           // final lightningBalance = results[2] as int?;
-          final lightningBalance = 0;
+          const lightningBalance = 0;
 
           // Update the WalletBalance model
           final balanceData = WalletBalance.updateFromAssets(

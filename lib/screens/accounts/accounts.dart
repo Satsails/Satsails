@@ -10,8 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
-import 'package:Satsails/providers/bitcoin_provider.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -63,7 +61,7 @@ class _AccountsState extends ConsumerState<Accounts> {
           bottom: false,
           child: Stack(
             children: [
-              Positioned.fill(
+              const Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: Colors.black,
@@ -334,7 +332,7 @@ class _AccountsState extends ConsumerState<Accounts> {
         width: 190.sp,
         height: 200.sp,
         decoration: BoxDecoration(
-          color: const Color(0x333333).withOpacity(0.4),
+          color: const Color(0x00333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
@@ -394,8 +392,9 @@ class _AccountsState extends ConsumerState<Accounts> {
                   IconButton(
                     onPressed: () {
                       ref.read(sendTxProvider.notifier).resetToDefault();
-                      if (Network == 'Bitcoin Network') context.push('/home/pay', extra: 'bitcoin');
-                      else if (Network == 'Lightning Network') context.push('/home/pay', extra: 'lightning');
+                      if (Network == 'Bitcoin Network') {
+                        context.push('/home/pay', extra: 'bitcoin');
+                      } else if (Network == 'Lightning Network') context.push('/home/pay', extra: 'lightning');
                       else if (Network == 'Liquid Network') {
                         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
                         context.push('/home/pay', extra: 'liquid');
@@ -429,7 +428,7 @@ class _AccountsState extends ConsumerState<Accounts> {
         width: 190.sp,
         height: 200.sp,
         decoration: BoxDecoration(
-          color: const Color(0x333333).withOpacity(0.4),
+          color: const Color(0x00333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
@@ -536,7 +535,7 @@ class _AccountsState extends ConsumerState<Accounts> {
       width: 190.sp,
       height: 200.sp,
       decoration: BoxDecoration(
-        color: const Color(0x333333).withOpacity(0.4),
+        color: const Color(0x00333333).withOpacity(0.4),
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(

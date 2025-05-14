@@ -41,7 +41,7 @@ class ViewModeSelector extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildSegment(0, 'Balance'),
-          _buildSegment(1, '${currency} Valuation'),
+          _buildSegment(1, '$currency Valuation'),
         ],
       ),
     );
@@ -136,7 +136,7 @@ class BalanceCardWithDropdown extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.sp),
       padding: EdgeInsets.all(16.sp),
       decoration: BoxDecoration(
-        color: const Color(0x333333).withOpacity(0.4),
+        color: const Color(0x00333333).withOpacity(0.4),
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: InkWell(
@@ -276,7 +276,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
       margin: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.sp),
       padding: EdgeInsets.all(16.sp),
       decoration: BoxDecoration(
-        color: Color(0x333333).withOpacity(0.4),
+        color: const Color(0x00333333).withOpacity(0.4),
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Row(
@@ -544,7 +544,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                           const SizedBox(height: 16),
                            Text(
                             'Error Loading Market Data'.i18n,
-                            style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold),
+                            style: const TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 8),

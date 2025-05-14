@@ -1,4 +1,3 @@
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

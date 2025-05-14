@@ -1,5 +1,4 @@
 import 'package:Satsails/providers/address_provider.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,8 +8,6 @@ import 'package:Satsails/screens/receive/components/amount_input.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:lwk/lwk.dart';
 
 class LiquidWidget extends ConsumerStatefulWidget {
   const LiquidWidget({super.key});

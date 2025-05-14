@@ -462,7 +462,7 @@ Widget buildBalanceCardWithMaxButton(WidgetRef ref, TextEditingController contro
     child: SizedBox(
       width: double.infinity,
       child: Card(
-        color: Color(0x333333).withOpacity(0.4),
+        color: const Color(0x00333333).withOpacity(0.4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
         elevation: 4,
         child: Padding(
@@ -669,7 +669,7 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
   final toAsset = ref.watch(toAssetProvider);
 
   return Card(
-    color: Color(0x333333).withOpacity(0.4),
+    color: const Color(0x00333333).withOpacity(0.4),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     elevation: 4,
     child: Padding(
@@ -1143,7 +1143,7 @@ Widget buildSideswapInstantSwap(
           ),
         );
       default:
-        final receiveAmount = 0;
+        const receiveAmount = 0;
         final formattedAmount = btcInDenominationFormatted(receiveAmount, btcFormat);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -1658,7 +1658,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
 
 Widget buildAdvancedOptionsCard(WidgetRef ref) {
   return Card(
-    color: Color(0x333333).withOpacity(0.4),
+    color: const Color(0x00333333).withOpacity(0.4),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
     elevation: 4,
     child: Padding(
@@ -1936,7 +1936,7 @@ Widget pickBitcoinFeeSuggestionsPegOut(WidgetRef ref) {
 
   // If empty, show a placeholder message or return an empty widget
   if (reversedStatus.isEmpty) {
-    return SizedBox.shrink();
+    return const SizedBox.shrink();
   }
 
   final indexFromBlocks = reversedStatus.indexWhere((item) => item["blocks"] == selectedBlocks);

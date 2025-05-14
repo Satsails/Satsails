@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:lwk/lwk.dart';
 import 'package:Satsails/models/liquid_config_model.dart';
 import 'dart:convert';
@@ -16,7 +15,7 @@ class LiquidModel {
 
   Future<String> getLatestAddress() async {
     final address = await config.liquid.wallet.addressLastUnused();
-    return address.confidential!;
+    return address.confidential;
   }
 
   Future<Address> getAddressOfIndex(int index) async {

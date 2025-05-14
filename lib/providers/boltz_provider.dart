@@ -87,7 +87,7 @@ final boltzReceiveProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   final address = ref.read(addressProvider).liquidAddress;
   final addressIndex = ref.read(addressProvider).liquidAddressIndex;
   final amount = ref.watch(sendTxProvider).amount == 0 ? await ref.watch(lnAmountProvider.future) : ref.watch(sendTxProvider).amount;
-  final electrumUrl = await ref.read(settingsProvider).liquidElectrumNode;
+  final electrumUrl = ref.read(settingsProvider).liquidElectrumNode;
   final receive = await LbtcBoltz.createBoltzReceive(
     fees: fees,
     mnemonic: mnemonic!,
@@ -129,7 +129,7 @@ final boltzPayProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   final addressIndex = ref.read(addressProvider).liquidAddressIndex;
   final authModel = ref.read(authModelProvider);
   final mnemonic = await authModel.getMnemonic();
-  final electrumUrl = await ref.read(settingsProvider).liquidElectrumNode;
+  final electrumUrl = ref.read(settingsProvider).liquidElectrumNode;
   final pay = await LbtcBoltz.createBoltzPay(
     fees: fees,
     mnemonic: mnemonic!,
@@ -151,7 +151,7 @@ final refundSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<b
   final address = ref.read(addressProvider).liquidAddress;
   final box = ref.read(boltzSwapsBoxProvider);
   final boltzSwap = box.get(id) as LbtcBoltz;
-  final electrumUrl = await ref.read(settingsProvider).liquidElectrumNode;
+  final electrumUrl = ref.read(settingsProvider).liquidElectrumNode;
 
   final refunded = await boltzSwap.refund(
     fees: fees,

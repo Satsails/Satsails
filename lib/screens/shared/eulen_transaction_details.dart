@@ -42,7 +42,7 @@ class _EulenTransactionDetailsState extends ConsumerState<EulenTransactionDetail
           margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
-            color: const Color(0x333333).withOpacity(0.4),
+            color: const Color(0x00333333).withOpacity(0.4),
             borderRadius: BorderRadius.circular(12.r),
             boxShadow: [
               BoxShadow(
@@ -254,7 +254,7 @@ class _EulenTransactionDetailsState extends ConsumerState<EulenTransactionDetail
           value: transaction.provider ?? "N/A",
         ),
         TransactionDetailRow(
-          label: "Value purchased in".i18n + ' ' + currency,
+          label: '${"Value purchased in".i18n} $currency',
           value: currencyFormat(transaction.price ?? 0 * currencyConversionFromUsd, currency),
         ),
       ],

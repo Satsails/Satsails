@@ -22,8 +22,6 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 Future<bool> showConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
   final settings = ref.read(settingsProvider);
@@ -215,7 +213,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
 
 Widget buildTransactionDetailsCard(WidgetRef ref) {
   return Card(
-    color: Color(0x333333).withOpacity(0.4),
+    color: const Color(0x00333333).withOpacity(0.4),
     margin: EdgeInsets.zero,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
     elevation: 4,
@@ -361,12 +359,8 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
     final sendTxState = ref.read(sendTxProvider);
     updateControllerText(sendTxState.amount);
     final address = sendTxState.address;
-    if (address != null) {
-      addressController.text = address;
-    } else {
-      addressController.text = '';
+    addressController.text = address;
     }
-  }
 
   @override
   void dispose() {
@@ -437,7 +431,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                             padding: EdgeInsets.all(16.sp),
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: const Color(0x333333).withOpacity(0.4),
+                              color: const Color(0x00333333).withOpacity(0.4),
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Column(
@@ -479,7 +473,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                               Container(
                                 padding: EdgeInsets.symmetric(vertical: 8.h),
                                 decoration: BoxDecoration(
-                                  color: const Color(0x333333).withOpacity(0.4),
+                                  color: const Color(0x00333333).withOpacity(0.4),
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: TextFormField(
@@ -489,7 +483,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: 'Enter recipient address'.i18n,
-                                    hintStyle: TextStyle(color: Colors.white70),
+                                    hintStyle: const TextStyle(color: Colors.white70),
                                     contentPadding: EdgeInsets.symmetric(
                                       horizontal: 16.w,
                                       vertical: 12.h,
@@ -528,7 +522,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0x333333).withOpacity(0.4),
+                                  color: const Color(0x00333333).withOpacity(0.4),
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: Padding(
@@ -548,7 +542,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                                           decoration: InputDecoration(
                                             border: InputBorder.none,
                                             hintText: '0',
-                                            hintStyle: TextStyle(color: Colors.white70),
+                                            hintStyle: const TextStyle(color: Colors.white70),
                                             contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                                           ),
                                           onChanged: (value) async {
@@ -658,7 +652,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                                                       ref.read(sendTxProvider.notifier).updateDrain(false);
                                                     },
                                                     icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp), // Added custom icon
-                                                    borderRadius: BorderRadius.all(Radius.circular(12.0)), // Added border radius
+                                                    borderRadius: const BorderRadius.all(Radius.circular(12.0)), // Added border radius
                                                   ),
                                                 ),
                                               ],

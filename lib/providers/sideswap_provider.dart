@@ -9,7 +9,6 @@ import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_quote_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_status_model.dart';
-import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/services/sideswap/sideswap.dart';
 

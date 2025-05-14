@@ -1,6 +1,5 @@
 import 'package:Satsails/models/nox_transfer_model.dart';
 import 'package:Satsails/providers/address_provider.dart';
-import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

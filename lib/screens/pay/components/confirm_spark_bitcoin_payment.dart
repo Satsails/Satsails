@@ -126,7 +126,7 @@ class _ConfirmSparkBitcoinPaymentState extends ConsumerState<ConfirmSparkBitcoin
                             padding: EdgeInsets.all(16.sp),
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: const Color(0x333333).withOpacity(0.4),
+                              color: const Color(0x00333333).withOpacity(0.4),
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Column(
@@ -169,7 +169,7 @@ class _ConfirmSparkBitcoinPaymentState extends ConsumerState<ConfirmSparkBitcoin
                               Container(
                                 padding: EdgeInsets.symmetric(vertical: 8.h),
                                 decoration: BoxDecoration(
-                                  color: const Color(0x333333).withOpacity(0.4),
+                                  color: const Color(0x00333333).withOpacity(0.4),
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: TextFormField(
@@ -179,7 +179,7 @@ class _ConfirmSparkBitcoinPaymentState extends ConsumerState<ConfirmSparkBitcoin
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: 'Enter Lightning or bitcoin address'.i18n,
-                                    hintStyle: TextStyle(color: Colors.white70),
+                                    hintStyle: const TextStyle(color: Colors.white70),
                                     contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                                     suffixIcon: IconButton(
                                       icon: Icon(Icons.camera_alt, color: Colors.white, size: 24.w),
@@ -217,7 +217,7 @@ class _ConfirmSparkBitcoinPaymentState extends ConsumerState<ConfirmSparkBitcoin
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0x333333).withOpacity(0.4),
+                                  color: const Color(0x00333333).withOpacity(0.4),
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: Padding(
@@ -237,7 +237,7 @@ class _ConfirmSparkBitcoinPaymentState extends ConsumerState<ConfirmSparkBitcoin
                                           decoration: InputDecoration(
                                             border: InputBorder.none,
                                             hintText: '0',
-                                            hintStyle: TextStyle(color: Colors.white70),
+                                            hintStyle: const TextStyle(color: Colors.white70),
                                             contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                                           ),
                                           onChanged: (value) async {
@@ -279,7 +279,7 @@ class _ConfirmSparkBitcoinPaymentState extends ConsumerState<ConfirmSparkBitcoin
                                                   ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
                                                 },
                                                 icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
-                                                borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                                                borderRadius: const BorderRadius.all(Radius.circular(12.0)),
                                               ),
                                             ),
                                           ),
@@ -328,7 +328,7 @@ class _ConfirmSparkBitcoinPaymentState extends ConsumerState<ConfirmSparkBitcoin
                           SizedBox(height: 16.h),
                           // Transaction Details
                           Card(
-                            color: Color(0x333333).withOpacity(0.4),
+                            color: const Color(0x00333333).withOpacity(0.4),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                             margin: EdgeInsets.zero,
                             elevation: 4,

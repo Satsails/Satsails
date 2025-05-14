@@ -55,7 +55,7 @@ class _SideShiftTransactionDetailsScreenState extends ConsumerState<SideShiftTra
           margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
-            color: const Color(0x333333).withOpacity(0.4),
+            color: const Color(0x00333333).withOpacity(0.4),
             borderRadius: BorderRadius.circular(12.r),
             boxShadow: [
               BoxShadow(
@@ -428,10 +428,10 @@ class _ReturnAddressSectionState extends ConsumerState<ReturnAddressSection> {
           SizedBox(height: 8.h),
           TextField(
             controller: _returnAddressController,
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               hintText: 'Enter return address'.i18n,
-              hintStyle: TextStyle(color: Colors.grey),
+              hintStyle: const TextStyle(color: Colors.grey),
               filled: true,
               fillColor: Colors.grey.shade800,
               border: OutlineInputBorder(
@@ -461,7 +461,7 @@ class CopyText extends StatelessWidget {
   final String? displayText;
   final TextStyle style;
 
-  const CopyText({required this.text, this.displayText, required this.style});
+  const CopyText({super.key, required this.text, this.displayText, required this.style});
 
   @override
   Widget build(BuildContext context) {
