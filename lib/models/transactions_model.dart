@@ -5,6 +5,7 @@ import 'package:Satsails/models/nox_transfer_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/sideshift_model.dart'; // Assuming this exists for SideShift
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
@@ -28,6 +29,7 @@ class TransactionModel extends StateNotifier<Transaction> {
   }
 
   Future<void> fetchAndUpdateTransactions() async {
+    ref.read(addressProvider);
     // Fetch Bitcoin transactions
     final bitcoinTxs = await ref.refresh(getBitcoinTransactionsProvider.future);
     final bitcoinTransactions = bitcoinTxs.map((btcTx) {
