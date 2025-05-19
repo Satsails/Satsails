@@ -104,7 +104,7 @@ void showCustodialWarningModal(BuildContext context, WidgetRef ref) {
               ),
               SizedBox(height: 16.sp),
               Text(
-                'You can retrieve your past Coinos balances since we have migrated to Spark'.i18n,
+                'You can retrieve your past Coinos balances'.i18n,
                 style: TextStyle(color: Colors.white70, fontSize: 14.sp),
               ),
               SizedBox(height: 24.sp),

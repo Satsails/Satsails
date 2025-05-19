@@ -2632,8 +2632,8 @@ extension Localization on String {
         'pt': 'Migração Lightning',
       } +
       {
-        'en': 'You can retrieve your past Coinos balances since we have migrated to Spark',
-        'pt': 'Você pode recuperar seus saldos anteriores de Coinos desde que fizemos a migração para Spark.',
+        'en': 'You can retrieve your past Coinos balances',
+        'pt': 'Você pode recuperar seus saldos anteriores',
       } +
       {
         'en': 'Lightning Migration Warning',

@@ -184,7 +184,10 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
             itemBuilder: (context, index) {
               final selectedAssetName = _selectedFilters[index];
               return Padding(
-                padding: EdgeInsets.only(left: 18.sp),
+                padding: EdgeInsets.only(
+                  left: 18.sp,
+                  right: index == _assets.length - 1 ? 18.sp : 0,
+                ),
                 child: SizedBox(
                   height: 200.sp,
                   child: Column(

@@ -1,6 +1,7 @@
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
+import 'package:Satsails/screens/pay/components/confirm_boltz_payment.dart';
 import 'package:Satsails/screens/pay/components/confirm_non_native_asset_payment.dart';
 import 'package:Satsails/screens/shared/boltz_transactions_details_screen.dart';
 import 'package:Satsails/screens/shared/nox_transaction_details.dart';
@@ -265,7 +266,7 @@ class AppRouter {
                   case 'non_native_asset':
                     return state.namedLocation('pay_non_native_asset');
                   case 'lightning':
-                    return state.namedLocation('pay_spark_bitcoin');
+                    return state.namedLocation('pay_boltz');
                 }
                 return null;
               },
@@ -283,6 +284,14 @@ class AppRouter {
                   name: 'pay_liquid',
                   pageBuilder: (context, state) => _buildFadeScalePage(
                     child: ConfirmLiquidPayment(key: UniqueKey()),
+                    state: state,
+                  ),
+                ),
+                GoRoute(
+                  path: 'confirm_boltz_payment', // Corrected to relative path
+                  name: 'pay_boltz',
+                  pageBuilder: (context, state) => _buildFadeScalePage(
+                    child: ConfirmBoltzPayment(key: UniqueKey()),
                     state: state,
                   ),
                 ),

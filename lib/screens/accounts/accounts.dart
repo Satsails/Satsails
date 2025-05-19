@@ -203,6 +203,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                             ),
                             SizedBox(height: 24.h),
                             _buildSectionHeader('Boltz  Network', 'lib/assets/boltz.svg', Colors.white),
+                            _buildNonNativeAssetsHeader(false),
                             SizedBox(height: 12.h),
                             Wrap(
                               alignment: WrapAlignment.center,
@@ -273,7 +274,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                               ],
                             ),
                             SizedBox(height: 24.h),
-                            _buildNonNativeAssetsHeader(),
+                            _buildNonNativeAssetsHeader(true),
                             SizedBox(height: 12.h),
                             Wrap(
                               alignment: WrapAlignment.center,
@@ -317,10 +318,11 @@ class _AccountsState extends ConsumerState<Accounts> {
     );
   }
 
-  Widget _buildNonNativeAssetsHeader() {
+  Widget _buildNonNativeAssetsHeader(bool showHeader) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (showHeader)
         Image.asset(
           'lib/assets/sideshift.png',
           width: 140.sp,

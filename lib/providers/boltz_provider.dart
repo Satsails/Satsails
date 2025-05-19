@@ -135,7 +135,7 @@ final claimSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<bo
 // Boltz Pay Provider
 final boltzPayProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   final fees = await ref.read(boltzSubmarineFeesProvider.future);
-  var sendTx = ref.watch(sendTxProvider.notifier);
+  var sendTx = ref.read(sendTxProvider);
   final addressIndex = ref.read(addressProvider).liquidAddressIndex;
   final authModel = ref.read(authModelProvider);
   final mnemonic = await authModel.getMnemonic();
@@ -143,14 +143,15 @@ final boltzPayProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   final pay = await LbtcBoltz.createBoltzPay(
     fees: fees,
     mnemonic: mnemonic!,
-    invoice: sendTx.state.address,
-    amount: sendTx.state.amount,
+    invoice: sendTx.address,
+    amount: sendTx.amount,
     index: addressIndex,
     electrumUrl: electrumUrl,
   );
-  await ref.read(boltzSwapProvider.notifier).addSwap(pay);
-  sendTx.state = sendTx.state.copyWith(address: pay.swap.scriptAddress, amount: (pay.swap.outAmount).toInt());
+  ref.read(sendTxProvider.notifier).updateAddress(pay.swap.scriptAddress);
+  ref.read(sendTxProvider.notifier).updateAmount(pay.swap.outAmount);
   await ref.read(sendLiquidTransactionProvider.future).then((value) => value);
+  await ref.read(boltzSwapProvider.notifier).addSwap(pay);
   final updatedBoltz = pay.copyWith(completed: true);
   await ref.read(boltzSwapProvider.notifier).updateSwap(updatedBoltz);
   return pay;
