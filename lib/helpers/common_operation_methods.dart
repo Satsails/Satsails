@@ -1,10 +1,12 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/string_extension.dart';
+import 'package:Satsails/models/boltz_model.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
+import 'package:boltz/boltz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -56,6 +58,15 @@ Widget transactionTypeIcon(bdk.TransactionDetails transaction) {
   }
 }
 
+// Define the Boltz transaction icon
+Widget boltzTransactionTypeIcon() {
+  return Icon(
+    Icons.swap_horiz, // Represents a swap
+    color: Colors.orange,
+    size: 24.sp,
+  );
+}
+
 String transactionAmountInFiat(bdk.TransactionDetails transaction, WidgetRef ref) {
   final sent = ref.watch(conversionToFiatProvider(transaction.sent.toInt()));
   final received = ref.watch(conversionToFiatProvider(transaction.received.toInt()));
@@ -69,6 +80,22 @@ String transactionAmountInFiat(bdk.TransactionDetails transaction, WidgetRef ref
     double total = (double.parse(received) - double.parse(sent)).abs() / 100000000;
     return '${total.toStringAsFixed(2)} $currency';
   }
+}
+
+String boltzTransactionAmountInFiat(LbtcBoltz transaction, WidgetRef ref) {
+  final currency = ref.watch(settingsProvider).currency;
+  final swapType = transaction.swap.kind;
+  final amountSatoshis = transaction.swap.outAmount;
+
+  final amountBtc = amountSatoshis;
+
+  final isReceiving = swapType == SwapType.reverse;
+  final fiatAmount = ref.watch(conversionToFiatProvider(amountBtc));
+
+  final formattedFiat = (double.parse(fiatAmount) / 100000000).toStringAsFixed(2);
+  final sign = isReceiving ? '+' : '-';
+
+  return '$sign $formattedFiat $currency';
 }
 
 String transactionAmount(bdk.TransactionDetails transaction, WidgetRef ref) {

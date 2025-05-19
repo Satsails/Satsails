@@ -49,6 +49,70 @@ class _AccountsState extends ConsumerState<Accounts> {
     ShiftPair.usdtPolygonToLiquidUsdt: ShiftPair.liquidUsdtToUsdtPolygon,
   };
 
+  Widget _buildLightningCard(BuildContext context, WidgetRef ref) {
+    return Container(
+      width: 190.sp,
+      height: 200.sp,
+      decoration: BoxDecoration(
+        color: const Color(0x00333333).withOpacity(0.4),
+        borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(18.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset('lib/assets/Bitcoin_lightning_logo.png', width: 32.sp, height: 32.sp),
+                SizedBox(width: 10.w),
+                Image.asset('lib/assets/l-btc.png', width: 32.sp, height: 32.sp),
+              ],
+            ),
+            Text(
+              'Lightning Network',
+              style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    ref.read(selectedNetworkTypeProvider.notifier).state = 'Boltz Network';
+                    context.push('/home/receive');
+                  },
+                  icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.sp),
+                  splashRadius: 28.w,
+                  tooltip: 'Receive',
+                ),
+                IconButton(
+                  onPressed: () {
+                    ref.read(sendTxProvider.notifier).resetToDefault();
+                    context.push('/home/pay', extra: 'lightning');
+                  },
+                  icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.sp),
+                  splashRadius: 28.w,
+                  tooltip: 'Send',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
@@ -138,37 +202,14 @@ class _AccountsState extends ConsumerState<Accounts> {
                               ],
                             ),
                             SizedBox(height: 24.h),
-                            _buildSectionHeader('Spark Network', 'lib/assets/logo-spark.svg', Colors.white),
+                            _buildSectionHeader('Boltz  Network', 'lib/assets/boltz.svg', Colors.white),
                             SizedBox(height: 12.h),
                             Wrap(
                               alignment: WrapAlignment.center,
                               spacing: 16.w,
                               runSpacing: 16.h,
                               children: [
-                                _buildAccountCard(
-                                  context,
-                                  ref,
-                                  'Lightning',
-                                  ref.watch(coinosLnProvider).token.isNotEmpty && isBalanceVisible
-                                      ? btcInDenominationFormatted(
-                                    ref.watch(balanceNotifierProvider).lightningBalance!,
-                                    ref.watch(settingsProvider).btcFormat,
-                                  )
-                                      : '***',
-                                  Image.asset('lib/assets/Bitcoin_lightning_logo.png', width: 32.sp, height: 32.sp),
-                                  null,
-                                  ref.watch(coinosLnProvider).token.isNotEmpty && isBalanceVisible
-                                      ? currencyFormat(
-                                    ref.watch(currentBitcoinPriceInCurrencyProvider(
-                                      CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).lightningBalance!),
-                                    )).toDouble(),
-                                    ref.watch(settingsProvider).currency,
-                                  )
-                                      : '***',
-                                  ref.watch(settingsProvider).currency,
-                                  'Lightning Network',
-                                  isLightning: true,
-                                ),
+                                _buildLightningCard(context, ref),
                               ],
                             ),
                             SizedBox(height: 24.h),

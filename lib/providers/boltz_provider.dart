@@ -10,58 +10,62 @@ import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:boltz/boltz.dart';
 
-// Single Box Provider for all swaps
-final boltzSwapsBoxProvider = Provider<Box>((ref) {
-  return Hive.box('boltzSwapsBox');
+// FutureProvider for the Hive box, opening it on initialization
+final boltzSwapsBoxProvider = FutureProvider<Box<LbtcBoltz>>((ref) async {
+  return await Hive.openBox<LbtcBoltz>('boltzSwapsBox');
 });
 
-// Boltz Swap Notifier to manage all swaps
+// Boltz Swap Notifier to manage all swaps, handling the Future<Box>
 class BoltzSwapNotifier extends StateNotifier<List<LbtcBoltz>> {
-  BoltzSwapNotifier() : super([]) {
+  BoltzSwapNotifier(this.ref) : super([]) {
     _loadSwaps();
   }
+
+  final Ref ref;
+
+  Future<Box<LbtcBoltz>> get _box async => await ref.watch(boltzSwapsBoxProvider.future);
 
   LbtcBoltz getSwapById(String id) {
     return state.firstWhere((swap) => swap.swap.id == id, orElse: () => throw 'Swap not found');
   }
 
   Future<void> _loadSwaps() async {
-    final box = await Hive.openBox<LbtcBoltz>('boltzSwapsBox');
+    final box = await _box;
     box.watch().listen((event) => _updateSwaps());
-    _updateSwaps();
+    await _updateSwaps();
   }
 
-  void _updateSwaps() {
-    final box = Hive.box<LbtcBoltz>('boltzSwapsBox');
+  Future<void> _updateSwaps() async {
+    final box = await _box;
     final swaps = box.values.toList();
     swaps.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     state = swaps;
   }
 
   Future<void> addSwap(LbtcBoltz swap) async {
-    final box = Hive.box<LbtcBoltz>('boltzSwapsBox');
+    final box = await _box;
     await box.put(swap.swap.id, swap);
-    _updateSwaps();
+    await _updateSwaps();
   }
 
   Future<void> updateSwap(LbtcBoltz updatedSwap) async {
-    final box = Hive.box<LbtcBoltz>('boltzSwapsBox');
+    final box = await _box;
     await box.put(updatedSwap.swap.id, updatedSwap);
-    _updateSwaps();
+    await _updateSwaps();
   }
 
   Future<void> deleteSwap(String id) async {
-    final box = Hive.box<LbtcBoltz>('boltzSwapsBox');
+    final box = await _box;
     await box.delete(id);
-    _updateSwaps();
+    await _updateSwaps();
   }
 }
 
 final boltzSwapProvider = StateNotifierProvider<BoltzSwapNotifier, List<LbtcBoltz>>((ref) {
-  return BoltzSwapNotifier();
+  return BoltzSwapNotifier(ref);
 });
 
-// Original Liquid Boltz Providers adapted
+// Boltz Reverse Fees Provider
 final boltzReverseFeesProvider = FutureProvider.autoDispose<ReverseFeesAndLimits>((ref) async {
   try {
     final fees = await Fees.newInstance(boltzUrl: 'https://api.boltz.exchange/v2');
@@ -71,6 +75,7 @@ final boltzReverseFeesProvider = FutureProvider.autoDispose<ReverseFeesAndLimits
   }
 });
 
+// Boltz Submarine Fees Provider
 final boltzSubmarineFeesProvider = FutureProvider.autoDispose<SubmarineFeesAndLimits>((ref) async {
   try {
     final fees = await Fees.newInstance(boltzUrl: 'https://api.boltz.exchange/v2');
@@ -80,13 +85,16 @@ final boltzSubmarineFeesProvider = FutureProvider.autoDispose<SubmarineFeesAndLi
   }
 });
 
+// Boltz Receive Provider
 final boltzReceiveProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   final fees = await ref.read(boltzReverseFeesProvider.future);
   final authModel = ref.read(authModelProvider);
   final mnemonic = await authModel.getMnemonic();
   final address = ref.read(addressProvider).liquidAddress;
   final addressIndex = ref.read(addressProvider).liquidAddressIndex;
-  final amount = ref.watch(sendTxProvider).amount == 0 ? await ref.watch(lnAmountProvider.future) : ref.watch(sendTxProvider).amount;
+  final amount = ref.watch(sendTxProvider).amount == 0
+      ? await ref.watch(lnAmountProvider.future)
+      : ref.watch(sendTxProvider).amount;
   final electrumUrl = ref.read(settingsProvider).liquidElectrumNode;
   final receive = await LbtcBoltz.createBoltzReceive(
     fees: fees,
@@ -100,10 +108,11 @@ final boltzReceiveProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   return receive;
 });
 
+// Claim Single Boltz Transaction Provider
 final claimSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<bool, String>((ref, id) async {
   final receiveAddress = ref.read(addressProvider).liquidAddress;
   final fees = await ref.read(boltzReverseFeesProvider.future);
-  final box = ref.read(boltzSwapsBoxProvider);
+  final box = await ref.read(boltzSwapsBoxProvider.future);
   final boltzSwap = box.get(id) as LbtcBoltz;
   final electrumUrl = ref.read(settingsProvider).liquidElectrumNode;
 
@@ -123,6 +132,7 @@ final claimSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<bo
   return received;
 });
 
+// Boltz Pay Provider
 final boltzPayProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   final fees = await ref.read(boltzSubmarineFeesProvider.future);
   var sendTx = ref.watch(sendTxProvider.notifier);
@@ -146,10 +156,11 @@ final boltzPayProvider = FutureProvider.autoDispose<LbtcBoltz>((ref) async {
   return pay;
 });
 
+// Refund Single Boltz Transaction Provider
 final refundSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<bool, String>((ref, id) async {
   final fees = await ref.read(boltzSubmarineFeesProvider.future);
   final address = ref.read(addressProvider).liquidAddress;
-  final box = ref.read(boltzSwapsBoxProvider);
+  final box = await ref.read(boltzSwapsBoxProvider.future);
   final boltzSwap = box.get(id) as LbtcBoltz;
   final electrumUrl = ref.read(settingsProvider).liquidElectrumNode;
 
@@ -170,17 +181,19 @@ final refundSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<b
   return refunded;
 });
 
+// Received Boltz Provider
 final receivedBoltzProvider = Provider.autoDispose<List<LbtcBoltz>>((ref) {
   final allSwaps = ref.watch(boltzSwapProvider);
   return allSwaps.where((swap) => swap.swap.kind == SwapType.reverse).toList();
 });
 
+// Paid Boltz Provider
 final payedBoltzProvider = Provider.autoDispose<List<LbtcBoltz>>((ref) {
   final allSwaps = ref.watch(boltzSwapProvider);
   return allSwaps.where((swap) => swap.swap.kind == SwapType.submarine).toList();
 });
 
-final claimAndDeleteAllBoltzProvider = FutureProvider.autoDispose<void>((ref) async {
+final claimAllBoltzProvider = FutureProvider.autoDispose<void>((ref) async {
   try {
     final allSwaps = ref.read(boltzSwapProvider);
     final receiveSwaps = allSwaps.where((swap) => swap.swap.kind == SwapType.reverse).toList();
@@ -194,14 +207,15 @@ final claimAndDeleteAllBoltzProvider = FutureProvider.autoDispose<void>((ref) as
           await ref.read(claimSingleBoltzTransactionProvider(item.swap.id).future).then((value) => value);
         }
       } catch (_) {
-        // Ignore any errors for this item and continue to the next
+        // Ignore errors for individual swaps and continue
       }
     }
   } catch (_) {
-    // Ignore any errors
+    // Ignore any overarching errors
   }
 });
 
+// All Transactions Provider
 final allTransactionsProvider = Provider.autoDispose<List<dynamic>>((ref) {
   final allSwaps = ref.watch(boltzSwapProvider);
   return allSwaps.map((swap) {

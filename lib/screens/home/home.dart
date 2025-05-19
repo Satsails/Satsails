@@ -35,14 +35,15 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
           {'name': 'Bitcoin (Mainnet)', 'icon': 'lib/assets/bitcoin-logo.png'}
         ]
       },
-      {
-        'name': 'Spark Network',
-        'color': const Color(0xFF212121),
-        'logo': 'lib/assets/logo-spark.svg',
-        'assets': [
-          {'name': 'Lightning Bitcoin', 'icon': 'lib/assets/Bitcoin_lightning_logo.png'}
-        ]
-      },
+      //  commented out until spark releases
+      // {
+      //   'name': 'Spark Network',
+      //   'color': const Color(0xFF212121),
+      //   'logo': 'lib/assets/logo-spark.svg',
+      //   'assets': [
+      //     {'name': 'Lightning Bitcoin', 'icon': 'lib/assets/Bitcoin_lightning_logo.png'}
+      //   ]
+      // },
       {
         'name': 'Liquid Network',
         'color': const Color(0xFFFFFFFF),

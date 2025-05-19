@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:Satsails/models/balance_model.dart';
+import 'package:Satsails/models/boltz_model.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/firebase_model.dart';
@@ -72,6 +73,13 @@ Future<void> main() async {
   Hive.registerAdapter(EulenTransferAdapter());
   Hive.registerAdapter(NoxTransferAdapter());
   Hive.registerAdapter(SideShiftAdapter());
+  Hive.registerAdapter(LbtcBoltzAdapter());
+  Hive.registerAdapter(ExtendedLbtcLnV2SwapAdapter());
+  Hive.registerAdapter(SwapTypeAdapter());
+  Hive.registerAdapter(ChainAdapter());
+  Hive.registerAdapter(PreImageAdapter());
+  Hive.registerAdapter(KeyPairAdapter());
+  Hive.registerAdapter(LBtcSwapScriptV2StrAdapter());
 
   await LibLwk.init();
   await BoltzCore.init();

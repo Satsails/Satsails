@@ -1,5 +1,7 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
+import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
@@ -8,6 +10,8 @@ import 'package:Satsails/providers/nox_transfer_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/shared/backup_warning.dart';
+import 'package:Satsails/screens/shared/boltz_transactions_details_screen.dart';
+import 'package:boltz/boltz.dart' as boltz;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -140,7 +144,10 @@ class TransactionList extends ConsumerWidget {
     final filteredTransactions = showAll
         ? allTransactions
         : allTransactions
-        .where((tx) => !(tx is SideShiftTransaction && tx.details.status == 'waiting'))
+        .where((tx) =>
+    !(tx is SideShiftTransaction && tx.details.status == 'waiting') &&
+        !(tx is BoltzTransaction && !(tx.details.completed ?? false))
+    )
         .take(4)
         .toList();
 
@@ -254,6 +261,8 @@ Widget _buildUnifiedTransactionItem(dynamic transaction, BuildContext context, W
     transactionItem = _buildEulenTransactionItem(transaction, context, ref);
   } else if (transaction is NoxTransaction) {
     transactionItem = _buildNoxTransactionItem(transaction, context, ref);
+  } else if (transaction is BoltzTransaction) {
+    transactionItem = _buildBoltzTransactionItem(transaction, context, ref);
   } else if (transaction is SideShiftTransaction) {
     transactionItem = _buildSideshiftTransactionItem(transaction, context, ref);
   } else {
@@ -261,6 +270,137 @@ Widget _buildUnifiedTransactionItem(dynamic transaction, BuildContext context, W
   }
   return transactionItem;
 }
+
+Widget _buildBoltzTransactionItem(
+    BoltzTransaction transaction,
+    BuildContext context,
+    WidgetRef ref,
+    ) {
+  final isCompleted = transaction.details.completed ?? false;
+  final statusText = isCompleted ? "Completed".i18n : "Pending".i18n;
+  final isPending = !isCompleted;
+
+  final btcFormat = ref.read(settingsProvider).btcFormat;
+  final currency = ref.read(settingsProvider).currency;
+
+  final isReceiving = transaction.details.swap.kind == boltz.SwapType.reverse;
+  final title = isReceiving ? "Lightning -> L-BTC" : "L-BTC -> Lightning";
+
+  final amountBtc = isCompleted
+      ? btcInDenominationFormatted(transaction.details.swap.outAmount, btcFormat)
+      : null;
+  final amountText = amountBtc;
+
+  // Calculate fiat value using boltzTransactionAmountInFiat (only if completed)
+  String? fiatValue;
+  if (isCompleted) {
+    try {
+      fiatValue = boltzTransactionAmountInFiat(transaction.details, ref);
+    } catch (e) {
+      fiatValue = null; // Omit if function fails
+    }
+  }
+
+  // Format date based on locale
+  String locale = I18n.locale.languageCode;
+  final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(
+    DateTime.fromMillisecondsSinceEpoch(transaction.details.timestamp),
+  );
+
+  // Build the widget
+  return GestureDetector(
+    onTap: () {
+      ref.read(selectedBoltzTransactionProvider.notifier).state = transaction;
+      context.pushNamed('boltzTransactionDetails');
+    },
+    behavior: HitTestBehavior.opaque,
+    child: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Icon with optional progress indicator
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              sideshiftTransactionTypeIcon(),
+              if (isPending)
+                SizedBox(
+                  width: 40.w,
+                  height: 40.w,
+                  child: const CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                    backgroundColor: Colors.transparent,
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(width: 12.w),
+          // Transaction details and amount
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      formattedDate,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Colors.grey[400],
+                      ),
+                    ),
+                    Text(
+                      statusText,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: Colors.grey[400],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                if (amountText != null)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        amountText,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      if (fiatValue != null)
+                        Text(
+                          fiatValue,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 
 Widget _buildSideshiftTransactionItem(
     SideShiftTransaction transaction,

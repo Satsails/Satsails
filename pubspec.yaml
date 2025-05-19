@@ -111,6 +111,7 @@ flutter:
     - lib/assets/nox.svg
     - lib/assets/satsails.svg
     - lib/assets/eulen-logo.svg
+    - lib/assets/boltz.svg
     - lib/assets/logo-spark.svg
     - lib/assets/liquid-logo.png
     - lib/assets/liquid-logo-white.png

@@ -33,7 +33,8 @@ class _SideShiftTransactionDetailsScreenState extends ConsumerState<SideShiftTra
   Widget build(BuildContext context) {
     final details = ref.watch(shiftByIdProvider(widget.transaction.id));
     final statusText = _getStatusText(details.status);
-    final formattedDate = DateFormat('d MMMM, HH:mm').format(DateTime.fromMillisecondsSinceEpoch(details.timestamp * 1000));
+    String locale = I18n.locale.languageCode;
+    final formattedDate = DateFormat('d MMMM, HH:mm', locale).format(DateTime.fromMillisecondsSinceEpoch(details.timestamp * 1000));
     final expiresAtText = formatExpiresAt(details.expiresAt);
     final averageShiftTimeText = formatAverageShiftTime(details.averageShiftSeconds);
 

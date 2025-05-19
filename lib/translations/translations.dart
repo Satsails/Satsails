@@ -3164,6 +3164,58 @@ extension Localization on String {
       {
         'en': 'Invalid date',
         'pt': 'Data inválida',
+      } +
+      {
+        'en': 'Invalid date',
+        'pt': 'Data inválida',
+      } +
+      {
+        'en': 'Generate Invoice',
+        'pt': 'Gerar Fatura',
+      } +
+      {
+        'en': 'Enter amount and generate invoice',
+        'pt': 'Digite o valor e gerar a fatura',
+      } +
+      {
+        'en': 'Receive on Boltz Network',
+        'pt': 'Receber pela rede Boltz',
+      } +
+      {
+        'en': 'Boltz Transaction Details',
+        'pt': 'Detalhes da Transação Boltz',
+      } +
+      {
+        'en': 'Non-Native Assets',
+        'pt': 'Ativos Não Nativos',
+      } +
+      {
+        'en': 'Receive Liquid Bitcoin on Lightning Network',
+        'pt': 'Receber Liquid Bitcoin na rede Lightning',
+      } +
+      {
+        'en': 'Action Failed',
+        'pt': 'Ação Falhou',
+      }+
+      {
+        'en': 'Receive Address',
+        'pt': 'Endereço de Recebimento',
+      }+
+      {
+        'en': 'Refund initiated successfully',
+        'pt': 'Reembolso iniciado com sucesso',
+      }+
+      {
+        'en': 'Reverse Swap',
+        'pt': 'Swap Reverso',
+      }+
+      {
+        'en': 'Claim initiated successfully',
+        'pt': 'Reclamação iniciada com sucesso',
+      }+
+      {
+        'en': 'Refund initiated successfully',
+        'pt': 'Reembolso iniciado com sucesso',
       };
 
   String get i18n => localize(this, _t);
