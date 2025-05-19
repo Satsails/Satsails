@@ -198,7 +198,8 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   // Updated asset options with Lightning Bitcoin and labels
   final List<String> _assetOptions = [
     'Bitcoin (Mainnet)',
-    'Lightning Bitcoin',
+    // awaiting spark
+    // 'Lightning Bitcoin',
     'Liquid Bitcoin',
     'Depix',
     'USDT',

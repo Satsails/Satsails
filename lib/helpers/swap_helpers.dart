@@ -327,13 +327,14 @@ final balanceFromAssetProvider = StateProvider.autoDispose<String>((ref) {
 
 
 List<String> getAvailableSwaps(String asset, WidgetRef ref) {
-  final lightningAvailable = ref.watch(coinosLnProvider).token.isNotEmpty;
+  // allow for in wallet coinos migrations
+  final lightningAvailable = !ref.watch(coinosLnProvider).isMigrated;
 
   switch (asset) {
     case 'Bitcoin':
-      return ['L-BTC', if (lightningAvailable) 'Lightning'];
+      return ['L-BTC'];
     case 'L-BTC':
-      return ['USDT', 'Depix', 'Eurox', if (lightningAvailable) 'Lightning', 'Bitcoin'];
+      return ['USDT', 'Depix', 'Eurox', 'Bitcoin'];
     case 'Lightning':
       return lightningAvailable ? ['Bitcoin', 'L-BTC'] : [];
     case 'USDT':
