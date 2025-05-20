@@ -66,7 +66,7 @@ Future<String> getLnInvoiceWithAmount(String invoice, int amount) async {
     // Create an Lnurl instance and validate it
     final lnurl = Lnurl(value: invoice);
     if (!await lnurl.validate()) {
-      throw const FormatException('Invalid LNURL');
+      throw 'Address is invalid';
     }
 
     // Convert amount to millisatoshis and fetch the invoice
@@ -74,7 +74,7 @@ Future<String> getLnInvoiceWithAmount(String invoice, int amount) async {
     final fetchedInvoice = await lnurl.fetchInvoice(msats: amountInMsats);
     return fetchedInvoice;
   } catch (e) {
-    throw FormatException('Error processing LNURL or fetching invoice: $e');
+    throw 'Address is invalid';
   }
 }
 

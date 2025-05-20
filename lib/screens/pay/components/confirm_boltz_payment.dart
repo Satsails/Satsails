@@ -708,6 +708,7 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
                           ref.read(sendBlocksProvider.notifier).state = 1;
                           context.replace('/home');
                       } catch (e) {
+                        ref.read(sendTxProvider.notifier).updateAddress(addressController.text);
                         controller.failure();
                         showMessageSnackBar(
                           message: e.toString().i18n,
