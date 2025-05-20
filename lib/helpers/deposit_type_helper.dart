@@ -173,5 +173,5 @@ String formatEnumName(String name) {
     }
     result += name[i];
   }
-  return result;
+  return result.i18n;
 }

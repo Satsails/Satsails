@@ -222,12 +222,12 @@ class _BalanceDisplay extends ConsumerWidget {
                   label: 'Bitcoin'.i18n,
                   balance: btcBalance,
                 ),
-                _buildBalanceRow(
-                  imagePath: 'lib/assets/Bitcoin_lightning_logo.png',
-                  color: const Color(0xFFFF9800),
-                  label: 'Lightning'.i18n,
-                  balance: lightningBalance,
-                ),
+                // _buildBalanceRow(
+                //   imagePath: 'lib/assets/Bitcoin_lightning_logo.png',
+                //   color: const Color(0xFFFF9800),
+                //   label: 'Lightning'.i18n,
+                //   balance: lightningBalance,
+                // ),
               ],
             ),
             SizedBox(height: 12.h),
@@ -419,7 +419,7 @@ class _ActionCards extends ConsumerWidget {
                           ),
                           SizedBox(height: 8.w),
                           Text(
-                            'Market data'.i18n,
+                            'Market Data'.i18n,
                             style: TextStyle(
                               fontSize: 16.sp,
                               color: Colors.white,

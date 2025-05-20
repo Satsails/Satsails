@@ -68,7 +68,8 @@ const List<String> fiatAssets = [
 
 
 List<String> getAssets(WidgetRef ref) {
-  final lightningAvailable = ref.watch(coinosLnProvider).token.isNotEmpty;
+  // this is hardcoded to false until we have spark
+  final lightningAvailable = false; // Replace with actual logic to check if Lightning is available
 
   return [
     'Bitcoin',
@@ -97,12 +98,6 @@ final swapTypeProvider = StateProvider.autoDispose<SwapType?>((ref) {
 
     case 'Lightning-L-BTC':
       return SwapType.coinosLnToLBTC;
-
-    case 'Bitcoin-Lightning':
-      return SwapType.coinosBtcToLn;
-
-    case 'L-BTC-Lightning':
-      return SwapType.coinosLbtcToLn;
 
     case 'USDT-L-BTC':
       return SwapType.sideswapUsdtToLbtc;
@@ -327,8 +322,8 @@ final balanceFromAssetProvider = StateProvider.autoDispose<String>((ref) {
 
 
 List<String> getAvailableSwaps(String asset, WidgetRef ref) {
-  // allow for in wallet coinos migrations
-  final lightningAvailable = !ref.watch(coinosLnProvider).isMigrated;
+  // this is hardcoded to false until we have spark
+  final lightningAvailable = false;
 
   switch (asset) {
     case 'Bitcoin':
@@ -336,7 +331,7 @@ List<String> getAvailableSwaps(String asset, WidgetRef ref) {
     case 'L-BTC':
       return ['USDT', 'Depix', 'Eurox', 'Bitcoin'];
     case 'Lightning':
-      return lightningAvailable ? ['Bitcoin', 'L-BTC'] : [];
+      return [];
     case 'USDT':
       return ['Depix', 'Eurox', 'L-BTC'];
     case 'Eurox':

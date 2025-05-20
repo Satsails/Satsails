@@ -2953,7 +2953,7 @@ extension Localization on String {
         'pt': 'Por favor, forneça um endereço de retorno para receber um reembolso.',
       } +{
     'en': 'Return Address',
-    'pt': 'Endereço de Retorno',
+    'pt': 'Endereço de devolução',
   } +
       {
         'en': 'Enter return address',

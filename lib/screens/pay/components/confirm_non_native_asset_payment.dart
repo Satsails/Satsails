@@ -332,7 +332,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                           children: [
                             Padding(
                               padding: EdgeInsets.only(bottom: 8.h),
-                              child: Text('Recipient Address ($settleNetwork $settleCoin)'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                              child: Text('Recipient Address'.i18n + '($settleNetwork $settleCoin)', style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(vertical: 8.h),

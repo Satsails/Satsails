@@ -58,12 +58,12 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
+      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount")) {
         throw "Insufficient funds";
-      } else if (e.toString().contains("LwkError(msg: Base58(TooShort(TooShortError { length: 0 })))") || e.toString().contains("InvalidChecksum")) {
+      } else if ((e as dynamic).msg.toString().contains("Base58(TooShort(TooShortError { length: 0 }))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
         throw "Address is invalid";
       }
-      throw e.toString();
+      throw (e as dynamic).msg;
     }
   }
 
@@ -77,12 +77,12 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
+      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount")) {
         throw "Insufficient funds";
-      } else if (e.toString().contains("LwkError(msg: Base58(TooShort(TooShortError { length: 0 })))") || e.toString().contains("InvalidChecksum")) {
+      } else if ((e as dynamic).msg.toString().contains("Base58(TooShort(TooShortError { length: 0 }))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
         throw "Address is invalid";
       }
-      throw e.toString();
+      throw (e as dynamic).msg;
     }
   }
 
@@ -97,12 +97,12 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
+      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount")) {
         throw "Insufficient funds, or not enough liquid bitcoin to pay fees.";
-      } else if (e.toString().contains("LwkError(msg: Base58(TooShort(TooShortError { length: 0 })))") || e.toString().contains("InvalidChecksum")) {
+      } else if ((e as dynamic).msg.toString().contains("Base58(TooShort(TooShortError { length: 0 }))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
         throw "Address is invalid";
       }
-      throw e.toString();
+      throw (e as dynamic).msg;
     }
   }
 
@@ -116,9 +116,9 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
+      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount")) {
         throw "Insufficient funds, or not enough liquid bitcoin to pay fees.";
-      } else if (e.toString().contains("LwkError(msg: Base58(TooShort(TooShortError { length: 0 })))") || e.toString().contains("InvalidChecksum")) {
+      } else if ((e as dynamic).msg.toString().contains("LwkError(msg: Base58(TooShort(TooShortError { length: 0 })))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
         throw "Address is invalid";
       }
       throw 'Error building payjoin asset transaction';
@@ -137,7 +137,7 @@ class LiquidModel {
 
       return signedTxBytes;
     } catch (e) {
-      throw e.toString();
+      throw (e as dynamic).msg.toString();
     }
   }
 
@@ -148,7 +148,7 @@ class LiquidModel {
 
       return pset;
     } catch (e) {
-      throw e.toString();
+      throw (e as dynamic).msg.toString();
     }
   }
 
@@ -157,7 +157,7 @@ class LiquidModel {
       final tx = await Blockchain.broadcastSignedPset(electrumUrl: config.electrumUrl, signedPset: pset);
       return tx;
     } catch (e) {
-      throw e.toString();
+      throw (e as dynamic).msg.toString();
     }
   }
 
@@ -176,11 +176,10 @@ class LiquidModel {
         throw Exception("Getting estimated fees is not successful.");
       }
     } catch (e) {
-      throw Exception("Error: ${e.toString()}");
+      throw Exception("Error: ${(e as dynamic).msg.toString()}");
     }
   }
 }
-
 
 class Liquid {
   final LiquidConfig liquid;

@@ -637,20 +637,9 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
                                                   ? null
                                                   : () async {
                                                 try {
-                                                  final pset = await ref.watch(liquidDrainWalletProvider.future);
-                                                  final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
-                                                  final controllerValue = sendingBalance.abs();
-                                                  final selectedCurrency = ref.watch(inputCurrencyProvider);
-                                                  final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(
-                                                      controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
-                                                  controller.text = selectedCurrency == 'BTC'
-                                                      ? amountToSetInSelectedCurrency
-                                                      : selectedCurrency == 'Sats'
-                                                      ? controllerValue.toString()
-                                                      : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
-                                                  ref.read(sendTxProvider.notifier).updateAmountFromInput(
-                                                      controllerValue.toString(), 'sats');
-                                                  ref.read(sendTxProvider.notifier).updateDrain(true);
+                                                  final liquidBalance = ref.read(balanceNotifierProvider).liquidBalance;
+                                                  final adjustedAmountInSats = (liquidBalance * 0.95).round();
+                                                  ref.read(sendTxProvider.notifier).updateAmountFromInput(adjustedAmountInSats.toString(), 'sats');
                                                 } catch (e) {
                                                   showMessageSnackBar(
                                                     message: e.toString().i18n,

@@ -1,4 +1,5 @@
 import 'package:Satsails/providers/address_provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart' show dotenv;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/sideshift_model.dart';
 
@@ -19,7 +20,7 @@ final createReceiveSideShiftShiftProvider = FutureProvider.family.autoDispose<Si
     settleCoin: params.settleCoin,
     depositNetwork: params.depositNetwork,
     settleNetwork: params.settleNetwork,
-    affiliateId: 'QsbsXsGKU',
+    affiliateId: dotenv.env['SIDESHIFTAFFILIATE']!,
   );
 
   final result = await SideShiftService.createShift(request);
@@ -45,7 +46,7 @@ final createSendSideShiftShiftProvider = FutureProvider.family.autoDispose<SideS
     settleCoin: params.settleCoin,
     depositNetwork: params.depositNetwork,
     settleNetwork: params.settleNetwork,
-    affiliateId: 'QsbsXsGKU',
+    affiliateId: dotenv.env['SIDESHIFTAFFILIATE']!,
   );
 
   final result = await SideShiftService.createShift(request);
