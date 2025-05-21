@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/currency_conversions.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 
-final initializeCurrencyProvider = FutureProvider.autoDispose<CurrencyConversions>((ref) async {
+final initializeCurrencyProvider = FutureProvider<CurrencyConversions>((ref) async {
   final currencyBox = await Hive.openBox('currency');
   final usdtoBrl = currencyBox.get('usdToBrl', defaultValue: 5.08) as double;
   final usdtoEur = currencyBox.get('usdToEur', defaultValue: 0.93) as double;
@@ -32,7 +32,7 @@ final initializeCurrencyProvider = FutureProvider.autoDispose<CurrencyConversion
   );
 });
 
-final currencyNotifierProvider = StateNotifierProvider.autoDispose<CurrencyExchangeRatesModel, CurrencyConversions>((ref) {
+final currencyNotifierProvider = StateNotifierProvider<CurrencyExchangeRatesModel, CurrencyConversions>((ref) {
   final initialCurrency = ref.watch(initializeCurrencyProvider);
 
   return CurrencyExchangeRatesModel(initialCurrency.when(
@@ -49,7 +49,7 @@ final currencyNotifierProvider = StateNotifierProvider.autoDispose<CurrencyExcha
       brlToBtc: 0.0000028,
       btcToUsd: 1/0.000014,
       btcToEur: 1/0.000015,
-      btcToBrl: 1/0.0000028,
+      btcToBrl: 0,
     ),
     error: (Object error, StackTrace stackTrace) {
       throw error;

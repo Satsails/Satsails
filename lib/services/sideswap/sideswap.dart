@@ -82,8 +82,6 @@ class Sideswap {
       default:
         if (decodedMessage['error']?['message'] == 'already registered') {
           break;
-        } else {
-          throw Exception('Unknown method: ${decodedMessage['method']}');
         }
     }
   }
