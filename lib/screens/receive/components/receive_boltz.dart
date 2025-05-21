@@ -92,7 +92,7 @@ class _ReceiveBoltzState extends ConsumerState<ReceiveBoltz> {
           _buildSwapContent(),
           Padding(
             padding: EdgeInsets.all(16.h),
-            child: AmountInput(controller: _amountController),
+            child: AmountInput(controller: _amountController, label: '(Mandatory)'),
           ),
           Padding(
             padding: EdgeInsets.all(16.h),

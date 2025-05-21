@@ -720,7 +720,7 @@ class SideShiftService {
       if (response.statusCode == 201) {
         return Result(data: SideShift.fromJson(jsonDecode(response.body)));
       } else {
-        return Result(error: 'Failed to create shift: ${response.body}');
+        return Result(error: '${jsonDecode(response.body)["error"]["message"]}');
       }
     } catch (e) {
       return Result(error: 'An error occurred. Please try again later');

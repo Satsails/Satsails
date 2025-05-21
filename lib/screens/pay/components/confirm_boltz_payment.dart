@@ -195,105 +195,6 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
   ) ?? false;
 }
 
-Widget buildTransactionDetailsCard(WidgetRef ref) {
-  return Card(
-    color: const Color(0x00333333).withOpacity(0.4),
-    margin: EdgeInsets.zero,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-    elevation: 4,
-    child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.sp),
-      child: ExpansionTile(
-        collapsedIconColor: Colors.white,
-        iconColor: Colors.white,
-        tilePadding: EdgeInsets.zero,
-        childrenPadding: EdgeInsets.only(bottom: 16.h),
-        maintainState: true,
-        shape: const Border(
-          top: BorderSide(color: Colors.transparent),
-          bottom: BorderSide(color: Colors.transparent),
-        ),
-        collapsedShape: const Border(
-          top: BorderSide(color: Colors.transparent),
-          bottom: BorderSide(color: Colors.transparent),
-        ),
-        title: Text(
-          'Transaction Details'.i18n,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                  'Amount:'.i18n,
-                  style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold)
-              ),
-              Text(currencyFormat(ref.watch(bitcoinValueInCurrencyProvider), ref.watch(settingsProvider).currency), style: TextStyle(fontSize: 16.sp, color: Colors.white),
-              ),
-            ],
-          ),
-          SizedBox(height: 16.h),
-          ref.watch(liquidFeeProvider).when(
-            data: (int fee) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Fee:'.i18n,
-                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  Text(
-                    '$fee sats',
-                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                ],
-              );
-            },
-            loading: () => LoadingAnimationWidget.progressiveDots(size: 16.sp, color: Colors.white),
-            error: (error, stack) => TextButton(
-              onPressed: () {
-                ref.refresh(feeProvider);
-              },
-              child: Text(
-                ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n,
-                style: TextStyle(color: Colors.white, fontSize: 14.sp),
-              ),
-            ),
-          ),
-          SizedBox(height: 8.h),
-          ref.watch(liquidFeeValueInCurrencyProvider).when(
-            data: (double feeValue) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Fee in ${ref.watch(settingsProvider).currency}:'.i18n,
-                    style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    currencyFormat(feeValue, ref.watch(settingsProvider).currency),
-                    style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              );
-            },
-            loading: () => LoadingAnimationWidget.progressiveDots(size: 16.sp, color: Colors.white),
-            error: (error, stack) => Text(
-              '',
-              style: TextStyle(color: Colors.white, fontSize: 14.sp),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
 class ConfirmBoltzPayment extends ConsumerStatefulWidget {
   const ConfirmBoltzPayment({super.key});
 
@@ -673,8 +574,6 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 16.h),
-                          buildTransactionDetailsCard(ref),
                         ],
                       ),
                     ),

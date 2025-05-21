@@ -3216,6 +3216,18 @@ extension Localization on String {
       {
         'en': 'Refund initiated successfully',
         'pt': 'Reembolso iniciado com sucesso',
+      }+
+      {
+        'en': '(Mandatory)',
+        'pt': '(Obrigatório)',
+      }+
+      {
+        'en': 'Invalid receiving address',
+        'pt': 'Endereço de Recebimento Inválido',
+      }+
+      {
+        'en': 'An error occurred. Please try again later',
+        'pt': 'Ocorreu um erro. Tente novamente mais tarde',
       };
 
   String get i18n => localize(this, _t);
