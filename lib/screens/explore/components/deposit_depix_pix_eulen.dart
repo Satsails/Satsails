@@ -14,7 +14,7 @@ import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 
 class DepositDepixPixEulen extends ConsumerStatefulWidget {
-  const DepositDepixPixEulen({Key? key}) : super(key: key);
+  const DepositDepixPixEulen({super.key});
 
   @override
   _DepositPixState createState() => _DepositPixState();
@@ -88,18 +88,18 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
     final amount = _amountController.text;
 
     if (amount.isEmpty) {
-      showMessageSnackBar(context: context, message: 'Amount cannot be empty'.i18n, error: true);
+      showMessageSnackBar(context: context, message: 'Amount cannot be empty'.i18n, error: true, top: true);
       return;
     }
 
     final int? amountInInt = int.tryParse(amount);
     if (amountInInt == null || amountInInt <= 0) {
-      showMessageSnackBar(context: context, message: 'Please enter a valid amount.'.i18n, error: true);
+      showMessageSnackBar(context: context, message: 'Please enter a valid amount.'.i18n, error: true, top: true);
       return;
     }
 
     if (amountInInt > 5000) {
-      showMessageSnackBar(context: context, message: 'The maximum allowed transfer amount is 5000 BRL'.i18n, error: true);
+      showMessageSnackBar(context: context, message: 'The maximum allowed transfer amount is 5000 BRL'.i18n, error: true, top: true);
       return;
     }
 
@@ -121,7 +121,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      showMessageSnackBar(context: context, message: e.toString().i18n, error: true);
+      showMessageSnackBar(context: context, message: e.toString().i18n, error: true, top: true);
     }
   }
 
@@ -146,7 +146,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => context.pop(),
         ),
       ),
@@ -189,12 +189,12 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                     ),
                     child: Text(
                       'Generate QR Code'.i18n,
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      style: TextStyle(color: Colors.black, fontSize: 16.sp),
                     ),
                   ),
                   SizedBox(height: 24.h),
                   Card(
-                    color: const Color(0xFF212121),
+                    color: const Color(0x00333333).withOpacity(0.4),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                     child: Padding(
                       padding: EdgeInsets.all(16.h),
@@ -233,7 +233,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                               SizedBox(width: 8.w),
                               Expanded(
                                 child: Text(
-                                  'Registered Tax id: '.i18n + '$registeredTaxId'.i18n,
+                                  'Registered Tax id: '.i18n + registeredTaxId.i18n,
                                   style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -273,7 +273,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                 ],
                 if (_pixQRCode.isNotEmpty)
                   Card(
-                    color: const Color(0xFF212121),
+                    color: const Color(0x00333333).withOpacity(0.4),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                     child: Padding(
                       padding: EdgeInsets.all(16.h),
@@ -289,7 +289,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                             width: double.infinity,
                             padding: EdgeInsets.symmetric(vertical: 16.h),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF212121),
+                              color: const Color(0x00333333).withOpacity(0.4),
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Text(
@@ -315,7 +315,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 24.h),
                     child: Center(
-                      child: LoadingAnimationWidget.threeArchedCircle(
+                      child: LoadingAnimationWidget.fourRotatingDots(
                         size: 0.1.sh,
                         color: Colors.orange,
                       ),

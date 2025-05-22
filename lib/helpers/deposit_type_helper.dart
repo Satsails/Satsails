@@ -50,7 +50,8 @@ final Map<DepositProvider, ProviderDetails> providerDetails = {
       "Cashback available"
     ],
     disadvantages: [
-      "Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payer's name",
+      "Some limitations on purchases due to free nature of depix compared to other assets",
+      "Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payers name",
       "Depix token purchases are returned to the sender bank if CPF/CNPJ diverges for the one registered",
       "Not possible to send documentation and unlock higher purchase amounts.",
       "Maximum of 5000 BRL per single transaction",
@@ -76,9 +77,56 @@ final Map<DepositProvider, ProviderDetails> providerDetails = {
   ),
 };
 
+final Map<DepositProvider, KYCAassessment> kycAssessment = {
+  DepositProvider.Eulen: KYCAassessment(
+    details: [
+      "Depix purchases are reported to the Brazilian federal revenue agency.",
+      "Depix tokens are registered under the payer's name.",
+      "Conversions to Bitcoin are not reported automatically, allowing for relatively anonymous Bitcoin purchases.",
+      "*Always comply with the laws of your jurisdiction."
+    ],
+    rating: 4.8,
+  ),
+  DepositProvider.Chimera: KYCAassessment(
+    details: [
+      "Purchases up to 1000 BRL per person are KYC-free, requiring only an email and IP address.",
+      "Beyond 1000 BRL, full KYC is required, and purchases are reported to a Swiss institution under Swiss law.",
+      "Does not automatically communicate with tax systems outside Switzerland.",
+      "*Always comply with the laws of your jurisdiction."
+    ],
+    rating: 4.0,
+  ),
+  DepositProvider.Nox: KYCAassessment(
+    details: [
+      "Full KYC required, with Bitcoin purchases directly reported to the Brazilian federal revenue agency.",
+      "Streamlined for users who prefer quick and easy tax reporting.",
+      "*Always comply with the laws of your jurisdiction."
+    ],
+    rating: 2.0,
+  ),
+  DepositProvider.Meld: KYCAassessment(
+    details: [
+      "Uses various providers, primarily in the US, with KYC requirements varying by provider and purchase amount.",
+      "Specific KYC details depend on the chosen provider, which is selected based on price.",
+      "*Always comply with the laws of your jurisdiction."
+    ],
+    rating: 3.0,
+  ),
+};
+
+class KYCAassessment {
+  final List<String> details;
+  final double rating;
+
+  KYCAassessment({
+    required this.details,
+    required this.rating,
+  });
+}
+
 // Dropdown options (unchanged)
-final List<String> modes = ['P2P (No KYC)', 'Purchase from Providers'];
-final List<CurrencyDeposit> currencies = CurrencyDeposit.values;
+final List<String> modes = ['Purchase with P2P (No KYC)', 'Purchase from Providers'];
+const List<CurrencyDeposit> currencies = CurrencyDeposit.values;
 
 // Currency flags (unchanged)
 final Map<CurrencyDeposit, Widget> currencyFlags = {
@@ -125,5 +173,5 @@ String formatEnumName(String name) {
     }
     result += name[i];
   }
-  return result;
+  return result.i18n;
 }

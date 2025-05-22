@@ -1,101 +1,117 @@
+import 'package:Satsails/models/sideshift_model.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
-import 'package:Satsails/screens/receive/components/custodial_lightning_widget.dart';
+import 'package:Satsails/screens/receive/components/receive_boltz.dart';
+import 'package:Satsails/screens/receive/components/receive_non_native_asset.dart';
+import 'package:Satsails/screens/receive/components/receive_spark_lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
+import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
-
-final selectedReceiveTypeProvider = StateProvider<String>((ref) => "Bitcoin");
+import 'package:Satsails/providers/sideshift_provider.dart';
 
 class Receive extends ConsumerWidget {
   const Receive({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final selectedType = ref.watch(selectedNetworkTypeProvider);
+    final shiftPair = ref.watch(selectedShiftPairProvider);
 
-    final selectedType = ref.watch(selectedReceiveTypeProvider);
+    Future.microtask(() => {ref.read(shouldUpdateMemoryProvider.notifier).state = false});
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
+    return WillPopScope(
+      onWillPop: () async {
+        try {
+          ref.read(inputAmountProvider.notifier).state = '0.0';
+          ref.invalidate(initialCoinosProvider);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      },
+      child: Scaffold(
         backgroundColor: Colors.black,
-        title: Text('Receive'.i18n, style: const TextStyle(color: Colors.white)),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, size: screenHeight * 0.03, color: Colors.white),
-          onPressed: () {
-            ref.read(inputAmountProvider.notifier).state = '0.0';
-            ref.invalidate(initialCoinosProvider);
-            ref.read(selectedReceiveTypeProvider.notifier).state = "Bitcoin";
-            context.pop();
-          },
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: Text(
+            getReceiveTitle(selectedType, shiftPair),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: selectedType == 'SideShift' || selectedType == 'Boltz Network' ? 15.sp : 20.sp,
+            ),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+            onPressed: () {
+              ref.read(inputAmountProvider.notifier).state = '0.0';
+              ref.invalidate(initialCoinosProvider);
+              context.pop();
+            },
+          ),
         ),
-      ),
-      body: KeyboardDismissOnTap(
-        child: SingleChildScrollView(
-          child: Column(
+        body: KeyboardDismissOnTap(
+          child: ListView(
             children: [
-              // DropdownButton to select the receive type
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: 16),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[900],
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.5),
-                        offset: const Offset(0, 4),
-                        blurRadius: 8,
-                      ),
-                    ],
-                  ),
-                  child: DropdownButton<String>(
-                    value: selectedType,
-                    isExpanded: true,
-                    dropdownColor: Colors.grey[900],
-                    icon: Icon(Icons.arrow_drop_down, color: Colors.orange, size: screenWidth * 0.08),
-                    underline: const SizedBox(),
-                    style: TextStyle(color: Colors.orange, fontSize: screenWidth * 0.05, fontWeight: FontWeight.w500),
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        ref.read(selectedReceiveTypeProvider.notifier).state = newValue;
-                        ref.read(inputCurrencyProvider.notifier).state = 'BTC';
-                        ref.read(inputAmountProvider.notifier).state = '0.0';
-                        ref.read(isBitcoinInputProvider.notifier).state = true;
-                        ref.invalidate(initialCoinosProvider);
-                      }
-                    },
-                    items: <String>['Bitcoin', 'Liquid', 'Lightning']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            value.i18n,
-                            style: TextStyle(color: Colors.orange, fontSize: screenWidth * 0.045),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-              SizedBox(height: screenHeight * 0.02),
-              if (selectedType == 'Bitcoin') const BitcoinWidget(),
-              if (selectedType == 'Liquid') const LiquidWidget(),
-              if (selectedType == 'Lightning') const CustodialLightningWidget(),
+              if (selectedType == 'Bitcoin Network') const BitcoinWidget()
+              else if (selectedType == 'Liquid Network') const LiquidWidget()
+              else if (selectedType == 'Boltz Network') const ReceiveBoltz()
+                else if (selectedType == 'SideShift') const ReceiveNonNativeAsset(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  String getReceiveTitle(String selectedType, ShiftPair? shiftPair) {
+    if (selectedType == 'Boltz Network') {
+      return 'Receive Liquid Bitcoin on Lightning Network'.i18n;
+    } else if (shiftPair != null && selectedType == 'SideShift') {
+      return _getShiftPairDisplayName(shiftPair).i18n;
+    } else {
+      return 'Receive on $selectedType'.i18n;
+    }
+  }
+
+  String _getShiftPairDisplayName(ShiftPair pair) {
+    switch (pair) {
+      case ShiftPair.usdtTronToLiquidUsdt:
+        return 'Receive Liquid USDT from USDT on Tron';
+      case ShiftPair.usdtBscToLiquidUsdt:
+        return 'Receive Liquid USDT from USDT on BSC';
+      case ShiftPair.usdtEthToLiquidUsdt:
+        return 'Receive Liquid USDT from USDT on Ethereum';
+      case ShiftPair.usdtSolToLiquidUsdt:
+        return 'Receive Liquid USDT from USDT on Solana';
+      case ShiftPair.usdtPolygonToLiquidUsdt:
+        return 'Receive Liquid USDT from USDT on Polygon';
+      case ShiftPair.usdcEthToLiquidUsdt:
+        return 'Receive Liquid USDT from USDC on Ethereum';
+      case ShiftPair.usdcTronToLiquidUsdt:
+        return 'Receive Liquid USDT from USDC on Tron';
+      case ShiftPair.usdcBscToLiquidUsdt:
+        return 'Receive Liquid USDT from USDC on BSC';
+      case ShiftPair.usdcSolToLiquidUsdt:
+        return 'Receive Liquid USDT from USDC on Solana';
+      case ShiftPair.usdcPolygonToLiquidUsdt:
+        return 'Receive Liquid USDT from USDC on Polygon';
+      case ShiftPair.ethToLiquidBtc:
+        return 'Receive Liquid BTC from ETH';
+      case ShiftPair.trxToLiquidBtc:
+        return 'Receive Liquid BTC from TRX';
+      case ShiftPair.bnbToLiquidBtc:
+        return 'Receive Liquid BTC from BNB';
+      case ShiftPair.solToLiquidBtc:
+        return 'Receive Liquid BTC from SOL';
+      default:
+        return 'Receive ${pair.toString().split('.').last}';
+    }
   }
 }

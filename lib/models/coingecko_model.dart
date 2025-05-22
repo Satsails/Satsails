@@ -2,12 +2,12 @@ import 'package:coingecko_api/coingecko_api.dart';
 import 'package:coingecko_api/data/market_chart_data.dart';
 
 class CoingeckoModel {
-  CoinGeckoApi api = CoinGeckoApi();
+  final CoinGeckoApi api = CoinGeckoApi();
 
-  Future<double> getBitcoinChangePercentage() async {
+  Future<double> getBitcoinChangePercentage(String currency) async {
     final marketData = await api.coins.getCoinMarketChart(
       id: 'bitcoin',
-      vsCurrency: 'usd',
+      vsCurrency: currency.toLowerCase(),
       days: 7,
     );
     final currentPrice = marketData.data.last.price;
@@ -30,7 +30,22 @@ class CoingeckoModel {
       );
       return marketData.data;
     } on Exception catch (e) {
-      throw Exception(e);
+      throw Exception('Failed to fetch market data: $e');
+    }
+  }
+
+  // New method to fetch market data for a specific range
+  Future<List<MarketChartData>> getBitcoinMarketDataRange(String currency, DateTime from, DateTime to) async {
+    try {
+      final marketData = await api.coins.getCoinMarketChartRanged(
+        id: 'bitcoin',
+        vsCurrency: currency.toLowerCase(),
+        from: from,
+        to: to,
+      );
+      return marketData.data;
+    } catch (e) {
+      throw Exception('Failed to fetch market data: $e');
     }
   }
 }

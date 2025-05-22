@@ -82,23 +82,46 @@ class CoinosPayment {
   }
 }
 
-
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 
+@HiveType(typeId: 28)
 class CoinosLn {
+  @HiveField(0)
   final String token;
+
+  @HiveField(1)
   final String username;
+
+  @HiveField(2)
   final String password;
+
+  @HiveField(3)
   final List<CoinosPayment> transactions;
 
-  CoinosLn({required this.token, required this.username, this.password = '', required this.transactions});
+  @HiveField(4)
+  final bool isMigrated;
 
-  CoinosLn copyWith({String? token, String? username, String? password, List<CoinosPayment>? transactions}) {
+  CoinosLn({
+    required this.token,
+    required this.username,
+    this.password = '',
+    required this.transactions,
+    this.isMigrated = false,
+  });
+
+  CoinosLn copyWith({
+    String? token,
+    String? username,
+    String? password,
+    List<CoinosPayment>? transactions,
+    bool? isMigrated,
+  }) {
     return CoinosLn(
       token: token ?? this.token,
       username: username ?? this.username,
       password: password ?? this.password,
       transactions: transactions ?? this.transactions,
+      isMigrated: isMigrated ?? this.isMigrated,
     );
   }
 }
@@ -126,6 +149,12 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
     state = state.copyWith(transactions: transactions);
   }
 
+  Future<void> setMigrated(bool migrated) async {
+    final box = await Hive.openBox('coinosLn');
+    await box.put('isMigrated', migrated);
+    state = state.copyWith(isMigrated: migrated);
+  }
+
   Future<void> register() async {
     final password = await AuthModel().getCoinosPassword();
     final username = await AuthModel().getUsername();
@@ -135,7 +164,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
 
   Future<int> getBalance() async {
     final token = state.token;
-    if (token == null || token.isEmpty) {
+    if (token.isEmpty) {
       return 0;
     }
 
@@ -149,7 +178,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
 
   Future<String> createInvoice(int amount, {String type = 'lightning'}) async {
     final token = state.token;
-    if (token == null || token.isEmpty) {
+    if (token.isEmpty) {
       throw 'Token is missing or invalid';
     }
 
@@ -172,7 +201,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
 
   Future<void> sendPayment(String address, int amount) async {
     final token = state.token;
-    if (token == null || token.isEmpty) {
+    if (token.isEmpty) {
       throw 'Token is missing or invalid';
     }
 
@@ -184,7 +213,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
 
   Future<void> sendBitcoinPayment(String address, int amount, double fee) async {
     final token = state.token;
-    if (token == null || token.isEmpty) {
+    if (token.isEmpty) {
       throw 'Token is missing or invalid';
     }
 
@@ -196,7 +225,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
 
   Future<void> sendLiquidPayment(String address, int amount, double fee) async {
     final token = state.token;
-    if (token == null || token.isEmpty) {
+    if (token.isEmpty) {
       throw 'Token is missing or invalid';
     }
 
@@ -208,7 +237,7 @@ class CoinosLnModel extends StateNotifier<CoinosLn> {
 
   Future<List<CoinosPayment>> getTransactions() async {
     final token = state.token;
-    if (token == null || token.isEmpty) {
+    if (token.isEmpty) {
       return [];
     }
 
@@ -290,7 +319,7 @@ class CoinosLnService {
       );
       if (response.statusCode == 200) {
         final username = jsonDecode(response.body)['user']['username'];
-        return Result(data: username ?? null);
+        return Result(data: username);
       } else {
         return Result(error: 'Failed to get invoices: ${response.body}');
       }
@@ -301,8 +330,6 @@ class CoinosLnService {
 
   static Future<Result<void>> sendPayment(String token, String address, int amount) async {
     try {
-      // final int maxFee = (amount * 0.1).toInt().clamp(1, double.infinity).toInt();
-
       final response = await http.post(
         Uri.parse('$baseUrl/payments'),
         headers: {
@@ -318,7 +345,7 @@ class CoinosLnService {
         if (response.body.contains('Insufficient funds')) {
           return Result(error: 'Insufficient funds to pay for fees');
         } else {
-          return Result(error: '${response.body}');
+          return Result(error: response.body);
         }
       }
     } catch (e) {
@@ -328,8 +355,6 @@ class CoinosLnService {
 
   static Future<Result<void>> sendBitcoinPayment(String token, String address, int amount, double fee) async {
     try {
-      // final int maxFee = (amount * 0.1).toInt().clamp(1, double.infinity).toInt();
-
       final response = await http.post(
         Uri.parse('$baseUrl/bitcoin/send'),
         headers: {
@@ -345,7 +370,7 @@ class CoinosLnService {
         if (response.body.contains('Insufficient funds')) {
           return Result(error: 'Insufficient funds to pay for fees');
         } else {
-          return Result(error: '${response.body}');
+          return Result(error: response.body);
         }
       }
     } catch (e) {
@@ -370,7 +395,7 @@ class CoinosLnService {
         if (response.body.contains('Insufficient funds')) {
           return Result(error: 'Insufficient funds to pay for fees');
         } else {
-          return Result(error: '${response.body}');
+          return Result(error: response.body);
         }
       }
     } catch (e) {
@@ -398,7 +423,6 @@ class CoinosLnService {
     }
   }
 
-
   static Future<Result<List<CoinosPayment>>> getTransactions(String token) async {
     try {
       final response = await http.get(
@@ -411,9 +435,7 @@ class CoinosLnService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         final List<CoinosPayment> payments = data['payments'].map<CoinosPayment>((json) => CoinosPayment.fromJson(json)).toList();
-
         return Result(data: payments);
       } else {
         return Result(error: 'Failed to fetch balance and transactions: ${response.body}');

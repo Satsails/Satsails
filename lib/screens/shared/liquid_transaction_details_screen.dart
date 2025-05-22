@@ -4,9 +4,9 @@ import 'package:Satsails/helpers/common_operation_methods.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 class LiquidTransactionDetailsScreen extends ConsumerWidget {
@@ -16,35 +16,33 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const double dynamicMargin = 16.0;
-    const double dynamicRadius = 12.0;
     final denomination = ref.read(settingsProvider).btcFormat;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Liquid Transaction Details'.i18n,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white, fontSize: 20.sp),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.w),
           onPressed: () => context.pop(),
         ),
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: dynamicMargin, vertical: 8.0),
-          padding: const EdgeInsets.all(16.0),
+          margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
-            color: const Color(0xFF1C1C1E),
-            borderRadius: BorderRadius.circular(dynamicRadius),
+            color: const Color(0x00333333).withOpacity(0.4),
+            borderRadius: BorderRadius.circular(12.r),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.5),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+                blurRadius: 4.r,
+                offset: Offset(0, 2.h),
               ),
             ],
           ),
@@ -58,46 +56,52 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         transactionTypeLiquidIcon(transaction.lwkDetails.kind),
-                        const SizedBox(width: 8.0),
+                        SizedBox(width: 8.w),
                         confirmationStatusIcon(transaction.lwkDetails),
                       ],
                     ),
-                    const SizedBox(height: 8.0),
-                    Text(liquidTransactionType(transaction.lwkDetails, ref), style: const TextStyle(color: Colors.white, fontSize: 18)
+                    SizedBox(height: 8.h),
+                    Text(
+                      liquidTransactionType(transaction.lwkDetails),
+                      style: TextStyle(color: Colors.white, fontSize: 24.sp),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16.0),
+              SizedBox(height: 16.h),
               Divider(color: Colors.grey.shade700),
-              const SizedBox(height: 16.0),
+              SizedBox(height: 16.h),
               Text(
                 "Transaction Details".i18n,
-                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 16.0),
+              SizedBox(height: 16.h),
               TransactionDetailRow(
                 label: "Date".i18n,
                 value: timestampToDateTime(transaction.lwkDetails.timestamp),
               ),
-              const SizedBox(height: 16.0),
+              SizedBox(height: 16.h),
               Text(
                 "Amounts".i18n,
-                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 16.0),
+              SizedBox(height: 16.h),
               ...transaction.lwkDetails.balances.map((balance) {
                 return TransactionDetailRow(
                   label: AssetMapper.mapAsset(balance.assetId).name,
-                  value: btcInDenominationFormatted(balance.value, denomination, AssetMapper.mapAsset(balance.assetId) == AssetId.LBTC),
+                  value: btcInDenominationFormatted(
+                    balance.value,
+                    denomination,
+                    AssetMapper.mapAsset(balance.assetId) == AssetId.LBTC,
+                  ),
                   amount: balance.value,
                 );
-              }).toList(),
+              }),
               TransactionDetailRow(
                 label: "Fee".i18n,
                 value: "${btcInDenominationFormatted(transaction.lwkDetails.fee.toInt(), denomination)} $denomination",
               ),
-              const SizedBox(height: 16.0),
+              SizedBox(height: 16.h),
               Divider(color: Colors.grey.shade700),
               GestureDetector(
                 onTap: () async {
@@ -105,20 +109,20 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
                   context.push('/search_modal');
                 },
                 child: Container(
-                  margin: const EdgeInsets.only(top: 12.0),
-                  padding: const EdgeInsets.all(12.0),
+                  margin: EdgeInsets.only(top: 12.h),
+                  padding: EdgeInsets.all(12.w),
                   decoration: BoxDecoration(
                     color: Colors.orange,
-                    borderRadius: BorderRadius.circular(dynamicRadius),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.search, color: Colors.white),
-                      const SizedBox(width: 8.0),
+                      Icon(Icons.search, color: Colors.white, size: 24.w),
+                      SizedBox(width: 8.w),
                       Text(
                         "Search on Mempool".i18n,
-                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                        style: TextStyle(color: Colors.white, fontSize: 16.sp),
                       ),
                     ],
                   ),
@@ -130,10 +134,6 @@ class LiquidTransactionDetailsScreen extends ConsumerWidget {
       ),
     );
   }
-
-
-
-
 }
 
 class TransactionDetailRow extends StatelessWidget {
@@ -145,18 +145,32 @@ class TransactionDetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Map of asset tickers to their icon paths
+    final assetIcons = {
+      'L-BTC': 'lib/assets/l-btc.png',
+      'Fee': 'lib/assets/l-btc.png',
+      'USDT': 'lib/assets/tether.png',
+      'EURx': 'lib/assets/eurx.png',
+      'Depix': 'lib/assets/depix.png',
+    };
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              amount != null ? subTransactionIcon(amount!) : const SizedBox.shrink(),
-              const SizedBox(width: 8.0),
+              if (assetIcons[label] != null)
+                Image.asset(
+                  assetIcons[label]!,
+                  width: 24.w,
+                  height: 24.h,
+                ),
+              SizedBox(width: 8.w),
               Text(
                 label,
-                style: const TextStyle(color: Colors.grey, fontSize: 16),
+                style: TextStyle(color: Colors.grey, fontSize: 16.sp),
               ),
             ],
           ),
@@ -164,7 +178,7 @@ class TransactionDetailRow extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: TextStyle(color: Colors.white, fontSize: 16.sp),
             ),
           ),
         ],

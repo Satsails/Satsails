@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -9,7 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class FirebaseService {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  static final FlutterSecureStorage _storage = FlutterSecureStorage();
+  static const FlutterSecureStorage _storage = FlutterSecureStorage();
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   static Future<void> initializeLocalNotifications() async {
@@ -75,7 +74,7 @@ class FirebaseService {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
 
       await http.post(
-        Uri.parse(dotenv.env['BACKEND']! + '/users/store_fcm_token'),
+        Uri.parse('${dotenv.env['BACKEND']!}/users/store_fcm_token'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwt',

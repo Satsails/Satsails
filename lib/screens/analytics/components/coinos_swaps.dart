@@ -6,7 +6,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class CoinosPaymentsList extends ConsumerWidget {
-  const CoinosPaymentsList({Key? key}) : super(key: key);
+  const CoinosPaymentsList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,7 +45,7 @@ class CoinosPaymentsList extends ConsumerWidget {
     final String sentType = transactionType == 'Received'.i18n ? 'lightning' : payment.type ?? 'N/A';
 
     if (sentType == receiveType || sentType == 'internal' || receiveType == 'internal') {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     // Define common text styles
@@ -79,7 +79,7 @@ class CoinosPaymentsList extends ConsumerWidget {
                 _formatTimestamp(payment.created),
                 style: titleStyle,
               ),
-              Spacer(),
+              const Spacer(),
               Icon(
                 Icons.swap_horiz,
                 color: Colors.orange,
@@ -136,13 +136,13 @@ class CoinosPaymentsList extends ConsumerWidget {
 class PaymentDetailsScreen extends StatelessWidget {
   final CoinosPayment payment;
 
-  const PaymentDetailsScreen({Key? key, required this.payment}) : super(key: key);
+  const PaymentDetailsScreen({super.key, required this.payment});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Payment Details"),
+        title: const Text("Payment Details"),
         backgroundColor: Colors.black,
       ),
       backgroundColor: Colors.black,
@@ -151,12 +151,12 @@ class PaymentDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("ID: ${payment.id ?? 'N/A'}", style: TextStyle(color: Colors.white)),
-            Text("Amount: ${payment.amount ?? 0} satoshis", style: TextStyle(color: Colors.white)),
-            Text("Currency: ${payment.currency ?? 'BTC'}", style: TextStyle(color: Colors.white)),
-            Text("Memo: ${payment.memo ?? 'N/A'}", style: TextStyle(color: Colors.white)),
-            Text("Confirmed: ${payment.confirmed == true ? 'Yes' : 'No'}", style: TextStyle(color: Colors.white)),
-            Text("Created At: ${_formatTimestamp(payment.created)}", style: TextStyle(color: Colors.white)),
+            Text("ID: ${payment.id ?? 'N/A'}", style: const TextStyle(color: Colors.white)),
+            Text("Amount: ${payment.amount ?? 0} satoshis", style: const TextStyle(color: Colors.white)),
+            Text("Currency: ${payment.currency ?? 'BTC'}", style: const TextStyle(color: Colors.white)),
+            Text("Memo: ${payment.memo ?? 'N/A'}", style: const TextStyle(color: Colors.white)),
+            Text("Confirmed: ${payment.confirmed == true ? 'Yes' : 'No'}", style: const TextStyle(color: Colors.white)),
+            Text("Created At: ${_formatTimestamp(payment.created)}", style: const TextStyle(color: Colors.white)),
           ],
         ),
       ),

@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:lwk/lwk.dart';
 import 'package:Satsails/models/liquid_config_model.dart';
 import 'dart:convert';
@@ -11,7 +10,12 @@ class LiquidModel {
 
   Future<int> getAddress() async {
     final address = await config.liquid.wallet.addressLastUnused();
-    return address.index;
+    return address.index!;
+  }
+
+  Future<String> getLatestAddress() async {
+    final address = await config.liquid.wallet.addressLastUnused();
+    return address.confidential;
   }
 
   Future<Address> getAddressOfIndex(int index) async {
@@ -25,7 +29,7 @@ class LiquidModel {
   }
 
   Future<bool> sync() async {
-    await config.liquid.wallet.sync(electrumUrl: config.electrumUrl, validateDomain: true);
+    await config.liquid.wallet.sync_(electrumUrl: config.electrumUrl, validateDomain: true);
     return true;
   }
 
@@ -54,10 +58,12 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
+      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount")) {
         throw "Insufficient funds";
+      } else if ((e as dynamic).msg.toString().contains("Base58(TooShort(TooShortError { length: 0 }))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
+        throw "Address is invalid";
       }
-      throw e.toString();
+      throw (e as dynamic).msg;
     }
   }
 
@@ -71,10 +77,12 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
+      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount")) {
         throw "Insufficient funds";
+      } else if ((e as dynamic).msg.toString().contains("Base58(TooShort(TooShortError { length: 0 }))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
+        throw "Address is invalid";
       }
-      throw e.toString();
+      throw (e as dynamic).msg;
     }
   }
 
@@ -89,10 +97,31 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if (e.toString().contains("InsufficientFunds") || e.toString().contains("InvalidAmount")) {
+      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount")) {
         throw "Insufficient funds, or not enough liquid bitcoin to pay fees.";
+      } else if ((e as dynamic).msg.toString().contains("Base58(TooShort(TooShortError { length: 0 }))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
+        throw "Address is invalid";
       }
-      throw e.toString();
+      throw (e as dynamic).msg;
+    }
+  }
+
+  Future<PayjoinTx> buildPayjoinAssetTx(TransactionBuilder params) async {
+    try {
+      final pset = await config.liquid.wallet.buildPayjoinTx(
+          sats: BigInt.from(params.amount),
+          outAddress: params.outAddress,
+          asset: params.assetId,
+          network: config.liquid.network
+      );
+      return pset;
+    } catch (e) {
+      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount")) {
+        throw "Insufficient funds, or not enough liquid bitcoin to pay fees.";
+      } else if ((e as dynamic).msg.toString().contains("LwkError(msg: Base58(TooShort(TooShortError { length: 0 })))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
+        throw "Address is invalid";
+      }
+      throw 'Error building payjoin asset transaction';
     }
   }
 
@@ -101,14 +130,14 @@ class LiquidModel {
     return decodedPset;
   }
 
-  Future<Uint8List> sign(SignParams params) async {
+  Future<String> sign(SignParams params) async {
     try {
       final signedTxBytes =
       await config.liquid.wallet.signTx(network: config.liquid.network, pset: params.pset, mnemonic: params.mnemonic);
 
       return signedTxBytes;
     } catch (e) {
-      throw e.toString();
+      throw (e as dynamic).msg.toString();
     }
   }
 
@@ -119,19 +148,18 @@ class LiquidModel {
 
       return pset;
     } catch (e) {
-      throw e.toString();
+      throw (e as dynamic).msg.toString();
     }
   }
 
-  Future<String> broadcast(Uint8List signedTxBytes) async {
+  Future<String> broadcast(String pset) async {
     try {
-      final tx = await Wallet.broadcastTx(electrumUrl: config.electrumUrl, txBytes: signedTxBytes);
+      final tx = await Blockchain.broadcastSignedPset(electrumUrl: config.electrumUrl, signedPset: pset);
       return tx;
     } catch (e) {
-      throw e.toString();
+      throw (e as dynamic).msg.toString();
     }
   }
-
 
   Future<double> getLiquidFees(int blocks) async {
     try {
@@ -148,11 +176,10 @@ class LiquidModel {
         throw Exception("Getting estimated fees is not successful.");
       }
     } catch (e) {
-      throw Exception("Error: ${e.toString()}");
+      throw Exception("Error: ${(e as dynamic).msg.toString()}");
     }
   }
 }
-
 
 class Liquid {
   final LiquidConfig liquid;

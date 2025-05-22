@@ -1,14 +1,16 @@
 import 'dart:async';
 
 import 'package:Satsails/models/balance_model.dart';
+import 'package:Satsails/models/boltz_model.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/firebase_model.dart';
+import 'package:Satsails/models/nox_transfer_model.dart';
+import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
-import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
@@ -16,6 +18,7 @@ import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
 import 'package:Satsails/screens/spash/splash.dart';
+import 'package:boltz/boltz.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -25,7 +28,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
-import 'package:i18n_extension/default.i18n.dart';
 import 'package:lwk/lwk.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,47 +71,24 @@ Future<void> main() async {
   Hive.registerAdapter(SideswapCompletedSwapAdapter());
   Hive.registerAdapter(CoinosPaymentAdapter());
   Hive.registerAdapter(EulenTransferAdapter());
+  Hive.registerAdapter(NoxTransferAdapter());
+  Hive.registerAdapter(SideShiftAdapter());
+  Hive.registerAdapter(LbtcBoltzAdapter());
+  Hive.registerAdapter(ExtendedLbtcLnV2SwapAdapter());
+  Hive.registerAdapter(SwapTypeAdapter());
+  Hive.registerAdapter(ChainAdapter());
+  Hive.registerAdapter(PreImageAdapter());
+  Hive.registerAdapter(KeyPairAdapter());
+  Hive.registerAdapter(LBtcSwapScriptV2StrAdapter());
 
-  await LwkCore.init();
+  await LibLwk.init();
+  await BoltzCore.init();
 
   try {
     await FlutterBranchSdk.init(enableLogging: false, branchAttributionLevel: BranchAttributionLevel.NONE);
   } catch (e) {
     // Ignoring errors
   }
-
-  FlutterBranchSdk.listSession().listen((data) async {
-    if (data.containsKey("affiliateCode")) {
-      final insertedAffiliateCode = data["affiliateCode"];
-      final upperCaseCode = insertedAffiliateCode.toUpperCase();
-      final box = await Hive.openBox('user');
-      final currentInsertedAffiliateCode = box.get('affiliateCode', defaultValue: '');
-      if (insertedAffiliateCode != null && currentInsertedAffiliateCode.isEmpty) {
-        box.put('affiliateCode', upperCaseCode);
-        showSimpleNotification(
-          Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.white),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Affiliate code $upperCaseCode inserted!'.i18n,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          background: Colors.green,
-          elevation: 10,
-          contentPadding: EdgeInsets.all(8),
-        );
-      }
-    }
-  });
 
   runApp(
     const OverlaySupport.global(
@@ -148,6 +127,17 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     ));
 
     _initializeRouter();
+    FlutterBranchSdk.listSession().listen((data) async {
+      if (data.containsKey("affiliateCode")) {
+        final insertedAffiliateCode = data["affiliateCode"];
+        final upperCaseCode = insertedAffiliateCode.toUpperCase();
+        final box = await Hive.openBox('user');
+        final currentInsertedAffiliateCode = box.get('affiliateCode', defaultValue: '');
+        if (insertedAffiliateCode != null && currentInsertedAffiliateCode.isEmpty) {
+          box.put('affiliateCode', upperCaseCode);
+        }
+      }
+    });
   }
 
   Future<void> _initializeRouter() async {
@@ -210,13 +200,13 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   void _startSyncTimer() {
     _cancelSyncTimer();
 
-    Future.microtask(() async => await fetchAndUpdateTransactions(ref));
-    _syncTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+    _syncTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       final appIsLocked = ref.read(appLockedProvider) == true;
-      if (!appIsLocked) {
-        fetchAndUpdateTransactions(ref);
-        ref.read(updateCurrencyProvider);
+      final shouldUpdateMemory = ref.read(shouldUpdateMemoryProvider);
+      if (!appIsLocked && shouldUpdateMemory) {
         ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+      } else {
+        print('Skipping sync operations');
       }
     });
 
@@ -224,7 +214,8 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
       final auth = ref.watch(userProvider).jwt;
       final appIsLocked = ref.read(appLockedProvider) == true;
       if (!appIsLocked && auth.isNotEmpty) {
-        ref.read(getUserPurchasesProvider);
+        ref.read(updateCurrencyProvider);
+        ref.read(getFiatPurchasesProvider);
       }
     });
   }
@@ -271,7 +262,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
           builder: (context, child) {
             return MediaQuery(
               data: MediaQuery.of(context).copyWith(
-                textScaleFactor: 1.0,
+                textScaler: const TextScaler.linear(1.0),
               ),
               child: I18n(
                 initialLocale: Locale(language),

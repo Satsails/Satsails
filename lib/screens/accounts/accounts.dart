@@ -1,608 +1,657 @@
-import 'package:Satsails/assets/lbtc_icon.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/helpers/string_extension.dart';
+import 'package:Satsails/models/sideshift_model.dart';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
-import 'package:Satsails/screens/receive/components/custodial_lightning_widget.dart';
-import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
+import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
-import 'package:Satsails/providers/bitcoin_provider.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/screens/shared/copy_text.dart';
-import 'package:Satsails/screens/shared/qr_code.dart';
-import 'package:Satsails/screens/pay/pay.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:Satsails/providers/sideshift_provider.dart';
 
-class Accounts extends ConsumerWidget {
+class Accounts extends ConsumerStatefulWidget {
   const Accounts({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery.of(context).size.width;
+  _AccountsState createState() => _AccountsState();
+}
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: ref.watch(navigationProvider),
-        context: context,
-        onTap: (int index) {
-          ref.read(navigationProvider.notifier).state = index;
-        },
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(screenWidth * 0.05),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(height: screenWidth * 0.02),
-                Text(
-                  'Bitcoin',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                SizedBox(height: screenWidth * 0.02),
-                Consumer(
-                  builder: (context, ref, _) {
-                    final format = ref.watch(settingsProvider).btcFormat;
-                    final currency = ref.watch(settingsProvider).currency;
-                    final balanceProvider = ref.watch(balanceNotifierProvider);
-                    final btcBalanceInFormat = ref.watch(btcBalanceInFormatProvider(format));
-                    final bitcoinAddress = ref.watch(bitcoinAddressProvider.future);
-                    final bitcoinInCurrency = ref.watch(currentBitcoinPriceInCurrencyProvider(
-                      CurrencyParams(ref.watch(settingsProvider).currency, balanceProvider.btcBalance),
-                    )).toStringAsFixed(2);
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      elevation: 10,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFFF9800), Color(0xFFFF9800)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: Column(
-                          children: [
-                            _buildListTile(
-                              'Bitcoin',
-                              btcBalanceInFormat,
-                              const Icon(Icons.currency_bitcoin, color: Colors.white),
-                              context,
-                              bitcoinAddress,
-                              bitcoinInCurrency,
-                              currency,
-                              format,
-                              ref,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: screenWidth * 0.02),
+class _AccountsState extends ConsumerState<Accounts> {
+  final Map<ShiftPair, Map<String, String>> _logoMap = {
+    ShiftPair.usdcEthToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/eth.svg'},
+    ShiftPair.usdcSolToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/sol.svg'},
+    ShiftPair.usdcPolygonToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/pol.svg'},
+    ShiftPair.usdtEthToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/eth.svg'},
+    ShiftPair.usdtTronToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/trx.svg'},
+    ShiftPair.usdtSolToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/sol.svg'},
+    ShiftPair.usdtPolygonToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/pol.svg'},
+    ShiftPair.ethToLiquidBtc: {'coin': 'lib/assets/eth.svg', 'network': 'lib/assets/eth.svg'},
+    ShiftPair.bnbToLiquidBtc: {'coin': 'lib/assets/bnb.svg', 'network': 'lib/assets/bsc.svg'},
+    ShiftPair.solToLiquidBtc: {'coin': 'lib/assets/sol.svg', 'network': 'lib/assets/sol.svg'},
+  };
 
-                // Always show the Lightning card
-                Text(
-                  'Lightning',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                SizedBox(height: screenWidth * 0.02),
-                Consumer(
-                  builder: (context, ref, _) {
-                    final hasLightning = ref.watch(coinosLnProvider).token.isNotEmpty;
-                    final format = ref.watch(settingsProvider).btcFormat;
-                    String? coinosBalanceInCurrency;
-                    String lightningBalanceInFormat = '';
-                    if (hasLightning) {
-                      final coinosBalance = ref.watch(balanceNotifierProvider).lightningBalance;
-                      coinosBalanceInCurrency = ref.watch(currentBitcoinPriceInCurrencyProvider(
-                        CurrencyParams(ref.watch(settingsProvider).currency, coinosBalance!),
-                      )).toStringAsFixed(2);
+  final Map<ShiftPair, ShiftPair> receiveToSendMap = {
+    ShiftPair.usdcEthToLiquidUsdt: ShiftPair.liquidUsdtToUsdcEth,
+    ShiftPair.usdcSolToLiquidUsdt: ShiftPair.liquidUsdtToUsdcSol,
+    ShiftPair.usdcPolygonToLiquidUsdt: ShiftPair.liquidUsdtToUsdcPolygon,
+    ShiftPair.usdtEthToLiquidUsdt: ShiftPair.liquidUsdtToUsdtEth,
+    ShiftPair.usdtTronToLiquidUsdt: ShiftPair.liquidUsdtToUsdtTron,
+    ShiftPair.usdtSolToLiquidUsdt: ShiftPair.liquidUsdtToUsdtSol,
+    ShiftPair.usdtPolygonToLiquidUsdt: ShiftPair.liquidUsdtToUsdtPolygon,
+  };
 
-                      lightningBalanceInFormat = btcInDenominationFormatted(coinosBalance!, format);
-                    }
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      elevation: 10,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFF7931A), Color(0xFFFFA500)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: Column(
-                          children: [
-                            _buildListTile(
-                              'Lightning',
-                              lightningBalanceInFormat,
-                              const Icon(Icons.flash_on, color: Colors.white),
-                              context,
-                              null,
-                              hasLightning ? coinosBalanceInCurrency! : '',
-                              hasLightning ? ref.watch(settingsProvider).currency : '',
-                              format,
-                              ref,
-                              isLightning: true,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: screenWidth * 0.02),
-                Text(
-                  'Liquid Bitcoin',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                SizedBox(height: screenWidth * 0.02),
-                Consumer(
-                  builder: (context, ref, _) {
-                    final format = ref.watch(settingsProvider).btcFormat;
-                    final currency = ref.watch(settingsProvider).currency;
-                    final balanceProvider = ref.watch(balanceNotifierProvider);
-                    final liquidBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(format));
-                    final liquid = ref.watch(liquidAddressProvider.future);
-                    final liquidInCurrency = ref.watch(currentBitcoinPriceInCurrencyProvider(
-                      CurrencyParams(ref.watch(settingsProvider).currency, balanceProvider.liquidBalance),
-                    )).toStringAsFixed(2);
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      elevation: 10,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF288BEC), Color(0xFF288BEC)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: Column(
-                          children: [
-                            _buildListTile(
-                              'Liquid'.i18n,
-                              liquidBalanceInFormat,
-                              const Icon(Lbtc_icon.lbtc_icon, color: Colors.white),
-                              context,
-                              liquid,
-                              liquidInCurrency,
-                              currency,
-                              format,
-                              ref,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: screenWidth * 0.02),
-                Text(
-                  'Stable'.i18n,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                SizedBox(height: screenWidth * 0.02),
-                Consumer(
-                  builder: (context, ref, _) {
-                    final balance = ref.watch(balanceNotifierProvider);
-                    final liquid = ref.watch(liquidAddressProvider.future);
-                    return Column(
-                      children: [
-                        Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          elevation: 10,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF009B3A), Color(0xFF009B3A)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            child: Column(
-                              children: [
-                                _buildListTile(
-                                  'Depix',
-                                  fiatInDenominationFormatted(balance.brlBalance),
-                                  Image.asset(
-                                    'lib/assets/depix.png',
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                  context,
-                                  liquid,
-                                  '',
-                                  '',
-                                  '',
-                                  ref,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          elevation: 10,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF008000), Color(0xFF008000)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            child: Column(
-                              children: [
-                                _buildListTile(
-                                  'USDt',
-                                  fiatInDenominationFormatted(balance.usdBalance),
-                                  Image.asset(
-                                    'lib/assets/tether.png',
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                  context,
-                                  liquid,
-                                  '',
-                                  '',
-                                  '',
-                                  ref,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          elevation: 10,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF003399), Color(0xFF003399)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            child: Column(
-                              children: [
-                                _buildListTile(
-                                  'EURx',
-                                  fiatInDenominationFormatted(balance.eurBalance),
-                                  Image.asset(
-                                    'lib/assets/eurx.png',
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                  context,
-                                  liquid,
-                                  '',
-                                  '',
-                                  '',
-                                  ref,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildListTile(
-      String title,
-      String trailing,
-      Widget icon,
-      BuildContext context,
-      dynamic addressFuture,
-      String balance,
-      String denomination,
-      String format,
-      WidgetRef ref, {
-        bool isLightning = false,
-      }) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    bool isBitcoin = title == 'Bitcoin';
-
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        leading: icon,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: screenWidth * 0.04,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if (balance.isNotEmpty)
-              Padding(
-                padding: EdgeInsets.only(top: screenWidth * 0.02),
-                child: Row(
-                  children: [
-                    Text(
-                      balance,
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.04,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      ' $denomination',
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.04,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-        trailing: Text(
-          trailing.isNotEmpty ? '$trailing $format' : '',
-          style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.white),
-        ),
-        initiallyExpanded: isBitcoin, // Set this to true for the Bitcoin card
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(
-              top: screenWidth * 0.04,
-              left: screenWidth * 0.1,
-              right: screenWidth * 0.1,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    if (isLightning) {
-                      _receiveLightningPayment(context, ref);
-                    } else if (title == 'Bitcoin') {
-                      _showBitcoinAddress(context, addressFuture, ref);
-                    } else if (title == 'Liquid'.i18n) {
-                      _showLiquidAddress(context, addressFuture, ref);
-                    } else {
-                      _showLiquidAddress(context, addressFuture, ref);
-                    }
-                  },
-                  child: Row(
-                    children: [
-                      const Icon(Icons.arrow_downward, color: Colors.white),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text('Receive'.i18n,
-                            style: const TextStyle(color: Colors.white)),
-                      ),
-                    ],
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Open the Pay modal sheet when "Send" is clicked
-                    _showPayModalSheet(context, ref);
-                  },
-                  child: Row(
-                    children: [
-                      const Icon(Icons.arrow_upward, color: Colors.white),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text('Send'.i18n,
-                            style: const TextStyle(color: Colors.white)),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+  Widget _buildLightningCard(BuildContext context, WidgetRef ref) {
+    return Container(
+      width: 190.sp,
+      height: 200.sp,
+      decoration: BoxDecoration(
+        color: const Color(0x00333333).withOpacity(0.4),
+        borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-    );
-  }
-
-  void _showBitcoinAddress(
-      BuildContext context, dynamic bitcoin, WidgetRef ref) {
-    showModalBottomSheet(
-      backgroundColor: Colors.black,
-      context: context,
-      builder: (BuildContext context) {
-        final screenSize = MediaQuery.of(context).size;
-        return FutureBuilder<dynamic>(
-          future: bitcoin,
-          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: LoadingAnimationWidget.threeArchedCircle(
-                    size: 200, color: Colors.orange),
-              );
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (snapshot.hasData) {
-              final String address = snapshot.data is String
-                  ? snapshot.data
-                  : snapshot.data.confidential;
-              return Container(
-                decoration: const BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(50.0)),
-                ),
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    Center(
-                      child: Padding(
-                        padding:
-                        EdgeInsets.only(top: screenSize.height * 0.02),
-                        child: Text(
-                          'Receive'.i18n,
-                          style: TextStyle(
-                              fontSize: screenSize.width * 0.06,
-                              color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: buildQrCode(address, context),
-                    ),
-                    SizedBox(height: screenSize.height * 0.02),
-                    buildAddressText(address, context, ref),
-                    SizedBox(height: screenSize.height * 0.02),
-                  ],
-                ),
-              );
-            } else {
-              return const Center(child: Text('No data'));
-            }
-          },
-        );
-      },
-    );
-  }
-
-  void _showLiquidAddress(BuildContext context, dynamic liquid, WidgetRef ref) {
-    showModalBottomSheet(
-      backgroundColor: Colors.black,
-      context: context,
-      builder: (BuildContext context) {
-        final screenSize = MediaQuery.of(context).size;
-        return FutureBuilder<dynamic>(
-          future: liquid,
-          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: LoadingAnimationWidget.threeArchedCircle(
-                    size: 200, color: Colors.orange),
-              );
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (snapshot.hasData) {
-              final String address = snapshot.data is String
-                  ? snapshot.data
-                  : snapshot.data.confidential;
-              return Container(
-                decoration: const BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(50.0)),
-                ),
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    Center(
-                      child: Padding(
-                        padding:
-                        EdgeInsets.only(top: screenSize.height * 0.02),
-                        child: Text(
-                          'Receive'.i18n,
-                          style: TextStyle(
-                              fontSize: screenSize.width * 0.06,
-                              color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: buildQrCode(address, context),
-                    ),
-                    SizedBox(height: screenSize.height * 0.02),
-                    buildAddressText(address, context, ref),
-                    SizedBox(height: screenSize.height * 0.02),
-                  ],
-                ),
-              );
-            } else {
-              return const Center(child: Text('No data'));
-            }
-          },
-        );
-      },
-    );
-  }
-
-  void _receiveLightningPayment(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.8,
-        minChildSize: 0.2,
-        maxChildSize: 0.9,
-        builder: (context, scrollController) {
-          return Scaffold(
-            backgroundColor: Colors.black,
-            body: KeyboardDismissOnTap(
-              child: SingleChildScrollView(
-                controller: scrollController,
-                padding: const EdgeInsets.all(16.0),
-                child: const CustodialLightningWidget(),
-              ),
+      child: Padding(
+        padding: EdgeInsets.all(18.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset('lib/assets/Bitcoin_lightning_logo.png', width: 32.sp, height: 32.sp),
+                SizedBox(width: 10.w),
+                Image.asset('lib/assets/l-btc.png', width: 32.sp, height: 32.sp),
+              ],
             ),
-          );
-        },
+            Text(
+              'Lightning Network',
+              style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    ref.read(selectedNetworkTypeProvider.notifier).state = 'Boltz Network';
+                    context.push('/home/receive');
+                  },
+                  icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.sp),
+                  splashRadius: 28.w,
+                  tooltip: 'Receive',
+                ),
+                IconButton(
+                  onPressed: () {
+                    ref.read(sendTxProvider.notifier).resetToDefault();
+                    context.push('/home/pay', extra: 'lightning');
+                  },
+                  icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.sp),
+                  splashRadius: 28.w,
+                  tooltip: 'Send',
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void _showPayModalSheet(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
-      backgroundColor: Colors.black,
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+  @override
+  Widget build(BuildContext context) {
+    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
+
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: SafeArea(
+          bottom: false,
+          child: Stack(
+            children: [
+              const Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              Column(
+                children: [
+                  AppBar(
+                    title: Text(
+                      'Accounts'.i18n,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22.sp,
+                      ),
+                    ),
+                    backgroundColor: Colors.black,
+                    automaticallyImplyLeading: false,
+                    centerTitle: false,
+                    actions: [
+                      Padding(
+                        padding: EdgeInsets.only(right: 16.w),
+                        child: IconButton(
+                          onPressed: () {
+                            ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible);
+                          },
+                          icon: Icon(
+                            isBalanceVisible ? Icons.remove_red_eye : Icons.visibility_off,
+                            color: Colors.white,
+                            size: 24.sp,
+                          ),
+                        ),
+                      ),
+                    ],
+                    elevation: 0,
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionHeader('Bitcoin Network', 'lib/assets/bitcoin-logo-white.svg', null),
+                            SizedBox(height: 12.h),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              runSpacing: 16.h,
+                              children: [
+                                _buildAccountCard(
+                                  context,
+                                  ref,
+                                  'Bitcoin',
+                                  isBalanceVisible
+                                      ? btcInDenominationFormatted(
+                                    ref.watch(balanceNotifierProvider).btcBalance,
+                                    ref.watch(settingsProvider).btcFormat,
+                                  )
+                                      : '***',
+                                  Image.asset('lib/assets/bitcoin-logo.png', width: 32.sp, height: 32.sp),
+                                  ref.watch(addressProvider).bitcoinAddress,
+                                  isBalanceVisible
+                                      ? currencyFormat(
+                                    ref.watch(currentBitcoinPriceInCurrencyProvider(
+                                      CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).btcBalance),
+                                    )).toDouble(),
+                                    ref.watch(settingsProvider).currency,
+                                  )
+                                      : '***',
+                                  ref.watch(settingsProvider).currency,
+                                  'Bitcoin Network',
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 24.h),
+                            _buildSectionHeader('Boltz  Network', 'lib/assets/boltz.svg', Colors.white),
+                            _buildNonNativeAssetsHeader(false),
+                            SizedBox(height: 12.h),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 16.w,
+                              runSpacing: 16.h,
+                              children: [
+                                _buildLightningCard(context, ref),
+                              ],
+                            ),
+                            SizedBox(height: 24.h),
+                            _buildSectionHeader('Liquid Network', 'lib/assets/liquid-logo-white.png', null),
+                            SizedBox(height: 12.h),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 16.w,
+                              runSpacing: 16.h,
+                              children: [
+                                _buildAccountCard(
+                                  context,
+                                  ref,
+                                  'L-BTC',
+                                  isBalanceVisible
+                                      ? btcInDenominationFormatted(
+                                    ref.watch(balanceNotifierProvider).liquidBalance,
+                                    ref.watch(settingsProvider).btcFormat,
+                                  )
+                                      : '***',
+                                  Image.asset('lib/assets/l-btc.png', width: 32.sp, height: 32.sp),
+                                  ref.watch(addressProvider).liquidAddress,
+                                  isBalanceVisible
+                                      ? currencyFormat(
+                                    ref.watch(currentBitcoinPriceInCurrencyProvider(
+                                      CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).liquidBalance),
+                                    )).toDouble(),
+                                    ref.watch(settingsProvider).currency,
+                                  )
+                                      : '***',
+                                  ref.watch(settingsProvider).currency,
+                                  'Liquid Network',
+                                ),
+                                _buildStableCard(
+                                  context,
+                                  ref,
+                                  'Depix',
+                                  isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance) : '***',
+                                  Image.asset('lib/assets/depix.png', width: 32.sp, height: 32.sp),
+                                  ref.watch(addressProvider).liquidAddress,
+                                  AssetId.BRL,
+                                ),
+                                _buildStableCard(
+                                  context,
+                                  ref,
+                                  'USDT',
+                                  isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance) : '***',
+                                  Image.asset('lib/assets/tether.png', width: 32.sp, height: 32.sp),
+                                  ref.watch(addressProvider).liquidAddress,
+                                  AssetId.USD,
+                                ),
+                                _buildStableCard(
+                                  context,
+                                  ref,
+                                  'EURx',
+                                  isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance) : '***',
+                                  Image.asset('lib/assets/eurx.png', width: 32.sp, height: 32.sp),
+                                  ref.watch(addressProvider).liquidAddress,
+                                  AssetId.EUR,
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 24.h),
+                            _buildNonNativeAssetsHeader(true),
+                            SizedBox(height: 12.h),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 16.w,
+                              runSpacing: 16.h,
+                              children: [
+                                _buildAssetCard(context, ref, ShiftPair.usdcEthToLiquidUsdt, 'ETH USDC'),
+                                _buildAssetCard(context, ref, ShiftPair.usdcSolToLiquidUsdt, 'SOL USDC'),
+                                _buildAssetCard(context, ref, ShiftPair.usdcPolygonToLiquidUsdt, 'POL USDC'),
+                                _buildAssetCard(context, ref, ShiftPair.usdtEthToLiquidUsdt, 'ETH USDT'),
+                                _buildAssetCard(context, ref, ShiftPair.usdtTronToLiquidUsdt, 'TRX USDT'),
+                                _buildAssetCard(context, ref, ShiftPair.usdtSolToLiquidUsdt, 'SOL USDT'),
+                                _buildAssetCard(context, ref, ShiftPair.usdtPolygonToLiquidUsdt, 'POL USDT'),
+                                _buildAssetCard(context, ref, ShiftPair.ethToLiquidBtc, 'ETH'),
+                                _buildAssetCard(context, ref, ShiftPair.bnbToLiquidBtc, 'BNB'),
+                                _buildAssetCard(context, ref, ShiftPair.solToLiquidBtc, 'SOL'),
+                              ],
+                            ),
+                            SizedBox(height: 100.sp),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
-      builder: (BuildContext context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          builder: (context, scrollController) {
-            return Pay();
-          },
-        );
-      },
+    );
+  }
+
+  Widget _buildSectionHeader(String NetworkName, String logoPath, Color? color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildNetworkLogo(logoPath, color),
+        SizedBox(height: 6.h),
+      ],
+    );
+  }
+
+  Widget _buildNonNativeAssetsHeader(bool showHeader) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (showHeader)
+        Image.asset(
+          'lib/assets/sideshift.png',
+          width: 140.sp,
+        ),
+        SizedBox(height: 6.sp),
+        Text(
+          'Non-Native Assets'.i18n,
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 12.sp),
+      ],
+    );
+  }
+
+  Widget _buildNetworkLogo(String logoPath, Color? color) {
+    if (logoPath.endsWith('.svg')) {
+      return SvgPicture.asset(
+        logoPath,
+        width: 25.sp,
+        height: 25.sp,
+        color: color,
+      );
+    } else {
+      return Image.asset(
+        logoPath,
+        width: 100.sp,
+      );
+    }
+  }
+
+  Widget _buildAccountCard(
+      BuildContext context,
+      WidgetRef ref,
+      String title,
+      String balanceText,
+      Widget icon,
+      dynamic addressFuture,
+      String fiatBalance,
+      String fiatDenomination,
+      String Network, {
+        bool isLightning = false,
+      }) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() {}),
+      child: Container(
+        width: 190.sp,
+        height: 200.sp,
+        decoration: BoxDecoration(
+          color: const Color(0x00333333).withOpacity(0.4),
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(18.w),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  icon,
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    balanceText.isNotEmpty ? balanceText : 'Loading...',
+                    style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (fiatBalance.isNotEmpty)
+                    Text(
+                      fiatBalance,
+                      style: TextStyle(fontSize: 14.sp, color: Colors.white70),
+                    ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      ref.read(selectedNetworkTypeProvider.notifier).state = Network == 'Lightning Network' ? 'Spark Network' : Network;
+                      context.push('/home/receive');
+                    },
+                    icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.sp),
+                    splashRadius: 28.w,
+                    tooltip: 'Receive',
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      ref.read(sendTxProvider.notifier).resetToDefault();
+                      if (Network == 'Bitcoin Network') {
+                        context.push('/home/pay', extra: 'bitcoin');
+                      } else if (Network == 'Lightning Network') context.push('/home/pay', extra: 'lightning');
+                      else if (Network == 'Liquid Network') {
+                        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+                        context.push('/home/pay', extra: 'liquid');
+                      }
+                    },
+                    icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.sp),
+                    splashRadius: 28.w,
+                    tooltip: 'Send',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStableCard(
+      BuildContext context,
+      WidgetRef ref,
+      String title,
+      String balanceText,
+      Widget icon,
+      dynamic addressFuture,
+      AssetId assetId,
+      ) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() {}),
+      child: Container(
+        width: 190.sp,
+        height: 200.sp,
+        decoration: BoxDecoration(
+          color: const Color(0x00333333).withOpacity(0.4),
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(18.w),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  icon,
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                balanceText.isNotEmpty ? balanceText : 'Loading...',
+                style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.w600),
+                overflow: TextOverflow.ellipsis,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      ref.read(selectedNetworkTypeProvider.notifier).state = 'Liquid Network';
+                      context.push('/home/receive');
+                    },
+                    icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.sp),
+                    splashRadius: 28.w,
+                    tooltip: 'Receive',
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      ref.read(sendTxProvider.notifier).resetToDefault();
+                      ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(assetId));
+                      context.push('/home/pay', extra: 'liquid_asset');
+                    },
+                    icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.sp),
+                    splashRadius: 28.w,
+                    tooltip: 'Send',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAssetCard(
+      BuildContext context,
+      WidgetRef ref,
+      ShiftPair pair,
+      String assetName,
+      ) {
+    final logos = _logoMap[pair];
+    final List<ShiftPair> singleLogoPairs = [
+      ShiftPair.ethToLiquidBtc,
+      ShiftPair.bnbToLiquidBtc,
+      ShiftPair.solToLiquidBtc,
+    ];
+    final List<ShiftPair> usdtShiftPairs = [
+      ShiftPair.usdcEthToLiquidUsdt,
+      ShiftPair.usdcSolToLiquidUsdt,
+      ShiftPair.usdcPolygonToLiquidUsdt,
+      ShiftPair.usdtEthToLiquidUsdt,
+      ShiftPair.usdtPolygonToLiquidUsdt,
+      ShiftPair.usdtTronToLiquidUsdt,
+      ShiftPair.usdtSolToLiquidUsdt,
+    ];
+
+    final Map<ShiftPair, String> displayNames = {
+      ShiftPair.ethToLiquidBtc: 'Ethereum',
+      ShiftPair.bnbToLiquidBtc: 'Binance Coin',
+      ShiftPair.solToLiquidBtc: 'Solana',
+      ShiftPair.usdcEthToLiquidUsdt: 'USDC (Ethereum)',
+      ShiftPair.usdcSolToLiquidUsdt: 'USDC (Solana)',
+      ShiftPair.usdcPolygonToLiquidUsdt: 'USDC (Polygon)',
+      ShiftPair.usdtEthToLiquidUsdt: 'USDT (Ethereum)',
+      ShiftPair.usdtPolygonToLiquidUsdt: 'USDT (Polygon)',
+      ShiftPair.usdtTronToLiquidUsdt: 'USDT (Tron)',
+      ShiftPair.usdtSolToLiquidUsdt: 'USDT (Solana)',
+    };
+
+    final double fontSize = usdtShiftPairs.contains(pair) ? 16.sp : 18.sp;
+
+    return Container(
+      width: 190.sp,
+      height: 200.sp,
+      decoration: BoxDecoration(
+        color: const Color(0x00333333).withOpacity(0.4),
+        borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(18.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (logos != null && logos.containsKey('coin'))
+                  SvgPicture.asset(logos['coin']!, width: 32.sp, height: 32.sp),
+                if (!singleLogoPairs.contains(pair) && logos != null && logos.containsKey('network'))
+                  Padding(
+                    padding: EdgeInsets.only(left: 5.w),
+                    child: SvgPicture.asset(logos['network']!, width: 32.sp, height: 32.sp),
+                  ),
+              ],
+            ),
+            Text(
+              displayNames[pair] ?? assetName,
+              style: TextStyle(fontSize: fontSize, color: Colors.white, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    ref.read(selectedNetworkTypeProvider.notifier).state = 'SideShift';
+                    ref.read(selectedShiftPairProvider.notifier).state = pair;
+                    context.push('/home/receive');
+                  },
+                  icon: Icon(Icons.arrow_downward, color: Colors.white, size: 28.sp),
+                  splashRadius: 28.w,
+                  tooltip: 'Receive',
+                ),
+                if (usdtShiftPairs.contains(pair))
+                  IconButton(
+                    onPressed: () {
+                      final sendPair = receiveToSendMap[pair];
+                      if (sendPair != null) {
+                        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
+                        ref.read(selectedSendShiftPairProvider.notifier).state = sendPair;
+                        context.push('/home/pay', extra: 'non_native_asset');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Send not supported for this asset'.i18n),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                    icon: Icon(Icons.arrow_upward, color: Colors.white, size: 28.sp),
+                    splashRadius: 28.w,
+                    tooltip: 'Send',
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

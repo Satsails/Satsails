@@ -1,4 +1,3 @@
-import 'package:Satsails/helpers/deposit_type_helper.dart' as helpers;
 import 'package:Satsails/helpers/swap_helpers.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +16,7 @@ class SellType extends ConsumerWidget {
         title: Text("Selling Type".i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => context.pop(),
         ),
       ),
@@ -71,12 +70,11 @@ class _SellOption extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _SellOption({
-    Key? key,
     required this.title,
     required this.subtitle,
     required this.isAvailable,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +82,7 @@ class _SellOption extends StatelessWidget {
       onTap: isAvailable ? onTap : null,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey.shade900,
+          color: const Color(0x00333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(10),
         ),
         padding:EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),

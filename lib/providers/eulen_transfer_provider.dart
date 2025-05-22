@@ -1,6 +1,6 @@
 import 'package:Satsails/models/eulen_transfer_model.dart';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,8 +19,8 @@ final singleEulenTransfersDetailsProvider = StateProvider.autoDispose<EulenTrans
 });
 
 
-final getUserPurchasesProvider = FutureProvider.autoDispose<List<EulenTransfer>>((ref) async {
-  final auth = ref.read(userProvider).jwt!;
+final getEulenUserPurchasesProvider = FutureProvider.autoDispose<List<EulenTransfer>>((ref) async {
+  final auth = ref.read(userProvider).jwt;
   final transactions = await EulenService.getTransfers(auth);
 
   if (transactions.isSuccess && transactions.data != null) {
@@ -32,7 +32,7 @@ final getUserPurchasesProvider = FutureProvider.autoDispose<List<EulenTransfer>>
 });
 
 final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) async {
-  final auth = ref.read(userProvider).jwt!;
+  final auth = ref.read(userProvider).jwt;
   final amountTransferred = await EulenService.getAmountTransferred(auth);
 
   if (amountTransferred.isSuccess && amountTransferred.data != null) {
@@ -43,7 +43,7 @@ final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) asyn
 });
 
 final getRegisteredTaxIdProvider = FutureProvider.autoDispose<String>((ref) async {
-  final auth = ref.read(userProvider).jwt!;
+  final auth = ref.read(userProvider).jwt;
   final amountTransferred = await EulenService.getRegisteredTaxId(auth);
 
   if (amountTransferred.isSuccess && amountTransferred.data != null) {
@@ -54,9 +54,9 @@ final getRegisteredTaxIdProvider = FutureProvider.autoDispose<String>((ref) asyn
 });
 
 final createEulenTransferRequestProvider = FutureProvider.autoDispose.family<EulenTransfer, int>((ref, amount) async {
-  final auth = ref.read(userProvider).jwt!;
-  final liquidAddress = await ref.read(liquidAddressProvider.future);
-  final result = await EulenService.createTransaction(auth, amount, liquidAddress.confidential);
+  final auth = ref.read(userProvider).jwt;
+  final liquidAddress = ref.read(addressProvider).liquidAddress;
+  final result = await EulenService.createTransaction(auth, amount, liquidAddress);
   if (result.isSuccess && result.data != null) {
     ref.read(eulenTransferProvider.notifier).mergeTransfer(result.data!);
     return result.data!;
@@ -66,7 +66,7 @@ final createEulenTransferRequestProvider = FutureProvider.autoDispose.family<Eul
 });
 
 final getEulenPixPaymentStateProvider = FutureProvider.autoDispose.family<bool, String>((ref, transactionId) async {
-  final auth = ref.read(userProvider).jwt!;
+  final auth = ref.read(userProvider).jwt;
   final paymentState = await EulenService.getTransactionPaymentState(transactionId, auth);
 
   if (paymentState.isSuccess && paymentState.data != null) {

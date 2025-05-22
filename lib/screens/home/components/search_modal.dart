@@ -45,7 +45,7 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Color.fromRGBO(29, 31, 49, 1.0),
+      backgroundColor: const Color.fromRGBO(29, 31, 49, 1.0),
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(29, 31, 49, 1.0),
         title: Text(
@@ -53,7 +53,7 @@ class _SearchModalState extends ConsumerState<SearchModal> with AutomaticKeepAli
           style: const TextStyle(color: Colors.white),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white, size: screenHeight * 0.03),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => context.pop(),
         ),
       ),

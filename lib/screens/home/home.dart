@@ -1,170 +1,215 @@
-import 'package:Satsails/providers/user_provider.dart';
-import 'package:Satsails/screens/creation/components/logo.dart';
-import 'package:Satsails/screens/home/components/bitcoin_price_history_graph.dart';
-import 'package:Satsails/screens/shared/backup_warning.dart';
-import 'package:Satsails/screens/shared/depix_convert_warning.dart';
+import 'dart:io';
+import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/screens/shared/transactions_builder.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
-import 'package:Satsails/providers/balance_provider.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
-import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
-import 'package:go_router/go_router.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:icons_plus/icons_plus.dart';
-import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/screens/shared/build_balance_card.dart';
-import 'package:Satsails/screens/shared/circular_button.dart';
-import 'package:Satsails/screens/shared/bar_chart.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:Satsails/screens/shared/balance_card.dart';
+import 'package:upgrader/upgrader.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-class Home extends ConsumerWidget {
-  const Home({super.key});
+class BalanceScreen extends ConsumerStatefulWidget {
+  const BalanceScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        appBar: _buildAppBar(context, ref),
-        body: SafeArea(
-          child: Stack(
-            children: [
-              _buildBody(context, ref),
-              Positioned(
-                bottom: 80,
-                right: 16,
-                child: Column(
-                  children: [
-                    FloatingActionButton.small(
-                      onPressed: () {
-                        context.push('/support');
-                      },
-                      backgroundColor: Colors.orange,
-                      child: Icon(BoxIcons.bx_support, color: Colors.white),
-                    ),
-                    Text(
-                      'Support'.i18n,
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ],
+  _BalanceScreenState createState() => _BalanceScreenState();
+}
+
+class _BalanceScreenState extends ConsumerState<BalanceScreen> {
+  late PageController _controller;
+  late List<Map<String, dynamic>> _assets;
+  late List<String> _selectedFilters;
+  int currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _assets = [
+      {
+        'name': 'Bitcoin Network',
+        'color': const Color(0xFFFF9800),
+        'logo': 'lib/assets/bitcoin-logo.svg',
+        'assets': [
+          {'name': 'Bitcoin (Mainnet)', 'icon': 'lib/assets/bitcoin-logo.png'}
+        ]
+      },
+      //  commented out until spark releases
+      // {
+      //   'name': 'Spark Network',
+      //   'color': const Color(0xFF212121),
+      //   'logo': 'lib/assets/logo-spark.svg',
+      //   'assets': [
+      //     {'name': 'Lightning Bitcoin', 'icon': 'lib/assets/Bitcoin_lightning_logo.png'}
+      //   ]
+      // },
+      {
+        'name': 'Liquid Network',
+        'color': const Color(0xFFFFFFFF),
+        'logo': 'lib/assets/liquid-logo.png',
+        'assets': [
+          {'name': 'Liquid Bitcoin', 'icon': 'lib/assets/l-btc.png'},
+          {'name': 'USDT', 'icon': 'lib/assets/tether.png'},
+          {'name': 'EURx', 'icon': 'lib/assets/eurx.png'},
+          {'name': 'Depix', 'icon': 'lib/assets/depix.png'}
+        ]
+      },
+    ];
+    _selectedFilters = _assets.map((asset) => asset['assets'][0]['name'] as String).toList();
+    _controller = PageController(viewportFraction: 0.93, initialPage: 0);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Widget _buildDropdown(int index) {
+    final networkAssets = _assets[index]['assets'] as List<Map<String, String>>;
+    return SizedBox(
+      width: 220.sp,
+      height: 40.sp,
+      child: DropdownButton<String>(
+        value: _selectedFilters[index],
+        items: networkAssets.map((asset) {
+          return DropdownMenuItem<String>(
+            value: asset['name'],
+            child: Row(
+              children: [
+                if (asset['icon']!.endsWith('.svg'))
+                  SvgPicture.asset(
+                    asset['icon']!,
+                    width: 24.sp,
+                    height: 24.sp,
+                  )
+                else
+                  Image.asset(
+                    asset['icon']!,
+                    width: 24.sp,
+                    height: 24.sp,
+                  ),
+                SizedBox(width: 10.sp),
+                Text(
+                  asset['name']!,
+                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          );
+        }).toList(),
+        onChanged: (String? newValue) {
+          if (newValue != null) {
+            setState(() {
+              _selectedFilters[index] = newValue;
+            });
+          }
+        },
+        dropdownColor: const Color(0xFF212121),
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.bold,
         ),
+        padding: EdgeInsets.symmetric(horizontal: 10.sp),
+        icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
+        underline: const SizedBox(),
+        borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+        isExpanded: true,
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, WidgetRef ref) {
-    return Column(
-      children: [
-        Expanded(child: _buildMiddleSection(context, ref)),
-        CustomBottomNavigationBar(
-          currentIndex: ref.watch(navigationProvider),
-          context: context,
-          onTap: (int index) {
-            ref.read(navigationProvider.notifier).state = index;
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMiddleSection(BuildContext context, WidgetRef ref) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final balance = ref.watch(balanceNotifierProvider);
-    final percentageOfEachCurrency = ref.watch(percentageChangeProvider);
+  @override
+  Widget build(BuildContext context) {
+    final isSyncing = ref.watch(backgroundSyncInProgressProvider);
+    final isOnline = ref.watch(settingsProvider).online;
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        const BackupWarning(),
-        buildBalanceCard(context, ref, 'totalBalanceInDenominationProvider', 'totalBalanceInFiatProvider'),
-        const DepixConvertWarning(),
-        SizedBox(height: screenHeight * 0.01),
-        buildActionButtons(context, ref),
-        Flexible(
-          child: SizedBox(
-            height: double.infinity,
-            child: balance.isEmpty ? const BitcoinPriceHistoryGraph() : walletWidget(ref, context, percentageOfEachCurrency, balance),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget walletWidget(WidgetRef ref, BuildContext context, percentageOfEachCurrency, balance) {
-    return ImageSlideshow(
-      initialPage: 0,
-      indicatorColor: Colors.orangeAccent,
-      indicatorBottomPadding: 0,
-      indicatorBackgroundColor: Colors.grey,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Padding(
-          padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05),
-          child: buildBarChart(context, percentageOfEachCurrency, balance, ref),
-        ),
-        const BitcoinPriceHistoryGraph(),
-      ],
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar(BuildContext context, WidgetRef ref) {
-    final settings = ref.read(settingsProvider);
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    void toggleOnlineStatus() {
-      ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-    }
-
-    return AppBar(
-      backgroundColor: Colors.black,
-      automaticallyImplyLeading: false,
-      title: Row(
-        children: [
-          const Logo(widthFactor: 0.03, heightFactor: 0.03),
-          SizedBox(width: screenWidth * 0.02),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: EdgeInsets.symmetric(horizontal: 18.sp, vertical: 8.sp),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Satsails',
-                style: TextStyle(
-                  color: Colors.orange,
-                  fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: isSyncing
+                    ? null
+                    : () {
+                  ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+                },
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.sp),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 10.sp,
+                        height: 10.sp,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isSyncing
+                              ? Colors.orange
+                              : isOnline
+                              ? Colors.green
+                              : Colors.red,
+                        ),
+                      ),
+                      SizedBox(width: 4.sp),
+                      Text(
+                        isSyncing ? 'Syncing'.i18n : isOnline ? 'Sync'.i18n : 'Offline'.i18n,
+                        style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+              _buildDropdown(currentPage),
             ],
           ),
-        ],
-      ),
-      actions: [
-        GestureDetector(
-          onTap: () {
-            ref.invalidate(initializeUserProvider);
-            context.push('/home/settings');
-          },
-          child: const Icon(Clarity.settings_line, color: Colors.white),
         ),
-        SizedBox(width: 10), // Add spacing
-        ref.watch(backgroundSyncInProgressProvider)
-            ? Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: LoadingAnimationWidget.beat(
-            color: Colors.green,
-            size: 20,
-          ),
-        )
-            : Padding( padding:  const EdgeInsets.symmetric(horizontal: 8),
-          child: GestureDetector(onTap: () {toggleOnlineStatus();},
-            child:  LoadingAnimationWidget.beat(
-              color: settings.online ? Colors.green : Colors.red,
-              size: 20,
-            ),
+        Expanded(
+          child: PageView.builder(
+            itemCount: _assets.length,
+            controller: _controller,
+            clipBehavior: Clip.none,
+            padEnds: false,
+            onPageChanged: (int page) {
+              setState(() {
+                currentPage = page;
+              });
+            },
+            itemBuilder: (context, index) {
+              final selectedAssetName = _selectedFilters[index];
+              return Padding(
+                padding: EdgeInsets.only(
+                  left: 18.sp,
+                  right: index == _assets.length - 1 ? 18.sp : 0,
+                ),
+                child: SizedBox(
+                  height: 200.sp,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        height: 0.25.sh,
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: 10.sp),
+                          child: BalanceCard(
+                            network: _assets[index]['name'] as String,
+                            selectedAsset: selectedAssetName,
+                            iconPath: _assets[index]['logo'] as String,
+                            color: _assets[index]['color'] as Color,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ],
@@ -172,3 +217,49 @@ class Home extends ConsumerWidget {
   }
 }
 
+class Home extends ConsumerWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    Future.microtask(() => ref.read(shouldUpdateMemoryProvider.notifier).state = true);
+
+    final language = ref.read(settingsProvider).language;
+    final dialogStyle = Platform.isIOS ? UpgradeDialogStyle.cupertino : UpgradeDialogStyle.material;
+
+    return UpgradeAlert(
+      dialogStyle: dialogStyle,
+      upgrader: Upgrader(
+        languageCode: language,
+        durationUntilAlertAgain: const Duration(days: 3),
+      ),
+      child: WillPopScope(
+        onWillPop: () async => false,
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          extendBodyBehindAppBar: true,
+          body: SafeArea(
+            child: Column(
+              children: [
+                const Expanded(
+                  flex: 4,
+                  child: BalanceScreen(),
+                ),
+                Expanded(
+                  flex: 6,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.sp),
+                    child: Container(
+                      color: Colors.black,
+                      child: const TransactionList(showAll: false),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

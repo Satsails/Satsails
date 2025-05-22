@@ -1,11 +1,11 @@
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/screens/shared/bottom_navigation_bar.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Services extends ConsumerStatefulWidget {
   const Services({super.key});
@@ -14,11 +14,12 @@ class Services extends ConsumerStatefulWidget {
   _ServicesState createState() => _ServicesState();
 }
 
-class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClientMixin {
+class _ServicesState extends ConsumerState<Services> {
   late WebViewController _webViewController;
-  String _currentTitle = 'Dashboards';
   bool _isLoading = true;
   String _currentUrl = 'https://bitcoincounterflow.com/satsails/dashboards-iframe';
+  int _selectedIndex = 0; // Track selected item
+  String _currentTitle = 'Dashboards'; // Track current title
 
   @override
   void initState() {
@@ -26,7 +27,7 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
     final language = ref.read(settingsProvider).language;
     if (language == 'pt') {
       setState(() {
-        _currentUrl  = 'https://bitcoincounterflow.com/pt/satsails-2/mini-paineis-iframe/';
+        _currentUrl = 'https://bitcoincounterflow.com/pt/satsails-2/mini-paineis-iframe/';
       });
     }
     _initializeWebView();
@@ -54,41 +55,45 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-
     final language = ref.watch(settingsProvider).language;
 
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        leading:
-        IconButton(
-          icon: const Icon(Icons.refresh, color: Colors.white),
-          onPressed: () {
-            setState(() {
-              _webViewController.reload();
-            });
+        elevation: 0,
+        title: Text(
+          'Market Data'.i18n,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20.sp,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.w),
+          onPressed: () async {
+            context.pop();
           },
         ),
-        actions: [Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white),
-            onPressed: () => Scaffold.of(context).openDrawer(),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: Colors.white, size: 24.w),
+            onPressed: () {
+              setState(() {
+                _webViewController.reload();
+              });
+            },
           ),
-        ),
+          Builder(
+            builder: (context) => IconButton(
+              icon: Icon(Icons.menu, color: Colors.white, size: 24.w),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
+          ),
         ],
-        title: Center(
-          child: Text(
-            _currentTitle.i18n,
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
       ),
-      drawer: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        child: _buildDrawer(ref, context, language),
-      ),
+      drawer: _buildDrawer(ref, context, language),
       body: Stack(
         children: [
           WebViewWidget(
@@ -96,7 +101,7 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
           ),
           if (_isLoading)
             Center(
-              child: LoadingAnimationWidget.threeArchedCircle(size: 100, color: Colors.orange),
+              child: LoadingAnimationWidget.fourRotatingDots(size: 100.w, color: Colors.orange),
             ),
         ],
       ),
@@ -108,7 +113,7 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.w),
                   onPressed: () async {
                     if (await _webViewController.canGoBack()) {
                       _webViewController.goBack();
@@ -116,7 +121,7 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.arrow_forward, color: Colors.white),
+                  icon: Icon(Icons.arrow_forward, color: Colors.white, size: 24.w),
                   onPressed: () async {
                     if (await _webViewController.canGoForward()) {
                       _webViewController.goForward();
@@ -125,13 +130,6 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
                 ),
               ],
             ),
-          CustomBottomNavigationBar(
-            currentIndex: ref.watch(navigationProvider),
-            context: context,
-            onTap: (int index) {
-              ref.read(navigationProvider.notifier).state = index;
-            },
-          ),
         ],
       ),
     );
@@ -163,40 +161,41 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
       'Liquidation Zone': language == 'pt'
           ? 'https://bitcoincounterflow.com/pt/satsails-2/zona-de-liquidacao-iframe/'
           : 'https://bitcoincounterflow.com/satsails/liquidation-heatmap-iframe/',
-      'Bitrefill': language == 'pt'
-          ? 'https://www.bitrefill.com/pt/pt/'
-          : 'https://www.bitrefill.com',
     };
 
     return Drawer(
+      backgroundColor: Colors.transparent, // Set transparent to avoid default grey
       child: Container(
-        color: Colors.black,
+        decoration: const BoxDecoration(
+          color: Color(0xFF212121), // Desired semi-transparent color
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(15.0),
+            bottomRight: Radius.circular(15.0),
+          ),
+        ),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
               decoration: const BoxDecoration(
-                color: Colors.black,
-                border: Border(
-                  bottom: BorderSide.none,
-                ),
+                color: Color(0xFF212121), // Match header to drawer
               ),
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.02),
+                padding: EdgeInsets.symmetric(vertical: 16.h),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       'Services'.i18n,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 24,
+                        fontSize: 24.sp,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
+                      icon: Icon(Icons.close, color: Colors.white, size: 24.w),
                       onPressed: () {
                         Navigator.pop(context);
                       },
@@ -205,96 +204,58 @@ class _ServicesState extends ConsumerState<Services> with AutomaticKeepAliveClie
                 ),
               ),
             ),
-            ExpansionTile(
-              leading: const Icon(Icons.school, color: Colors.orange),
-              title: Text('Educação Real'.i18n, style: const TextStyle(color: Colors.white)),
-              children: [
-                _buildDrawerItem(
-                  ref,
-                  icon: Icons.arrow_right,
-                  title: 'Courses',
-                  url: 'https://www.educacaoreal.com',
+            ...links.entries.map((entry) {
+              final index = links.keys.toList().indexOf(entry.key);
+              return ListTile(
+                leading: Icon(
+                  _getIconForTitle(entry.key),
+                  color: _selectedIndex == index ? Colors.orange : Colors.white,
+                  size: 24.w,
                 ),
-              ],
-            ),
-            _buildDrawerItem(
-              ref,
-              icon: Icons.dashboard,
-              title: 'Dashboards',
-              url: links['Dashboards']!,
-            ),
-            _buildDrawerItem(
-              ref,
-              icon: Icons.assessment,
-              title: 'ETF Tracker',
-              url: links['ETF Tracker']!,
-            ),
-            _buildDrawerItem(
-              ref,
-              icon: Icons.calculate,
-              title: 'Retirement Calculator',
-              url: links['Retirement Calculator']!,
-            ),
-            _buildDrawerItem(
-              ref,
-              icon: Icons.attach_money,
-              title: 'Bitcoin Converter',
-              url: links['Bitcoin Converter']!,
-            ),
-            _buildDrawerItem(
-              ref,
-              icon: Icons.history,
-              title: 'DCA Calculator',
-              url: links['DCA Calculator']!,
-            ),
-            _buildDrawerItem(
-              ref,
-              icon: Icons.trending_up,
-              title: 'Bitcoin Counterflow Strategy',
-              url: links['Bitcoin Counterflow Strategy']!,
-            ),
-            _buildDrawerItem(
-              ref,
-              icon: Icons.show_chart,
-              title: 'Charts',
-              url: links['Charts']!,
-            ),
-            _buildDrawerItem(
-              ref,
-              icon: Icons.waterfall_chart,
-              title: 'Liquidation Zone',
-              url: links['Liquidation Zone']!,
-            ),
-            _buildDrawerItem(
-              ref,
-              icon: Icons.shopping_cart,
-              title: 'Bitrefill',
-              url: links['Bitrefill']!,
-            ),
+                title: Text(
+                  entry.key.i18n,
+                  style: TextStyle(
+                    color: _selectedIndex == index ? Colors.orange : Colors.white,
+                    fontSize: 16.sp,
+                  ),
+                ),
+                onTap: () {
+                  setState(() {
+                    _currentUrl = entry.value;
+                    _currentTitle = entry.key;
+                    _webViewController.loadRequest(Uri.parse(_currentUrl));
+                    _selectedIndex = index;
+                  });
+                  Navigator.pop(context);
+                },
+              );
+            }),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDrawerItem(WidgetRef ref, {required IconData icon, required String title, required String url}) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.orange),
-      title: Text(
-        title.i18n,
-        style: const TextStyle(color: Colors.white),
-      ),
-      onTap: () {
-        Navigator.pop(context);
-        setState(() {
-          _currentUrl = url;
-          _currentTitle = title;
-          _webViewController.loadRequest(Uri.parse(url));
-        });
-      },
-    );
+  IconData _getIconForTitle(String title) {
+    switch (title) {
+      case 'Dashboards':
+        return Icons.dashboard;
+      case 'ETF Tracker':
+        return Icons.assessment;
+      case 'Retirement Calculator':
+        return Icons.calculate;
+      case 'Bitcoin Converter':
+        return Icons.attach_money;
+      case 'DCA Calculator':
+        return Icons.history;
+      case 'Bitcoin Counterflow Strategy':
+        return Icons.trending_up;
+      case 'Charts':
+        return Icons.show_chart;
+      case 'Liquidation Zone':
+        return Icons.waterfall_chart;
+      default:
+        return Icons.link;
+    }
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }

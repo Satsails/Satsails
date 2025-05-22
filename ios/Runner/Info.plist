@@ -5,7 +5,7 @@
         <key>branch_universal_link_domains</key>
         <array>
             <string>1zl8l.app.link</string>
-            <string>1zl8l-alternate.app.link</string>
+            <string>links.satsails.com</string>
         </array>
 
         <key>CFBundleURLSchemes</key>

@@ -1,13 +1,44 @@
-import 'package:Satsails/screens/shared/message_display.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/screens/shared/custom_keypad.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 final pinProvider = StateProvider<String>((ref) => '');
 
+// Widget for PIN progress circles
+class PinProgressIndicator extends StatelessWidget {
+  final int currentLength;
+  final int totalDigits;
+
+  const PinProgressIndicator({
+    super.key,
+    required this.currentLength,
+    required this.totalDigits,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(totalDigits, (index) {
+        return Container(
+          margin: EdgeInsets.symmetric(horizontal: 8.w), // Scaled margin
+          width: 16.w, // Scaled width
+          height: 16.h, // Scaled height
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: index < currentLength ? Colors.white : Colors.grey[600],
+          ),
+        );
+      }),
+    );
+  }
+}
+
+// Main SetPin screen
 class SetPin extends ConsumerStatefulWidget {
   const SetPin({super.key});
 
@@ -16,14 +47,7 @@ class SetPin extends ConsumerStatefulWidget {
 }
 
 class _SetPinState extends ConsumerState<SetPin> {
-  final formKey = GlobalKey<FormState>();
-  final TextEditingController pinController = TextEditingController();
-
-  @override
-  void dispose() {
-    pinController.dispose();
-    super.dispose();
-  }
+  String pin = '';
 
   @override
   Widget build(BuildContext context) {
@@ -31,71 +55,50 @@ class _SetPinState extends ConsumerState<SetPin> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          onPressed: () => context.pop(),
+        ),
         title: Text(
           'Set PIN'.i18n,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            context.pop();
-          },
+          style: const TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
-      body: Center(
-        child: Form(
-          key: formKey,
+      body: SingleChildScrollView(
+        child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.w),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  'Choose a 6-digit PIN'.i18n,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+              children: [
+                PinProgressIndicator(currentLength: pin.length, totalDigits: 6),
+                SizedBox(height: 40.h),
+                CustomKeypad(
+                  onDigitPressed: (digit) {
+                    if (pin.length < 6) {
+                      setState(() => pin += digit);
+                    }
+                  },
+                  onBackspacePressed: () {
+                    if (pin.isNotEmpty) {
+                      setState(() => pin = pin.substring(0, pin.length - 1));
+                    }
+                  },
                 ),
-                const SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: PinCodeTextField(
-                    appContext: context,
-                    length: 6,
-                    obscureText: true,
-                    controller: pinController, // Use controller here
-                    keyboardType: TextInputType.number,
-                    textStyle: const TextStyle(color: Colors.white),
-                    pinTheme: PinTheme(
-                      inactiveColor: Colors.white,
-                      selectedColor: Colors.red,
-                      activeColor: Colors.orange,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty || value.length != 6) {
-                        return '';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {},
-                  ),
+                SizedBox(height: 40.h),
+                CustomButton(
+                  text: 'Next'.i18n,
+                  onPressed: () {
+                    ref
+                        .read(pinProvider.notifier)
+                        .state = pin;
+                    context.push('/confirm_pin');
+                  },
+                  primaryColor: Colors.green,
+                  secondaryColor: Colors.green,
                 ),
-                const SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 106),
-                  child: CustomButton(
-                    text: 'Next'.i18n,
-                    onPressed: () {
-                      if (formKey.currentState!.validate()) {
-                        // Store the PIN in pinProvider
-                        ref.read(pinProvider.notifier).state = pinController.text;
-
-                        // Navigate to ConfirmPin screen
-                        context.push('/confirm_pin');
-                      } else {
-                        showMessageSnackBar(message: 'Please enter a 6-digit PIN'.i18n, error: true, context: context);
-                      }
-                    },
-                  ),
-                ),
+                SizedBox(height: 20.h), // Extra space at the bottom
               ],
             ),
           ),

@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk/lwk.dart';
@@ -18,11 +19,6 @@ final sendTxProvider = StateNotifierProvider<SendTxModel, SendTx>((ref) {
 
 final sendBlocksProvider = StateProvider.autoDispose<double>((ref) {
   return 1;
-});
-
-final amountInCurrencyProvider = StateProvider.autoDispose<double>((ref) {
-  final currencyParams = ref.watch(currencyParamsProvider);
-  return ref.read(currentBitcoinPriceInCurrencyProvider(currencyParams));
 });
 
 final currencyParamsProvider = StateProvider.autoDispose<CurrencyParams>((ref) {
@@ -73,7 +69,7 @@ final feeProvider = FutureProvider.autoDispose<int>((ref) async {
 
 final bitcoinTransactionBuilderProvider =  FutureProvider.autoDispose.family<bitcoinModel.TransactionBuilder, int>((ref, amount) async {
   final double fee = await ref.read(bitcoinProvider.getCustomFeeRateProvider.future).then((value) => value);
-  final address = ref.watch(sendTxProvider.notifier).state.address;
+  final address = ref.watch(sendTxProvider).address;
   return bitcoinModel.TransactionBuilder(amount, address, fee);
 });
 
@@ -82,21 +78,36 @@ final liquidFeeProvider = FutureProvider.autoDispose<int>((ref) async {
   final drain = ref.watch(sendTxProvider).drain;
   final FeeCalculationParams params = ref.watch(feeParamsProvider);
   final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(params.amount).future).then((value) => value);
-if (asset == AssetMapper.reverseMapTicker(AssetId.LBTC)) {
-  if (drain) {
-    final transaction = await ref.read(liquidProvider.buildDrainLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
+  if (asset == AssetMapper.reverseMapTicker(AssetId.LBTC)) {
+    if (drain) {
+      final transaction = await ref.read(liquidProvider.buildDrainLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
+      final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
+      return decodedPset.absoluteFees.toInt();
+    }
+    final transaction = await ref.read(liquidProvider.buildLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
     final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
     return decodedPset.absoluteFees.toInt();
+  } else {
+    if (!ref.watch(isPayjoin)) {
+      final transaction = await ref.read(liquidProvider.buildLiquidAssetTransactionProvider(transactionBuilder).future).then((value) => value);
+      final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
+      return decodedPset.absoluteFees.toInt();
+    } else{
+      final transaction = await ref.read(liquidProvider.buildLiquidPayjoinTransactionProvider(transactionBuilder).future).then((value) => value);
+      return transaction.networkFee.toInt();
+    }
   }
-  final transaction = await ref.read(liquidProvider.buildLiquidTransactionProvider(transactionBuilder).future).then((value) => value);
-  final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
-  return decodedPset.absoluteFees.toInt();
-} else {
-  final transaction = await ref.read(liquidProvider.buildLiquidAssetTransactionProvider(transactionBuilder).future).then((value) => value);
-  final decodedPset = await ref.read(liquidProvider.decodeLiquidPsetProvider(transaction).future).then((value) => value);
-  return decodedPset.absoluteFees.toInt();
-}
 });
+
+final payjoinFeeProvider = FutureProvider.autoDispose<String>((ref) async {
+    final FeeCalculationParams params = ref.watch(feeParamsProvider);
+    final transactionBuilder = await ref.read(liquidTransactionBuilderProvider(params.amount).future);
+    final transaction = await ref.read(liquidProvider.buildLiquidPayjoinTransactionProvider(transactionBuilder).future);
+    final feeInSatoshis = transaction.assetFee.toInt(); // Ensure integer
+    final feeInBtc = feeInSatoshis / 100000000; // Convert satoshis to BTC
+    return feeInBtc.toStringAsFixed(2); // Format to 2 decimal places (e.g., "0.01")
+});
+
 
 final liquidDrainWalletProvider = FutureProvider.autoDispose<PsetAmounts>((ref) async {
   final asset = ref.watch(sendTxProvider).assetId;
@@ -121,58 +132,31 @@ final liquidAssetFeeProvider = FutureProvider.autoDispose<int>((ref) async {
 
 final liquidTransactionBuilderProvider =  FutureProvider.autoDispose.family<liquidModel.TransactionBuilder, int>((ref, amount) async {
   final double fee = await ref.read(liquidProvider.getCustomFeeRateProvider.future).then((value) => value);
-  final address = ref.watch(sendTxProvider.notifier).state.address;
+  final address = ref.watch(sendTxProvider).address;
   final asset = ref.watch(sendTxProvider).assetId;
   return liquidModel.TransactionBuilder(amount: amount, outAddress: address, fee: fee, assetId: asset);
 });
 
+final assetBalanceProvider = Provider.autoDispose<int>((ref) {
+  final assetId = ref.watch(sendTxProvider).assetId; // String hash from sendTxProvider
+  final balance = ref.watch(balanceNotifierProvider); // Use watch for reactivity
 
-final showBitcoinRelatedWidgetsProvider = StateProvider.autoDispose<bool>((ref) {
-  final sendTxState = ref.watch(sendTxProvider);
-  switch (sendTxState.assetId) {
-    case '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d':
-      return true;
-    case '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189':
-      return false;
-    case 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2':
-      return false;
-    case '18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec':
-      return false;
-    default:
-      return true;
-  }
-});
+  // Map the assetId string to an AssetId enum value
+  final mappedAsset = AssetMapper.mapAsset(assetId);
 
-final currentCardIndexProvider = StateProvider.autoDispose<int>((ref) {
-  final sendTxState = ref.watch(sendTxProvider);
-  switch (sendTxState.assetId) {
-    case '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d':
-      return 0;
-    case '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189':
-      return 1;
-    case 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2':
-      return 2;
-    case '18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec':
-      return 3;
-    default:
-      return 0;
-  }
-});
-
-final assetBalanceProvider = StateProvider.autoDispose<int>((ref) {
-  final currentCardIndex = ref.watch(currentCardIndexProvider.notifier);
-  final balance = ref.read(balanceNotifierProvider);
-  switch (currentCardIndex.state) {
-    case 0:
+  // Return the corresponding balance based on the mapped AssetId
+  switch (mappedAsset) {
+    case AssetId.LBTC:
       return balance.liquidBalance;
-    case 1:
+    case AssetId.BRL:
       return balance.brlBalance;
-    case 2:
+    case AssetId.USD:
       return balance.usdBalance;
-    case 3:
+    case AssetId.EUR:
       return balance.eurBalance;
+    case AssetId.UNKNOWN:
     default:
-      return balance.liquidBalance;
+      return balance.liquidBalance; // Fallback to liquidBalance for unknown assets
   }
 });
 

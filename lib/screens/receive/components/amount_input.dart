@@ -1,96 +1,113 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
+import 'package:Satsails/translations/translations.dart';
 
 class AmountInput extends ConsumerWidget {
   final TextEditingController controller;
+  final String label;
 
-  AmountInput({
-    Key? key,
+  const AmountInput({
+    super.key,
     required this.controller,
-  }) : super(key: key);
+    this.label = '(Optional)',
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bitcoinInput = ref.watch(isBitcoinInputProvider);
-    final dynamicFontSize = MediaQuery.of(context).size.height * 0.02;
+    final currencies = ['BTC', 'USD', 'EUR', 'BRL', 'Sats'];
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextFormField(
-          controller: controller,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: bitcoinInput
-              ? [
-            CommaTextInputFormatter(),
-            DecimalTextInputFormatter(decimalRange: 8),
-          ]
-              : [
-            CommaTextInputFormatter(),
-            DecimalTextInputFormatter(decimalRange: 2),
-          ],
-          style: TextStyle(
-            fontSize: dynamicFontSize * 3,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            hintText: '0',
-            hintStyle: TextStyle(color: Colors.white),
-          ),
-          // Removed the onChanged callback
-        ),
-        DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            hint: Text(
-              "Select Currency",
-              style: TextStyle(fontSize: dynamicFontSize / 2.7, color: Colors.white),
+        // Label and dropdown row
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Label above the input
+            Padding(
+              padding: EdgeInsets.only(bottom: 8.h),
+              child: Text(
+                'Amount'.i18n,
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-            dropdownColor: const Color(0xFF2B2B2B),
-            value: ref.watch(inputCurrencyProvider),
-            items: const [
-              DropdownMenuItem(
-                value: 'BTC',
-                child: Center(
-                  child: Text('BTC', style: TextStyle(color: Color(0xFFD98100))),
-                ),
+            // Dropdown positioned on the top-right
+            SizedBox(
+              width: 80.w,
+              child: DropdownButton<String>(
+                value: ref.watch(inputCurrencyProvider),
+                items: currencies.map((String currency) {
+                  return DropdownMenuItem(
+                    value: currency,
+                    child: Text(
+                      currency,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  ref.read(inputCurrencyProvider.notifier).state = value!;
+                  if (value == 'Sats' || value == 'BTC') {
+                    ref.read(isBitcoinInputProvider.notifier).state = true;
+                  } else {
+                    ref.read(isBitcoinInputProvider.notifier).state = false;
+                  }
+                },
+                dropdownColor: const Color(0xFF212121),
+                style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                padding: EdgeInsets.zero,
+                borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
+                underline: const SizedBox(),
               ),
-              DropdownMenuItem(
-                value: 'USD',
-                child: Center(
-                  child: Text('USD', style: TextStyle(color: Color(0xFFD98100))),
-                ),
-              ),
-              DropdownMenuItem(
-                value: 'EUR',
-                child: Center(
-                  child: Text('EUR', style: TextStyle(color: Color(0xFFD98100))),
-                ),
-              ),
-              DropdownMenuItem(
-                value: 'BRL',
-                child: Center(
-                  child: Text('BRL', style: TextStyle(color: Color(0xFFD98100))),
-                ),
-              ),
-              DropdownMenuItem(
-                value: 'Sats',
-                child: Center(
-                  child: Text('Sats', style: TextStyle(color: Color(0xFFD98100))),
-                ),
-              ),
+            ),
+          ],
+        ),
+        // Input field
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 8.h),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2B2B2B),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: TextFormField(
+            controller: controller,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: bitcoinInput
+                ? [
+              CommaTextInputFormatter(),
+              DecimalTextInputFormatter(decimalRange: 8),
+            ]
+                : [
+              CommaTextInputFormatter(),
+              DecimalTextInputFormatter(decimalRange: 2),
             ],
-            onChanged: (value) {
-              ref.read(inputCurrencyProvider.notifier).state = value!;
-              if (value == 'Sats' || value == 'BTC') {
-                ref.read(isBitcoinInputProvider.notifier).state = true;
-              } else {
-                ref.read(isBitcoinInputProvider.notifier).state = false;
-              }
-            },
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.left,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: label.i18n,
+              hintStyle: const TextStyle(color: Colors.white70),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              isDense: true,
+            ),
           ),
         ),
       ],

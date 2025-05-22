@@ -5,7 +5,9 @@ enum PaymentType {
   Bitcoin,
   Liquid,
   Lightning,
-  Unknown
+  Spark,
+  Unknown,
+  NonNative
 }
 
 class AddressAndAmount {
@@ -17,44 +19,64 @@ class AddressAndAmount {
   AddressAndAmount(this.address, this.amount, this.assetId, {this.type = PaymentType.Unknown});
 }
 
-class AddressModel extends StateNotifier<Address> {
-  AddressModel(super.state);
-
-  Future<void> setLiquidAddress(int index) async {
-    final box = await Hive.openBox('addresses');
-    final current = box.get('liquid', defaultValue: 0);
-    if (current < index) {
-      box.put('liquid', index);
-      state = state.copyWith(liquidAddressIndex: index);
-    }
-  }
-  Future<void> setBitcoinAddress(int index) async {
-    final box = await Hive.openBox('addresses');
-    final current = box.get('bitcoin', defaultValue: 0);
-    if (current < index) {
-      box.put('bitcoin', index);
-      state = state.copyWith(bitcoinAddressIndex: index);
-    }
-  }
-}
-
 class Address {
   final int bitcoinAddressIndex;
+  final String bitcoinAddress;
   final int liquidAddressIndex;
+  final String liquidAddress;
 
   Address({
     required this.bitcoinAddressIndex,
+    required this.bitcoinAddress,
     required this.liquidAddressIndex,
+    required this.liquidAddress,
   });
+}
 
+class AddressModel extends StateNotifier<Address> {
+  AddressModel(super.state);
 
-  Address copyWith({
-    int? bitcoinAddressIndex,
-    int? liquidAddressIndex,
-  }) {
-    return Address(
-      bitcoinAddressIndex: bitcoinAddressIndex ?? this.bitcoinAddressIndex,
-      liquidAddressIndex: liquidAddressIndex ?? this.liquidAddressIndex,
-    );
+  Future<void> setLiquidAddress(int index, String address) async {
+    final box = await Hive.openBox('addresses');
+    final currentIndex = box.get('liquidIndex', defaultValue: 0);
+
+    // Only proceed if the index is new or higher
+    if (currentIndex <= index) {
+      box.put('liquidIndex', index);
+      box.put('liquidAddress', address);
+
+      // Check if the values have actually changed
+      if (state.liquidAddressIndex != index || state.liquidAddress != address) {
+        // Update state with a new Address instance
+        state = Address(
+          bitcoinAddressIndex: state.bitcoinAddressIndex,
+          bitcoinAddress: state.bitcoinAddress,
+          liquidAddressIndex: index,
+          liquidAddress: address,
+        );
+      }
+    }
+  }
+
+  Future<void> setBitcoinAddress(int index, String address) async {
+    final box = await Hive.openBox('addresses');
+    final currentIndex = box.get('bitcoinIndex', defaultValue: 0);
+
+    // Only proceed if the index is new or higher
+    if (currentIndex <= index) {
+      box.put('bitcoinIndex', index);
+      box.put('bitcoinAddress', address);
+
+      // Check if the values have actually changed
+      if (state.bitcoinAddressIndex != index || state.bitcoinAddress != address) {
+        // Update state with a new Address instance
+        state = Address(
+          bitcoinAddressIndex: index,
+          bitcoinAddress: address,
+          liquidAddressIndex: state.liquidAddressIndex,
+          liquidAddress: state.liquidAddress,
+        );
+      }
+    }
   }
 }

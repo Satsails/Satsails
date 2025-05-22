@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:Satsails/handlers/response_handlers.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -46,14 +45,14 @@ class NoxTransferNotifier extends StateNotifier<List<NoxTransfer>> {
       originalAmount: serverData.originalAmount,
       completed: serverData.completed,
       failed: serverData.failed,
-      userId: serverData.userId ?? existingPurchase?.userId,
-      createdAt: existingPurchase?.createdAt ?? serverData.createdAt,
+      userId: serverData.userId ?? existingPurchase.userId,
+      createdAt: existingPurchase.createdAt ?? serverData.createdAt,
       updatedAt: serverData.updatedAt,
       receivedAmount: serverData.receivedAmount,
-      status: serverData.status ?? existingPurchase?.status,
-      paymentMethod: serverData.paymentMethod ?? existingPurchase?.paymentMethod,
-      to_currency: serverData.to_currency ?? existingPurchase?.to_currency,
-      from_currency: serverData.from_currency ?? existingPurchase?.from_currency,
+      status: serverData.status ?? existingPurchase.status,
+      paymentMethod: serverData.paymentMethod ?? existingPurchase.paymentMethod,
+      to_currency: serverData.to_currency ?? existingPurchase.to_currency,
+      from_currency: serverData.from_currency ?? existingPurchase.from_currency,
       transactionType: serverData.transactionType,
       price: serverData.price,
       cashback: serverData.cashback,
@@ -79,14 +78,14 @@ class NoxTransferNotifier extends StateNotifier<List<NoxTransfer>> {
         originalAmount: serverData.originalAmount,
         completed: serverData.completed,
         failed: serverData.failed,
-        userId: serverData.userId ?? existingPurchase?.userId,
-        createdAt: existingPurchase?.createdAt ?? serverData.createdAt,
+        userId: serverData.userId ?? existingPurchase.userId,
+        createdAt: existingPurchase.createdAt ?? serverData.createdAt,
         updatedAt: serverData.updatedAt,
         receivedAmount: serverData.receivedAmount,
-        status: serverData.status ?? existingPurchase?.status,
-        paymentMethod: serverData.paymentMethod ?? existingPurchase?.paymentMethod,
-        to_currency: serverData.to_currency ?? existingPurchase?.to_currency,
-        from_currency: serverData.from_currency ?? existingPurchase?.from_currency,
+        status: serverData.status ?? existingPurchase.status,
+        paymentMethod: serverData.paymentMethod ?? existingPurchase.paymentMethod,
+        to_currency: serverData.to_currency ?? existingPurchase.to_currency,
+        from_currency: serverData.from_currency ?? existingPurchase.from_currency,
         transactionType: serverData.transactionType,
         price: serverData.price,
         cashback: serverData.cashback,
@@ -102,7 +101,7 @@ class NoxTransferNotifier extends StateNotifier<List<NoxTransfer>> {
   }
 }
 
-@HiveType(typeId: 28)
+@HiveType(typeId: 29)
 class NoxTransfer extends HiveObject {
   @HiveField(0)
   final int id;
@@ -223,7 +222,7 @@ class NoxTransfer extends HiveObject {
     bool? cashbackPayed,
   }) {
     return NoxTransfer(
-      id: this.id,
+      id: id,
       transactionId: transactionId ?? this.transactionId,
       originalAmount: originalAmount ?? this.originalAmount,
       completed: completed ?? this.completed,
@@ -267,15 +266,17 @@ class NoxTransfer extends HiveObject {
 }
 
 class NoxService {
-  static Future<Result<String>> createTransaction(String auth, String quoteId, String address, {String transactionType = 'BUY'}) async {
+  static Future<Result<String>> createTransaction(String auth, String address, int amountToReceive, {String transactionType = 'BUY', String fromCurrency = 'BRL', String toCurrency = 'BTC'}) async {
     try {
       final response = await http.post(
-        Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers'),
+        Uri.parse('${dotenv.env['BACKEND']!}/nox_transfers'),
         body: jsonEncode({
           'transfer': {
-            'quote_id': quoteId,
             'address': address,
             'type': transactionType,
+            'value_set_to_receive': amountToReceive,
+            'from_currency': fromCurrency,
+            'to_currency': toCurrency,
           }
         }),
         headers: {
@@ -297,7 +298,7 @@ class NoxService {
 
   static Future<Result<List<NoxTransfer>>> getTransfers(String auth) async {
     try {
-      final uri = Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers');
+      final uri = Uri.parse('${dotenv.env['BACKEND']!}/nox_transfers');
       final response = await http.get(
         uri,
         headers: {
@@ -318,33 +319,4 @@ class NoxService {
     } catch (e) {
       return Result(error: 'An error has occurred. Please try again later');
     }
-  }
-
-  static Future<Result<NoxTransfer>> getQuote(
-      String auth, String fromCurrency, String toCurrency, String amount) async {
-    try {
-      final uri = Uri.parse(dotenv.env['BACKEND']! + '/nox_transfers/quote')
-          .replace(queryParameters: {
-        'from_currency': fromCurrency,
-        'to_currency': toCurrency,
-        'value_set_to_receive': amount,
-      });
-
-      final response = await http.get(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: NoxTransfer.fromJson(jsonDecode(response.body)));
-      } else {
-        return Result(error: 'An error has occurred. Please try again later');
-      }
-    } catch (e) {
-      return Result(error: 'An error has occurred. Please try again later');
-    }
-  }
-}
+  }}

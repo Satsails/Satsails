@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
+import 'package:Satsails/models/sideswap/sideswap_quote_model.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class Sideswap {
@@ -9,33 +9,46 @@ class Sideswap {
   final _statusController = StreamController<Map<String, dynamic>>.broadcast();
   final _pegController = StreamController<Map<String, dynamic>>.broadcast();
   final _pegStatusController = StreamController<Map<String, dynamic>>.broadcast();
-  final _priceController = StreamController<Map<String, dynamic>>.broadcast();
-  final _unsubscribePriceController = StreamController<Map<String, dynamic>>.broadcast();
-  final _exchangeController = StreamController<Map<String, dynamic>>.broadcast();
-  final _exchangeDoneController = StreamController<Map<String, dynamic>>.broadcast();
+  final _listMarketsController = StreamController<Map<String, dynamic>>.broadcast();
+  final _quoteController = StreamController<Map<String, dynamic>>.broadcast();
+  final _quotePsetController = StreamController<Map<String, dynamic>>.broadcast();
+  final _signedSwapController = StreamController<Map<String, dynamic>>.broadcast();
 
   Stream<Map<String, dynamic>> get loginStream => _loginController.stream;
   Stream<Map<String, dynamic>> get statusStream => _statusController.stream;
   Stream<Map<String, dynamic>> get pegStream => _pegController.stream;
   Stream<Map<String, dynamic>> get pegStatusStream => _pegStatusController.stream;
-  Stream<Map<String, dynamic>> get priceStream => _priceController.stream;
-  Stream<Map<String, dynamic>> get exchangeStream => _exchangeController.stream;
-  Stream<Map<String, dynamic>> get unsubscribePriceStream => _unsubscribePriceController.stream;
-  Stream<Map<String, dynamic>> get exchangeDoneStream => _exchangeDoneController.stream;
+  Stream<Map<String, dynamic>> get listMarketsStream => _listMarketsController.stream;
+  Stream<Map<String, dynamic>> get quoteStream => _quoteController.stream;
+  Stream<Map<String, dynamic>> get quotePsetStream => _quotePsetController.stream;
+  Stream<Map<String, dynamic>> get signedSwapStream => _signedSwapController.stream;
 
-  void connect() {
-    try {
-      _channel = WebSocketChannel.connect(Uri.parse('wss://api.sideswap.io/json-rpc-ws'));
-      _channel.stream.listen(
-        handleIncomingMessage,
-        onError: (error) {
-          throw Exception('Error connecting to WebSocket: $error');
-        },
-        cancelOnError: true,
-      );
-    } catch (e) {
-      throw Exception('Error connecting to WebSocket: $e');
+  Future<void> connect() async {
+    const maxAttempts = 3;
+    const delayBetweenAttempts = Duration(seconds: 1);
+
+    for (int attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        _channel = WebSocketChannel.connect(Uri.parse('wss://api.sideswap.io/json-rpc-ws'));
+        _channel.stream.listen(
+          handleIncomingMessage,
+          onError: (error) {
+            throw Exception('Error connecting to WebSocket: $error');
+          },
+          cancelOnError: true,
+        );
+        print('Connected successfully on attempt $attempt');
+        return; // Exit the function on successful connection
+      } catch (e) {
+        print('Attempt $attempt failed: $e');
+        if (attempt < maxAttempts - 1) {
+          await Future.delayed(delayBetweenAttempts); // Wait before next attempt
+        }
+      }
     }
+
+    // If all attempts fail, throw an exception
+    throw Exception('Failed to connect after $maxAttempts attempts');
   }
 
   void handleIncomingMessage(dynamic message) {
@@ -53,26 +66,22 @@ class Sideswap {
       case 'peg_status':
         _pegStatusController.add(decodedMessage);
         break;
-      case 'update_price_stream':
-        _priceController.add(decodedMessage);
-        break;
-      case 'subscribe_price_stream':
-        _priceController.add(decodedMessage);
-        break;
-      case 'unsubscribe_price_stream':
-        _unsubscribePriceController.add(decodedMessage);
-        break;
-      case 'start_swap_web':
-        _exchangeController.add(decodedMessage);
-        break;
-      case 'swap_done':
-        _exchangeDoneController.add(decodedMessage);
+      case 'market':
+        if (decodedMessage["result"]?['list_markets'] != null) {
+          _listMarketsController.add(decodedMessage);
+        } else if (decodedMessage['params']?['quote'] != null) {
+          _quoteController.add(decodedMessage);
+        } else if (decodedMessage['result']?['start_quotes'] != null) {
+          _quoteController.add(decodedMessage);
+        } else if (decodedMessage['result']?['get_quote'] != null) {
+          _quotePsetController.add(decodedMessage);
+        } else if (decodedMessage['result']?['taker_sign'] != null) {
+          _signedSwapController.add(decodedMessage);
+        }
         break;
       default:
-        if (decodedMessage['error']['message'] == 'already registered') {
+        if (decodedMessage['error']?['message'] == 'already registered') {
           break;
-        } else {
-          throw Exception('Unknown method: ${decodedMessage['method']}');
         }
     }
   }
@@ -100,7 +109,7 @@ class Sideswap {
   void peg({
     required bool? peg_in,
     required String? recv_addr,
-    int? blocks
+    int? blocks,
   }) {
     _channel.sink.add(json.encode({
       'id': 1,
@@ -127,48 +136,68 @@ class Sideswap {
     }));
   }
 
-  void streamPrices({
-    required String asset,
-    required bool? sendBitcoins,
-    int? sendAmount} ) {
+  void listMarkets() {
     _channel.sink.add(json.encode({
       'id': 1,
-      'method': 'subscribe_price_stream',
+      'method': 'market',
       'params': {
-        'asset': asset,
-        'send_bitcoins': sendBitcoins,
-        'send_amount': sendAmount,
+        'list_markets': {}
       }
     }));
   }
 
-  void unsubscribePrice({required String asset}) {
-    _channel.sink.add(json.encode({
-      'id': 1,
-      'method': 'unsubscribe_price_stream',
-      'params': {
-        'asset': asset,
-      }
-    }));
-  }
-
-  void startExchange({
-    required String asset,
-    required bool sendBitcoins,
-    required double price,
-    required int sendAmount,
-    required int recvAmount,
+  void startQuotes({
+    required String baseAsset,
+    required String quoteAsset,
+    required String assetType,
+    required String tradeDir,
+    required int amount,
+    required String receiveAddress,
+    required String changeAddress,
+    required List<Utxo> utxos,
   }) {
     _channel.sink.add(json.encode({
       'id': 1,
-      'method': 'start_swap_web',
+      'method': 'market',
       'params': {
-        'asset': asset,
-        'send_bitcoins': sendBitcoins,
-        'price': price,
-        'send_amount': sendAmount,
-        'recv_amount': recvAmount,
-      },
+        'start_quotes': {
+          'asset_pair': {
+            'base': baseAsset,
+            'quote': quoteAsset,
+          },
+          'asset_type': assetType,
+          'trade_dir': tradeDir,
+          'amount': amount,
+          'utxos': utxos.map((utxo) => utxo.toJson()).toList(),
+          'receive_address': receiveAddress,
+          'change_address': changeAddress,
+        }
+      }
+    }));
+  }
+
+  void getQuotePset({required int quoteId}) {
+    _channel.sink.add(json.encode({
+      'id': 1,
+      'method': 'market',
+      'params': {
+        'get_quote': {
+          'quote_id': quoteId,
+        }
+      }
+    }));
+  }
+
+  void signQuotePset({required int quoteId, required String pset}) {
+    _channel.sink.add(json.encode({
+      'id': 1,
+      'method': 'market',
+      'params': {
+        'taker_sign': {
+          'quote_id': quoteId,
+          'pset': pset,
+        }
+      }
     }));
   }
 
@@ -178,9 +207,9 @@ class Sideswap {
     _statusController.close();
     _pegController.close();
     _pegStatusController.close();
-    _priceController.close();
-    _exchangeController.close();
-    _unsubscribePriceController.close();
-    _exchangeDoneController.close();
+    _listMarketsController.close();
+    _quoteController.close();
+    _quotePsetController.close();
+    _signedSwapController.close();
   }
 }

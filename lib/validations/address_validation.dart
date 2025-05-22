@@ -1,18 +1,16 @@
 import 'dart:convert';
 
-import 'package:Satsails/services/lnurl_parser/dart_lnurl_parser.dart';
-import 'package:Satsails/services/lnurl_parser/src/lnurl.dart';
+import 'package:boltz/boltz.dart';
 import 'package:decimal/decimal.dart';
 import 'package:lwk/lwk.dart' as lwk;
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/address_model.dart';
 import 'package:bolt11_decoder/bolt11_decoder.dart';
-import 'package:http/http.dart' as http;
 
 Future<bool> isValidLiquidAddress(String address) async {
   try {
-    await lwk.Address.validate(addressString: address).then((value) => value);
+    await lwk.Address.validate(addressString: address);
     return true;
   } catch (_) {
     return false;
@@ -28,130 +26,89 @@ Future<bool> isValidBitcoinAddress(String address) async {
   }
 }
 
-final RegExp _regExpForLnAddressConversion = RegExp(r'([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})');
-
-Uri? convertLnAddressToWellKnown(String lightningAddress) {
+bool isLightningInvoice(String invoice) {
   try {
-    if (findLnUrl(lightningAddress).isNotEmpty) {
-      return decodeLnurlUri(lightningAddress);
-    }
-  } catch (_) {
-    // Ignore the error and continue 
-  }
-
-  final match = _regExpForLnAddressConversion.firstMatch(lightningAddress);
-  if (match != null && match.groupCount == 2) {
-    String user = match.group(1)!;
-    String domain = match.group(2)!;
-
-    // Construct the .well-known/lnurlp URL
-    String lnurlp = 'https://$domain/.well-known/lnurlp/$user';
-    return Uri.parse(lnurlp);
-  } else {
-    return null;
-  }
-}
-
-Future<String?> lnUrlHasWellKnown(Uri invoice) async {
-  final lnParams = await getParamsFromLnurlServer(invoice);
-  final lnuriCallback = lnParams.payParams?.callback;
-  return lnuriCallback;
-}
-
-Future<String> checkForValidLnurl(String invoice) async {
-  try {
-    final wellKnownUrl = convertLnAddressToWellKnown(invoice);
-    if (wellKnownUrl == null) {
-      throw FormatException('Invalid lightning address format');
-    }
-
-    final callback = await lnUrlHasWellKnown(wellKnownUrl);
-
-    if (callback == null) {
-      throw FormatException('Callback URL is missing in LNURL response');
-    }
-
-    return callback;
+    Bolt11PaymentRequest(invoice);
+    return true;
   } catch (e) {
-    throw FormatException('Error processing lightning address or API call: $e');
+    return false;
+  }
+}
+
+int invoiceAmount(String invoice) {
+  try {
+    return (Bolt11PaymentRequest(invoice).amount * Decimal.fromInt(100000000)).toBigInt().toInt();
+  } catch (e) {
+    throw const FormatException('Invalid LNURL');
+  }
+}
+
+Future<bool> validLnurl(String invoice) async {
+  try {
+    // Create an Lnurl instance and validate it
+    final lnurl = Lnurl(value: invoice);
+    if (await lnurl.validate()) {
+      return true;
+    }
+    return false;
+  } catch (e) {
+    throw FormatException('Error processing LNURL or fetching invoice: $e');
   }
 }
 
 Future<String> getLnInvoiceWithAmount(String invoice, int amount) async {
   try {
-    if (convertLnAddressToWellKnown(invoice) == null) {
-      final decodedInvoice = Bolt11PaymentRequest(invoice);
-
-      if (decodedInvoice.amount != null) {
-        return invoice;
-      }
+    // If it's already a Lightning invoice, return it as is
+    if (isLightningInvoice(invoice)) {
+      return invoice;
     }
 
-    final amountInMsats = amount * 1000;
-
-    final callbackUri = Uri.parse(await checkForValidLnurl(invoice)).replace(
-      queryParameters: {"amount": amountInMsats.toString()},
-    );
-
-    final apiResponse = await http.get(callbackUri);
-
-    if (apiResponse.statusCode != 200) {
-      throw FormatException('Failed to fetch invoice: ${apiResponse.statusCode}');
+    // Create an Lnurl instance and validate it
+    final lnurl = Lnurl(value: invoice);
+    if (!await lnurl.validate()) {
+      throw 'Address is invalid';
     }
 
-    final json = jsonDecode(apiResponse.body);
-    final response = LNURLPayResult.fromJson(json);
-
-    return response.pr;
+    // Convert amount to millisatoshis and fetch the invoice
+    final amountInMsats = BigInt.from(amount * 1000);
+    final fetchedInvoice = await lnurl.fetchInvoice(msats: amountInMsats);
+    return fetchedInvoice;
   } catch (e) {
-    throw FormatException('Error processing lightning address or API call: $e');
+    throw 'Address is invalid';
   }
 }
 
-
-Bolt11PaymentRequest isValidLightningAddress(String invoice) {
-  try {
-    final res = Bolt11PaymentRequest(invoice);
-    return res;
-  } catch (e) {
-    throw const FormatException('Invalid lightning address');
-  }
-}
-
-Future<AddressAndAmount> parseAddressAndAmount(String data, bool lnEnabled) async {
+Future<AddressAndAmount> parseAddressAndAmount(String data) async {
   if (data.isEmpty) {
     throw const FormatException('Data cannot be null or empty');
   }
 
+  // Split the data into address and parameters
   var parts = data.split('?');
   var address = parts[0];
   int amount = 0;
   var lightningInvoice = data;
+  var assetId = AssetMapper.reverseMapTicker(AssetId.LBTC);
+
+  // Handle protocol prefixes
   if (data.startsWith('lightning:')) {
     lightningInvoice = data.substring('lightning:'.length);
   }
-  var assetId = AssetMapper.reverseMapTicker(AssetId.LBTC);
-
   if (address.startsWith('bitcoin:')) {
     address = address.substring(8);
   }
-
-  if(address.startsWith('liquidnetwork:')) {
+  if (address.startsWith('liquidnetwork:')) {
     address = address.substring(14);
   }
-  if (lnEnabled) {
-    if ((await isValidBitcoinAddress(address).then((value) => !value)) &&
-        (await isValidLiquidAddress(address).then((value) => !value)) &&
-        (await isValidLightningAddress(lightningInvoice) == null)) {
-      throw const FormatException('Invalid address');
-    }
-  } else {
-    if ((await isValidBitcoinAddress(address).then((value) => !value)) &&
-        (await isValidLiquidAddress(address).then((value) => !value))) {
-      throw const FormatException('Invalid address');
-    }
-  }
 
+  // Validate address based on enabled features
+    if (!(await isValidBitcoinAddress(address)) &&
+        !(await isValidLiquidAddress(address)) &&
+        !isLightningInvoice(lightningInvoice)) {
+      throw const FormatException('Invalid address');
+    }
+
+  // Parse query parameters if present
   if (parts.length > 1) {
     var params = parts[1].split('&');
     for (var param in params) {
@@ -169,20 +126,24 @@ Future<AddressAndAmount> parseAddressAndAmount(String data, bool lnEnabled) asyn
     }
   }
 
+  // Determine payment type and construct result
   PaymentType type;
-  if (await isValidBitcoinAddress(address).then((value) => value)) {
+  if (await isValidBitcoinAddress(address)) {
     type = PaymentType.Bitcoin;
     return AddressAndAmount(address, amount, assetId, type: type);
-  } else if ((await isValidLiquidAddress(address).then((value) => value))) {
+  } else if (await isValidLiquidAddress(address)) {
     type = PaymentType.Liquid;
     return AddressAndAmount(address, amount, assetId, type: type);
   } else {
     try {
-      Bolt11PaymentRequest decodedInvoice = isValidLightningAddress(lightningInvoice);
-      type = PaymentType.Lightning;
-      address = lightningInvoice;
-      amount = (decodedInvoice.amount * Decimal.fromInt(100000000)).toBigInt().toInt();
-      return AddressAndAmount(address, amount, assetId, type: type);
+      if (isLightningInvoice(lightningInvoice)) {
+        type = PaymentType.Lightning;
+        address = lightningInvoice;
+        amount = invoiceAmount(lightningInvoice);
+        return AddressAndAmount(address, amount, assetId, type: type);
+      } else {
+        throw const FormatException('Invalid lightning invoice');
+      }
     } catch (e) {
       throw const FormatException('Invalid lightning address');
     }

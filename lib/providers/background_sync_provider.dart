@@ -1,11 +1,12 @@
-// sync_notifiers.dart
-
 import 'dart:async';
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/balance_model.dart';
+import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
-import 'package:Satsails/providers/coinos_provider.dart';
+import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/sideshift_provider.dart';
+import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/address_provider.dart';
@@ -56,11 +57,11 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
     return await handleSync(
       syncOperation: () async {
         // Await the Bitcoin sync operation
-        await ref.read(syncBitcoinProvider.future);
+        await ref.refresh(syncBitcoinProvider.future);
 
-        // Refresh and retrieve the last used Bitcoin address
-        final address = await ref.refresh(lastUsedAddressProvider.future);
-        ref.read(addressProvider.notifier).setBitcoinAddress(address);
+        final addressIndex = await ref.refresh(lastUsedAddressProvider.future);
+        final address = await ref.refresh(bitcoinAddressProvider.future);
+        ref.read(addressProvider.notifier).setBitcoinAddress(addressIndex, address);
 
         // Retrieve the Bitcoin balance
         final balance = await ref.read(getBitcoinBalanceProvider.future);
@@ -93,11 +94,12 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
     return await handleSync(
       syncOperation: () async {
         // Await the Liquid sync operation
-        await ref.read(syncLiquidProvider.future);
+        await ref.refresh(syncLiquidProvider.future);
 
         // Refresh and retrieve the last used Liquid address
-        final liquidAddress = await ref.refresh(liquidLastUsedAddressProvider.future);
-        ref.read(addressProvider.notifier).setLiquidAddress(liquidAddress);
+        final liquidAddressIndex = await ref.refresh(liquidLastUsedAddressProvider.future);
+        final liquidAddress = await ref.refresh(liquidAddressProvider.future);
+        ref.read(addressProvider.notifier).setLiquidAddress(liquidAddressIndex, liquidAddress.confidential);
 
         // Retrieve the Liquid balances
         final balances = await ref.read(liquidBalanceProvider.future);
@@ -169,11 +171,6 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
               debugPrint('Bitcoin sync failed: $e');
               return null;
             }),
-            ref.refresh(coinosBalanceProvider.future).catchError((e) {
-              // Handle coinos balance error
-              debugPrint('Coinos balance fetch failed: $e');
-              return null;
-            }),
           ];
 
           final results = await Future.wait(futures);
@@ -181,7 +178,8 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
           // Extract results from Future.wait
           final liquidBalances = results[0] as Balances;
           final bitcoinBalance = results[1] as int;
-          final lightningBalance = results[2] as int?;
+          // final lightningBalance = results[2] as int?;
+          const lightningBalance = 0;
 
           // Update the WalletBalance model
           final balanceData = WalletBalance.updateFromAssets(
@@ -195,6 +193,11 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
 
           // Compare balances and notify if increased
           _compareBalances(previousBalance, balanceData);
+
+          // Update SideShift shifts
+          await _updateSideShiftShifts();
+          await ref.read(claimAllBoltzProvider.future);
+          await ref.read(transactionNotifierProvider.notifier).refreshTransactions();
 
           final hiveBox = await Hive.openBox<WalletBalance>('balanceBox');
           await hiveBox.put('balance', balanceData);
@@ -219,7 +222,18 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
     );
   }
 
-  /// Updates the background sync progress state
+  Future<void> _updateSideShiftShifts() async {
+    try {
+      final box = Hive.box<SideShift>('sideShiftShifts');
+      final shiftIds = box.keys.cast<String>().toList();
+      if (shiftIds.isNotEmpty) {
+        await ref.read(updateSideShiftShiftsProvider(shiftIds).future);
+      }
+    } catch (e) {
+      debugPrint('Failed to update SideShift shifts: $e');
+    }
+  }
+
   void setBackgroundSyncInProgress(bool inProgress) {
     Future.microtask(() {
       ref.read(backgroundSyncInProgressProvider.notifier).state = inProgress;
@@ -312,3 +326,5 @@ final backgroundSyncNotifierProvider =
 AsyncNotifierProvider<BackgroundSyncNotifier, WalletBalance>(BackgroundSyncNotifier.new);
 
 final backgroundSyncInProgressProvider = StateProvider<bool>((ref) => false);
+
+final shouldUpdateMemoryProvider = StateProvider<bool>((ref) => true);

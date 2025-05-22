@@ -1,19 +1,16 @@
 import 'package:Satsails/translations/translations.dart';
-import 'package:delightful_toast/toast/components/toast_card.dart';
-import 'package:delightful_toast/toast/utils/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:delightful_toast/delight_toast.dart';
 import 'package:quickalert/quickalert.dart';
 
 class MessageDisplay extends ConsumerWidget {
   final String message;
 
   const MessageDisplay({
-    Key? key,
+    super.key,
     required this.message,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,26 +50,39 @@ void showMessageSnackBarInfo({
   required BuildContext context,
   required String message,
 }) {
-  DelightToastBar(
-    snackbarDuration: const Duration(seconds: 3),
-    builder: (context) => ToastCard(
-      color: Colors.grey.shade900,
-      leading: Icon(
-        Icons.info,
-        size: 28,
-        color: Colors.orange,
-      ),
-      title: Text(
-        message,
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 16.sp,
-          color: Colors.white,
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  scaffoldMessenger.clearSnackBars(); // Clear any existing snackbars
+
+  final snackBar = SnackBar(
+    content: Row(
+      children: [
+        Icon(
+          Icons.info,
+          color: Colors.orange,
+          size: 28.0, // Use 28.sp if using a scaling library
         ),
-      ),
+        SizedBox(width: 16.0),
+        Expanded(
+          child: Text(
+            message,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 16.0, // Use 16.sp if using a scaling library
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
     ),
-    position: DelightSnackbarPosition.bottom,
-  ).show(context);
+    backgroundColor: Color(0xFF333333),
+    duration: Duration(seconds: 3),
+    behavior: SnackBarBehavior.floating,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8.0),
+    ),
+  );
+
+  scaffoldMessenger.showSnackBar(snackBar);
 }
 
 void showMessageSnackBar({
@@ -82,28 +92,50 @@ void showMessageSnackBar({
   bool info = false,
   bool top = false,
 }) {
-  DelightToastBar(
-    snackbarDuration: const Duration(seconds: 3),
-    autoDismiss: true,
-    animationDuration: const Duration(milliseconds: 500),
-    builder: (context) => ToastCard(
-      color: error ? Colors.red : Colors.green,
-      leading: Icon(
-          error ? Icons.error : info ? Icons.info : Icons.check_circle,
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  scaffoldMessenger.clearSnackBars(); // Clear any existing snackbars
+
+  final snackBar = SnackBar(
+    content: Row(
+      children: [
+        Icon(
+          error
+              ? Icons.error
+              : info
+              ? Icons.info
+              : Icons.check_circle,
           color: Colors.white,
-          size: 28.sp
-      ),
-      title: Text(
-        message,
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 16.sp,
-          color: Colors.white,
+          size: 28.0,
         ),
-      ),
+        SizedBox(width: 16.0),
+        Expanded(
+          child: Text(
+            message,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 16.0,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
     ),
-    position: top ? DelightSnackbarPosition.top : DelightSnackbarPosition.bottom,
-  ).show(context);
+    backgroundColor: error ? Colors.red : Colors.green,
+    duration: Duration(seconds: 3),
+    behavior: SnackBarBehavior.floating,
+    margin: top
+        ? EdgeInsets.only(
+      top: 16.0,
+      left: 16.0,
+      right: 16.0,
+    )
+        : null,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8.0),
+    ),
+  );
+
+  scaffoldMessenger.showSnackBar(snackBar);
 }
 
 void showInformationModal({

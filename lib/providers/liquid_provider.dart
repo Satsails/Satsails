@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -23,7 +22,7 @@ final initializeLiquidProvider = FutureProvider<Liquid>((ref) {
   });
 });
 
-final syncLiquidProvider = FutureProvider.autoDispose<void>((ref) {
+final syncLiquidProvider = FutureProvider<void>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     return liquidModel.sync();
@@ -37,18 +36,18 @@ final liquidLastUsedAddressProvider = FutureProvider.autoDispose<int>((ref) asyn
   });
 });
 
+final liquidLastUsedAddressStringProvider = FutureProvider.autoDispose<String>((ref) async {
+  return ref.watch(initializeLiquidProvider.future).then((liquid) {
+    LiquidModel liquidModel = LiquidModel(liquid);
+    return liquidModel.getLatestAddress();
+  });
+});
+
 final liquidAddressProvider = FutureProvider.autoDispose<Address>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     final addressIndex = ref.watch(addressProvider).liquidAddressIndex;
     return liquidModel.getAddressOfIndex(addressIndex);
-  });
-});
-
-final liquidAddressOfIndexProvider = FutureProvider.autoDispose.family<String, int>((ref, index) {
-  return ref.watch(initializeLiquidProvider.future).then((liquid) {
-    LiquidModel liquidModel = LiquidModel(liquid);
-    return liquidModel.getAddressOfIndexString(index);
   });
 });
 
@@ -67,7 +66,7 @@ final liquidBalanceProvider = FutureProvider.autoDispose<Balances>((ref) {
   });
 });
 
-final liquidTransactionsProvider = FutureProvider.autoDispose<List<Tx>>((ref) {
+final liquidTransactionsProvider = FutureProvider<List<Tx>>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
     return liquidModel.txs();
@@ -103,6 +102,13 @@ final buildLiquidAssetTransactionProvider = FutureProvider.family.autoDispose<St
   });
 });
 
+final buildLiquidPayjoinTransactionProvider = FutureProvider.family.autoDispose<PayjoinTx, TransactionBuilder>((ref, params) {
+  return ref.watch(initializeLiquidProvider.future).then((liquid) {
+    LiquidModel liquidModel = LiquidModel(liquid);
+    return liquidModel.buildPayjoinAssetTx(params);
+  });
+});
+
 final buildDrainLiquidTransactionProvider = FutureProvider.family.autoDispose<String, TransactionBuilder>((ref, params) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
@@ -116,7 +122,7 @@ final decodeLiquidPsetProvider = FutureProvider.family.autoDispose<PsetAmounts, 
   return await liquidModel.decode(pset);
 });
 
-final signLiquidPsetProvider = FutureProvider.family.autoDispose<Uint8List, String>((ref, pset) async {
+final signLiquidPsetProvider = FutureProvider.family.autoDispose<String, String>((ref, pset) async {
   final liquid = await ref.watch(initializeLiquidProvider.future);
   final LiquidModel liquidModel = LiquidModel(liquid);
   final authModel = ref.read(authModelProvider);
@@ -140,10 +146,10 @@ final signLiquidPsetStringProvider = FutureProvider.family.autoDispose<String, S
   return await liquidModel.signedPsetString(signParams);
 });
 
-final broadcastLiquidTransactionProvider = FutureProvider.family.autoDispose<String, Uint8List>((ref, signedTxBytes) {
+final broadcastLiquidTransactionProvider = FutureProvider.family.autoDispose<String, String>((ref, signedPset) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
-    return liquidModel.broadcast(signedTxBytes);
+    return liquidModel.broadcast(signedPset);
   });
 });
 
@@ -164,6 +170,22 @@ final sendLiquidTransactionProvider = FutureProvider.autoDispose<String>((ref) a
   }
   final signedTxBytes = await ref.watch(signLiquidPsetProvider(pset).future);
   return ref.watch(broadcastLiquidTransactionProvider(signedTxBytes).future);
+});
+
+final liquidPayjoinTransaction = FutureProvider.autoDispose<String>((ref) async {
+  final feeRate = await ref.watch(getCustomFeeRateProvider.future);
+  final sendTx = ref.watch(sendTxProvider);
+  final transactionBuilder = TransactionBuilder(
+    amount: sendTx.amount,
+    outAddress: sendTx.address,
+    fee: feeRate,
+    assetId: sendTx.assetId,
+  );
+  final unsigedPset =  await ref.read(buildLiquidPayjoinTransactionProvider(transactionBuilder).future);
+
+  final pset = await ref.read(signLiquidPsetStringProvider(unsigedPset.pset).future);
+
+  return await ref.read(broadcastLiquidTransactionProvider(pset).future);
 });
 
 

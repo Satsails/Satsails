@@ -6,7 +6,6 @@ import 'package:bitcoin_message_signer/bitcoin_message_signer.dart';
 import 'package:conduit_password_hash/pbkdf2.dart';
 import 'package:crypto/crypto.dart';
 import 'package:faker/faker.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -31,8 +30,6 @@ class BackendAuth {
         privateKey: Uint8List.fromList(privateKeyBytes),
         scriptType: P2PKH(compressed: true)
       );
-
-      if (challengeResponse == null) return null;
 
       final signature = signer.signMessage(message: challengeResponse);
       return signature;
@@ -103,7 +100,20 @@ class AuthModel {
   }
 
   Future<String?> getMnemonic() async {
-    return await _storage.read(key: 'mnemonic');
+    return await getMnemonicWithRetry();
+  }
+
+  // New method with retry logic
+  Future<String?> getMnemonicWithRetry() async {
+    for (int i = 0; i < 3; i++) {
+      final mnemonic = await _storage.read(key: 'mnemonic');
+      if (mnemonic != null) {
+        return mnemonic;
+      }
+      // Wait 500ms before the next attempt
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+    return null;
   }
 
   Future<String?> getPin() async {
@@ -186,17 +196,19 @@ class AuthModel {
     await _storage.delete(key: 'fcmToken');
     await Hive.deleteBoxFromDisk('bitcoin');
     await Hive.deleteBoxFromDisk('liquid');
+    await Hive.deleteBoxFromDisk('coinosLn');
     await Hive.deleteBoxFromDisk('affiliateCode');
     await Hive.deleteBoxFromDisk('balanceBox');
     await Hive.deleteBoxFromDisk('settings');
     await Hive.deleteBoxFromDisk('bitcoinTransactions');
+    await Hive.deleteBoxFromDisk('sideShiftShifts');
     await Hive.deleteBoxFromDisk('liquidTransactions');
-    await Hive.deleteBoxFromDisk('receiveBoltz');
-    await Hive.deleteBoxFromDisk('payBoltz');
+    await Hive.deleteBoxFromDisk('boltzSwapsBox');
     await Hive.deleteBoxFromDisk('sideswapStatus');
-    await Hive.deleteBoxFromDisk('sideswapSwapData');
+    await Hive.deleteBoxFromDisk('sideswapSwapNewData');
     await Hive.deleteBoxFromDisk('pix');
     await Hive.deleteBoxFromDisk('eulenTransfersBox');
+    await Hive.deleteBoxFromDisk('noxTransfersBox');
     await Hive.deleteBoxFromDisk('user');
     await Hive.deleteBoxFromDisk('affiliate');
     await Hive.deleteBoxFromDisk('addresses');
