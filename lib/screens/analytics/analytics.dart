@@ -391,10 +391,8 @@ class _AnalyticsState extends ConsumerState<Analytics> {
 
     final selectedDays = ref.watch(selectedDaysDateArrayProvider);
 
-    // Updated to include Lightning Bitcoin as a Bitcoin asset
     final isBitcoinAsset = _selectedAsset == 'Bitcoin (Mainnet)' || _selectedAsset == 'Lightning Bitcoin' || _selectedAsset == 'Liquid Bitcoin';
 
-    // Updated balance switch to include Lightning Bitcoin
     final currentBalanceFormatted = switch (_selectedAsset) {
       'Bitcoin (Mainnet)' => btcBalance,
       'Lightning Bitcoin' => lightningBalance,
@@ -407,12 +405,12 @@ class _AnalyticsState extends ConsumerState<Analytics> {
 
     final balanceWithUnit = '$currentBalanceFormatted ${isBitcoinAsset ? btcFormat : _selectedAsset!.split(' ')[0]}';
 
-    // Updated balance by day to handle Lightning Bitcoin
     final balanceByDay = _selectedAsset == 'Bitcoin (Mainnet)' || _selectedAsset == 'Lightning Bitcoin'
         ? ref.watch(bitcoinBalanceInFormatByDayProvider)
         : ref.watch(liquidBalancePerDayInFormatProvider(_assetIdMap[_selectedAsset!]!));
 
-    final marketDataAsync = ref.watch(bitcoinHistoricalMarketDataProvider);
+    // Updated to use the new filtered provider
+    final marketDataAsync = ref.watch(bitcoinMarketDataProvider);
 
     final (dollarBalanceByDay, priceByDay) = marketDataAsync.when(
       data: (marketData) {
@@ -506,7 +504,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                   setState(() {
                     _selectedAsset = newAsset;
                     ref.read(selectedAssetProvider.notifier).state = newAsset;
-                    viewMode = 0; // Reset to balance mode when asset changes
+                    viewMode = 0;
                   });
                 },
                 balanceWithUnit: balanceWithUnit,
@@ -543,7 +541,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                         children: [
                           const Icon(Icons.error_outline, color: Colors.red, size: 48),
                           const SizedBox(height: 16),
-                           Text(
+                          Text(
                             'Error Loading Market Data'.i18n,
                             style: const TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
@@ -558,7 +556,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                           ElevatedButton.icon(
                             icon: const Icon(Icons.refresh, color: Colors.white),
                             label: const Text('Retry', style: TextStyle(color: Colors.white)),
-                            onPressed: () => ref.invalidate(bitcoinHistoricalMarketDataProvider),
+                            onPressed: () => ref.refresh(bitcoinMarketDataProvider), // Updated to invalidate the new provider
                             style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent),
                           ),
                         ],
