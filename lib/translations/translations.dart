@@ -3228,6 +3228,18 @@ extension Localization on String {
       {
         'en': 'An error occurred. Please try again later',
         'pt': 'Ocorreu um erro. Tente novamente mais tarde',
+      }+
+      {
+        'en': 'An error occurred. Please try again later',
+        'pt': 'Ocorreu um erro. Tente novamente mais tarde',
+      }+
+      {
+        'en': 'Coinos Migration',
+        'pt': 'Migração da Coinos',
+      }+
+      {
+        'en': 'Recover and migrate your lightning balance',
+        'pt': 'Recupere e migre seu saldo Lightning',
       };
 
   String get i18n => localize(this, _t);
