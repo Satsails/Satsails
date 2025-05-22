@@ -57,7 +57,7 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
       },
     ];
     _selectedFilters = _assets.map((asset) => asset['assets'][0]['name'] as String).toList();
-    _controller = PageController(viewportFraction: 0.9, initialPage: 0);
+    _controller = PageController(viewportFraction: 0.93, initialPage: 0);
   }
 
   @override
