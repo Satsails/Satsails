@@ -16,7 +16,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
-import 'package:in_app_review/in_app_review.dart'; // Added for in-app review
+import 'package:in_app_review/in_app_review.dart';
 
 class Settings extends ConsumerWidget {
   const Settings({super.key});
@@ -41,7 +41,7 @@ class Settings extends ConsumerWidget {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: Colors.transparent, // Transparent to show extended body
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.black,
           automaticallyImplyLeading: false,
@@ -55,19 +55,23 @@ class Settings extends ConsumerWidget {
           ),
         ),
         body: SafeArea(
-          bottom: false, // Allow content to extend to bottom
+          bottom: false,
           child: Stack(
             children: [
-              // Background for content area
               const Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: Colors.black, // Content background
+                    color: Colors.black,
                   ),
                 ),
               ),
               SingleChildScrollView(
-                padding: EdgeInsets.all(14.sp),
+                padding: EdgeInsets.only(
+                  left: 14.sp,
+                  right: 14.sp,
+                  top: 14.sp,
+                  bottom: 14.sp + MediaQuery.of(context).padding.bottom,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -82,8 +86,6 @@ class Settings extends ConsumerWidget {
                     _buildAffiliateSection(context, ref),
                     _buildBlockExplorerSection(context, ref),
                     DeleteWalletSection(ref: ref),
-                    // Bottom padding to scroll past nav bar
-                    SizedBox(height: 100.sp),
                   ],
                 ),
               ),
@@ -131,7 +133,6 @@ class Settings extends ConsumerWidget {
     );
   }
 
-  // New method for Rate the App section
   Widget _buildRateAppSection(BuildContext context, WidgetRef ref) {
     return _buildSection(
       context: context,
@@ -221,60 +222,63 @@ class Settings extends ConsumerWidget {
           backgroundColor: Colors.black,
           context: context,
           builder: (BuildContext context) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
-                  decoration: BoxDecoration(
-                    color: const Color(0x00333333).withOpacity(0.4),
-                    borderRadius: BorderRadius.circular(12.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 4.0,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    leading: Flag(Flags.portugal),
-                    title: Text(
-                      'Portuguese'.i18n,
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+            return SafeArea(
+              bottom: true,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
+                    decoration: BoxDecoration(
+                      color: const Color(0x00333333).withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(12.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4.0,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    onTap: () {
-                      ref.read(settingsProvider.notifier).setLanguage('pt');
-                      context.pop();
-                    },
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
-                  decoration: BoxDecoration(
-                    color: const Color(0x00333333).withOpacity(0.4),
-                    borderRadius: BorderRadius.circular(12.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 4.0,
-                        offset: const Offset(0, 2),
+                    child: ListTile(
+                      leading: Flag(Flags.portugal),
+                      title: Text(
+                        'Portuguese'.i18n,
+                        style: TextStyle(color: Colors.white, fontSize: 16.sp),
                       ),
-                    ],
-                  ),
-                  child: ListTile(
-                    leading: Flag(Flags.united_states_of_america),
-                    title: Text(
-                      'English'.i18n,
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      onTap: () {
+                        ref.read(settingsProvider.notifier).setLanguage('pt');
+                        context.pop();
+                      },
                     ),
-                    onTap: () {
-                      ref.read(settingsProvider.notifier).setLanguage('en');
-                      context.pop();
-                    },
                   ),
-                ),
-              ],
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
+                    decoration: BoxDecoration(
+                      color: const Color(0x00333333).withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(12.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4.0,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      leading: Flag(Flags.united_states_of_america),
+                      title: Text(
+                        'English'.i18n,
+                        style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      ),
+                      onTap: () {
+                        ref.read(settingsProvider.notifier).setLanguage('en');
+                        context.pop();
+                      },
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -298,10 +302,13 @@ class Settings extends ConsumerWidget {
           backgroundColor: Colors.black,
           context: context,
           builder: (BuildContext context) {
-            return DenominationChangeModalBottomSheet(
-              settingsNotifier: ref.read(settingsProvider.notifier),
-              initialTab: 'currency',
-              showCurrencyOnly: true,
+            return SafeArea(
+              bottom: true,
+              child: DenominationChangeModalBottomSheet(
+                settingsNotifier: ref.read(settingsProvider.notifier),
+                initialTab: 'currency',
+                showCurrencyOnly: true,
+              ),
             );
           },
         );
@@ -325,10 +332,13 @@ class Settings extends ConsumerWidget {
           backgroundColor: Colors.black,
           context: context,
           builder: (BuildContext context) {
-            return DenominationChangeModalBottomSheet(
-              settingsNotifier: ref.read(settingsProvider.notifier),
-              initialTab: 'denomination',
-              showDenominationOnly: true,
+            return SafeArea(
+              bottom: true,
+              child: DenominationChangeModalBottomSheet(
+                settingsNotifier: ref.read(settingsProvider.notifier),
+                initialTab: 'denomination',
+                showDenominationOnly: true,
+              ),
             );
           },
         );
@@ -351,66 +361,69 @@ class Settings extends ConsumerWidget {
           backgroundColor: Colors.black,
           context: context,
           builder: (BuildContext context) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
-                  decoration: BoxDecoration(
-                    color: const Color(0x00333333).withOpacity(0.4),
-                    borderRadius: BorderRadius.circular(12.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 4.0,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    leading: Icon(Icons.cloud, color: Colors.white, size: 24.sp),
-                    title: Text(
-                      'Blockstream',
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+            return SafeArea(
+              bottom: true,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
+                    decoration: BoxDecoration(
+                      color: const Color(0x00333333).withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(12.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4.0,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    onTap: () {
-                      ref.read(settingsProvider.notifier).setLiquidElectrumNode('blockstream.info:995');
-                      ref.read(settingsProvider.notifier).setBitcoinElectrumNode('blockstream.info:700');
-                      ref.read(settingsProvider.notifier).setNodeType('Blockstream');
-                      ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-                      context.pop();
-                    },
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
-                  decoration: BoxDecoration(
-                    color: const Color(0x00333333).withOpacity(0.4),
-                    borderRadius: BorderRadius.circular(12.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 4.0,
-                        offset: const Offset(0, 2),
+                    child: ListTile(
+                      leading: Icon(Icons.cloud, color: Colors.white, size: 24.sp),
+                      title: Text(
+                        'Blockstream',
+                        style: TextStyle(color: Colors.white, fontSize: 16.sp),
                       ),
-                    ],
-                  ),
-                  child: ListTile(
-                    leading: Icon(Icons.cloud, color: Colors.white, size: 24.sp),
-                    title: Text(
-                      'BullBitcoin',
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      onTap: () {
+                        ref.read(settingsProvider.notifier).setLiquidElectrumNode('blockstream.info:995');
+                        ref.read(settingsProvider.notifier).setBitcoinElectrumNode('blockstream.info:700');
+                        ref.read(settingsProvider.notifier).setNodeType('Blockstream');
+                        ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+                        context.pop();
+                      },
                     ),
-                    onTap: () {
-                      ref.read(settingsProvider.notifier).setLiquidElectrumNode('les.bullbitcoin.com:995');
-                      ref.read(settingsProvider.notifier).setBitcoinElectrumNode('electrum.bullbitcoin.com:50002');
-                      ref.read(settingsProvider.notifier).setNodeType('Bull Bitcoin');
-                      ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-                      context.pop();
-                    },
                   ),
-                ),
-              ],
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
+                    decoration: BoxDecoration(
+                      color: const Color(0x00333333).withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(12.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4.0,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      leading: Icon(Icons.cloud, color: Colors.white, size: 24.sp),
+                      title: Text(
+                        'BullBitcoin',
+                        style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      ),
+                      onTap: () {
+                        ref.read(settingsProvider.notifier).setLiquidElectrumNode('les.bullbitcoin.com:995');
+                        ref.read(settingsProvider.notifier).setBitcoinElectrumNode('electrum.bullbitcoin.com:50002');
+                        ref.read(settingsProvider.notifier).setNodeType('Bull Bitcoin');
+                        ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+                        context.pop();
+                      },
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -470,78 +483,81 @@ class Settings extends ConsumerWidget {
       backgroundColor: Colors.black87,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.all(24.sp),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Lightning Migration Warning'.i18n,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
+        return SafeArea(
+          bottom: true,
+          child: Padding(
+            padding: EdgeInsets.all(24.sp),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Lightning Migration Warning'.i18n,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                SizedBox(height: 16.sp),
-                Text(
-                  'You can retrieve your past Coinos balances'.i18n,
-                  style: TextStyle(color: Colors.white70, fontSize: 14.sp),
-                ),
-                SizedBox(height: 24.sp),
-                _buildCopyableField(label: 'Username', value: coinosLn.username, context: context),
-                SizedBox(height: 16.sp),
-                _buildCopyableField(label: 'Password', value: coinosLn.password, context: context),
-                SizedBox(height: 24.sp),
-                Center(
-                  child: Column(
-                    children: [
-                      TextButton(
-                        onPressed: () => _launchURL('https://coinos.io/login'),
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(horizontal: 24.sp),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        child: Text(
-                          'Visit Coinos'.i18n,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16.sp),
-                      TextButton(
-                        onPressed: () {
-                          ref.read(coinosLnProvider.notifier).setMigrated(true);
-                          Navigator.pop(context); // Close the modal after setting migrated to true
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          padding: EdgeInsets.symmetric(horizontal: 24.sp),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        child: Text(
-                          'Mark as Migrated'.i18n,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                  SizedBox(height: 16.sp),
+                  Text(
+                    'You can retrieve your past Coinos balances'.i18n,
+                    style: TextStyle(color: Colors.white70, fontSize: 14.sp),
                   ),
-                ),
-              ],
+                  SizedBox(height: 24.sp),
+                  _buildCopyableField(label: 'Username', value: coinosLn.username, context: context),
+                  SizedBox(height: 16.sp),
+                  _buildCopyableField(label: 'Password', value: coinosLn.password, context: context),
+                  SizedBox(height: 24.sp),
+                  Center(
+                    child: Column(
+                      children: [
+                        TextButton(
+                          onPressed: () => _launchURL('https://coinos.io/login'),
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(horizontal: 24.sp),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                          child: Text(
+                            'Visit Coinos'.i18n,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16.sp),
+                        TextButton(
+                          onPressed: () {
+                            ref.read(coinosLnProvider.notifier).setMigrated(true);
+                            Navigator.pop(context);
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            padding: EdgeInsets.symmetric(horizontal: 24.sp),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                          child: Text(
+                            'Mark as Migrated'.i18n,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -601,6 +617,7 @@ class Settings extends ConsumerWidget {
       isScrollControlled: true,
       builder: (BuildContext context) {
         return SafeArea(
+          bottom: true,
           child: Padding(
             padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 16.sp, top: 16.sp, left: 0, right: 0),
             child: SingleChildScrollView(
