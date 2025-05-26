@@ -471,7 +471,7 @@ Widget buildBalanceCardWithMaxButton(WidgetRef ref, TextEditingController contro
                 balance,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16.sp,
+                  fontSize: 20.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
