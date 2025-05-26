@@ -114,7 +114,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   Timer? _lockTimer;
   Timer? _syncTimer;
   Timer? _purchaseTimer;
-  final int lockThresholdInSeconds = 300; // 5 minutes
+  final int lockThresholdInSeconds = 20;
   GoRouter? _router;
 
   @override

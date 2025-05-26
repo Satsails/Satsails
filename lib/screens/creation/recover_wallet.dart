@@ -212,135 +212,138 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: Text('Recover Account'.i18n, style: const TextStyle(color: Colors.white)),
+    return SafeArea(
+      bottom: true,
+      child: Scaffold(
         backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-          onPressed: () {
-            context.pop();
-          },
+        appBar: AppBar(
+          title: Text('Recover Account'.i18n, style: const TextStyle(color: Colors.white)),
+          backgroundColor: Colors.black,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+            onPressed: () {
+              context.pop();
+            },
+          ),
         ),
-      ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              SizedBox(height: screenHeight * 0.02),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _totalWords = 12;
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: _totalWords == 12 ? const Color(0xFF2B2B2B) : const Color(0xFF1A1A1A),
-                        borderRadius: BorderRadius.circular(8.0),
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                SizedBox(height: screenHeight * 0.02),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _totalWords = 12;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: _totalWords == 12 ? const Color(0xFF2B2B2B) : const Color(0xFF1A1A1A),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Text("12 words".i18n, style: const TextStyle(color: Colors.white)),
                       ),
-                      child: Text("12 words".i18n, style: const TextStyle(color: Colors.white)),
                     ),
-                  ),
-                  const SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _totalWords = 24;
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: _totalWords == 24 ? const Color(0xFF2B2B2B) : const Color(0xFF1A1A1A),
-                        borderRadius: BorderRadius.circular(8.0),
+                    const SizedBox(width: 20),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _totalWords = 24;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: _totalWords == 24 ? const Color(0xFF2B2B2B) : const Color(0xFF1A1A1A),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Text("24 words".i18n, style: const TextStyle(color: Colors.white)),
                       ),
-                      child: Text("24 words".i18n, style: const TextStyle(color: Colors.white)),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: screenHeight * 0.02),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(8.0),
+                  ],
                 ),
-                child: Text(
-                  "Enter your key. Carefully enter your seed words below to recover your Bitcoin account.".i18n,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
-                ),
-              ),
-              SizedBox(height: screenHeight * 0.02),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    left: screenWidth * 0.05,
-                    right: screenWidth * 0.05,
-                    bottom: screenHeight * 0.02,
+                SizedBox(height: screenHeight * 0.02),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: SingleChildScrollView(
-                    child: Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: List.generate(
-                        _totalWords,
-                            (index) => SizedBox(
-                          width: screenWidth * 0.28,
-                          child: TextField(
-                            controller: _controllers[index],
-                            focusNode: _focusNodes[index],
-                            style: const TextStyle(color: Colors.white),
-                            autocorrect: false,
-                            enableSuggestions: false,
-                            keyboardType: TextInputType.visiblePassword,
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: const Color(0xFF212121),
-                              contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                              labelText: '',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: const BorderSide(color: Color(0xFF6D6D6D), width: 4.0),
+                  child: Text(
+                    "Enter your key. Carefully enter your seed words below to recover your Bitcoin account.".i18n,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                ),
+                SizedBox(height: screenHeight * 0.02),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: screenWidth * 0.05,
+                      right: screenWidth * 0.05,
+                      bottom: screenHeight * 0.02,
+                    ),
+                    child: SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: List.generate(
+                          _totalWords,
+                              (index) => SizedBox(
+                            width: screenWidth * 0.28,
+                            child: TextField(
+                              controller: _controllers[index],
+                              focusNode: _focusNodes[index],
+                              style: const TextStyle(color: Colors.white),
+                              autocorrect: false,
+                              enableSuggestions: false,
+                              keyboardType: TextInputType.visiblePassword,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: const Color(0xFF212121),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                                labelText: '',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  borderSide: const BorderSide(color: Color(0xFF6D6D6D), width: 4.0),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  borderSide: const BorderSide(color: Colors.orangeAccent, width: 4.0),
+                                ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: const BorderSide(color: Colors.orangeAccent, width: 4.0),
-                              ),
+                              onTap: () {
+                                setState(() {
+                                  _selectedWordIndex = index;
+                                });
+                              },
                             ),
-                            onTap: () {
-                              setState(() {
-                                _selectedWordIndex = index;
-                              });
-                            },
                           ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.15, vertical: screenHeight * 0.02),
-                child: CustomButton(
-                  text: 'Recover Account'.i18n,
-                  onPressed: () => _recoverAccount(context),
-                  primaryColor: Colors.green,
-                  secondaryColor: Colors.green,
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.15, vertical: screenHeight * 0.02),
+                  child: CustomButton(
+                    text: 'Recover Account'.i18n,
+                    onPressed: () => _recoverAccount(context),
+                    primaryColor: Colors.green,
+                    secondaryColor: Colors.green,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          _buildSuggestionList(context), // Positioned right above the keyboard
-        ],
+              ],
+            ),
+            _buildSuggestionList(context), // Positioned right above the keyboard
+          ],
+        ),
       ),
     );
   }
