@@ -58,7 +58,7 @@ class ViewModeSelector extends ConsumerWidget {
           borderRadius: BorderRadius.circular(20.r),
         ),
         child: Text(
-          text,
+          text.i18n,
           style: TextStyle(
             color: isSelected ? Colors.black : Colors.white,
             fontWeight: FontWeight.bold,

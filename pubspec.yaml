@@ -1,7 +1,7 @@
 name: Satsails
 description: "Sail your wealth to the cloud!"
 publish_to: 'none'
-version: 2.0.0+76
+version: 2.0.0+77
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
@@ -80,6 +80,7 @@ dependencies:
   dot_navigation_bar: ^1.0.2
   in_app_review: ^2.0.10
   upgrader: ^11.3.1
+  pull_to_refresh_flutter3: ^2.0.2
 
 
   riverpod: any

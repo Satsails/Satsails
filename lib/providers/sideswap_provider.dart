@@ -106,19 +106,7 @@ final sendBitcoinProvider = StateProvider<bool>((ref) => false);
 final assetToSellProvider = StateProvider<String>((ref) => '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189');
 final assetToPurchaseProvider = StateProvider<String>((ref) => '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d');
 
-final sideswapMarketsStreamProvider = StreamProvider.autoDispose<List<Market>>((ref) {
-  final service = ref.watch(sideswapServiceProvider);
-  service.listMarkets();
-  return service.listMarketsStream.map((event) {
-    final result = event['result']?['list_markets']?['markets'] as List<dynamic>?;
-    if (result == null) {
-      return [];
-    }
-    return result.map((market) => Market.fromJson(market)).toList();
-  });
-});
-
-final sideswapMarketsFutureProvider = FutureProvider.autoDispose<List<Market>>((ref) async {
+final sideswapMarketsFutureProvider = FutureProvider<List<Market>>((ref) async {
   final service = ref.watch(sideswapServiceProvider);
   service.listMarkets();
   final stream = service.listMarketsStream;
@@ -223,6 +211,10 @@ final sideswapQuoteStreamProvider = StreamProvider.autoDispose<SideswapQuote>((r
   final service = ref.watch(sideswapServiceProvider);
   final request = await ref.watch(quoteRequestProvider.future);
 
+  if (request.amount == 0) {
+   throw Exception('Amount cannot be zero');
+  }
+
   service.startQuotes(
     baseAsset: request.baseAsset,
     quoteAsset: request.quoteAsset,
@@ -236,7 +228,7 @@ final sideswapQuoteStreamProvider = StreamProvider.autoDispose<SideswapQuote>((r
   yield* service.quoteStream.map((event) => SideswapQuote.fromJson(event));
 });
 
-final sideswapQuoteProvider = StateNotifierProvider<SideswapQuoteModel, SideswapQuote>((ref) {
+final sideswapQuoteProvider = StateNotifierProvider.autoDispose<SideswapQuoteModel, SideswapQuote>((ref) {
   return SideswapQuoteModel(ref);
 });
 
@@ -245,6 +237,10 @@ final sideswapGetQuotePsetProvider = FutureProvider.autoDispose<SideswapQuotePse
   final completer = Completer<SideswapQuotePset>();
   final service = ref.read(sideswapServiceProvider);
   final quoteId = ref.read(sideswapQuoteProvider).quoteId ?? 0; // Fallback to 0 if null
+
+  if (quoteId == 0) {
+    completer.completeError('Error please contact support');
+  }
 
   // Listen to the quotePsetStream
   StreamSubscription? subscription;

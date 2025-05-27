@@ -408,7 +408,7 @@ Widget bitcoinFeeSlider(WidgetRef ref) {
           );
         },
         loading: () => Center(
-          child: LoadingAnimationWidget.progressiveDots(
+          child: LoadingAnimationWidget.fourRotatingDots(
             size: 20.w,
             color: Colors.white,
           ),
@@ -1133,7 +1133,7 @@ Widget buildSideswapInstantSwap(
       case 'Loading':
       case 'Initial':
         return Center(
-          child: LoadingAnimationWidget.progressiveDots(
+          child: LoadingAnimationWidget.fourRotatingDots(
             size: 16.w,
             color: Colors.white,
           ),
@@ -1462,7 +1462,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
               ],
             );
           },
-          loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size: 16.w, color: Colors.white)),
+          loading: () => Center(child: LoadingAnimationWidget.fourRotatingDots(size: 16.w, color: Colors.white)),
           error: (error, stack) => Text(error.toString().i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
         ),
     ],
@@ -1645,7 +1645,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
               ],
             );
           },
-          loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size: 16.w, color: Colors.white)),
+          loading: () => Center(child: LoadingAnimationWidget.fourRotatingDots(size: 16.w, color: Colors.white)),
           error: (error, stack) => Text(error.toString().i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
         ),
     ],
@@ -2061,7 +2061,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
         ),
       );
     },
-    loading: () => Center(child: LoadingAnimationWidget.progressiveDots(size: 20.w, color: Colors.white)),
+    loading: () => Center(child: LoadingAnimationWidget.fourRotatingDots(size: 20.w, color: Colors.white)),
     error: (error, stack) => Text(ref.watch(sendTxProvider).amount == 0 ? '' : error.toString().i18n, style: TextStyle(color: Colors.white, fontSize: 14.sp)),
   );
 }
@@ -2127,7 +2127,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
     },
     loading: () => Padding(
       padding: EdgeInsets.all(20.w),
-      child: Center(child: LoadingAnimationWidget.progressiveDots(size: 20.w, color: Colors.white)),
+      child: Center(child: LoadingAnimationWidget.fourRotatingDots(size: 20.w, color: Colors.white)),
     ),
     error: (error, stack) => Padding(
       padding: EdgeInsets.all(10.w),
