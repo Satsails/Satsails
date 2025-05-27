@@ -6,7 +6,7 @@ PODS:
   - bdk_flutter (0.31.3):
     - Flutter
   - boltz (0.1.6)
-  - BranchSDK (3.9.1)
+  - BranchSDK (3.12.1)
   - Crisp (2.8.2):
     - Crisp/Crisp (= 2.8.2)
   - Crisp/Crisp (2.8.2)
@@ -23,19 +23,19 @@ PODS:
   - Firebase/Messaging (11.10.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 11.10.0)
-  - firebase_app_check (0.3.2-5):
+  - firebase_app_check (0.3.2-6):
     - Firebase/CoreOnly (~> 11.10.0)
     - firebase_core
     - FirebaseAppCheck (~> 11.10.0)
     - Flutter
-  - firebase_core (3.13.0):
+  - firebase_core (3.13.1):
     - Firebase/CoreOnly (= 11.10.0)
     - Flutter
-  - firebase_crashlytics (4.3.5):
+  - firebase_crashlytics (4.3.6):
     - Firebase/Crashlytics (= 11.10.0)
     - firebase_core
     - Flutter
-  - firebase_messaging (15.2.5):
+  - firebase_messaging (15.2.6):
     - Firebase/Messaging (= 11.10.0)
     - firebase_core
     - Flutter
@@ -88,8 +88,8 @@ PODS:
     - nanopb (~> 3.30910.0)
     - PromisesSwift (~> 2.1)
   - Flutter (1.0.0)
-  - flutter_branch_sdk (8.4.1):
-    - BranchSDK (~> 3.9.0)
+  - flutter_branch_sdk (8.5.0):
+    - BranchSDK (~> 3.12.0)
     - Flutter
   - flutter_keyboard_visibility (0.0.1):
     - Flutter
@@ -301,15 +301,15 @@ SPEC CHECKSUMS:
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
   bdk_flutter: cef9180019b4c6b67a3e3dfb74611683fe140107
   boltz: 6388ec2412f3753b63a9e65c97f87ea26f43bddc
-  BranchSDK: a12f9aa63d7ba562fdff5509d4aed081f1098ec0
+  BranchSDK: 7135af6602a105fa6be3ad6c606a7f78b0131b5d
   Crisp: 6747c96b2b2c2a81babf1eaecd1688a65d98edd4
   crisp_chat: c2cfeeafbbda0d36465128982ba121b227755c5a
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   Firebase: 1fe1c0a7d9aaea32efe01fbea5f0ebd8d70e53a2
-  firebase_app_check: f91e7deb97687856aed4b12f02dba10be437492a
-  firebase_core: 2d4534e7b489907dcede540c835b48981d890943
-  firebase_crashlytics: 961a0812ba79ed8f89a8d5d1e3763daa6267a87a
-  firebase_messaging: 75bc93a4df25faccad67f6662ae872ac9ae69b64
+  firebase_app_check: 6073868cfe434aa25e008ef2ca3ca8f457271869
+  firebase_core: ba71b44041571da878cb624ce0d80250bcbe58ad
+  firebase_crashlytics: 9301f26be1edba849e9a3a00b1d817ca1ae012b5
+  firebase_messaging: 13129fe2ca166d1ed2d095062d76cee88943d067
   FirebaseAppCheck: 9687ebd909702469bc09d2d58008697b83f4ac27
   FirebaseAppCheckInterop: 73b173e5ec45192e2d522ad43f526a82ad10b852
   FirebaseCore: 8344daef5e2661eb004b177488d6f9f0f24251b7
@@ -321,7 +321,7 @@ SPEC CHECKSUMS:
   FirebaseRemoteConfigInterop: 82b81fd06ee550cbeff40004e2c106daedf73e38
   FirebaseSessions: 9b3b30947b97a15370e0902ee7a90f50ef60ead6
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_branch_sdk: 71ad62179c5d571b60cccbe9021680e401503356
+  flutter_branch_sdk: 9c9ec6d44145b4fc5168e011bfce824b2c1fe506
   flutter_keyboard_visibility: 4625131e43015dbbe759d9b20daaf77e0e3f6619
   flutter_local_notifications: ad39620c743ea4c15127860f4b5641649a988100
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13

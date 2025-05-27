@@ -122,11 +122,10 @@ packages:
   boltz:
     dependency: "direct main"
     description:
-      path: "."
-      ref: develop
-      resolved-ref: cf62083daa2053fa5fc5dcfd36563956141ac6e2
-      url: "https://github.com/SatoshiPortal/boltz-dart.git"
-    source: git
+      name: boltz
+      sha256: "81623fb949236ee25104806dc7255ff4f891b273a2ae49540128c4315e30b0bb"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.2.0"
   boolean_selector:
     dependency: transitive
@@ -1071,11 +1070,10 @@ packages:
   lwk:
     dependency: "direct main"
     description:
-      path: "."
-      ref: develop
-      resolved-ref: "4080a0fd6d164596eb0b760010d7047ad3aca31f"
-      url: "https://github.com/SatoshiPortal/lwk-dart.git"
-    source: git
+      name: lwk
+      sha256: "355e2f8e3ecd39fa42dc242118f6d4e6a83abb52fb20a947be89d3d8f330e75a"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.2.0"
   macros:
     dependency: transitive
