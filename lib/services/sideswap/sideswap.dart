@@ -71,8 +71,6 @@ class Sideswap {
           _listMarketsController.add(decodedMessage);
         } else if (decodedMessage['params']?['quote'] != null) {
           _quoteController.add(decodedMessage);
-        } else if (decodedMessage['result']?['start_quotes'] != null) {
-          _quoteController.add(decodedMessage);
         } else if (decodedMessage['result']?['get_quote'] != null) {
           _quotePsetController.add(decodedMessage);
         } else if (decodedMessage['result']?['taker_sign'] != null) {

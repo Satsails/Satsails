@@ -1867,6 +1867,10 @@ extension Localization on String {
         'pt': 'Você só pode fazer um máximo de 500 em sua primeira transação',
       } +
       {
+        'en': 'You can only do a max of 10 on your first transaction',
+        'pt': 'Você só pode fazer um máximo de 10 em sua primeira transação',
+      } +
+      {
         'en': 'You can only do a max of 1000 on your second transaction',
         'pt': 'Você só pode fazer um máximo de 1000 em sua segunda transação',
       } +
@@ -2573,19 +2577,19 @@ extension Localization on String {
       } +
       {
         'en': 'USD Valuation',
-        'pt': 'Valuação em USD',
+        'pt': 'Valoriação em USD',
       } +
       {
         'en': 'BRL Valuation',
-        'pt': 'Valuação em BRL',
+        'pt': 'Valoriação em BRL',
       } +
       {
         'en': 'EUR Valuation',
-        'pt': 'Valuação em EUR',
+        'pt': 'Valoriação em EUR',
       } +
       {
         'en': 'EUR Valuation',
-        'pt': 'Valuação em EUR',
+        'pt': 'Valoriação em EUR',
       } +
       {
         'en': 'Server fee',
@@ -3240,6 +3244,26 @@ extension Localization on String {
       {
         'en': 'Recover and migrate your lightning balance',
         'pt': 'Recupere e migre seu saldo Lightning',
+      }+
+      {
+        'en': 'Unavailable quote',
+        'pt': 'Cotação indisponível',
+      }+
+      {
+        'en': 'to',
+        'pt': 'para',
+      }+
+      {
+        'en': 'Refreshing',
+        'pt': 'Atualizando',
+      }+
+      {
+        'en': 'Release',
+        'pt': 'Solte',
+      }+
+      {
+        'en': 'Pull down to refresh',
+        'pt': 'Puxe para atualizar',
       };
 
   String get i18n => localize(this, _t);

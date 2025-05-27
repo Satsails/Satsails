@@ -1,7 +1,7 @@
 name: Satsails
 description: "Sail your wealth to the cloud!"
 publish_to: 'none'
-version: 2.0.0+76
+version: 2.0.0+77
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
@@ -35,17 +35,8 @@ dependencies:
       ref: frb-upgrade
   bitcoin_message_signer: ^1.0.2
   bolt11_decoder: ^1.0.2
-  boltz:
-    # 0.1.10
-    git:
-      url: https://github.com/SatoshiPortal/boltz-dart.git
-      ref: develop
-  lwk:
-      # 0.1.7
-    git:
-      url: https://github.com/SatoshiPortal/lwk-dart.git
-      ref: develop
-
+  boltz: ^0.2.0
+  lwk: ^0.2.0
   forex_currency_conversion: ^0.9.1
   icons_plus: ^5.0.0
   loading_animation_widget: ^1.2.1
@@ -80,6 +71,7 @@ dependencies:
   dot_navigation_bar: ^1.0.2
   in_app_review: ^2.0.10
   upgrader: ^11.3.1
+  pull_to_refresh_flutter3: ^2.0.2
 
 
   riverpod: any

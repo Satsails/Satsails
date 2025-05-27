@@ -207,56 +207,6 @@ class SideswapQuoteModel extends StateNotifier<SideswapQuote> {
     feeAsset: '',
     status: 'Initial',
   )) {
-    // Listen to quoteRequestProvider to get the QuoteRequest
-    ref.listen<AsyncValue<QuoteRequest>>(
-      quoteRequestProvider,
-          (previous, next) {
-        next.when(
-          data: (request) {
-            _request = request;
-            if (state.status == 'Initial' || state.status == 'Loading') {
-              state = SideswapQuote(
-                quoteSubId: 0,
-                baseAsset: request.baseAsset,
-                quoteAsset: request.quoteAsset,
-                assetType: request.assetType,
-                tradeDir: request.tradeDir,
-                amount: request.amount,
-                feeAsset: '',
-                status: state.status,
-              );
-            }
-          },
-          loading: () {
-            state = SideswapQuote(
-              quoteSubId: 0,
-              baseAsset: _request?.baseAsset ?? '',
-              quoteAsset: _request?.quoteAsset ?? '',
-              assetType: _request?.assetType ?? '',
-              tradeDir: _request?.tradeDir ?? '',
-              amount: _request?.amount ?? 0,
-              feeAsset: '',
-              status: 'Loading',
-            );
-          },
-          error: (error, stackTrace) {
-            state = SideswapQuote(
-              quoteSubId: 0,
-              baseAsset: _request?.baseAsset ?? '',
-              quoteAsset: _request?.quoteAsset ?? '',
-              assetType: _request?.assetType ?? '',
-              tradeDir: _request?.tradeDir ?? '',
-              amount: _request?.amount ?? 0,
-              feeAsset: '',
-              status: 'Error',
-              errorMsg: error.toString(),
-            );
-          },
-        );
-      },
-    );
-
-    // Listen to sideswapQuoteStreamProvider for quote updates
     ref.listen<AsyncValue<SideswapQuote>>(
       sideswapQuoteStreamProvider,
           (previous, next) {

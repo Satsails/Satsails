@@ -1,9 +1,10 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
-import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/transactions_model.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
@@ -20,6 +21,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 Widget buildNoTransactionsFound(double screenHeight) {
   return Column(
@@ -125,7 +127,8 @@ Widget _buildMonthCard(
   );
 }
 
-class TransactionList extends ConsumerWidget {
+
+class TransactionList extends ConsumerStatefulWidget {
   final bool showAll;
   final List<BaseTransaction>? transactions;
 
@@ -136,18 +139,33 @@ class TransactionList extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _TransactionListState createState() => _TransactionListState();
+}
+
+class _TransactionListState extends ConsumerState<TransactionList> {
+  // Initialize the RefreshController
+  final RefreshController _refreshController = RefreshController(initialRefresh: false);
+
+  // Define the refresh action
+  Future<void> _onRefresh() async {
+    await ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+    await ref.read(updateCurrencyProvider.future);
+    await ref.read(getFiatPurchasesProvider.future);
+    _refreshController.refreshCompleted();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final transactionState = ref.watch(transactionNotifierProvider);
-    final allTransactions = transactions ?? transactionState.allTransactionsSorted;
+    final allTransactions = widget.transactions ?? transactionState.allTransactionsSorted;
 
-    final filteredTransactions = showAll
+    final filteredTransactions = widget.showAll
         ? allTransactions
         : allTransactions
         .where((tx) =>
     !(tx is SideShiftTransaction && tx.details.status == 'waiting') &&
-        !(tx is BoltzTransaction && !(tx.details.completed ?? false))
-    )
+        !(tx is BoltzTransaction && !(tx.details.completed ?? false)))
         .take(4)
         .toList();
 
@@ -179,7 +197,7 @@ class TransactionList extends ConsumerWidget {
 
     return Column(
       children: [
-        if (!showAll)
+        if (!widget.showAll)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -190,7 +208,7 @@ class TransactionList extends ConsumerWidget {
               buyButton,
             ],
           ),
-        if (!showAll) const SizedBox(height: 8),
+        if (!widget.showAll) const SizedBox(height: 8),
         Expanded(
           child: Card(
             color: const Color(0x00333333).withOpacity(0.4),
@@ -220,17 +238,28 @@ class TransactionList extends ConsumerWidget {
                     ),
                   )
                       : Expanded(
-                    child: ListView.builder(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: filteredTransactions.length,
-                      itemBuilder: (context, index) => _buildUnifiedTransactionItem(
-                        filteredTransactions[index],
-                        context,
-                        ref,
+                    child: SmartRefresher(
+                      enablePullDown: true,
+                      enablePullUp: false,
+                      header: ClassicHeader(
+                          refreshingText: 'Refreshing'.i18n,
+                          releaseText: 'Release'.i18n,
+                          idleText: 'Pull down to refresh'.i18n
+                      ),
+                      controller: _refreshController,
+                      onRefresh: _onRefresh,
+                      child: ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: filteredTransactions.length,
+                        itemBuilder: (context, index) => _buildUnifiedTransactionItem(
+                          filteredTransactions[index],
+                          context,
+                          ref,
+                        ),
                       ),
                     ),
                   ),
-                if (!showAll && isBalanceVisible)
+                if (!widget.showAll && isBalanceVisible)
                   TextButton(
                     onPressed: () {
                       context.pushNamed('transactions');
@@ -246,6 +275,12 @@ class TransactionList extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _refreshController.dispose(); // Clean up the controller
+    super.dispose();
   }
 }
 
@@ -284,7 +319,7 @@ Widget _buildBoltzTransactionItem(
   final currency = ref.read(settingsProvider).currency;
 
   final isReceiving = transaction.details.swap.kind == boltz.SwapType.reverse;
-  final title = isReceiving ? "Lightning -> L-BTC" : "L-BTC -> Lightning";
+  final title = isReceiving ? "Lightning${"to".i18n}L-BTC" : "L-BTC ${"to".i18n} Lightning";
 
   final amountBtc = isCompleted
       ? btcInDenominationFormatted(transaction.details.swap.outAmount, btcFormat)
@@ -457,9 +492,9 @@ Widget _buildSideshiftTransactionItem(
   // Transaction title showing the shift direction
   String title = '';
   if (['solana', 'bsc', 'ethereum'].contains(details.depositNetwork.toLowerCase())) {
-    title = "${details.depositCoin} -> ${details.settleNetwork.capitalize()} ${details.settleCoin}";
+    title = "${details.depositCoin} ${"to".i18n} ${details.settleNetwork.capitalize()} ${details.settleCoin}";
   } else {
-    title = "${details.depositNetwork.capitalize()} ${details.depositCoin} -> ${details.settleNetwork.capitalize()} ${details.settleCoin}";
+    title = "${details.depositNetwork.capitalize()} ${details.depositCoin} ${"to".i18n} ${details.settleNetwork.capitalize()} ${details.settleCoin}";
   }
   String locale = I18n.locale.languageCode ?? 'en';
   // Format the transaction date
@@ -567,7 +602,7 @@ Widget _buildSideswapPegTransactionItem(
 
   // Transaction type
   final transactionType =
-  sideswapPegDetails.pegIn == true ? 'BTC -> L-BTC' : 'L-BTC -> BTC';
+  sideswapPegDetails.pegIn == true ? 'BTC ${"to".i18n} L-BTC' : 'L-BTC ${"to".i18n} BTC';
 
   return GestureDetector(
     onTap: () {
@@ -1003,7 +1038,7 @@ Widget _buildLiquidTransactionItem(
   if (negativeTickers.isNotEmpty) {
     final negativeStr = negativeTickers.join(' + ');
     final positiveStr = positiveTickers.join(' + ');
-    tickerDisplay = positiveStr.isNotEmpty ? '$negativeStr -> $positiveStr' : negativeStr;
+    tickerDisplay = positiveStr.isNotEmpty ? '$negativeStr ${"to".i18n} $positiveStr' : negativeStr;
   } else {
     tickerDisplay = positiveTickers.join(' + ');
   }
