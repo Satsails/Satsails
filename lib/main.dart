@@ -202,7 +202,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   void _startSyncTimer() {
     _cancelSyncTimer();
 
-    _syncTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
+    _syncTimer = Timer.periodic(const Duration(seconds: 80), (timer) {
       final appIsLocked = ref.read(appLockedProvider) == true;
       final shouldUpdateMemory = ref.read(shouldUpdateMemoryProvider);
       if (!appIsLocked && shouldUpdateMemory) {
@@ -212,7 +212,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
       }
     });
 
-    _purchaseTimer = Timer.periodic(const Duration(seconds: 50), (timer) {
+    _purchaseTimer = Timer.periodic(const Duration(seconds: 75), (timer) {
       final auth = ref.watch(userProvider).jwt;
       final appIsLocked = ref.read(appLockedProvider) == true;
       if (!appIsLocked && auth.isNotEmpty) {

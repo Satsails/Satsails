@@ -2214,7 +2214,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               await ref.read(sendLiquidTransactionProvider.future);
               final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
               final lnBalance = await ref.read(coinosBalanceProvider.future);
-              balanceNotifier.updateLightningBalance(lnBalance);
+              balanceNotifier.updateSparkBitcoinbalance(lnBalance);
             }
             ref.read(sendBlocksProvider.notifier).state = 1;
             controller.success();
@@ -2273,7 +2273,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               await ref.read(sendBitcoinTransactionProvider.future);
               final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
               final lnBalance = await ref.read(coinosBalanceProvider.future);
-              balanceNotifier.updateLightningBalance(lnBalance);
+              balanceNotifier.updateSparkBitcoinbalance(lnBalance);
             }
             ref.read(sendBlocksProvider.notifier).state = 1;
             controller.success();

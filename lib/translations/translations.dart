@@ -3264,6 +3264,10 @@ extension Localization on String {
       {
         'en': 'Pull down to refresh',
         'pt': 'Puxe para atualizar',
+      }+
+      {
+        'en': 'Insert an affiliate code to get 6.67% cashback on purchases',
+        'pt': 'Insira um codigo de afiliado para receber 6.67% de desconto nas compras',
       };
 
   String get i18n => localize(this, _t);

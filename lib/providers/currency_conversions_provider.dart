@@ -126,6 +126,10 @@ final selectedCurrencyProvider = StateProvider.autoDispose.family<double, String
       return currencyModel.btcToEur;
     case 'BRL':
       return currencyModel.btcToBrl;
+    case 'CHF':
+      return currencyModel.btcToChf;
+    case 'GBP':
+      return currencyModel.btcToGbp;
     default:
       return 0.0;
   }
@@ -139,6 +143,10 @@ final selectedCurrencyProviderFromUSD = StateProvider.autoDispose.family<double,
       return 1;
     case 'EUR':
       return currencyModel.usdToEur;
+    case 'GBP':
+      return currencyModel.usdToGbp;
+    case 'CHF':
+      return currencyModel.usdToChf;
     case 'BRL':
       return currencyModel.usdToBrl;
     default:

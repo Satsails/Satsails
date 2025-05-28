@@ -33,6 +33,12 @@ final conversionToFiatProvider = StateProvider.autoDispose.family<String, int>((
     case 'EUR':
       balance = amount * rates.btcToEur;
       return balance.toStringAsFixed(2);
+    case 'CHF':
+      balance = amount * rates.btcToChf;
+      return balance.toStringAsFixed(2);
+    case 'GBP':
+      balance = amount * rates.btcToGbp;
+      return balance.toStringAsFixed(2);
     default:
       return "Invalid format";
   }
