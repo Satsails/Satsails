@@ -1,7 +1,7 @@
 name: Satsails
 description: "Sail your wealth to the cloud!"
 publish_to: 'none'
-version: 2.0.0+77
+version: 2.0.0+78
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
@@ -50,7 +50,7 @@ dependencies:
   web_socket_channel: ^3.0.2
   permission_handler: ^11.3.1
   segmented_button_slide: ^1.0.4
-  flutter_branch_sdk: ^8.3.1
+  flutter_branch_sdk: ^8.5.0
   share_plus: ^10.0.0
   flutter_svg: ^2.0.10+1
   coingecko_api: ^2.0.1
@@ -61,13 +61,14 @@ dependencies:
   conduit_password_hash: ^5.1.3
   flutter_keyboard_visibility: ^6.0.0
   bech32: ^0.2.2
-  firebase_core: ^3.4.0
-  firebase_messaging: ^15.1.0
+  firebase_core: ^3.13.1
+  firebase_messaging: ^15.2.6
   android_notification_icons: ^0.0.1
-  firebase_crashlytics: ^4.1.0
+  firebase_crashlytics: ^4.3.6
   flutter_dotenv: ^5.1.0
   i18n_extension: ^15.0.4
-  firebase_app_check: ^0.3.1
+#  commented until we decide what we do with the apk
+#  firebase_app_check: ^0.3.1
   dot_navigation_bar: ^1.0.2
   in_app_review: ^2.0.10
   upgrader: ^11.3.1
