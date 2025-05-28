@@ -1,7 +1,7 @@
 name: Satsails
 description: "Sail your wealth to the cloud!"
 publish_to: 'none'
-version: 2.0.0+78
+version: 2.0.0+79
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
@@ -54,7 +54,7 @@ dependencies:
   share_plus: ^10.0.0
   flutter_svg: ^2.0.10+1
   coingecko_api: ^2.0.1
-  crisp_chat: ^2.2.3
+  crisp_chat: ^2.2.5
   currency_formatter: ^2.2.1
   flutter_local_notifications: ^17.2.3
   faker: ^2.2.0

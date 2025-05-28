@@ -66,7 +66,7 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
         // Retrieve the Bitcoin balance
         final balance = await ref.read(getBitcoinBalanceProvider.future);
 
-        ref.read(balanceNotifierProvider.notifier).updateBtcBalance(balance.total.toInt());
+        ref.read(balanceNotifierProvider.notifier).updateOnChainBtcBalance(balance.total.toInt());
 
         return balance.total.toInt();
       },
@@ -109,16 +109,16 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
         for (var balance in balances) {
           switch (AssetMapper.mapAsset(balance.assetId)) {
             case AssetId.USD:
-              balanceNotifier.updateUsdBalance(balance.value);
+              balanceNotifier.updateLiquidUsdtBalance(balance.value);
               break;
             case AssetId.EUR:
-              balanceNotifier.updateEurBalance(balance.value);
+              balanceNotifier.updateLiquidEuroxBalance(balance.value);
               break;
             case AssetId.BRL:
-              balanceNotifier.updateBrlBalance(balance.value);
+              balanceNotifier.updateLiquidDepixBalance(balance.value);
               break;
             case AssetId.LBTC:
-              balanceNotifier.updateLiquidBalance(balance.value);
+              balanceNotifier.updateLiquidBtcBalance(balance.value);
               break;
             default:
               break;

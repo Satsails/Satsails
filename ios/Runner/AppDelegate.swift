@@ -15,6 +15,10 @@ import flutter_local_notifications
       GeneratedPluginRegistrant.register(with: registry)
     }
 
+    DispatchQueue.main.async {
+      UIApplication.shared.registerForRemoteNotifications()
+    }
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }
