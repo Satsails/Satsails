@@ -19,7 +19,7 @@ import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
 import 'package:Satsails/screens/spash/splash.dart';
 import 'package:boltz/boltz.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
+// import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -52,12 +52,13 @@ Future<void> main() async {
   await FirebaseService.getAndRefreshFCMToken();
   await FirebaseService.listenForForegroundPushNotifications();
 
-  await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidProvider.playIntegrity,
-    appleProvider: AppleProvider.appAttest
-  );
+  // await FirebaseAppCheck.instance.activate(
+  //   androidProvider: AndroidProvider.playIntegrity,
+  //   appleProvider: AppleProvider.appAttest
+  // );
 
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  // experiment with blocked notifications for platform errors
+  // FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
   PlatformDispatcher.instance.onError = (error, stack) {
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
@@ -121,6 +122,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.black,
       systemNavigationBarIconBrightness: Brightness.light,

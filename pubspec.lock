@@ -203,10 +203,10 @@ packages:
     dependency: transitive
     description:
       name: built_value
-      sha256: "7193c909c8608d3e1a263093ff045f7140bcc1bf3f7de2c5ec7ad027891d2d22"
+      sha256: "082001b5c3dc495d4a42f1d5789990505df20d8547d42507c29050af6933ee27"
       url: "https://pub.dev"
     source: hosted
-    version: "8.10.0"
+    version: "8.10.1"
   calendar_date_picker2:
     dependency: "direct main"
     description:
@@ -455,30 +455,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.1"
-  firebase_app_check:
-    dependency: "direct main"
-    description:
-      name: firebase_app_check
-      sha256: a1a5255b8d19e22f2d7e9ff1a1138268cd74d2c12b31dcb487612a371d7a21e9
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.2+6"
-  firebase_app_check_platform_interface:
-    dependency: transitive
-    description:
-      name: firebase_app_check_platform_interface
-      sha256: "26c0eca776d5d5ffb727435b71243a00e74000bd2760792921999b04564aaf59"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.1+6"
-  firebase_app_check_web:
-    dependency: transitive
-    description:
-      name: firebase_app_check_web
-      sha256: "889838c053f024572ba8077cb5a380ff8b224827090a1e5878f004290303ae0e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0+10"
   firebase_core:
     dependency: "direct main"
     description:
