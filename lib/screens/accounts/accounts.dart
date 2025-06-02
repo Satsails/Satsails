@@ -182,7 +182,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                                   'Bitcoin',
                                   isBalanceVisible
                                       ? btcInDenominationFormatted(
-                                    ref.watch(balanceNotifierProvider).btcBalance,
+                                    ref.watch(balanceNotifierProvider).onChainBtcBalance,
                                     ref.watch(settingsProvider).btcFormat,
                                   )
                                       : '***',
@@ -191,7 +191,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                                   isBalanceVisible
                                       ? currencyFormat(
                                     ref.watch(currentBitcoinPriceInCurrencyProvider(
-                                      CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).btcBalance),
+                                      CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).onChainBtcBalance),
                                     )).toDouble(),
                                     ref.watch(settingsProvider).currency,
                                   )
@@ -227,7 +227,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                                   'L-BTC',
                                   isBalanceVisible
                                       ? btcInDenominationFormatted(
-                                    ref.watch(balanceNotifierProvider).liquidBalance,
+                                    ref.watch(balanceNotifierProvider).liquidBtcBalance,
                                     ref.watch(settingsProvider).btcFormat,
                                   )
                                       : '***',
@@ -236,7 +236,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                                   isBalanceVisible
                                       ? currencyFormat(
                                     ref.watch(currentBitcoinPriceInCurrencyProvider(
-                                      CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).liquidBalance),
+                                      CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).liquidBtcBalance),
                                     )).toDouble(),
                                     ref.watch(settingsProvider).currency,
                                   )
@@ -248,7 +248,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                                   context,
                                   ref,
                                   'Depix',
-                                  isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance) : '***',
+                                  isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidDepixBalance) : '***',
                                   Image.asset('lib/assets/depix.png', width: 32.sp, height: 32.sp),
                                   ref.watch(addressProvider).liquidAddress,
                                   AssetId.BRL,
@@ -257,7 +257,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                                   context,
                                   ref,
                                   'USDT',
-                                  isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance) : '***',
+                                  isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidUsdtBalance) : '***',
                                   Image.asset('lib/assets/tether.png', width: 32.sp, height: 32.sp),
                                   ref.watch(addressProvider).liquidAddress,
                                   AssetId.USD,
@@ -266,7 +266,7 @@ class _AccountsState extends ConsumerState<Accounts> {
                                   context,
                                   ref,
                                   'EURx',
-                                  isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance) : '***',
+                                  isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidEuroxBalance) : '***',
                                   Image.asset('lib/assets/eurx.png', width: 32.sp, height: 32.sp),
                                   ref.watch(addressProvider).liquidAddress,
                                   AssetId.EUR,

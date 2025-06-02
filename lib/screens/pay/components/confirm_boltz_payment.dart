@@ -538,8 +538,8 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
                                                   ? null
                                                   : () async {
                                                 try {
-                                                  final liquidBalance = ref.read(balanceNotifierProvider).liquidBalance;
-                                                  final adjustedAmountInSats = (liquidBalance * 0.95).round();
+                                                  final liquidBtcBalance = ref.read(balanceNotifierProvider).liquidBtcBalance;
+                                                  final adjustedAmountInSats = (liquidBtcBalance * 0.95).round();
                                                   ref.read(sendTxProvider.notifier).updateAmountFromInput(adjustedAmountInSats.toString(), 'sats');
                                                 } catch (e) {
                                                   showMessageSnackBar(

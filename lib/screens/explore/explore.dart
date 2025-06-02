@@ -178,22 +178,22 @@ class _BalanceDisplay extends ConsumerWidget {
     final denomination = ref.watch(settingsProvider).btcFormat;
 
     final depixBalance = isBalanceVisible
-        ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance)
+        ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidDepixBalance)
         : '***';
-    final usdBalance = isBalanceVisible
-        ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance)
+    final liquidUsdtBalance = isBalanceVisible
+        ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidUsdtBalance)
         : '***';
     final euroBalance = isBalanceVisible
-        ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance)
+        ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidEuroxBalance)
         : '***';
-    final btcBalance = isBalanceVisible
-        ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).btcBalance, denomination)
+    final onChainBtcBalance = isBalanceVisible
+        ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).onChainBtcBalance, denomination)
         : '***';
-    final liquidBalance = isBalanceVisible
-        ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBalance, denomination)
+    final liquidBtcBalance = isBalanceVisible
+        ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBtcBalance, denomination)
         : '***';
-    final lightningBalance = isBalanceVisible
-        ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).lightningBalance ?? 0, denomination)
+    final sparkBitcoinbalance = isBalanceVisible
+        ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).sparkBitcoinbalance ?? 0, denomination)
         : '***';
 
     return Card(
@@ -220,13 +220,13 @@ class _BalanceDisplay extends ConsumerWidget {
                   imagePath: 'lib/assets/bitcoin-logo.png',
                   color: const Color(0xFFFF9800),
                   label: 'Bitcoin'.i18n,
-                  balance: btcBalance,
+                  balance: onChainBtcBalance,
                 ),
                 // _buildBalanceRow(
                 //   imagePath: 'lib/assets/Bitcoin_lightning_logo.png',
                 //   color: const Color(0xFFFF9800),
                 //   label: 'Lightning'.i18n,
-                //   balance: lightningBalance,
+                //   balance: sparkBitcoinbalance,
                 // ),
               ],
             ),
@@ -237,7 +237,7 @@ class _BalanceDisplay extends ConsumerWidget {
                   imagePath: 'lib/assets/l-btc.png',
                   color: const Color(0xFFFF9800),
                   label: 'Liquid'.i18n,
-                  balance: liquidBalance,
+                  balance: liquidBtcBalance,
                 ),
                 _buildBalanceRow(
                   imagePath: 'lib/assets/eurx.png',
@@ -260,7 +260,7 @@ class _BalanceDisplay extends ConsumerWidget {
                   imagePath: 'lib/assets/tether.png',
                   color: const Color(0xFF008001),
                   label: 'USDT'.i18n,
-                  balance: usdBalance,
+                  balance: liquidUsdtBalance,
                 ),
               ],
             ),

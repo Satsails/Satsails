@@ -147,16 +147,16 @@ final assetBalanceProvider = Provider.autoDispose<int>((ref) {
   // Return the corresponding balance based on the mapped AssetId
   switch (mappedAsset) {
     case AssetId.LBTC:
-      return balance.liquidBalance;
+      return balance.liquidBtcBalance;
     case AssetId.BRL:
-      return balance.brlBalance;
+      return balance.liquidDepixBalance;
     case AssetId.USD:
-      return balance.usdBalance;
+      return balance.liquidUsdtBalance;
     case AssetId.EUR:
-      return balance.eurBalance;
+      return balance.liquidEuroxBalance;
     case AssetId.UNKNOWN:
     default:
-      return balance.liquidBalance; // Fallback to liquidBalance for unknown assets
+      return balance.liquidBtcBalance; // Fallback to liquidBtcBalance for unknown assets
   }
 });
 

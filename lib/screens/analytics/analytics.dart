@@ -382,23 +382,23 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     final btcFormat = settings.btcFormat;
 
     // Fetch balances for all assets
-    final depixBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
-    final usdBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance);
-    final euroBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance);
-    final btcBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).btcBalance, btcFormat);
-    final liquidBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBalance, btcFormat);
-    final lightningBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).lightningBalance ?? 0, btcFormat);
+    final depixBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidDepixBalance);
+    final liquidUsdtBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidUsdtBalance);
+    final euroBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidEuroxBalance);
+    final onChainBtcBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).onChainBtcBalance, btcFormat);
+    final liquidBtcBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBtcBalance, btcFormat);
+    final sparkBitcoinbalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).sparkBitcoinbalance ?? 0, btcFormat);
 
     final selectedDays = ref.watch(selectedDaysDateArrayProvider);
 
     final isBitcoinAsset = _selectedAsset == 'Bitcoin (Mainnet)' || _selectedAsset == 'Lightning Bitcoin' || _selectedAsset == 'Liquid Bitcoin';
 
     final currentBalanceFormatted = switch (_selectedAsset) {
-      'Bitcoin (Mainnet)' => btcBalance,
-      'Lightning Bitcoin' => lightningBalance,
-      'Liquid Bitcoin' => liquidBalance,
+      'Bitcoin (Mainnet)' => onChainBtcBalance,
+      'Lightning Bitcoin' => sparkBitcoinbalance,
+      'Liquid Bitcoin' => liquidBtcBalance,
       'Depix' => depixBalance,
-      'USDT' => usdBalance,
+      'USDT' => liquidUsdtBalance,
       'EURx' => euroBalance,
       _ => throw ArgumentError('Unsupported asset: $_selectedAsset'),
     };

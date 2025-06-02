@@ -666,7 +666,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                             child: GestureDetector(
                                               onTap: () async {
                                                 try {
-                                                  final balance = ref.watch(balanceNotifierProvider).btcBalance;
+                                                  final balance = ref.watch(balanceNotifierProvider).onChainBtcBalance;
                                                   final transactionBuilderParams = await ref
                                                       .watch(bitcoinTransactionBuilderProvider(sendTxState.amount).future)
                                                       .then((value) => value);

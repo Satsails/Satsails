@@ -1,6 +1,8 @@
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/bitcoin_config_provider.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
@@ -49,9 +51,10 @@ class _OpenPinState extends ConsumerState<OpenPin> {
         try {
           _attempts = 0;
           ref.read(appLockedProvider.notifier).state = false;
-          await ref.read(transactionNotifierProvider.notifier).refreshTransactions();
         } finally {
-          // Set loading to false after operations, before navigation
+          ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+          ref.read(updateCurrencyProvider.future);
+          ref.read(getFiatPurchasesProvider.future);
           ref.read(loadingProvider.notifier).state = false;
         }
         context.go('/home');
@@ -99,9 +102,10 @@ class _OpenPinState extends ConsumerState<OpenPin> {
           ref.read(loadingProvider.notifier).state = true;
           try {
             ref.read(appLockedProvider.notifier).state = false;
-            await ref.read(transactionNotifierProvider.notifier).refreshTransactions();
           } finally {
-            // Set loading to false after operations, before navigation
+            ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+            ref.read(updateCurrencyProvider.future);
+            ref.read(getFiatPurchasesProvider.future);
             ref.read(loadingProvider.notifier).state = false;
           }
           context.go('/home');

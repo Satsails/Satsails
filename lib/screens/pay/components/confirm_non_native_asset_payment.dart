@@ -50,7 +50,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
     settleNetwork = params.settleNetwork;
     btcFormat = ref.read(settingsProvider).btcFormat;
 
-    balance = ref.read(balanceNotifierProvider).usdBalance;
+    balance = ref.read(balanceNotifierProvider).liquidUsdtBalance;
 
     final sendTxState = ref.read(sendTxProvider);
     if (sendTxState.amount > 0) {

@@ -42,7 +42,7 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin> {
         ref.invalidate(bitcoinConfigProvider);
         ref.invalidate(liquidConfigProvider);
         try {
-          await ref.read(backgroundSyncNotifierProvider.notifier).performSync();
+          ref.read(backgroundSyncNotifierProvider.notifier).performSync();
         } catch (e) {
           debugPrint('Background sync failed: $e');
         }

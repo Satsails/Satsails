@@ -178,14 +178,14 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
           // Extract results from Future.wait
           final liquidBalances = results[0] as Balances;
           final bitcoinBalance = results[1] as int;
-          // final lightningBalance = results[2] as int?;
-          const lightningBalance = 0;
+          // final sparkBitcoinbalance = results[2] as int?;
+          const sparkBitcoinbalance = 0;
 
           // Update the WalletBalance model
           final balanceData = WalletBalance.updateFromAssets(
             liquidBalances,
             bitcoinBalance,
-            lightningBalance ?? 0,
+            sparkBitcoinbalance ?? 0,
           );
 
           // Update the balance
@@ -242,12 +242,12 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
 
   void _compareBalances(WalletBalance previous, WalletBalance current) {
     final assets = [
-      {'name': 'Bitcoin', 'previous': previous.btcBalance, 'current': current.btcBalance},
-      {'name': 'Liquid Bitcoin', 'previous': previous.liquidBalance, 'current': current.liquidBalance},
-      {'name': 'USD', 'previous': previous.usdBalance, 'current': current.usdBalance},
-      {'name': 'EUR', 'previous': previous.eurBalance, 'current': current.eurBalance},
-      {'name': 'BRL', 'previous': previous.brlBalance, 'current': current.brlBalance},
-      {'name': 'Lightning', 'previous': previous.lightningBalance ?? 0, 'current': current.lightningBalance ?? 0},
+      {'name': 'Bitcoin', 'previous': previous.onChainBtcBalance, 'current': current.onChainBtcBalance},
+      {'name': 'Liquid Bitcoin', 'previous': previous.liquidBtcBalance, 'current': current.liquidBtcBalance},
+      {'name': 'USD', 'previous': previous.liquidUsdtBalance, 'current': current.liquidUsdtBalance},
+      {'name': 'EUR', 'previous': previous.liquidEuroxBalance, 'current': current.liquidEuroxBalance},
+      {'name': 'BRL', 'previous': previous.liquidDepixBalance, 'current': current.liquidDepixBalance},
+      {'name': 'Lightning', 'previous': previous.sparkBitcoinbalance ?? 0, 'current': current.sparkBitcoinbalance ?? 0},
     ];
 
     for (var asset in assets) {

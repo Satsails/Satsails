@@ -142,7 +142,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                               final index = value.toInt();
                               if (index < 0 || index >= sortedDays.length) return const SizedBox.shrink();
                               return SideTitleWidget(
-                                axisSide: meta.axisSide,
+                                meta: meta,
                                 child: Text(
                                   sortedDays[index].formatMD(),
                                   style: TextStyle(color: Colors.white, fontSize: 12.sp),
@@ -162,7 +162,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                                   : 2;
                               String formattedValue = value.toStringAsFixed(decimals);
                               return SideTitleWidget(
-                                axisSide: meta.axisSide,
+                                meta: meta,
                                 child: Text(
                                   formattedValue,
                                   style: TextStyle(color: Colors.white, fontSize: 12.sp),
@@ -285,11 +285,11 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     return LineTouchData(
       handleBuiltInTouches: true,
       touchTooltipData: LineTouchTooltipData(
-        tooltipBgColor: Colors.black.withOpacity(0.9),
-        tooltipRoundedRadius: 8.r,
+        // Removed deprecated parameters and added new ones
+        tooltipMargin: 10,
         tooltipPadding: EdgeInsets.all(12.w),
-        maxContentWidth: 200.w,
-        fitInsideHorizontally: true,
+        getTooltipColor: (LineBarSpot spot) => Colors.black.withOpacity(0.9),
+        tooltipBorder: BorderSide(color: Colors.white, width: 1),
         getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
           if (touchedBarSpots.isEmpty) return [];
           final flSpot = touchedBarSpots.first;
@@ -314,7 +314,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
               final price = _getValueForDate(widget.priceByDay, date);
               final formattedValuation = currencyFormat(value.toDouble(), widget.selectedCurrency);
               final formattedPrice = currencyFormat(price.toDouble(), widget.selectedCurrency);
-              final btcBalance = _getValueForDate(widget.bitcoinBalanceByDayformatted, date);
+              final onChainBtcBalance = _getValueForDate(widget.bitcoinBalanceByDayformatted, date);
               children.addAll([
                 TextSpan(
                   text: 'Total Value: %s\n'.i18n.fill([formattedValuation]),
@@ -323,7 +323,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                 TextSpan(
                   text: '%s: %s\n'.i18n.fill([
                     widget.btcFormat != 'sats' ? 'BTC' : 'Sats',
-                    btcBalance,
+                    onChainBtcBalance,
                   ]),
                   style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                 ),
