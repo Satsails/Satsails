@@ -106,3 +106,26 @@ final shiftByIdProvider = Provider.family<SideShift, String>((ref, id) {
   final shifts = ref.watch(sideShiftShiftsProvider);
   return shifts.firstWhere((shift) => shift.id == id);
 });
+
+final sideShiftQuoteProvider = FutureProvider.family.autoDispose<SideShiftQuote, (ShiftPair, String, bool)>((ref, params) async {
+  final (shiftPair, amount, isDepositAmount) = params;
+  final shiftParams = shiftParamsMap[shiftPair]!;
+
+  final request = SideShiftQuoteRequest(
+    depositCoin: shiftParams.depositCoin,
+    depositNetwork: shiftParams.depositNetwork,
+    settleCoin: shiftParams.settleCoin,
+    settleNetwork: shiftParams.settleNetwork,
+    depositAmount: isDepositAmount ? amount : null,
+    settleAmount: isDepositAmount ? null : amount,
+    affiliateId: dotenv.env['SIDESHIFTAFFILIATE']!,
+  );
+
+  final result = await SideShiftService.getQuote(request);
+
+  if (result.data != null) {
+    return result.data!;
+  } else {
+    throw result.error ?? 'Unknown error';
+  }
+});

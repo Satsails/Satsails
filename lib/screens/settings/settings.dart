@@ -780,6 +780,42 @@ class DenominationChangeModalBottomSheet extends StatelessWidget {
             ],
           ),
           child: ListTile(
+            leading: Flag(Flags.united_kingdom),
+            title: Text('GBP', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+            onTap: () {
+              settingsNotifier.setCurrency('GBP');
+              context.pop();
+            },
+          ),
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
+          decoration: BoxDecoration(
+            color: const Color(0x00333333).withOpacity(0.4),
+            borderRadius: BorderRadius.circular(12.0),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4.0, offset: const Offset(0, 2)),
+            ],
+          ),
+          child: ListTile(
+            leading: Flag(Flags.switzerland),
+            title: Text('CHF', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+            onTap: () {
+              settingsNotifier.setCurrency('CHF');
+              context.pop();
+            },
+          ),
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
+          decoration: BoxDecoration(
+            color: const Color(0x00333333).withOpacity(0.4),
+            borderRadius: BorderRadius.circular(12.0),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4.0, offset: const Offset(0, 2)),
+            ],
+          ),
+          child: ListTile(
             leading: Flag(Flags.united_states_of_america),
             title: Text('USD', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
             onTap: () {

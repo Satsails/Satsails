@@ -50,37 +50,37 @@ class BalanceCard extends ConsumerWidget {
         ? Colors.grey[600]!
         : textColor;
 
-    final depixBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).brlBalance);
-    final usdBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).usdBalance);
-    final euroBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).eurBalance);
-    final btcBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).btcBalance, btcFormat);
-    final liquidBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBalance, btcFormat);
-    final lightningBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).lightningBalance ?? 0, btcFormat);
+    final depixBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidDepixBalance);
+    final liquidUsdtBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidUsdtBalance);
+    final euroBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidEuroxBalance);
+    final onChainBtcBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).onChainBtcBalance, btcFormat);
+    final liquidBtcBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBtcBalance, btcFormat);
+    final sparkBitcoinbalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).sparkBitcoinbalance ?? 0, btcFormat);
 
     String nativeBalance;
     String equivalentBalance = '';
 
     switch (selectedAsset) {
       case 'Bitcoin (Mainnet)':
-        nativeBalance = isBalanceVisible ? btcBalance : '****';
+        nativeBalance = isBalanceVisible ? onChainBtcBalance : '****';
         equivalentBalance = isBalanceVisible
-            ? currencyFormat(ref.watch(balanceNotifierProvider).btcBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
+            ? currencyFormat(ref.watch(balanceNotifierProvider).onChainBtcBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
             : '****';
         break;
       case 'Lightning Bitcoin':
-        nativeBalance = isBalanceVisible ? lightningBalance : '****';
+        nativeBalance = isBalanceVisible ? sparkBitcoinbalance : '****';
         equivalentBalance = isBalanceVisible
-            ? currencyFormat((ref.watch(balanceNotifierProvider).lightningBalance ?? 0) / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
+            ? currencyFormat((ref.watch(balanceNotifierProvider).sparkBitcoinbalance ?? 0) / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
             : '****';
         break;
       case 'Liquid Bitcoin':
-        nativeBalance = isBalanceVisible ? liquidBalance : '****';
+        nativeBalance = isBalanceVisible ? liquidBtcBalance : '****';
         equivalentBalance = isBalanceVisible
-            ? currencyFormat(ref.watch(balanceNotifierProvider).liquidBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
+            ? currencyFormat(ref.watch(balanceNotifierProvider).liquidBtcBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
             : '****';
         break;
       case 'USDT':
-        nativeBalance = isBalanceVisible ? usdBalance : '****';
+        nativeBalance = isBalanceVisible ? liquidUsdtBalance : '****';
         break;
       case 'EURx':
         nativeBalance = isBalanceVisible ? euroBalance : '****';

@@ -228,7 +228,7 @@ final sideswapQuoteStreamProvider = StreamProvider.autoDispose<SideswapQuote>((r
   yield* service.quoteStream.map((event) => SideswapQuote.fromJson(event));
 });
 
-final sideswapQuoteProvider = StateNotifierProvider.autoDispose<SideswapQuoteModel, SideswapQuote>((ref) {
+final sideswapQuoteProvider = StateNotifierProvider<SideswapQuoteModel, SideswapQuote>((ref) {
   return SideswapQuoteModel(ref);
 });
 

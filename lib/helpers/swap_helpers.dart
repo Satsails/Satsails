@@ -295,26 +295,26 @@ final balanceFromAssetProvider = StateProvider.autoDispose<String>((ref) {
   switch (fromAsset) {
     case SwapType.sideswapBtcToLbtc:
     case SwapType.coinosBtcToLn:
-      return btcInDenominationFormatted(balance.btcBalance, btcFormat);
+      return btcInDenominationFormatted(balance.onChainBtcBalance, btcFormat);
     case SwapType.sideswapLbtcToBtc:
     case SwapType.coinosLbtcToLn:
     case SwapType.sideswapLbtcToDepix:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToUsdt:
-      return btcInDenominationFormatted(balance.liquidBalance, btcFormat);
+      return btcInDenominationFormatted(balance.liquidBtcBalance, btcFormat);
     case SwapType.coinosLnToBTC:
     case SwapType.coinosLnToLBTC:
-      return btcInDenominationFormatted(balance.lightningBalance!.toInt(), btcFormat);
+      return btcInDenominationFormatted(balance.sparkBitcoinbalance!.toInt(), btcFormat);
     case SwapType.sideswapUsdtToLbtc:
     case SwapType.sideswapUsdtToDepix:
     case SwapType.sideswapUsdtToEurox:
-      return fiatInDenominationFormatted(balance.usdBalance);
+      return fiatInDenominationFormatted(balance.liquidUsdtBalance);
     case SwapType.sideswapEuroxToLbtc:
     case SwapType.sideswapEuroxToUsdt:
-      return fiatInDenominationFormatted(balance.eurBalance);
+      return fiatInDenominationFormatted(balance.liquidEuroxBalance);
     case SwapType.sideswapDepixToLbtc:
     case SwapType.sideswapDepixToUsdt:
-      return fiatInDenominationFormatted(balance.brlBalance);
+      return fiatInDenominationFormatted(balance.liquidDepixBalance);
     default:
       return '0';
   }
@@ -516,7 +516,7 @@ Future<void> handleMaxButtonPress(
     case SwapType.sideswapUsdtToLbtc:
     case SwapType.sideswapUsdtToDepix:
     case SwapType.sideswapUsdtToEurox:
-      balance = ref.read(balanceNotifierProvider).usdBalance;
+      balance = ref.read(balanceNotifierProvider).liquidUsdtBalance;
       controller.text = fiatInDenominationFormatted(balance);
       ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
       ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
@@ -525,7 +525,7 @@ Future<void> handleMaxButtonPress(
 
     case SwapType.sideswapEuroxToLbtc:
     case SwapType.sideswapEuroxToUsdt:
-      balance = ref.read(balanceNotifierProvider).eurBalance;
+      balance = ref.read(balanceNotifierProvider).liquidEuroxBalance;
       controller.text = fiatInDenominationFormatted(balance);
       ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.EUR));
       ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
@@ -534,7 +534,7 @@ Future<void> handleMaxButtonPress(
 
     case SwapType.sideswapDepixToLbtc:
     case SwapType.sideswapDepixToUsdt:
-      balance = ref.read(balanceNotifierProvider).brlBalance;
+      balance = ref.read(balanceNotifierProvider).liquidDepixBalance;
       controller.text = fiatInDenominationFormatted(balance);
       ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.BRL));
       ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
@@ -544,7 +544,7 @@ Future<void> handleMaxButtonPress(
     case SwapType.sideswapLbtcToDepix:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToUsdt:
-      balance = ref.read(balanceNotifierProvider).liquidBalance;
+      balance = ref.read(balanceNotifierProvider).liquidBtcBalance;
       controller.text = btcInDenominationFormatted(balance.toDouble(), btcFormat);
       ref.read(inputInFiatProvider.notifier).state = false;
       ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
@@ -582,7 +582,7 @@ Future<void> handlePegIn(
     TextEditingController controller,
     String btcFormat,
     ) async {
-  final bitcoin = ref.watch(balanceNotifierProvider).btcBalance;
+  final bitcoin = ref.watch(balanceNotifierProvider).onChainBtcBalance;
   ref.read(pegInProvider.notifier).state = true;
   final peg = await ref.watch(sideswapPegProvider.future);
 
@@ -609,7 +609,7 @@ Future<void> handlePegOut(
     TextEditingController controller,
     String btcFormat,
     ) async {
-  final liquid = ref.watch(balanceNotifierProvider).liquidBalance;
+  final liquid = ref.watch(balanceNotifierProvider).liquidBtcBalance;
   ref.read(pegInProvider.notifier).state = false;
   final peg = await ref.watch(sideswapPegProvider.future);
 
@@ -623,7 +623,7 @@ Future<void> handlePegOut(
 
 Future<void> handleLightningToAsset(WidgetRef ref, TextEditingController controller, String btcFormat) async {
   ref.read(inputInFiatProvider.notifier).state = false;
-  final balance = ref.read(balanceNotifierProvider).lightningBalance;
+  final balance = ref.read(balanceNotifierProvider).sparkBitcoinbalance;
   int maxAmount = (balance! * 0.995).toInt();
   controller.text = btcInDenominationFormatted(maxAmount, btcFormat);
   ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
@@ -631,7 +631,7 @@ Future<void> handleLightningToAsset(WidgetRef ref, TextEditingController control
 
 Future<void> handleBitcoinToLightning(WidgetRef ref, TextEditingController controller, String btcFormat) async {
   ref.read(inputInFiatProvider.notifier).state = false;
-  final balance = ref.read(balanceNotifierProvider).btcBalance;
+  final balance = ref.read(balanceNotifierProvider).onChainBtcBalance;
   final address = await ref.read(createInvoiceForSwapProvider('bitcoin').future);
   ref.read(sendTxProvider.notifier).updateAddress(address);
 
@@ -1131,6 +1131,10 @@ Widget buildSideswapInstantSwap(
           style: TextStyle(color: Colors.grey, fontSize: 16.sp),
         );
       case 'Loading':
+        return Text(
+          'Loading, please wait...',
+          style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+        );
       case 'Initial':
         return Center(
           child: LoadingAnimationWidget.fourRotatingDots(
@@ -2214,7 +2218,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               await ref.read(sendLiquidTransactionProvider.future);
               final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
               final lnBalance = await ref.read(coinosBalanceProvider.future);
-              balanceNotifier.updateLightningBalance(lnBalance);
+              balanceNotifier.updateSparkBitcoinbalance(lnBalance);
             }
             ref.read(sendBlocksProvider.notifier).state = 1;
             controller.success();
@@ -2273,7 +2277,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
               await ref.read(sendBitcoinTransactionProvider.future);
               final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
               final lnBalance = await ref.read(coinosBalanceProvider.future);
-              balanceNotifier.updateLightningBalance(lnBalance);
+              balanceNotifier.updateSparkBitcoinbalance(lnBalance);
             }
             ref.read(sendBlocksProvider.notifier).state = 1;
             controller.success();
@@ -2314,7 +2318,7 @@ Widget slideToSend(WidgetRef ref, BuildContext context) {
 
   switch (swapType) {
     case SwapType.sideswapBtcToLbtc:
-      return _bitcoinPegSlideToSend(ref,context);
+      return _bitcoinPegSlideToSend(ref, context);
     case SwapType.sideswapLbtcToBtc:
       return _liquidPegSlideToSend(ref, context);
     case SwapType.coinosLnToBTC:
@@ -2335,8 +2339,13 @@ Widget slideToSend(WidgetRef ref, BuildContext context) {
     case SwapType.sideswapLbtcToUsdt:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToDepix:
-      return _instantSwapSlideToSend(ref, context);
+      final quote = ref.watch(sideswapQuoteProvider);
+      if (quote.status == 'Success') {
+        return _instantSwapSlideToSend(ref, context);
+      } else {
+        return SizedBox.shrink();
+      }
     default:
-      return const SizedBox.shrink();
+      return SizedBox.shrink();
   }
 }
