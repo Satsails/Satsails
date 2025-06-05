@@ -17,7 +17,6 @@ class DepositTypeScreen extends ConsumerWidget {
     final availablePaymentMethods = ref.watch(availablePaymentMethodsProvider);
     final availableDepositTypes = ref.watch(availableDepositTypesProvider);
 
-    // Reset selected payment method if invalid
     if (selectedPaymentMethod != null && !availablePaymentMethods.contains(selectedPaymentMethod)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(selectedPaymentMethodProvider.notifier).state =
@@ -25,18 +24,12 @@ class DepositTypeScreen extends ConsumerWidget {
       });
     }
 
-    // Reset selected deposit type if invalid
     if (!availableDepositTypes.contains(selectedAsset)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(selectedCryptoTypeProvider.notifier).state =
         availableDepositTypes.isNotEmpty ? availableDepositTypes.first : DepositType.Bitcoin;
       });
     }
-
-    bool isConditionMet = selectedCurrency == CurrencyDeposit.BRL &&
-        selectedPaymentMethod == DepositMethod.PIX &&
-        selectedAsset == DepositType.Depix &&
-        selectedMode == 'Purchase from Providers';
 
     return Scaffold(
       appBar: AppBar(
@@ -145,31 +138,50 @@ class DepositTypeScreen extends ConsumerWidget {
                         },
                       ),
                       SizedBox(height: 32.h),
-                      ElevatedButton(
-                        onPressed: isConditionMet
-                            ? () {
-                          context.pushNamed('DepositPixEulen');
-                        }
-                            : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isConditionMet ? Colors.green : Colors.red,
-                          disabledBackgroundColor: isConditionMet ? Colors.green : Colors.red,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r)),
-                          padding: EdgeInsets.symmetric(vertical: 16.h),
-                        ),
-                        child: Text(
-                          isConditionMet ? 'Buy'.i18n : 'Coming soon'.i18n,
-                          style: TextStyle(color: Colors.black, fontSize: 16.sp),
-                        ),
+                      Builder(
+                        builder: (context) {
+                          final selectedProvider = ref.watch(computedDepositProvider);
+                          final isButtonEnabled = selectedProvider == DepositProvider.Eulen ||
+                              selectedProvider == DepositProvider.Nox;
+                          final buttonText = isButtonEnabled ? 'Buy'.i18n : 'Coming soon'.i18n;
+
+                          return ElevatedButton(
+                            onPressed: isButtonEnabled
+                                ? () {
+                              final route = selectedProvider == DepositProvider.Eulen
+                                  ? 'DepositPixEulen'
+                                  : 'DepositPixNox';
+                              context.pushNamed(route);
+                            }
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isButtonEnabled ? Colors.green : Colors.red,
+                              disabledBackgroundColor:
+                              isButtonEnabled ? Colors.green : Colors.red,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.r)),
+                              padding: EdgeInsets.symmetric(vertical: 16.h),
+                            ),
+                            child: Text(
+                              buttonText,
+                              style: TextStyle(color: Colors.black, fontSize: 16.sp),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
                 ),
               ),
-              if (isConditionMet) ...[
-                const ProviderDetails(),
-              ],
+              Builder(
+                builder: (context) {
+                  final selectedProvider = ref.watch(computedDepositProvider);
+                  if (selectedProvider != null) {
+                    return ProviderDetails(provider: selectedProvider);
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
             ],
           ),
         ),
@@ -225,16 +237,15 @@ class DepositTypeScreen extends ConsumerWidget {
 }
 
 class ProviderDetails extends ConsumerWidget {
-  const ProviderDetails({super.key});
+  final DepositProvider provider;
+
+  const ProviderDetails({super.key, required this.provider});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Hardcode to Eulen since only this condition is currently supported
-    const selectedProvider = DepositProvider.Eulen;
-    final providerDetail = providerDetails[selectedProvider]!;
-    final kyc = kycAssessment[selectedProvider]!;
+    final providerDetail = providerDetails[provider]!;
+    final kyc = kycAssessment[provider]!;
 
-    // Define consistent text styles
     final sectionTitleStyle = TextStyle(
       color: Colors.white,
       fontSize: 20.sp,
@@ -258,7 +269,7 @@ class ProviderDetails extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16.r),
         child: ExpansionTile(
           title: Text(
-            'Provider: ${formatEnumName(selectedProvider.name)}'.i18n,
+            'Provider: ${formatEnumName(provider.name)}'.i18n,
             style: TextStyle(
               color: Colors.white,
               fontSize: 18.sp,
@@ -275,7 +286,20 @@ class ProviderDetails extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // KYC Assessment Section
+                  if (provider == DepositProvider.Nox) ...[
+                    Container(
+                      padding: EdgeInsets.all(12.h),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Text(
+                        "Purchases are payed not nativly into your wallet but to a smart contract provided by sideshift. The provider NOX reports all purchases as USDT. The smart contract does not do any reporting automatically. Comply with your local laws".i18n,
+                        style: TextStyle(color: Colors.white, fontSize: 14.sp),
+                      ),
+                    ),
+                    SizedBox(height: 20.h),
+                  ],
                   Text(
                     'KYC Assessment'.i18n,
                     style: sectionTitleStyle,
@@ -327,7 +351,6 @@ class ProviderDetails extends ConsumerWidget {
                     endIndent: 12.w,
                   ),
                   SizedBox(height: 20.h),
-                  // Advantages Section
                   Text(
                     'Advantages'.i18n,
                     style: sectionTitleStyle,
@@ -359,7 +382,6 @@ class ProviderDetails extends ConsumerWidget {
                     endIndent: 12.w,
                   ),
                   SizedBox(height: 20.h),
-                  // Disadvantages Section
                   Text(
                     'Disadvantages'.i18n,
                     style: sectionTitleStyle,

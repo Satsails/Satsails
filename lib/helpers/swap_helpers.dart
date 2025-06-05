@@ -1131,6 +1131,10 @@ Widget buildSideswapInstantSwap(
           style: TextStyle(color: Colors.grey, fontSize: 16.sp),
         );
       case 'Loading':
+        return Text(
+          'Loading, please wait...',
+          style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+        );
       case 'Initial':
         return Center(
           child: LoadingAnimationWidget.fourRotatingDots(
@@ -2314,7 +2318,7 @@ Widget slideToSend(WidgetRef ref, BuildContext context) {
 
   switch (swapType) {
     case SwapType.sideswapBtcToLbtc:
-      return _bitcoinPegSlideToSend(ref,context);
+      return _bitcoinPegSlideToSend(ref, context);
     case SwapType.sideswapLbtcToBtc:
       return _liquidPegSlideToSend(ref, context);
     case SwapType.coinosLnToBTC:
@@ -2335,8 +2339,13 @@ Widget slideToSend(WidgetRef ref, BuildContext context) {
     case SwapType.sideswapLbtcToUsdt:
     case SwapType.sideswapLbtcToEurox:
     case SwapType.sideswapLbtcToDepix:
-      return _instantSwapSlideToSend(ref, context);
+      final quote = ref.watch(sideswapQuoteProvider);
+      if (quote.status == 'Success') {
+        return _instantSwapSlideToSend(ref, context);
+      } else {
+        return SizedBox.shrink();
+      }
     default:
-      return const SizedBox.shrink();
+      return SizedBox.shrink();
   }
 }

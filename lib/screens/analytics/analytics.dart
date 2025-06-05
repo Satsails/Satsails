@@ -542,7 +542,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                           const Icon(Icons.error_outline, color: Colors.red, size: 48),
                           const SizedBox(height: 16),
                           Text(
-                            'Error Loading Market Data'.i18n,
+                            'Error Loading Market Graphs'.i18n,
                             style: const TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),

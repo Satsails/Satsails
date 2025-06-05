@@ -6,7 +6,6 @@ import 'package:Satsails/handlers/response_handlers.dart';
 
 part 'sideshift_model.g.dart';
 
-
 class RefundAddressParams {
   final String shiftId;
   final String refundAddress;
@@ -15,7 +14,6 @@ class RefundAddressParams {
 }
 
 enum ShiftPair {
-  // Receiving on Liquid
   usdtTronToLiquidUsdt,
   usdtBscToLiquidUsdt,
   usdtEthToLiquidUsdt,
@@ -26,6 +24,7 @@ enum ShiftPair {
   usdcBscToLiquidUsdt,
   usdcSolToLiquidUsdt,
   usdcPolygonToLiquidUsdt,
+  usdcAvaxToLiquidUsdt, // added
   ethToLiquidBtc,
   trxToLiquidBtc,
   bnbToLiquidBtc,
@@ -41,6 +40,13 @@ enum ShiftPair {
   liquidUsdtToUsdcBsc,
   liquidUsdtToUsdcSol,
   liquidUsdtToUsdcPolygon,
+  // New pairs: Receiving on Bitcoin main network and Liquid
+  usdtPolygonToBtc,
+  usdtPolygonToLiquidBtc,
+  usdtSolanaToBtc,
+  usdtSolanaToLiquidBtc,
+  usdcAvaxToBtc, // added
+  usdcAvaxToLiquidBtc, // added
 }
 
 final shiftParamsMap = {
@@ -103,6 +109,12 @@ final shiftParamsMap = {
     depositCoin: 'USDC',
     settleCoin: 'USDT',
     depositNetwork: 'polygon',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdcAvaxToLiquidUsdt: ShiftParams( // added
+    depositCoin: 'USDC',
+    settleCoin: 'USDT',
+    depositNetwork: 'avax',
     settleNetwork: 'liquid',
   ),
   ShiftPair.ethToLiquidBtc: ShiftParams(
@@ -190,9 +202,44 @@ final shiftParamsMap = {
     depositNetwork: 'liquid',
     settleNetwork: 'polygon',
   ),
+  // New pairs: Receiving on Bitcoin main network and Liquid
+  ShiftPair.usdtPolygonToBtc: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'BTC',
+    depositNetwork: 'polygon',
+    settleNetwork: 'bitcoin',
+  ),
+  ShiftPair.usdtPolygonToLiquidBtc: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'BTC',
+    depositNetwork: 'polygon',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdtSolanaToBtc: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'BTC',
+    depositNetwork: 'solana',
+    settleNetwork: 'bitcoin',
+  ),
+  ShiftPair.usdtSolanaToLiquidBtc: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'BTC',
+    depositNetwork: 'solana',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdcAvaxToBtc: ShiftParams( // added
+    depositCoin: 'USDC',
+    settleCoin: 'BTC',
+    depositNetwork: 'avax',
+    settleNetwork: 'bitcoin',
+  ),
+  ShiftPair.usdcAvaxToLiquidBtc: ShiftParams( // added
+    depositCoin: 'USDC',
+    settleCoin: 'BTC',
+    depositNetwork: 'avax',
+    settleNetwork: 'liquid',
+  ),
 };
-
-
 
 class ShiftParams {
   final String depositCoin;
@@ -550,6 +597,44 @@ class SideShiftShiftRequest {
       affiliateId: affiliateId,
     );
   }
+
+  // New factory for USDT to BTC (Bitcoin main network or Liquid)
+  factory SideShiftShiftRequest.usdtToBtc({
+    required String settleAddress,
+    required String refundAddress,
+    required String depositNetwork,
+    required String settleNetwork,
+    required String affiliateId,
+  }) {
+    return SideShiftShiftRequest(
+      settleAddress: settleAddress,
+      refundAddress: refundAddress,
+      depositCoin: 'USDT',
+      settleCoin: 'BTC',
+      depositNetwork: depositNetwork,
+      settleNetwork: settleNetwork,
+      affiliateId: affiliateId,
+    );
+  }
+
+  // New factory for USDC to BTC (Bitcoin main network or Liquid) // added
+  factory SideShiftShiftRequest.usdcToBtc({
+    required String settleAddress,
+    required String refundAddress,
+    required String depositNetwork,
+    required String settleNetwork,
+    required String affiliateId,
+  }) {
+    return SideShiftShiftRequest(
+      settleAddress: settleAddress,
+      refundAddress: refundAddress,
+      depositCoin: 'USDC',
+      settleCoin: 'BTC',
+      depositNetwork: depositNetwork,
+      settleNetwork: settleNetwork,
+      affiliateId: affiliateId,
+    );
+  }
 }
 
 @HiveType(typeId: 30)
@@ -763,6 +848,24 @@ class SideShiftService {
       return Result(error: 'An error occurred. Please try again later');
     }
   }
+
+  static Future<Result<SideShiftQuote>> getQuote(SideShiftQuoteRequest request) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://sideshift.ai/api/v2/quotes'),
+        body: jsonEncode(request.toJson()),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 201) {
+        return Result(data: SideShiftQuote.fromJson(jsonDecode(response.body)));
+      } else {
+        return Result(error: '${jsonDecode(response.body)["error"]["message"]}');
+      }
+    } catch (e) {
+      return Result(error: 'An error occurred. Please try again later');
+    }
+  }
 }
 
 class SideshiftAsset {
@@ -784,4 +887,78 @@ class SideshiftAssetPair {
   final SideshiftAsset to;
 
   SideshiftAssetPair({required this.from, required this.to});
+}
+
+class SideShiftQuote {
+  final String id;
+  final int createdAt;
+  final String depositCoin;
+  final String settleCoin;
+  final String depositNetwork;
+  final String settleNetwork;
+  final int expiresAt;
+  final String depositAmount;
+  final String settleAmount;
+  final String rate;
+  final String affiliateId;
+
+  SideShiftQuote({
+    required this.id,
+    required this.createdAt,
+    required this.depositCoin,
+    required this.settleCoin,
+    required this.depositNetwork,
+    required this.settleNetwork,
+    required this.expiresAt,
+    required this.depositAmount,
+    required this.settleAmount,
+    required this.rate,
+    required this.affiliateId,
+  });
+
+  factory SideShiftQuote.fromJson(Map<String, dynamic> json) {
+    return SideShiftQuote(
+      id: json['id'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String).millisecondsSinceEpoch ~/ 1000,
+      depositCoin: json['depositCoin'] as String,
+      settleCoin: json['settleCoin'] as String,
+      depositNetwork: json['depositNetwork'] as String,
+      settleNetwork: json['settleNetwork'] as String,
+      expiresAt: DateTime.parse(json['expiresAt'] as String).millisecondsSinceEpoch ~/ 1000,
+      depositAmount: json['depositAmount'] as String,
+      settleAmount: json['settleAmount'] as String,
+      rate: json['rate'] as String,
+      affiliateId: json['affiliateId'] as String,
+    );
+  }
+}
+
+class SideShiftQuoteRequest {
+  final String depositCoin;
+  final String depositNetwork;
+  final String settleCoin;
+  final String settleNetwork;
+  final String? depositAmount;
+  final String? settleAmount;
+  final String affiliateId;
+
+  SideShiftQuoteRequest({
+    required this.depositCoin,
+    required this.depositNetwork,
+    required this.settleCoin,
+    required this.settleNetwork,
+    this.depositAmount,
+    this.settleAmount,
+    required this.affiliateId,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'depositCoin': depositCoin,
+    'depositNetwork': depositNetwork,
+    'settleCoin': settleCoin,
+    'settleNetwork': settleNetwork,
+    if (depositAmount != null) 'depositAmount': depositAmount,
+    if (settleAmount != null) 'settleAmount': settleAmount,
+    'affiliateId': affiliateId,
+  };
 }

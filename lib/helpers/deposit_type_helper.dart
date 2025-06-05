@@ -12,13 +12,29 @@ enum CurrencyDeposit { USD, EUR, BRL, CHF, GBP }
 final selectedModeProvider = StateProvider<String>((ref) => 'Purchase from Providers');
 final selectedCurrencyProvider = StateProvider<CurrencyDeposit>((ref) => CurrencyDeposit.BRL);
 final selectedPaymentMethodProvider = StateProvider<DepositMethod?>((ref) => DepositMethod.PIX);
-final selectedCryptoTypeProvider = StateProvider<DepositType>((ref) => DepositType.Depix);
-final selectedDepositProvider = StateProvider<DepositProvider>((ref) => DepositProvider.Eulen);
+final selectedCryptoTypeProvider = StateProvider<DepositType>((ref) => DepositType.Bitcoin);
+
+final computedDepositProvider = Provider<DepositProvider?>((ref) {
+  final paymentMethod = ref.watch(selectedPaymentMethodProvider);
+  final asset = ref.watch(selectedCryptoTypeProvider);
+  final currency = ref.watch(selectedCurrencyProvider);
+
+  if (currency == CurrencyDeposit.BRL && paymentMethod == DepositMethod.PIX) {
+    if (asset == DepositType.Depix) {
+      return DepositProvider.Eulen;
+    } else if (asset == DepositType.USDT || asset == DepositType.Bitcoin || asset == DepositType.LiquidBitcoin) {
+      return DepositProvider.Nox;
+    } else {
+      return DepositProvider.Nox;
+    }
+  }
+  return null;
+});
 
 final availablePaymentMethodsProvider = Provider<List<DepositMethod>>((ref) {
   final currency = ref.watch(selectedCurrencyProvider);
   if (currency == CurrencyDeposit.BRL) {
-    return [DepositMethod.PIX]; // Return all DepositMethod values for BRL
+    return [DepositMethod.PIX];
   } else {
     return DepositMethod.values.where((method) => method != DepositMethod.PIX).toList();
   }
@@ -27,7 +43,7 @@ final availablePaymentMethodsProvider = Provider<List<DepositMethod>>((ref) {
 final availableDepositTypesProvider = Provider<List<DepositType>>((ref) {
   final currency = ref.watch(selectedCurrencyProvider);
   if (currency == CurrencyDeposit.BRL) {
-    return [DepositType.Depix, DepositType.Bitcoin, DepositType.LightningBitcoin];
+    return [DepositType.Bitcoin, DepositType.LiquidBitcoin, DepositType.Depix, DepositType.USDT];
   } else {
     return DepositType.values.where((type) => type != DepositType.Depix).toList();
   }
@@ -59,12 +75,14 @@ final Map<DepositProvider, ProviderDetails> providerDetails = {
   ),
   DepositProvider.Nox: ProviderDetails(
     advantages: [
-      "Purchase bitcoin directly".i18n,
+      "Purchase multiple currencies via smart contacts directly".i18n,
+      "The purchases are sent to a smart contract which then processes the payment. The smart contracts are non custodial".i18n,
       "Near unlimited purchase amounts".i18n,
     ],
     disadvantages: [
       "You have to KYC with the provider".i18n,
-      "Purchases reported to the Brazilian federal revenue agency under the payer's name".i18n,
+      "You are required to report manually your puchases if not USDT if your jurisdiction requires it".i18n,
+      "Purchases reported to the Brazilian federal revenue agency under the payer's name as USDT".i18n,
     ],
   ),
   DepositProvider.Chimera: ProviderDetails(
@@ -76,6 +94,16 @@ final Map<DepositProvider, ProviderDetails> providerDetails = {
     disadvantages: ["To be defined".i18n],
   ),
 };
+
+class KYCAassessment {
+  final List<String> details;
+  final double rating;
+
+  KYCAassessment({
+    required this.details,
+    required this.rating,
+  });
+}
 
 final Map<DepositProvider, KYCAassessment> kycAssessment = {
   DepositProvider.Eulen: KYCAassessment(
@@ -98,11 +126,11 @@ final Map<DepositProvider, KYCAassessment> kycAssessment = {
   ),
   DepositProvider.Nox: KYCAassessment(
     details: [
-      "Full KYC required, with Bitcoin purchases directly reported to the Brazilian federal revenue agency.",
-      "Streamlined for users who prefer quick and easy tax reporting.",
-      "*Always comply with the laws of your jurisdiction."
+      "You are required to report manually your puchases if not USDT if your jurisdiction requires it".i18n,
+      "Purchases reported to the Brazilian federal revenue agency under the payer's name as USDT".i18n,
+      "*Always comply with the laws of your jurisdiction.".i18n
     ],
-    rating: 2.0,
+    rating: 4.0,
   ),
   DepositProvider.Meld: KYCAassessment(
     details: [
@@ -114,21 +142,6 @@ final Map<DepositProvider, KYCAassessment> kycAssessment = {
   ),
 };
 
-class KYCAassessment {
-  final List<String> details;
-  final double rating;
-
-  KYCAassessment({
-    required this.details,
-    required this.rating,
-  });
-}
-
-// Dropdown options (unchanged)
-final List<String> modes = ['Purchase with P2P (No KYC)', 'Purchase from Providers'];
-const List<CurrencyDeposit> currencies = CurrencyDeposit.values;
-
-// Currency flags (unchanged)
 final Map<CurrencyDeposit, Widget> currencyFlags = {
   CurrencyDeposit.EUR: Flag(Flags.european_union),
   CurrencyDeposit.BRL: Flag(Flags.brazil),
@@ -137,7 +150,6 @@ final Map<CurrencyDeposit, Widget> currencyFlags = {
   CurrencyDeposit.GBP: Flag(Flags.united_kingdom),
 };
 
-// Payment method icons (unchanged)
 final Map<DepositMethod, IconData> paymentMethodIcons = {
   DepositMethod.PIX: Icons.pix,
   DepositMethod.BankTransfer: Icons.account_balance,
@@ -146,7 +158,6 @@ final Map<DepositMethod, IconData> paymentMethodIcons = {
   DepositMethod.CreditCard: Icons.credit_card,
 };
 
-// Asset images (unchanged)
 Widget getAssetImage(DepositType asset) {
   const Map<DepositType, String> assetImages = {
     DepositType.Depix: 'lib/assets/depix.png',

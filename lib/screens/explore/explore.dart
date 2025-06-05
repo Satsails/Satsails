@@ -419,7 +419,7 @@ class _ActionCards extends ConsumerWidget {
                           ),
                           SizedBox(height: 8.w),
                           Text(
-                            'Market Data'.i18n,
+                            'Market Graphs'.i18n,
                             style: TextStyle(
                               fontSize: 16.sp,
                               color: Colors.white,

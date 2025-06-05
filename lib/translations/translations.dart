@@ -2596,8 +2596,8 @@ extension Localization on String {
         'pt': 'Taxa do servidor',
       } +
       {
-        'en': 'Market Data',
-        'pt': 'Dados de mercado',
+        'en': 'Market Graphs',
+        'pt': 'Gráficos de Mercado',
       } +
       {
         'en': 'Bitcoin unit',
@@ -3268,6 +3268,10 @@ extension Localization on String {
       {
         'en': 'Insert an affiliate code to get 6.67% cashback on purchases',
         'pt': 'Insira um codigo de afiliado para receber 6.67% de desconto nas compras',
+      }+
+      {
+        'en': 'Loading, please wait...',
+        'pt': 'Carregando, por favor aguarde...',
       };
 
   String get i18n => localize(this, _t);
