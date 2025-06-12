@@ -81,8 +81,8 @@ final Map<DepositProvider, ProviderDetails> providerDetails = {
     ],
     disadvantages: [
       "You have to KYC with the provider".i18n,
-      "You are required to report manually your puchases if not USDT if your jurisdiction requires it".i18n,
-      "Purchases reported to the Brazilian federal revenue agency under the payer's name as USDT".i18n,
+      "You are required to report manually your purchases if your jurisdiction requires it".i18n,
+      "Purchases reported to the Brazilian federal revenue agency under the payer's name as USDC".i18n,
     ],
   ),
   DepositProvider.Chimera: ProviderDetails(

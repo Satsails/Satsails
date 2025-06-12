@@ -34,6 +34,29 @@ final createReceiveSideShiftShiftProvider = FutureProvider.family.autoDispose<Si
   }
 });
 
+final createReceiveSideShiftShiftProviderWithoutSaving = FutureProvider.family.autoDispose<SideShift, ShiftPair>((ref, pair) async {
+  final params = shiftParamsMap[pair]!;
+  final liquidAddress = ref.read(addressProvider).liquidAddress;
+  final bitcoinAddress = ref.read(addressProvider).bitcoinAddress;
+
+  final request = SideShiftShiftRequest(
+    settleAddress: pair == ShiftPair.usdcAvaxToBtc ? bitcoinAddress : liquidAddress,
+    depositCoin: params.depositCoin,
+    settleCoin: params.settleCoin,
+    depositNetwork: params.depositNetwork,
+    settleNetwork: params.settleNetwork,
+    affiliateId: dotenv.env['SIDESHIFTAFFILIATE']!,
+  );
+
+  final result = await SideShiftService.createShift(request);
+
+  if (result.data != null) {
+    return result.data!;
+  } else {
+    throw result.error ?? 'Unknown error';
+  }
+});
+
 // For sending from Liquid
 final createSendSideShiftShiftProvider = FutureProvider.family.autoDispose<SideShift, (ShiftPair, String)>((ref, args) async {
   final (pair, settleAddress) = args;
@@ -78,7 +101,7 @@ final sideshiftAssetPairProvider = Provider.family<SideshiftAssetPair, ShiftPair
 });
 
 final selectedShiftPairProvider = StateProvider<ShiftPair?>((ref) => null);
-final selectedShiftPairProviderFromFiatPurchases = StateProvider.autoDispose<ShiftPair>((ref) => ShiftPair.usdcAvaxToLiquidBtc);
+final selectedShiftPairProviderFromFiatPurchases = StateProvider<ShiftPair>((ref) => ShiftPair.usdcAvaxToLiquidBtc);
 
 final updateSideShiftShiftsProvider = FutureProvider.family.autoDispose<void, List<String>>((ref, shiftIds) async {
   final result = await SideShiftService.getShiftsByIds(shiftIds);

@@ -108,7 +108,7 @@ class MainApp extends ConsumerStatefulWidget {
 
 class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   Timer? _lockTimer;
-  final int lockThresholdInSeconds = 20;
+  final int lockThresholdInSeconds = 10;
   GoRouter? _router;
 
   @override

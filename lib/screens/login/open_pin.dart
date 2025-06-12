@@ -52,9 +52,6 @@ class _OpenPinState extends ConsumerState<OpenPin> {
           _attempts = 0;
           ref.read(appLockedProvider.notifier).state = false;
         } finally {
-          ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-          ref.read(updateCurrencyProvider.future);
-          ref.read(getFiatPurchasesProvider.future);
           ref.read(loadingProvider.notifier).state = false;
         }
         context.go('/home');
@@ -103,9 +100,6 @@ class _OpenPinState extends ConsumerState<OpenPin> {
           try {
             ref.read(appLockedProvider.notifier).state = false;
           } finally {
-            ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-            ref.read(updateCurrencyProvider.future);
-            ref.read(getFiatPurchasesProvider.future);
             ref.read(loadingProvider.notifier).state = false;
           }
           context.go('/home');

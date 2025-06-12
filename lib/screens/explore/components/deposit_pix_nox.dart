@@ -4,6 +4,7 @@ import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -27,8 +28,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
   double? _maxDepositBRL;
   double? _adjustedMinDepositBRL;
   double? _adjustedMaxDepositBRL;
-  double? _sideshiftFee;
-  double? _satsailsFee;
+  double? _valueToReceive;
   double? _cashback;
   Future<SideShift>? _shiftFuture;
   bool _shiftCreated = false;
@@ -36,7 +36,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
   @override
   void initState() {
     super.initState();
-    _amountController.addListener(_updateFeesAndCashback);
+    _amountController.addListener(_updateValueToReceiveAndCashback);
   }
 
   @override
@@ -50,14 +50,14 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
 
   @override
   void dispose() {
-    _amountController.removeListener(_updateFeesAndCashback);
+    _amountController.removeListener(_updateValueToReceiveAndCashback);
     _amountController.dispose();
     super.dispose();
   }
 
-  /// Creates a shift with SideShift asynchronously and returns the shift
   Future<SideShift> _createShift() async {
-    final selectedShiftPair = ref.read(selectedShiftPairProviderFromFiatPurchases);
+    final selectedShiftPair = ref.read(
+        selectedShiftPairProviderFromFiatPurchases);
     if (selectedShiftPair == null) {
       throw Exception('No shift pair selected');
     }
@@ -65,83 +65,109 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
     setState(() => _isLoading = true);
 
     try {
-      final shift = await ref.read(createReceiveSideShiftShiftProvider(selectedShiftPair).future);
+      final shift = await ref.read(
+          createReceiveSideShiftShiftProviderWithoutSaving(selectedShiftPair)
+              .future);
       final brlRate = ref.read(selectedCurrencyProviderFromUSD('BRL'));
       setState(() {
         _shift = shift;
         _minDepositBRL = double.parse(shift.depositMin) * brlRate;
         _maxDepositBRL = double.parse(shift.depositMax) * brlRate;
-        _adjustedMinDepositBRL = _minDepositBRL! + 500; // Add 10 BRL to minimum
-        _adjustedMaxDepositBRL = _maxDepositBRL! - 10; // Subtract 10 BRL from maximum
+        _adjustedMinDepositBRL = _minDepositBRL! * 2;
+        _adjustedMaxDepositBRL = _maxDepositBRL! - 10;
       });
       return shift;
     } catch (e) {
-      showMessageSnackBar(context: context, message: e.toString().i18n, error: true);
+      showMessageSnackBar(context: context, message: e
+          .toString()
+          .i18n, error: true);
       rethrow;
     } finally {
       setState(() => _isLoading = false);
     }
   }
 
-  /// Updates fees and cashback dynamically as the user types
-  void _updateFeesAndCashback() {
+  void _updateValueToReceiveAndCashback() {
+    final currencyModel = ref.read(currencyNotifierProvider);
     final amount = double.tryParse(_amountController.text);
-    if (amount != null) {
+    final selectedShiftPair = ref.read(selectedShiftPairProviderFromFiatPurchases);
+
+    if (amount != null && _shift != null) {
+      final netAmountBRL = amount * 0.97;
+
+      double? valueToReceive;
+      String settleCurrency = 'BTC'; // Default to BTC
+
+      if (selectedShiftPair == ShiftPair.usdcAvaxToLiquidUsdt) {
+        // For USDT receive case, convert BRL to USD (since USDT ≈ USD)
+        valueToReceive = netAmountBRL * currencyModel.brlToUsd;
+        settleCurrency = 'USDT';
+      } else {
+        // For BTC receive case
+        valueToReceive = netAmountBRL * currencyModel.brlToBtc;
+      }
+
+      // Calculate cashback in BTC (0.2% of input amount)
+      final cashback = amount * 0.002 * currencyModel.brlToBtc;
+
       setState(() {
-        _sideshiftFee = amount * 0.01; // 1% fee
-        _satsailsFee = amount * 0.02; // 2% fee
-        _cashback = amount * 0.002; // 0.2% cashback
+        _valueToReceive = valueToReceive;
+        _cashback = cashback;
       });
     } else {
       setState(() {
-        _sideshiftFee = null;
-        _satsailsFee = null;
+        _valueToReceive = null;
         _cashback = null;
       });
     }
   }
 
-  /// Handles user input validation and prepares for navigation
   Future<void> _handleInput() async {
     final amount = _amountController.text;
 
     if (amount.isEmpty) {
-      showMessageSnackBar(context: context, message: 'Amount cannot be empty'.i18n, error: true);
+      showMessageSnackBar(context: context,
+          message: 'Amount cannot be empty'.i18n,
+          error: true);
       return;
     }
 
     final double? amountInDouble = double.tryParse(amount);
     if (amountInDouble == null || amountInDouble <= 0) {
-      showMessageSnackBar(context: context, message: 'Please enter a valid amount.'.i18n, error: true);
-      return;
-    }
-
-    if (_adjustedMinDepositBRL != null && amountInDouble < _adjustedMinDepositBRL!) {
-      showMessageSnackBar(
-          context: context,
-          message: 'Amount is below the minimum deposit of ${_adjustedMinDepositBRL!.toStringAsFixed(2)} BRL'.i18n,
+      showMessageSnackBar(context: context,
+          message: 'Please enter a valid amount.'.i18n,
           error: true);
       return;
     }
 
-    if (_adjustedMaxDepositBRL != null && amountInDouble > _adjustedMaxDepositBRL!) {
+    if (_adjustedMinDepositBRL != null &&
+        amountInDouble < _adjustedMinDepositBRL!) {
       showMessageSnackBar(
           context: context,
-          message: 'Amount is above the maximum deposit of ${_adjustedMaxDepositBRL!.toStringAsFixed(2)} BRL'.i18n,
+          message: 'Amount is below the minimum deposit of ${_adjustedMinDepositBRL!
+              .toStringAsFixed(2)} BRL'.i18n,
           error: true);
       return;
     }
 
-    if (amountInDouble > 5000) {
-      showMessageSnackBar(context: context, message: 'The maximum allowed transfer amount is 5000 BRL'.i18n, error: true);
+    if (_adjustedMaxDepositBRL != null &&
+        amountInDouble > _adjustedMaxDepositBRL!) {
+      showMessageSnackBar(
+          context: context,
+          message: 'Amount is above the maximum deposit of ${_adjustedMaxDepositBRL!
+              .toStringAsFixed(2)} BRL'.i18n,
+          error: true);
       return;
     }
 
     setState(() => _isLoading = true);
 
     try {
-      final url = await ref.read(createNoxTransferRequestProvider((amount: amountInDouble.toInt(), address: _shift!.depositAddress)).future);
+      final url = await ref.read(createNoxTransferRequestProvider(
+          (amount: amountInDouble.toInt(), address: _shift!.depositAddress))
+          .future);
       if (url.isNotEmpty) {
+        ref.read(sideShiftShiftsProvider.notifier).addShift(_shift!);
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -150,7 +176,9 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         );
       }
     } catch (e) {
-      showMessageSnackBar(context: context, message: e.toString().i18n, error: true);
+      showMessageSnackBar(context: context, message: e
+          .toString()
+          .i18n, error: true);
     } finally {
       setState(() => _isLoading = false);
     }
@@ -163,7 +191,9 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
       appBar: AppBar(
         title: Text(
           'Pix'.i18n,
-          style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white,
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
@@ -171,94 +201,102 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
           onPressed: () => context.pop(),
         ),
       ),
-      body: FutureBuilder<SideShift>(
-        future: _shiftFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: LoadingAnimationWidget.fourRotatingDots(
-                size: 0.1.sh,
-                color: Colors.orange,
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Error: ${snapshot.error}'.i18n,
-                style: TextStyle(color: Colors.red, fontSize: 16.sp),
-              ),
-            );
-          } else if (snapshot.hasData) {
-            return SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Amount'.i18n,
-                      style: TextStyle(color: Colors.grey, fontSize: 14.sp),
-                    ),
-                    SizedBox(height: 8.h),
-                    TextField(
-                      controller: _amountController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 20.sp, color: Colors.white),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: const Color(0xFF212121),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    ElevatedButton(
-                      onPressed: _handleInput,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 32.w),
-                      ),
-                      child: Text(
-                        'Generate Payment'.i18n,
-                        style: TextStyle(color: Colors.black, fontSize: 16.sp),
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    Text(
-                      'Note: Purchases are always in USDT and will be automatically converted via smart contract to the asset you want to purchase.'.i18n,
-                      style: TextStyle(color: Colors.red, fontSize: 14.sp, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 16.h),
-                    _buildDepositInfoCard(),
-                    SizedBox(height: 24.h),
-                    Center(
-                      child: TextButton(
-                        onPressed: () => context.go('/home'),
-                        child: Text(
-                          'Back to Home'.i18n,
-                          style: TextStyle(fontSize: 16.sp, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
+      body: KeyboardDismissOnTap(
+        child: FutureBuilder<SideShift>(
+          future: _shiftFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: LoadingAnimationWidget.fourRotatingDots(
+                  size: 0.1.sh,
+                  color: Colors.orange,
                 ),
-              ),
-            );
-          }
-          return SizedBox.shrink();
-        },
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Error: ${snapshot.error}'.i18n,
+                  style: TextStyle(color: Colors.red, fontSize: 16.sp),
+                ),
+              );
+            } else if (snapshot.hasData) {
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Amount in Brazilian Real (BRL):'.i18n,
+                        style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+                      ),
+                      SizedBox(height: 8.h),
+                      TextField(
+                        controller: _amountController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20.sp, color: Colors.white),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color(0xFF212121),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 16.h,
+                              horizontal: 16.w),
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      ElevatedButton(
+                        onPressed: _handleInput,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius
+                              .circular(12.r)),
+                          padding: EdgeInsets.symmetric(vertical: 16.h,
+                              horizontal: 32.w),
+                        ),
+                        child: Text(
+                          'Generate Payment'.i18n,
+                          style: TextStyle(color: Colors.black, fontSize: 16.sp),
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      Text(
+                        'Note: Purchases from NOX are always in USDC and will be automatically converted via smart contract to the asset you want to purchase. The asset you receive is not reported to the goverment automatically.'
+                            .i18n,
+                        style: TextStyle(color: Colors.red,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 16.h),
+                      _buildDepositInfoCard(),
+                      SizedBox(height: 24.h),
+                      Center(
+                        child: TextButton(
+                          onPressed: () => context.go('/home'),
+                          child: Text(
+                            'Back to Home'.i18n,
+                            style: TextStyle(
+                                fontSize: 16.sp, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+            return SizedBox.shrink();
+          },
+        ),
       ),
     );
   }
 
-  /// Builds a card displaying deposit information, fees, and cashback
   Widget _buildDepositInfoCard() {
     return Card(
       color: const Color(0xFF212121),
@@ -270,32 +308,111 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
           children: [
             Text(
               'Deposit Information'.i18n,
-              style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             SizedBox(height: 8.h),
-            Text(
-              'Minimum Deposit: ${_adjustedMinDepositBRL?.toStringAsFixed(2) ?? 'N/A'} BRL',
-              style: TextStyle(color: Colors.white, fontSize: 14.sp),
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Minimum Deposit: '.i18n,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: '${_adjustedMinDepositBRL?.toStringAsFixed(2) ??
+                        'N/A'} BRL',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Text(
-              'Maximum Deposit: ${_adjustedMaxDepositBRL?.toStringAsFixed(2) ?? 'N/A'} BRL',
-              style: TextStyle(color: Colors.white, fontSize: 14.sp),
+            SizedBox(height: 8.h),
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Maximum Deposit: '.i18n,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: '${_adjustedMaxDepositBRL?.toStringAsFixed(2) ??
+                        'N/A'} BRL',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            if (_sideshiftFee != null)
-              Text(
-                'Smart contract Fee (1%): ${_sideshiftFee!.toStringAsFixed(2)} BRL',
-                style: TextStyle(color: Colors.white, fontSize: 14.sp),
+            if (_valueToReceive != null) ...[
+              SizedBox(height: 8.h),
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Value to Receive: '.i18n,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextSpan(
+                      text: '${_valueToReceive!.toStringAsFixed(8)} ${_shift
+                          ?.settleCoin ?? 'BTC'}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            if (_satsailsFee != null)
-              Text(
-                'Satsails Fee (2%): ${_satsailsFee!.toStringAsFixed(2)} BRL',
-                style: TextStyle(color: Colors.white, fontSize: 14.sp),
+            ],
+            if (_cashback != null) ...[
+              SizedBox(height: 8.h),
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Cashback: ',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextSpan(
+                      text: '${_cashback!.toStringAsFixed(8)} BTC',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            if (_cashback != null)
-              Text(
-                'Cashback (0.2%): ${_cashback!.toStringAsFixed(2)} BRL',
-                style: TextStyle(color: Colors.white, fontSize: 14.sp),
-              ),
+            ],
           ],
         ),
       ),
@@ -321,7 +438,6 @@ class _DepositWebViewPageState extends State<DepositWebViewPage> {
     _initializeWebView();
   }
 
-  /// Initializes the web view with the provided URL
   void _initializeWebView() {
     _webViewController = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)

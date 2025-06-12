@@ -2395,6 +2395,10 @@ extension Localization on String {
         'pt': 'Fornecedor: Eulen',
       } +
       {
+        'en': 'Provider: Nox',
+        'pt': 'Fornecedor: Nox',
+      } +
+      {
         'en': 'Set a cpf/cnpj to receive from a different account from the registered (optional)',
         'pt': 'Defina um CPF/CNPJ para receber de uma conta diferente da registrada (opcional)',
       } +
@@ -3271,11 +3275,99 @@ extension Localization on String {
       }+
       {
         'en': 'Insert an affiliate code to get 6.67% cashback on purchases',
-        'pt': 'Insira um codigo de afiliado para receber 6.67% de desconto nas compras',
+        'pt': 'Insira um código de afiliado para receber 6,67% de cashback nas compras',
       }+
       {
         'en': 'Loading, please wait...',
         'pt': 'Carregando, por favor aguarde...',
+      }+
+      {
+        'en': 'Expired and Pending',
+        'pt': 'Expiradas e pendentes',
+      }+
+      {
+        'en': 'Purchase multiple currencies via smart contracts directly',
+        'pt': 'Comprar várias moedas via contratos inteligentes diretamente',
+      }+
+      {
+        'en': 'The purchases are sent to a smart contract which then processes the payment. The smart contracts are non custodial',
+        'pt': 'As compras são enviadas para um contrato inteligente que processa o pagamento. Os contratos inteligentes são não custodiais',
+      }+
+      {
+        'en': 'You are required to report manually your purchases if your jurisdiction requires it',
+        'pt': 'Você é obrigado a reportar manualmente suas compras se sua jurisdição exigir',
+      }+
+      {
+        'en': 'Purchases reported to the Brazilian federal revenue agency under the payer\'s name as USDC',
+        'pt': 'Compras reportadas à Receita Federal do Brasil em nome do pagador como USDC',
+      }+
+      {
+        'en': 'To be defined',
+        'pt': 'A ser definido',
+      }+
+      {
+        'en': 'To be defined',
+        'pt': 'A ser definido',
+      }+
+      {
+        'en': 'To be defined',
+        'pt': 'A ser definido',
+      }+
+      {
+        'en': 'To be defined',
+        'pt': 'A ser definido',
+      }+
+      {
+        'en': 'You are required to report manually your purchases if not USDT if your jurisdiction requires it',
+        'pt': 'Você é obrigado a reportar manualmente suas compras se não forem em USDT, caso sua jurisdição exija',
+      }+
+      {
+        'en': 'Purchases reported to the Brazilian federal revenue agency under the payer\'s name as USDT',
+        'pt': 'Compras reportadas à Receita Federal do Brasil em nome do pagador como USDT',
+      }+
+      {
+        'en': 'Nox',
+        'pt': 'Nox',
+      }+
+      {
+        'en': 'Purchases are not paid directly to your wallet but to a smart contract provided by SideShift. The provider, NOX, reports all purchases in USDC. The smart contract does not automatically report transactions. Ensure compliance with your local laws.',
+        'pt': 'As compras não são pagas diretamente para sua carteira, mas para um contrato inteligente fornecido pela SideShift. O provedor, NOX, reporta todas as compras em USDC. O contrato inteligente não reporta automaticamente as transações. Certifique-se de estar em conformidade com as leis locais.',
+      }+
+      {
+        'en': 'Generate Payment',
+        'pt': 'Gerar Pagamento',
+      }+
+      {
+        'en': 'Note: Purchases from NOX are always in USDC and will be automatically converted via smart contract to the asset you want to purchase. The asset you receive is not reported to the goverment automatically.',
+        'pt': 'Nota: As compras da NOX são sempre em USDC e serão automaticamente convertidas via contrato inteligentes para o ativo que você deseja comprar. O ativo que recebe não é automaticamente reportado automaticamente.',
+      }+
+      {
+        'en': 'Minimum Deposit: ',
+        'pt': 'Depósito Mínimo: ',
+      }+
+      {
+        'en': 'Maximum Deposit: ',
+        'pt': 'Depósito Máximo: ',
+      }+
+      {
+        'en': 'Value to Receive: ',
+        'pt': 'Valor a Receber: ',
+      }+
+      {
+        'en': 'Purchase multiple currencies via smart contacts directly',
+        'pt': 'Compre múltiplas moedas diretamente através de contractos inteligentes',
+      }+
+      {
+        'en': 'You are required to report manually your puchases if not USDT if your jurisdiction requires it',
+        'pt': 'Você deve reportar manualmente suas compras se não for USDC caso seu país exiga isso',
+      }+
+      {
+        'en': 'Deposit Information',
+        'pt': 'Informações de Depósito',
+      }+
+      {
+        'en': 'Amount in Brazilian Real (BRL):',
+        'pt': 'Quantidade em Real Brasileiro (BRL):',
       };
 
   String get i18n => localize(this, _t);

@@ -203,6 +203,7 @@ class DepositTypeScreen extends ConsumerWidget {
                   ),
                 ),
               ),
+              if (selectedMode != 'Purchase with P2P (No KYC)')
               Builder(
                 builder: (context) {
                   final selectedProvider = ref.watch(computedDepositProvider);
@@ -326,7 +327,7 @@ class ProviderDetails extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Text(
-                        "Purchases are payed not nativly into your wallet but to a smart contract provided by sideshift. The provider NOX reports all purchases as USDT. The smart contract does not do any reporting automatically. Comply with your local laws".i18n,
+                        "Purchases are not paid directly to your wallet but to a smart contract provided by SideShift. The provider, NOX, reports all purchases in USDC. The smart contract does not automatically report transactions. Ensure compliance with your local laws.".i18n,
                         style: TextStyle(color: Colors.white, fontSize: 14.sp),
                       ),
                     ),
