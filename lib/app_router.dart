@@ -6,7 +6,7 @@ import 'package:Satsails/screens/pay/components/confirm_non_native_asset_payment
 import 'package:Satsails/screens/shared/boltz_transactions_details_screen.dart';
 import 'package:Satsails/screens/shared/nox_transaction_details.dart';
 import 'package:Satsails/screens/shared/peg_details.dart';
-import 'package:Satsails/screens/explore/components/deposit_bitcoin_pix_nox.dart';
+import 'package:Satsails/screens/explore/components/deposit_pix_nox.dart';
 import 'package:Satsails/screens/explore/components/deposit_depix_pix_eulen.dart';
 import 'package:Satsails/screens/explore/components/deposit_type.dart';
 import 'package:Satsails/screens/explore/components/sell_type.dart';
@@ -361,7 +361,7 @@ class AppRouter {
                         path: '/deposit_pix_nox',
                         name: 'DepositPixNox',
                         pageBuilder: (context, state) => _buildFadeScalePage(
-                          child: const DepositBitcoinPixNox(),
+                          child: const DepositPixNox(),
                           state: state,
                         ),
                       ),

@@ -1,9 +1,12 @@
 import 'package:Satsails/helpers/deposit_type_helper.dart';
+import 'package:Satsails/providers/sideshift_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:Satsails/models/sideshift_model.dart'; // Assuming ShiftPair is defined here
+
 
 class DepositTypeScreen extends ConsumerWidget {
   const DepositTypeScreen({super.key});
@@ -17,6 +20,7 @@ class DepositTypeScreen extends ConsumerWidget {
     final availablePaymentMethods = ref.watch(availablePaymentMethodsProvider);
     final availableDepositTypes = ref.watch(availableDepositTypesProvider);
 
+    // Reset selectedPaymentMethod if it's not in availablePaymentMethods
     if (selectedPaymentMethod != null && !availablePaymentMethods.contains(selectedPaymentMethod)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(selectedPaymentMethodProvider.notifier).state =
@@ -24,6 +28,7 @@ class DepositTypeScreen extends ConsumerWidget {
       });
     }
 
+    // Reset selectedAsset if it's not in availableDepositTypes
     if (!availableDepositTypes.contains(selectedAsset)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(selectedCryptoTypeProvider.notifier).state =
@@ -67,8 +72,10 @@ class DepositTypeScreen extends ConsumerWidget {
                     items: ['Purchase with P2P (No KYC)', 'Purchase from Providers']
                         .map((mode) => DropdownMenuItem<String>(
                       value: mode,
-                      child: Text(mode.i18n,
-                          style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                      child: Text(
+                        mode.i18n,
+                        style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      ),
                     ))
                         .toList(),
                     isExpanded: true,
@@ -87,8 +94,11 @@ class DepositTypeScreen extends ConsumerWidget {
                   padding: EdgeInsets.all(16.h),
                   child: selectedMode == 'Purchase with P2P (No KYC)'
                       ? Center(
-                      child: Text('Coming soon'.i18n,
-                          style: TextStyle(color: Colors.white, fontSize: 20.sp)))
+                    child: Text(
+                      'Coming soon'.i18n,
+                      style: TextStyle(color: Colors.white, fontSize: 20.sp),
+                    ),
+                  )
                       : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -114,9 +124,10 @@ class DepositTypeScreen extends ConsumerWidget {
                             : null,
                         items: availablePaymentMethods,
                         getImage: (method) => Icon(
-                            paymentMethodIcons[method] ?? Icons.help_outline,
-                            color: Colors.white,
-                            size: 28.sp),
+                          paymentMethodIcons[method] ?? Icons.help_outline,
+                          color: Colors.white,
+                          size: 28.sp,
+                        ),
                         getText: (method) => formatEnumName(method.name),
                         onChanged: (value) {
                           ref.read(selectedPaymentMethodProvider.notifier).state = value;
@@ -134,6 +145,24 @@ class DepositTypeScreen extends ConsumerWidget {
                         onChanged: (value) {
                           if (value != null) {
                             ref.read(selectedCryptoTypeProvider.notifier).state = value;
+                            final selectedProvider = ref.read(computedDepositProvider);
+                            if (selectedProvider == DepositProvider.Nox) {
+                              ShiftPair shiftPair;
+                              switch (value) {
+                                case DepositType.Bitcoin:
+                                  shiftPair = ShiftPair.usdcAvaxToBtc;
+                                  break;
+                                case DepositType.LiquidBitcoin:
+                                  shiftPair = ShiftPair.usdcAvaxToLiquidBtc;
+                                  break;
+                                case DepositType.USDT:
+                                  shiftPair = ShiftPair.usdcAvaxToLiquidUsdt;
+                                  break;
+                                default:
+                                  shiftPair = ShiftPair.usdcAvaxToBtc;
+                              }
+                              ref.read(selectedShiftPairProviderFromFiatPurchases.notifier).state = shiftPair;
+                            }
                           }
                         },
                       ),
@@ -159,7 +188,8 @@ class DepositTypeScreen extends ConsumerWidget {
                               disabledBackgroundColor:
                               isButtonEnabled ? Colors.green : Colors.red,
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.r)),
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
                               padding: EdgeInsets.symmetric(vertical: 16.h),
                             ),
                             child: Text(
@@ -218,8 +248,10 @@ class DepositTypeScreen extends ConsumerWidget {
                   children: [
                     getImage(item),
                     SizedBox(width: 8.w),
-                    Text(getText(item),
-                        style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                    Text(
+                      getText(item),
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                    ),
                   ],
                 ),
               ))

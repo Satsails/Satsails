@@ -2488,6 +2488,10 @@ extension Localization on String {
         'pt': 'Online',
       } +
       {
+        'en': 'Update Balances',
+        'pt': 'Atualizar Saldos',
+      } +
+      {
         'en': 'Offline',
         'pt': 'Offline',
       } +

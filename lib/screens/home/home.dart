@@ -163,8 +163,8 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
                       ),
                       SizedBox(width: 4.sp),
                       Text(
-                        isSyncing ? 'Syncing'.i18n : isOnline ? 'Sync'.i18n : 'Offline'.i18n,
-                        style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+                        isSyncing ? 'Syncing'.i18n : isOnline ? 'Update Balances'.i18n : 'Offline'.i18n,
+                        style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),

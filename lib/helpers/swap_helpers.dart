@@ -1132,7 +1132,7 @@ Widget buildSideswapInstantSwap(
         );
       case 'Loading':
         return Text(
-          'Loading, please wait...',
+          'Loading, please wait...'.i18n,
           style: TextStyle(color: Colors.grey, fontSize: 16.sp),
         );
       case 'Initial':

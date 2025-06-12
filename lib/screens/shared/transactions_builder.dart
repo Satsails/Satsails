@@ -164,8 +164,12 @@ class _TransactionListState extends ConsumerState<TransactionList> {
         ? allTransactions
         : allTransactions
         .where((tx) =>
-    !(tx is SideShiftTransaction && tx.details.status == 'waiting') &&
-        !(tx is BoltzTransaction && !(tx.details.completed ?? false)))
+    !(tx is SideShiftTransaction && (tx.details.status == 'waiting' || tx.details.status == 'expired')) &&
+        !(tx is BoltzTransaction && !(tx.details.completed ?? false)) &&
+        !(tx is EulenTransaction &&
+            (tx.details.failed ||
+                tx.details.status == 'expired' ||
+                tx.details.status == 'pending')))
         .take(4)
         .toList();
 

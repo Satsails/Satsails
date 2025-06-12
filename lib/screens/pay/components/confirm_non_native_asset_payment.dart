@@ -411,7 +411,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                                       child: GestureDetector(
                                         onTap: () async {
                                           try {
-                                            final adjustedAmount = (balance * 0.95) / 100000000;
+                                            final adjustedAmount = (balance * 0.97) / 100000000;
                                             ref.read(sendTxProvider.notifier).updateAmountFromInput(adjustedAmount.toString(), btcFormat);
                                             amountController.text = adjustedAmount.toStringAsFixed(2);
                                           } catch (e) {

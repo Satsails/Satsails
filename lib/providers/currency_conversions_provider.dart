@@ -154,7 +154,7 @@ final selectedCurrencyProviderFromUSD = StateProvider.autoDispose.family<double,
   }
 });
 
-final updateCurrencyProvider = FutureProvider.autoDispose<void>((ref) async {
+final updateCurrencyProvider = FutureProvider<void>((ref) async {
   final currencyModel = ref.watch(currencyNotifierProvider.notifier);
   final settingsModel = ref.read(settingsProvider.notifier);
   bool success = false;
