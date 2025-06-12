@@ -3368,6 +3368,14 @@ extension Localization on String {
       {
         'en': 'Amount in Brazilian Real (BRL):',
         'pt': 'Quantidade em Real Brasileiro (BRL):',
+      }+
+      {
+        'en': 'Amount is below the minimum deposit of ',
+        'pt': 'A quantidade está abaixo do depósito mínimo de ',
+      }+
+      {
+        'en': 'Amount is above the maximum deposit of ',
+        'pt': 'A quantidade está acima do depósito máximo de ',
       };
 
   String get i18n => localize(this, _t);

@@ -144,8 +144,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         amountInDouble < _adjustedMinDepositBRL!) {
       showMessageSnackBar(
           context: context,
-          message: 'Amount is below the minimum deposit of ${_adjustedMinDepositBRL!
-              .toStringAsFixed(2)} BRL'.i18n,
+          message: 'Amount is below the minimum deposit of '.i18n + '${_adjustedMinDepositBRL!.toStringAsFixed(2)} BRL',
           error: true);
       return;
     }
@@ -154,8 +153,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         amountInDouble > _adjustedMaxDepositBRL!) {
       showMessageSnackBar(
           context: context,
-          message: 'Amount is above the maximum deposit of ${_adjustedMaxDepositBRL!
-              .toStringAsFixed(2)} BRL'.i18n,
+          message: 'Amount is above the maximum deposit of '.i18n + '${_adjustedMaxDepositBRL!.toStringAsFixed(2)} BRL',
           error: true);
       return;
     }
