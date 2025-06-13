@@ -1,6 +1,5 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/swap_helpers.dart';
-import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/sideshift_provider.dart';
@@ -27,8 +26,9 @@ class _ExchangeState extends ConsumerState<Exchange> {
   final TextEditingController controller = TextEditingController();
   SwapSection _selectedSection = SwapSection.internal;
 
-  // --- State for the new universal swap card ---
-  ShiftPair _selectedPair = ShiftPair.usdcEthToLiquidUsdt;
+  // --- State for the Bridge card ---
+  ShiftPair? _selectedPair = ShiftPair.usdcEthToLiquidUsdt;
+  bool _isDepositing = false; // Start with withdraw direction by default
 
   // --- Data for SideShift swaps ---
   final List<ShiftPair> _selectablePairs = [
@@ -67,47 +67,33 @@ class _ExchangeState extends ConsumerState<Exchange> {
     ShiftPair.usdtPolygonToLiquidUsdt: ShiftPair.liquidUsdtToUsdtPolygon,
   };
 
-  // Helper to create display text for the dropdown
-  String _getPairDisplayText(ShiftPair pair) {
-    final isLbtc = pair.name.contains('ToLiquidBtc');
-    final toAsset = isLbtc ? 'L-BTC' : 'Liquid USDT';
+  // --- HELPER METHODS ---
 
+  // Gets asset and network info. Now uses a robust switch for accuracy.
+  Map<String, String> _getAssetInfo(ShiftPair pair) {
     switch (pair) {
       case ShiftPair.usdcEthToLiquidUsdt:
-        return 'Ethereum USDC <> $toAsset';
+        return {'name': 'USDC', 'network': 'Ethereum'};
       case ShiftPair.usdcSolToLiquidUsdt:
-        return 'Solana USDC <> $toAsset';
+        return {'name': 'USDC', 'network': 'Solana'};
       case ShiftPair.usdcPolygonToLiquidUsdt:
-        return 'Polygon USDC <> $toAsset';
+        return {'name': 'USDC', 'network': 'Polygon'};
       case ShiftPair.usdtEthToLiquidUsdt:
-        return 'Ethereum USDT <> $toAsset';
+        return {'name': 'USDT', 'network': 'Ethereum'};
       case ShiftPair.usdtTronToLiquidUsdt:
-        return 'Tron USDT <> $toAsset';
+        return {'name': 'USDT', 'network': 'Tron'};
       case ShiftPair.usdtSolToLiquidUsdt:
-        return 'Solana USDT <> $toAsset';
+        return {'name': 'USDT', 'network': 'Solana'};
       case ShiftPair.usdtPolygonToLiquidUsdt:
-        return 'Polygon USDT <> $toAsset';
+        return {'name': 'USDT', 'network': 'Polygon'};
       case ShiftPair.ethToLiquidBtc:
-        return 'Ethereum ETH -> $toAsset';
+        return {'name': 'ETH', 'network': 'Ethereum'};
       case ShiftPair.bnbToLiquidBtc:
-        return 'BSC BNB -> $toAsset';
+        return {'name': 'BNB', 'network': 'BNB Chain'};
       case ShiftPair.solToLiquidBtc:
-        return 'Solana SOL -> $toAsset';
+        return {'name': 'SOL', 'network': 'Solana'};
       default:
-        return 'Select a pair';
-    }
-  }
-
-  // Helper to get the dynamic description for the card
-  String _getPairDescription(ShiftPair pair) {
-    final isLbtc = pair.name.contains('ToLiquidBtc');
-    final toAsset = isLbtc ? 'L-BTC' : 'Liquid USDT';
-    final fromAssetName = _getPairDisplayText(pair).split(' ')[0] + ' ' + _getPairDisplayText(pair).split(' ')[1];
-
-    if (receiveToSendMap.containsKey(pair)) {
-      return 'Swap between ${fromAssetName} and ${toAsset} in your wallet.'.i18n;
-    } else {
-      return 'Deposit ${fromAssetName} to receive ${toAsset} in your wallet.'.i18n;
+        return {'name': 'Unknown', 'network': 'Unknown'};
     }
   }
 
@@ -121,6 +107,23 @@ class _ExchangeState extends ConsumerState<Exchange> {
       }
     });
   }
+
+  // Creates the final display text for the dropdown.
+  String _getPairDisplayText(ShiftPair pair) {
+    final info = _getAssetInfo(pair);
+    final network = info['network']!;
+    final name = info['name']!;
+
+    // For native assets like ETH on Ethereum, just show the network name.
+    if (network == 'Ethereum' && name == 'ETH') return 'Ethereum';
+    if (network == 'Solana' && name == 'SOL') return 'Solana';
+    if (network == 'BNB Chain' && name == 'BNB') return 'BNB Chain';
+
+    // For all other tokens, combine network and name.
+    return '$network $name';
+  }
+
+  // --- BUILD METHODS ---
 
   @override
   Widget build(BuildContext context) {
@@ -235,177 +238,239 @@ class _ExchangeState extends ConsumerState<Exchange> {
 
   List<Widget> _buildExternalSwapWidgets() {
     return [
-      Padding(
-        padding: EdgeInsets.only(bottom: 16.h, top: 4.h),
-        child: Text(
-          'Swap non-native assets from other networks with your Satsails assets.'.i18n,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: 14.sp,
-          ),
-        ),
-      ),
-      _buildUniversalSwapCard(),
+      _buildBridgeExchangeCard(),
+      if (_selectedPair != null) ...[
+        SizedBox(height: 16.h),
+        _buildSingleActionButton(),
+      ],
     ];
   }
 
-  Widget _buildVerticalActionChip({required IconData icon, required String label, required VoidCallback onPressed}) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onPressed,
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8.h),
-          decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), borderRadius: BorderRadius.circular(16.r)),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: Colors.white, size: 22.sp),
-              SizedBox(height: 6.h),
-              Text(
-                label,
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.sp),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-              )
-            ],
-          ),
+  Widget _buildBridgeExchangeCard() {
+    final fromContent = _isDepositing ? _buildExternalAssetDropdown() : _buildSatsailsAssetStaticDisplay();
+    final toContent = _isDepositing ? _buildSatsailsAssetStaticDisplay() : _buildExternalAssetDropdown();
+    final isWithdrawalSupported = _selectedPair != null && receiveToSendMap.containsKey(_selectedPair!);
+
+    return Card(
+      color: const Color(0x00333333).withOpacity(0.4),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
+        child: Column(
+          children: [
+            _buildAssetRow("From Asset", fromContent, isNative: !_isDepositing),
+            SizedBox(height: 24.h),
+            _buildSwapDivider(isEnabled: isWithdrawalSupported),
+            SizedBox(height: 24.h),
+            _buildAssetRow("To Asset", toContent, isNative: _isDepositing),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildUniversalSwapCard() {
-    final logos = _logoMap[_selectedPair];
-    final isLbtcDestination = _selectedPair.name.contains('ToLiquidBtc');
-    final destinationLogo = isLbtcDestination ? 'lib/assets/l-btc.png' : 'lib/assets/tether.png';
-
-    final pairName = _selectedPair.name;
-    String assetTicker = "Asset";
-    if (pairName.contains('usdc')) assetTicker = 'USDC';
-    if (pairName.contains('usdt')) assetTicker = 'USDT';
-    if (pairName.contains('eth')) assetTicker = 'ETH';
-    if (pairName.contains('bnb')) assetTicker = 'BNB';
-    if (pairName.contains('sol')) assetTicker = 'SOL';
-
-    final isWithdrawSupported = receiveToSendMap.containsKey(_selectedPair);
-
-    // Condition to hide network badge for native network coins (ETH, SOL, BNB)
-    final bool showNetworkBadge = !(_selectedPair == ShiftPair.ethToLiquidBtc ||
-        _selectedPair == ShiftPair.bnbToLiquidBtc ||
-        _selectedPair == ShiftPair.solToLiquidBtc);
-
-    return Container(
-      height: 300.sp, // Increased height slightly for description
-      decoration: BoxDecoration(
-        color: const Color(0x00333333).withOpacity(0.4),
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.2), spreadRadius: 2, blurRadius: 8, offset: const Offset(0, 4))
-        ],
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(18.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
+  Widget _buildAssetRow(String label, Widget content, {required bool isNative}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DropdownButtonHideUnderline(
-              child: DropdownButton<ShiftPair>(
-                value: _selectedPair,
-                dropdownColor: const Color(0xFF212121),
-                borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-                items: _selectablePairs.map((pair) {
-                  return DropdownMenuItem<ShiftPair>(
-                    value: pair,
-                    child: Text(
-                      _getPairDisplayText(pair),
-                      style: TextStyle(color: Colors.white, fontSize: 18.sp),
-                    ),
-                  );
-                }).toList(),
-                onChanged: (ShiftPair? newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      _selectedPair = newValue;
-                    });
-                  }
-                },
-                icon: Padding(
-                  padding: EdgeInsets.only(left: 8.0.w),
-                  child: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                ),
-                isDense: true,
-                isExpanded: true,
-                style: TextStyle(color: Colors.white, fontSize: 18.sp),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    if (logos != null && logos.containsKey('coin'))
-                      SvgPicture.asset(logos['coin']!, width: 40.sp, height: 40.sp),
-                    if (logos != null && logos.containsKey('network') && showNetworkBadge)
-                      Positioned(
-                        bottom: -2,
-                        right: -2,
-                        child: Container(
-                          padding: EdgeInsets.all(2.sp),
-                          decoration: const BoxDecoration(color: Colors.black, shape: BoxShape.circle),
-                          child: SvgPicture.asset(logos['network']!, width: 16.sp, height: 16.sp),
-                        ),
-                      )
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Icon(Icons.swap_horiz, color: Colors.white70, size: 30.sp),
-                ),
-                Image.asset(destinationLogo, width: 40.sp, height: 40.sp),
-              ],
-            ),
-            // --- New Dynamic Description ---
             Text(
-              _getPairDescription(_selectedPair),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white70, fontSize: 14.sp),
+              label.i18n,
+              style: TextStyle(color: Colors.grey, fontSize: 14.sp),
             ),
-            Row(
-              mainAxisAlignment: isWithdrawSupported ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+            SizedBox(height: 12.h),
+            content,
+          ],
+        ),
+        Text(
+          isNative ? 'Native Asset'.i18n : 'External Asset'.i18n,
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 14.sp,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSwapDivider({required bool isEnabled}) {
+    return Row(
+      children: [
+        SizedBox(width: 24.w),
+        const Expanded(
+          child: Divider(
+            color: Colors.grey,
+            thickness: 1,
+          ),
+        ),
+        SizedBox(width: 24.w),
+        GestureDetector(
+          onTap: isEnabled ? () {
+            setState(() {
+              _isDepositing = !_isDepositing;
+            });
+          } : null,
+          child: Container(
+            width: 48.w,
+            height: 48.h,
+            decoration: BoxDecoration(
+              color: isEnabled ? Colors.grey.shade800 : Colors.grey.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.swap_vert,
+              color: isEnabled ? Colors.white : Colors.white24,
+              size: 24.sp,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExternalAssetDropdown() {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton<ShiftPair>(
+        value: _selectedPair,
+        dropdownColor: const Color(0xFF212121),
+        borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+        items: _selectablePairs.map((pair) {
+          return DropdownMenuItem<ShiftPair>(
+            value: pair,
+            child: Row(
               children: [
-                _buildVerticalActionChip(
-                  icon: Icons.input,
-                  label: 'Deposit ${assetTicker}'.i18n,
-                  onPressed: () {
-                    ref.read(selectedNetworkTypeProvider.notifier).state = 'SideShift';
-                    ref.read(selectedShiftPairProvider.notifier).state = _selectedPair;
-                    context.push('/home/receive');
-                  },
+                _buildAssetIcon(pair),
+                SizedBox(width: 8.w),
+                Text(
+                  _getPairDisplayText(pair),
+                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
                 ),
-                if (isWithdrawSupported) ...[
-                  SizedBox(width: 12.w),
-                  _buildVerticalActionChip(
-                    icon: Icons.output,
-                    label: 'Withdraw to ${assetTicker}'.i18n,
-                    onPressed: () {
-                      final sendPair = receiveToSendMap[_selectedPair];
-                      if (sendPair != null) {
-                        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
-                        ref.read(selectedSendShiftPairProvider.notifier).state = sendPair;
-                        context.push('/home/pay', extra: 'non_native_asset');
-                      }
-                    },
-                  )
-                ]
               ],
-            )
+            ),
+          );
+        }).toList(),
+        onChanged: (ShiftPair? newValue) {
+          if (newValue != null) {
+            setState(() {
+              _selectedPair = newValue;
+              if (!_isDepositing && !receiveToSendMap.containsKey(newValue)) {
+                _isDepositing = true;
+              }
+            });
+          }
+        },
+        icon: Padding(
+          padding: EdgeInsets.only(left: 8.0.w),
+          child: const Icon(Icons.arrow_drop_down, color: Colors.white),
+        ),
+        isDense: true,
+        style: TextStyle(color: Colors.white, fontSize: 16.sp),
+      ),
+    );
+  }
+
+  Widget _buildSatsailsAssetStaticDisplay() {
+    final bool isLbtcPair = _selectedPair?.name.contains('ToLiquidBtc') ?? false;
+    final liquidLogo = isLbtcPair ? 'lib/assets/l-btc.png' : 'lib/assets/tether.png';
+    final liquidName = isLbtcPair ? 'L-BTC' : 'Liquid USDT';
+
+    return Row(
+      children: [
+        Image.asset(liquidLogo, width: 28.sp, height: 28.sp),
+        SizedBox(width: 8.w),
+        Text(
+          liquidName,
+          style: TextStyle(color: Colors.white, fontSize: 16.sp),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSingleActionButton() {
+    if (_selectedPair == null) return const SizedBox.shrink();
+
+    final bool isDeposit = _isDepositing;
+    final String label = isDeposit ? 'Deposit to Satsails'.i18n : 'Withdrawal from Satsails'.i18n;
+    final IconData icon = isDeposit ? Icons.arrow_downward : Icons.arrow_upward;
+    final Color iconColor = isDeposit ? const Color(0xFF00C853) : Colors.red;
+    final VoidCallback onPressed;
+
+    if (isDeposit) {
+      onPressed = () {
+        ref.read(selectedNetworkTypeProvider.notifier).state = 'SideShift';
+        ref.read(selectedShiftPairProvider.notifier).state = _selectedPair!;
+        context.push('/home/receive');
+      };
+    } else {
+      onPressed = () {
+        final sendPair = receiveToSendMap[_selectedPair!];
+        if (sendPair != null) {
+          ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
+          ref.read(selectedSendShiftPairProvider.notifier).state = sendPair;
+          context.push('/home/pay', extra: 'non_native_asset');
+        }
+      };
+    }
+
+    if (!isDeposit && !receiveToSendMap.containsKey(_selectedPair!)) {
+      return const SizedBox.shrink();
+    }
+
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 14.h),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: iconColor, size: 22.sp),
+            SizedBox(height: 6.h),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 14.sp,
+              ),
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAssetIcon(ShiftPair pair) {
+    final logos = _logoMap[pair];
+    final bool showNetworkBadge = ![ShiftPair.ethToLiquidBtc, ShiftPair.bnbToLiquidBtc, ShiftPair.solToLiquidBtc].contains(pair);
+
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        if (logos != null && logos.containsKey('coin'))
+          SvgPicture.asset(logos['coin']!, width: 28.sp, height: 28.sp),
+        if (logos != null && logos.containsKey('network') && showNetworkBadge)
+          Positioned(
+            bottom: -4,
+            right: -4,
+            child: Container(
+              padding: EdgeInsets.all(2.sp),
+              decoration: const BoxDecoration(color: Color(0xFF1A1A1A), shape: BoxShape.circle),
+              child: SvgPicture.asset(logos['network']!, width: 14.sp, height: 14.sp),
+            ),
+          )
+      ],
     );
   }
 }

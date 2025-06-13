@@ -473,7 +473,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                         controller.failure();
                         ref.read(deleteSideShiftProvider(shift.id));
                         showMessageSnackBar(
-                          message: "Amount is too small".i18n,
+                          message: "${"Amount is too small. Minimum amount is".i18n} ${shift.depositMin} $depositCoin",
                           error: true,
                           context: context,
                         );
@@ -483,7 +483,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                         controller.failure();
                         ref.read(deleteSideShiftProvider(shift.id));
                         showMessageSnackBar(
-                          message: "Amount is too large".i18n,
+                          message: "${"Amount is too large. Maximum amount is".i18n} ${shift.depositMax} $depositCoin",
                           error: true,
                           context: context,
                         );

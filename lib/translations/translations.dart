@@ -3480,7 +3480,28 @@ extension Localization on String {
       {
         'en': 'Send and receive on the Lightning Network using your Liquid Bitcoin',
         'pt': 'Enviar e receber na rede Lightning usando seu Liquid Bitcoin'
+      }+
+      {
+        'en': 'Amount is too small. Minimum amount is',
+        'pt': 'O valor é muito pequeno. O mínimo é',
+      }+
+      {
+        'en': 'External Asset',
+        'pt': 'Ativo externo'
+      }+
+      {
+        'en': 'Native Asset',
+        'pt': 'Ativo nativo'
+      }+
+      {
+        'en': 'Deposit to Satsails',
+        'pt': 'Depositar para Satsails'
+      }+
+      {
+        'en': 'Withdrawal from Satsails',
+        'pt': 'Saque da Satsails'
       };
+
 
   String get i18n => localize(this, _t);
 }

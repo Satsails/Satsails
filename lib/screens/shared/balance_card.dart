@@ -1,8 +1,8 @@
+import 'dart:ui';
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
-import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -64,19 +64,25 @@ class BalanceCard extends ConsumerWidget {
       case 'Bitcoin (Mainnet)':
         nativeBalance = isBalanceVisible ? onChainBtcBalance : '****';
         equivalentBalance = isBalanceVisible
-            ? currencyFormat(ref.watch(balanceNotifierProvider).onChainBtcBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
+            ? currencyFormat(
+            ref.watch(balanceNotifierProvider).onChainBtcBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
             : '****';
         break;
       case 'Lightning Bitcoin':
         nativeBalance = isBalanceVisible ? sparkBitcoinbalance : '****';
         equivalentBalance = isBalanceVisible
-            ? currencyFormat((ref.watch(balanceNotifierProvider).sparkBitcoinbalance ?? 0) / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
+            ? currencyFormat(
+            (ref.watch(balanceNotifierProvider).sparkBitcoinbalance ?? 0) /
+                100000000 *
+                ref.watch(selectedCurrencyProvider(currency)),
+            currency)
             : '****';
         break;
       case 'Liquid Bitcoin':
         nativeBalance = isBalanceVisible ? liquidBtcBalance : '****';
         equivalentBalance = isBalanceVisible
-            ? currencyFormat(ref.watch(balanceNotifierProvider).liquidBtcBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
+            ? currencyFormat(
+            ref.watch(balanceNotifierProvider).liquidBtcBalance / 100000000 * ref.watch(selectedCurrencyProvider(currency)), currency)
             : '****';
         break;
       case 'USDT':
@@ -104,7 +110,6 @@ class BalanceCard extends ConsumerWidget {
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
           decoration: BoxDecoration(
             color: Colors.black.withOpacity(0.08),
-            // --- CHANGE: Reduced border radius ---
             borderRadius: BorderRadius.circular(14.r),
           ),
           child: Row(
@@ -122,6 +127,7 @@ class BalanceCard extends ConsumerWidget {
     }
 
     return Container(
+      height: isSmallScreen ? 200.h : 260.h,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(20.r),
@@ -131,7 +137,6 @@ class BalanceCard extends ConsumerWidget {
         padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
         child: Column(
           children: [
-            // --- Header Section ---
             Row(
               children: [
                 if (iconPath.endsWith('.svg'))
@@ -139,16 +144,18 @@ class BalanceCard extends ConsumerWidget {
                     iconPath,
                     width: selectedAsset == 'Liquid Bitcoin' ? 50.w : 24.w,
                     height: selectedAsset == 'Liquid Bitcoin' ? 50.w : 24.w,
-                    colorFilter: network == 'Spark Network' ? ColorFilter.mode(Colors.white, BlendMode.srcIn) : null,
+                    colorFilter: network == 'Spark Network' ? const ColorFilter.mode(Colors.white, BlendMode.srcIn) : null,
                   )
                 else
                   Image.asset(iconPath, width: 100.sp),
                 SizedBox(width: isSmallScreen ? 4.w : 8.w),
                 if (network == 'Spark Network' || network == 'Liquid Network')
                   Text(
-                    selectedAsset == 'Lightning Bitcoin' ? 'Lightning' :
-                    selectedAsset == 'Liquid Bitcoin' ? 'L-BTC' :
-                    selectedAsset,
+                    selectedAsset == 'Lightning Bitcoin'
+                        ? 'Lightning'
+                        : selectedAsset == 'Liquid Bitcoin'
+                        ? 'L-BTC'
+                        : selectedAsset,
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
@@ -169,8 +176,6 @@ class BalanceCard extends ConsumerWidget {
               ],
             ),
             SizedBox(height: isSmallScreen ? 4.h : 8.h),
-
-            // --- Balance Section (Price Ticker moved to the right) ---
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -196,13 +201,8 @@ class BalanceCard extends ConsumerWidget {
                       ),
                   ],
                 ),
-                const Spacer(),
-                if (isBalanceVisible && ['Bitcoin (Mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(selectedAsset))
-                  _buildPricePercentageChangeTicker(context, ref, textColor),
               ],
             ),
-
-            // --- Graph Section ---
             Expanded(
               child: Opacity(
                 opacity: isBalanceVisible ? 1.0 : 0.0,
@@ -213,8 +213,6 @@ class BalanceCard extends ConsumerWidget {
               ),
             ),
             SizedBox(height: 8.h),
-
-            // --- Action Buttons Section ---
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -278,13 +276,13 @@ class BalanceCard extends ConsumerWidget {
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                       decoration: BoxDecoration(
-                        border: Border.all(color: textColor.withOpacity(0.5), width: 1.5),
-                        // --- CHANGE: Reduced border radius ---
+                        color: Colors.transparent,
                         borderRadius: BorderRadius.circular(14.r),
+                        border: Border.all(color: textColor.withOpacity(0.5), width: 1.5),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.analytics_outlined, size: 16.w, color: textColor),
+                          Icon(Icons.bar_chart_outlined, size: 16.w, color: textColor),
                           SizedBox(width: 6.w),
                           Text(
                             'Analytics'.i18n,
@@ -302,68 +300,6 @@ class BalanceCard extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref, Color textColor) {
-    final currency = ref.watch(settingsProvider).currency;
-    final coinGeckoData = ref.watch(coinGeckoBitcoinChange(currency.toLowerCase()));
-    final currentPrice = ref.watch(selectedCurrencyProvider(currency));
-
-    return coinGeckoData.when(
-      data: (data) {
-        IconData? icon;
-        String displayText = '${data.abs().toStringAsFixed(2)}%';
-
-        if (displayText == '-0.00%' || displayText == '0.00%') {
-          displayText = '0%';
-          icon = null;
-        } else if (data > 0) {
-          icon = Icons.arrow_upward;
-        } else if (data < 0) {
-          icon = Icons.arrow_downward;
-        }
-
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                currencyFormat(currentPrice, currency.toUpperCase()),
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                ),
-              ),
-              SizedBox(width: 8.w),
-              if (icon != null) Icon(icon, size: 14.sp, color: textColor, weight: 700),
-              SizedBox(width: icon != null ? 4.0 : 0),
-              Text(
-                displayText,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: textColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      loading: () => LoadingAnimationWidget.progressiveDots(
-        size: 14.sp,
-        color: textColor,
-      ),
-      error: (error, stack) => Text(
-        'Error',
-        style: TextStyle(fontSize: 14.sp, color: textColor),
       ),
     );
   }
@@ -477,15 +413,13 @@ class SimplifiedExpensesGraph extends StatelessWidget {
           LineChartBarData(
             spots: spots,
             isCurved: true,
-            // Lighter graph line
             color: graphColor.withOpacity(0.9),
-            barWidth: 2.5, // Thinner line
+            barWidth: 2.5,
             isStrokeCapRound: true,
             belowBarData: BarAreaData(
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  // Lighter gradient fill
                   graphColor.withOpacity(0.2),
                   Colors.transparent,
                 ],
@@ -497,7 +431,6 @@ class SimplifiedExpensesGraph extends StatelessWidget {
               show: true,
               getDotPainter: (spot, percent, barData, index) {
                 if (index == barData.spots.length - 1) {
-                  // More delicate dot
                   return FlDotCirclePainter(
                     radius: 3.5,
                     color: graphColor,

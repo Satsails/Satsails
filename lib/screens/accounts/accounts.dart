@@ -24,6 +24,18 @@ class Accounts extends ConsumerStatefulWidget {
 }
 
 class _AccountsState extends ConsumerState<Accounts> {
+  String? _expandedCardId;
+
+  void _handleCardTap(String cardId) {
+    setState(() {
+      if (_expandedCardId == cardId) {
+        _expandedCardId = null;
+      } else {
+        _expandedCardId = cardId;
+      }
+    });
+  }
+
   Widget _buildVerticalActionChip({
     required IconData icon,
     required String label,
@@ -33,7 +45,7 @@ class _AccountsState extends ConsumerState<Accounts> {
       child: GestureDetector(
         onTap: onPressed,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8.h),
+          padding: EdgeInsets.symmetric(vertical: 10.h),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.1),
             borderRadius: BorderRadius.circular(16.r),
@@ -60,7 +72,8 @@ class _AccountsState extends ConsumerState<Accounts> {
     );
   }
 
-  Widget _buildLightningCard(BuildContext context, WidgetRef ref) {
+  Widget _buildLightningCard(
+      {required BuildContext context, required WidgetRef ref, required bool isExpanded, required VoidCallback onTap}) {
     final Widget lightningIcon = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -73,24 +86,19 @@ class _AccountsState extends ConsumerState<Accounts> {
       ],
     );
 
-    return Container(
-      height: 220.sp,
-      decoration: BoxDecoration(
-        color: const Color(0x00333333).withOpacity(0.4),
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            spreadRadius: 2,
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        height: isExpanded ? 220.sp : 120.sp,
+        decoration: BoxDecoration(
+          color: const Color(0xFF333333).withOpacity(0.4),
+          borderRadius: BorderRadius.circular(20.r),
+        ),
         padding: EdgeInsets.all(18.w),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
@@ -102,40 +110,185 @@ class _AccountsState extends ConsumerState<Accounts> {
                   style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold),
                   overflow: TextOverflow.ellipsis,
                 ),
-              )
+              ),
+              IconButton(
+                icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more, color: Colors.white70),
+                onPressed: onTap,
+              ),
             ]),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Send and receive on the Lightning Network using your Liquid Bitcoin'.i18n,
-                  style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.w600),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+            const Spacer(),
+            Text(
+              'Send and receive on the Lightning Network using your Liquid Bitcoin'.i18n,
+              style: TextStyle(fontSize: 14.sp, color: Colors.white70, fontWeight: FontWeight.w600),
+              maxLines: isExpanded ? 2 : 1, // Adjust max lines based on state
+              overflow: TextOverflow.ellipsis,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+            const Spacer(),
+            AnimatedOpacity(
+              opacity: isExpanded ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: isExpanded
+                  ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildVerticalActionChip(
+                    icon: Icons.arrow_downward,
+                    label: 'Receive'.i18n,
+                    onPressed: () {
+                      ref.read(selectedNetworkTypeProvider.notifier).state = 'Boltz Network';
+                      context.push('/home/receive');
+                    },
+                  ),
+                  SizedBox(width: 12.w),
+                  _buildVerticalActionChip(
+                    icon: Icons.arrow_upward,
+                    label: 'Send'.i18n,
+                    onPressed: () {
+                      ref.read(sendTxProvider.notifier).resetToDefault();
+                      context.push('/home/pay', extra: 'lightning');
+                    },
+                  ),
+                ],
+              )
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAccountCard({
+    required BuildContext context, required WidgetRef ref, required String title,
+    required String balanceText, required Widget icon, required String fiatBalance,
+    required bool isExpanded, required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        height: isExpanded ? 220.sp : 120.sp,
+        decoration: BoxDecoration(
+          color: const Color(0xFF333333).withOpacity(0.4),
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        padding: EdgeInsets.all(18.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              icon,
+              SizedBox(width: 10.w),
+              Expanded(
+                  child: Text(title, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis)
+              ),
+              // =========================================================================
+              // NEW: Added expand/collapse button for clear user affordance.
+              // =========================================================================
+              IconButton(
+                icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more, color: Colors.white70),
+                onPressed: onTap,
+              ),
+            ]),
+            const Spacer(),
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(balanceText.isNotEmpty ? balanceText : 'Loading...', style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
+              if (fiatBalance.isNotEmpty) Text(fiatBalance, style: TextStyle(fontSize: 14.sp, color: Colors.white70)),
+            ]),
+            const Spacer(),
+            AnimatedOpacity(
+              opacity: isExpanded ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: isExpanded
+                  ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 _buildVerticalActionChip(
-                  icon: Icons.arrow_downward,
-                  label: 'Receive'.i18n,
-                  onPressed: () {
-                    ref.read(selectedNetworkTypeProvider.notifier).state = 'Boltz Network';
-                    context.push('/home/receive');
-                  },
-                ),
+                    icon: Icons.arrow_downward, label: 'Receive'.i18n,
+                    onPressed: () {
+                      final networkType = title == 'L-BTC' ? 'Liquid Network' : 'Bitcoin Network';
+                      ref.read(selectedNetworkTypeProvider.notifier).state = networkType;
+                      context.push('/home/receive');
+                    }),
                 SizedBox(width: 12.w),
                 _buildVerticalActionChip(
-                  icon: Icons.arrow_upward,
-                  label: 'Send'.i18n,
-                  onPressed: () {
-                    ref.read(sendTxProvider.notifier).resetToDefault();
-                    context.push('/home/pay', extra: 'lightning');
-                  },
-                ),
-              ],
+                    icon: Icons.arrow_upward, label: 'Send'.i18n,
+                    onPressed: () {
+                      ref.read(sendTxProvider.notifier).resetToDefault();
+                      if (title == 'Bitcoin') {
+                        context.push('/home/pay', extra: 'bitcoin');
+                      } else if (title == 'L-BTC') {
+                        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+                        context.push('/home/pay', extra: 'liquid');
+                      }
+                    }),
+              ])
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStableCard({
+    required BuildContext context, required WidgetRef ref, required String title,
+    required String balanceText, required Widget icon, required AssetId assetId,
+    required bool isExpanded, required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        height: isExpanded ? 220.sp : 120.sp,
+        decoration: BoxDecoration(
+          color: const Color(0xFF333333).withOpacity(0.4),
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        padding: EdgeInsets.all(18.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              icon,
+              SizedBox(width: 10.w),
+              Expanded(
+                  child: Text(title, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis)
+              ),
+              // =========================================================================
+              // NEW: Added expand/collapse button for clear user affordance.
+              // =========================================================================
+              IconButton(
+                icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more, color: Colors.white70),
+                onPressed: onTap,
+              ),
+            ]),
+            const Spacer(),
+            Text(balanceText.isNotEmpty ? balanceText : 'Loading...', style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
+            const Spacer(),
+            AnimatedOpacity(
+              opacity: isExpanded ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: isExpanded
+                  ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                _buildVerticalActionChip(
+                    icon: Icons.arrow_downward, label: 'Receive'.i18n,
+                    onPressed: () {
+                      ref.read(selectedNetworkTypeProvider.notifier).state = 'Liquid Network';
+                      context.push('/home/receive');
+                    }),
+                SizedBox(width: 12.w),
+                _buildVerticalActionChip(
+                    icon: Icons.arrow_upward, label: 'Send'.i18n,
+                    onPressed: () {
+                      ref.read(sendTxProvider.notifier).resetToDefault();
+                      ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(assetId));
+                      context.push('/home/pay', extra: 'liquid_asset');
+                    }),
+              ])
+                  : const SizedBox.shrink(),
             ),
           ],
         ),
@@ -156,29 +309,14 @@ class _AccountsState extends ConsumerState<Accounts> {
           child: Column(
             children: [
               AppBar(
-                title: Text(
-                  'Accounts'.i18n,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22.sp,
-                  ),
-                ),
-                backgroundColor: Colors.black,
-                automaticallyImplyLeading: false,
-                centerTitle: false,
+                title: Text('Accounts'.i18n, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22.sp)),
+                backgroundColor: Colors.black, automaticallyImplyLeading: false, centerTitle: false,
                 actions: [
                   Padding(
                     padding: EdgeInsets.only(right: 16.w),
                     child: IconButton(
-                      onPressed: () {
-                        ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible);
-                      },
-                      icon: Icon(
-                        isBalanceVisible ? Icons.remove_red_eye : Icons.visibility_off,
-                        color: Colors.white,
-                        size: 24.sp,
-                      ),
+                      onPressed: () => ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible),
+                      icon: Icon(isBalanceVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: Colors.white, size: 24.sp),
                     ),
                   ),
                 ],
@@ -194,88 +332,49 @@ class _AccountsState extends ConsumerState<Accounts> {
                         _buildSectionHeader('Bitcoin Network', 'lib/assets/bitcoin-logo-white.svg', null),
                         SizedBox(height: 12.h),
                         _buildAccountCard(
-                          context,
-                          ref,
-                          'Bitcoin',
-                          isBalanceVisible
-                              ? btcInDenominationFormatted(
-                            ref.watch(balanceNotifierProvider).onChainBtcBalance,
-                            ref.watch(settingsProvider).btcFormat,
-                          )
-                              : '***',
-                          Image.asset('lib/assets/bitcoin-logo.png', width: 32.sp, height: 32.sp),
-                          isBalanceVisible
-                              ? currencyFormat(
-                            ref
-                                .watch(currentBitcoinPriceInCurrencyProvider(
-                              CurrencyParams(
-                                  ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).onChainBtcBalance),
-                            ))
-                                .toDouble(),
-                            ref.watch(settingsProvider).currency,
-                          )
-                              : '***',
+                            context: context, ref: ref, title: 'Bitcoin',
+                            isExpanded: _expandedCardId == 'Bitcoin', onTap: () => _handleCardTap('Bitcoin'),
+                            balanceText: isBalanceVisible ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).onChainBtcBalance, ref.watch(settingsProvider).btcFormat) : '••••••',
+                            icon: Image.asset('lib/assets/bitcoin-logo.png', width: 32.sp, height: 32.sp),
+                            fiatBalance: isBalanceVisible ? currencyFormat(ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).onChainBtcBalance))).toDouble(), ref.watch(settingsProvider).currency) : '••••••'
                         ),
                         SizedBox(height: 24.h),
                         _buildSectionHeader('Boltz Network', 'lib/assets/boltz.svg', Colors.white),
                         SizedBox(height: 12.h),
-                        _buildLightningCard(context, ref),
+                        _buildLightningCard(context: context, ref: ref, isExpanded: _expandedCardId == 'Lightning', onTap: () => _handleCardTap('Lightning')),
                         SizedBox(height: 24.h),
                         _buildSectionHeader('Liquid Network', 'lib/assets/liquid-logo-white.png', null),
                         SizedBox(height: 12.h),
-                        Column(
-                          children: [
-                            _buildAccountCard(
-                              context,
-                              ref,
-                              'L-BTC',
-                              isBalanceVisible
-                                  ? btcInDenominationFormatted(
-                                ref.watch(balanceNotifierProvider).liquidBtcBalance,
-                                ref.watch(settingsProvider).btcFormat,
-                              )
-                                  : '***',
-                              Image.asset('lib/assets/l-btc.png', width: 32.sp, height: 32.sp),
-                              isBalanceVisible
-                                  ? currencyFormat(
-                                ref
-                                    .watch(currentBitcoinPriceInCurrencyProvider(
-                                  CurrencyParams(
-                                      ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).liquidBtcBalance),
-                                ))
-                                    .toDouble(),
-                                ref.watch(settingsProvider).currency,
-                              )
-                                  : '***',
-                            ),
-                            SizedBox(height: 16.h),
-                            _buildStableCard(
-                              context,
-                              ref,
-                              'Depix',
-                              isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidDepixBalance) : '***',
-                              Image.asset('lib/assets/depix.png', width: 32.sp, height: 32.sp),
-                              AssetId.BRL,
-                            ),
-                            SizedBox(height: 16.h),
-                            _buildStableCard(
-                              context,
-                              ref,
-                              'USDT',
-                              isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidUsdtBalance) : '***',
-                              Image.asset('lib/assets/tether.png', width: 32.sp, height: 32.sp),
-                              AssetId.USD,
-                            ),
-                            SizedBox(height: 16.h),
-                            _buildStableCard(
-                              context,
-                              ref,
-                              'EURx',
-                              isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidEuroxBalance) : '***',
-                              Image.asset('lib/assets/eurx.png', width: 32.sp, height: 32.sp),
-                              AssetId.EUR,
-                            ),
-                          ],
+                        _buildAccountCard(
+                            context: context, ref: ref, title: 'L-BTC',
+                            isExpanded: _expandedCardId == 'L-BTC', onTap: () => _handleCardTap('L-BTC'),
+                            balanceText: isBalanceVisible ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBtcBalance, ref.watch(settingsProvider).btcFormat) : '••••••',
+                            icon: Image.asset('lib/assets/l-btc.png', width: 32.sp, height: 32.sp),
+                            fiatBalance: isBalanceVisible ? currencyFormat(ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).liquidBtcBalance))).toDouble(), ref.watch(settingsProvider).currency) : '••••••'
+                        ),
+                        SizedBox(height: 16.h),
+                        _buildStableCard(
+                            context: context, ref: ref, title: 'Depix',
+                            isExpanded: _expandedCardId == 'Depix', onTap: () => _handleCardTap('Depix'),
+                            balanceText: isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidDepixBalance) : '••••••',
+                            icon: Image.asset('lib/assets/depix.png', width: 32.sp, height: 32.sp),
+                            assetId: AssetId.BRL
+                        ),
+                        SizedBox(height: 16.h),
+                        _buildStableCard(
+                            context: context, ref: ref, title: 'USDT',
+                            isExpanded: _expandedCardId == 'USDT', onTap: () => _handleCardTap('USDT'),
+                            balanceText: isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidUsdtBalance) : '••••••',
+                            icon: Image.asset('lib/assets/tether.png', width: 32.sp, height: 32.sp),
+                            assetId: AssetId.USD
+                        ),
+                        SizedBox(height: 16.h),
+                        _buildStableCard(
+                            context: context, ref: ref, title: 'EURx',
+                            isExpanded: _expandedCardId == 'EURx', onTap: () => _handleCardTap('EURx'),
+                            balanceText: isBalanceVisible ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidEuroxBalance) : '••••••',
+                            icon: Image.asset('lib/assets/eurx.png', width: 32.sp, height: 32.sp),
+                            assetId: AssetId.EUR
                         ),
                         SizedBox(height: 100.sp),
                       ],
@@ -291,152 +390,11 @@ class _AccountsState extends ConsumerState<Accounts> {
   }
 
   Widget _buildSectionHeader(String title, String logoPath, Color? color) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildNetworkLogo(logoPath, color),
-        SizedBox(height: 6.h),
-      ],
-    );
-  }
-
-  Widget _buildNetworkLogo(String logoPath, Color? color) {
-    if (logoPath.endsWith('.svg')) {
-      return SvgPicture.asset(
-        logoPath,
-        width: 100.sp,
-        color: color,
-      );
-    } else {
-      return Image.asset(
-        logoPath,
-        width: 100.sp,
-      );
-    }
-  }
-
-  Widget _buildAccountCard(
-      BuildContext context,
-      WidgetRef ref,
-      String title,
-      String balanceText,
-      Widget icon,
-      String fiatBalance,
-      ) {
-    return Container(
-      height: 220.sp,
-      decoration: BoxDecoration(
-        color: const Color(0x00333333).withOpacity(0.4),
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), spreadRadius: 2, blurRadius: 8, offset: const Offset(0, 4))],
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(18.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(children: [
-              icon,
-              SizedBox(width: 10.w),
-              Expanded(
-                  child: Text(title,
-                      style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.ellipsis))
-            ]),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(balanceText.isNotEmpty ? balanceText : 'Loading...',
-                  style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.w600),
-                  overflow: TextOverflow.ellipsis),
-              if (fiatBalance.isNotEmpty) Text(fiatBalance, style: TextStyle(fontSize: 14.sp, color: Colors.white70)),
-            ]),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              _buildVerticalActionChip(
-                  icon: Icons.arrow_downward,
-                  label: 'Receive'.i18n,
-                  onPressed: () {
-                    final networkType = title == 'L-BTC' ? 'Liquid Network' : 'Bitcoin Network';
-                    ref.read(selectedNetworkTypeProvider.notifier).state = networkType;
-                    context.push('/home/receive');
-                  }),
-              SizedBox(width: 12.w),
-              _buildVerticalActionChip(
-                  icon: Icons.arrow_upward,
-                  label: 'Send'.i18n,
-                  onPressed: () {
-                    ref.read(sendTxProvider.notifier).resetToDefault();
-                    if (title == 'Bitcoin') {
-                      context.push('/home/pay', extra: 'bitcoin');
-                    } else if (title == 'L-BTC') {
-                      ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
-                      context.push('/home/pay', extra: 'liquid');
-                    }
-                  }),
-            ]),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStableCard(
-      BuildContext context,
-      WidgetRef ref,
-      String title,
-      String balanceText,
-      Widget icon,
-      AssetId assetId,
-      ) {
-    return Container(
-      height: 220.sp,
-      decoration: BoxDecoration(
-        color: const Color(0x00333333).withOpacity(0.4),
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), spreadRadius: 2, blurRadius: 8, offset: const Offset(0, 4))],
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(18.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(children: [
-              icon,
-              SizedBox(width: 10.w),
-              Expanded(
-                  child: Text(title,
-                      style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.ellipsis))
-            ]),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(balanceText.isNotEmpty ? balanceText : 'Loading...',
-                    style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.w600),
-                    overflow: TextOverflow.ellipsis),
-              ],
-            ),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              _buildVerticalActionChip(
-                  icon: Icons.arrow_downward,
-                  label: 'Receive'.i18n,
-                  onPressed: () {
-                    ref.read(selectedNetworkTypeProvider.notifier).state = 'Liquid Network';
-                    context.push('/home/receive');
-                  }),
-              SizedBox(width: 12.w),
-              _buildVerticalActionChip(
-                  icon: Icons.arrow_upward,
-                  label: 'Send'.i18n,
-                  onPressed: () {
-                    ref.read(sendTxProvider.notifier).resetToDefault();
-                    ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(assetId));
-                    context.push('/home/pay', extra: 'liquid_asset');
-                  }),
-            ]),
-          ],
-        ),
-      ),
+    return Padding(
+      padding: EdgeInsets.only(left: 4.w, bottom: 4.h),
+      child: logoPath.endsWith('.svg')
+          ? SvgPicture.asset(logoPath, height: 20.h, colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null)
+          : Image.asset(logoPath, height: 20.h),
     );
   }
 }
