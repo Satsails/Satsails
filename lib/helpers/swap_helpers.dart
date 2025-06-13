@@ -1120,7 +1120,7 @@ Widget buildSideswapInstantSwap(
             if (!fiatAssets.contains(toAsset)) ...[
               Text(
                 currencyFormat((btcFormat == 'sats' ? double.parse(formattedAmount) / 100000000 : double.parse(formattedAmount)) * currencyRateFromBitcoin, currency),
-                style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+                style: TextStyle(color: Colors.grey, fontSize: 20.sp),
               ),
             ],
           ],
@@ -1156,7 +1156,7 @@ Widget buildSideswapInstantSwap(
               SizedBox(height: 4.h),
               Text(
                 currencyFormat(0.0, currency),
-                style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+                style: TextStyle(color: Colors.grey, fontSize: 20.sp),
               ),
             ],
           ],
@@ -1180,7 +1180,7 @@ Widget buildSideswapInstantSwap(
                       value: option,
                       child: Text(
                         option.toUpperCase(),
-                        style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                        style: TextStyle(color: Colors.white, fontSize: 20.sp),
                       ),
                     );
                   }).toList(),
@@ -1214,7 +1214,7 @@ Widget buildSideswapInstantSwap(
                     child: const Icon(Icons.arrow_drop_down, color: Colors.white),
                   ),
                   isDense: true,
-                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                  style: TextStyle(color: Colors.white, fontSize: 20.sp),
                 ),
               ),
             ],
@@ -1225,7 +1225,7 @@ Widget buildSideswapInstantSwap(
             children: [
               Text(
                 fromAsset,
-                style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                style: TextStyle(fontSize: 20.sp, color: Colors.grey),
               ),
             ],
           ),
@@ -1365,7 +1365,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
                               value: option,
                               child: Text(
                                 option.toUpperCase(),
-                                style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                                style: TextStyle(color: Colors.white, fontSize: 20.sp),
                               ),
                             );
                           }).toList(),
@@ -1391,7 +1391,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
                             child: const Icon(Icons.arrow_drop_down, color: Colors.white),
                           ),
                           isDense: true,
-                          style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                          style: TextStyle(color: Colors.white, fontSize: 20.sp),
                         ),
                       ),
                     ],
@@ -1402,7 +1402,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
                     children: [
                       Text(
                         btcFormat,
-                        style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                        style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -1548,7 +1548,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
                               value: option,
                               child: Text(
                                 option.toUpperCase(),
-                                style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                                style: TextStyle(color: Colors.white, fontSize: 20.sp),
                               ),
                             );
                           }).toList(),
@@ -1574,7 +1574,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
                             child: const Icon(Icons.arrow_drop_down, color: Colors.white),
                           ),
                           isDense: true,
-                          style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                          style: TextStyle(color: Colors.white, fontSize: 20.sp),
                         ),
                       ),
                     ],
@@ -1585,7 +1585,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
                     children: [
                       Text(
                         btcFormat,
-                        style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                        style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                       ),
                     ],
                   ),

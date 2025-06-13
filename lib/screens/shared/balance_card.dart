@@ -93,201 +93,215 @@ class BalanceCard extends ConsumerWidget {
         equivalentBalance = '****';
     }
 
-    final bottomButtons = Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        IconButton(
-          onPressed: () {
-            ref.read(selectedNetworkTypeProvider.notifier).state = network;
-            context.push('/home/receive');
-          },
-          icon: Icon(Icons.arrow_downward, color: textColor, size: 28.w, weight: 700),
-          padding: EdgeInsets.symmetric(horizontal: 10.sp, vertical: 12.sp),
+    Widget _buildActionButton({
+      required IconData icon,
+      required String label,
+      required VoidCallback onPressed,
+    }) {
+      return GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.08),
+            // --- CHANGE: Reduced border radius ---
+            borderRadius: BorderRadius.circular(14.r),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: textColor, size: 16.w, weight: 700),
+              SizedBox(width: 6.w),
+              Text(
+                label,
+                style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 13.sp),
+              ),
+            ],
+          ),
         ),
-        IconButton(
-          onPressed: () {
-            ref.read(sendTxProvider.notifier).resetToDefault();
-            ref.read(sendBlocksProvider.notifier).state = 1;
-
-            switch (selectedAsset) {
-              case 'Bitcoin (Mainnet)':
-                context.push('/home/pay', extra: 'bitcoin');
-                break;
-              case 'Lightning Bitcoin':
-                context.push('/home/pay', extra: 'lightning');
-                break;
-              case 'Liquid Bitcoin':
-                ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
-                context.push('/home/pay', extra: 'liquid');
-                break;
-              default:
-                String assetId;
-                switch (selectedAsset) {
-                  case 'USDT':
-                    assetId = AssetMapper.reverseMapTicker(AssetId.USD);
-                    break;
-                  case 'EURx':
-                    assetId = AssetMapper.reverseMapTicker(AssetId.EUR);
-                    break;
-                  case 'Depix':
-                    assetId = AssetMapper.reverseMapTicker(AssetId.BRL);
-                    break;
-                  default:
-                    assetId = '';
-                }
-                ref.read(sendTxProvider.notifier).updateAssetId(assetId);
-                context.push('/home/pay', extra: 'liquid_asset');
-            }
-          },
-          icon: Icon(Icons.arrow_upward, color: textColor, size: 28.w, weight: 700),
-          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
-        ),
-      ],
-    );
+      );
+    }
 
     return Container(
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: Colors.black.withOpacity(0.1), width: 1),
       ),
-      clipBehavior: Clip.none,
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      if (iconPath.endsWith('.svg'))
-                        SvgPicture.asset(
-                          iconPath,
-                          width: selectedAsset == 'Liquid Bitcoin' ? 50.w : 24.w,
-                          height: selectedAsset == 'Liquid Bitcoin' ? 50.w : 24.w,
-                          color: network == 'Spark Network' ? Colors.white : null,
-                        )
-                      else
-                        Image.asset(
-                          iconPath,
-                          width: 100.sp,
-                        ),
-                      SizedBox(width: isSmallScreen ? 4.w : 8.w),
-                      if (network == 'Spark Network' || network == 'Liquid Network')
-                        Text(
-                          selectedAsset == 'Lightning Bitcoin' ? 'Lightning' :
-                          selectedAsset == 'Liquid Bitcoin' ? 'L-BTC' :
-                          selectedAsset,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                            color: assetNameColor,
-                          ),
-                        ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () {
-                          ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible);
-                        },
-                        icon: Icon(
-                          isBalanceVisible ? Icons.remove_red_eye : Icons.visibility_off,
-                          color: textColor,
-                          size: 24.sp,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: isSmallScreen ? 8.h : 16.h),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              nativeBalance,
-                              style: TextStyle(
-                                fontSize: 24.sp,
-                                fontWeight: FontWeight.bold,
-                                color: textColor,
-                              ),
-                            ),
-                            if (['Bitcoin (Mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(selectedAsset)) ...[
-                              SizedBox(height: 2.h),
-                              Text(
-                                equivalentBalance,
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: textColor.withOpacity(0.7),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      if (!isSmallScreen)
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            if (isBalanceVisible)
-                              MiniExpensesGraph(
-                                selectedAsset: selectedAsset,
-                                textColor: textColor,
-                              ),
-                            if (['Bitcoin (Mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(selectedAsset)) ...[
-                              SizedBox(height: 8.h),
-                              _buildPricePercentageChangeTicker(context, ref, textColor),
-                            ],
-                          ],
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (isBalanceVisible)
-            Positioned(
-              bottom: 8.sp,
-              right: 16.w,
-              child: GestureDetector(
-                onTap: () {
-                  ref.read(selectedAssetProvider.notifier).state = selectedAsset;
-                  context.pushNamed('analytics');
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: textColor, width: 1),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  padding:EdgeInsets.symmetric(horizontal: 10.sp, vertical: 8.sp),
-                  child: Text(
-                    'Analytics'.i18n,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
+        child: Column(
+          children: [
+            // --- Header Section ---
+            Row(
+              children: [
+                if (iconPath.endsWith('.svg'))
+                  SvgPicture.asset(
+                    iconPath,
+                    width: selectedAsset == 'Liquid Bitcoin' ? 50.w : 24.w,
+                    height: selectedAsset == 'Liquid Bitcoin' ? 50.w : 24.w,
+                    colorFilter: network == 'Spark Network' ? ColorFilter.mode(Colors.white, BlendMode.srcIn) : null,
+                  )
+                else
+                  Image.asset(iconPath, width: 100.sp),
+                SizedBox(width: isSmallScreen ? 4.w : 8.w),
+                if (network == 'Spark Network' || network == 'Liquid Network')
+                  Text(
+                    selectedAsset == 'Lightning Bitcoin' ? 'Lightning' :
+                    selectedAsset == 'Liquid Bitcoin' ? 'L-BTC' :
+                    selectedAsset,
                     style: TextStyle(
-                      color: textColor,
-                      fontSize: 13.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
+                      color: assetNameColor,
                     ),
                   ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () {
+                    ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible);
+                  },
+                  icon: Icon(
+                    isBalanceVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                    color: textColor,
+                    size: 24.sp,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: isSmallScreen ? 4.h : 8.h),
+
+            // --- Balance Section (Price Ticker moved to the right) ---
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      nativeBalance,
+                      style: TextStyle(
+                        fontSize: 26.sp,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    if (['Bitcoin (Mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(selectedAsset))
+                      Text(
+                        equivalentBalance,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: textColor.withOpacity(0.7),
+                        ),
+                      ),
+                  ],
+                ),
+                const Spacer(),
+                if (isBalanceVisible && ['Bitcoin (Mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(selectedAsset))
+                  _buildPricePercentageChangeTicker(context, ref, textColor),
+              ],
+            ),
+
+            // --- Graph Section ---
+            Expanded(
+              child: Opacity(
+                opacity: isBalanceVisible ? 1.0 : 0.0,
+                child: MiniExpensesGraph(
+                  selectedAsset: selectedAsset,
+                  textColor: textColor,
                 ),
               ),
             ),
-          Positioned(
-            bottom: 2.sp,
-            left: 16.w,
-            child: bottomButtons,
-          ),
-        ],
+            SizedBox(height: 8.h),
+
+            // --- Action Buttons Section ---
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    _buildActionButton(
+                      icon: Icons.arrow_downward,
+                      label: 'Receive'.i18n,
+                      onPressed: () {
+                        ref.read(selectedNetworkTypeProvider.notifier).state = network;
+                        context.push('/home/receive');
+                      },
+                    ),
+                    SizedBox(width: 8.w),
+                    _buildActionButton(
+                      icon: Icons.arrow_upward,
+                      label: 'Send'.i18n,
+                      onPressed: () {
+                        ref.read(sendTxProvider.notifier).resetToDefault();
+                        ref.read(sendBlocksProvider.notifier).state = 1;
+
+                        switch (selectedAsset) {
+                          case 'Bitcoin (Mainnet)':
+                            context.push('/home/pay', extra: 'bitcoin');
+                            break;
+                          case 'Lightning Bitcoin':
+                            context.push('/home/pay', extra: 'lightning');
+                            break;
+                          case 'Liquid Bitcoin':
+                            ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+                            context.push('/home/pay', extra: 'liquid');
+                            break;
+                          default:
+                            String assetId;
+                            switch (selectedAsset) {
+                              case 'USDT':
+                                assetId = AssetMapper.reverseMapTicker(AssetId.USD);
+                                break;
+                              case 'EURx':
+                                assetId = AssetMapper.reverseMapTicker(AssetId.EUR);
+                                break;
+                              case 'Depix':
+                                assetId = AssetMapper.reverseMapTicker(AssetId.BRL);
+                                break;
+                              default:
+                                assetId = '';
+                            }
+                            ref.read(sendTxProvider.notifier).updateAssetId(assetId);
+                            context.push('/home/pay', extra: 'liquid_asset');
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                if (isBalanceVisible)
+                  GestureDetector(
+                    onTap: () {
+                      ref.read(selectedAssetProvider.notifier).state = selectedAsset;
+                      context.pushNamed('analytics');
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: textColor.withOpacity(0.5), width: 1.5),
+                        // --- CHANGE: Reduced border radius ---
+                        borderRadius: BorderRadius.circular(14.r),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.analytics_outlined, size: 16.w, color: textColor),
+                          SizedBox(width: 6.w),
+                          Text(
+                            'Analytics'.i18n,
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -295,7 +309,7 @@ class BalanceCard extends ConsumerWidget {
   Widget _buildPricePercentageChangeTicker(BuildContext context, WidgetRef ref, Color textColor) {
     final currency = ref.watch(settingsProvider).currency;
     final coinGeckoData = ref.watch(coinGeckoBitcoinChange(currency.toLowerCase()));
-    final currentPrice = ref.watch(selectedCurrencyProvider(currency)) * 1;
+    final currentPrice = ref.watch(selectedCurrencyProvider(currency));
 
     return coinGeckoData.when(
       data: (data) {
@@ -321,7 +335,7 @@ class BalanceCard extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                currentPrice.toStringAsFixed(2),
+                currencyFormat(currentPrice, currency.toUpperCase()),
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.bold,
@@ -371,8 +385,6 @@ class MiniExpensesGraph extends ConsumerWidget {
 
     switch (selectedAsset) {
       case 'Bitcoin (Mainnet)':
-        asyncData = AsyncValue.data(ref.watch(bitcoinBalanceInFormatByDayProvider));
-        break;
       case 'Lightning Bitcoin':
         asyncData = AsyncValue.data(ref.watch(bitcoinBalanceInFormatByDayProvider));
         break;
@@ -396,25 +408,21 @@ class MiniExpensesGraph extends ConsumerWidget {
         asyncData = const AsyncValue.data({});
     }
 
-    return SizedBox(
-      width: 170.w,
-      height: 50.h,
-      child: asyncData.when(
-        data: (data) => Padding(
-          padding: EdgeInsets.all(4.0.sp),
-          child: SimplifiedExpensesGraph(
-            dataToDisplay: data,
-            graphColor: textColor,
-          ),
+    return asyncData.when(
+      data: (data) => Padding(
+        padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
+        child: SimplifiedExpensesGraph(
+          dataToDisplay: data,
+          graphColor: textColor,
         ),
-        loading: () => Center(
-          child: LoadingAnimationWidget.fourRotatingDots(
-            color: textColor,
-            size: 20,
-          ),
-        ),
-        error: (err, stack) => const Center(child: Text('Error')),
       ),
+      loading: () => Center(
+        child: LoadingAnimationWidget.fourRotatingDots(
+          color: textColor,
+          size: 20,
+        ),
+      ),
+      error: (err, stack) => const Center(child: Text('Error')),
     );
   }
 }
@@ -431,7 +439,6 @@ class SimplifiedExpensesGraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Convert dataToDisplay into a list of FlSpot objects
     List<FlSpot> spots = dataToDisplay.entries.map((entry) {
       return FlSpot(
         entry.key.millisecondsSinceEpoch.toDouble(),
@@ -439,23 +446,23 @@ class SimplifiedExpensesGraph extends StatelessWidget {
       );
     }).toList();
 
-    double minY;
-    double maxY;
+    double minY, maxY;
 
-    // Handle the case where there are no transactions
     if (spots.isEmpty) {
-      // Create default spots for a straight horizontal line
       final now = DateTime.now().millisecondsSinceEpoch.toDouble();
       spots = [
-        FlSpot(now - 100000, 0), // Point slightly in the past
-        FlSpot(now, 0),          // Current point
+        FlSpot(now - const Duration(days: 7).inMilliseconds.toDouble(), 0),
+        FlSpot(now, 0),
       ];
-      minY = 0;  // Minimum y-value for the flat line
-      maxY = 1;  // Small range to ensure the graph renders correctly
+      minY = 0;
+      maxY = 1;
     } else {
-      // Use actual data range when transactions exist
       minY = spots.map((s) => s.y).reduce((a, b) => a < b ? a : b);
       maxY = spots.map((s) => s.y).reduce((a, b) => a > b ? a : b);
+      double padding = (maxY - minY) * 0.2;
+      if (padding == 0) padding = 1;
+      minY -= padding;
+      maxY += padding;
     }
 
     return LineChart(
@@ -470,13 +477,16 @@ class SimplifiedExpensesGraph extends StatelessWidget {
           LineChartBarData(
             spots: spots,
             isCurved: true,
-            color: graphColor,
-            barWidth: 3,
+            // Lighter graph line
+            color: graphColor.withOpacity(0.9),
+            barWidth: 2.5, // Thinner line
+            isStrokeCapRound: true,
             belowBarData: BarAreaData(
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  graphColor.withOpacity(0.4),
+                  // Lighter gradient fill
+                  graphColor.withOpacity(0.2),
                   Colors.transparent,
                 ],
                 begin: Alignment.topCenter,
@@ -487,11 +497,11 @@ class SimplifiedExpensesGraph extends StatelessWidget {
               show: true,
               getDotPainter: (spot, percent, barData, index) {
                 if (index == barData.spots.length - 1) {
+                  // More delicate dot
                   return FlDotCirclePainter(
-                    radius: 3,
+                    radius: 3.5,
                     color: graphColor,
-                    strokeWidth: 1,
-                    strokeColor: graphColor,
+                    strokeWidth: 1.5,
                   );
                 }
                 return FlDotCirclePainter(radius: 0);

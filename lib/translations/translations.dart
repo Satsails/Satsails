@@ -931,10 +931,6 @@ extension Localization on String {
         'pt': 'Carteiras',
       } +
       {
-        'en': 'Liquid',
-        'pt': 'Liquid',
-      } +
-      {
         'en': 'Security',
         'pt': 'Segurança',
       } +
@@ -3355,27 +3351,135 @@ extension Localization on String {
       }+
       {
         'en': 'Purchase multiple currencies via smart contacts directly',
-        'pt': 'Compre múltiplas moedas diretamente através de contractos inteligentes',
+        'pt': 'Compre múltiplas moedas diretamente através de contractos inteligentes'
       }+
       {
         'en': 'You are required to report manually your puchases if not USDT if your jurisdiction requires it',
-        'pt': 'Você deve reportar manualmente suas compras se não for USDC caso seu país exiga isso',
+        'pt': 'Você deve reportar manualmente suas compras se não for USDT caso seu país exija isso'
       }+
       {
         'en': 'Deposit Information',
-        'pt': 'Informações de Depósito',
+        'pt': 'Informações de Depósito'
       }+
       {
         'en': 'Amount in Brazilian Real (BRL):',
-        'pt': 'Quantidade em Real Brasileiro (BRL):',
+        'pt': 'Quantidade em Real Brasileiro (BRL):'
       }+
       {
         'en': 'Amount is below the minimum deposit of ',
-        'pt': 'A quantidade está abaixo do depósito mínimo de ',
+        'pt': 'A quantidade está abaixo do depósito mínimo de '
       }+
       {
         'en': 'Amount is above the maximum deposit of ',
-        'pt': 'A quantidade está acima do depósito máximo de ',
+        'pt': 'A quantidade está acima do depósito máximo de '
+      }+
+      {
+        'en': 'Delete wallet',
+        'pt': 'Excluir carteira'
+      }+
+      {
+        'en': 'Swaps',
+        'pt': 'Trocas'
+      }+
+      {
+        'en': 'Bridge To Other Networks',
+        'pt': 'Ponte Para Outras Redes'
+      }+
+      {
+        'en': 'Swap non-native assets from other networks with your Satsails assets.',
+        'pt': 'Troque ativos não-nativos de outras redes com os seus ativos Satsails.'
+      }+
+      {
+        'en': 'Select a pair',
+        'pt': 'Selecione um par'
+      }+
+      {
+        'en': 'Liquid USDT',
+        'pt': 'USDT Líquido'
+      }+
+      {
+        'en': 'Swap between Ethereum USDC and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Ethereum USDC e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Swap between Solana USDC and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Solana USDC e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Swap between Polygon USDC and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Polygon USDC e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Swap between Ethereum USDT and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Ethereum USDT e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Swap between Tron USDT and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Tron USDT e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Swap between Solana USDT and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Solana USDT e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Swap between Polygon USDT and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Polygon USDT e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Deposit Ethereum ETH to receive L-BTC in your wallet.',
+        'pt': 'Deposite Ethereum ETH para receber L-BTC em sua carteira.'
+      }+
+      {
+        'en': 'Deposit BSC BNB to receive L-BTC in your wallet.',
+        'pt': 'Deposite BSC BNB para receber L-BTC em sua carteira.'
+      }+
+      {
+        'en': 'Deposit Solana SOL to receive L-BTC in your wallet.',
+        'pt': 'Deposite Solana SOL para receber L-BTC em sua carteira.'
+      }+
+      {
+        'en': 'Deposit USDC',
+        'pt': 'Depositar USDC'
+      }+
+      {
+        'en': 'Deposit USDT',
+        'pt': 'Depositar USDT'
+      }+
+      {
+        'en': 'Deposit ETH',
+        'pt': 'Depositar ETH'
+      }+
+      {
+        'en': 'Deposit BNB',
+        'pt': 'Depositar BNB'
+      }+
+      {
+        'en': 'Deposit SOL',
+        'pt': 'Depositar SOL'
+      }+
+      {
+        'en': 'Withdraw to USDC',
+        'pt': 'Sacar para USDC'
+      }+
+      {
+        'en': 'Withdraw to USDT',
+        'pt': 'Sacar para USDT'
+      }+
+      {
+        'en': 'Withdraw to ETH',
+        'pt': 'Sacar para ETH'
+      }+
+      {
+        'en': 'Withdraw to BNB',
+        'pt': 'Sacar para BNB'
+      }+
+      {
+        'en': 'Withdraw to SOL',
+        'pt': 'Sacar para SOL'
+      }+
+      {
+        'en': 'Send and receive on the Lightning Network using your Liquid Bitcoin',
+        'pt': 'Enviar e receber na rede Lightning usando seu Liquid Bitcoin'
       };
 
   String get i18n => localize(this, _t);
