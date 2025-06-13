@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/boltz_model.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
@@ -9,12 +8,8 @@ import 'package:Satsails/models/nox_transfer_model.dart';
 import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
-import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/providers/transactions_provider.dart';
-import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
 import 'package:Satsails/screens/spash/splash.dart';
@@ -113,16 +108,13 @@ class MainApp extends ConsumerStatefulWidget {
 
 class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   Timer? _lockTimer;
-  Timer? _syncTimer;
-  Timer? _purchaseTimer;
-  final int lockThresholdInSeconds = 20;
+  final int lockThresholdInSeconds = 10;
   GoRouter? _router;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.black,
       systemNavigationBarIconBrightness: Brightness.light,
@@ -151,15 +143,12 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     setState(() {
       _router = AppRouter.createRouter(initialRoute);
     });
-
-    _startSyncTimer();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _cancelLockTimer();
-    _cancelSyncTimer();
     super.dispose();
   }
 
@@ -168,10 +157,8 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       _startLockCountdown();
-      _cancelSyncTimer();
     } else if (state == AppLifecycleState.resumed) {
       _cancelLockTimer();
-      _startSyncTimer();
     }
   }
 
@@ -199,35 +186,6 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     }
   }
 
-  void _startSyncTimer() {
-    _cancelSyncTimer();
-
-    _syncTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
-      final appIsLocked = ref.read(appLockedProvider) == true;
-      final shouldUpdateMemory = ref.read(shouldUpdateMemoryProvider);
-      if (!appIsLocked && shouldUpdateMemory) {
-        ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-      } else {
-        print('Skipping sync operations');
-      }
-    });
-
-    _purchaseTimer = Timer.periodic(const Duration(seconds: 50), (timer) {
-      final auth = ref.watch(userProvider).jwt;
-      final appIsLocked = ref.read(appLockedProvider) == true;
-      if (!appIsLocked && auth.isNotEmpty) {
-        ref.read(updateCurrencyProvider);
-        ref.read(getFiatPurchasesProvider);
-      }
-    });
-  }
-
-  void _cancelSyncTimer() {
-    _syncTimer?.cancel();
-    _syncTimer = null;
-    _purchaseTimer?.cancel();
-    _purchaseTimer = null;
-  }
 
   @override
   Widget build(BuildContext context) {
