@@ -403,13 +403,13 @@ void initState() {
   final balance = ref.read(balanceNotifierProvider);
   switch (assetId) {
     case 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2':
-      balanceText = fiatInDenominationFormatted(balance.usdBalance);
+      balanceText = fiatInDenominationFormatted(balance.liquidUsdtBalance);
       break;
     case '18729918ab4bca843656f08d4dd877bed6641fbd596a0a963abbf199cfeb3cec':
-      balanceText = fiatInDenominationFormatted(balance.eurBalance);
+      balanceText = fiatInDenominationFormatted(balance.liquidEuroxBalance);
       break;
     case '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189':
-      balanceText = fiatInDenominationFormatted(balance.brlBalance);
+      balanceText = fiatInDenominationFormatted(balance.liquidDepixBalance);
       break;
     default:
       balanceText = '';

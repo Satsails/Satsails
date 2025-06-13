@@ -106,7 +106,7 @@ final sendBitcoinProvider = StateProvider<bool>((ref) => false);
 final assetToSellProvider = StateProvider<String>((ref) => '02f22f8d9c76ab41661a2729e4752e2c5d1a263012141b86ea98af5472df5189');
 final assetToPurchaseProvider = StateProvider<String>((ref) => '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d');
 
-final sideswapMarketsFutureProvider = FutureProvider<List<Market>>((ref) async {
+final sideswapMarketsFutureProvider = FutureProvider.autoDispose<List<Market>>((ref) async {
   final service = ref.watch(sideswapServiceProvider);
   service.listMarkets();
   final stream = service.listMarketsStream;

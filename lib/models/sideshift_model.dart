@@ -6,7 +6,7 @@ import 'package:Satsails/handlers/response_handlers.dart';
 
 part 'sideshift_model.g.dart';
 
-
+/// Parameters for setting a refund address for a shift
 class RefundAddressParams {
   final String shiftId;
   final String refundAddress;
@@ -14,8 +14,8 @@ class RefundAddressParams {
   RefundAddressParams({required this.shiftId, required this.refundAddress});
 }
 
+/// Enum defining supported cryptocurrency shift pairs
 enum ShiftPair {
-  // Receiving on Liquid
   usdtTronToLiquidUsdt,
   usdtBscToLiquidUsdt,
   usdtEthToLiquidUsdt,
@@ -26,11 +26,11 @@ enum ShiftPair {
   usdcBscToLiquidUsdt,
   usdcSolToLiquidUsdt,
   usdcPolygonToLiquidUsdt,
+  usdcAvaxToLiquidUsdt,
   ethToLiquidBtc,
   trxToLiquidBtc,
   bnbToLiquidBtc,
   solToLiquidBtc,
-  // Sending from Liquid
   liquidUsdtToUsdtTron,
   liquidUsdtToUsdtBsc,
   liquidUsdtToUsdtEth,
@@ -41,10 +41,16 @@ enum ShiftPair {
   liquidUsdtToUsdcBsc,
   liquidUsdtToUsdcSol,
   liquidUsdtToUsdcPolygon,
+  usdtPolygonToBtc,
+  usdtPolygonToLiquidBtc,
+  usdtSolanaToBtc,
+  usdtSolanaToLiquidBtc,
+  usdcAvaxToBtc,
+  usdcAvaxToLiquidBtc,
 }
 
+/// Mapping of ShiftPair enum to ShiftParams
 final shiftParamsMap = {
-  // Receiving on Liquid
   ShiftPair.usdtTronToLiquidUsdt: ShiftParams(
     depositCoin: 'USDT',
     settleCoin: 'USDT',
@@ -105,6 +111,12 @@ final shiftParamsMap = {
     depositNetwork: 'polygon',
     settleNetwork: 'liquid',
   ),
+  ShiftPair.usdcAvaxToLiquidUsdt: ShiftParams(
+    depositCoin: 'USDC',
+    settleCoin: 'USDT',
+    depositNetwork: 'avax',
+    settleNetwork: 'liquid',
+  ),
   ShiftPair.ethToLiquidBtc: ShiftParams(
     depositCoin: 'ETH',
     settleCoin: 'BTC',
@@ -129,7 +141,6 @@ final shiftParamsMap = {
     depositNetwork: 'solana',
     settleNetwork: 'liquid',
   ),
-  // Sending from Liquid
   ShiftPair.liquidUsdtToUsdtTron: ShiftParams(
     depositCoin: 'USDT',
     settleCoin: 'USDT',
@@ -190,10 +201,45 @@ final shiftParamsMap = {
     depositNetwork: 'liquid',
     settleNetwork: 'polygon',
   ),
+  ShiftPair.usdtPolygonToBtc: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'BTC',
+    depositNetwork: 'polygon',
+    settleNetwork: 'bitcoin',
+  ),
+  ShiftPair.usdtPolygonToLiquidBtc: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'BTC',
+    depositNetwork: 'polygon',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdtSolanaToBtc: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'BTC',
+    depositNetwork: 'solana',
+    settleNetwork: 'bitcoin',
+  ),
+  ShiftPair.usdtSolanaToLiquidBtc: ShiftParams(
+    depositCoin: 'USDT',
+    settleCoin: 'BTC',
+    depositNetwork: 'solana',
+    settleNetwork: 'liquid',
+  ),
+  ShiftPair.usdcAvaxToBtc: ShiftParams(
+    depositCoin: 'USDC',
+    settleCoin: 'BTC',
+    depositNetwork: 'avax',
+    settleNetwork: 'bitcoin',
+  ),
+  ShiftPair.usdcAvaxToLiquidBtc: ShiftParams(
+    depositCoin: 'USDC',
+    settleCoin: 'BTC',
+    depositNetwork: 'avax',
+    settleNetwork: 'liquid',
+  ),
 };
 
-
-
+/// Parameters for a shift, including deposit and settle coin/network
 class ShiftParams {
   final String depositCoin;
   final String settleCoin;
@@ -208,21 +254,25 @@ class ShiftParams {
   });
 }
 
+/// State notifier for managing a list of SideShift objects
 class SideShiftShiftsNotifier extends StateNotifier<List<SideShift>> {
   SideShiftShiftsNotifier() : super([]) {
     _loadShifts();
   }
 
+  /// Retrieves a shift by its ID
   SideShift getShiftById(String id) {
     return state.firstWhere((shift) => shift.id == id, orElse: () => throw 'Shift not found');
   }
 
+  /// Loads shifts from Hive and sets up a listener for updates
   Future<void> _loadShifts() async {
     final box = await Hive.openBox<SideShift>('sideShiftShifts');
     box.watch().listen((event) => _updateShifts());
     _updateShifts();
   }
 
+  /// Updates the state with sorted shifts from Hive
   void _updateShifts() {
     final box = Hive.box<SideShift>('sideShiftShifts');
     final shifts = box.values.toList();
@@ -230,24 +280,28 @@ class SideShiftShiftsNotifier extends StateNotifier<List<SideShift>> {
     state = shifts;
   }
 
+  /// Adds a new shift to Hive
   Future<void> addShift(SideShift shift) async {
     final box = Hive.box<SideShift>('sideShiftShifts');
     await box.put(shift.id, shift);
     _updateShifts();
   }
 
+  /// Updates an existing shift in Hive
   Future<void> updateShift(SideShift updatedShift) async {
     final box = Hive.box<SideShift>('sideShiftShifts');
     await box.put(updatedShift.id, updatedShift);
     _updateShifts();
   }
 
+  /// Deletes a shift from Hive by ID
   Future<void> deleteShift(String id) async {
     final box = Hive.box<SideShift>('sideShiftShifts');
     await box.delete(id);
     _updateShifts();
   }
 
+  /// Merges a single shift from server data into local storage
   Future<void> mergeShift(SideShift serverData) async {
     final box = Hive.box<SideShift>('sideShiftShifts');
     final existingShift = box.get(serverData.id);
@@ -290,6 +344,7 @@ class SideShiftShiftsNotifier extends StateNotifier<List<SideShift>> {
     _updateShifts();
   }
 
+  /// Merges multiple shifts from server data into local storage
   Future<void> mergeShifts(List<SideShift> serverDatas) async {
     final box = Hive.box<SideShift>('sideShiftShifts');
 
@@ -329,6 +384,7 @@ class SideShiftShiftsNotifier extends StateNotifier<List<SideShift>> {
   }
 }
 
+/// Request object for creating a shift
 class SideShiftShiftRequest {
   final String settleAddress;
   final String? settleMemo;
@@ -354,6 +410,7 @@ class SideShiftShiftRequest {
     this.externalId,
   });
 
+  /// Converts the request to JSON
   Map<String, dynamic> toJson() => {
     'settleAddress': settleAddress,
     if (settleMemo != null) 'settleMemo': settleMemo,
@@ -367,7 +424,7 @@ class SideShiftShiftRequest {
     if (externalId != null) 'externalId': externalId,
   };
 
-  // Factories for receiving on Liquid
+  /// Factory constructors for common shift requests
   factory SideShiftShiftRequest.usdtToLiquidUsdt({
     required String settleAddress,
     required String refundAddress,
@@ -420,7 +477,6 @@ class SideShiftShiftRequest {
     );
   }
 
-  // Factories for sending from Liquid
   factory SideShiftShiftRequest.liquidUsdtToUsdt({
     required String settleAddress,
     required String refundAddress,
@@ -550,8 +606,45 @@ class SideShiftShiftRequest {
       affiliateId: affiliateId,
     );
   }
+
+  factory SideShiftShiftRequest.usdtToBtc({
+    required String settleAddress,
+    required String refundAddress,
+    required String depositNetwork,
+    required String settleNetwork,
+    required String affiliateId,
+  }) {
+    return SideShiftShiftRequest(
+      settleAddress: settleAddress,
+      refundAddress: refundAddress,
+      depositCoin: 'USDT',
+      settleCoin: 'BTC',
+      depositNetwork: depositNetwork,
+      settleNetwork: settleNetwork,
+      affiliateId: affiliateId,
+    );
+  }
+
+  factory SideShiftShiftRequest.usdcToBtc({
+    required String settleAddress,
+    required String refundAddress,
+    required String depositNetwork,
+    required String settleNetwork,
+    required String affiliateId,
+  }) {
+    return SideShiftShiftRequest(
+      settleAddress: settleAddress,
+      refundAddress: refundAddress,
+      depositCoin: 'USDC',
+      settleCoin: 'BTC',
+      depositNetwork: depositNetwork,
+      settleNetwork: settleNetwork,
+      affiliateId: affiliateId,
+    );
+  }
 }
 
+/// Model representing a SideShift shift, annotated for Hive storage
 @HiveType(typeId: 30)
 class SideShift {
   @HiveField(0)
@@ -627,6 +720,7 @@ class SideShift {
     required this.shiftFee,
   });
 
+  /// Creates a SideShift instance from JSON data
   factory SideShift.fromJson(Map<String, dynamic> json) {
     return SideShift(
       id: json['id'] as String,
@@ -655,6 +749,7 @@ class SideShift {
     );
   }
 
+  /// Creates a copy of the SideShift instance with updated fields
   SideShift copyWith({
     String? id,
     String? depositCoin,
@@ -708,7 +803,9 @@ class SideShift {
   }
 }
 
+/// Service class for interacting with the SideShift API
 class SideShiftService {
+  /// Creates a new shift
   static Future<Result<SideShift>> createShift(SideShiftShiftRequest request) async {
     try {
       final response = await http.post(
@@ -727,6 +824,7 @@ class SideShiftService {
     }
   }
 
+  /// Retrieves shifts by their IDs
   static Future<Result<List<SideShift>>> getShiftsByIds(List<String> ids) async {
     try {
       final response = await http.get(
@@ -746,6 +844,7 @@ class SideShiftService {
     }
   }
 
+  /// Sets a refund address for a shift
   static Future<Result<SideShift>> setRefundAddress(String shiftId, String refundAddress) async {
     try {
       final response = await http.post(
@@ -763,8 +862,28 @@ class SideShiftService {
       return Result(error: 'An error occurred. Please try again later');
     }
   }
+
+  /// Fetches a quote for a shift
+  static Future<Result<SideShiftQuote>> getQuote(SideShiftQuoteRequest request) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://sideshift.ai/api/v2/quotes'),
+        body: jsonEncode(request.toJson()),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 201) {
+        return Result(data: SideShiftQuote.fromJson(jsonDecode(response.body)));
+      } else {
+        return Result(error: '${jsonDecode(response.body)["error"]["message"]}');
+      }
+    } catch (e) {
+      return Result(error: 'An error occurred. Please try again later');
+    }
+  }
 }
 
+/// Represents a SideShift asset
 class SideshiftAsset {
   final String id;
   final String coin;
@@ -779,9 +898,88 @@ class SideshiftAsset {
   });
 }
 
+/// Represents a pair of SideShift assets
 class SideshiftAssetPair {
   final SideshiftAsset from;
   final SideshiftAsset to;
 
   SideshiftAssetPair({required this.from, required this.to});
+}
+
+/// Model representing a SideShift quote
+class SideShiftQuote {
+  final String id;
+  final int createdAt;
+  final String depositCoin;
+  final String settleCoin;
+  final String depositNetwork;
+  final String settleNetwork;
+  final int expiresAt;
+  final String depositAmount;
+  final String settleAmount;
+  final String rate;
+  final String affiliateId;
+
+  SideShiftQuote({
+    required this.id,
+    required this.createdAt,
+    required this.depositCoin,
+    required this.settleCoin,
+    required this.depositNetwork,
+    required this.settleNetwork,
+    required this.expiresAt,
+    required this.depositAmount,
+    required this.settleAmount,
+    required this.rate,
+    required this.affiliateId,
+  });
+
+  /// Creates a SideShiftQuote instance from JSON data
+  factory SideShiftQuote.fromJson(Map<String, dynamic> json) {
+    return SideShiftQuote(
+      id: json['id'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String).millisecondsSinceEpoch ~/ 1000,
+      depositCoin: json['depositCoin'] as String,
+      settleCoin: json['settleCoin'] as String,
+      depositNetwork: json['depositNetwork'] as String,
+      settleNetwork: json['settleNetwork'] as String,
+      expiresAt: DateTime.parse(json['expiresAt'] as String).millisecondsSinceEpoch ~/ 1000,
+      depositAmount: json['depositAmount'] as String,
+      settleAmount: json['settleAmount'] as String,
+      rate: json['rate'] as String,
+      affiliateId: json['affiliateId'] as String,
+    );
+  }
+}
+
+/// Request object for fetching a SideShift quote
+class SideShiftQuoteRequest {
+  final String depositCoin;
+  final String depositNetwork;
+  final String settleCoin;
+  final String settleNetwork;
+  final String? depositAmount;
+  final String? settleAmount;
+  final String affiliateId;
+
+  SideShiftQuoteRequest({
+    required this.depositCoin,
+    required this.depositNetwork,
+    required this.settleCoin,
+    required this.settleNetwork,
+    this.depositAmount,
+    this.settleAmount,
+    required this.affiliateId,
+  });
+
+  /// Converts the request to JSON
+  Map<String, dynamic> toJson() => {
+    'depositCoin': depositCoin,
+    'depositNetwork': depositNetwork,
+    'settleCoin': settleCoin,
+    'settleNetwork': settleNetwork,
+    if (depositAmount != null) 'depositAmount': depositAmount,
+    if (settleAmount != null) 'settleAmount': settleAmount,
+    'affiliateId': affiliateId,
+  };
 }

@@ -22,6 +22,30 @@ class _TransactionsState extends ConsumerState<Transactions> {
   DateTime? _endDate;   // Stores the end date of the selected range
   String _selectedFilter = 'All'; // Default filter set to 'All'
 
+  // Function to check if a transaction is pending
+  bool isPending(BaseTransaction tx) {
+    return (tx is SideShiftTransaction && (tx.details.status == 'waiting' || tx.details.status == 'expired')) ||
+        (tx is BoltzTransaction && !(tx.details.completed ?? false)) ||
+        (tx is EulenTransaction &&
+            (tx.details.failed ||
+                tx.details.status == 'expired' ||
+                tx.details.status == 'pending')) ||
+        (tx is NoxTransaction &&
+            (tx.details.status == 'quote' ||
+                tx.details.status == 'failed'));
+  }
+
+  // Helper function to apply date range filtering
+  List<BaseTransaction> applyDateFilter(List<BaseTransaction> transactions) {
+    if (_startDate != null && _endDate != null) {
+      return transactions.where((tx) {
+        return tx.timestamp.isAfter(_startDate!.subtract(const Duration(days: 1))) &&
+            tx.timestamp.isBefore(_endDate!.add(const Duration(days: 1)));
+      }).toList();
+    }
+    return transactions;
+  }
+
   @override
   Widget build(BuildContext context) {
     // Access transactions from the provider
@@ -29,48 +53,55 @@ class _TransactionsState extends ConsumerState<Transactions> {
     final allTransactions = transactionState.allTransactionsSorted;
 
     // Define the date range for filtering
-    final startDate = _startDate ?? DateTime.fromMillisecondsSinceEpoch(0); // Default: 1970-01-01
-    final endDate = _endDate ?? DateTime.now(); // Default: current date/time
+    final startDate = _startDate ?? DateTime.fromMillisecondsSinceEpoch(0);
+    final endDate = _endDate ?? DateTime.now();
     final dateRange = DateTimeSelect(start: startDate, end: endDate);
 
-    // Filter transactions based on date range and selected filter
-    List<BaseTransaction> filteredTransactions = allTransactions;
-    if (_startDate != null && _endDate != null) {
-      filteredTransactions = filteredTransactions.where((tx) {
-        return tx.timestamp.isAfter(_startDate!.subtract(const Duration(days: 1))) &&
-            tx.timestamp.isBefore(_endDate!.add(const Duration(days: 1)));
-      }).toList();
-    }
-    if (_selectedFilter != 'All') {
+    // Filter transactions
+    List<BaseTransaction> filteredTransactions;
+
+    if (_selectedFilter == 'Expired and Pending') {
+      // Show only pending transactions within the date range
+      filteredTransactions = applyDateFilter(allTransactions).where((tx) => isPending(tx)).toList();
+    } else {
+      // Apply specific filters and exclude pending transactions
+      List<BaseTransaction> tempTransactions;
       switch (_selectedFilter) {
+        case 'All':
+          tempTransactions = applyDateFilter(allTransactions);
+          break;
         case 'Bitcoin':
-          filteredTransactions = transactionState.filterBitcoinTransactions(dateRange);
+          tempTransactions = transactionState.filterBitcoinTransactions(dateRange);
           break;
         case 'Liquid':
-          filteredTransactions = transactionState.filterLiquidTransactions(dateRange);
+          tempTransactions = transactionState.filterLiquidTransactions(dateRange);
           break;
         case 'Purchases and Sales':
-          filteredTransactions = transactionState.buyAndSell(dateRange);
+          tempTransactions = transactionState.buyAndSell(dateRange);
           break;
         case 'Swaps':
-          filteredTransactions = transactionState.filterSwapTransactions();
+          tempTransactions = applyDateFilter(transactionState.filterSwapTransactions());
           break;
         case 'DePIX':
-          filteredTransactions = transactionState.filterLiquidTransactionsByAssetId(
-            AssetMapper.reverseMapTicker(AssetId.BRL),
+          tempTransactions = applyDateFilter(
+            transactionState.filterLiquidTransactionsByAssetId(AssetMapper.reverseMapTicker(AssetId.BRL)),
           );
           break;
         case 'USDT':
-          filteredTransactions = transactionState.filterLiquidTransactionsByAssetId(
-            AssetMapper.reverseMapTicker(AssetId.USD),
+          tempTransactions = applyDateFilter(
+            transactionState.filterLiquidTransactionsByAssetId(AssetMapper.reverseMapTicker(AssetId.USD)),
           );
           break;
         case 'EUR':
-          filteredTransactions = transactionState.filterLiquidTransactionsByAssetId(
-            AssetMapper.reverseMapTicker(AssetId.EUR),
+          tempTransactions = applyDateFilter(
+            transactionState.filterLiquidTransactionsByAssetId(AssetMapper.reverseMapTicker(AssetId.EUR)),
           );
           break;
+        default:
+          tempTransactions = applyDateFilter(allTransactions);
       }
+      // Exclude pending transactions for all filters except 'Expired and Pending'
+      filteredTransactions = tempTransactions.where((tx) => !isPending(tx)).toList();
     }
 
     return Scaffold(
@@ -89,7 +120,6 @@ class _TransactionsState extends ConsumerState<Transactions> {
                   ),
                   elevation: 0,
                   actions: [
-                    // Calendar picker button
                     IconButton(
                       icon: Icon(Icons.calendar_today, color: Colors.white, size: 24.sp),
                       onPressed: () async {
@@ -122,13 +152,12 @@ class _TransactionsState extends ConsumerState<Transactions> {
                         }
                       },
                     ),
-                    // Filter menu button
                     Theme(
                       data: Theme.of(context).copyWith(
                         popupMenuTheme: PopupMenuThemeData(
-                          color: const Color(0xFF212121), // Dark background
+                          color: const Color(0xFF212121),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0), // Rounded corners
+                            borderRadius: BorderRadius.circular(15.0),
                           ),
                         ),
                       ),
@@ -136,7 +165,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
                         icon: Icon(Icons.sort, color: Colors.white, size: 24.sp),
                         onSelected: (String value) {
                           setState(() {
-                            _selectedFilter = value; // Update filter on selection
+                            _selectedFilter = value;
                           });
                         },
                         itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -146,6 +175,15 @@ class _TransactionsState extends ConsumerState<Transactions> {
                               'All'.i18n,
                               style: TextStyle(
                                 color: _selectedFilter == 'All' ? Colors.orange : Colors.white,
+                              ),
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'Expired and Pending',
+                            child: Text(
+                              'Expired and Pending'.i18n,
+                              style: TextStyle(
+                                color: _selectedFilter == 'Expired and Pending' ? Colors.orange : Colors.white,
                               ),
                             ),
                           ),
@@ -215,7 +253,6 @@ class _TransactionsState extends ConsumerState<Transactions> {
                         ],
                       ),
                     ),
-                    // Styled reset button
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.sp),
                       child: ElevatedButton(

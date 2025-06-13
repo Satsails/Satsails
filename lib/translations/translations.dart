@@ -931,10 +931,6 @@ extension Localization on String {
         'pt': 'Carteiras',
       } +
       {
-        'en': 'Liquid',
-        'pt': 'Liquid',
-      } +
-      {
         'en': 'Security',
         'pt': 'Segurança',
       } +
@@ -2395,6 +2391,10 @@ extension Localization on String {
         'pt': 'Fornecedor: Eulen',
       } +
       {
+        'en': 'Provider: Nox',
+        'pt': 'Fornecedor: Nox',
+      } +
+      {
         'en': 'Set a cpf/cnpj to receive from a different account from the registered (optional)',
         'pt': 'Defina um CPF/CNPJ para receber de uma conta diferente da registrada (opcional)',
       } +
@@ -2486,6 +2486,10 @@ extension Localization on String {
       {
         'en': 'Online',
         'pt': 'Online',
+      } +
+      {
+        'en': 'Update Balances',
+        'pt': 'Atualizar Saldos',
       } +
       {
         'en': 'Offline',
@@ -2596,8 +2600,8 @@ extension Localization on String {
         'pt': 'Taxa do servidor',
       } +
       {
-        'en': 'Market Data',
-        'pt': 'Dados de mercado',
+        'en': 'Market Graphs',
+        'pt': 'Gráficos de Mercado',
       } +
       {
         'en': 'Bitcoin unit',
@@ -3264,7 +3268,240 @@ extension Localization on String {
       {
         'en': 'Pull down to refresh',
         'pt': 'Puxe para atualizar',
+      }+
+      {
+        'en': 'Insert an affiliate code to get 6.67% cashback on purchases',
+        'pt': 'Insira um código de afiliado para receber 6,67% de cashback nas compras',
+      }+
+      {
+        'en': 'Loading, please wait...',
+        'pt': 'Carregando, por favor aguarde...',
+      }+
+      {
+        'en': 'Expired and Pending',
+        'pt': 'Expiradas e pendentes',
+      }+
+      {
+        'en': 'Purchase multiple currencies via smart contracts directly',
+        'pt': 'Comprar várias moedas via contratos inteligentes diretamente',
+      }+
+      {
+        'en': 'The purchases are sent to a smart contract which then processes the payment. The smart contracts are non custodial',
+        'pt': 'As compras são enviadas para um contrato inteligente que processa o pagamento. Os contratos inteligentes são não custodiais',
+      }+
+      {
+        'en': 'You are required to report manually your purchases if your jurisdiction requires it',
+        'pt': 'Você é obrigado a reportar manualmente suas compras se sua jurisdição exigir',
+      }+
+      {
+        'en': 'Purchases reported to the Brazilian federal revenue agency under the payer\'s name as USDC',
+        'pt': 'Compras reportadas à Receita Federal do Brasil em nome do pagador como USDC',
+      }+
+      {
+        'en': 'To be defined',
+        'pt': 'A ser definido',
+      }+
+      {
+        'en': 'To be defined',
+        'pt': 'A ser definido',
+      }+
+      {
+        'en': 'To be defined',
+        'pt': 'A ser definido',
+      }+
+      {
+        'en': 'To be defined',
+        'pt': 'A ser definido',
+      }+
+      {
+        'en': 'You are required to report manually your purchases if not USDT if your jurisdiction requires it',
+        'pt': 'Você é obrigado a reportar manualmente suas compras se não forem em USDT, caso sua jurisdição exija',
+      }+
+      {
+        'en': 'Purchases reported to the Brazilian federal revenue agency under the payer\'s name as USDT',
+        'pt': 'Compras reportadas à Receita Federal do Brasil em nome do pagador como USDT',
+      }+
+      {
+        'en': 'Nox',
+        'pt': 'Nox',
+      }+
+      {
+        'en': 'Purchases are not paid directly to your wallet but to a smart contract provided by SideShift. The provider, NOX, reports all purchases in USDC. The smart contract does not automatically report transactions. Ensure compliance with your local laws.',
+        'pt': 'As compras não são pagas diretamente para sua carteira, mas para um contrato inteligente fornecido pela SideShift. O provedor, NOX, reporta todas as compras em USDC. O contrato inteligente não reporta automaticamente as transações. Certifique-se de estar em conformidade com as leis locais.',
+      }+
+      {
+        'en': 'Generate Payment',
+        'pt': 'Gerar Pagamento',
+      }+
+      {
+        'en': 'Note: Purchases from NOX are always in USDC and will be automatically converted via smart contract to the asset you want to purchase. The asset you receive is not reported to the goverment automatically.',
+        'pt': 'Nota: As compras da NOX são sempre em USDC e serão automaticamente convertidas via contrato inteligentes para o ativo que você deseja comprar. O ativo que recebe não é automaticamente reportado automaticamente.',
+      }+
+      {
+        'en': 'Minimum Deposit: ',
+        'pt': 'Depósito Mínimo: ',
+      }+
+      {
+        'en': 'Maximum Deposit: ',
+        'pt': 'Depósito Máximo: ',
+      }+
+      {
+        'en': 'Value to Receive: ',
+        'pt': 'Valor a Receber: ',
+      }+
+      {
+        'en': 'Purchase multiple currencies via smart contacts directly',
+        'pt': 'Compre múltiplas moedas diretamente através de contractos inteligentes'
+      }+
+      {
+        'en': 'You are required to report manually your puchases if not USDT if your jurisdiction requires it',
+        'pt': 'Você deve reportar manualmente suas compras se não for USDT caso seu país exija isso'
+      }+
+      {
+        'en': 'Deposit Information',
+        'pt': 'Informações de Depósito'
+      }+
+      {
+        'en': 'Amount in Brazilian Real (BRL):',
+        'pt': 'Quantidade em Real Brasileiro (BRL):'
+      }+
+      {
+        'en': 'Amount is below the minimum deposit of ',
+        'pt': 'A quantidade está abaixo do depósito mínimo de '
+      }+
+      {
+        'en': 'Amount is above the maximum deposit of ',
+        'pt': 'A quantidade está acima do depósito máximo de '
+      }+
+      {
+        'en': 'Delete wallet',
+        'pt': 'Excluir carteira'
+      }+
+      {
+        'en': 'Swaps',
+        'pt': 'Trocas'
+      }+
+      {
+        'en': 'Bridge To Other Networks',
+        'pt': 'Ponte Para Outras Redes'
+      }+
+      {
+        'en': 'Swap non-native assets from other networks with your Satsails assets.',
+        'pt': 'Troque ativos não-nativos de outras redes com os seus ativos Satsails.'
+      }+
+      {
+        'en': 'Select a pair',
+        'pt': 'Selecione um par'
+      }+
+      {
+        'en': 'Liquid USDT',
+        'pt': 'USDT Líquido'
+      }+
+      {
+        'en': 'Swap between Ethereum USDC and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Ethereum USDC e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Swap between Solana USDC and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Solana USDC e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Swap between Polygon USDC and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Polygon USDC e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Swap between Ethereum USDT and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Ethereum USDT e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Swap between Tron USDT and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Tron USDT e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Swap between Solana USDT and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Solana USDT e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Swap between Polygon USDT and Liquid USDT in your wallet.',
+        'pt': 'Troque entre Polygon USDT e USDT Líquido em sua carteira.'
+      }+
+      {
+        'en': 'Deposit Ethereum ETH to receive L-BTC in your wallet.',
+        'pt': 'Deposite Ethereum ETH para receber L-BTC em sua carteira.'
+      }+
+      {
+        'en': 'Deposit BSC BNB to receive L-BTC in your wallet.',
+        'pt': 'Deposite BSC BNB para receber L-BTC em sua carteira.'
+      }+
+      {
+        'en': 'Deposit Solana SOL to receive L-BTC in your wallet.',
+        'pt': 'Deposite Solana SOL para receber L-BTC em sua carteira.'
+      }+
+      {
+        'en': 'Deposit USDC',
+        'pt': 'Depositar USDC'
+      }+
+      {
+        'en': 'Deposit USDT',
+        'pt': 'Depositar USDT'
+      }+
+      {
+        'en': 'Deposit ETH',
+        'pt': 'Depositar ETH'
+      }+
+      {
+        'en': 'Deposit BNB',
+        'pt': 'Depositar BNB'
+      }+
+      {
+        'en': 'Deposit SOL',
+        'pt': 'Depositar SOL'
+      }+
+      {
+        'en': 'Withdraw to USDC',
+        'pt': 'Sacar para USDC'
+      }+
+      {
+        'en': 'Withdraw to USDT',
+        'pt': 'Sacar para USDT'
+      }+
+      {
+        'en': 'Withdraw to ETH',
+        'pt': 'Sacar para ETH'
+      }+
+      {
+        'en': 'Withdraw to BNB',
+        'pt': 'Sacar para BNB'
+      }+
+      {
+        'en': 'Withdraw to SOL',
+        'pt': 'Sacar para SOL'
+      }+
+      {
+        'en': 'Send and receive on the Lightning Network using your Liquid Bitcoin',
+        'pt': 'Enviar e receber na rede Lightning usando seu Liquid Bitcoin'
+      }+
+      {
+        'en': 'Amount is too small. Minimum amount is',
+        'pt': 'O valor é muito pequeno. O mínimo é',
+      }+
+      {
+        'en': 'External Asset',
+        'pt': 'Ativo externo'
+      }+
+      {
+        'en': 'Native Asset',
+        'pt': 'Ativo nativo'
+      }+
+      {
+        'en': 'Deposit to Satsails',
+        'pt': 'Depositar para Satsails'
+      }+
+      {
+        'en': 'Withdrawal from Satsails',
+        'pt': 'Saque da Satsails'
       };
+
 
   String get i18n => localize(this, _t);
 }
