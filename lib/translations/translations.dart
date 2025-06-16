@@ -3272,6 +3272,10 @@ extension Localization on String {
       {
         'en': 'Update Balances',
         'pt': 'Atualizar Saldos',
+      }+
+      {
+        'en': 'Insufficient balance',
+        'pt': 'Saldo insuficiente'
       };
 
 

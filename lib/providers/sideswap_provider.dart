@@ -141,13 +141,13 @@ final sideswapMarketsFutureProvider = FutureProvider.autoDispose<List<Market>>((
 
 
 final quoteRequestProvider = FutureProvider.autoDispose<QuoteRequest>((ref) async {
+  final sendAmount = ref.watch(sendTxProvider).amount;
   final markets = await ref.watch(sideswapMarketsFutureProvider.future);
   final assetToPurchase = ref.read(assetToPurchaseProvider);
   final assetToSell = ref.read(assetToSellProvider);
   final receiveAddress = await ref.read(liquidAddressProvider.future).then((value) => value);
   final returnAddress = await ref.read(liquidNextAddressProvider.future).then((value) => value);
   final liquidUnspentUtxos = await ref.refresh(liquidUnspentUtxosProvider.future).then((value) => value);
-  final sendAmount = ref.watch(sendTxProvider).amount;
 
   if (markets.isEmpty) {
     return QuoteRequest.empty();
