@@ -3500,8 +3500,15 @@ extension Localization on String {
       {
         'en': 'Withdrawal from Satsails',
         'pt': 'Saque da Satsails'
+      }+
+      {
+        'en': 'Update Balances',
+        'pt': 'Atualizar Saldos',
+      }+
+      {
+        'en': 'Insufficient balance',
+        'pt': 'Saldo insuficiente'
       };
-
 
   String get i18n => localize(this, _t);
 }

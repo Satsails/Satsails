@@ -11,10 +11,10 @@ final transactionNotifierProvider = StateNotifierProvider<TransactionModel, Tran
 final getFiatPurchasesProvider = FutureProvider.autoDispose<void>((ref) async {
   await Future.wait([
     ref.read(getNoxUserPurchasesProvider.future).catchError((e) {
-      return null; // Continue despite the error
+      return null;
     }),
     ref.read(getEulenUserPurchasesProvider.future).catchError((e) {
-      return null; // Continue despite the error
+      return null;
     }),
   ]);
 });

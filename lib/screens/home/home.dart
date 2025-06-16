@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'package:Satsails/providers/background_sync_provider.dart';
-import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -140,9 +138,7 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
                 onTap: isSyncing
                     ? null
                     : () {
-                  ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-                  ref.read(updateCurrencyProvider);
-                  ref.read(getFiatPurchasesProvider);
+                  ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
                 },
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8.sp),
