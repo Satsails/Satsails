@@ -71,7 +71,8 @@ class SideswapSwapsNotifier extends StateNotifier<List<SideswapCompletedSwap>> {
   }
 
   Future<void> addOrUpdateSwap(SideswapCompletedSwap newSwap) async {
-    final box = Hive.box<SideswapCompletedSwap>('sideswapSwapNewData');
+    final box = await Hive.openBox<SideswapCompletedSwap>('sideswapSwapNewData');
+
     final existingSwap = box.get(newSwap.txid);
 
     if (existingSwap == null) {
