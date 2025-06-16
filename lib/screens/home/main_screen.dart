@@ -1,7 +1,5 @@
 import 'package:Satsails/providers/background_sync_provider.dart';
-import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
-import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/settings/settings.dart';
@@ -51,9 +49,7 @@ class MainScreen extends ConsumerWidget {
         _resetProviders(ref, next);
         // Perform sync actions when navigating to Home (index 0) and not syncing
         if (next == 0 && !isSyncing) {
-          ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-          ref.read(updateCurrencyProvider.future);
-          ref.read(getFiatPurchasesProvider.future);
+          ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
         }
       }
     });

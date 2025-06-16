@@ -148,9 +148,7 @@ class _TransactionListState extends ConsumerState<TransactionList> {
 
   // Define the refresh action
   Future<void> _onRefresh() async {
-    await ref.read(backgroundSyncNotifierProvider.notifier).performSync();
-    await ref.read(updateCurrencyProvider.future);
-    await ref.read(getFiatPurchasesProvider.future);
+    await ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
     _refreshController.refreshCompleted();
   }
 
