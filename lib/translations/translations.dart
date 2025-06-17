@@ -535,10 +535,6 @@ extension Localization on String {
         'pt': 'Gerenciamento de Contas',
       } +
       {
-        'en': 'Confirm Payment',
-        'pt': 'Confirmar Pagamento',
-      } +
-      {
         'en': 'Details',
         'pt': 'Detalhes',
       } +
@@ -2735,7 +2731,7 @@ extension Localization on String {
       } +
       {
         'en': 'Registered Tax id: ',
-        'pt': 'ID do imposto registrado: ',
+        'pt': 'CPF registrado com o provedor: ',
       } +
       {
         'en': 'Bitcoin to Liquid Bitcoin Swap',
@@ -3031,6 +3027,14 @@ extension Localization on String {
       {
         'en': 'Receive Liquid USDT from USDT on BSC',
         'pt': 'Receber Liquid USDT de USDT em BSC',
+      } +
+      {
+        'en': 'Receive Liquid BTC from Bitcoin',
+        'pt': 'Receber Liquid BTC de Bitcoin',
+      } +
+      {
+        'en': 'Receive Liquid USDT from USDT on Arbitrum',
+        'pt': 'Receber Liquid USDT de USDT em Arbitrum',
       } +
       {
         'en': 'Receive Liquid USDT from USDT on Ethereum',
@@ -3382,8 +3386,8 @@ extension Localization on String {
         'pt': 'Trocas'
       }+
       {
-        'en': 'Bridge To Other Networks',
-        'pt': 'Ponte Para Outras Redes'
+        'en': 'Bridge To Other Wallets',
+        'pt': 'Ponte Para Outras Carteiras'
       }+
       {
         'en': 'Swap non-native assets from other networks with your Satsails assets.',
@@ -3490,8 +3494,8 @@ extension Localization on String {
         'pt': 'Ativo externo'
       }+
       {
-        'en': 'Native Asset',
-        'pt': 'Ativo nativo'
+        'en': 'Satsails Asset',
+        'pt': 'Ativo Satsails'
       }+
       {
         'en': 'Deposit to Satsails',

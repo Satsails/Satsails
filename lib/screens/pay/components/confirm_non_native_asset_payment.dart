@@ -291,7 +291,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
           backgroundColor: Colors.black,
           appBar: AppBar(
             backgroundColor: Colors.black,
-            title: Text('Confirm Non-Native Payment'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
+            title: Text('Send'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
               onPressed: () {
@@ -332,7 +332,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                           children: [
                             Padding(
                               padding: EdgeInsets.only(bottom: 8.h),
-                              child: Text('Recipient Address'.i18n + '($settleNetwork $settleCoin)', style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                              child: Text('Recipient Address'.i18n + ' ($settleNetwork $settleCoin)', style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(vertical: 8.h),

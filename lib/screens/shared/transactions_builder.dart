@@ -182,14 +182,14 @@ class _TransactionListState extends ConsumerState<TransactionList> {
         padding: EdgeInsets.only(right: 8.sp),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0x00333333).withOpacity(0.4),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12.r),
           ),
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
           child: Text(
             'Buy'.i18n,
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontSize: 17.sp,
               fontWeight: FontWeight.bold,
             ),
@@ -362,7 +362,7 @@ Widget _buildBoltzTransactionItem(
           Stack(
             alignment: Alignment.center,
             children: [
-              sideshiftTransactionTypeIcon(),
+              boltzTransactionTypeIcon(),
               if (isPending)
                 SizedBox(
                   width: 40.w,

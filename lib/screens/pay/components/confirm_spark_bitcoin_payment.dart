@@ -98,7 +98,7 @@ class _ConfirmSparkBitcoinPaymentState extends ConsumerState<ConfirmSparkBitcoin
             backgroundColor: Colors.black,
             appBar: AppBar(
               backgroundColor: Colors.black,
-              title: Text('Confirm Payment'.i18n, style: const TextStyle(color: Colors.white)),
+              title: Text('Send'.i18n, style: const TextStyle(color: Colors.white)),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
                 onPressed: () {

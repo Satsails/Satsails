@@ -97,6 +97,7 @@ flutter:
     - lib/assets/app_icon.png
     - lib/assets/satsails.png
     - lib/assets/Ice-Logo.png
+    - lib/assets/arbitrum-logo.png
     - lib/assets/bitrefill.png
     - lib/assets/initialLogo.png
     - lib/assets/sparkSmallIcon.png

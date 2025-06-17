@@ -69,21 +69,27 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
           createReceiveSideShiftShiftProviderWithoutSaving(selectedShiftPair)
               .future);
       final brlRate = ref.read(selectedCurrencyProviderFromUSD('BRL'));
-      setState(() {
-        _shift = shift;
-        _minDepositBRL = double.parse(shift.depositMin) * brlRate;
-        _maxDepositBRL = double.parse(shift.depositMax) * brlRate;
-        _adjustedMinDepositBRL = _minDepositBRL! * 2;
-        _adjustedMaxDepositBRL = _maxDepositBRL! - 10;
-      });
+      if (mounted) {
+        setState(() {
+          _shift = shift;
+          _minDepositBRL = double.parse(shift.depositMin) * brlRate;
+          _maxDepositBRL = double.parse(shift.depositMax) * brlRate;
+          _adjustedMinDepositBRL = _minDepositBRL! * 2;
+          _adjustedMaxDepositBRL = _maxDepositBRL! - 10;
+        });
+      }
       return shift;
     } catch (e) {
-      showMessageSnackBar(context: context, message: e
-          .toString()
-          .i18n, error: true);
+      if (mounted) {
+        showMessageSnackBar(context: context, message: e
+            .toString()
+            .i18n, error: true);
+      }
       rethrow;
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -164,7 +170,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
       final url = await ref.read(createNoxTransferRequestProvider(
           (amount: amountInDouble.toInt(), address: _shift!.depositAddress))
           .future);
-      if (url.isNotEmpty) {
+      if (url.isNotEmpty && mounted) {
         ref.read(sideShiftShiftsProvider.notifier).addShift(_shift!);
         Navigator.push(
           context,
@@ -174,11 +180,15 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         );
       }
     } catch (e) {
-      showMessageSnackBar(context: context, message: e
-          .toString()
-          .i18n, error: true);
+      if (mounted) {
+        showMessageSnackBar(context: context, message: e
+            .toString()
+            .i18n, error: true);
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -199,97 +209,105 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
           onPressed: () => context.pop(),
         ),
       ),
+      // MODIFICATION: Replaced body's child with a Stack to handle the loading overlay
       body: KeyboardDismissOnTap(
-        child: FutureBuilder<SideShift>(
-          future: _shiftFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: LoadingAnimationWidget.fourRotatingDots(
-                  size: 0.1.sh,
-                  color: Colors.orange,
-                ),
-              );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  'Error: ${snapshot.error}'.i18n,
-                  style: TextStyle(color: Colors.red, fontSize: 16.sp),
-                ),
-              );
-            } else if (snapshot.hasData) {
-              return SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        'Amount in Brazilian Real (BRL):'.i18n,
-                        style: TextStyle(color: Colors.grey, fontSize: 14.sp),
-                      ),
-                      SizedBox(height: 8.h),
-                      TextField(
-                        controller: _amountController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 20.sp, color: Colors.white),
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: const Color(0xFF212121),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                            borderSide: BorderSide.none,
+        child: Stack(
+          children: [
+            FutureBuilder<SideShift>(
+              future: _shiftFuture,
+              builder: (context, snapshot) {
+                if (snapshot.hasError && !_isLoading) {
+                  return Center(
+                    child: Text(
+                      'Error: ${snapshot.error}'.i18n,
+                      style: TextStyle(color: Colors.red, fontSize: 16.sp),
+                    ),
+                  );
+                }
+
+                return SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Amount in Brazilian Real (BRL):'.i18n,
+                          style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+                        ),
+                        SizedBox(height: 8.h),
+                        TextField(
+                          controller: _amountController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 20.sp, color: Colors.white),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color(0xFF212121),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: EdgeInsets.symmetric(vertical: 16.h,
+                                horizontal: 16.w),
                           ),
-                          contentPadding: EdgeInsets.symmetric(vertical: 16.h,
-                              horizontal: 16.w),
                         ),
-                      ),
-                      SizedBox(height: 16.h),
-                      ElevatedButton(
-                        onPressed: _handleInput,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius
-                              .circular(12.r)),
-                          padding: EdgeInsets.symmetric(vertical: 16.h,
-                              horizontal: 32.w),
-                        ),
-                        child: Text(
-                          'Generate Payment'.i18n,
-                          style: TextStyle(color: Colors.black, fontSize: 16.sp),
-                        ),
-                      ),
-                      SizedBox(height: 16.h),
-                      Text(
-                        'Note: Purchases from NOX are always in USDC and will be automatically converted via smart contract to the asset you want to purchase. The asset you receive is not reported to the goverment automatically.'
-                            .i18n,
-                        style: TextStyle(color: Colors.red,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 16.h),
-                      _buildDepositInfoCard(),
-                      SizedBox(height: 24.h),
-                      Center(
-                        child: TextButton(
-                          onPressed: () => context.go('/home'),
+                        SizedBox(height: 16.h),
+                        ElevatedButton(
+                          onPressed: _handleInput,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius
+                                .circular(12.r)),
+                            padding: EdgeInsets.symmetric(vertical: 16.h,
+                                horizontal: 32.w),
+                          ),
                           child: Text(
-                            'Back to Home'.i18n,
-                            style: TextStyle(
-                                fontSize: 16.sp, color: Colors.white),
+                            'Generate Payment'.i18n,
+                            style: TextStyle(color: Colors.black, fontSize: 18.sp),
                           ),
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 16.h),
+                        Text(
+                          'Note: Purchases from NOX are always in USDC and will be automatically converted via smart contract to the asset you want to purchase. The asset you receive is not reported to the goverment automatically.'
+                              .i18n,
+                          style: TextStyle(color: Colors.red,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 16.h),
+                        _buildDepositInfoCard(),
+                        SizedBox(height: 24.h),
+                        Center(
+                          child: TextButton(
+                            onPressed: () => context.go('/home'),
+                            child: Text(
+                              'Back to Home'.i18n,
+                              style: TextStyle(
+                                  fontSize: 16.sp, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            if (_isLoading)
+              Container(
+                color: Colors.black.withOpacity(0.7),
+                child: Center(
+                  child: LoadingAnimationWidget.fourRotatingDots(
+                    size: 0.1.sh,
+                    color: Colors.orange,
                   ),
                 ),
-              );
-            }
-            return SizedBox.shrink();
-          },
+              ),
+          ],
         ),
       ),
     );

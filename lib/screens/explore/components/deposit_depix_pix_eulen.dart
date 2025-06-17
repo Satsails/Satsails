@@ -188,7 +188,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                       padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 32.w),
                     ),
                     child: Text(
-                      'Generate QR Code'.i18n,
+                      'Generate Payment'.i18n,
                       style: TextStyle(color: Colors.black, fontSize: 16.sp),
                     ),
                   ),

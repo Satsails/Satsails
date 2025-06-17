@@ -452,7 +452,7 @@ Widget build(BuildContext context) {
           backgroundColor: Colors.black,
           appBar: AppBar(
             backgroundColor: Colors.black,
-            title: Text('Confirm Payment'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
+            title: Text('Send'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
               onPressed: () {
