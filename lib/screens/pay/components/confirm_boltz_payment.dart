@@ -294,7 +294,7 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
             backgroundColor: Colors.black,
             appBar: AppBar(
               backgroundColor: Colors.black,
-              title: Text('Confirm Payment'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
+              title: Text('Send'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
                 onPressed: () {
@@ -538,9 +538,10 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
                                                   ? null
                                                   : () async {
                                                 try {
-                                                  final liquidBalance = ref.read(balanceNotifierProvider).liquidBalance;
-                                                  final adjustedAmountInSats = (liquidBalance * 0.95).round();
-                                                  ref.read(sendTxProvider.notifier).updateAmountFromInput(adjustedAmountInSats.toString(), 'sats');
+                                                  final liquidBtcBalance = ref.read(balanceNotifierProvider).liquidBtcBalance;
+                                                  final adjustedAmountInSats = liquidBtcBalance - 200;
+                                                  final finalAmountInSats = adjustedAmountInSats < 0 ? 0 : adjustedAmountInSats;
+                                                  ref.read(sendTxProvider.notifier).updateAmountFromInput(finalAmountInSats.toString(), 'sats');
                                                 } catch (e) {
                                                   showMessageSnackBar(
                                                     message: e.toString().i18n,

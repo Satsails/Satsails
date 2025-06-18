@@ -50,7 +50,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
     settleNetwork = params.settleNetwork;
     btcFormat = ref.read(settingsProvider).btcFormat;
 
-    balance = ref.read(balanceNotifierProvider).usdBalance;
+    balance = ref.read(balanceNotifierProvider).liquidUsdtBalance;
 
     final sendTxState = ref.read(sendTxProvider);
     if (sendTxState.amount > 0) {
@@ -291,7 +291,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
           backgroundColor: Colors.black,
           appBar: AppBar(
             backgroundColor: Colors.black,
-            title: Text('Confirm Non-Native Payment'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
+            title: Text('Send'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
               onPressed: () {
@@ -332,7 +332,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                           children: [
                             Padding(
                               padding: EdgeInsets.only(bottom: 8.h),
-                              child: Text('Recipient Address'.i18n + '($settleNetwork $settleCoin)', style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                              child: Text('Recipient Address'.i18n + ' ($settleNetwork $settleCoin)', style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -411,7 +411,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                                       child: GestureDetector(
                                         onTap: () async {
                                           try {
-                                            final adjustedAmount = (balance * 0.95) / 100000000;
+                                            final adjustedAmount = (balance * 0.97) / 100000000;
                                             ref.read(sendTxProvider.notifier).updateAmountFromInput(adjustedAmount.toString(), btcFormat);
                                             amountController.text = adjustedAmount.toStringAsFixed(2);
                                           } catch (e) {
@@ -473,7 +473,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                         controller.failure();
                         ref.read(deleteSideShiftProvider(shift.id));
                         showMessageSnackBar(
-                          message: "Amount is too small".i18n,
+                          message: "${"Amount is too small. Minimum amount is".i18n} ${shift.depositMin} $depositCoin",
                           error: true,
                           context: context,
                         );
@@ -483,7 +483,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                         controller.failure();
                         ref.read(deleteSideShiftProvider(shift.id));
                         showMessageSnackBar(
-                          message: "Amount is too large".i18n,
+                          message: "${"Amount is too large. Maximum amount is".i18n} ${shift.depositMax} $depositCoin",
                           error: true,
                           context: context,
                         );

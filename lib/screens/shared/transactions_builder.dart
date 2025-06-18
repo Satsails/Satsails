@@ -162,8 +162,15 @@ class _TransactionListState extends ConsumerState<TransactionList> {
         ? allTransactions
         : allTransactions
         .where((tx) =>
-    !(tx is SideShiftTransaction && tx.details.status == 'waiting') &&
-        !(tx is BoltzTransaction && !(tx.details.completed ?? false)))
+    !(tx is SideShiftTransaction && (tx.details.status == 'waiting' || tx.details.status == 'expired')) &&
+        !(tx is BoltzTransaction && !(tx.details.completed ?? false)) &&
+        !(tx is EulenTransaction &&
+            (tx.details.failed ||
+                tx.details.status == 'expired' ||
+                tx.details.status == 'pending')) &&
+        !(tx is NoxTransaction &&
+            (tx.details.status == 'quote' ||
+                tx.details.status == 'failed')))
         .take(4)
         .toList();
 
@@ -175,14 +182,14 @@ class _TransactionListState extends ConsumerState<TransactionList> {
         padding: EdgeInsets.only(right: 8.sp),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0x00333333).withOpacity(0.4),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12.r),
           ),
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
           child: Text(
             'Buy'.i18n,
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontSize: 17.sp,
               fontWeight: FontWeight.bold,
             ),
@@ -314,10 +321,9 @@ Widget _buildBoltzTransactionItem(
   final isPending = !isCompleted;
 
   final btcFormat = ref.read(settingsProvider).btcFormat;
-  final currency = ref.read(settingsProvider).currency;
 
   final isReceiving = transaction.details.swap.kind == boltz.SwapType.reverse;
-  final title = isReceiving ? "Lightning${"to".i18n}L-BTC" : "L-BTC ${"to".i18n} Lightning";
+  final title = isReceiving ? "Lightning ${"to".i18n} L-BTC" : "L-BTC ${"to".i18n} Lightning";
 
   final amountBtc = isCompleted
       ? btcInDenominationFormatted(transaction.details.swap.outAmount, btcFormat)
@@ -356,7 +362,7 @@ Widget _buildBoltzTransactionItem(
           Stack(
             alignment: Alignment.center,
             children: [
-              sideshiftTransactionTypeIcon(),
+              boltzTransactionTypeIcon(),
               if (isPending)
                 SizedBox(
                   width: 40.w,
@@ -531,34 +537,38 @@ Widget _buildSideshiftTransactionItem(
               const SizedBox(width: 12),
               Expanded(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        Text(
-                          formattedDate,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                        Text(
-                          statusText,
-                          style: TextStyle(
-                              fontSize: 12.sp,
+                          Text(
+                            formattedDate,
+                            style: TextStyle(
+                              fontSize: 14.sp,
                               color: Colors.grey[400],
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                            ),
+                          ),
+                          Text(
+                            statusText,
+                            style: TextStyle(
+                                fontSize: 12.sp,
+                                color: Colors.grey[400],
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
                     if (isConfirmed)
                       Column(
@@ -796,7 +806,7 @@ Widget _buildNoxTransactionItem(
       : "Pending".i18n;
 
   final type = transaction.details.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
-  final title = "${transaction.details.to_currency} $type";
+  final title = "${transaction.details.to_currency} (${type.i18n})";
   final amount = transaction.details.receivedAmount.toString();
   String locale = I18n.locale.languageCode ?? 'en';
   final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(transaction.timestamp);
