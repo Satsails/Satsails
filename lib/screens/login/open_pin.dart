@@ -46,8 +46,8 @@ class _OpenPinState extends ConsumerState<OpenPin> {
       final pinText = await authModel.getPin();
 
       if (pinText == pin) {
-        // Set loading to true only after PIN is verified
         ref.read(loadingProvider.notifier).state = true;
+        ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
         try {
           _attempts = 0;
           ref.read(appLockedProvider.notifier).state = false;
@@ -95,8 +95,8 @@ class _OpenPinState extends ConsumerState<OpenPin> {
         );
 
         if (authenticated) {
-          // Set loading to true only after successful authentication
           ref.read(loadingProvider.notifier).state = true;
+          ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
           try {
             ref.read(appLockedProvider.notifier).state = false;
           } finally {
