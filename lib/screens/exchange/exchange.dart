@@ -29,7 +29,14 @@ class _ExchangeState extends ConsumerState<Exchange> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => false,
+      onWillPop: () async {
+        final FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+          currentFocus.unfocus();
+          return false;
+        }
+        return false;
+      },
       child: Scaffold(
         backgroundColor: Colors.transparent, // Transparent to show extended body
         appBar: AppBar(
@@ -62,7 +69,6 @@ class _ExchangeState extends ConsumerState<Exchange> {
                     buildAdvancedOptionsCard(ref),
                     feeSelection(ref),
                     slideToSend(ref, context),
-                    // Add bottom padding to scroll past nav bar
                     SizedBox(height: 100.sp),
                   ],
                 ),
