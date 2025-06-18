@@ -42,7 +42,8 @@ class _ExchangeState extends ConsumerState<Exchange> {
   SwapSection _selectedSection = SwapSection.internal;
 
   BridgeOption? _selectedBridgeOption;
-  bool _isDepositing = true;
+  // --- MODIFIED: Default direction is now withdrawal ---
+  bool _isDepositing = false;
 
   late final List<BridgeOption> _allBridgeOptions;
 
@@ -62,10 +63,9 @@ class _ExchangeState extends ConsumerState<Exchange> {
   void initState() {
     super.initState();
 
-    // UPDATED: Added the new pairs to the list of selectable options
     final List<ShiftPair> selectablePairs = [
-      ShiftPair.btcToLiquidBtc, // Added
-      ShiftPair.usdtArbitrumToLiquidUsdt, // Added
+      ShiftPair.btcToLiquidBtc,
+      ShiftPair.usdtArbitrumToLiquidUsdt,
       ShiftPair.usdcEthToLiquidUsdt, ShiftPair.usdcSolToLiquidUsdt, ShiftPair.usdcPolygonToLiquidUsdt,
       ShiftPair.usdtEthToLiquidUsdt, ShiftPair.usdtTronToLiquidUsdt, ShiftPair.usdtSolToLiquidUsdt, ShiftPair.usdtPolygonToLiquidUsdt,
       ShiftPair.ethToLiquidBtc, ShiftPair.bnbToLiquidBtc, ShiftPair.solToLiquidBtc,
@@ -76,7 +76,10 @@ class _ExchangeState extends ConsumerState<Exchange> {
       ...selectablePairs.map((pair) => SideShiftBridgeOption(pair)),
     ];
 
-    _selectedBridgeOption = _allBridgeOptions.first;
+    _selectedBridgeOption = _allBridgeOptions.firstWhere(
+          (option) => option is SideShiftBridgeOption && option.pair == ShiftPair.btcToLiquidBtc,
+      orElse: () => _allBridgeOptions.first,
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final swapType = ref.read(swapTypeProvider);
