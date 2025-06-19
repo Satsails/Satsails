@@ -1,5 +1,4 @@
 import 'package:Satsails/providers/auth_provider.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/bitcoin_config_provider.dart';
 import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/screens/creation/set_pin.dart';
@@ -42,7 +41,6 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin> {
         ref.invalidate(bitcoinConfigProvider);
         ref.invalidate(liquidConfigProvider);
         try {
-          ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
         } catch (e) {
           debugPrint('Background sync failed: $e');
         }
