@@ -28,13 +28,11 @@ class OpenPin extends ConsumerStatefulWidget {
 class _OpenPinState extends ConsumerState<OpenPin> {
   String pin = '';
   final LocalAuthentication _localAuth = LocalAuthentication();
-  bool _biometricChecked = false;
   int _attempts = 0;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkBiometrics(context, ref));
   }
 
   Future<void> _checkPin(BuildContext context, WidgetRef ref) async {
@@ -52,7 +50,6 @@ class _OpenPinState extends ConsumerState<OpenPin> {
         }
         context.go('/home');
       } else {
-        // Handle incorrect PIN without showing loading
         _attempts++;
         if (_attempts >= 6) {
           await _forgotPin(context, ref);
@@ -60,14 +57,14 @@ class _OpenPinState extends ConsumerState<OpenPin> {
           int remainingAttempts = 6 - _attempts;
           showMessageSnackBar(
             context: context,
-            message: '${'Invalid PIN'.i18n} $remainingAttempts ${'attempts remaining'.i18n}',
+            message:
+            '${'Invalid PIN'.i18n} $remainingAttempts ${'attempts remaining'.i18n}',
             error: true,
           );
           setState(() => pin = '');
         }
       }
     } catch (e) {
-      // Handle any errors during PIN retrieval
       showMessageSnackBar(
         context: context,
         message: 'An error occurred: $e'.i18n,
@@ -77,8 +74,6 @@ class _OpenPinState extends ConsumerState<OpenPin> {
   }
 
   Future<void> _checkBiometrics(BuildContext context, WidgetRef ref) async {
-    if (_biometricChecked) return;
-
     try {
       bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
       if (canCheckBiometrics) {
@@ -103,10 +98,10 @@ class _OpenPinState extends ConsumerState<OpenPin> {
     } catch (e) {
       // Silently handle errors (e.g., biometric unavailable or user cancels)
     }
-    _biometricChecked = true;
   }
 
-  Future<void> _showConfirmationDialog(BuildContext context, WidgetRef ref) async {
+  Future<void> _showConfirmationDialog(
+      BuildContext context, WidgetRef ref) async {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.error,
@@ -172,7 +167,8 @@ class _OpenPinState extends ConsumerState<OpenPin> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      PinProgressIndicator(currentLength: pin.length, totalDigits: 6),
+                      PinProgressIndicator(
+                          currentLength: pin.length, totalDigits: 6),
                       SizedBox(height: 40.h),
                       CustomKeypad(
                         onDigitPressed: (digit) {
@@ -182,27 +178,52 @@ class _OpenPinState extends ConsumerState<OpenPin> {
                         },
                         onBackspacePressed: () {
                           if (pin.isNotEmpty) {
-                            setState(() => pin = pin.substring(0, pin.length - 1));
+                            setState(
+                                    () => pin = pin.substring(0, pin.length - 1));
                           }
                         },
                       ),
-                      SizedBox(height: 40.h),
+                      SizedBox(height: 20.h),
                       CustomButton(
                         text: 'Unlock'.i18n,
-                        onPressed: pin.length == 6 ? () => _checkPin(context, ref) : () => {},
+                        onPressed: pin.length == 6
+                            ? () => _checkPin(context, ref)
+                            : () {},
                         primaryColor: Colors.green,
                         secondaryColor: Colors.green,
                       ),
                       SizedBox(height: 20.h),
-                      TextButton(
-                        onPressed: () => _showConfirmationDialog(context, ref),
-                        child: Text(
-                          'Forgot PIN'.i18n,
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            color: Colors.red,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: () =>
+                                _showConfirmationDialog(context, ref),
+                            child: Text(
+                              'Forgot PIN'.i18n,
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                color: Colors.red,
+                              ),
+                            ),
                           ),
-                        ),
+                          TextButton.icon(
+                            onPressed: () => _checkBiometrics(context, ref),
+                            icon: Icon(
+                              Icons.fingerprint,
+                              color: Colors.orange,
+                              size: 28.w,
+                            ),
+                            label: Text(
+                              'Open with biometrics'.i18n,
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontSize: 16.sp,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -230,7 +251,8 @@ class PinProgressIndicator extends StatelessWidget {
   final int currentLength;
   final int totalDigits;
 
-  const PinProgressIndicator({super.key, required this.currentLength, required this.totalDigits});
+  const PinProgressIndicator(
+      {super.key, required this.currentLength, required this.totalDigits});
 
   @override
   Widget build(BuildContext context) {
