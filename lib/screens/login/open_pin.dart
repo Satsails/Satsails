@@ -1,10 +1,7 @@
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/auth_provider.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/bitcoin_config_provider.dart';
-import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/liquid_config_provider.dart';
-import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/custom_keypad.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
@@ -47,7 +44,6 @@ class _OpenPinState extends ConsumerState<OpenPin> {
 
       if (pinText == pin) {
         ref.read(loadingProvider.notifier).state = true;
-        ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
         try {
           _attempts = 0;
           ref.read(appLockedProvider.notifier).state = false;
@@ -96,7 +92,6 @@ class _OpenPinState extends ConsumerState<OpenPin> {
 
         if (authenticated) {
           ref.read(loadingProvider.notifier).state = true;
-          ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
           try {
             ref.read(appLockedProvider.notifier).state = false;
           } finally {
