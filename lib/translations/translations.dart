@@ -3512,6 +3512,10 @@ extension Localization on String {
       {
         'en': 'Insufficient balance',
         'pt': 'Saldo insuficiente'
+      }+
+      {
+        'en': 'Open with biometrics',
+        'pt': 'Abrir com biometria',
       };
 
   String get i18n => localize(this, _t);

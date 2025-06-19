@@ -1,7 +1,7 @@
 name: Satsails
 description: "Sail your wealth to the cloud!"
 publish_to: 'none'
-version: 2.0.3+83
+version: 2.0.4+85
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
