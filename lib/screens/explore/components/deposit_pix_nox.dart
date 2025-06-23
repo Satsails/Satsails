@@ -197,6 +197,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        centerTitle: false,
         title: Text(
           'Pix'.i18n,
           style: TextStyle(color: Colors.white,

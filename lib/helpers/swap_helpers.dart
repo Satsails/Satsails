@@ -1876,7 +1876,7 @@ List<Widget> _getFeeRows(WidgetRef ref) {
       case 'LowBalance':
         return [
           Text(
-            'Insufficient balance',
+            'Insufficient balance'.i18n,
             style: TextStyle(color: Colors.grey, fontSize: 14.sp),
             textAlign: TextAlign.center,
           ),

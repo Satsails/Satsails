@@ -427,10 +427,6 @@ void dispose() {
 Widget build(BuildContext context) {
   final isPayjoinTx = ref.watch(isPayjoin);
 
-  Future.microtask(() => {
-    ref.read(shouldUpdateMemoryProvider.notifier).state = false,
-  });
-
   return PopScope(
     canPop: !isProcessing,
     onPopInvoked: (bool canPop) {

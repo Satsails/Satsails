@@ -100,7 +100,7 @@ class Explore extends ConsumerWidget {
             'Explore'.i18n,
             style: TextStyle(
               color: Colors.white,
-              fontSize: 20.sp,
+              fontSize: 22.sp,
               fontWeight: FontWeight.bold,
             ),
           ),

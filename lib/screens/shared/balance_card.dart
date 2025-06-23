@@ -87,8 +87,7 @@ class BalanceCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildBalanceDisplay(
-      String nativeBalance, String equivalentBalance, bool isSmallScreen) {
+  Widget _buildBalanceDisplay(String nativeBalance, String equivalentBalance, bool isSmallScreen) {
     final textColor = network == 'Spark Network' ? Colors.white : Colors.black;
     final primaryBalanceSize = isSmallScreen ? 28.sp : 36.sp;
     final secondaryBalanceSize = isSmallScreen ? 15.sp : 18.sp;
@@ -122,8 +121,7 @@ class BalanceCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildActionButtons(
-      BuildContext context, WidgetRef ref, bool isSmallScreen) {
+  Widget _buildActionButtons(BuildContext context, WidgetRef ref, bool isSmallScreen) {
     final textColor = network == 'Spark Network' ? Colors.white : Colors.black;
     final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
     final buttonFontSize = isSmallScreen ? 12.sp : 13.sp;
@@ -260,7 +258,7 @@ class BalanceCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenheight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenheight < 650;
+    final isSmallScreen = screenheight < 850;
 
     final settings = ref.watch(settingsProvider);
     final btcFormat = settings.btcFormat;

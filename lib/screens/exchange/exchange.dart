@@ -42,7 +42,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
   SwapSection _selectedSection = SwapSection.internal;
 
   BridgeOption? _selectedBridgeOption;
-  // --- MODIFIED: Default direction is now withdrawal ---
+// --- MODIFIED: Default direction is now withdrawal ---
   bool _isDepositing = false;
 
   late final List<BridgeOption> _allBridgeOptions;
@@ -89,7 +89,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
     });
   }
 
-  // --- HELPER METHODS ---
+// --- HELPER METHODS ---
   Map<String, String> _getAssetInfo(ShiftPair pair) {
     switch (pair) {
       case ShiftPair.usdcEthToLiquidUsdt: return {'name': 'USDC', 'network': 'Ethereum'};
@@ -119,7 +119,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
     return '$network $name';
   }
 
-  // --- BUILD METHODS ---
+// --- BUILD METHODS ---
 
   @override
   Widget build(BuildContext context) {
@@ -136,10 +136,11 @@ class _ExchangeState extends ConsumerState<Exchange> {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.black,
+          centerTitle: false,
           automaticallyImplyLeading: false,
           title: Text(
             'Exchange'.i18n,
-            style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
+            style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold),
           ),
         ),
         body: SafeArea(
@@ -448,6 +449,36 @@ class _ExchangeState extends ConsumerState<Exchange> {
 
   Widget _buildSingleActionButton(ShiftPair pair) {
     final bool isDeposit = _isDepositing;
+
+// --- MODIFIED: Check for unavailability and show a disabled button ---
+    if (!isDeposit && !receiveToSendMap.containsKey(pair)) {
+      return Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 14.h),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: Colors.grey.withOpacity(0.2)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.block, color: Colors.grey, size: 22.sp),
+            SizedBox(height: 6.h),
+            Text(
+              'Withdrawal Unavailable'.i18n,
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+                fontSize: 14.sp,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+// This is the original, active button
     final String label = isDeposit ? 'Deposit to Satsails'.i18n : 'Withdrawal from Satsails'.i18n;
     final IconData icon = isDeposit ? Icons.arrow_downward : Icons.arrow_upward;
     final Color iconColor = isDeposit ? const Color(0xFF00C853) : Colors.red;
@@ -469,10 +500,6 @@ class _ExchangeState extends ConsumerState<Exchange> {
           context.push('/home/pay', extra: 'non_native_asset');
         }
       };
-    }
-
-    if (!isDeposit && !receiveToSendMap.containsKey(pair)) {
-      return const SizedBox.shrink();
     }
 
     return GestureDetector(

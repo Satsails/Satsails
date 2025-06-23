@@ -222,8 +222,6 @@ class Home extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Future.microtask(() => ref.read(shouldUpdateMemoryProvider.notifier).state = true);
-
     final language = ref.read(settingsProvider).language;
     final dialogStyle = Platform.isIOS ? UpgradeDialogStyle.cupertino : UpgradeDialogStyle.material;
 

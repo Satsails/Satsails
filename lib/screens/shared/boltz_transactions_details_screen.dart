@@ -35,9 +35,10 @@ class BoltzTransactionDetailsScreen extends ConsumerWidget {
     if (transaction == null) {
       return Scaffold(
         appBar: AppBar(
+          centerTitle: false,
           title: Text(
             'Boltz Transaction Details'.i18n,
-            style: TextStyle(color: Colors.white, fontSize: 20.sp),
+            style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold),
           ),
           backgroundColor: Colors.black,
           leading: IconButton(

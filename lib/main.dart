@@ -52,11 +52,8 @@ Future<void> main() async {
   //   appleProvider: AppleProvider.appAttest
   // );
 
-  // experiment with blocked notifications for platform errors
-  // FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-
   PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
     return true;
   };
 

@@ -3516,6 +3516,14 @@ extension Localization on String {
       {
         'en': 'Open with biometrics',
         'pt': 'Abrir com biometria',
+      }+
+      {
+        'en': 'Request failed, please try again later',
+        'pt': 'Falha na solicitação. Tente novamente',
+      }+
+      {
+        'en': 'Withdrawal Unavailable',
+        'pt': 'Saque indisponível'
       };
 
   String get i18n => localize(this, _t);

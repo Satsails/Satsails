@@ -60,7 +60,7 @@ class BitcoinSyncNotifier extends SyncNotifier<int> {
         await ref.refresh(syncBitcoinProvider.future);
 
         final addressIndex = await ref.refresh(lastUsedAddressProvider.future);
-        final address = await ref.refresh(bitcoinAddressProvider.future);
+        final address = await ref.refresh(lastUsedAddressProviderString.future);
         ref.read(addressProvider.notifier).setBitcoinAddress(addressIndex, address);
 
         final balance = await ref.read(getBitcoinBalanceProvider.future);
@@ -93,8 +93,8 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
         await ref.refresh(syncLiquidProvider.future);
 
         final liquidAddressIndex = await ref.refresh(liquidLastUsedAddressProvider.future);
-        final liquidAddress = await ref.refresh(liquidAddressProvider.future);
-        ref.read(addressProvider.notifier).setLiquidAddress(liquidAddressIndex, liquidAddress.confidential);
+        final liquidAddress = await ref.refresh(liquidLastUsedAddressStringProvider.future);
+        ref.read(addressProvider.notifier).setLiquidAddress(liquidAddressIndex, liquidAddress);
 
         final balances = await ref.read(liquidBalanceProvider.future);
 
@@ -325,5 +325,3 @@ final liquidSyncNotifierProvider = AsyncNotifierProvider<LiquidSyncNotifier, Bal
 final backgroundSyncNotifierProvider = AsyncNotifierProvider<BackgroundSyncNotifier, WalletBalance>(BackgroundSyncNotifier.new);
 
 final backgroundSyncInProgressProvider = StateProvider<bool>((ref) => false);
-
-final shouldUpdateMemoryProvider = StateProvider<bool>((ref) => true);

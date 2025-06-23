@@ -257,9 +257,6 @@ class _AccountsState extends ConsumerState<Accounts> {
               Expanded(
                   child: Text(title, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis)
               ),
-              // =========================================================================
-              // NEW: Added expand/collapse button for clear user affordance.
-              // =========================================================================
               IconButton(
                 icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more, color: Colors.white70),
                 onPressed: onTap,

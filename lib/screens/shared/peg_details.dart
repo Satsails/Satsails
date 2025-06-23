@@ -31,9 +31,10 @@ class PegDetails extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        centerTitle: false,
         title: Text(
           'Details'.i18n,
-          style: TextStyle(color: Colors.white, fontSize: 20.sp),
+          style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(

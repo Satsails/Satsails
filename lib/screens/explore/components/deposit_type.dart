@@ -38,9 +38,10 @@ class DepositTypeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
         title: Text(
           "Deposit Type".i18n,
-          style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(

@@ -21,9 +21,10 @@ class SeedWords extends ConsumerWidget {
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
+          centerTitle: false,
           title: Text(
             'Seed Words'.i18n,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold),
           ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.sp),

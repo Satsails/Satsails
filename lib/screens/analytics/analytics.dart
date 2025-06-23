@@ -235,7 +235,8 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Analytics'.i18n, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20.sp)),
+        centerTitle: false,
+        title: Text('Analytics'.i18n, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22.sp)),
         backgroundColor: Colors.black, elevation: 0,
         leading: IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white)),
       ),

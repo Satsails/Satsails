@@ -24,8 +24,6 @@ class Receive extends ConsumerWidget {
     final selectedType = ref.watch(selectedNetworkTypeProvider);
     final shiftPair = ref.watch(selectedShiftPairProvider);
 
-    Future.microtask(() => {ref.read(shouldUpdateMemoryProvider.notifier).state = false});
-
     return WillPopScope(
       onWillPop: () async {
         try {
@@ -40,11 +38,13 @@ class Receive extends ConsumerWidget {
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
+          centerTitle: false,
           title: Text(
             getReceiveTitle(selectedType, shiftPair),
             style: TextStyle(
               color: Colors.white,
-              fontSize: selectedType == 'SideShift' || selectedType == 'Boltz Network' ? 15.sp : 20.sp,
+              fontWeight: FontWeight.bold,
+              fontSize: selectedType == 'SideShift' || selectedType == 'Boltz Network' ? 15.sp : 22.sp,
             ),
           ),
           leading: IconButton(

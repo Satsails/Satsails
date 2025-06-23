@@ -140,6 +140,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        centerTitle: false,
         title: Text(
           'Pix',
           style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
