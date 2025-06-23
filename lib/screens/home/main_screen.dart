@@ -46,7 +46,7 @@ class MainScreen extends ConsumerWidget {
       if (previous != next) {
         _resetProviders(ref, next);
         // Perform sync actions when navigating to Home (index 0) and not syncing
-        if (next == 0 && !isSyncing) {
+        if (!isSyncing) {
           ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
         }
       }

@@ -130,7 +130,7 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 18.sp, vertical: 8.sp),
+          padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.sp),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -185,8 +185,8 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
               final selectedAssetName = _selectedFilters[index];
               return Padding(
                 padding: EdgeInsets.only(
-                  left: 18.sp,
-                  right: index == _assets.length - 1 ? 18.sp : 0,
+                    left: 16.sp,
+                    right: index == _assets.length - 1 ? 18.sp : 0,
                 ),
                 child: SizedBox(
                   height: 200.sp,
