@@ -35,7 +35,6 @@ class _StartState extends ConsumerState<Start>
       vsync: this,
     );
 
-    // All animation definitions remain the same.
     _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
           parent: _controller,
@@ -108,7 +107,6 @@ class _StartState extends ConsumerState<Start>
           ),
           child: Column(
             children: [
-              // Logo and Text animations remain the same.
               Padding(
                 padding: EdgeInsets.only(top: 70.h),
                 child: FadeTransition(
@@ -183,7 +181,6 @@ class _StartState extends ConsumerState<Start>
                 ),
               ),
               const Spacer(),
-              // The conditional check is gone. The buttons are always visible.
               SlideTransition(
                 position: _buttonsOffset,
                 child: FadeTransition(

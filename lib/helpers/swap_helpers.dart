@@ -1126,9 +1126,28 @@ Widget buildSideswapInstantSwap(
           ],
         );
       case 'LowBalance':
-        return Text(
-          'Insufficient balance'.i18n,
-          style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+        final quoteAmountValue = assetToSell != quote.baseAsset ? quote.baseAmount ?? 0 : quote.quoteAmount ?? 0;
+        final formattedAmount = assetToSell != quote.baseAsset ? btcInDenominationFormatted(quoteAmountValue, btcFormat) : btcInDenominationFormatted(quoteAmountValue, btcFormat, false);
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              formattedAmount,
+              style: TextStyle(color: Colors.white, fontSize: 20.sp),
+            ),
+            if (!fiatAssets.contains(toAsset)) ...[
+              Text(
+                currencyFormat((btcFormat == 'sats' ? double.parse(formattedAmount) / 100000000 : double.parse(formattedAmount)) * currencyRateFromBitcoin, currency),
+                style: TextStyle(color: Colors.grey, fontSize: 20.sp),
+              ),
+            ],
+            SizedBox(height: 4.h),
+            Text(
+              'Insufficient balance'.i18n,
+              style: TextStyle(color: Colors.redAccent, fontSize: 14.sp),
+            ),
+          ],
         );
       case 'Loading':
         return Text(
@@ -1874,7 +1893,15 @@ List<Widget> _getFeeRows(WidgetRef ref) {
           _feeRow('Server fee', serverFeeStr, ref),
         ];
       case 'LowBalance':
+        final fixedFee = quote.fixedFee ?? 0;
+        final serverFee = quote.serverFee ?? 0;
+        final feeAsset = ref.read(fromAssetProvider);
+        final btcFormat = ref.read(settingsProvider).btcFormat;
+        final fixedFeeStr = formatAssetAmount(feeAsset, fixedFee, btcFormat);
+        final serverFeeStr = formatAssetAmount(feeAsset, serverFee, btcFormat);
         return [
+          _feeRow('Fixed fee', fixedFeeStr, ref),
+          _feeRow('Server fee', serverFeeStr, ref),
           Text(
             'Insufficient balance'.i18n,
             style: TextStyle(color: Colors.grey, fontSize: 14.sp),
