@@ -1,5 +1,7 @@
+import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
+import 'package:Satsails/providers/sideshift_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +12,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:Satsails/models/sideshift_model.dart';
-import 'package:Satsails/providers/sideshift_provider.dart';
 
 class DepositPixNox extends ConsumerStatefulWidget {
   const DepositPixNox({super.key});
@@ -22,7 +22,7 @@ class DepositPixNox extends ConsumerStatefulWidget {
 
 class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
   final TextEditingController _amountController = TextEditingController();
-  bool _isLoading = false;
+  bool _isLoading = true; // Start in loading state
   SideShift? _shift;
   double? _minDepositBRL;
   double? _maxDepositBRL;
@@ -31,22 +31,43 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
   double? _valueToReceive;
   double? _cashback;
   Future<SideShift>? _shiftFuture;
-  bool _shiftCreated = false;
 
   @override
   void initState() {
     super.initState();
     _amountController.addListener(_updateValueToReceiveAndCashback);
+    // Use WidgetsBinding to safely call async code in initState
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Initialize everything needed for this screen
+      _initializeScreen();
+    });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_shiftCreated) {
-      _shiftFuture = _createShift();
-      _shiftCreated = true;
+  /// Ensures currency rates are updated before creating the shift.
+  Future<void> _initializeScreen() async {
+    // Check if the currency rates are the default ones
+    final currencyState = ref.read(currencyNotifierProvider);
+    // Using one of the default values as a proxy for all of them
+    if (currencyState.btcToUsd == 50000.0) {
+      try {
+        // Invalidate to force a refresh of the currency rates
+        await ref.refresh(updateCurrencyProvider.future);
+      } catch (e) {
+        // Handle error if currency update fails, but still proceed
+        if (mounted) {
+          showMessageSnackBar(context: context, message: 'Could not update exchange rates.'.i18n, error: true);
+        }
+      }
+    }
+
+    // Now that rates are likely updated, create the shift
+    if(mounted) {
+      setState(() {
+        _shiftFuture = _createShift();
+      });
     }
   }
+
 
   @override
   void dispose() {
@@ -56,19 +77,21 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
   }
 
   Future<SideShift> _createShift() async {
-    final selectedShiftPair = ref.read(
-        selectedShiftPairProviderFromFiatPurchases);
+    final selectedShiftPair =
+    ref.read(selectedShiftPairProviderFromFiatPurchases);
     if (selectedShiftPair == null) {
       throw Exception('No shift pair selected');
     }
 
-    setState(() => _isLoading = true);
+    if(mounted) setState(() => _isLoading = true);
 
     try {
       final shift = await ref.read(
           createReceiveSideShiftShiftProviderWithoutSaving(selectedShiftPair)
               .future);
+      // Ensure the provider has the latest rates before reading
       final brlRate = ref.read(selectedCurrencyProviderFromUSD('BRL'));
+
       if (mounted) {
         setState(() {
           _shift = shift;
@@ -81,9 +104,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
       return shift;
     } catch (e) {
       if (mounted) {
-        showMessageSnackBar(context: context, message: e
-            .toString()
-            .i18n, error: true);
+        showMessageSnackBar(
+            context: context, message: e.toString().i18n, error: true);
       }
       rethrow;
     } finally {
@@ -96,24 +118,20 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
   void _updateValueToReceiveAndCashback() {
     final currencyModel = ref.read(currencyNotifierProvider);
     final amount = double.tryParse(_amountController.text);
-    final selectedShiftPair = ref.read(selectedShiftPairProviderFromFiatPurchases);
+    final selectedShiftPair =
+    ref.read(selectedShiftPairProviderFromFiatPurchases);
 
     if (amount != null && _shift != null) {
       final netAmountBRL = amount * 0.97;
 
       double? valueToReceive;
-      String settleCurrency = 'BTC'; // Default to BTC
 
       if (selectedShiftPair == ShiftPair.usdcAvaxToLiquidUsdt) {
-        // For USDT receive case, convert BRL to USD (since USDT ≈ USD)
         valueToReceive = netAmountBRL * currencyModel.brlToUsd;
-        settleCurrency = 'USDT';
       } else {
-        // For BTC receive case
         valueToReceive = netAmountBRL * currencyModel.brlToBtc;
       }
 
-      // Calculate cashback in BTC (0.2% of input amount)
       final cashback = amount * 0.002 * currencyModel.brlToBtc;
 
       setState(() {
@@ -132,7 +150,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
     final amount = _amountController.text;
 
     if (amount.isEmpty) {
-      showMessageSnackBar(context: context,
+      showMessageSnackBar(
+          context: context,
           message: 'Amount cannot be empty'.i18n,
           error: true);
       return;
@@ -140,7 +159,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
 
     final double? amountInDouble = double.tryParse(amount);
     if (amountInDouble == null || amountInDouble <= 0) {
-      showMessageSnackBar(context: context,
+      showMessageSnackBar(
+          context: context,
           message: 'Please enter a valid amount.'.i18n,
           error: true);
       return;
@@ -150,7 +170,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         amountInDouble < _adjustedMinDepositBRL!) {
       showMessageSnackBar(
           context: context,
-          message: 'Amount is below the minimum deposit of '.i18n + '${_adjustedMinDepositBRL!.toStringAsFixed(2)} BRL',
+          message: 'Amount is below the minimum deposit of '.i18n +
+              '${_adjustedMinDepositBRL!.toStringAsFixed(2)} BRL',
           error: true);
       return;
     }
@@ -159,7 +180,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         amountInDouble > _adjustedMaxDepositBRL!) {
       showMessageSnackBar(
           context: context,
-          message: 'Amount is above the maximum deposit of '.i18n + '${_adjustedMaxDepositBRL!.toStringAsFixed(2)} BRL',
+          message: 'Amount is above the maximum deposit of '.i18n +
+              '${_adjustedMaxDepositBRL!.toStringAsFixed(2)} BRL',
           error: true);
       return;
     }
@@ -181,9 +203,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
       }
     } catch (e) {
       if (mounted) {
-        showMessageSnackBar(context: context, message: e
-            .toString()
-            .i18n, error: true);
+        showMessageSnackBar(
+            context: context, message: e.toString().i18n, error: true);
       }
     } finally {
       if (mounted) {
@@ -200,7 +221,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         centerTitle: false,
         title: Text(
           'Pix'.i18n,
-          style: TextStyle(color: Colors.white,
+          style: TextStyle(
+              color: Colors.white,
               fontSize: 20.sp,
               fontWeight: FontWeight.bold),
         ),
@@ -210,13 +232,16 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
           onPressed: () => context.pop(),
         ),
       ),
-      // MODIFICATION: Replaced body's child with a Stack to handle the loading overlay
       body: KeyboardDismissOnTap(
         child: Stack(
           children: [
             FutureBuilder<SideShift>(
               future: _shiftFuture,
               builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting && _isLoading) {
+                  return const SizedBox.shrink(); // Show nothing while waiting for future
+                }
+
                 if (snapshot.hasError && !_isLoading) {
                   return Center(
                     child: Text(
@@ -228,7 +253,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
 
                 return SingleChildScrollView(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
+                    padding:
+                    EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -240,9 +266,12 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                         TextField(
                           controller: _amountController,
                           keyboardType: TextInputType.number,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 20.sp, color: Colors.white),
+                          style:
+                          TextStyle(fontSize: 20.sp, color: Colors.white),
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: const Color(0xFF212121),
@@ -250,8 +279,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                               borderRadius: BorderRadius.circular(12.r),
                               borderSide: BorderSide.none,
                             ),
-                            contentPadding: EdgeInsets.symmetric(vertical: 16.h,
-                                horizontal: 16.w),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 16.h, horizontal: 16.w),
                           ),
                         ),
                         SizedBox(height: 16.h),
@@ -259,21 +288,23 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                           onPressed: _handleInput,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius
-                                .circular(12.r)),
-                            padding: EdgeInsets.symmetric(vertical: 16.h,
-                                horizontal: 32.w),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r)),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 16.h, horizontal: 32.w),
                           ),
                           child: Text(
                             'Generate Payment'.i18n,
-                            style: TextStyle(color: Colors.black, fontSize: 18.sp),
+                            style: TextStyle(
+                                color: Colors.black, fontSize: 18.sp),
                           ),
                         ),
                         SizedBox(height: 16.h),
                         Text(
                           'Note: Purchases from NOX are always in USDC and will be automatically converted via smart contract to the asset you want to purchase. The asset you receive is not reported to the goverment automatically.'
                               .i18n,
-                          style: TextStyle(color: Colors.red,
+                          style: TextStyle(
+                              color: Colors.red,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.bold),
                           textAlign: TextAlign.center,
@@ -297,7 +328,6 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                 );
               },
             ),
-
             if (_isLoading)
               Container(
                 color: Colors.black.withOpacity(0.7),
@@ -344,8 +374,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                     ),
                   ),
                   TextSpan(
-                    text: '${_adjustedMinDepositBRL?.toStringAsFixed(2) ??
-                        'N/A'} BRL',
+                    text:
+                    '${_adjustedMinDepositBRL?.toStringAsFixed(2) ?? 'N/A'} BRL',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16.sp,
@@ -368,8 +398,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                     ),
                   ),
                   TextSpan(
-                    text: '${_adjustedMaxDepositBRL?.toStringAsFixed(2) ??
-                        'N/A'} BRL',
+                    text:
+                    '${_adjustedMaxDepositBRL?.toStringAsFixed(2) ?? 'N/A'} BRL',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16.sp,
@@ -393,8 +423,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                       ),
                     ),
                     TextSpan(
-                      text: '${_valueToReceive!.toStringAsFixed(8)} ${_shift
-                          ?.settleCoin ?? 'BTC'}',
+                      text:
+                      '${_valueToReceive!.toStringAsFixed(8)} ${_shift?.settleCoin ?? 'BTC'}',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16.sp,
@@ -411,7 +441,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: 'Cashback: ',
+                      text: 'Cashback: '.i18n,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16.sp,
@@ -485,7 +515,11 @@ class _DepositWebViewPageState extends State<DepositWebViewPage> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Deposit'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
+        title: Text('Deposit'.i18n,
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
