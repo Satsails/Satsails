@@ -119,7 +119,7 @@ class _AffiliateScreenState extends ConsumerState<AffiliateScreen> {
                   }
                   context.pushReplacement('/open_pin');
                 } else {
-                  context.pushReplacement('/');
+                  context.pushReplacement('/start');
                 }
               },
               style: ElevatedButton.styleFrom(

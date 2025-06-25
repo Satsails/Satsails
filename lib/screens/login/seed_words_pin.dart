@@ -109,7 +109,7 @@ class _SeedWordsPinState extends ConsumerState<SeedWordsPin> {
   Future<void> _forgotPin(BuildContext context, WidgetRef ref) async {
     final authModel = ref.read(authModelProvider);
     await authModel.deleteAuthentication();
-    context.go('/');
+    context.go('/splash');
   }
 
   @override

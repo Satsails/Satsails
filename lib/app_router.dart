@@ -20,6 +20,7 @@ import 'package:Satsails/screens/shared/affiliate_screen.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/sideshift_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
+import 'package:Satsails/screens/spash/splash.dart';
 import 'package:Satsails/screens/transactions/transactions.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/screens/shared/eulen_transaction_details.dart';
@@ -112,7 +113,15 @@ class AppRouter {
           ),
         ),
         GoRoute(
-          path: '/',
+          path: '/splash',
+          name: 'splash',
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const Splash(),
+            state: state,
+          ),
+        ),
+        GoRoute(
+          path: '/start',
           name: 'start',
           pageBuilder: (context, state) => _buildFadeScalePage(
             child: const Start(),
