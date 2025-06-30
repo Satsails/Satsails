@@ -123,6 +123,38 @@ class BitcoinModel {
     }
   }
 
+  Future<(PartiallySignedTransaction, TransactionDetails)> bumpFeeTransaction(
+      BumpFeeTransactionBuilder transaction) async {
+    try {
+      final txBuilder = BumpFeeTxBuilder(
+        txid: transaction.txid,
+        feeRate: transaction.fee,
+      );
+
+      final txBuilderResult = await txBuilder
+          .enableRbf()
+          .finish(config.wallet);
+
+      return txBuilderResult;
+
+    } on GenericException catch (e) {
+      // Handle specific BDK errors
+      if (e.message!.contains("Transaction not found")) {
+        throw "Original transaction not found in the wallet. Make sure it has been synced.";
+      }
+      if (e.message!.contains("transaction is already confirmed")) {
+        throw "Cannot bump fee: The transaction is already confirmed.";
+      }
+      throw e.message!;
+    } on InsufficientFundsException catch (_) {
+      throw "Insufficient funds to pay for the new fee rate.";
+    } on AddressException catch (_) {
+      throw 'Invalid address encountered.';
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   bool signBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) txBuilderResult) {
     return config.wallet.sign(psbt: txBuilderResult.$1);
   }
@@ -158,6 +190,14 @@ class TransactionBuilder {
   final double fee;
 
   TransactionBuilder(this.amount, this.outAddress, this.fee);
+}
+
+class BumpFeeTransactionBuilder {
+  final String txid;
+
+  final double fee;
+
+  BumpFeeTransactionBuilder({required this.txid, required this.fee});
 }
 
 class BitcoinFeeModel {

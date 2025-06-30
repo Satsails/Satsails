@@ -128,3 +128,13 @@ final sendBitcoinTransactionProvider = FutureProvider.autoDispose<String>((ref) 
   final signedPsbt = await ref.watch(signBitcoinPsbtProvider(psbt).future);
   return await ref.watch(broadcastBitcoinTransactionProvider(signedPsbt).future);
 });
+
+final bumpBitcoinTransactionProvider = FutureProvider.autoDispose.family<String, ({String txid, double newFeeRate})>((ref, args) async {
+  final bitcoinModel = await ref.watch(bitcoinModelProvider.future);
+  final bumpFeeBuilder = BumpFeeTransactionBuilder(txid: args.txid, fee: args.newFeeRate);
+  final psbt = await bitcoinModel.bumpFeeTransaction(bumpFeeBuilder);
+  final signedPsbt = await ref.watch(signBitcoinPsbtProvider(psbt).future);
+  final newTxid = await ref.watch(broadcastBitcoinTransactionProvider(signedPsbt).future);
+
+  return newTxid;
+});

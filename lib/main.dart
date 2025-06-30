@@ -107,7 +107,6 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   late final GoRouter _router;
   late final StreamSubscription<Map> _branchSubscription;
 
-  // Flags to manage app lifecycle state
   bool _isFirstResume = true;
   bool _isBlurred = false;
   bool _wasPaused = false;
@@ -177,6 +176,8 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final language = ref.watch(settingsProvider).language;
+
+    I18n.define(Locale(language));
 
     return Directionality(
       textDirection: TextDirection.ltr,

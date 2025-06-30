@@ -3518,12 +3518,32 @@ extension Localization on String {
         'pt': 'Abrir com biometria',
       }+
       {
-        'en': 'Request failed, please try again later',
-        'pt': 'Falha na solicitação. Tente novamente',
+        "en": "Request failed, please try again later",
+        "pt": "Falha na solicitação. Tente novamente"
       }+
       {
-        'en': 'Withdrawal Unavailable',
-        'pt': 'Saque indisponível'
+        "en": "Withdrawal Unavailable",
+        "pt": "Saque indisponível"
+      }+
+      {
+        "en": "Bump Fee",
+        "pt": "Acelerar transferência"
+      }+
+      {
+        "en": "Bump Transaction Fee",
+        "pt": "Aumentar Taxa da Transação"
+      }+
+      {
+        "en": "New Fee Rate (sats/vB)",
+        "pt": "Nova Taxa de Rede (sats/vB)"
+      }+
+      {
+        "en": "Confirm & Bump Fee",
+        "pt": "Confirmar e Aumentar Taxa"
+      }+
+      {
+        "en": "Fee bumped successfully!",
+        "pt": "Taxa aumentada com sucesso!"
       };
 
   String get i18n => localize(this, _t);
