@@ -291,38 +291,58 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
                     ),
                     child: SingleChildScrollView(
                       child: Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
+                        spacing: 8,
+                        runSpacing: 8,
                         children: List.generate(
                           _totalWords,
                               (index) => SizedBox(
                             width: screenWidth * 0.28,
-                            child: TextField(
-                              controller: _controllers[index],
-                              focusNode: _focusNodes[index],
-                              style: const TextStyle(color: Colors.white),
-                              autocorrect: false,
-                              enableSuggestions: false,
-                              keyboardType: TextInputType.visiblePassword,
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: const Color(0xFF212121),
-                                contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                                labelText: '',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: const BorderSide(color: Color(0xFF6D6D6D), width: 4.0),
+                            child: Stack(
+                              alignment: Alignment.centerLeft,
+                              children: [
+                                TextField(
+                                  controller: _controllers[index],
+                                  focusNode: _focusNodes[index],
+                                  style: const TextStyle(color: Colors.white),
+                                  autocorrect: false,
+                                  enableSuggestions: false,
+                                  keyboardType: TextInputType.visiblePassword,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: const Color(0xFF212121),
+                                    contentPadding: const EdgeInsets.only(
+                                      top: 8,
+                                      bottom: 8,
+                                      left: 24, // Increased left padding
+                                      right: 10,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      borderSide: const BorderSide(color: Color(0xFF6D6D6D), width: 1.0),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      borderSide: const BorderSide(color: Colors.orangeAccent, width: 2.0),
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedWordIndex = index;
+                                    });
+                                  },
                                 ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: const BorderSide(color: Colors.orangeAccent, width: 4.0),
+                                Positioned(
+                                  left: 8,
+                                  child: Text(
+                                    '${index + 1}',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  _selectedWordIndex = index;
-                                });
-                              },
+                              ],
                             ),
                           ),
                         ),
@@ -341,7 +361,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
                 ),
               ],
             ),
-            _buildSuggestionList(context), // Positioned right above the keyboard
+            _buildSuggestionList(context),
           ],
         ),
       ),

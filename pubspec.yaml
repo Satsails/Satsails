@@ -68,7 +68,7 @@ dependencies:
   flutter_dotenv: ^5.1.0
   i18n_extension: ^15.0.4
 #  commented until we decide what we do with the apk
-#  firebase_app_check: ^0.3.1
+#  firebase_app_check: ^0.3.1§
   dot_navigation_bar: ^1.0.2
   in_app_review: ^2.0.10
   upgrader: ^11.3.1

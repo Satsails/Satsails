@@ -229,6 +229,7 @@ class Transaction {
   final List<BitcoinTransaction> bitcoinTransactions;
   final List<LiquidTransaction> liquidTransactions;
   final List<SideswapPegTransaction> sideswapPegTransactions;
+  final List<SideswapInstantSwapTransaction> sideswapInstantSwapTransactions;
   final List<EulenTransaction> eulenTransactions;
   final List<NoxTransaction> noxTransactions;
   final List<BoltzTransaction> boltzTransactions;
@@ -238,6 +239,7 @@ class Transaction {
     required this.bitcoinTransactions,
     required this.liquidTransactions,
     required this.sideswapPegTransactions,
+    required this.sideswapInstantSwapTransactions,
     required this.eulenTransactions,
     required this.noxTransactions,
     required this.boltzTransactions,
@@ -248,6 +250,7 @@ class Transaction {
     List<BitcoinTransaction>? bitcoinTransactions,
     List<LiquidTransaction>? liquidTransactions,
     List<SideswapPegTransaction>? sideswapPegTransactions,
+    List<SideswapInstantSwapTransaction>? sideswap,
     List<EulenTransaction>? eulenTransactions,
     List<NoxTransaction>? noxTransactions,
     List<BoltzTransaction>? boltzTransactions,
@@ -257,6 +260,7 @@ class Transaction {
       bitcoinTransactions: bitcoinTransactions ?? this.bitcoinTransactions,
       liquidTransactions: liquidTransactions ?? this.liquidTransactions,
       sideswapPegTransactions: sideswapPegTransactions ?? this.sideswapPegTransactions,
+      sideswapInstantSwapTransactions: sideswap ?? this.sideswapInstantSwapTransactions,
       eulenTransactions: eulenTransactions ?? this.eulenTransactions,
       noxTransactions: noxTransactions ?? this.noxTransactions,
       boltzTransactions: boltzTransactions ?? this.boltzTransactions,
@@ -269,6 +273,7 @@ class Transaction {
       ...bitcoinTransactions,
       ...liquidTransactions,
       ...sideswapPegTransactions,
+      ...sideswapInstantSwapTransactions,
       ...eulenTransactions,
       ...noxTransactions,
       ...boltzTransactions,
@@ -373,6 +378,7 @@ class Transaction {
       bitcoinTransactions: [],
       liquidTransactions: [],
       sideswapPegTransactions: [],
+      sideswapInstantSwapTransactions: [],
       eulenTransactions: [],
       noxTransactions: [],
       boltzTransactions: [],

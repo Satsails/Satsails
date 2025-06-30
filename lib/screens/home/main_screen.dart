@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
@@ -18,6 +19,8 @@ class MainScreen extends ConsumerStatefulWidget {
 }
 
 class _MainScreenState extends ConsumerState<MainScreen> {
+  Timer? _syncTimer;
+
   final List<Widget> _screens = const [
     Home(),
     Accounts(),
@@ -30,36 +33,61 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!ref.read(backgroundSyncInProgressProvider)) {
-        ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
-      }
+      _performSync();
     });
+  }
+
+  /// Starts the periodic sync timer.
+  void _startPeriodicSync() {
+    _syncTimer?.cancel();
+    _syncTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      _performSync();
+    });
+  }
+
+  /// Cancels the sync timer.
+  void _stopPeriodicSync() {
+    _syncTimer?.cancel();
+  }
+
+  /// Performs the actual data sync.
+  void _performSync() {
+    if (!ref.read(backgroundSyncInProgressProvider)) {
+      ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
+    }
+  }
+
+  @override
+  void dispose() {
+    _syncTimer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final currentIndex = ref.watch(navigationProvider);
-    final isSyncing = ref.watch(backgroundSyncInProgressProvider);
 
     ref.listen<int>(navigationProvider, (previous, next) {
-      if (previous != next && next == 0 && !isSyncing) {
-        ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
+      if (previous == next) return;
+
+      if (next == 0) {
+        _performSync();
+        _startPeriodicSync();
+      } else {
+        _stopPeriodicSync();
+        _performSync();
       }
     });
 
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.black,
-      body: IndexedStack(
-        index: currentIndex,
-        children: _screens,
-      ),
+      body: _screens[currentIndex],
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index) {
           if (currentIndex != index) {
-            ref.read(sendTxProvider.notifier).resetToDefault();
-            ref.read(sendBlocksProvider.notifier).state = 1;
+            ref.read(sendTxProvider.notifier).resetToDefault(); // Example if not auto-disposed
             ref.read(navigationProvider.notifier).state = index;
           }
         },
