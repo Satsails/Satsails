@@ -14,9 +14,19 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:crisp_chat/crisp_chat.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:in_app_review/in_app_review.dart';
+
+// Provider to check if biometrics are available on the device
+final biometricsAvailableProvider = FutureProvider<bool>((ref) async {
+  try {
+    return await LocalAuthentication().canCheckBiometrics;
+  } catch (e) {
+    return false;
+  }
+});
 
 class Settings extends ConsumerWidget {
   const Settings({super.key});
@@ -37,6 +47,7 @@ class Settings extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final coinosLn = ref.watch(coinosLnProvider);
     final showCoinosMigration = coinosLn.token.isNotEmpty;
+    final biometricsAvailable = ref.watch(biometricsAvailableProvider);
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -80,6 +91,12 @@ class Settings extends ConsumerWidget {
                     _buildChatWithSupportSection(context, ref),
                     _buildRateAppSection(context, ref),
                     _buildSeedSection(context, ref),
+                    // Conditionally display the biometrics section
+                    biometricsAvailable.when(
+                      data: (isAvailable) => isAvailable ? _buildBiometricsSection(context, ref) : const SizedBox.shrink(),
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    ),
                     _buildLanguageSection(ref, context),
                     _buildCurrencyDenominationSection(ref, context),
                     _buildBitcoinUnitSection(ref, context),
@@ -97,13 +114,15 @@ class Settings extends ConsumerWidget {
     );
   }
 
+  // Updated _buildSection to support a trailing widget
   Widget _buildSection({
     required BuildContext context,
     required WidgetRef ref,
     required String title,
     required IconData icon,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
     Widget? subtitle,
+    Widget? trailing,
   }) {
     return Container(
       margin: EdgeInsets.only(bottom: 20.sp),
@@ -129,7 +148,35 @@ class Settings extends ConsumerWidget {
           ),
         ),
         subtitle: subtitle,
+        trailing: trailing,
         onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _buildBiometricsSection(BuildContext context, WidgetRef ref) {
+    final settingsNotifier = ref.read(settingsProvider.notifier);
+    final biometricsEnabled = ref.watch(settingsProvider.select((s) => s.biometricsEnabled));
+
+    return _buildSection(
+      context: context,
+      ref: ref,
+      title: 'Biometric Unlock'.i18n,
+      icon: Icons.fingerprint,
+      subtitle: Text(
+        'Use your fingerprint or face to unlock'.i18n,
+        style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+      ),
+      onTap: () {
+        settingsNotifier.setBiometricsEnabled(!biometricsEnabled);
+      },
+      trailing: Switch(
+        value: biometricsEnabled,
+        onChanged: (value) {
+          settingsNotifier.setBiometricsEnabled(value);
+        },
+        activeColor: Colors.white,
+        inactiveTrackColor: Colors.grey[800],
       ),
     );
   }

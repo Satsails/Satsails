@@ -399,34 +399,45 @@ class LbtcBoltz {
   Future<bool> refund({
     required String outAddress,
     required SubmarineFeesAndLimits fees,
-    required bool tryCooperate,
     required String electrumUrl,
   }) async {
-    LbtcLnSwap? refund;
     try {
-      refund = await LbtcLnSwap.newInstance(
-          id: swap.id,
-          kind: swap.kind,
-          network: swap.network,
-          keyIndex: swap.keyIndex,
-          keys: keys,
-          preimage: preimage,
-          swapScript: swapScript,
-          invoice: swap.invoice,
-          outAmount: BigInt.from(swap.outAmount),
-          outAddress: swap.scriptAddress,
-          blindingKey: swap.blindingKey,
-          electrumUrl: electrumUrl,
-          boltzUrl: swap.boltzUrl,
-          referralId: 'satsails'
+      // Initialize the swap instance for the refund
+      final LbtcLnSwap refundSwap = await LbtcLnSwap.newInstance(
+        id: swap.id,
+        kind: swap.kind,
+        network: swap.network,
+        keyIndex: swap.keyIndex,
+        keys: keys,
+        preimage: preimage,
+        swapScript: swapScript,
+        invoice: swap.invoice,
+        outAmount: BigInt.from(swap.outAmount),
+        outAddress: swap.scriptAddress,
+        blindingKey: swap.blindingKey,
+        electrumUrl: electrumUrl,
+        boltzUrl: swap.boltzUrl,
+        referralId: 'satsails',
       );
-      final hex = await refund.refund(
-        outAddress: outAddress,
-        minerFee: TxFee.absolute(fees.lbtcFees.minerFees),
-        tryCooperate: tryCooperate,
-      );
-      await refund.broadcastBoltz(signedHex: hex);
-      return true;
+
+      // First, attempt a cooperative refund.
+      try {
+        final String hex = await refundSwap.refund(
+          outAddress: outAddress,
+          minerFee: TxFee.absolute(fees.lbtcFees.minerFees),
+          tryCooperate: true,
+        );
+        await refundSwap.broadcastBoltz(signedHex: hex);
+        return true;
+      } catch (e) {
+        final String hex = await refundSwap.refund(
+          outAddress: outAddress,
+          minerFee: TxFee.absolute(fees.lbtcFees.minerFees),
+          tryCooperate: false,
+        );
+        await refundSwap.broadcastBoltz(signedHex: hex);
+        return true;
+      }
     } catch (e) {
       return false;
     }

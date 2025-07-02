@@ -193,28 +193,3 @@ class _SeedWordsPinState extends ConsumerState<SeedWordsPin> {
     );
   }
 }
-
-class PinProgressIndicator extends StatelessWidget {
-  final int currentLength;
-  final int totalDigits;
-
-  const PinProgressIndicator({super.key, required this.currentLength, required this.totalDigits});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(totalDigits, (index) {
-        return Container(
-          margin: EdgeInsets.symmetric(horizontal: 8.w),
-          width: 16.w,
-          height: 16.w,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: index < currentLength ? Colors.white : Colors.grey[600],
-          ),
-        );
-      }),
-    );
-  }
-}

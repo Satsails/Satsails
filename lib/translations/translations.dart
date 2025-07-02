@@ -2003,8 +2003,8 @@ extension Localization on String {
         'pt': 'Carregando...',
       } +
       {
-        'en': 'Transaction fees',
-        'pt': 'Taxas de transação',
+        'en': 'Transaction fees and limits',
+        'pt': 'Taxas e limites da transação',
       } +
       {
         'en': 'Coming soon',
@@ -3206,8 +3206,8 @@ extension Localization on String {
         'pt': 'Receber Liquid Bitcoin na rede Lightning',
       } +
       {
-        'en': 'Action Failed',
-        'pt': 'Ação Falhou',
+        'en': 'Action failed',
+        'pt': 'Ação falhou',
       }+
       {
         'en': 'Receive Address',
@@ -3538,12 +3538,60 @@ extension Localization on String {
         "pt": "Nova Taxa de Rede (sats/vB)"
       }+
       {
+        "en": "Welcome Back",
+        "pt": "Bem-vindo de volta"
+      }+
+      {
+        "en": "Enter your PIN to unlock",
+        "pt": "Introduza o seu PIN para desbloquear"
+      }+
+      {
+        "en": "Forgot PIN?",
+        "pt": "Esqueceu-se do PIN?"
+      }+
+      {
         "en": "Confirm & Bump Fee",
         "pt": "Confirmar e Aumentar Taxa"
       }+
       {
         "en": "Fee bumped successfully!",
         "pt": "Taxa aumentada com sucesso!"
+      }+
+      {
+        "en": "Biometric Unlock",
+        "pt": "Desbloqueio Biométrico"
+      }+
+      {
+        "en": "Use your fingerprint or face to unlock",
+        "pt": "Use a sua impressão digital ou rosto para desbloquear"
+      }+
+      {
+        "en": "Create a PIN",
+        "pt": "Criar um PIN"
+      }+
+      {
+        "en": "This PIN will be used to unlock your wallet",
+        "pt": "Este PIN será utilizado para desbloquear a sua carteira"
+      }+
+      {
+        "en": "Confirm Your PIN",
+        "pt": "Confirme o seu PIN"
+      }+
+      {
+        "en": "Enter the same PIN again to verify",
+        "pt": "Introduza o mesmo PIN novamente para verificar"
+      } +
+      {
+        "en": "Swap Details",
+        "pt": "Detalhes da Troca"
+      }+
+      {
+        "en": "Deposit Address",
+        "pt": "Endereço de Depósito"
+      }+
+      {
+        "en": "Amount to Send",
+        "pt": "Valor a Enviar"
       };
 
   String get i18n => localize(this, _t);

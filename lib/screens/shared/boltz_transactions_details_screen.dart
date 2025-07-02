@@ -56,8 +56,22 @@ class BoltzTransactionDetailsScreen extends ConsumerWidget {
       );
     }
 
-    String locale = I18n.locale.languageCode;
     final swap = transaction.details.swap;
+    final bool isRefundCase = swap.kind == SwapType.submarine;
+    final bool isCompleted = transaction.details.completed ?? false;
+    final bool isTxExpired = _isExpired(transaction.details.timestamp);
+
+    bool shouldShowButton = false;
+    // For refund cases (Submarine Swaps), show button if not completed. Expiration doesn't prevent refund.
+    if (isRefundCase) {
+      shouldShowButton = true;
+    }
+    // For other cases (like Reverse Swaps/Claim), show button only if not completed and not expired.
+    else if (!isRefundCase && !isCompleted && !isTxExpired) {
+      shouldShowButton = true;
+    }
+
+    String locale = I18n.locale.languageCode;
     final formattedDate = DateFormat('d MMMM, HH:mm', locale).format(DateTime.fromMillisecondsSinceEpoch(transaction.details.timestamp));
     final expiresAtText = _formatExpiresAt(transaction.details.timestamp);
     final statusText = _getStatusText(transaction.details.completed, transaction.details);
@@ -149,7 +163,7 @@ class BoltzTransactionDetailsScreen extends ConsumerWidget {
               TransactionDetailRow(label: 'Network'.i18n, value: swap.network.toString()),
               TransactionDetailRow(label: 'Electrum URL'.i18n, value: swap.electrumUrl),
               TransactionDetailRow(label: 'Boltz URL'.i18n, value: swap.boltzUrl),
-              if (!transaction.details.completed! && _isExpired(transaction.details.timestamp)) ...[
+              if (!isCompleted && isTxExpired) ...[
                 SizedBox(height: 16.h),
                 Text(
                   'Transaction Expired'.i18n,
@@ -161,7 +175,7 @@ class BoltzTransactionDetailsScreen extends ConsumerWidget {
                   style: TextStyle(color: Colors.white, fontSize: 16.sp),
                 ),
               ],
-              if (!transaction.details.completed! && !_isExpired(transaction.details.timestamp))
+              if (shouldShowButton)
                 _buildActionButton(context, ref, transaction.details),
             ],
           ),
@@ -266,8 +280,8 @@ class BoltzTransactionDetailsScreen extends ConsumerWidget {
   }
 
   String _formatAmount(int satoshis, WidgetRef ref) {
-   final denomination = ref.read(settingsProvider).btcFormat;
-   return btcInDenominationFormatted(satoshis, denomination);
+    final denomination = ref.read(settingsProvider).btcFormat;
+    return btcInDenominationFormatted(satoshis, denomination);
   }
 
   Widget _buildActionButton(BuildContext context, WidgetRef ref, LbtcBoltz transaction) {

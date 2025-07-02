@@ -32,6 +32,13 @@ class SettingsModel extends StateNotifier<Settings> {
     state = state.copyWith(backup: backupStatus);
   }
 
+  // New method to handle the biometrics setting
+  Future<void> setBiometricsEnabled(bool enabled) async {
+    final box = await Hive.openBox('settings');
+    box.put('biometricsEnabled', enabled);
+    state = state.copyWith(biometricsEnabled: enabled);
+  }
+
   Future<void> setBitcoinElectrumNode(String newElectrumNode) async {
     final box = await Hive.openBox('settings');
     box.put('bitcoinElectrumNode', newElectrumNode);
@@ -64,6 +71,7 @@ class Settings {
   late bool online;
   final bool balanceVisible;
   final bool backup;
+  final bool biometricsEnabled; // New property
   final String bitcoinElectrumNode;
   final String liquidElectrumNode;
   final String nodeType;
@@ -76,6 +84,7 @@ class Settings {
     required this.online,
     required this.backup,
     required this.balanceVisible,
+    required this.biometricsEnabled, // Add to constructor
     required this.bitcoinElectrumNode,
     required this.liquidElectrumNode,
     required this.nodeType,
@@ -89,7 +98,7 @@ class Settings {
     bool? online,
     bool? balanceVisible,
     bool? backup,
-    bool? pixOnboarding,
+    bool? biometricsEnabled, // Add to copyWith
     String? pixPaymentCode,
     String? bitcoinElectrumNode,
     String? liquidElectrumNode,
@@ -102,6 +111,7 @@ class Settings {
       balanceVisible: balanceVisible ?? this.balanceVisible,
       online: online ?? this.online,
       backup: backup ?? this.backup,
+      biometricsEnabled: biometricsEnabled ?? this.biometricsEnabled, // Add to copyWith logic
       bitcoinElectrumNode: bitcoinElectrumNode ?? this.bitcoinElectrumNode,
       liquidElectrumNode: liquidElectrumNode ?? this.liquidElectrumNode,
       nodeType: nodeType ?? this.nodeType,

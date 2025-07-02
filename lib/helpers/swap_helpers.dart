@@ -1697,7 +1697,7 @@ Widget buildAdvancedOptionsCard(WidgetRef ref) {
           bottom: BorderSide(color: Colors.transparent),
         ),
         title: Text(
-          'Transaction fees'.i18n,
+          'Transaction fees and limits'.i18n,
           style: TextStyle(
             color: Colors.white,
             fontSize: 16.sp,
