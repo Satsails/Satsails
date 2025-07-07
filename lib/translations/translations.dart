@@ -3386,8 +3386,8 @@ extension Localization on String {
         'pt': 'Trocas'
       }+
       {
-        'en': 'Bridge To Other Wallets',
-        'pt': 'Ponte Para Outras Carteiras'
+        'en': 'To Other Wallets',
+        'pt': 'Para Outras Carteiras'
       }+
       {
         'en': 'Swap non-native assets from other networks with your Satsails assets.',
