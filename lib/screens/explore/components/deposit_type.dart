@@ -146,24 +146,6 @@ class DepositTypeScreen extends ConsumerWidget {
                         onChanged: (value) {
                           if (value != null) {
                             ref.read(selectedCryptoTypeProvider.notifier).state = value;
-                            final selectedProvider = ref.read(computedDepositProvider);
-                            if (selectedProvider == DepositProvider.Nox) {
-                              ShiftPair shiftPair;
-                              switch (value) {
-                                case DepositType.Bitcoin:
-                                  shiftPair = ShiftPair.usdcAvaxToBtc;
-                                  break;
-                                case DepositType.LiquidBitcoin:
-                                  shiftPair = ShiftPair.usdcAvaxToLiquidBtc;
-                                  break;
-                                case DepositType.USDT:
-                                  shiftPair = ShiftPair.usdcAvaxToLiquidUsdt;
-                                  break;
-                                default:
-                                  shiftPair = ShiftPair.usdcAvaxToBtc;
-                              }
-                              ref.read(selectedShiftPairProviderFromFiatPurchases.notifier).state = shiftPair;
-                            }
                           }
                         },
                       ),

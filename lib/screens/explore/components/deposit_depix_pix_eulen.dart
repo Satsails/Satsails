@@ -28,7 +28,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
   double feePercentage = 0;
   double cashBack = 0;
   String amountPurchasedToday = '0';
-  String registeredTaxId = 'Loading...';
   bool pixPayed = false;
   Timer? _paymentCheckTimer;
 
@@ -36,7 +35,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
   void initState() {
     super.initState();
     _fetchAmountPurchasedToday();
-    _fetchTaxId();
   }
 
   Future<void> _fetchAmountPurchasedToday() async {
@@ -45,15 +43,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
       setState(() => amountPurchasedToday = result);
     } catch (e) {
       setState(() => amountPurchasedToday = '0');
-    }
-  }
-
-  Future<void> _fetchTaxId() async {
-    try {
-      final result = await ref.read(getRegisteredTaxIdProvider.future);
-      setState(() => registeredTaxId = result);
-    } catch (e) {
-      setState(() => registeredTaxId = 'Loading...');
     }
   }
 
@@ -222,19 +211,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                               Expanded(
                                 child: Text(
                                   'Amount Purchased Today:'.i18n  + ' R\$ $amountPurchasedToday'.i18n,
-                                  style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 12.h),
-                          Row(
-                            children: [
-                              Icon(Icons.verified_user, color: Colors.white, size: 20.sp),
-                              SizedBox(width: 8.w),
-                              Expanded(
-                                child: Text(
-                                  'Registered Tax id: '.i18n + registeredTaxId.i18n,
                                   style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
                               ),

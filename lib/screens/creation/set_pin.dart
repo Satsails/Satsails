@@ -32,65 +32,66 @@ class _SetPinState extends ConsumerState<SetPin> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32.w),
-          child: Column(
-            children: [
-              SizedBox(height: 20.h),
-              Text(
-                'Create a PIN'.i18n,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 28.sp,
-                  fontWeight: FontWeight.bold,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 32.w),
+            // We removed the fixed-height SizedBox and will use SizedBox for spacing instead of Spacer.
+            child: Column(
+              children: [
+                SizedBox(height: 20.h),
+                Text(
+                  'Create a PIN'.i18n,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 28.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              SizedBox(height: 16.h),
-              Text(
-                'This PIN will be used to unlock your wallet'.i18n,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 16.sp,
+                SizedBox(height: 16.h),
+                Text(
+                  'This PIN will be used to unlock your wallet'.i18n,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 16.sp,
+                  ),
                 ),
-              ),
-              const Spacer(),
-              PinProgressIndicator(currentLength: pin.length),
-              const Spacer(flex: 2),
-              CustomKeypad(
-                onDigitPressed: (digit) {
-                  if (pin.length < 6) {
-                    HapticFeedback.lightImpact();
-                    setState(() => pin += digit);
-                  }
-                },
-                onBackspacePressed: () {
-                  if (pin.isNotEmpty) {
-                    HapticFeedback.lightImpact();
-                    setState(() => pin = pin.substring(0, pin.length - 1));
-                  }
-                },
-                // Biometric option is not needed on the set pin screen
-              ),
-              const Spacer(),
-              // Using AnimatedOpacity with your CustomButton
-              AnimatedOpacity(
-                opacity: pin.length == 6 ? 1.0 : 0.5,
-                duration: const Duration(milliseconds: 300),
-                child: CustomButton(
-                  text: 'Next'.i18n,
-                  onPressed: pin.length == 6
-                      ? () {
-                    ref.read(pinProvider.notifier).state = pin;
-                    context.push('/confirm_pin');
-                  }
-                      : () {}, // Pass an empty function to disable interaction
-                  primaryColor: Colors.green,
-                  secondaryColor: Colors.green,
+                SizedBox(height: 50.h), // Replaced Spacer
+                PinProgressIndicator(currentLength: pin.length),
+                SizedBox(height: 50.h), // Replaced Spacer(flex: 2)
+                CustomKeypad(
+                  onDigitPressed: (digit) {
+                    if (pin.length < 6) {
+                      HapticFeedback.lightImpact();
+                      setState(() => pin += digit);
+                    }
+                  },
+                  onBackspacePressed: () {
+                    if (pin.isNotEmpty) {
+                      HapticFeedback.lightImpact();
+                      setState(() => pin = pin.substring(0, pin.length - 1));
+                    }
+                  },
                 ),
-              ),
-              SizedBox(height: 40.h),
-            ],
+                SizedBox(height: 30.h), // Replaced Spacer
+                AnimatedOpacity(
+                  opacity: pin.length == 6 ? 1.0 : 0.5,
+                  duration: const Duration(milliseconds: 300),
+                  child: CustomButton(
+                    text: 'Next'.i18n,
+                    onPressed: pin.length == 6
+                        ? () {
+                      ref.read(pinProvider.notifier).state = pin;
+                      context.push('/confirm_pin');
+                    }
+                        : () {},
+                    primaryColor: Colors.green,
+                    secondaryColor: Colors.green,
+                  ),
+                ),
+                SizedBox(height: 40.h),
+              ],
+            ),
           ),
         ),
       ),

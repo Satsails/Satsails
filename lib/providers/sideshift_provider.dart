@@ -101,7 +101,6 @@ final sideshiftAssetPairProvider = Provider.family<SideshiftAssetPair, ShiftPair
 });
 
 final selectedShiftPairProvider = StateProvider<ShiftPair?>((ref) => null);
-final selectedShiftPairProviderFromFiatPurchases = StateProvider<ShiftPair>((ref) => ShiftPair.usdcAvaxToLiquidBtc);
 
 final updateSideShiftShiftsProvider = FutureProvider.family.autoDispose<void, List<String>>((ref, shiftIds) async {
   final result = await SideShiftService.getShiftsByIds(shiftIds);
