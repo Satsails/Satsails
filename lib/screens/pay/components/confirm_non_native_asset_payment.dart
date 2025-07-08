@@ -520,8 +520,8 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                           contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                         ),
                         onChanged: (value) {
-                          final amount = (double.tryParse(value) ?? 0.0) * 100000000;
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput(amount.toInt().toString(), 'sats');
+                          final amount = (double.tryParse(value) ?? 0.0);
+                          ref.read(sendTxProvider.notifier).updateAmountFromInput(amount.toString(), 'sats');
                         },
                       ),
                     ),
@@ -530,9 +530,9 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                       child: GestureDetector(
                         onTap: () {
                           try {
-                            final adjustedAmount = (balance * 0.95);
+                            final adjustedAmount = (balance * 0.95) / 100000000;
                             ref.read(sendTxProvider.notifier).updateAmountFromInput(adjustedAmount.toString(), 'sats');
-                            amountController.text = (adjustedAmount / 100000000).toStringAsFixed(2);
+                            amountController.text = (adjustedAmount).toStringAsFixed(2);
                           } catch (e) {
                             showMessageSnackBar(message: e.toString().i18n, error: true, context: context);
                           }

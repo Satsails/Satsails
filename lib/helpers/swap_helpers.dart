@@ -81,7 +81,7 @@ List<String> getAssets(WidgetRef ref) {
   ];
 }
 
-final swapTypeProvider = StateProvider.autoDispose<SwapType?>((ref) {
+final swapTypeProvider = StateProvider.autoDispose<SwapType>((ref) {
   final fromAsset = ref.watch(fromAssetProvider);
   final toAsset = ref.watch(toAssetProvider);
   final combinedKey = '$fromAsset-$toAsset';
@@ -129,9 +129,8 @@ final swapTypeProvider = StateProvider.autoDispose<SwapType?>((ref) {
     case 'USDT-Eurox':
       return SwapType.sideswapUsdtToEurox;
 
-
     default:
-      return null;
+      throw UnimplementedError('Swap type for $combinedKey is not supported.');
   }
 });
 
@@ -450,7 +449,7 @@ Widget _simpleFeeText(String label, double fee, WidgetRef ref) {
 
 Widget buildBalanceCardWithMaxButton(WidgetRef ref, TextEditingController controller) {
   final balance = ref.watch(balanceFromAssetProvider);
-  final swapType = ref.watch(swapTypeProvider)!;
+  final swapType = ref.watch(swapTypeProvider);
   final btcFormat = ref.watch(settingsProvider).btcFormat;
 
   return Padding(
@@ -847,7 +846,7 @@ Widget assetLogic(
     TextEditingController controller, {
       bool receiveAsset = true,
     }) {
-  final swapType = ref.watch(swapTypeProvider)!;
+  final swapType = ref.watch(swapTypeProvider);
 
   double widgetHeight = 70.0.w;
 

@@ -32,12 +32,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   void initState() {
     super.initState();
-    // Start the initial sync and then set a timer for a subsequent sync.
     _performSync();
-    _syncTimer = Timer(const Duration(seconds: 20), _performSync);
+
+    _syncTimer = Timer.periodic(const Duration(seconds: 20), (_) => _performSync());
   }
 
-  /// Performs the actual data sync.
   void _performSync() {
     if (!ref.read(backgroundSyncInProgressProvider)) {
       ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
@@ -68,7 +67,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         currentIndex: currentIndex,
         onTap: (index) {
           if (currentIndex != index) {
-            ref.read(sendTxProvider.notifier).resetToDefault(); // Example if not auto-disposed
+            ref.read(sendTxProvider.notifier).resetToDefault();
             ref.read(navigationProvider.notifier).state = index;
           }
         },

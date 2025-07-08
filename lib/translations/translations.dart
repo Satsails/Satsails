@@ -3490,6 +3490,10 @@ extension Localization on String {
         'pt': 'O valor é muito pequeno. O mínimo é',
       }+
       {
+        'en': 'Amount is too large. Maximum amount is',
+        'pt': 'O valor é muito grande. O máximo é',
+      }+
+      {
         'en': 'External Asset',
         'pt': 'Ativo externo'
       }+
