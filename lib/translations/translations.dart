@@ -3382,8 +3382,8 @@ extension Localization on String {
         'pt': 'Excluir carteira'
       }+
       {
-        'en': 'Swaps',
-        'pt': 'Trocas'
+        'en': 'Within Satsails',
+        'pt': 'Dentro da Satsails'
       }+
       {
         'en': 'To Other Wallets',

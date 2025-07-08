@@ -191,7 +191,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
       ),
       child: Row(
         children: [
-          _buildPickerOption(SwapSection.internal, 'Swaps'),
+          _buildPickerOption(SwapSection.internal, 'Within Satsails'),
           _buildPickerOption(SwapSection.external, 'To Other Wallets'),
         ],
       ),

@@ -107,9 +107,11 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   late final GoRouter _router;
   late final StreamSubscription<Map> _branchSubscription;
 
+  // No longer using a Timer. We'll use a nullable DateTime.
+  DateTime? _pauseTime;
+
   bool _isFirstResume = true;
   bool _isBlurred = false;
-  bool _wasPaused = false;
 
   @override
   void initState() {
@@ -146,22 +148,41 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
           _isBlurred = false;
           if (_isFirstResume) {
             _isFirstResume = false;
-          } else if (_wasPaused) {
-            _router.go('/splash');
+            _pauseTime = null;
+            break;
           }
-          _wasPaused = false;
+
+          final gracePeriod = const Duration(seconds: 30);
+          if (_pauseTime != null) {
+            final elapsed = DateTime.now().difference(_pauseTime!);
+            if (elapsed > gracePeriod) {
+              _router.go('/splash');
+            }
+          }
+
+          // Reset the pause time for the next cycle.
+          _pauseTime = null;
           break;
+
         case AppLifecycleState.inactive:
           _isBlurred = true;
+          if (_pauseTime == null) {
+            _pauseTime = DateTime.now();
+          }
           break;
+
         case AppLifecycleState.paused:
           _isBlurred = true;
-          _wasPaused = true;
+          _pauseTime = DateTime.now();
           break;
+
         case AppLifecycleState.detached:
         case AppLifecycleState.hidden:
-          _isBlurred = true;
-          break;
+        _isBlurred = true;
+        if (_pauseTime == null) {
+          _pauseTime = DateTime.now();
+        }
+        break;
       }
     });
   }
