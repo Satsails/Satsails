@@ -61,6 +61,19 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
     btcFormat = settings.btcFormat;
     currency = settings.currency;
     currencyRate = ref.read(selectedCurrencyProvider(currency));
+
+    if (shiftPair == ShiftPair.liquidBtcToBtc) {
+      balance = ref.read(balanceNotifierProvider).liquidBtcBalance;
+      final sendTxState = ref.read(sendTxProvider);
+      updateAmountControllerText(sendTxState.amount);
+      addressController.text = sendTxState.address ?? '';
+    } else {
+      balance = ref.read(balanceNotifierProvider).liquidUsdtBalance;
+      final sendTxState = ref.read(sendTxProvider);
+      if (sendTxState.amount > 0) {
+        amountController.text = (sendTxState.amount / 100000000).toStringAsFixed(2);
+      }
+    }
   }
 
   void updateAmountControllerText(int satsAmount) {
@@ -371,6 +384,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
         throw "${"Amount is too large. Maximum amount is".i18n} ${shift.depositMax} $depositCoin";
       }
 
+      // 4. Now that provider has correct address, calculate fee and show modal
       bool confirmed = false;
       if (shiftPair == ShiftPair.liquidBtcToBtc) {
         final fee = await ref.read(liquidFeeProvider.future); // This will now succeed
