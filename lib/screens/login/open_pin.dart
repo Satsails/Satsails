@@ -41,10 +41,6 @@ class _OpenPinState extends ConsumerState<OpenPin>
   void initState() {
     super.initState();
     _setupAnimations();
-    // Attempt to authenticate with biometrics as soon as the screen loads
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _tryBiometricsOnLoad();
-    });
   }
 
   void _setupAnimations() {
@@ -60,17 +56,6 @@ class _OpenPinState extends ConsumerState<OpenPin>
           _animationController.reverse();
         }
       });
-  }
-
-  Future<void> _tryBiometricsOnLoad() async {
-    // Check if biometrics are enabled in settings before trying
-    final biometricsEnabled = ref.read(settingsProvider).biometricsEnabled;
-    if (!biometricsEnabled) return;
-
-    bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
-    if (canCheckBiometrics && mounted) {
-      _checkBiometrics(context, ref);
-    }
   }
 
   Future<void> _checkPin(BuildContext context, WidgetRef ref) async {
@@ -142,7 +127,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
       _attempts = 0;
       ref.read(appLockedProvider.notifier).state = false;
       ref.read(sendTxProvider.notifier).resetToDefault();
-      // ref.read(sendBlocksProvider.notifier).state = 1; // This provider seems to be missing
+      ref.read(sendBlocksProvider.notifier).state = 1;
       context.go('/home');
     } finally {
       if (mounted) {

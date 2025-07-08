@@ -502,7 +502,8 @@ Widget _buildSideshiftTransactionItem(
   }
   String locale = I18n.locale.languageCode ?? 'en';
   // Format the transaction date
-  final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(transaction.timestamp);
+  final formattedDate =
+  DateFormat('d, MMMM, HH:mm', locale).format(transaction.timestamp);
 
   return GestureDetector(
     onTap: () {
@@ -571,19 +572,35 @@ Widget _buildSideshiftTransactionItem(
                       ),
                     ),
                     if (isConfirmed)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            "${double.parse(details.settleAmount).toStringAsFixed(2)} ${details.settleCoin}",
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          () {
+                        // Use an IIFE to scope the logic for calculating amount text
+                        final btcFormat = ref.watch(settingsProvider).btcFormat;
+                        String amountText;
+
+                        if (details.settleCoin.toLowerCase() == 'btc') {
+                          final amountInSats =
+                          (double.parse(details.settleAmount) * 100000000)
+                              .toInt();
+                          amountText =
+                          "${btcInDenominationFormatted(amountInSats, btcFormat)} ${btcFormat.toUpperCase()}";
+                        } else {
+                          amountText =
+                          "${double.parse(details.settleAmount).toStringAsFixed(2)} ${details.settleCoin.toUpperCase()}";
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              amountText,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        );
+                      }(),
                   ],
                 ),
               ),

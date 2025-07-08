@@ -168,7 +168,7 @@ class _AccountsState extends ConsumerState<Accounts> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        height: isExpanded ? 220.sp : 120.sp,
+        height: isExpanded ? 220.sp : 130.sp,
         decoration: BoxDecoration(
           color: const Color(0xFF333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(20.r),
@@ -184,9 +184,6 @@ class _AccountsState extends ConsumerState<Accounts> {
               Expanded(
                   child: Text(title, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis)
               ),
-              // =========================================================================
-              // NEW: Added expand/collapse button for clear user affordance.
-              // =========================================================================
               IconButton(
                 icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more, color: Colors.white70),
                 onPressed: onTap,

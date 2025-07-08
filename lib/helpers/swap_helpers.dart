@@ -366,7 +366,7 @@ Widget getAssetImage(String? asset, {double? width, double? height}) {
     case 'Lightning Bitcoin':
       return Image.asset('lib/assets/Bitcoin_lightning_logo.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
     default:
-      return Image.asset('lib/assets/app_icon.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
+      return Image.asset('lib/assets/bitcoin-logo.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
   }
 }
 

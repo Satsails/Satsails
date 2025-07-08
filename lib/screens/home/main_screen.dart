@@ -32,22 +32,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _performSync();
-    });
-  }
-
-  /// Starts the periodic sync timer.
-  void _startPeriodicSync() {
-    _syncTimer?.cancel();
-    _syncTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      _performSync();
-    });
-  }
-
-  /// Cancels the sync timer.
-  void _stopPeriodicSync() {
-    _syncTimer?.cancel();
+    // Start the initial sync and then set a timer for a subsequent sync.
+    _performSync();
+    _syncTimer = Timer(const Duration(seconds: 20), _performSync);
   }
 
   /// Performs the actual data sync.
@@ -68,15 +55,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final currentIndex = ref.watch(navigationProvider);
 
     ref.listen<int>(navigationProvider, (previous, next) {
-      if (previous == next) return;
+      if (previous == next || next == 2) return;
 
-      if (next == 0) {
-        _performSync();
-        _startPeriodicSync();
-      } else {
-        _stopPeriodicSync();
-        _performSync();
-      }
+      _performSync();
     });
 
     return Scaffold(

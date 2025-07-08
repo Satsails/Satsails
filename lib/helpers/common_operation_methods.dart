@@ -312,7 +312,7 @@ Widget sideshiftTransactionTypeIcon() {
     );
   }
 
-  return circularIcon(Icons.currency_exchange_outlined, Colors.orange);
+  return circularIcon(Icons.swap_horiz, Colors.orange);
 }
 
   Widget boltzTransactionTypeIcon() {
