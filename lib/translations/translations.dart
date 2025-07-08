@@ -3596,6 +3596,10 @@ extension Localization on String {
       {
         "en": "Amount to Send",
         "pt": "Valor a Enviar"
+      }+
+      {
+        "en": "A 1% service fee is applied, excluding network fees.",
+        "pt": "Uma taxa de serviço de 1% é aplicada, excluindo as taxas de rede"
       };
 
   String get i18n => localize(this, _t);

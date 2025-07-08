@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
@@ -29,10 +30,12 @@ class ConfirmNonNativeAssetPayment extends ConsumerStatefulWidget {
   const ConfirmNonNativeAssetPayment({super.key});
 
   @override
-  _ConfirmNonNativeAssetPaymentState createState() => _ConfirmNonNativeAssetPaymentState();
+  _ConfirmNonNativeAssetPaymentState createState() =>
+      _ConfirmNonNativeAssetPaymentState();
 }
 
-class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeAssetPayment> {
+class _ConfirmNonNativeAssetPaymentState
+    extends ConsumerState<ConfirmNonNativeAssetPayment> {
   final TextEditingController amountController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   bool isProcessing = false;
@@ -333,7 +336,9 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                 children: [
                   Expanded(
                     child: SingleChildScrollView(
-                      child: shiftPair == ShiftPair.liquidBtcToBtc ? _buildLiquidBtcUi() : _buildNonNativeUi(),
+                      child: shiftPair == ShiftPair.liquidBtcToBtc
+                          ? _buildLiquidBtcUi()
+                          : _buildNonNativeUi(),
                     ),
                   ),
                   ActionSlider.standard(
@@ -550,6 +555,11 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
             ),
           ],
         ),
+        SizedBox(height: 16.h),
+        Text(
+          "A 1% service fee is applied, excluding network fees.".i18n,
+          style: TextStyle(color: Colors.grey[400], fontSize: 14.sp),
+        ),
       ],
     );
   }
@@ -644,6 +654,11 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
               ),
             ),
           ],
+        ),
+        SizedBox(height: 16.h),
+        Text(
+          "A 1% service fee is applied, excluding network fees.".i18n,
+          style: TextStyle(color: Colors.grey[400], fontSize: 14.sp),
         ),
       ],
     );
