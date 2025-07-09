@@ -65,15 +65,24 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     final now = DateTime.now().dateOnly();
     DateTime start;
     switch (range) {
-      case '7D': start = now.subtract(const Duration(days: 6)); break;
-      case '1M': start = now.subtract(const Duration(days: 29)); break;
-      case '3M': start = now.subtract(const Duration(days: 89)); break;
-      case '1Y': start = now.subtract(const Duration(days: 364)); break;
+      case '7D':
+        start = now.subtract(const Duration(days: 6));
+        break;
+      case '1M':
+        start = now.subtract(const Duration(days: 29));
+        break;
+      case '3M':
+        start = now.subtract(const Duration(days: 89));
+        break;
+      case '1Y':
+        start = now.subtract(const Duration(days: 364));
+        break;
       case 'ALL':
-        final ts = ref.read(transactionNotifierProvider).earliestTimestamp;
+        final ts = ref.read(transactionNotifierProvider).value?.earliestTimestamp;
         start = ts?.dateOnly() ?? now.subtract(const Duration(days: 364 * 5));
         break;
-      default: start = now.subtract(const Duration(days: 29));
+      default:
+        start = now.subtract(const Duration(days: 29));
     }
     ref.read(dateTimeSelectProvider.notifier).state = DateTimeSelect(start: start, end: now);
   }

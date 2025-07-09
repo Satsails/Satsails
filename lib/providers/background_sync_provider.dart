@@ -175,7 +175,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
 
         await _updateSideShiftShifts();
         await ref.read(claimAllBoltzProvider.future);
-        await ref.read(transactionNotifierProvider.notifier).refreshTransactions();
+        await ref.read(transactionNotifierProvider.notifier).refreshAndMergeTransactions();
 
         final hiveBox = await Hive.openBox<WalletBalance>('balanceBox');
         await hiveBox.put('balance', balanceData);

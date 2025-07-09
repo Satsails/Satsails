@@ -24,7 +24,7 @@ class _CashbackDisplay extends ConsumerWidget {
     final transaction = ref.watch(transactionNotifierProvider);
     final cashbackToReceive = isBalanceVisible
         ? btcInDenominationFormatted(
-      transaction.unpaidCashback * 100000000,
+      transaction.value?.unpaidCashback ?? 0 * 100000000,
       denomination,
     )
         : '***';

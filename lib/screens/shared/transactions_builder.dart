@@ -156,7 +156,7 @@ class _TransactionListState extends ConsumerState<TransactionList> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final transactionState = ref.watch(transactionNotifierProvider);
-    final allTransactions = widget.transactions ?? transactionState.allTransactionsSorted;
+    final allTransactions = widget.transactions ?? transactionState.value?.allTransactionsSorted ?? [];
 
     final filteredTransactions = widget.showAll
         ? allTransactions

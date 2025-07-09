@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:Satsails/models/boltz_model.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
-import 'package:Satsails/models/sideshift_model.dart'; // Assuming this exists for SideShift
+import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
@@ -17,20 +19,42 @@ import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk/lwk.dart' as lwk;
 
-class TransactionModel extends StateNotifier<Transaction> {
-  final Ref ref;
-
-  TransactionModel(this.ref) : super(Transaction.empty()) {
-    fetchAndUpdateTransactions(); // Initial fetch and state update
+class TransactionNotifier extends AsyncNotifier<Transaction> {
+  @override
+  Future<Transaction> build() async {
+    return _fetchAllTransactions();
   }
 
-  Future<void> refreshTransactions() async {
-    await fetchAndUpdateTransactions();
+  Future<void> refreshAndMergeTransactions() async {
+    final previousState = state.value ?? Transaction.empty();
+    final newState = await _fetchAllTransactions();
+    final merged = Transaction(
+      bitcoinTransactions: _merge(previousState.bitcoinTransactions, newState.bitcoinTransactions),
+      liquidTransactions: _merge(previousState.liquidTransactions, newState.liquidTransactions),
+      sideswapPegTransactions: _merge(previousState.sideswapPegTransactions, newState.sideswapPegTransactions),
+      sideswapInstantSwapTransactions: _merge(previousState.sideswapInstantSwapTransactions, newState.sideswapInstantSwapTransactions),
+      eulenTransactions: _merge(previousState.eulenTransactions, newState.eulenTransactions),
+      noxTransactions: _merge(previousState.noxTransactions, newState.noxTransactions),
+      boltzTransactions: _merge(previousState.boltzTransactions, newState.boltzTransactions),
+      sideShiftTransactions: _merge(previousState.sideShiftTransactions, newState.sideShiftTransactions),
+    );
+    state = AsyncData(merged);
   }
 
-  Future<void> fetchAndUpdateTransactions() async {
+  List<T> _merge<T extends BaseTransaction>(List<T> oldList, List<T> newList) {
+    final map = <String, T>{};
+    for (final tx in oldList) {
+      map[tx.id] = tx;
+    }
+    for (final tx in newList) {
+      map[tx.id] = tx;
+    }
+    return map.values.toList();
+  }
+
+  Future<Transaction> _fetchAllTransactions() async {
     ref.read(addressProvider);
-    // Fetch Bitcoin transactions
+
     final bitcoinTxs = await ref.refresh(getBitcoinTransactionsProvider.future);
     final bitcoinTransactions = bitcoinTxs.map((btcTx) {
       return BitcoinTransaction(
@@ -43,7 +67,6 @@ class TransactionModel extends StateNotifier<Transaction> {
       );
     }).toList();
 
-    // Fetch Liquid transactions
     final liquidTxs = await ref.refresh(liquidTransactionsProvider.future);
     final liquidTransactions = liquidTxs.map((lwkTx) {
       return LiquidTransaction(
@@ -56,7 +79,6 @@ class TransactionModel extends StateNotifier<Transaction> {
       );
     }).toList();
 
-    // Fetch Sideswap Peg transactions
     final sideswapPegTxs = ref.watch(sideswapAllPegsProvider);
     final sideswapPegTransactions = sideswapPegTxs.map((pegTx) {
       return SideswapPegTransaction(
@@ -67,7 +89,6 @@ class TransactionModel extends StateNotifier<Transaction> {
       );
     }).toList();
 
-    // Fetch Eulen transactions
     final eulenPurchases = ref.watch(eulenTransferProvider);
     final eulenTransactions = eulenPurchases.map((pixTx) {
       return EulenTransaction(
@@ -78,7 +99,6 @@ class TransactionModel extends StateNotifier<Transaction> {
       );
     }).toList();
 
-    // Fetch Nox transactions
     final noxPurchases = ref.watch(noxTransferProvider);
     final noxTransactions = noxPurchases.map((pixTx) {
       return NoxTransaction(
@@ -89,7 +109,6 @@ class TransactionModel extends StateNotifier<Transaction> {
       );
     }).toList();
 
-    // Fetch Boltz transactions
     final boltzSwaps = ref.watch(boltzSwapProvider);
     final boltzTransactions = boltzSwaps.map((swap) {
       return BoltzTransaction(
@@ -100,7 +119,6 @@ class TransactionModel extends StateNotifier<Transaction> {
       );
     }).toList();
 
-    // Fetch SideShift transactions
     final sideShiftShifts = ref.watch(sideShiftShiftsProvider);
     final sideShiftTransactions = sideShiftShifts.map((shift) {
       return SideShiftTransaction(
@@ -111,11 +129,11 @@ class TransactionModel extends StateNotifier<Transaction> {
       );
     }).toList();
 
-    // Update state using copyWith
-    state = state.copyWith(
+    return Transaction(
       bitcoinTransactions: bitcoinTransactions,
       liquidTransactions: liquidTransactions,
       sideswapPegTransactions: sideswapPegTransactions,
+      sideswapInstantSwapTransactions: [],
       eulenTransactions: eulenTransactions,
       noxTransactions: noxTransactions,
       boltzTransactions: boltzTransactions,
@@ -123,7 +141,6 @@ class TransactionModel extends StateNotifier<Transaction> {
     );
   }
 }
-
 
 abstract class BaseTransaction {
   final String id;
@@ -335,7 +352,7 @@ class Transaction {
     swaps.addAll(sideswapPegTransactions);
     swaps.addAll(liquidTransactions.where((tx) => tx.lwkDetails.kind == 'unknown'));
     swaps.addAll(boltzTransactions);
-    swaps.addAll(sideShiftTransactions); // Include SideShift in swaps if applicable
+    swaps.addAll(sideShiftTransactions);
     swaps.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return swaps;
   }

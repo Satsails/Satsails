@@ -44,7 +44,13 @@ DateTime normalizeDate(DateTime date) {
 }
 
 final bitcoinBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
-  final transactions = ref.watch(transactionNotifierProvider).bitcoinTransactions;
+  final transactionsAsync = ref.watch(transactionNotifierProvider);
+  if (!transactionsAsync.hasValue) {
+    return {};
+  }
+
+  final transactionData = transactionsAsync.value!;
+  final transactions = transactionData.bitcoinTransactions;
   final Map<DateTime, num> balancePerDay = {};
 
   transactions.sort((a, b) {
@@ -55,18 +61,17 @@ final bitcoinBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((
     } else if (b.btcDetails.confirmationTime  == null) {
       return 1;
     } else {
-      return a.btcDetails.confirmationTime !.timestamp.compareTo(b.btcDetails.confirmationTime !.timestamp);
+      return a.btcDetails.confirmationTime!.timestamp.compareTo(b.btcDetails.confirmationTime!.timestamp);
     }
   });
 
   num cumulativeBalance = 0;
-
   for (BitcoinTransaction transaction in transactions) {
-    if (transaction.btcDetails.confirmationTime  == null || transaction.btcDetails.confirmationTime !.timestamp == 0) {
+    if (transaction.btcDetails.confirmationTime  == null || transaction.btcDetails.confirmationTime!.timestamp == 0) {
       continue;
     }
 
-    final DateTime date = transaction.btcDetails.confirmationTime  == null || transaction.btcDetails.confirmationTime !.timestamp == 0
+    final DateTime date = transaction.btcDetails.confirmationTime  == null || transaction.btcDetails.confirmationTime!.timestamp == 0
         ? normalizeDate(DateTime.now())
         : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.btcDetails.confirmationTime!.timestamp.toInt() * 1000));
     var netAmount = transaction.btcDetails.received - transaction.btcDetails.sent;
@@ -143,38 +148,40 @@ final bitcoinBalanceInFormatByDayProvider = StateProvider.autoDispose<Map<DateTi
 });
 
 final liquidBalanceOverPeriod = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
-  final transactions = ref.watch(transactionNotifierProvider).liquidTransactions;
-  final Map<DateTime, num> balancePerDay = {};
+  final transactionsAsync = ref.watch(transactionNotifierProvider);
+  if (!transactionsAsync.hasValue) {
+    return {};
+  }
+
+  final transactions = transactionsAsync.value!.liquidTransactions;
+  final balancePerDay = <DateTime, num>{};
 
   transactions.sort((a, b) {
-    if (a.timestamp == null && b.timestamp == null) {
-      return 0;
-    } else {
-      return a.timestamp.compareTo(b.timestamp);
-    }
-
+    if (a.timestamp == null && b.timestamp == null) return 0;
+    if (a.timestamp == null) return -1;
+    if (b.timestamp == null) return 1;
+    return a.timestamp.compareTo(b.timestamp);
   });
 
   num cumulativeBalance = 0;
-
-  for (LiquidTransaction transaction in transactions) {
-    if (transaction.timestamp == 0) {
+  for (final transaction in transactions) {
+    if (transaction.timestamp == null || transaction.timestamp.millisecondsSinceEpoch == 0) {
       continue;
     }
 
-    final DateTime date = normalizeDate(transaction.timestamp);
-    final hasSentAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value < 0);
-    final hasReceivedAsset = transaction.lwkDetails.balances.any((element) => element.assetId == asset && element.value > 0);
-    if (hasSentAsset || hasReceivedAsset) {
-      final sentValue = transaction.lwkDetails.balances.firstWhere((element) => element.assetId == asset && element.value < 0, orElse: () => lwk.Balance(assetId: asset, value: 0)).value;
-      final receivedValue = transaction.lwkDetails.balances.firstWhere((element) => element.assetId == asset && element.value > 0, orElse: () => lwk.Balance(assetId: asset, value: 0)).value;
-      final netAmount = receivedValue + sentValue;
+    num netAmount = 0;
+    for (final balance in transaction.lwkDetails.balances) {
+      if (balance.assetId == asset) {
+        netAmount += balance.value;
+      }
+    }
 
+    if (netAmount != 0) {
+      final date = normalizeDate(transaction.timestamp);
       cumulativeBalance += netAmount;
       balancePerDay[date] = cumulativeBalance;
     }
   }
-
   return balancePerDay;
 });
 

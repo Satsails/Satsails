@@ -34,7 +34,21 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     super.initState();
     _performSync();
 
-    _syncTimer = Timer.periodic(const Duration(seconds: 20), (_) => _performSync());
+    if (ref.read(navigationProvider) == 0) {
+      _startTimer();
+    }
+  }
+
+  /// Starts the periodic sync timer.
+  void _startTimer() {
+    _syncTimer?.cancel();
+    _syncTimer =
+        Timer.periodic(const Duration(seconds: 2), (_) => _performSync());
+  }
+
+  void _stopTimer() {
+    _syncTimer?.cancel();
+    _syncTimer = null;
   }
 
   void _performSync() {
@@ -45,7 +59,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   @override
   void dispose() {
-    _syncTimer?.cancel();
+    _stopTimer();
     super.dispose();
   }
 
@@ -54,8 +68,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final currentIndex = ref.watch(navigationProvider);
 
     ref.listen<int>(navigationProvider, (previous, next) {
-      if (previous == next || next == 2) return;
+      if (next == 0) {
+        _startTimer();
+      } else {
+        _stopTimer();
+      }
 
+      if (previous == next || next == 2) return;
       _performSync();
     });
 
