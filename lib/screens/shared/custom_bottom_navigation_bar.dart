@@ -21,7 +21,6 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   Widget build(BuildContext context) {
     final iconSize = 25.0.sp;
 
-    // List of navigation items
     final List<DotNavigationBarItem> bottomBarItems = [
       DotNavigationBarItem(
         icon: Icon(Icons.home, size: iconSize),
@@ -58,8 +57,9 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       backgroundColor: const Color(0x00333333).withOpacity(0.4),
       dotIndicatorColor: Colors.transparent,
       unselectedItemColor: Colors.grey[300],
-      marginR: EdgeInsets.zero, // Key change to remove external space
       splashColor: Colors.transparent,
+      marginR: EdgeInsets.zero,
+      itemPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
     );
   }
 }

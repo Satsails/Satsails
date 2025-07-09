@@ -39,11 +39,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     }
   }
 
-  /// Starts the periodic sync timer.
   void _startTimer() {
     _syncTimer?.cancel();
-    _syncTimer =
-        Timer.periodic(const Duration(seconds: 2), (_) => _performSync());
+    _syncTimer = Timer.periodic(const Duration(seconds: 2), (_) => _performSync());
   }
 
   void _stopTimer() {
@@ -52,6 +50,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   void _performSync() {
+    if (!mounted) return;
+
     if (!ref.read(backgroundSyncInProgressProvider)) {
       ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
     }

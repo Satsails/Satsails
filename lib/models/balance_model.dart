@@ -7,17 +7,7 @@ import 'package:riverpod/riverpod.dart';
 part 'balance_model.g.dart';
 
 class BalanceNotifier extends StateNotifier<WalletBalance> {
-  BalanceNotifier(this.ref)
-      : super(
-    WalletBalance(
-      onChainBtcBalance: 0,
-      liquidBtcBalance: 0,
-      liquidUsdtBalance: 0,
-      liquidEuroxBalance: 0,
-      liquidDepixBalance: 0,
-      sparkBitcoinbalance: 0,
-    ),
-  ) {
+  BalanceNotifier(this.ref) : super(WalletBalance.empty()) {
     _initialize();
   }
 
@@ -39,69 +29,27 @@ class BalanceNotifier extends StateNotifier<WalletBalance> {
   }
 
   void updateOnChainBtcBalance(int newBalance) {
-    state = WalletBalance(
-      onChainBtcBalance: newBalance,
-      liquidBtcBalance: state.liquidBtcBalance,
-      liquidUsdtBalance: state.liquidUsdtBalance,
-      liquidEuroxBalance: state.liquidEuroxBalance,
-      liquidDepixBalance: state.liquidDepixBalance,
-      sparkBitcoinbalance: state.sparkBitcoinbalance,
-    );
+    state = state.copyWith(onChainBtcBalance: newBalance);
   }
 
   void updateLiquidBtcBalance(int newBalance) {
-    state = WalletBalance(
-      onChainBtcBalance: state.onChainBtcBalance,
-      liquidBtcBalance: newBalance,
-      liquidUsdtBalance: state.liquidUsdtBalance,
-      liquidEuroxBalance: state.liquidEuroxBalance,
-      liquidDepixBalance: state.liquidDepixBalance,
-      sparkBitcoinbalance: state.sparkBitcoinbalance,
-    );
+    state = state.copyWith(liquidBtcBalance: newBalance);
   }
 
   void updateLiquidUsdtBalance(int newBalance) {
-    state = WalletBalance(
-      onChainBtcBalance: state.onChainBtcBalance,
-      liquidBtcBalance: state.liquidBtcBalance,
-      liquidUsdtBalance: newBalance,
-      liquidEuroxBalance: state.liquidEuroxBalance,
-      liquidDepixBalance: state.liquidDepixBalance,
-      sparkBitcoinbalance: state.sparkBitcoinbalance,
-    );
+    state = state.copyWith(liquidUsdtBalance: newBalance);
   }
 
   void updateLiquidEuroxBalance(int newBalance) {
-    state = WalletBalance(
-      onChainBtcBalance: state.onChainBtcBalance,
-      liquidBtcBalance: state.liquidBtcBalance,
-      liquidUsdtBalance: state.liquidUsdtBalance,
-      liquidEuroxBalance: newBalance,
-      liquidDepixBalance: state.liquidDepixBalance,
-      sparkBitcoinbalance: state.sparkBitcoinbalance,
-    );
+    state = state.copyWith(liquidEuroxBalance: newBalance);
   }
 
   void updateLiquidDepixBalance(int newBalance) {
-    state = WalletBalance(
-      onChainBtcBalance: state.onChainBtcBalance,
-      liquidBtcBalance: state.liquidBtcBalance,
-      liquidUsdtBalance: state.liquidUsdtBalance,
-      liquidEuroxBalance: state.liquidEuroxBalance,
-      liquidDepixBalance: newBalance,
-      sparkBitcoinbalance: state.sparkBitcoinbalance,
-    );
+    state = state.copyWith(liquidDepixBalance: newBalance);
   }
 
   void updateSparkBitcoinbalance(int newBalance) {
-    state = WalletBalance(
-      onChainBtcBalance: state.onChainBtcBalance,
-      liquidBtcBalance: state.liquidBtcBalance,
-      liquidUsdtBalance: state.liquidUsdtBalance,
-      liquidEuroxBalance: state.liquidEuroxBalance,
-      liquidDepixBalance: state.liquidDepixBalance,
-      sparkBitcoinbalance: newBalance,
-    );
+    state = state.copyWith(sparkBitcoinbalance: newBalance);
   }
 
   void updateBalance(WalletBalance newBalance) {
@@ -109,7 +57,6 @@ class BalanceNotifier extends StateNotifier<WalletBalance> {
   }
 }
 
-// The WalletBalance class remains unchanged, included here for completeness
 @HiveType(typeId: 26)
 class WalletBalance {
   @HiveField(0)
@@ -147,6 +94,35 @@ class WalletBalance {
     required this.liquidDepixBalance,
     int? sparkBitcoinbalance,
   }) : sparkBitcoinbalance = sparkBitcoinbalance ?? 0;
+
+  WalletBalance copyWith({
+    int? onChainBtcBalance,
+    int? liquidBtcBalance,
+    int? liquidUsdtBalance,
+    int? liquidEuroxBalance,
+    int? liquidDepixBalance,
+    int? sparkBitcoinbalance,
+  }) {
+    return WalletBalance(
+      onChainBtcBalance: onChainBtcBalance ?? this.onChainBtcBalance,
+      liquidBtcBalance: liquidBtcBalance ?? this.liquidBtcBalance,
+      liquidUsdtBalance: liquidUsdtBalance ?? this.liquidUsdtBalance,
+      liquidEuroxBalance: liquidEuroxBalance ?? this.liquidEuroxBalance,
+      liquidDepixBalance: liquidDepixBalance ?? this.liquidDepixBalance,
+      sparkBitcoinbalance: sparkBitcoinbalance ?? this.sparkBitcoinbalance,
+    );
+  }
+
+  factory WalletBalance.empty() {
+    return WalletBalance(
+      onChainBtcBalance: 0,
+      liquidBtcBalance: 0,
+      liquidUsdtBalance: 0,
+      liquidEuroxBalance: 0,
+      liquidDepixBalance: 0,
+      sparkBitcoinbalance: 0,
+    );
+  }
 
   factory WalletBalance.updateFromAssets(
       Balances balances, int bitcoinBalance, int sparkBitcoinbalance) {
@@ -243,7 +219,6 @@ class WalletBalance {
         (sparkBitcoinbalance ?? 0);
   }
 
-
   String totalBalanceInDenominationFormatted(
       String denomination, CurrencyConversions conversions) {
     double balanceInBTC = totalBalanceInCurrency('BTC', conversions);
@@ -280,7 +255,8 @@ class WalletBalance {
     return rate * params.amount / 100000000;
   }
 
-  double totalBalanceInCurrency(String currency, CurrencyConversions conversions) {
+  double totalBalanceInCurrency(
+      String currency, CurrencyConversions conversions) {
     double total = 0;
     num totalInBtc = totalBtcBalanceInDenomination('BTC');
     switch (currency) {
