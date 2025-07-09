@@ -19,7 +19,8 @@ class MainScreen extends ConsumerStatefulWidget {
 }
 
 class _MainScreenState extends ConsumerState<MainScreen> {
-  Timer? _syncTimer;
+  int _syncCount = 0;
+  bool _isHomeSyncActive = false;
 
   final List<Widget> _screens = const [
     Home(),
@@ -33,34 +34,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   void initState() {
     super.initState();
     _performSync();
-
-    if (ref.read(navigationProvider) == 0) {
-      _startTimer();
-    }
-  }
-
-  void _startTimer() {
-    _syncTimer?.cancel();
-    _syncTimer = Timer.periodic(const Duration(seconds: 2), (_) => _performSync());
-  }
-
-  void _stopTimer() {
-    _syncTimer?.cancel();
-    _syncTimer = null;
   }
 
   void _performSync() {
     if (!mounted) return;
-
     if (!ref.read(backgroundSyncInProgressProvider)) {
       ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
     }
-  }
-
-  @override
-  void dispose() {
-    _stopTimer();
-    super.dispose();
   }
 
   @override
@@ -69,13 +49,23 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     ref.listen<int>(navigationProvider, (previous, next) {
       if (next == 0) {
-        _startTimer();
+        _isHomeSyncActive = true;
+        _syncCount = 1;
       } else {
-        _stopTimer();
+        _isHomeSyncActive = false;
+        _syncCount = 0;
       }
 
-      if (previous == next || next == 2) return;
-      _performSync();
+      if (previous != next && next != 2) {
+        _performSync();
+      }
+    });
+
+    ref.listen<bool>(backgroundSyncInProgressProvider, (wasInProgress, isNowInProgress) {
+      if (wasInProgress == true && isNowInProgress == false && _isHomeSyncActive && _syncCount < 2) {
+        _syncCount++;
+        _performSync();
+      }
     });
 
     return Scaffold(
