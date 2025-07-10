@@ -510,7 +510,10 @@ class _ConfirmNonNativeAssetPaymentState
                       child: TextFormField(
                         controller: amountController,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [DecimalTextInputFormatter(decimalRange: 2)],
+                        inputFormatters: [
+                          CommaTextInputFormatter(),
+                          DecimalTextInputFormatter(decimalRange: 2)
+                        ],
                         style: TextStyle(fontSize: 24.sp, color: Colors.white),
                         decoration: InputDecoration(
                           border: InputBorder.none,

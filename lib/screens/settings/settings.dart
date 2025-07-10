@@ -434,8 +434,8 @@ class Settings extends ConsumerWidget {
                         style: TextStyle(color: Colors.white, fontSize: 16.sp),
                       ),
                       onTap: () {
-                        ref.read(settingsProvider.notifier).setLiquidElectrumNode('blockstream.info:995');
-                        ref.read(settingsProvider.notifier).setBitcoinElectrumNode('blockstream.info:700');
+                        ref.read(settingsProvider.notifier).setLiquidElectrumNode('elements-mainnet.blockstream.info:50002');
+                        ref.read(settingsProvider.notifier).setBitcoinElectrumNode('bitcoin-mainnet.blockstream.info:50002');
                         ref.read(settingsProvider.notifier).setNodeType('Blockstream');
                         ref.read(backgroundSyncNotifierProvider.notifier).performSync();
                         context.pop();
