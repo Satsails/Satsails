@@ -250,7 +250,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
         leading: IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white)),
       ),
       body: SafeArea(
-        bottom: false,
+        bottom: true,
         child: Padding(
           padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
           child: Column(

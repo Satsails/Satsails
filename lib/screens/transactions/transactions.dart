@@ -48,7 +48,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
 
   @override
   Widget build(BuildContext context) {
-    final transactionStateAsync = ref.watch(transactionNotifierProvider);
+    final transactionStateAsync = ref.read(transactionNotifierProvider);
 
     return transactionStateAsync.when(
       loading: () => const Scaffold(

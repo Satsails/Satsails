@@ -479,33 +479,49 @@ class Settings extends ConsumerWidget {
     );
   }
 
+  // Widget _buildAffiliateSection(BuildContext context, WidgetRef ref) {
+  //   final affiliateCode = ref.watch(userProvider).affiliateCode ?? '';
+  //   return _buildSection(
+  //     context: context,
+  //     ref: ref,
+  //     title: 'Affiliate Section'.i18n,
+  //     icon: Icons.account_circle_sharp,
+  //     subtitle: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         if (affiliateCode.isNotEmpty)
+  //           Text(
+  //             '${'Inserted Code:'.i18n} $affiliateCode',
+  //             style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+  //           )
+  //         else
+  //           GestureDetector(
+  //             onTap: () => _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref),
+  //             child: Text(
+  //               'Insert an affiliate code to get 6.67% cashback on purchases'.i18n,
+  //               style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+  //             ),
+  //           ),
+  //       ],
+  //     ),
+  //     onTap: () {
+  //       if (affiliateCode.isEmpty) _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref);
+  //     },
+  //   );
+  // }
+
   Widget _buildAffiliateSection(BuildContext context, WidgetRef ref) {
-    final affiliateCode = ref.watch(userProvider).affiliateCode ?? '';
     return _buildSection(
       context: context,
       ref: ref,
       title: 'Affiliate Section'.i18n,
       icon: Icons.account_circle_sharp,
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (affiliateCode.isNotEmpty)
-            Text(
-              '${'Inserted Code:'.i18n} $affiliateCode',
-              style: TextStyle(color: Colors.grey, fontSize: 14.sp),
-            )
-          else
-            GestureDetector(
-              onTap: () => _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref),
-              child: Text(
-                'Insert an affiliate code to get 6.67% cashback on purchases'.i18n,
-                style: TextStyle(color: Colors.grey, fontSize: 14.sp),
-              ),
-            ),
-        ],
+      subtitle: Text(
+        'Insert an affiliate code to get 6.67% cashback on purchases'.i18n,
+        style: TextStyle(color: Colors.grey, fontSize: 14.sp),
       ),
       onTap: () {
-        if (affiliateCode.isEmpty) _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref);
+        showMessageSnackBar(context: context, message: 'Coming soon'.i18n, error: true);
       },
     );
   }

@@ -135,60 +135,63 @@ class _SeedWordsPinState extends ConsumerState<SeedWordsPin> {
           },
         ),
       ),
-      body: Stack(
-        children: [
-          Center(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.all(16.w),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Enter your 6-digit PIN to view seed words'.i18n,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.sp,
+      body: SafeArea(
+        bottom: true,
+        child: Stack(
+          children: [
+            Center(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Enter your 6-digit PIN to view seed words'.i18n,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 20.h),
-                    PinProgressIndicator(currentLength: pin.length, totalDigits: 6),
-                    SizedBox(height: 40.h),
-                    CustomKeypad(
-                      onDigitPressed: (digit) {
-                        if (pin.length < 6) {
-                          setState(() => pin += digit);
-                        }
-                      },
-                      onBackspacePressed: () {
-                        if (pin.isNotEmpty) {
-                          setState(() => pin = pin.substring(0, pin.length - 1));
-                        }
-                      },
-                    ),
-                    SizedBox(height: 40.h),
-                    CustomButton(
-                      text: 'Unlock'.i18n,
-                      onPressed: pin.length == 6 ? () => _checkPin(context, ref) : () {},
-                      primaryColor: Colors.green,
-                      secondaryColor: Colors.green,
-                    ),
-                  ],
+                      SizedBox(height: 20.h),
+                      PinProgressIndicator(currentLength: pin.length, totalDigits: 6),
+                      SizedBox(height: 40.h),
+                      CustomKeypad(
+                        onDigitPressed: (digit) {
+                          if (pin.length < 6) {
+                            setState(() => pin += digit);
+                          }
+                        },
+                        onBackspacePressed: () {
+                          if (pin.isNotEmpty) {
+                            setState(() => pin = pin.substring(0, pin.length - 1));
+                          }
+                        },
+                      ),
+                      SizedBox(height: 40.h),
+                      CustomButton(
+                        text: 'Unlock'.i18n,
+                        onPressed: pin.length == 6 ? () => _checkPin(context, ref) : () {},
+                        primaryColor: Colors.green,
+                        secondaryColor: Colors.green,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          if (_isLoading)
-            Container(
-              color: Colors.black54,
-              child: Center(
-                child: LoadingAnimationWidget.fourRotatingDots(
-                  color: Colors.orange,
-                  size: 50.w,
+            if (_isLoading)
+              Container(
+                color: Colors.black54,
+                child: Center(
+                  child: LoadingAnimationWidget.fourRotatingDots(
+                    color: Colors.orange,
+                    size: 50.w,
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

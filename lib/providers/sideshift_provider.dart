@@ -13,10 +13,9 @@ final sideShiftShiftsProvider = StateNotifierProvider<SideShiftShiftsNotifier, L
 final createReceiveSideShiftShiftProvider = FutureProvider.family.autoDispose<SideShift, ShiftPair>((ref, pair) async {
   final params = shiftParamsMap[pair]!;
   final liquidAddress = ref.read(addressProvider).liquidAddress;
-  final bitcoinAddress = ref.read(addressProvider).bitcoinAddress;
 
   final request = SideShiftShiftRequest(
-    settleAddress: pair == ShiftPair.usdcAvaxToBtc ? bitcoinAddress : liquidAddress,
+    settleAddress: liquidAddress,
     depositCoin: params.depositCoin,
     settleCoin: params.settleCoin,
     depositNetwork: params.depositNetwork,
@@ -37,10 +36,9 @@ final createReceiveSideShiftShiftProvider = FutureProvider.family.autoDispose<Si
 final createReceiveSideShiftShiftProviderWithoutSaving = FutureProvider.family.autoDispose<SideShift, ShiftPair>((ref, pair) async {
   final params = shiftParamsMap[pair]!;
   final liquidAddress = ref.read(addressProvider).liquidAddress;
-  final bitcoinAddress = ref.read(addressProvider).bitcoinAddress;
 
   final request = SideShiftShiftRequest(
-    settleAddress: pair == ShiftPair.usdcAvaxToBtc ? bitcoinAddress : liquidAddress,
+    settleAddress: liquidAddress,
     depositCoin: params.depositCoin,
     settleCoin: params.settleCoin,
     depositNetwork: params.depositNetwork,
