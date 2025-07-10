@@ -167,7 +167,6 @@ final refundSingleBoltzTransactionProvider = FutureProvider.autoDispose.family<b
 
   final refunded = await boltzSwap.refund(
     fees: fees,
-    tryCooperate: true,
     outAddress: address,
     electrumUrl: electrumUrl,
   );

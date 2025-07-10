@@ -14,9 +14,19 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:crisp_chat/crisp_chat.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:in_app_review/in_app_review.dart';
+
+// Provider to check if biometrics are available on the device
+final biometricsAvailableProvider = FutureProvider<bool>((ref) async {
+  try {
+    return await LocalAuthentication().canCheckBiometrics;
+  } catch (e) {
+    return false;
+  }
+});
 
 class Settings extends ConsumerWidget {
   const Settings({super.key});
@@ -37,6 +47,7 @@ class Settings extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final coinosLn = ref.watch(coinosLnProvider);
     final showCoinosMigration = coinosLn.token.isNotEmpty;
+    final biometricsAvailable = ref.watch(biometricsAvailableProvider);
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -44,12 +55,13 @@ class Settings extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.black,
+          centerTitle: false,
           automaticallyImplyLeading: false,
           title: Text(
             'Settings'.i18n,
             style: TextStyle(
               color: Colors.white,
-              fontSize: 20.sp,
+              fontSize: 22.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -79,6 +91,12 @@ class Settings extends ConsumerWidget {
                     _buildChatWithSupportSection(context, ref),
                     _buildRateAppSection(context, ref),
                     _buildSeedSection(context, ref),
+                    // Conditionally display the biometrics section
+                    biometricsAvailable.when(
+                      data: (isAvailable) => isAvailable ? _buildBiometricsSection(context, ref) : const SizedBox.shrink(),
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    ),
                     _buildLanguageSection(ref, context),
                     _buildCurrencyDenominationSection(ref, context),
                     _buildBitcoinUnitSection(ref, context),
@@ -96,13 +114,15 @@ class Settings extends ConsumerWidget {
     );
   }
 
+  // Updated _buildSection to support a trailing widget
   Widget _buildSection({
     required BuildContext context,
     required WidgetRef ref,
     required String title,
     required IconData icon,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
     Widget? subtitle,
+    Widget? trailing,
   }) {
     return Container(
       margin: EdgeInsets.only(bottom: 20.sp),
@@ -128,7 +148,35 @@ class Settings extends ConsumerWidget {
           ),
         ),
         subtitle: subtitle,
+        trailing: trailing,
         onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _buildBiometricsSection(BuildContext context, WidgetRef ref) {
+    final settingsNotifier = ref.read(settingsProvider.notifier);
+    final biometricsEnabled = ref.watch(settingsProvider.select((s) => s.biometricsEnabled));
+
+    return _buildSection(
+      context: context,
+      ref: ref,
+      title: 'Biometric Unlock'.i18n,
+      icon: Icons.fingerprint,
+      subtitle: Text(
+        'Use your fingerprint or face to unlock'.i18n,
+        style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+      ),
+      onTap: () {
+        settingsNotifier.setBiometricsEnabled(!biometricsEnabled);
+      },
+      trailing: Switch(
+        value: biometricsEnabled,
+        onChanged: (value) {
+          settingsNotifier.setBiometricsEnabled(value);
+        },
+        activeColor: Colors.white,
+        inactiveTrackColor: Colors.grey[800],
       ),
     );
   }
@@ -386,8 +434,8 @@ class Settings extends ConsumerWidget {
                         style: TextStyle(color: Colors.white, fontSize: 16.sp),
                       ),
                       onTap: () {
-                        ref.read(settingsProvider.notifier).setLiquidElectrumNode('blockstream.info:995');
-                        ref.read(settingsProvider.notifier).setBitcoinElectrumNode('blockstream.info:700');
+                        ref.read(settingsProvider.notifier).setLiquidElectrumNode('elements-mainnet.blockstream.info:50002');
+                        ref.read(settingsProvider.notifier).setBitcoinElectrumNode('bitcoin-mainnet.blockstream.info:50002');
                         ref.read(settingsProvider.notifier).setNodeType('Blockstream');
                         ref.read(backgroundSyncNotifierProvider.notifier).performSync();
                         context.pop();
@@ -766,6 +814,42 @@ class DenominationChangeModalBottomSheet extends StatelessWidget {
             title: Text('BRL', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
             onTap: () {
               settingsNotifier.setCurrency('BRL');
+              context.pop();
+            },
+          ),
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
+          decoration: BoxDecoration(
+            color: const Color(0x00333333).withOpacity(0.4),
+            borderRadius: BorderRadius.circular(12.0),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4.0, offset: const Offset(0, 2)),
+            ],
+          ),
+          child: ListTile(
+            leading: Flag(Flags.united_kingdom),
+            title: Text('GBP', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+            onTap: () {
+              settingsNotifier.setCurrency('GBP');
+              context.pop();
+            },
+          ),
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
+          decoration: BoxDecoration(
+            color: const Color(0x00333333).withOpacity(0.4),
+            borderRadius: BorderRadius.circular(12.0),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4.0, offset: const Offset(0, 2)),
+            ],
+          ),
+          child: ListTile(
+            leading: Flag(Flags.switzerland),
+            title: Text('CHF', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+            onTap: () {
+              settingsNotifier.setCurrency('CHF');
               context.pop();
             },
           ),

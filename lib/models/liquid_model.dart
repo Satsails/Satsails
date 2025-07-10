@@ -58,7 +58,7 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount")) {
+      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount") || (e as dynamic).msg.toString().contains("insufficient funds")) {
         throw "Insufficient funds";
       } else if ((e as dynamic).msg.toString().contains("Base58(TooShort(TooShortError { length: 0 }))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
         throw "Address is invalid";
@@ -77,7 +77,7 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount")) {
+      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount") || (e as dynamic).msg.toString().contains("insufficient funds")) {
         throw "Insufficient funds";
       } else if ((e as dynamic).msg.toString().contains("Base58(TooShort(TooShortError { length: 0 }))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
         throw "Address is invalid";
@@ -97,7 +97,7 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount")) {
+      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount") || (e as dynamic).msg.toString().contains("insufficient funds")) {
         throw "Insufficient funds, or not enough liquid bitcoin to pay fees.";
       } else if ((e as dynamic).msg.toString().contains("Base58(TooShort(TooShortError { length: 0 }))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
         throw "Address is invalid";
@@ -116,8 +116,8 @@ class LiquidModel {
       );
       return pset;
     } catch (e) {
-      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount")) {
-        throw "Insufficient funds, or not enough liquid bitcoin to pay fees.";
+      if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount") || (e as dynamic).msg.toString().contains("insufficient funds")) {
+        throw "Insufficient funds, try a lower amount";
       } else if ((e as dynamic).msg.toString().contains("LwkError(msg: Base58(TooShort(TooShortError { length: 0 })))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
         throw "Address is invalid";
       }

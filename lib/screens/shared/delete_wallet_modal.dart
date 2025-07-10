@@ -7,7 +7,6 @@ import 'package:Satsails/screens/receive/components/custom_elevated_button.dart'
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:quickalert/quickalert.dart';
 
 class DeleteWalletSection extends StatelessWidget {
@@ -26,7 +25,7 @@ class DeleteWalletSection extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8.0),
       decoration: BoxDecoration(
-        color: Colors.redAccent, // Red background for the card
+        color: Colors.redAccent,
         borderRadius: BorderRadius.circular(12.0),
         boxShadow: [
           BoxShadow(
@@ -38,15 +37,21 @@ class DeleteWalletSection extends StatelessWidget {
       ),
       child: ListTile(
         leading: const Icon(Icons.delete, color: Colors.white),
-        title: Text(title.i18n, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text(
+          title.i18n,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         onTap: () {
-          _showDeleteDialog(context, authModel, ref);
+          _showFirstDeleteDialog(context, authModel, ref);
         },
       ),
     );
   }
 
-  void _showDeleteDialog(BuildContext context, AuthModel authModel, WidgetRef ref) {
+  void _showFirstDeleteDialog(BuildContext context, AuthModel authModel, WidgetRef ref) {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.error,
@@ -62,35 +67,40 @@ class DeleteWalletSection extends StatelessWidget {
         padding: const EdgeInsets.only(top: 16),
         child: CustomElevatedButton(
           onPressed: () {
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.error,
-              title: 'Delete Wallet?'.i18n,
-              text: 'Are you sure? This action cannot be undone.'.i18n,
-              titleColor: Colors.redAccent,
-              textColor: Colors.white70,
-              backgroundColor: Colors.black87,
-              headerBackgroundColor: Colors.black87,
-              showCancelBtn: false,
-              showConfirmBtn: false,
-              widget: Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: CustomElevatedButton(
-                  onPressed: () async {
-                    context.pop();
-                    await authModel.deleteAuthentication();
-                    ref.read(appLockedProvider.notifier).state = true;
-                    ref.invalidate(bitcoinConfigProvider);
-                    ref.invalidate(liquidConfigProvider);
-                    RestartWidget.restartApp(context);
-                  },
-                  text: 'Delete wallet'.i18n,
-                  backgroundColor: Colors.redAccent,
-                ),
-              ),
-            );
+            Navigator.of(context).pop(); // Close first dialog
+            _showSecondDeleteDialog(context, authModel, ref); // Show second dialog
           },
-          text: 'Delete wallet'.i18n,
+          text: 'Delete Wallet'.i18n,
+          backgroundColor: Colors.redAccent,
+        ),
+      ),
+    );
+  }
+
+  void _showSecondDeleteDialog(BuildContext context, AuthModel authModel, WidgetRef ref) {
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.error,
+      title: 'Delete Wallet?'.i18n,
+      text: 'Are you sure you want to delete the wallet?'.i18n,
+      titleColor: Colors.redAccent,
+      textColor: Colors.white70,
+      backgroundColor: Colors.black87,
+      showCancelBtn: false,
+      showConfirmBtn: false,
+      headerBackgroundColor: Colors.black87,
+      widget: Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: CustomElevatedButton(
+          onPressed: () async {
+            Navigator.of(context).pop(); // Close second dialog
+            await authModel.deleteAuthentication();
+            ref.read(appLockedProvider.notifier).state = true;
+            ref.invalidate(bitcoinConfigProvider);
+            ref.invalidate(liquidConfigProvider);
+            RestartWidget.restartApp(context);
+          },
+          text: 'Delete Wallet'.i18n,
           backgroundColor: Colors.redAccent,
         ),
       ),

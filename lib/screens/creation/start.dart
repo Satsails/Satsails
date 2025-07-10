@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import './components/logo.dart';
-import 'package:Satsails/translations/translations.dart'; 
+import 'package:Satsails/translations/translations.dart';
 
 class Start extends ConsumerStatefulWidget {
   const Start({super.key});
@@ -13,7 +13,8 @@ class Start extends ConsumerStatefulWidget {
   _StartState createState() => _StartState();
 }
 
-class _StartState extends ConsumerState<Start> with SingleTickerProviderStateMixin {
+class _StartState extends ConsumerState<Start>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _logoOpacity;
   late Animation<double> _logoScale;
@@ -21,6 +22,9 @@ class _StartState extends ConsumerState<Start> with SingleTickerProviderStateMix
   late Animation<double> _textOpacity;
   late Animation<Offset> _buttonsOffset;
   late Animation<double> _buttonsOpacity;
+
+  // The state and logic for checking the wallet have been removed.
+  // bool _isCheckingWallet = true; <-- REMOVED
 
   @override
   void initState() {
@@ -32,28 +36,46 @@ class _StartState extends ConsumerState<Start> with SingleTickerProviderStateMix
     );
 
     _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeOut)),
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.0, 0.5, curve: Curves.easeOut)),
     );
     _logoScale = Tween<double>(begin: 0.9, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack)),
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack)),
     );
-    _logoOffset = Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack)),
-    );
+    _logoOffset =
+        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
+          CurvedAnimation(
+              parent: _controller,
+              curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack)),
+        );
 
     _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.3, 0.8, curve: Curves.easeOut)),
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.3, 0.8, curve: Curves.easeOut)),
     );
 
-    _buttonsOffset = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.6, 1.0, curve: Curves.easeOutBack)),
-    );
+    _buttonsOffset =
+        Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
+          CurvedAnimation(
+              parent: _controller,
+              curve: const Interval(0.6, 1.0, curve: Curves.easeOutBack)),
+        );
     _buttonsOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.6, 1.0, curve: Curves.easeOut)),
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.6, 1.0, curve: Curves.easeOut)),
     );
 
     _controller.forward();
+
+    // The call to _checkExistingWallet() has been removed.
   }
+
+  // The _checkExistingWallet() method has been completely removed.
 
   @override
   void dispose() {
@@ -126,7 +148,9 @@ class _StartState extends ConsumerState<Start> with SingleTickerProviderStateMix
                       Text(
                         'Satsails',
                         style: TextStyle(
-                          foreground: Paint()..shader = createGradientShader(Rect.fromLTWH(0.0, 0.0, 0.6.sw, 0.1.sh)),
+                          foreground: Paint()
+                            ..shader = createGradientShader(
+                                Rect.fromLTWH(0.0, 0.0, 0.6.sw, 0.1.sh)),
                           fontSize: 60.sp,
                           shadows: [
                             Shadow(

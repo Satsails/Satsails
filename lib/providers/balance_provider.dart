@@ -26,12 +26,6 @@ final currentBitcoinPriceInCurrencyProvider = StateProvider.family.autoDispose<d
   return balanceModel.currentBitcoinPriceInCurrency(params, ref.watch(currencyNotifierProvider));
 });
 
-final percentageChangeProvider = StateProvider.autoDispose<Percentage>((ref)  {
-  final balanceModel = ref.watch(balanceNotifierProvider);
-  final conversions = ref.watch(currencyNotifierProvider);
-  return balanceModel.percentageOfEachCurrency(conversions);
-});
-
 final btcBalanceInFormatProvider = StateProvider.family.autoDispose<String, String>((ref, denomination) {
   final balance = ref.watch(balanceNotifierProvider);
   return balance.btcBalanceInDenominationFormatted(denomination);

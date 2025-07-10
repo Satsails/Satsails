@@ -13,9 +13,10 @@ final sideShiftShiftsProvider = StateNotifierProvider<SideShiftShiftsNotifier, L
 final createReceiveSideShiftShiftProvider = FutureProvider.family.autoDispose<SideShift, ShiftPair>((ref, pair) async {
   final params = shiftParamsMap[pair]!;
   final liquidAddress = ref.read(addressProvider).liquidAddress;
+  final bitcoinAddress = ref.read(addressProvider).bitcoinAddress;
 
   final request = SideShiftShiftRequest(
-    settleAddress: liquidAddress,
+    settleAddress: pair == ShiftPair.usdcAvaxToBtc ? bitcoinAddress : liquidAddress,
     depositCoin: params.depositCoin,
     settleCoin: params.settleCoin,
     depositNetwork: params.depositNetwork,
@@ -27,6 +28,29 @@ final createReceiveSideShiftShiftProvider = FutureProvider.family.autoDispose<Si
 
   if (result.data != null) {
     ref.read(sideShiftShiftsProvider.notifier).addShift(result.data!);
+    return result.data!;
+  } else {
+    throw result.error ?? 'Unknown error';
+  }
+});
+
+final createReceiveSideShiftShiftProviderWithoutSaving = FutureProvider.family.autoDispose<SideShift, ShiftPair>((ref, pair) async {
+  final params = shiftParamsMap[pair]!;
+  final liquidAddress = ref.read(addressProvider).liquidAddress;
+  final bitcoinAddress = ref.read(addressProvider).bitcoinAddress;
+
+  final request = SideShiftShiftRequest(
+    settleAddress: pair == ShiftPair.usdcAvaxToBtc ? bitcoinAddress : liquidAddress,
+    depositCoin: params.depositCoin,
+    settleCoin: params.settleCoin,
+    depositNetwork: params.depositNetwork,
+    settleNetwork: params.settleNetwork,
+    affiliateId: dotenv.env['SIDESHIFTAFFILIATE']!,
+  );
+
+  final result = await SideShiftService.createShift(request);
+
+  if (result.data != null) {
     return result.data!;
   } else {
     throw result.error ?? 'Unknown error';
@@ -105,4 +129,27 @@ final setRefundAddressProvider = FutureProvider.family.autoDispose<void, RefundA
 final shiftByIdProvider = Provider.family<SideShift, String>((ref, id) {
   final shifts = ref.watch(sideShiftShiftsProvider);
   return shifts.firstWhere((shift) => shift.id == id);
+});
+
+final sideShiftQuoteProvider = FutureProvider.family.autoDispose<SideShiftQuote, (ShiftPair, String, bool)>((ref, params) async {
+  final (shiftPair, amount, isDepositAmount) = params;
+  final shiftParams = shiftParamsMap[shiftPair]!;
+
+  final request = SideShiftQuoteRequest(
+    depositCoin: shiftParams.depositCoin,
+    depositNetwork: shiftParams.depositNetwork,
+    settleCoin: shiftParams.settleCoin,
+    settleNetwork: shiftParams.settleNetwork,
+    depositAmount: isDepositAmount ? amount : null,
+    settleAmount: isDepositAmount ? null : amount,
+    affiliateId: dotenv.env['SIDESHIFTAFFILIATE']!,
+  );
+
+  final result = await SideShiftService.getQuote(request);
+
+  if (result.data != null) {
+    return result.data!;
+  } else {
+    throw result.error ?? 'Unknown error';
+  }
 });

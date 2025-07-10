@@ -79,36 +79,13 @@ class _CameraState extends ConsumerState<Camera> {
 
       await _controller?.stop();
 
-      try {
-        if (widget.paymentType == PaymentType.NonNative) {
-          ref.read(nonNativeAddressProvider.notifier).state = code;
-          context.pop();
-        } else {
-          await ref.refresh(setAddressAndAmountProvider(code).future);
-          final providerPaymentType = ref.read(sendTxProvider).type;
-
-          if (widget.paymentType == PaymentType.Spark) {
-            if (providerPaymentType == PaymentType.Lightning ||
-                providerPaymentType == PaymentType.Bitcoin) {
-              context.pop(code);
-            } else {
-              _showErrorDialog(
-                context,
-                'Invalid payment type for Spark. Expected Lightning or Bitcoin.'.i18n,
-              );
-            }
-          } else if (providerPaymentType == widget.paymentType) {
-            context.pop(code);
-          } else {
-            _showErrorDialog(
-              context,
-              'Scanned payment type does not match expected type'.i18n,
-            );
-          }
-        }
-      } catch (e) {
-        _showErrorDialog(context, e.toString());
+      if (widget.paymentType == PaymentType.NonNative) {
+        ref.read(nonNativeAddressProvider.notifier).state = code;
+      } else {
+        await ref.refresh(setAddressAndAmountProvider(code).future);
       }
+
+      context.pop();
       break;
     }
   }

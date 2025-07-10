@@ -156,14 +156,21 @@ class _TransactionListState extends ConsumerState<TransactionList> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final transactionState = ref.watch(transactionNotifierProvider);
-    final allTransactions = widget.transactions ?? transactionState.allTransactionsSorted;
+    final allTransactions = widget.transactions ?? transactionState.value?.allTransactionsSorted ?? [];
 
     final filteredTransactions = widget.showAll
         ? allTransactions
         : allTransactions
         .where((tx) =>
-    !(tx is SideShiftTransaction && tx.details.status == 'waiting') &&
-        !(tx is BoltzTransaction && !(tx.details.completed ?? false)))
+    !(tx is SideShiftTransaction && (tx.details.status == 'waiting' || tx.details.status == 'expired')) &&
+        !(tx is BoltzTransaction && !(tx.details.completed ?? false)) &&
+        !(tx is EulenTransaction &&
+            (tx.details.failed ||
+                tx.details.status == 'expired' ||
+                tx.details.status == 'pending')) &&
+        !(tx is NoxTransaction &&
+            (tx.details.status == 'quote' ||
+                tx.details.status == 'failed')))
         .take(4)
         .toList();
 
@@ -175,14 +182,14 @@ class _TransactionListState extends ConsumerState<TransactionList> {
         padding: EdgeInsets.only(right: 8.sp),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0x00333333).withOpacity(0.4),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12.r),
           ),
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
           child: Text(
             'Buy'.i18n,
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontSize: 17.sp,
               fontWeight: FontWeight.bold,
             ),
@@ -314,10 +321,9 @@ Widget _buildBoltzTransactionItem(
   final isPending = !isCompleted;
 
   final btcFormat = ref.read(settingsProvider).btcFormat;
-  final currency = ref.read(settingsProvider).currency;
 
   final isReceiving = transaction.details.swap.kind == boltz.SwapType.reverse;
-  final title = isReceiving ? "Lightning${"to".i18n}L-BTC" : "L-BTC ${"to".i18n} Lightning";
+  final title = isReceiving ? "Lightning ${"to".i18n} L-BTC" : "L-BTC ${"to".i18n} Lightning";
 
   final amountBtc = isCompleted
       ? btcInDenominationFormatted(transaction.details.swap.outAmount, btcFormat)
@@ -356,7 +362,7 @@ Widget _buildBoltzTransactionItem(
           Stack(
             alignment: Alignment.center,
             children: [
-              sideshiftTransactionTypeIcon(),
+              boltzTransactionTypeIcon(),
               if (isPending)
                 SizedBox(
                   width: 40.w,
@@ -496,7 +502,8 @@ Widget _buildSideshiftTransactionItem(
   }
   String locale = I18n.locale.languageCode ?? 'en';
   // Format the transaction date
-  final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(transaction.timestamp);
+  final formattedDate =
+  DateFormat('d, MMMM, HH:mm', locale).format(transaction.timestamp);
 
   return GestureDetector(
     onTap: () {
@@ -531,49 +538,69 @@ Widget _buildSideshiftTransactionItem(
               const SizedBox(width: 12),
               Expanded(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          formattedDate,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                        Text(
-                          statusText,
-                          style: TextStyle(
-                              fontSize: 12.sp,
-                              color: Colors.grey[400],
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    if (isConfirmed)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "${double.parse(details.settleAmount).toStringAsFixed(2)} ${details.settleCoin}",
+                            title,
                             style: TextStyle(
-                              fontSize: 14.sp,
+                              fontSize: 16.sp,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            formattedDate,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                          Text(
+                            statusText,
+                            style: TextStyle(
+                                fontSize: 12.sp,
+                                color: Colors.grey[400],
+                                fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
+                    ),
+                    if (isConfirmed)
+                          () {
+                        // Use an IIFE to scope the logic for calculating amount text
+                        final btcFormat = ref.watch(settingsProvider).btcFormat;
+                        String amountText;
+
+                        if (details.settleCoin.toLowerCase() == 'btc') {
+                          final amountInSats =
+                          (double.parse(details.settleAmount) * 100000000)
+                              .toInt();
+                          amountText =
+                          "${btcInDenominationFormatted(amountInSats, btcFormat)} ${btcFormat.toUpperCase()}";
+                        } else {
+                          amountText =
+                          "${double.parse(details.settleAmount).toStringAsFixed(2)} ${details.settleCoin.toUpperCase()}";
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              amountText,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        );
+                      }(),
                   ],
                 ),
               ),
@@ -796,7 +823,7 @@ Widget _buildNoxTransactionItem(
       : "Pending".i18n;
 
   final type = transaction.details.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
-  final title = "${transaction.details.to_currency} $type";
+  final title = "${transaction.details.to_currency} (${type.i18n})";
   final amount = transaction.details.receivedAmount.toString();
   String locale = I18n.locale.languageCode ?? 'en';
   final formattedDate = DateFormat('d, MMMM, HH:mm', locale).format(transaction.timestamp);

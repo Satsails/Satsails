@@ -11,11 +11,23 @@ final initialSettingsProvider = FutureProvider<Settings>((ref) async {
       final btcFormat = box.get('btcFormat', defaultValue: 'BTC');
       final backup = box.get('backup', defaultValue: false);
       final balanceVisible = box.get('balanceVisible', defaultValue: false);
-      final bitcoinElectrumNode = box.get('bitcoinElectrumNode', defaultValue: 'blockstream.info:700');
-      final liquidElectrumNode = box.get('liquidElectrumNode', defaultValue: 'blockstream.info:995');
+      final bitcoinElectrumNode = box.get('bitcoinElectrumNode', defaultValue: 'bitcoin-mainnet.blockstream.info:50002');
+      final liquidElectrumNode = box.get('liquidElectrumNode', defaultValue: 'elements-mainnet.blockstream.info:50002');
       final nodeType = box.get('nodeType', defaultValue: 'Blockstream');
+      final biometricsEnabled = box.get('biometricsEnabled', defaultValue: true);
 
-      return Settings(currency: currency, language: language, btcFormat: btcFormat, online: true, backup: backup, bitcoinElectrumNode: bitcoinElectrumNode, liquidElectrumNode: liquidElectrumNode, nodeType: nodeType, balanceVisible: balanceVisible);
+      return Settings(
+            currency: currency,
+            language: language,
+            btcFormat: btcFormat,
+            online: true,
+            backup: backup,
+            bitcoinElectrumNode: bitcoinElectrumNode,
+            liquidElectrumNode: liquidElectrumNode,
+            nodeType: nodeType,
+            balanceVisible: balanceVisible,
+            biometricsEnabled: biometricsEnabled, // Pass the new value
+      );
 });
 
 final settingsProvider = StateNotifierProvider<SettingsModel, Settings>((ref) {
@@ -24,9 +36,33 @@ final settingsProvider = StateNotifierProvider<SettingsModel, Settings>((ref) {
 
       return SettingsModel(initialSettings.when(
             data: (settings) => settings,
-            loading: () => Settings(currency: 'USD', language: languageIsPortuguese ? 'pt' : 'en', btcFormat: 'BTC', online: true, backup: false, bitcoinElectrumNode: 'blockstream.info:700', liquidElectrumNode: 'blockstream.info:995', nodeType: 'Blockstream', balanceVisible: false),
+            loading: () => Settings(
+                  currency: 'USD',
+                  language: languageIsPortuguese ? 'pt' : 'en',
+                  btcFormat: 'BTC',
+                  online: true,
+                  backup: false,
+                  bitcoinElectrumNode: 'bitcoin-mainnet.blockstream.info:50002',
+                  liquidElectrumNode: 'elements-mainnet.blockstream.info:50002',
+                  nodeType: 'Blockstream',
+                  balanceVisible: false,
+                  biometricsEnabled: true,
+            ),
             error: (Object error, StackTrace stackTrace) {
-                  throw error;
+                  // It's better to handle the error gracefully than to rethrow it here
+                  // For now, we'll return default settings on error.
+                  return Settings(
+                        currency: 'USD',
+                        language: languageIsPortuguese ? 'pt' : 'en',
+                        btcFormat: 'BTC',
+                        online: true,
+                        backup: false,
+                        bitcoinElectrumNode: 'bitcoin-mainnet.blockstream.info:50002',
+                        liquidElectrumNode: 'elements-mainnet.blockstream.info:50002',
+                        nodeType: 'Blockstream',
+                        balanceVisible: false,
+                        biometricsEnabled: true,
+                  );
             },
       ));
 });

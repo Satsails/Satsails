@@ -17,12 +17,12 @@ class WalletBalanceAdapter extends TypeAdapter<WalletBalance> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return WalletBalance(
-      btcBalance: fields[0] as int,
-      liquidBalance: fields[1] as int,
-      usdBalance: fields[2] as int,
-      eurBalance: fields[3] as int,
-      brlBalance: fields[4] as int,
-      lightningBalance: fields[5] as int?,
+      onChainBtcBalance: fields[0] as int,
+      liquidBtcBalance: fields[1] as int,
+      liquidUsdtBalance: fields[2] as int,
+      liquidEuroxBalance: fields[3] as int,
+      liquidDepixBalance: fields[4] as int,
+      sparkBitcoinbalance: fields[5] as int?,
     );
   }
 
@@ -31,17 +31,17 @@ class WalletBalanceAdapter extends TypeAdapter<WalletBalance> {
     writer
       ..writeByte(6)
       ..writeByte(0)
-      ..write(obj.btcBalance)
+      ..write(obj.onChainBtcBalance)
       ..writeByte(1)
-      ..write(obj.liquidBalance)
+      ..write(obj.liquidBtcBalance)
       ..writeByte(2)
-      ..write(obj.usdBalance)
+      ..write(obj.liquidUsdtBalance)
       ..writeByte(3)
-      ..write(obj.eurBalance)
+      ..write(obj.liquidEuroxBalance)
       ..writeByte(4)
-      ..write(obj.brlBalance)
+      ..write(obj.liquidDepixBalance)
       ..writeByte(5)
-      ..write(obj.lightningBalance);
+      ..write(obj.sparkBitcoinbalance);
   }
 
   @override

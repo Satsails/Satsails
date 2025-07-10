@@ -6,7 +6,7 @@ import 'package:Satsails/screens/pay/components/confirm_non_native_asset_payment
 import 'package:Satsails/screens/shared/boltz_transactions_details_screen.dart';
 import 'package:Satsails/screens/shared/nox_transaction_details.dart';
 import 'package:Satsails/screens/shared/peg_details.dart';
-import 'package:Satsails/screens/explore/components/deposit_bitcoin_pix_nox.dart';
+import 'package:Satsails/screens/explore/components/deposit_pix_nox.dart';
 import 'package:Satsails/screens/explore/components/deposit_depix_pix_eulen.dart';
 import 'package:Satsails/screens/explore/components/deposit_type.dart';
 import 'package:Satsails/screens/explore/components/sell_type.dart';
@@ -20,6 +20,7 @@ import 'package:Satsails/screens/shared/affiliate_screen.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/sideshift_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/transactions_details_screen.dart';
+import 'package:Satsails/screens/spash/splash.dart';
 import 'package:Satsails/screens/transactions/transactions.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/screens/shared/eulen_transaction_details.dart';
@@ -112,7 +113,15 @@ class AppRouter {
           ),
         ),
         GoRoute(
-          path: '/',
+          path: '/splash',
+          name: 'splash',
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const Splash(),
+            state: state,
+          ),
+        ),
+        GoRoute(
+          path: '/start',
           name: 'start',
           pageBuilder: (context, state) => _buildFadeScalePage(
             child: const Start(),
@@ -361,7 +370,7 @@ class AppRouter {
                         path: '/deposit_pix_nox',
                         name: 'DepositPixNox',
                         pageBuilder: (context, state) => _buildFadeScalePage(
-                          child: const DepositBitcoinPixNox(),
+                          child: const DepositPixNox(),
                           state: state,
                         ),
                       ),

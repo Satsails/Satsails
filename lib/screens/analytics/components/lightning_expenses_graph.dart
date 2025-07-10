@@ -48,8 +48,6 @@ class LightningLineChartSample extends StatelessWidget {
             enabled: true,
             handleBuiltInTouches: true,
             touchTooltipData: LineTouchTooltipData(
-              tooltipBgColor: Colors.black87,
-              tooltipRoundedRadius: 12,
               tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               tooltipMargin: 10,
               fitInsideHorizontally: true,
@@ -143,7 +141,7 @@ class LightningLineChartSample extends StatelessWidget {
     DateTime date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
     String formattedDate = DateFormat('dd/MM').format(date);
     return SideTitleWidget(
-      axisSide: meta.axisSide,
+      meta: meta,
       child: Text(
         formattedDate,
         style: const TextStyle(color: Colors.white, fontSize: 12),
@@ -154,7 +152,7 @@ class LightningLineChartSample extends StatelessWidget {
   Widget leftTitleWidgets(double value, TitleMeta meta) {
     int decimalPlaces = decimalPlacesBtcFormat(value);
     return SideTitleWidget(
-      axisSide: meta.axisSide,
+      meta: meta,
       child: Text(
         value.toStringAsFixed(decimalPlaces),
         style: const TextStyle(color: Colors.white, fontSize: 12),
@@ -182,7 +180,7 @@ class _LightningExpensesGraphState extends ConsumerState<LightningExpensesGraph>
   Widget build(BuildContext context) {
     final selectedDays = ref.watch(selectedDaysDateArrayProvider);
 
-    final coinosBalance = ref.watch(balanceNotifierProvider).lightningBalance;
+    final coinosBalance = ref.watch(balanceNotifierProvider).sparkBitcoinbalance;
 
     final lightningBalanceByDayUnformattedAsync = ref.watch(lightningBalanceOverPeriodByDayProvider);
     final selectedCurrency = ref.watch(settingsProvider).currency;

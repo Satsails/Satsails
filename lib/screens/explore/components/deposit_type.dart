@@ -1,9 +1,12 @@
 import 'package:Satsails/helpers/deposit_type_helper.dart';
+import 'package:Satsails/providers/sideshift_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:Satsails/models/sideshift_model.dart'; // Assuming ShiftPair is defined here
+
 
 class DepositTypeScreen extends ConsumerWidget {
   const DepositTypeScreen({super.key});
@@ -17,7 +20,7 @@ class DepositTypeScreen extends ConsumerWidget {
     final availablePaymentMethods = ref.watch(availablePaymentMethodsProvider);
     final availableDepositTypes = ref.watch(availableDepositTypesProvider);
 
-    // Reset selected payment method if invalid
+    // Reset selectedPaymentMethod if it's not in availablePaymentMethods
     if (selectedPaymentMethod != null && !availablePaymentMethods.contains(selectedPaymentMethod)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(selectedPaymentMethodProvider.notifier).state =
@@ -25,7 +28,7 @@ class DepositTypeScreen extends ConsumerWidget {
       });
     }
 
-    // Reset selected deposit type if invalid
+    // Reset selectedAsset if it's not in availableDepositTypes
     if (!availableDepositTypes.contains(selectedAsset)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(selectedCryptoTypeProvider.notifier).state =
@@ -33,16 +36,12 @@ class DepositTypeScreen extends ConsumerWidget {
       });
     }
 
-    bool isConditionMet = selectedCurrency == CurrencyDeposit.BRL &&
-        selectedPaymentMethod == DepositMethod.PIX &&
-        selectedAsset == DepositType.Depix &&
-        selectedMode == 'Purchase from Providers';
-
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
         title: Text(
           "Deposit Type".i18n,
-          style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
@@ -74,8 +73,10 @@ class DepositTypeScreen extends ConsumerWidget {
                     items: ['Purchase with P2P (No KYC)', 'Purchase from Providers']
                         .map((mode) => DropdownMenuItem<String>(
                       value: mode,
-                      child: Text(mode.i18n,
-                          style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                      child: Text(
+                        mode.i18n,
+                        style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      ),
                     ))
                         .toList(),
                     isExpanded: true,
@@ -94,8 +95,11 @@ class DepositTypeScreen extends ConsumerWidget {
                   padding: EdgeInsets.all(16.h),
                   child: selectedMode == 'Purchase with P2P (No KYC)'
                       ? Center(
-                      child: Text('Coming soon'.i18n,
-                          style: TextStyle(color: Colors.white, fontSize: 20.sp)))
+                    child: Text(
+                      'Coming soon'.i18n,
+                      style: TextStyle(color: Colors.white, fontSize: 20.sp),
+                    ),
+                  )
                       : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -121,9 +125,10 @@ class DepositTypeScreen extends ConsumerWidget {
                             : null,
                         items: availablePaymentMethods,
                         getImage: (method) => Icon(
-                            paymentMethodIcons[method] ?? Icons.help_outline,
-                            color: Colors.white,
-                            size: 28.sp),
+                          paymentMethodIcons[method] ?? Icons.help_outline,
+                          color: Colors.white,
+                          size: 28.sp,
+                        ),
                         getText: (method) => formatEnumName(method.name),
                         onChanged: (value) {
                           ref.read(selectedPaymentMethodProvider.notifier).state = value;
@@ -145,31 +150,52 @@ class DepositTypeScreen extends ConsumerWidget {
                         },
                       ),
                       SizedBox(height: 32.h),
-                      ElevatedButton(
-                        onPressed: isConditionMet
-                            ? () {
-                          context.pushNamed('DepositPixEulen');
-                        }
-                            : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isConditionMet ? Colors.green : Colors.red,
-                          disabledBackgroundColor: isConditionMet ? Colors.green : Colors.red,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r)),
-                          padding: EdgeInsets.symmetric(vertical: 16.h),
-                        ),
-                        child: Text(
-                          isConditionMet ? 'Buy'.i18n : 'Coming soon'.i18n,
-                          style: TextStyle(color: Colors.black, fontSize: 16.sp),
-                        ),
+                      Builder(
+                        builder: (context) {
+                          final selectedProvider = ref.watch(computedDepositProvider);
+                          final isButtonEnabled = selectedProvider == DepositProvider.Eulen ||
+                              selectedProvider == DepositProvider.Nox;
+                          final buttonText = isButtonEnabled ? 'Buy'.i18n : 'Coming soon'.i18n;
+
+                          return ElevatedButton(
+                            onPressed: isButtonEnabled
+                                ? () {
+                              final route = selectedProvider == DepositProvider.Eulen
+                                  ? 'DepositPixEulen'
+                                  : 'DepositPixNox';
+                              context.pushNamed(route);
+                            }
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isButtonEnabled ? Colors.green : Colors.red,
+                              disabledBackgroundColor:
+                              isButtonEnabled ? Colors.green : Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 16.h),
+                            ),
+                            child: Text(
+                              buttonText,
+                              style: TextStyle(color: Colors.black, fontSize: 16.sp),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
                 ),
               ),
-              if (isConditionMet) ...[
-                const ProviderDetails(),
-              ],
+              if (selectedMode != 'Purchase with P2P (No KYC)')
+              Builder(
+                builder: (context) {
+                  final selectedProvider = ref.watch(computedDepositProvider);
+                  if (selectedProvider != null) {
+                    return ProviderDetails(provider: selectedProvider);
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
             ],
           ),
         ),
@@ -206,8 +232,10 @@ class DepositTypeScreen extends ConsumerWidget {
                   children: [
                     getImage(item),
                     SizedBox(width: 8.w),
-                    Text(getText(item),
-                        style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                    Text(
+                      getText(item),
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                    ),
                   ],
                 ),
               ))
@@ -225,16 +253,15 @@ class DepositTypeScreen extends ConsumerWidget {
 }
 
 class ProviderDetails extends ConsumerWidget {
-  const ProviderDetails({super.key});
+  final DepositProvider provider;
+
+  const ProviderDetails({super.key, required this.provider});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Hardcode to Eulen since only this condition is currently supported
-    const selectedProvider = DepositProvider.Eulen;
-    final providerDetail = providerDetails[selectedProvider]!;
-    final kyc = kycAssessment[selectedProvider]!;
+    final providerDetail = providerDetails[provider]!;
+    final kyc = kycAssessment[provider]!;
 
-    // Define consistent text styles
     final sectionTitleStyle = TextStyle(
       color: Colors.white,
       fontSize: 20.sp,
@@ -258,7 +285,7 @@ class ProviderDetails extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16.r),
         child: ExpansionTile(
           title: Text(
-            'Provider: ${formatEnumName(selectedProvider.name)}'.i18n,
+            'Provider: ${formatEnumName(provider.name)}'.i18n,
             style: TextStyle(
               color: Colors.white,
               fontSize: 18.sp,
@@ -275,7 +302,20 @@ class ProviderDetails extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // KYC Assessment Section
+                  if (provider == DepositProvider.Nox) ...[
+                    Container(
+                      padding: EdgeInsets.all(12.h),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Text(
+                        "Purchases are not paid directly to your wallet but to a smart contract provided by SideShift. The provider, NOX, reports all purchases in USDC. The smart contract does not automatically report transactions. Ensure compliance with your local laws.".i18n,
+                        style: TextStyle(color: Colors.white, fontSize: 14.sp),
+                      ),
+                    ),
+                    SizedBox(height: 20.h),
+                  ],
                   Text(
                     'KYC Assessment'.i18n,
                     style: sectionTitleStyle,
@@ -327,7 +367,6 @@ class ProviderDetails extends ConsumerWidget {
                     endIndent: 12.w,
                   ),
                   SizedBox(height: 20.h),
-                  // Advantages Section
                   Text(
                     'Advantages'.i18n,
                     style: sectionTitleStyle,
@@ -359,7 +398,6 @@ class ProviderDetails extends ConsumerWidget {
                     endIndent: 12.w,
                   ),
                   SizedBox(height: 20.h),
-                  // Disadvantages Section
                   Text(
                     'Disadvantages'.i18n,
                     style: sectionTitleStyle,

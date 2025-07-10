@@ -1,67 +1,84 @@
+import 'dart:async';
 import 'package:Satsails/providers/background_sync_provider.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:Satsails/screens/accounts/accounts.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/screens/explore/explore.dart';
+import 'package:Satsails/screens/home/home.dart';
 import 'package:Satsails/screens/settings/settings.dart';
+import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/screens/home/home.dart';
-import 'package:Satsails/screens/accounts/accounts.dart';
-import 'package:Satsails/providers/navigation_provider.dart';
-import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 
-class MainScreen extends ConsumerWidget {
+class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
-  void _resetProviders(WidgetRef ref, int index) {
-    if (index == 2) { // Skip reset for Exchange screen
-      Future.microtask(() {
-        ref.read(sendTxProvider.notifier).resetToDefault();
-        ref.read(sendBlocksProvider.notifier).state = 1;
-        ref.read(shouldUpdateMemoryProvider.notifier).state = false;
-      });
-    } else {
-      ref.read(sendTxProvider.notifier).resetToDefault();
-      ref.read(sendBlocksProvider.notifier).state = 1;
-      ref.read(shouldUpdateMemoryProvider.notifier).state = true;
+  @override
+  ConsumerState<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends ConsumerState<MainScreen> {
+  int _syncCount = 0;
+  bool _isHomeSyncActive = false;
+
+  final List<Widget> _screens = const [
+    Home(),
+    Accounts(),
+    Exchange(),
+    Explore(),
+    Settings(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _performSync();
+  }
+
+  void _performSync() {
+    if (!mounted) return;
+    if (!ref.read(backgroundSyncInProgressProvider)) {
+      ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
     }
   }
 
-  Widget _getCurrentScreen(int index) {
-    const screens = {
-      0: Home(),
-      1: Accounts(),
-      2: Exchange(),
-      3: Explore(),
-      4: Settings(),
-    };
-    return screens[index] ?? const Home();
-  }
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final currentIndex = ref.watch(navigationProvider);
-    final isSyncing = ref.watch(backgroundSyncInProgressProvider);
 
-    // Listen to changes in navigationProvider and handle resets and sync actions
     ref.listen<int>(navigationProvider, (previous, next) {
-      if (previous != next) {
-        _resetProviders(ref, next);
-        // Perform sync actions when navigating to Home (index 0) and not syncing
-        if (next == 0 && !isSyncing) {
-          ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
-        }
+      if (next == 0) {
+        _isHomeSyncActive = true;
+        _syncCount = 1;
+      } else {
+        _isHomeSyncActive = false;
+        _syncCount = 0;
+      }
+
+      if (previous != next && next != 2) {
+        _performSync();
+      }
+    });
+
+    ref.listen<bool>(backgroundSyncInProgressProvider, (wasInProgress, isNowInProgress) {
+      if (wasInProgress == true && isNowInProgress == false && _isHomeSyncActive && _syncCount < 3) {
+        _syncCount++;
+        _performSync();
       }
     });
 
     return Scaffold(
-      extendBody: currentIndex != 0,
+      extendBody: true,
       backgroundColor: Colors.black,
-      body: _getCurrentScreen(currentIndex),
+      body: _screens[currentIndex],
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index) {
-          ref.read(navigationProvider.notifier).state = index;
+          if (currentIndex != index) {
+            ref.read(sendTxProvider.notifier).resetToDefault();
+            ref.read(navigationProvider.notifier).state = index;
+          }
         },
       ),
     );

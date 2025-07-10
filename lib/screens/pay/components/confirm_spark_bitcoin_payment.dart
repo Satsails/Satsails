@@ -68,13 +68,13 @@ class _ConfirmSparkBitcoinPaymentState extends ConsumerState<ConfirmSparkBitcoin
   Widget build(BuildContext context) {
     final sendTxState = ref.read(sendTxProvider);
     final btcFormat = ref.watch(settingsProvider).btcFormat;
-    final lightningBalance = ref.watch(balanceNotifierProvider).lightningBalance;
-    final lightningBalanceInFormat = btcInDenominationFormatted(lightningBalance!, btcFormat);
-    int maxAmount = (lightningBalance * 0.995).toInt();
+    final sparkBitcoinbalance = ref.watch(balanceNotifierProvider).sparkBitcoinbalance;
+    final lightningBalanceInFormat = btcInDenominationFormatted(sparkBitcoinbalance!, btcFormat);
+    int maxAmount = (sparkBitcoinbalance * 0.995).toInt();
 
     final currency = ref.read(settingsProvider).currency;
     final currencyRate = ref.read(selectedCurrencyProvider(currency));
-    final valueInBtc = lightningBalance / 100000000;
+    final valueInBtc = sparkBitcoinbalance / 100000000;
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
 
     return PopScope(
@@ -98,7 +98,7 @@ class _ConfirmSparkBitcoinPaymentState extends ConsumerState<ConfirmSparkBitcoin
             backgroundColor: Colors.black,
             appBar: AppBar(
               backgroundColor: Colors.black,
-              title: Text('Confirm Payment'.i18n, style: const TextStyle(color: Colors.white)),
+              title: Text('Send'.i18n, style: const TextStyle(color: Colors.white)),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
                 onPressed: () {

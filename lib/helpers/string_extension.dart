@@ -49,6 +49,26 @@ String currencyFormat(double value, String currency, {int decimalPlaces = 2}) {
         symbolSeparator: ' ',
       );
       return CurrencyFormatter.format(value, eurSettings, decimal: decimalPlaces);
+    case 'GBP':
+      CurrencyFormat eurSettings = const CurrencyFormat(
+        code: 'gbp',
+        symbol: '£',
+        symbolSide: SymbolSide.left,
+        thousandSeparator: '.',
+        decimalSeparator: ',',
+        symbolSeparator: ' ',
+      );
+      return CurrencyFormatter.format(value, eurSettings, decimal: decimalPlaces);
+    case 'CHF':
+      CurrencyFormat eurSettings = const CurrencyFormat(
+        code: 'chf',
+        symbol: 'CHF',
+        symbolSide: SymbolSide.left,
+        thousandSeparator: '.',
+        decimalSeparator: ',',
+        symbolSeparator: ' ',
+      );
+      return CurrencyFormatter.format(value, eurSettings, decimal: decimalPlaces);
 
     default:
       return value.toString();

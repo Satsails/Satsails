@@ -58,15 +58,6 @@ Widget transactionTypeIcon(bdk.TransactionDetails transaction) {
   }
 }
 
-// Define the Boltz transaction icon
-Widget boltzTransactionTypeIcon() {
-  return Icon(
-    Icons.swap_horiz, // Represents a swap
-    color: Colors.orange,
-    size: 24.sp,
-  );
-}
-
 String transactionAmountInFiat(bdk.TransactionDetails transaction, WidgetRef ref) {
   final sent = ref.watch(conversionToFiatProvider(transaction.sent.toInt()));
   final received = ref.watch(conversionToFiatProvider(transaction.received.toInt()));
@@ -302,6 +293,29 @@ String valueOfLiquidSubTransaction(AssetId asset, int value, WidgetRef ref) {
 }
 
 Widget sideshiftTransactionTypeIcon() {
+  /// Helper function to create a styled circular icon container.
+  Widget circularIcon(IconData icon, Color color) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xFF333333), // Dark gray background
+      ),
+      child: Center(
+        child: Icon(
+          icon,
+          color: color,
+          size: 24.w, // Responsive icon size
+        ),
+      ),
+    );
+  }
+
+  return circularIcon(Icons.swap_horiz, Colors.orange);
+}
+
+  Widget boltzTransactionTypeIcon() {
   Widget circularIcon(IconData icon, Color color) {
     return Container(
       width: 40, // Responsive width, matching pegTransactionTypeIcon
@@ -319,5 +333,5 @@ Widget sideshiftTransactionTypeIcon() {
       ),
     );
   }
-  return circularIcon(Icons.swap_horiz, Colors.orange); // SideShift: swap icon
+  return circularIcon(Icons.swap_horiz, Colors.orange);
 }

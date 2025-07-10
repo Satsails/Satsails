@@ -376,9 +376,6 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
         ? 0
         : double.parse(ref.watch(liquidBalanceInFormatProvider('BTC')));
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
-    Future.microtask(() => {
-      ref.read(shouldUpdateMemoryProvider.notifier).state = false,
-    });
 
     return PopScope(
       canPop: !isProcessing,
@@ -401,7 +398,8 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
             backgroundColor: Colors.black,
             appBar: AppBar(
               backgroundColor: Colors.black,
-              title: Text('Confirm Payment'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
+              centerTitle: false,
+              title: Text('Send'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp)),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
                 onPressed: () {

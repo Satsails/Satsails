@@ -130,7 +130,7 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 18.sp, vertical: 8.sp),
+          padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.sp),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -150,16 +150,16 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
                         height: 10.sp,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: isSyncing
+                          color: isOnline
+                              ? isSyncing
                               ? Colors.orange
-                              : isOnline
-                              ? Colors.green
+                              : Colors.green
                               : Colors.red,
                         ),
                       ),
                       SizedBox(width: 4.sp),
                       Text(
-                        isSyncing ? 'Syncing'.i18n : isOnline ? 'Update Balances'.i18n : 'Offline'.i18n,
+                        isOnline ? isSyncing ? 'Syncing'.i18n : 'Update Balances'.i18n : 'Offline'.i18n,
                         style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -185,8 +185,8 @@ class _BalanceScreenState extends ConsumerState<BalanceScreen> {
               final selectedAssetName = _selectedFilters[index];
               return Padding(
                 padding: EdgeInsets.only(
-                  left: 18.sp,
-                  right: index == _assets.length - 1 ? 18.sp : 0,
+                    left: 16.sp,
+                    right: index == _assets.length - 1 ? 18.sp : 0,
                 ),
                 child: SizedBox(
                   height: 200.sp,
@@ -222,8 +222,6 @@ class Home extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Future.microtask(() => ref.read(shouldUpdateMemoryProvider.notifier).state = true);
-
     final language = ref.read(settingsProvider).language;
     final dialogStyle = Platform.isIOS ? UpgradeDialogStyle.cupertino : UpgradeDialogStyle.material;
 

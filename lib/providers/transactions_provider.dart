@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 
-final transactionNotifierProvider = StateNotifierProvider<TransactionModel, Transaction>((ref) {
-  return TransactionModel(ref);
-});
+final transactionNotifierProvider =
+AsyncNotifierProvider<TransactionNotifier, Transaction>(
+  TransactionNotifier.new,
+);
+
+
 
 
 final getFiatPurchasesProvider = FutureProvider.autoDispose<void>((ref) async {

@@ -380,10 +380,6 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
         : double.parse(ref.watch(btcBalanceInFormatProvider('BTC')));
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
 
-    Future.microtask(() => {
-      ref.read(shouldUpdateMemoryProvider.notifier).state = false,
-    });
-
     return PopScope(
       canPop: !isProcessing,
       onPopInvoked: (bool canPop) {
@@ -405,7 +401,8 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
             backgroundColor: Colors.black,
             appBar: AppBar(
               backgroundColor: Colors.black,
-              title: Text('Confirm Payment'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp)),
+              centerTitle: false,
+              title: Text('Send'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp)),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
                 onPressed: () {
@@ -666,7 +663,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                             child: GestureDetector(
                                               onTap: () async {
                                                 try {
-                                                  final balance = ref.watch(balanceNotifierProvider).btcBalance;
+                                                  final balance = ref.watch(balanceNotifierProvider).onChainBtcBalance;
                                                   final transactionBuilderParams = await ref
                                                       .watch(bitcoinTransactionBuilderProvider(sendTxState.amount).future)
                                                       .then((value) => value);

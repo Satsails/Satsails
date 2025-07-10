@@ -26,9 +26,10 @@ class _EulenTransactionDetailsState extends ConsumerState<EulenTransactionDetail
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
         title: Text(
           'Transaction Details'.i18n,
-          style: TextStyle(color: Colors.white, fontSize: 20.sp),
+          style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
