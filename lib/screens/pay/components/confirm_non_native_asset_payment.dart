@@ -111,7 +111,6 @@ class _ConfirmNonNativeAssetPaymentState
     return '${value.substring(0, 6)}...${value.substring(value.length - 6)}';
   }
 
-  // Confirmation Modal for Non-BTC assets (e.g., USDT)
   Future<bool> showNonBtcConfirmationModal(BuildContext context, String amount, String address, String fee, WidgetRef ref) async {
     return await showDialog<bool>(
       context: context,
@@ -197,7 +196,6 @@ class _ConfirmNonNativeAssetPaymentState
         false;
   }
 
-  // Confirmation Modal for Liquid BTC
   Future<bool> showBtcConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
     final settings = ref.read(settingsProvider);
     final currency = settings.currency;
@@ -366,10 +364,8 @@ class _ConfirmNonNativeAssetPaymentState
 
     SideShift? shift;
     try {
-      // 1. Create shift to get deposit address
       shift = await ref.read(createSendSideShiftShiftProvider((ref.read(selectedSendShiftPairProvider), addressController.text)).future);
 
-      // 2. IMMEDIATELY update provider with the correct Liquid deposit address
       ref.read(sendTxProvider.notifier).updateAddress(shift!.depositAddress);
       if (shiftPair == ShiftPair.liquidBtcToBtc) {
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
@@ -381,7 +377,6 @@ class _ConfirmNonNativeAssetPaymentState
       final depositMin = (double.parse(shift.depositMin) * 100000000).toInt();
       final depositMax = (double.parse(shift.depositMax) * 100000000).toInt();
 
-      // 3. Check amount limits
       if (amount < depositMin) {
         throw "${"Amount is too small. Minimum amount is".i18n} ${shift.depositMin} $depositCoin";
       }
@@ -389,14 +384,13 @@ class _ConfirmNonNativeAssetPaymentState
         throw "${"Amount is too large. Maximum amount is".i18n} ${shift.depositMax} $depositCoin";
       }
 
-      // 4. Now that provider has correct address, calculate fee and show modal
       bool confirmed = false;
       if (shiftPair == ShiftPair.liquidBtcToBtc) {
-        final fee = await ref.read(liquidFeeProvider.future); // This will now succeed
+        final fee = await ref.read(liquidFeeProvider.future);
         confirmed = await showBtcConfirmationModal(
           context,
           btcInDenominationFormatted(amount, btcFormat),
-          shift.settleAddress, // Show final destination address to user
+          shift.settleAddress,
           fee,
           btcFormat,
           ref,
@@ -405,7 +399,7 @@ class _ConfirmNonNativeAssetPaymentState
         confirmed = await showNonBtcConfirmationModal(
           context,
           fiatInDenominationFormatted(amount),
-          shift.settleAddress, // Show final destination address to user
+          shift.settleAddress,
           shift.networkFeeUsd,
           ref,
         );
@@ -414,15 +408,15 @@ class _ConfirmNonNativeAssetPaymentState
       if (!confirmed) {
         ref.read(deleteSideShiftProvider(shift.id));
         controller.reset();
-        setState(() { isProcessing = false; });
+        setState(() {
+          isProcessing = false;
+        });
         return;
       }
 
-      // 5. The provider is already updated, so just create the transaction
       final tx = await (shiftPair == ShiftPair.liquidBtcToBtc
           ? ref.read(sendLiquidTransactionProvider.future)
           : ref.read(liquidPayjoinTransaction.future));
-
 
       showFullscreenTransactionSendModal(
         context: context,
@@ -496,7 +490,7 @@ class _ConfirmNonNativeAssetPaymentState
                     onPressed: () => context.pushNamed('camera', extra: {'paymentType': PaymentType.NonNative}),
                   ),
                 ),
-                onChanged: (value) { /* No need to update provider here */ },
+                onChanged: (value) {},
               ),
             ),
           ],
@@ -528,25 +522,6 @@ class _ConfirmNonNativeAssetPaymentState
                           final amount = (double.tryParse(value) ?? 0.0);
                           ref.read(sendTxProvider.notifier).updateAmountFromInput(amount.toString(), 'sats');
                         },
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(right: 8.sp),
-                      child: GestureDetector(
-                        onTap: () {
-                          try {
-                            final adjustedAmount = (balance * 0.95) / 100000000;
-                            ref.read(sendTxProvider.notifier).updateAmountFromInput(adjustedAmount.toString(), 'sats');
-                            amountController.text = (adjustedAmount).toStringAsFixed(2);
-                          } catch (e) {
-                            showMessageSnackBar(message: e.toString().i18n, error: true, context: context);
-                          }
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
-                          child: Text('Max', style: TextStyle(color: Colors.black, fontSize: 16.sp, fontWeight: FontWeight.bold)),
-                        ),
                       ),
                     ),
                   ],
@@ -608,7 +583,7 @@ class _ConfirmNonNativeAssetPaymentState
                     onPressed: () => context.pushNamed('camera', extra: {'paymentType': PaymentType.NonNative}),
                   ),
                 ),
-                onChanged: (value) { /* No need to update provider here */ },
+                onChanged: (value) {},
               ),
             ),
           ],
@@ -690,26 +665,6 @@ class _ConfirmNonNativeAssetPaymentState
               },
               icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
               borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-            ),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: 8.sp),
-          child: GestureDetector(
-            onTap: () {
-              try {
-                final amountInSats = (balance * 0.95).toInt();
-                ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
-                ref.read(sendTxProvider.notifier).updateDrain(false);
-                updateAmountControllerText(amountInSats);
-              } catch (e) {
-                showMessageSnackBar(message: e.toString().i18n, error: true, context: context);
-              }
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
-              child: Text('Max', style: TextStyle(color: Colors.black, fontSize: 16.sp, fontWeight: FontWeight.bold)),
             ),
           ),
         ),

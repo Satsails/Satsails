@@ -2616,8 +2616,12 @@ extension Localization on String {
         'pt': 'Pagar taxa em %s',
       } +
       {
-        'en': 'Error building payjoin asset transaction',
-        'pt': 'Erro ao construir transação',
+        'en': 'Error building payjoin asset transaction, try a lower amount',
+        'pt': 'Erro ao construir transação, tente um valor mais baixo',
+      } +
+      {
+        'en': 'Insufficient funds, try a lower amount',
+        'pt': 'Saldo insuficiente, tente um valor mais baixo',
       } +
       {
         'en': 'Your Balances',

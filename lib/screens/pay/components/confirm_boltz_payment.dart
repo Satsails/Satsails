@@ -532,42 +532,6 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
                                               ],
                                             ),
                                           ),
-                                          Padding(
-                                            padding: EdgeInsets.only(right: 8.sp),
-                                            child: GestureDetector(
-                                              onTap: isInvoice
-                                                  ? null
-                                                  : () async {
-                                                try {
-                                                  final liquidBtcBalance = ref.read(balanceNotifierProvider).liquidBtcBalance;
-                                                  final adjustedAmountInSats = liquidBtcBalance - 200;
-                                                  final finalAmountInSats = adjustedAmountInSats < 0 ? 0 : adjustedAmountInSats;
-                                                  ref.read(sendTxProvider.notifier).updateAmountFromInput(finalAmountInSats.toString(), 'sats');
-                                                } catch (e) {
-                                                  showMessageSnackBar(
-                                                    message: e.toString().i18n,
-                                                    error: true,
-                                                    context: context,
-                                                  );
-                                                }
-                                              },
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                                                decoration: BoxDecoration(
-                                                  color: isInvoice ? Colors.grey : Colors.white,
-                                                  borderRadius: BorderRadius.circular(8.r),
-                                                ),
-                                                child: Text(
-                                                  'Max',
-                                                  style: TextStyle(
-                                                    color: isInvoice ? Colors.white : Colors.black,
-                                                    fontSize: 16.sp,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
                                         ],
                                       ),
                                     ],
@@ -592,22 +556,22 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
                       controller.loading();
 
                       try {
-                          final sendTxState = ref.read(sendTxProvider);
-                          final invoice = await getLnInvoiceWithAmount(sendTxState.address, sendTxState.amount);
-                          ref.read(sendTxProvider.notifier).updateAddress(invoice);
-                          await ref.read(boltzPayProvider.future);
+                        final sendTxState = ref.read(sendTxProvider);
+                        final invoice = await getLnInvoiceWithAmount(sendTxState.address, sendTxState.amount);
+                        ref.read(sendTxProvider.notifier).updateAddress(invoice);
+                        await ref.read(boltzPayProvider.future);
 
-                          showFullscreenTransactionSendModal(
-                            context: context,
-                            asset: 'Lightning',
-                            amount: btcInDenominationFormatted(sendTxState.amount, btcFormat),
-                            fiat: false,
-                            receiveAddress: ref.read(sendTxProvider).address,
-                          );
+                        showFullscreenTransactionSendModal(
+                          context: context,
+                          asset: 'Lightning',
+                          amount: btcInDenominationFormatted(sendTxState.amount, btcFormat),
+                          fiat: false,
+                          receiveAddress: ref.read(sendTxProvider).address,
+                        );
 
-                          ref.read(sendTxProvider.notifier).resetToDefault();
-                          ref.read(sendBlocksProvider.notifier).state = 1;
-                          context.replace('/home');
+                        ref.read(sendTxProvider.notifier).resetToDefault();
+                        ref.read(sendBlocksProvider.notifier).state = 1;
+                        context.replace('/home');
                       } catch (e) {
                         ref.read(sendTxProvider.notifier).updateAddress(addressController.text);
                         controller.failure();

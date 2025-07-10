@@ -12,7 +12,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
-// Abstract class to handle different bridge types in one dropdown
 abstract class BridgeOption {
   const BridgeOption();
 }
@@ -27,7 +26,6 @@ class LightningBridgeOption extends BridgeOption {
 }
 
 
-// Enum to manage the selected section
 enum SwapSection { internal, external }
 
 class Exchange extends ConsumerStatefulWidget {
@@ -42,7 +40,6 @@ class _ExchangeState extends ConsumerState<Exchange> {
   SwapSection _selectedSection = SwapSection.internal;
 
   BridgeOption? _selectedBridgeOption;
-// --- MODIFIED: Default direction is now withdrawal ---
   bool _isDepositing = false;
 
   late final List<BridgeOption> _allBridgeOptions;
@@ -89,7 +86,6 @@ class _ExchangeState extends ConsumerState<Exchange> {
     });
   }
 
-// --- HELPER METHODS ---
   Map<String, String> _getAssetInfo(ShiftPair pair) {
     switch (pair) {
       case ShiftPair.usdcEthToLiquidUsdt: return {'name': 'USDC', 'network': 'Ethereum'};
@@ -118,8 +114,6 @@ class _ExchangeState extends ConsumerState<Exchange> {
     if (network == 'Bitcoin' && name == 'Bitcoin') return 'Bitcoin';
     return '$network $name';
   }
-
-// --- BUILD METHODS ---
 
   @override
   Widget build(BuildContext context) {
@@ -254,14 +248,13 @@ class _ExchangeState extends ConsumerState<Exchange> {
 
     final Widget externalAssetWidget = _buildBridgeOptionDropdown();
     Widget nativeAssetWidget;
-    bool isSwapEnabled;
+
+    const bool isSwapEnabled = true;
 
     if (selectedOption is SideShiftBridgeOption) {
       nativeAssetWidget = _buildSatsailsAssetStaticDisplay(selectedOption.pair);
-      isSwapEnabled = receiveToSendMap.containsKey(selectedOption.pair);
-    } else { // LightningBridgeOption
+    } else {
       nativeAssetWidget = _buildLbtcStaticDisplay();
-      isSwapEnabled = true;
     }
 
     final Widget fromContent = _isDepositing ? externalAssetWidget : nativeAssetWidget;
@@ -450,7 +443,6 @@ class _ExchangeState extends ConsumerState<Exchange> {
   Widget _buildSingleActionButton(ShiftPair pair) {
     final bool isDeposit = _isDepositing;
 
-// --- MODIFIED: Check for unavailability and show a disabled button ---
     if (!isDeposit && !receiveToSendMap.containsKey(pair)) {
       return Container(
         width: double.infinity,
@@ -478,7 +470,6 @@ class _ExchangeState extends ConsumerState<Exchange> {
       );
     }
 
-// This is the original, active button
     final String label = isDeposit ? 'Deposit to Satsails'.i18n : 'Withdrawal from Satsails'.i18n;
     final IconData icon = isDeposit ? Icons.arrow_downward : Icons.arrow_upward;
     final Color iconColor = isDeposit ? const Color(0xFF00C853) : Colors.red;

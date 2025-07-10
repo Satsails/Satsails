@@ -371,7 +371,7 @@ Widget getAssetImage(String? asset, {double? width, double? height}) {
 
 final transactionInProgressProvider = StateProvider.autoDispose<bool>((ref) => false);
 final fromAssetProvider = StateProvider.autoDispose<String>((ref) => 'L-BTC');
-final fiatToFiatSwap = StateProvider.autoDispose<bool>((ref) =>  true);
+final fiatToFiatSwap = StateProvider<bool>((ref) =>  true);
 final toAssetProvider = StateProvider.autoDispose<String>((ref) => 'Bitcoin');
 final inputInFiatProvider = StateProvider.autoDispose<bool>((ref) => false);
 final bitcoinReceiveSpeedProvider = StateProvider.autoDispose<String>((ref) => 'Fastest');

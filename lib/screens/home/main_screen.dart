@@ -62,7 +62,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     });
 
     ref.listen<bool>(backgroundSyncInProgressProvider, (wasInProgress, isNowInProgress) {
-      if (wasInProgress == true && isNowInProgress == false && _isHomeSyncActive && _syncCount < 2) {
+      if (wasInProgress == true && isNowInProgress == false && _isHomeSyncActive && _syncCount < 3) {
         _syncCount++;
         _performSync();
       }
