@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:http/http.dart';
@@ -15,45 +16,50 @@ class BitcoinModel {
     }
   }
 
-  int getAddress() {
-    final address = config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
+  Future<int> getAddress() async {
+    final address = await config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
     return address.index;
   }
 
-  String getAddressString() {
-    final address = config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
+  Future<String> getAddressString() async {
+    final address = await config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
     return address.address.asString();
   }
 
-  String getCurrentAddress(int index) {
-    final address = config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
+  Future<String> getCurrentAddress(int index) async {
+    final address = await config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
     return address.address.asString();
   }
 
-  AddressInfo getAddressInfo(int index) {
-    final address = config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
+  Future<AddressInfo> getAddressInfo(int index) async {
+    final address = await config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
     return address;
   }
 
-  Input getPsbtInput(LocalUtxo utxo, bool onlyWitnessUtxo) {
-    final input = config.wallet.getPsbtInput(utxo: utxo, onlyWitnessUtxo: onlyWitnessUtxo);
+  Future<Input> getPsbtInput(LocalUtxo utxo, bool onlyWitnessUtxo) async {
+    final input = await config.wallet.getPsbtInput(utxo: utxo, onlyWitnessUtxo: onlyWitnessUtxo);
     return input;
   }
 
-  List<TransactionDetails> getTransactions() {
-    final res = config.wallet.listTransactions(includeRaw: true);
+  Future<List<TransactionDetails>> getTransactions() async {
+    final res = await config.wallet.listTransactions(includeRaw: true);
     return res;
   }
 
-  Balance getBalance() {
-    final res = config.wallet.getBalance();
+  Future<Balance> getBalance() async {
+    final res = await config.wallet.getBalance();
     return res;
   }
 
-  List<LocalUtxo> listUnspend() {
-    final res = config.wallet.listUnspent();
+  Future<List<LocalUtxo>> listUnspent() async {
+    final res = await config.wallet.listUnspent();
     return res;
   }
+
+  Future<bool> signBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) txBuilderResult) async {
+    return config.wallet.sign(psbt: txBuilderResult.$1);
+  }
+
 
   Future<BitcoinFeeModel> estimateFeeRate() async {
     try {
@@ -155,10 +161,6 @@ class BitcoinModel {
     }
   }
 
-  bool signBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) txBuilderResult) {
-    return config.wallet.sign(psbt: txBuilderResult.$1);
-  }
-
   Future<String> broadcastBitcoinTransaction(
       (PartiallySignedTransaction, TransactionDetails) signedPsbt) async {
     try {
@@ -194,7 +196,6 @@ class TransactionBuilder {
 
 class BumpFeeTransactionBuilder {
   final String txid;
-
   final double fee;
 
   BumpFeeTransactionBuilder({required this.txid, required this.fee});

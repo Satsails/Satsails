@@ -23,6 +23,8 @@ class Camera extends ConsumerStatefulWidget {
 
 class _CameraState extends ConsumerState<Camera> {
   MobileScannerController? _controller;
+  // 1. Add a guard flag to prevent multiple pops.
+  bool _isPopping = false;
 
   @override
   void initState() {
@@ -34,6 +36,13 @@ class _CameraState extends ConsumerState<Camera> {
   void dispose() {
     _controller?.dispose();
     super.dispose();
+  }
+
+  // 2. Create a safe pop method.
+  void _popSafely() {
+    if (_isPopping) return;
+    _isPopping = true;
+    context.pop();
   }
 
   void _toggleFlash() {
@@ -73,6 +82,9 @@ class _CameraState extends ConsumerState<Camera> {
   }
 
   Future<void> _onDetect(BarcodeCapture capture, BuildContext context) async {
+    // Prevent detection from running if we are already popping.
+    if (_isPopping) return;
+
     for (final barcode in capture.barcodes) {
       final code = barcode.rawValue;
       if (code == null) continue;
@@ -85,7 +97,8 @@ class _CameraState extends ConsumerState<Camera> {
         await ref.refresh(setAddressAndAmountProvider(code).future);
       }
 
-      context.pop();
+      // 3. Use the safe pop method.
+      _popSafely();
       break;
     }
   }
@@ -95,10 +108,8 @@ class _CameraState extends ConsumerState<Camera> {
     final screenSize = MediaQuery.of(context).size;
     final squareSize = screenSize.width * 0.6;
 
+    // 4. Remove the incorrect onPopInvoked callback.
     return PopScope(
-      onPopInvoked: (bool canPop) {
-        context.pop();
-      },
       child: Scaffold(
         backgroundColor: Colors.black,
         body: Stack(
@@ -125,7 +136,8 @@ class _CameraState extends ConsumerState<Camera> {
               left: 10.0,
               child: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30.0),
-                onPressed: () => context.pop(),
+                // 5. Use the safe pop method here as well.
+                onPressed: () => _popSafely(),
               ),
             ),
             Positioned(
