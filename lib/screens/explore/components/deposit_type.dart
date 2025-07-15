@@ -1,11 +1,9 @@
 import 'package:Satsails/helpers/deposit_type_helper.dart';
-import 'package:Satsails/providers/sideshift_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:Satsails/models/sideshift_model.dart'; // Assuming ShiftPair is defined here
 
 
 class DepositTypeScreen extends ConsumerWidget {
@@ -13,7 +11,6 @@ class DepositTypeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedMode = ref.watch(selectedModeProvider);
     final selectedCurrency = ref.watch(selectedCurrencyProvider);
     final selectedPaymentMethod = ref.watch(selectedPaymentMethodProvider);
     final selectedAsset = ref.watch(selectedCryptoTypeProvider);
@@ -56,51 +53,13 @@ class DepositTypeScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0x00333333).withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: selectedMode,
-                    onChanged: (value) {
-                      if (value != null) {
-                        ref.read(selectedModeProvider.notifier).state = value;
-                      }
-                    },
-                    items: ['Purchase with P2P (No KYC)', 'Purchase from Providers']
-                        .map((mode) => DropdownMenuItem<String>(
-                      value: mode,
-                      child: Text(
-                        mode.i18n,
-                        style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                      ),
-                    ))
-                        .toList(),
-                    isExpanded: true,
-                    dropdownColor: const Color(0xFF212121),
-                    borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16.h),
               Card(
                 color: const Color(0x00333333).withOpacity(0.4),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                 elevation: 4,
                 child: Padding(
                   padding: EdgeInsets.all(16.h),
-                  child: selectedMode == 'Purchase with P2P (No KYC)'
-                      ? Center(
-                    child: Text(
-                      'Coming soon'.i18n,
-                      style: TextStyle(color: Colors.white, fontSize: 20.sp),
-                    ),
-                  )
-                      : Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _buildDropdown(
@@ -186,7 +145,6 @@ class DepositTypeScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              if (selectedMode != 'Purchase with P2P (No KYC)')
               Builder(
                 builder: (context) {
                   final selectedProvider = ref.watch(computedDepositProvider);
