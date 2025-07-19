@@ -15,6 +15,21 @@ import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:lwk/lwk.dart';
+import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
+
+class BitcoinSyncResult {
+  final int balance;
+  final String address;
+  final int addressIndex;
+  final List<bdk.TransactionDetails> transactions;
+
+  BitcoinSyncResult({
+    required this.balance,
+    required this.address,
+    required this.addressIndex,
+    required this.transactions,
+  });
+}
 
 abstract class SyncNotifier<T> extends AsyncNotifier<T> {
   Future<T> performSync();
@@ -46,24 +61,31 @@ abstract class SyncNotifier<T> extends AsyncNotifier<T> {
   }
 }
 
-class BitcoinSyncNotifier extends SyncNotifier<int> {
+class BitcoinSyncNotifier extends SyncNotifier<BitcoinSyncResult?> {
   @override
-  Future<int> build() async {
-    final balance = await ref.read(getBitcoinBalanceProvider.future);
-    return balance.total.toInt();
+  Future<BitcoinSyncResult?> build() async {
+    // Start with no data. The first sync will populate it.
+    return null;
   }
 
   @override
-  Future<int> performSync() async {
+  Future<BitcoinSyncResult?> performSync() async { // FIX 1: Return type changed to Future<BitcoinSyncResult?>
     return await handleSync(
       syncOperation: () async {
         await ref.refresh(syncBitcoinProvider.future);
         final addressIndex = await ref.refresh(lastUsedAddressProvider.future);
         final address = await ref.refresh(lastUsedAddressProviderString.future);
-        ref.read(addressProvider.notifier).setBitcoinAddress(addressIndex, address);
         final balance = await ref.read(getBitcoinBalanceProvider.future);
+        final transactions = await ref.read(getBitcoinTransactionsProvider.future);
+        ref.read(addressProvider.notifier).setBitcoinAddress(addressIndex, address);
         ref.read(balanceNotifierProvider.notifier).updateOnChainBtcBalance(balance.total.toInt());
-        return balance.total.toInt();
+
+        return BitcoinSyncResult(
+          balance: balance.total.toInt(),
+          address: address,
+          addressIndex: addressIndex,
+          transactions: transactions,
+        );
       },
       onSuccess: () => debugPrint('Bitcoin sync successful.'),
       onFailure: () => debugPrint('Bitcoin sync failed.'),
@@ -126,6 +148,8 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
     return await handleSync(
       syncOperation: () async {
         final previousBalance = ref.read(balanceNotifierProvider);
+        List<bdk.TransactionDetails>? syncedBitcoinTxs;
+
 
         try {
           await ref.read(liquidSyncNotifierProvider.notifier).performSync();
@@ -133,17 +157,23 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
           debugPrint('Liquid sync failed within background sync: $e');
         }
 
+        // 2. Perform the unified Bitcoin sync which gets balance, address, and txs.
         try {
-          await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
+          final bitcoinResult = await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
+          if (bitcoinResult != null) {
+            syncedBitcoinTxs = bitcoinResult.transactions;
+          }
         } catch (e) {
           debugPrint('Bitcoin sync failed within background sync: $e');
         }
+
+        await ref.read(transactionNotifierProvider.notifier).refreshAndMergeTransactions(btcTxs: syncedBitcoinTxs);
 
         final latestBalance = ref.read(balanceNotifierProvider);
         _compareBalances(previousBalance, latestBalance);
         await _updateSideShiftShifts();
         await ref.read(claimAllBoltzProvider.future);
-        await ref.read(transactionNotifierProvider.notifier).refreshAndMergeTransactions();
+
         final hiveBox = await Hive.openBox<WalletBalance>('balanceBox');
         await hiveBox.put('balance', latestBalance);
 
@@ -241,7 +271,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
 }
 
 final bitcoinSyncNotifierProvider =
-AsyncNotifierProvider<BitcoinSyncNotifier, int>(BitcoinSyncNotifier.new);
+AsyncNotifierProvider<BitcoinSyncNotifier, BitcoinSyncResult?>(BitcoinSyncNotifier.new);
 
 final liquidSyncNotifierProvider =
 AsyncNotifierProvider<LiquidSyncNotifier, Balances>(LiquidSyncNotifier.new);
