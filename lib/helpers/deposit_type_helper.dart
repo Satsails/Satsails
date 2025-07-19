@@ -9,7 +9,6 @@ enum DepositMethod { PIX, ApplePay, GooglePay, BankTransfer, CreditCard }
 enum DepositProvider { Eulen, Nox, Chimera, Meld }
 enum CurrencyDeposit { USD, EUR, BRL, CHF, GBP }
 
-final selectedModeProvider = StateProvider<String>((ref) => 'Purchase from Providers');
 final selectedCurrencyProvider = StateProvider<CurrencyDeposit>((ref) => CurrencyDeposit.BRL);
 final selectedPaymentMethodProvider = StateProvider<DepositMethod?>((ref) => DepositMethod.PIX);
 final selectedCryptoTypeProvider = StateProvider<DepositType>((ref) => DepositType.Bitcoin);

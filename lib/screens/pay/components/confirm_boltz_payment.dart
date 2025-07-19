@@ -1,4 +1,4 @@
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/helpers/formatters.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
@@ -9,191 +9,17 @@ import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/validations/address_validation.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
-
-Future<bool> showConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
-  final settings = ref.read(settingsProvider);
-  final currency = settings.currency;
-  final amountInCurrency = ref.read(bitcoinValueInCurrencyProvider);
-
-  String shortenAddress(String value) {
-    if (value.length <= 12) return value;
-    return '${value.substring(0, 6)}...${value.substring(value.length - 6)}';
-  }
-
-  return await showDialog<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return Dialog(
-        backgroundColor: Colors.transparent,
-        child: Center(
-          child: Card(
-            color: const Color(0xFF333333),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-            elevation: 8,
-            child: Padding(
-              padding: EdgeInsets.all(24.w),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Text(
-                      'Confirm Transaction'.i18n,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 24.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Amount'.i18n,
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '$amount $btcFormat',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              '${currencyFormat(amountInCurrency, currency)} $currency',
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 18.sp,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Divider(color: Colors.grey[700], height: 20.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Recipient'.i18n,
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                        SizedBox(height: 8.h),
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[800],
-                            borderRadius: BorderRadius.circular(6.r),
-                          ),
-                          child: Text(
-                            shortenAddress(address),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Divider(color: Colors.grey[700], height: 20.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Fee'.i18n,
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                        Text(
-                          '$fee sats',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 24.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: Text(
-                          'Cancel'.i18n,
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16.w),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.r)),
-                          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
-                        ),
-                        onPressed: () => Navigator.of(context).pop(true),
-                        child: Text(
-                          'Confirm'.i18n,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    },
-  ) ?? false;
-}
 
 class ConfirmBoltzPayment extends ConsumerStatefulWidget {
   const ConfirmBoltzPayment({super.key});
@@ -209,7 +35,6 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
   late String btcFormat;
   bool isInvoice = false;
   late String currency;
-  late double currencyRate;
   int _previousAmount = 0;
 
   void updateControllerText(int satsAmount) {
@@ -229,7 +54,7 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
         ? converted
         : selectedCurrency == 'Sats'
         ? satsAmount.toString()
-        : double.parse(converted).toStringAsFixed(2);
+        : (Decimal.tryParse(converted) ?? Decimal.zero).toStringAsFixed(2);
   }
 
   @override
@@ -238,12 +63,11 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
     final settings = ref.read(settingsProvider);
     btcFormat = settings.btcFormat;
     currency = settings.currency;
-    currencyRate = ref.read(selectedCurrencyProvider(currency));
 
     final sendTxState = ref.read(sendTxProvider);
     _previousAmount = sendTxState.amount;
     updateControllerText(sendTxState.amount);
-    if(isLightningInvoice(sendTxState.address)){
+    if (isLightningInvoice(sendTxState.address)) {
       isInvoice = true;
     }
     addressController.text = sendTxState.address;
@@ -267,11 +91,9 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
       _previousAmount = sendTxState.amount;
     }
 
-    final btcBalanceInFormat = ref.read(liquidBalanceInFormatProvider(btcFormat));
-    final valueInBtc = ref.watch(liquidBalanceInFormatProvider('BTC')) == '0.00000000'
-        ? 0
-        : double.parse(ref.watch(liquidBalanceInFormatProvider('BTC')));
-    final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
+    final liquidBalanceSats = ref.watch(balanceNotifierProvider).liquidBtcBalance;
+    final btcBalanceInFormat = btcInDenominationFormatted(liquidBalanceSats, btcFormat);
+    final balanceInSelectedCurrency = ref.read(conversionToFiatProvider(liquidBalanceSats));
 
     return PopScope(
       canPop: !isProcessing,
@@ -522,7 +344,7 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
                                                             ? converted
                                                             : selectedCurrency == 'Sats'
                                                             ? currentAmountSats.toString()
-                                                            : double.parse(converted).toStringAsFixed(2);
+                                                            : (Decimal.tryParse(converted) ?? Decimal.zero).toStringAsFixed(2);
                                                       }
                                                     },
                                                     icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),

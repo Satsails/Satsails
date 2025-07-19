@@ -1,5 +1,5 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/helpers/formatters.dart';
 import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/coinos_provider.dart';

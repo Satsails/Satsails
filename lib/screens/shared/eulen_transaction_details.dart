@@ -5,6 +5,7 @@ import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -256,7 +257,10 @@ class _EulenTransactionDetailsState extends ConsumerState<EulenTransactionDetail
         ),
         TransactionDetailRow(
           label: '${"Value purchased in".i18n} $currency',
-          value: currencyFormat(transaction.price ?? 0 * currencyConversionFromUsd, currency),
+          value: currencyFormat(
+              Decimal.parse((transaction.price ?? 0).toString()) * Decimal.parse(currencyConversionFromUsd.toString()),
+              currency
+          ),
         ),
       ],
     );

@@ -1,4 +1,4 @@
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/helpers/formatters.dart';
 import 'package:Satsails/models/boltz_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';

@@ -1,12 +1,12 @@
 import 'dart:ui';
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/helpers/formatters.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
@@ -72,13 +72,9 @@ class BalanceCard extends ConsumerWidget {
           ),
         const Spacer(),
         IconButton(
-          onPressed: () => ref
-              .read(settingsProvider.notifier)
-              .setBalanceVisible(!isBalanceVisible),
+          onPressed: () => ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible),
           icon: Icon(
-            isBalanceVisible
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined,
+            isBalanceVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
             color: textColor,
             size: 24.sp,
           ),
@@ -104,11 +100,7 @@ class BalanceCard extends ConsumerWidget {
           ),
         ),
         SizedBox(height: 2.h),
-        if ([
-          'Bitcoin (Mainnet)',
-          'Lightning Bitcoin',
-          'Liquid Bitcoin'
-        ].contains(selectedAsset))
+        if (['Bitcoin (Mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(selectedAsset))
           Text(
             equivalentBalance,
             style: TextStyle(
@@ -166,8 +158,7 @@ class BalanceCard extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(14.r),
-                border:
-                Border.all(color: textColor.withOpacity(0.5), width: 1.5),
+                border: Border.all(color: textColor.withOpacity(0.5), width: 1.5),
               ),
               child: Row(
                 children: [
@@ -210,10 +201,7 @@ class BalanceCard extends ConsumerWidget {
             SizedBox(width: 6.w),
             Text(
               label,
-              style: TextStyle(
-                  color: textColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: fontSize),
+              style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: fontSize),
             ),
           ],
         ),
@@ -230,9 +218,7 @@ class BalanceCard extends ConsumerWidget {
         context.push('/home/pay', extra: 'lightning');
         break;
       case 'Liquid Bitcoin':
-        ref
-            .read(sendTxProvider.notifier)
-            .updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         context.push('/home/pay', extra: 'liquid');
         break;
       default:
@@ -267,65 +253,58 @@ class BalanceCard extends ConsumerWidget {
     final textColor = network == 'Spark Network' ? Colors.white : Colors.black;
 
     final balanceProvider = ref.watch(balanceNotifierProvider);
-    final currencyProvider = ref.watch(selectedCurrencyProvider(currency));
+    final currencyRate = ref.watch(selectedCurrencyProvider(currency));
 
     String nativeBalance;
     String equivalentBalance = '';
 
+    // Determine the native balance string first.
     switch (selectedAsset) {
       case 'Bitcoin (Mainnet)':
-        nativeBalance = isBalanceVisible
-            ? btcInDenominationFormatted(
-            balanceProvider.onChainBtcBalance, btcFormat)
-            : '****';
-        equivalentBalance = isBalanceVisible
-            ? currencyFormat(balanceProvider.onChainBtcBalance /
-            100000000 *
-            currencyProvider, currency)
-            : '****';
+        nativeBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.onChainBtcBalance, btcFormat) : '****';
         break;
       case 'Lightning Bitcoin':
-        nativeBalance = isBalanceVisible
-            ? btcInDenominationFormatted(
-            balanceProvider.sparkBitcoinbalance ?? 0, btcFormat)
-            : '****';
-        equivalentBalance = isBalanceVisible
-            ? currencyFormat(
-            (balanceProvider.sparkBitcoinbalance ?? 0) /
-                100000000 *
-                currencyProvider,
-            currency)
-            : '****';
+        nativeBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.sparkBitcoinbalance ?? 0, btcFormat) : '****';
         break;
       case 'Liquid Bitcoin':
-        nativeBalance = isBalanceVisible
-            ? btcInDenominationFormatted(
-            balanceProvider.liquidBtcBalance, btcFormat)
-            : '****';
-        equivalentBalance = isBalanceVisible
-            ? currencyFormat(balanceProvider.liquidBtcBalance /
-            100000000 *
-            currencyProvider, currency)
-            : '****';
+        nativeBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.liquidBtcBalance, btcFormat) : '****';
         break;
       case 'USDT':
-        nativeBalance = isBalanceVisible
-            ? fiatInDenominationFormatted(balanceProvider.liquidUsdtBalance)
-            : '****';
+        nativeBalance = isBalanceVisible ? fiatInDenominationFormatted(balanceProvider.liquidUsdtBalance) : '****';
         break;
       case 'EURx':
-        nativeBalance = isBalanceVisible
-            ? fiatInDenominationFormatted(balanceProvider.liquidEuroxBalance)
-            : '****';
+        nativeBalance = isBalanceVisible ? fiatInDenominationFormatted(balanceProvider.liquidEuroxBalance) : '****';
         break;
       case 'Depix':
-        nativeBalance = isBalanceVisible
-            ? fiatInDenominationFormatted(balanceProvider.liquidDepixBalance)
-            : '****';
+        nativeBalance = isBalanceVisible ? fiatInDenominationFormatted(balanceProvider.liquidDepixBalance) : '****';
         break;
       default:
         nativeBalance = '****';
-        equivalentBalance = '****';
+    }
+
+    // If visible and a Bitcoin asset, calculate the fiat equivalent precisely.
+    if (isBalanceVisible && ['Bitcoin (Mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(selectedAsset)) {
+      int satsBalance;
+      switch (selectedAsset) {
+        case 'Lightning Bitcoin':
+          satsBalance = balanceProvider.sparkBitcoinbalance ?? 0;
+          break;
+        case 'Liquid Bitcoin':
+          satsBalance = balanceProvider.liquidBtcBalance;
+          break;
+        default: // 'Bitcoin (Mainnet)'
+          satsBalance = balanceProvider.onChainBtcBalance;
+          break;
+      }
+
+      final satsDecimal = Decimal.fromInt(satsBalance);
+      final rateDecimal = Decimal.parse(currencyRate.toString());
+      final btcDecimal = (satsDecimal / Decimal.fromInt(100000000)).toDecimal(scaleOnInfinitePrecision: 8);
+      final fiatValueDecimal = btcDecimal * rateDecimal;
+
+      equivalentBalance = currencyFormat(fiatValueDecimal, currency);
+    } else if (!isBalanceVisible) {
+      equivalentBalance = '****';
     }
 
     return Container(
@@ -343,7 +322,6 @@ class BalanceCard extends ConsumerWidget {
             _buildHeader(context, ref),
             SizedBox(height: isSmallScreen ? 2.h : 4.h),
             _buildBalanceDisplay(nativeBalance, equivalentBalance, isSmallScreen),
-            // Conditionally display the graph or a spacer
             if (!isSmallScreen)
               Expanded(
                 child: Opacity(
@@ -355,7 +333,7 @@ class BalanceCard extends ConsumerWidget {
                 ),
               )
             else
-              const Spacer(), // Pushes buttons down on small screens
+              const Spacer(),
             SizedBox(height: 8.h),
             _buildActionButtons(context, ref, isSmallScreen),
           ],
@@ -382,28 +360,23 @@ class MiniExpensesGraph extends ConsumerWidget {
     switch (selectedAsset) {
       case 'Bitcoin (Mainnet)':
       case 'Lightning Bitcoin':
-        asyncData =
-            AsyncValue.data(ref.watch(bitcoinBalanceInFormatByDayProvider));
+        asyncData = AsyncValue.data(ref.watch(bitcoinBalanceInFormatByDayProvider));
         break;
       case 'Liquid Bitcoin':
         final assetId = AssetMapper.reverseMapTicker(AssetId.LBTC);
-        asyncData = AsyncValue.data(
-            ref.watch(liquidBalancePerDayInFormatProvider(assetId)));
+        asyncData = AsyncValue.data(ref.watch(liquidBalancePerDayInFormatProvider(assetId)));
         break;
       case 'USDT':
         final assetId = AssetMapper.reverseMapTicker(AssetId.USD);
-        asyncData = AsyncValue.data(
-            ref.watch(liquidBalancePerDayInFormatProvider(assetId)));
+        asyncData = AsyncValue.data(ref.watch(liquidBalancePerDayInFormatProvider(assetId)));
         break;
       case 'EURx':
         final assetId = AssetMapper.reverseMapTicker(AssetId.EUR);
-        asyncData = AsyncValue.data(
-            ref.watch(liquidBalancePerDayInFormatProvider(assetId)));
+        asyncData = AsyncValue.data(ref.watch(liquidBalancePerDayInFormatProvider(assetId)));
         break;
       case 'Depix':
         final assetId = AssetMapper.reverseMapTicker(AssetId.BRL);
-        asyncData = AsyncValue.data(
-            ref.watch(liquidBalancePerDayInFormatProvider(assetId)));
+        asyncData = AsyncValue.data(ref.watch(liquidBalancePerDayInFormatProvider(assetId)));
         break;
       default:
         asyncData = const AsyncValue.data({});

@@ -1,12 +1,13 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/boltz_model.dart';
-import 'package:Satsails/providers/conversion_provider.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:boltz/boltz.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -273,9 +274,18 @@ Widget subTransactionIndicator(int value, {bool showIcon = true}) {
 String liquidTransactionAmountInFiat(dynamic transaction, WidgetRef ref) {
   if (AssetMapper.mapAsset(transaction.assetId) == AssetId.LBTC) {
     final currency = ref.watch(settingsProvider).currency;
-    final value = ref.watch(conversionToFiatProvider(transaction.value));
-    return currencyFormat(double.parse(value) / 100000000, currency);
+
+    final fiatValueString = ref.watch(conversionToFiatProvider(transaction.value));
+
+    if (fiatValueString.isEmpty) {
+      return '';
+    }
+
+    final fiatAmount = Decimal.parse(fiatValueString);
+
+    return currencyFormat(fiatAmount, currency);
   }
+
   return '';
 }
 

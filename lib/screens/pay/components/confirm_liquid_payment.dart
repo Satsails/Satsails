@@ -1,15 +1,15 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/helpers/formatters.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -89,7 +89,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                               ),
                             ),
                             Text(
-                              '${currencyFormat(amountInCurrency, currency)} $currency',
+                              '${currencyFormat(Decimal.parse(amountInCurrency.toString()), currency)} $currency',
                               style: TextStyle(
                                 color: Colors.grey[400],
                                 fontSize: 18.sp,
@@ -249,7 +249,7 @@ Widget buildTransactionDetailsCard(WidgetRef ref) {
                   'Amount:'.i18n,
                   style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold)
               ),
-              Text(currencyFormat(ref.watch(bitcoinValueInCurrencyProvider), ref.watch(settingsProvider).currency), style: TextStyle(fontSize: 16.sp, color: Colors.white),
+              Text(currencyFormat(Decimal.parse(ref.watch(bitcoinValueInCurrencyProvider).toString()), ref.watch(settingsProvider).currency), style: TextStyle(fontSize: 16.sp, color: Colors.white),
               ),
             ],
           ),
@@ -292,7 +292,7 @@ Widget buildTransactionDetailsCard(WidgetRef ref) {
                     style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    currencyFormat(feeValue, ref.watch(settingsProvider).currency),
+                    currencyFormat(Decimal.parse(feeValue.toString()), ref.watch(settingsProvider).currency),
                     style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ],
