@@ -1,5 +1,4 @@
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/helpers/formatters.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';

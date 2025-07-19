@@ -1,6 +1,5 @@
 import 'dart:io';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/helpers/formatters.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
@@ -24,7 +23,7 @@ class _CashbackDisplay extends ConsumerWidget {
     final transaction = ref.watch(transactionNotifierProvider);
     final cashbackToReceive = isBalanceVisible
         ? btcInDenominationFormatted(
-      transaction.value?.unpaidCashback ?? 0 * 100000000,
+      (transaction.value?.unpaidCashback ?? 0).toInt(),
       denomination,
     )
         : '***';

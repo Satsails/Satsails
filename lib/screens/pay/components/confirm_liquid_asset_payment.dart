@@ -1,10 +1,8 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/helpers/formatters.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
@@ -14,6 +12,7 @@ import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -307,7 +306,7 @@ Widget buildTransactionDetailsCard(WidgetRef ref, TextEditingController controll
                     style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    currencyFormat(feeValue, ref.watch(settingsProvider).currency),
+                    currencyFormat(Decimal.parse(feeValue.toString()), ref.watch(settingsProvider).currency),
                     style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ],

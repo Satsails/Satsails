@@ -1,4 +1,4 @@
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/helpers/formatters.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -248,7 +248,7 @@ class PegDetails extends ConsumerWidget {
         ),
         TransactionDetailRow(
           label: "Amount sent".i18n,
-          value: btcInDenominationFormatted(transaction.amount!.toDouble(), btcFormat),
+          value: btcInDenominationFormatted(transaction.amount!, btcFormat),
           shorten: false,
         ),
         TransactionDetailRow(

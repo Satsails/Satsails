@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/helpers/formatters.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
@@ -18,6 +17,7 @@ import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -228,7 +228,7 @@ class _ConfirmNonNativeAssetPaymentState
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text('$amount $btcFormat', style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.w600)),
-                          Text('${currencyFormat(amountInCurrency, currency)} $currency', style: TextStyle(color: Colors.grey[400], fontSize: 18.sp)),
+                          Text('${currencyFormat(Decimal.parse(amountInCurrency.toString()), currency)} $currency', style: TextStyle(color: Colors.grey[400], fontSize: 18.sp)),
                         ],
                       ),
                     ],

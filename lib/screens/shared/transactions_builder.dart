@@ -1,6 +1,6 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
+import 'package:Satsails/helpers/formatters.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';

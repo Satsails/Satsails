@@ -1,9 +1,8 @@
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/helpers/formatters.dart';
 import 'package:Satsails/helpers/string_extension.dart';
-import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/balance_model.dart';
@@ -14,7 +13,8 @@ import 'package:go_router/go_router.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:Satsails/providers/sideshift_provider.dart';
+
+import '../../providers/currency_conversions_provider.dart';
 
 class Accounts extends ConsumerStatefulWidget {
   const Accounts({super.key});
@@ -330,7 +330,18 @@ class _AccountsState extends ConsumerState<Accounts> {
                             isExpanded: _expandedCardId == 'Bitcoin', onTap: () => _handleCardTap('Bitcoin'),
                             balanceText: isBalanceVisible ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).onChainBtcBalance, ref.watch(settingsProvider).btcFormat) : '••••••',
                             icon: Image.asset('lib/assets/bitcoin-logo.png', width: 32.sp, height: 32.sp),
-                            fiatBalance: isBalanceVisible ? currencyFormat(ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).onChainBtcBalance))).toDouble(), ref.watch(settingsProvider).currency) : '••••••'
+                            fiatBalance: isBalanceVisible
+                                ? currencyFormat(
+                                (
+                                    // Convert satoshis to BTC as a Decimal
+                                    (Decimal.fromInt(ref.watch(balanceNotifierProvider).onChainBtcBalance) / Decimal.fromInt(100000000))
+                                        .toDecimal(scaleOnInfinitePrecision: 8)
+                                )
+                                    // Multiply by the fiat rate, also converted to a Decimal
+                                    * Decimal.parse(ref.watch(selectedCurrencyProvider(ref.watch(settingsProvider).currency)).toString()),
+                                ref.watch(settingsProvider).currency
+                            )
+                                : '••••••'
                         ),
                         SizedBox(height: 24.h),
                         _buildSectionHeader('Boltz Network', 'lib/assets/boltz.svg', Colors.white),
@@ -344,7 +355,18 @@ class _AccountsState extends ConsumerState<Accounts> {
                             isExpanded: _expandedCardId == 'L-BTC', onTap: () => _handleCardTap('L-BTC'),
                             balanceText: isBalanceVisible ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBtcBalance, ref.watch(settingsProvider).btcFormat) : '••••••',
                             icon: Image.asset('lib/assets/l-btc.png', width: 32.sp, height: 32.sp),
-                            fiatBalance: isBalanceVisible ? currencyFormat(ref.watch(currentBitcoinPriceInCurrencyProvider(CurrencyParams(ref.watch(settingsProvider).currency, ref.watch(balanceNotifierProvider).liquidBtcBalance))).toDouble(), ref.watch(settingsProvider).currency) : '••••••'
+                            fiatBalance: isBalanceVisible
+                                ? currencyFormat(
+                                (
+                                    // Convert satoshis to BTC as a Decimal
+                                    (Decimal.fromInt(ref.watch(balanceNotifierProvider).liquidBtcBalance) / Decimal.fromInt(100000000))
+                                        .toDecimal(scaleOnInfinitePrecision: 8)
+                                )
+                                    // Multiply by the fiat rate, also converted to a Decimal
+                                    * Decimal.parse(ref.watch(selectedCurrencyProvider(ref.watch(settingsProvider).currency)).toString()),
+                                ref.watch(settingsProvider).currency
+                            )
+                                : '••••••'
                         ),
                         SizedBox(height: 16.h),
                         _buildStableCard(

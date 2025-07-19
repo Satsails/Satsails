@@ -7,12 +7,26 @@ enum CurrencyType {
   USD,
   EUR,
   GBP,
-  CHF,
+  CHF;
+
+  factory CurrencyType.fromString(String value) {
+    return CurrencyType.values.firstWhere(
+          (e) => e.name == value,
+      orElse: () => CurrencyType.USD,
+    );
+  }
 }
 
-enum BitcoinType{
+enum BitcoinType {
   BTC,
-  SATS,
+  SATS;
+
+  factory BitcoinType.fromString(String value) {
+    return BitcoinType.values.firstWhere(
+          (e) => e.name.toLowerCase() == value.toLowerCase(),
+      orElse: () => BitcoinType.BTC,
+    );
+  }
 }
 
 class CurrencyExchangeRatesModel extends StateNotifier<CurrencyConversions> {
@@ -41,7 +55,23 @@ class CurrencyExchangeRatesModel extends StateNotifier<CurrencyConversions> {
     final gbpToChf = await fx.getCurrencyConverted(sourceCurrency: CurrencyType.GBP.name, destinationCurrency: CurrencyType.CHF.name, sourceAmount: 1);
     final chfToBrl = await fx.getCurrencyConverted(sourceCurrency: CurrencyType.CHF.name, destinationCurrency: CurrencyType.BRL.name, sourceAmount: 1);
 
+    const int satsPerBtc = 100000000;
+    const satsToBtc = 1 / satsPerBtc;
+    const int btcToSats = satsPerBtc;
+
+    final satsToUsd = btcToUsd / satsPerBtc;
+    final usdToSats = 1 / satsToUsd;
+    final satsToEur = btcToEur / satsPerBtc;
+    final eurToSats = 1 / satsToEur;
+    final satsToBrl = btcToBrl / satsPerBtc;
+    final brlToSats = 1 / satsToBrl;
+    final satsToGbp = btcToGbp / satsPerBtc;
+    final gbpToSats = 1 / satsToGbp;
+    final satsToChf = btcToChf / satsPerBtc;
+    final chfToSats = 1 / satsToChf;
+
     final currencyBox = await Hive.openBox('currency');
+
     currencyBox.put('${CurrencyType.USD.name}To${CurrencyType.EUR.name}', usdToEur);
     currencyBox.put('${CurrencyType.USD.name}To${CurrencyType.BRL.name}', usdToBrl);
     currencyBox.put('${CurrencyType.USD.name}To${CurrencyType.GBP.name}', usdToGbp);
@@ -70,7 +100,20 @@ class CurrencyExchangeRatesModel extends StateNotifier<CurrencyConversions> {
     currencyBox.put('${CurrencyType.BRL.name}To${CurrencyType.GBP.name}', 1 / gbpToBrl);
     currencyBox.put('${CurrencyType.CHF.name}To${CurrencyType.GBP.name}', 1 / gbpToChf);
     currencyBox.put('${CurrencyType.BRL.name}To${CurrencyType.CHF.name}', 1 / chfToBrl);
+    currencyBox.put('${BitcoinType.SATS.name}To${CurrencyType.USD.name}', satsToUsd);
+    currencyBox.put('${CurrencyType.USD.name}To${BitcoinType.SATS.name}', usdToSats);
+    currencyBox.put('${BitcoinType.SATS.name}To${CurrencyType.EUR.name}', satsToEur);
+    currencyBox.put('${CurrencyType.EUR.name}To${BitcoinType.SATS.name}', eurToSats);
+    currencyBox.put('${BitcoinType.SATS.name}To${CurrencyType.BRL.name}', satsToBrl);
+    currencyBox.put('${CurrencyType.BRL.name}To${BitcoinType.SATS.name}', brlToSats);
+    currencyBox.put('${BitcoinType.SATS.name}To${CurrencyType.GBP.name}', satsToGbp);
+    currencyBox.put('${CurrencyType.GBP.name}To${BitcoinType.SATS.name}', gbpToSats);
+    currencyBox.put('${BitcoinType.SATS.name}To${CurrencyType.CHF.name}', satsToChf);
+    currencyBox.put('${CurrencyType.CHF.name}To${BitcoinType.SATS.name}', chfToSats);
+    currencyBox.put('${BitcoinType.SATS.name}To${BitcoinType.BTC.name}', satsToBtc);
+    currencyBox.put('${BitcoinType.BTC.name}To${BitcoinType.SATS.name}', btcToSats);
 
+    // Update state with all conversion rates
     state = CurrencyConversions(
       usdToEur: usdToEur,
       usdToBrl: usdToBrl,
@@ -102,6 +145,18 @@ class CurrencyExchangeRatesModel extends StateNotifier<CurrencyConversions> {
       btcToBrl: btcToBrl,
       btcToGbp: btcToGbp,
       btcToChf: btcToChf,
+      satsToUsd: satsToUsd,
+      usdToSats: usdToSats,
+      satsToEur: satsToEur,
+      eurToSats: eurToSats,
+      satsToBrl: satsToBrl,
+      brlToSats: brlToSats,
+      satsToGbp: satsToGbp,
+      gbpToSats: gbpToSats,
+      satsToChf: satsToChf,
+      chfToSats: chfToSats,
+      satsToBtc: satsToBtc,
+      btcToSats: btcToSats.toDouble(),
     );
   }
 }
@@ -137,6 +192,18 @@ class CurrencyConversions {
   final double btcToBrl;
   final double btcToGbp;
   final double btcToChf;
+  final double satsToUsd;
+  final double usdToSats;
+  final double satsToEur;
+  final double eurToSats;
+  final double satsToBrl;
+  final double brlToSats;
+  final double satsToGbp;
+  final double gbpToSats;
+  final double satsToChf;
+  final double chfToSats;
+  final double satsToBtc;
+  final double btcToSats;
 
   CurrencyConversions({
     required this.usdToEur,
@@ -169,5 +236,17 @@ class CurrencyConversions {
     required this.btcToBrl,
     required this.btcToGbp,
     required this.btcToChf,
+    required this.satsToUsd,
+    required this.usdToSats,
+    required this.satsToEur,
+    required this.eurToSats,
+    required this.satsToBrl,
+    required this.brlToSats,
+    required this.satsToGbp,
+    required this.gbpToSats,
+    required this.satsToChf,
+    required this.chfToSats,
+    required this.satsToBtc,
+    required this.btcToSats,
   });
 }

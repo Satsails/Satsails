@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/helpers/formatters.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/helpers/swap_helpers.dart';
 import 'package:Satsails/providers/settings_provider.dart';
