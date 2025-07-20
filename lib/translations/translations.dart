@@ -3622,8 +3622,16 @@ extension Localization on String {
         "pt": "Valor muito grande ou muito pequeno para processar a troca"
       }+
       {
-        "en": "Bitcoin Price (1M)",
-        "pt": "Preço de Bitcoin (1M)"
+        "en": "Bitcoin Price (1 Month)",
+        "pt": "Preço de Bitcoin (1 Mês)"
+      }+
+      {
+        "en": "All wallets",
+        "pt": "Todos as carteiras"
+      }+
+      {
+        "en": "Conversion Rate",
+        "pt": "Taxa de conversão"
       };
   String get i18n => localize(this, _t);
 }

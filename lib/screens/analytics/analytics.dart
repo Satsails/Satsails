@@ -2,6 +2,7 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/analytics/components/chart.dart';
+import 'package:Satsails/screens/home/home.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

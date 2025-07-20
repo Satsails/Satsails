@@ -253,7 +253,7 @@ class _BitcoinPriceChart extends ConsumerWidget {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text('Bitcoin Price (1M)'.i18n, style: TextStyle(fontSize: 16.sp, color: Colors.grey, fontWeight: FontWeight.w500)), Text('${percentageChange >= 0 ? '+' : ''}${percentageChange.toStringAsFixed(2)}%', style: TextStyle(fontSize: 16.sp, color: percentageChange >= 0 ? Colors.greenAccent : Colors.redAccent, fontWeight: FontWeight.w600))],
+                  children: [Text('Bitcoin Price (1 Month)'.i18n, style: TextStyle(fontSize: 16.sp, color: Colors.grey, fontWeight: FontWeight.w500)), Text('${percentageChange >= 0 ? '+' : ''}${percentageChange.toStringAsFixed(2)}%', style: TextStyle(fontSize: 16.sp, color: percentageChange >= 0 ? Colors.greenAccent : Colors.redAccent, fontWeight: FontWeight.w600))],
                 ),
                 SizedBox(height: 4.h),
                 Text(currencyFormatter.format(lastPrice), style: TextStyle(fontSize: 20.sp, color: Colors.white, fontWeight: FontWeight.bold)),
