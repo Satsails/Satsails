@@ -3627,11 +3627,23 @@ extension Localization on String {
       }+
       {
         "en": "All wallets",
-        "pt": "Todos as carteiras"
+        "pt": "Todas as carteiras"
       }+
       {
         "en": "Conversion Rate",
         "pt": "Taxa de conversão"
+      }+
+      {
+        "en": "Change Asset or Network",
+        "pt": "Trocar Ativo ou Rede"
+      }+
+      {
+        "en": "Internal Analytics",
+        "pt": "Analíticas Internas"
+      }+
+      {
+        "en": "Market Data",
+        "pt": "Graficos do Mercado"
       };
   String get i18n => localize(this, _t);
 }

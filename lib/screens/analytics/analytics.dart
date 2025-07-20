@@ -2,12 +2,9 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/analytics/components/chart.dart';
-import 'package:Satsails/screens/home/home.dart';
-import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -37,9 +34,9 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   String? _selectedAsset;
 
   // --- Asset Maps from original Analytics ---
-  final List<String> _assetOptions = ['Bitcoin (Mainnet)', 'Liquid Bitcoin', 'Depix', 'USDT', 'EURx'];
+  final List<String> _assetOptions = ['Bitcoin', 'Liquid Bitcoin', 'Depix', 'USDT', 'EURx'];
   final Map<String, String> _assetImages = {
-    'Bitcoin (Mainnet)': 'lib/assets/bitcoin-logo.png',
+    'Bitcoin': 'lib/assets/bitcoin-logo.png',
     'Liquid Bitcoin': 'lib/assets/l-btc.png',
     'Depix': 'lib/assets/depix.png',
     'USDT': 'lib/assets/tether.png',
@@ -61,7 +58,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   @override
   void initState() {
     super.initState();
-    _selectedAsset = ref.read(selectedAssetProvider);
+    _selectedAsset = 'Bitcoin';
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateDateRange(_selectedRange));
   }
 
@@ -106,7 +103,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     if (selected != null) {
       setState(() {
         _selectedAsset = selected;
-        ref.read(selectedAssetProvider.notifier).state = selected;
         viewMode = 0;
       });
     }
@@ -114,29 +110,39 @@ class _AnalyticsState extends ConsumerState<Analytics> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        centerTitle: false,
-        title: Text('Analytics'.i18n, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22.sp)),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
         backgroundColor: Colors.black,
-        elevation: 0,
-        leading: IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white)),
-      ),
-      body: SafeArea(
-        bottom: true,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-          child: Column(
-            children: [
-              _buildSectionPicker(),
-              SizedBox(height: 24.h),
-              Expanded(
-                child: _selectedSection == AnalyticsSection.internal
-                    ? _buildInternalAnalyticsView()
-                    : const _MarketDataView(),
-              ),
-            ],
+        appBar: AppBar(
+          centerTitle: false,
+          title: Text('Analytics'.i18n, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22.sp)),
+          backgroundColor: Colors.black,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+        ),
+        body: SafeArea(
+          bottom: true,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+            child: Column(
+              children: [
+                _buildSectionPicker(),
+                SizedBox(height: 24.h),
+                Expanded(
+                  // FIX: Added AnimatedSwitcher for smooth transitions
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder: (Widget child, Animation<double> animation) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+                    child: _selectedSection == AnalyticsSection.internal
+                        ? _buildInternalAnalyticsView(key: const ValueKey('internal'))
+                        : const _MarketDataView(key: const ValueKey('market')),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -173,22 +179,21 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   }
 
   // --- WIDGET BUILDERS for Internal Analytics ---
-  Widget _buildInternalAnalyticsView() {
+  Widget _buildInternalAnalyticsView({Key? key}) {
     final settings = ref.watch(settingsProvider);
     final selectedCurrency = settings.currency;
     final btcFormat = settings.btcFormat;
     final selectedDays = ref.watch(selectedDaysDateArrayProvider);
-    final isBitcoinAsset = ['Bitcoin (Mainnet)', 'Liquid Bitcoin'].contains(_selectedAsset);
+    final isBitcoinAsset = ['Bitcoin', 'Liquid Bitcoin'].contains(_selectedAsset);
     final cardColor = const Color(0xFF333333).withOpacity(0.4);
 
     // Data fetching and processing...
     final balanceByDay = switch (_selectedAsset) {
-      'Bitcoin (Mainnet)' => ref.watch(bitcoinBalanceInFormatByDayProvider),
+      'Bitcoin' => ref.watch(bitcoinBalanceInFormatByDayProvider),
       'Liquid Bitcoin' || 'Depix' || 'USDT' || 'EURx' => ref.watch(liquidBalancePerDayInFormatProvider(_assetIdMap[_selectedAsset!]!)),
       _ => <DateTime, num>{},
     };
 
-    // CORRECTED: Calling the provider without a parameter.
     final marketDataAsync = ref.watch(bitcoinMarketDataProvider);
 
     final (dollarBalanceByDay, priceByDay) = marketDataAsync.when(
@@ -213,7 +218,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     // Current Balance calculation
     final balance = ref.read(balanceNotifierProvider);
     final currentBalanceFormatted = switch (_selectedAsset) {
-      'Bitcoin (Mainnet)' => btcInDenominationFormatted(balance.onChainBtcBalance, btcFormat),
+      'Bitcoin' => btcInDenominationFormatted(balance.onChainBtcBalance, btcFormat),
       'Liquid Bitcoin' => btcInDenominationFormatted(balance.liquidBtcBalance, btcFormat),
       'Depix' => fiatInDenominationFormatted(balance.liquidDepixBalance),
       'USDT' => fiatInDenominationFormatted(balance.liquidUsdtBalance),
@@ -223,6 +228,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     final balanceWithUnit = isBitcoinAsset ? '$currentBalanceFormatted ${btcFormat.toUpperCase()}' : currentBalanceFormatted;
 
     return Column(
+      key: key,
       children: [
         _buildHeaderCard(balanceWithUnit, cardColor),
         SizedBox(height: 24.h),
@@ -287,7 +293,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
 
 // --- NEW WIDGET for Market Data (adapted from Services) ---
 class _MarketDataView extends ConsumerStatefulWidget {
-  const _MarketDataView();
+  const _MarketDataView({Key? key}) : super(key: key);
   @override
   ConsumerState<_MarketDataView> createState() => _MarketDataViewState();
 }

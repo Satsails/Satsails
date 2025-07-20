@@ -17,7 +17,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 // This provider is still needed for the "Receive" button's logic.
 final selectedNetworkTypeProvider = StateProvider<String>((ref) => "Bitcoin Network");
@@ -27,17 +26,13 @@ class BalanceCard extends ConsumerWidget {
 
   // A new combined list of all assets from all networks.
   static final List<Map<String, String>> _allAssets = [
-    {'name': 'Bitcoin', 'icon': 'lib/assets/bitcoin-logo.png', 'network': 'Bitcoin Network', 'logo': 'lib/assets/bitcoin-logo.svg'},
-    {'name': 'Lightning Bitcoin', 'icon': 'lib/assets/Bitcoin_lightning_logo.png', 'network': 'Lightning Network', 'logo': 'lib/assets/logo-spark.svg'},
-    {'name': 'Liquid Bitcoin', 'icon': 'lib/assets/l-btc.png', 'network': 'Liquid Network', 'logo': 'lib/assets/liquid-logo.png'},
-    {'name': 'Depix', 'icon': 'lib/assets/depix.png', 'network': 'Liquid Network', 'logo': 'lib/assets/liquid-logo.png'},
-    {'name': 'USDT', 'icon': 'lib/assets/tether.png', 'network': 'Liquid Network', 'logo': 'lib/assets/liquid-logo.png'},
-    {'name': 'EURx', 'icon': 'lib/assets/eurx.png', 'network': 'Liquid Network', 'logo': 'lib/assets/liquid-logo.png'},
+    {'name': 'Bitcoin', 'icon': 'lib/assets/bitcoin-logo.png', 'network': 'Bitcoin Network'},
+    {'name': 'Lightning Bitcoin', 'icon': 'lib/assets/Bitcoin_lightning_logo.png', 'network': 'Lightning Network'},
+    {'name': 'Liquid Bitcoin', 'icon': 'lib/assets/l-btc.png', 'network': 'Liquid Network'},
+    {'name': 'Depix', 'icon': 'lib/assets/depix.png', 'network': 'Liquid Network'},
+    {'name': 'USDT', 'icon': 'lib/assets/tether.png', 'network': 'Liquid Network'},
+    {'name': 'EURx', 'icon': 'lib/assets/eurx.png', 'network': 'Liquid Network'},
   ];
-
-  // Define the network names for the tabs
-  static const _networkNames = ['Bitcoin Network', 'Liquid Network', 'Lightning Network'];
-
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,7 +40,6 @@ class BalanceCard extends ConsumerWidget {
     final isSmallScreen = screenheight < 850;
 
     final selectedAsset = ref.watch(selectedAssetProvider);
-    final selectedNetwork = ref.watch(selectedNetworkProvider);
     final settings = ref.watch(settingsProvider);
     final isBalanceVisible = settings.balanceVisible;
     const textColor = Colors.white;
@@ -53,8 +47,8 @@ class BalanceCard extends ConsumerWidget {
     final balanceProvider = ref.watch(balanceNotifierProvider);
     final currencyProvider = ref.watch(selectedCurrencyProvider(settings.currency));
 
-    // For Lightning, we always want to show the Liquid Bitcoin balance.
-    final assetForBalanceDisplay = selectedNetwork == 'Lightning Network' ? 'Liquid Bitcoin' : selectedAsset;
+    final currentAssetData = _allAssets.firstWhere((asset) => asset['name'] == selectedAsset);
+    final assetForBalanceDisplay = currentAssetData['network'] == 'Lightning Network' ? 'Liquid Bitcoin' : selectedAsset;
 
     String nativeBalance;
     String equivalentBalance = '';
@@ -104,7 +98,7 @@ class BalanceCard extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF212121), // Hardcoded dark color
+        color: const Color(0xFF212121),
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Padding(
@@ -112,9 +106,7 @@ class BalanceCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildNetworkSelector(context, ref),
-            SizedBox(height: 12.h),
-            _buildAssetSelector(context, ref),
+            _buildAssetSelectorDropdown(context, ref),
 
             Expanded(
               child: Column(
@@ -126,16 +118,20 @@ class BalanceCard extends ConsumerWidget {
                   if (!isSmallScreen)
                     Expanded(
                       flex: 3,
-                      child: Opacity(
-                        opacity: isBalanceVisible ? 1.0 : 0.0,
-                        child: MiniExpensesGraph(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (child, animation) {
+                          return FadeTransition(opacity: animation, child: child);
+                        },
+                        child: isBalanceVisible
+                            ? MiniExpensesGraph(
+                          key: ValueKey(assetForBalanceDisplay),
                           selectedAsset: assetForBalanceDisplay,
                           textColor: textColor,
-                        ),
+                        )
+                            : const SizedBox.shrink(),
                       ),
                     )
-                  else
-                    const Spacer(),
                 ],
               ),
             ),
@@ -148,114 +144,108 @@ class BalanceCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildNetworkSelector(BuildContext context, WidgetRef ref) {
-    final selectedNetwork = ref.watch(selectedNetworkProvider);
+  Widget _buildAssetSelectorDropdown(BuildContext context, WidgetRef ref) {
+    final selectedAsset = ref.watch(selectedAssetProvider);
+    final networks = ['Bitcoin Network', 'Lightning Network', 'Liquid Network'];
 
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: _networkNames.map((networkName) {
-          final isSelected = networkName == selectedNetwork;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () {
-                ref.read(selectedNetworkProvider.notifier).state = networkName;
-                final firstAsset = _allAssets.firstWhere((asset) => asset['network'] == networkName);
-                ref.read(selectedAssetProvider.notifier).state = firstAsset['name']!;
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 8.h),
-                decoration: BoxDecoration(
-                  color: isSelected ? Colors.black.withOpacity(0.3) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Center(
-                  child: Text(
-                    networkName,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: Colors.white,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                ),
+    List<DropdownMenuItem<String>> items = [];
+    for (var network in networks) {
+      items.add(
+        DropdownMenuItem(
+          enabled: false,
+          child: Padding(
+            padding: EdgeInsets.only(top: items.isNotEmpty ? 12.h : 0, bottom: 4.h),
+            child: Text(
+              network,
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+                fontSize: 12.sp,
               ),
             ),
+          ),
+        ),
+      );
+      final networkAssets = _allAssets.where((asset) => asset['network'] == network);
+      items.addAll(
+        networkAssets.map((asset) {
+          final isSelected = selectedAsset == asset['name'];
+          return DropdownMenuItem<String>(
+            value: asset['name'],
+            child: Row(
+              children: [
+                Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
+                SizedBox(width: 12.w),
+                Text(
+                  asset['name']!,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+              ],
+            ),
           );
-        }).toList(),
-      ),
-    );
-  }
+        }),
+      );
+    }
 
-  Widget _buildAssetSelector(BuildContext context, WidgetRef ref) {
-    final selectedAsset = ref.watch(selectedAssetProvider);
-    final selectedNetwork = ref.watch(selectedNetworkProvider);
-
-    // Helper widget to build a single asset chip
-    Widget buildChip(Map<String, String> asset, bool isSelected, {VoidCallback? onTap}) {
-      return GestureDetector(
-        onTap: onTap,
-        child: Container(
-          margin: EdgeInsets.only(right: 8.w),
+    return DropdownButtonHideUnderline(
+      child: DropdownButton<String>(
+        value: selectedAsset,
+        isExpanded: true,
+        dropdownColor: const Color(0xFF2C2C2C),
+        borderRadius: BorderRadius.circular(12.r),
+        icon: Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white.withOpacity(0.25) : Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20.r),
-            border: isSelected ? Border.all(color: Colors.white, width: 1.5) : null,
+            color: Colors.black.withOpacity(0.25),
+            borderRadius: BorderRadius.circular(16.r),
           ),
-          child: Row(
-            children: [
-              Image.asset(asset['icon']!, width: 20.sp, height: 20.sp),
-              SizedBox(width: 8.w),
-              Text(
-                asset['name']!,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-              ),
-            ],
+          child: Text(
+            'Change Asset or Network'.i18n,
+            style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.w500),
           ),
         ),
-      );
-    }
-
-    if (selectedNetwork == 'Liquid Network') {
-      final liquidAssets = _allAssets.where((asset) => asset['network'] == 'Liquid Network').toList();
-      return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        child: Row(
-          children: liquidAssets.map((asset) {
-            final isSelected = asset['name'] == selectedAsset;
-            return buildChip(asset, isSelected, onTap: () {
-              ref.read(selectedAssetProvider.notifier).state = asset['name']!;
-            });
-          }).toList(),
-        ),
-      );
-    } else {
-      // For Bitcoin and Lightning, show a single, static chip
-      final currentAsset = _allAssets.firstWhere((asset) => asset['network'] == selectedNetwork);
-      return Row(
-        // Changed from .center to .start to align left
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          buildChip(currentAsset, true), // It's always selected
-        ],
-      );
-    }
+        onChanged: (newValue) {
+          if (newValue != null) {
+            ref.read(selectedAssetProvider.notifier).state = newValue;
+          }
+        },
+        items: items,
+        selectedItemBuilder: (BuildContext context) {
+          List<Widget> builderItems = [];
+          for (var network in networks) {
+            builderItems.add(Container());
+            final networkAssets = _allAssets.where((asset) => asset['network'] == network);
+            builderItems.addAll(
+              networkAssets.map((asset) {
+                return Row(
+                  children: [
+                    Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
+                    SizedBox(width: 12.w),
+                    Text(
+                      asset['name']!,
+                      style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                );
+              }),
+            );
+          }
+          return builderItems;
+        },
+      ),
+    );
   }
 
   Widget _buildBalanceDisplay(String nativeBalance, String equivalentBalance, bool isSmallScreen, WidgetRef ref) {
     const textColor = Colors.white;
     final selectedAsset = ref.watch(selectedAssetProvider);
-    final selectedNetwork = ref.watch(selectedNetworkProvider);
+    final currentAssetData = _allAssets.firstWhere((asset) => asset['name'] == selectedAsset);
+    final selectedNetwork = currentAssetData['network']!;
+
     final primaryBalanceSize = isSmallScreen ? 28.sp : 36.sp;
     final secondaryBalanceSize = isSmallScreen ? 15.sp : 18.sp;
 
@@ -292,7 +282,6 @@ class BalanceCard extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Balance numbers on the left
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -316,7 +305,6 @@ class BalanceCard extends ConsumerWidget {
                   ),
               ],
             ),
-            // Visibility icon on the right
             IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
@@ -330,7 +318,7 @@ class BalanceCard extends ConsumerWidget {
           ],
         ),
         SizedBox(height: 8.h),
-        syncStatus, // Sync status below the balance
+        syncStatus,
       ],
     );
   }
@@ -377,10 +365,9 @@ class BalanceCard extends ConsumerWidget {
             ),
           ],
         ),
-        // The "if (isBalanceVisible)" condition has been removed from here.
         GestureDetector(
           onTap: () {
-            context.pushNamed('analytics');
+            context.push('/accounts');
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
@@ -391,7 +378,7 @@ class BalanceCard extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.account_balance_wallet_outlined, size: 16.w, color: textColor),
+                Icon(Icons.wallet, size: 16.w, color: textColor),
                 SizedBox(width: 6.w),
                 Text(
                   'All wallets'.i18n,

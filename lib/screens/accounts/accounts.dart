@@ -294,8 +294,9 @@ class _AccountsState extends ConsumerState<Accounts> {
   Widget build(BuildContext context) {
     final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
 
+    // FIX: Changed onWillPop to return true to allow back navigation
     return WillPopScope(
-      onWillPop: () async => false,
+      onWillPop: () async => true,
       child: Scaffold(
         backgroundColor: Colors.black,
         body: SafeArea(
@@ -303,8 +304,14 @@ class _AccountsState extends ConsumerState<Accounts> {
           child: Column(
             children: [
               AppBar(
+                // FIX: Added a leading back button
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                  onPressed: () => context.pop(),
+                ),
                 title: Text('Accounts'.i18n, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22.sp)),
-                backgroundColor: Colors.black, automaticallyImplyLeading: false, centerTitle: false,
+                backgroundColor: Colors.black,
+                centerTitle: false,
                 actions: [
                   Padding(
                     padding: EdgeInsets.only(right: 16.w),

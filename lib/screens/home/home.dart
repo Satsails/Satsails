@@ -7,9 +7,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:upgrader/upgrader.dart';
 
-// This provider is now correctly re-introduced.
-final selectedNetworkProvider = StateProvider<String>((ref) => 'Bitcoin Network');
-
 // This provider holds the state for the selected asset.
 final selectedAssetProvider = StateProvider<String>((ref) => 'Bitcoin');
 
@@ -36,11 +33,13 @@ class Home extends ConsumerWidget {
             child: Column(
               children: [
                 const Expanded(
-                  flex: 1,
+                  // Changed back to 4 to make the card smaller
+                  flex: 4,
                   child: BalanceScreen(),
                 ),
                 Expanded(
-                  flex: 1,
+                  // Changed back to 6
+                  flex: 6,
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.sp),
                     child: Container(

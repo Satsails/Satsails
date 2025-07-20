@@ -28,7 +28,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         unselectedColor: Colors.white,
       ),
       DotNavigationBarItem(
-        icon: Icon(Icons.wallet, size: iconSize),
+        icon: Icon(Icons.bar_chart, size: iconSize),
         selectedColor: Colors.orangeAccent,
         unselectedColor: Colors.white,
       ),
