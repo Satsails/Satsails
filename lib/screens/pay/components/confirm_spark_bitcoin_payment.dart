@@ -381,7 +381,7 @@ class _ConfirmSparkBitcoinPaymentState extends ConsumerState<ConfirmSparkBitcoin
                       sliderBehavior: SliderBehavior.stretch,
                       width: double.infinity,
                       backgroundColor: Colors.black,
-                      toggleColor: Colors.orange,
+                      toggleColor: const Color(0xFF212121),
                       action: (controller) async {
                         if (sendTxState.amount == 0) {
                           showMessageSnackBar(

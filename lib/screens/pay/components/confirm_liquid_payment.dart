@@ -718,7 +718,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                     sliderBehavior: SliderBehavior.stretch,
                     width: double.infinity,
                     backgroundColor: Colors.black,
-                    toggleColor: Colors.orange,
+                    toggleColor: const Color(0xFF212121),
                     action: (controller) async {
                       setState(() {
                         isProcessing = true;

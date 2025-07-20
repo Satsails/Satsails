@@ -348,7 +348,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                     sliderBehavior: SliderBehavior.stretch,
                     width: double.infinity,
                     backgroundColor: Colors.black,
-                    toggleColor: Colors.orange,
+                    toggleColor: const Color(0xFF212121),
                     action: _handleSendAction,
                     child: Text('Slide to send'.i18n, style: const TextStyle(color: Colors.white)),
                   ),

@@ -2043,7 +2043,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
         child: ActionSlider.standard(
           width: double.infinity,
           backgroundColor: Colors.black,
-          toggleColor: Colors.orange,
+          toggleColor: const Color(0xFF212121),
           action: (controller) async {
             ref.read(transactionInProgressProvider.notifier).state = true;
             controller.loading();
@@ -2107,7 +2107,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
         child: ActionSlider.standard(
           width: double.infinity,
           backgroundColor: Colors.black,
-          toggleColor: Colors.orange,
+          toggleColor: const Color(0xFF212121),
           action: (controller) async {
             ref.read(transactionInProgressProvider.notifier).state = true;
             controller.loading();
@@ -2175,7 +2175,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
       child: ActionSlider.standard(
         width: double.infinity,
         backgroundColor: Colors.black,
-        toggleColor: Colors.orange,
+        toggleColor: const Color(0xFF212121),
         action: (controller) async {
           ref.read(transactionInProgressProvider.notifier).state = true;
           controller.loading();
@@ -2229,7 +2229,7 @@ Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
       child: ActionSlider.standard(
         width: double.infinity,
         backgroundColor: Colors.black,
-        toggleColor: Colors.orange,
+        toggleColor: const Color(0xFF212121),
         action: (controller) async {
           ref.read(transactionInProgressProvider.notifier).state = true;
           controller.loading();
@@ -2288,7 +2288,7 @@ Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
       child: ActionSlider.standard(
         width: double.infinity,
         backgroundColor: Colors.black,
-        toggleColor: Colors.orange,
+        toggleColor: const Color(0xFF212121),
         action: (controller) async {
           ref.read(transactionInProgressProvider.notifier).state = true;
           controller.loading();

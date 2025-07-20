@@ -3626,8 +3626,8 @@ extension Localization on String {
         "pt": "Preço de Bitcoin (1 Mês)"
       }+
       {
-        "en": "All wallets",
-        "pt": "Todas as carteiras"
+        "en": "All Assets",
+        "pt": "Todos os Ativos"
       }+
       {
         "en": "Conversion Rate",

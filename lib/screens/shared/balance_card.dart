@@ -384,7 +384,7 @@ class BalanceCard extends ConsumerWidget {
                 Icon(Icons.wallet, size: 16.w, color: textColor),
                 SizedBox(width: 6.w),
                 Text(
-                  'All wallets'.i18n,
+                  'All Assets'.i18n,
                   style: TextStyle(
                     color: textColor,
                     fontSize: buttonFontSize,
