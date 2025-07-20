@@ -16,7 +16,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 // This provider is still needed for the "Receive" button's logic.
 final selectedNetworkTypeProvider = StateProvider<String>((ref) => "Bitcoin Network");
@@ -204,7 +206,7 @@ class BalanceCard extends ConsumerWidget {
           ),
           child: Text(
             'Change Asset or Network'.i18n,
-            style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.w500),
+            style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500),
           ),
         ),
         onChanged: (newValue) {
@@ -268,7 +270,8 @@ class BalanceCard extends ConsumerWidget {
           ),
           SizedBox(width: 8.sp),
           Text(
-              isSyncing ? 'Syncing'.i18n : 'Update Balances'.i18n,
+            // FIX: Show "Offline" when not online
+              isOnline ? (isSyncing ? 'Syncing'.i18n : 'Update Balances'.i18n) : 'Offline'.i18n,
               style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 14.sp)
           ),
         ],
