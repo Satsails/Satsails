@@ -5,7 +5,6 @@ import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
-import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/analytics/components/chart.dart';
@@ -31,7 +30,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   String _selectedRange = '1M';
   String? _selectedAsset;
 
-  // Asset definitions remain the same
   final List<String> _assetOptions = ['Bitcoin (Mainnet)', 'Liquid Bitcoin', 'Depix', 'USDT', 'EURx'];
   final Map<String, String> _assetImages = {
     'Bitcoin (Mainnet)': 'lib/assets/bitcoin-logo.png',
@@ -163,35 +161,17 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     );
   }
 
-  Widget _buildPriceTicker(double percentageChange, Color cardColor) {
-    final settings = ref.watch(settingsProvider);
-    final currency = settings.currency;
-    final currentPrice = ref.watch(selectedCurrencyProvider(currency));
-    final isPositive = percentageChange > 0;
-    final isZero = percentageChange.abs() < 0.01;
-    final Color changeColor = isZero ? Colors.white70 : (isPositive ? Colors.greenAccent.shade400 : Colors.redAccent.shade400);
-
-    return Container(
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(16.r)),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        _TickerItem(label: 'Price ($currency)', value: currentPrice.toStringAsFixed(2)),
-        _TickerItem(label: 'Change ($_selectedRange)', value: '${isPositive && !isZero ? '+' : ''}${percentageChange.toStringAsFixed(2)}%', valueColor: changeColor),
-      ]),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
     final selectedCurrency = settings.currency;
     final btcFormat = settings.btcFormat;
-    final depixBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidDepixBalance);
-    final liquidUsdtBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidUsdtBalance);
-    final euroBalance = fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidEuroxBalance);
-    final onChainBtcBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).onChainBtcBalance, btcFormat);
-    final liquidBtcBalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBtcBalance, btcFormat);
-    final sparkBitcoinbalance = btcInDenominationFormatted(ref.watch(balanceNotifierProvider).sparkBitcoinbalance ?? 0, btcFormat);
+    final depixBalance = fiatInDenominationFormatted(ref.read(balanceNotifierProvider).liquidDepixBalance);
+    final liquidUsdtBalance = fiatInDenominationFormatted(ref.read(balanceNotifierProvider).liquidUsdtBalance);
+    final euroBalance = fiatInDenominationFormatted(ref.read(balanceNotifierProvider).liquidEuroxBalance);
+    final onChainBtcBalance = btcInDenominationFormatted(ref.read(balanceNotifierProvider).onChainBtcBalance, btcFormat);
+    final liquidBtcBalance = btcInDenominationFormatted(ref.read(balanceNotifierProvider).liquidBtcBalance, btcFormat);
+    final sparkBitcoinbalance = btcInDenominationFormatted(ref.read(balanceNotifierProvider).sparkBitcoinbalance ?? 0, btcFormat);
     final selectedDays = ref.watch(selectedDaysDateArrayProvider);
 
     final isBitcoinAsset = ['Bitcoin (Mainnet)', 'Lightning Bitcoin', 'Liquid Bitcoin'].contains(_selectedAsset);
@@ -272,11 +252,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                   ),
                 ),
               ),
-              if (isBitcoinAsset) ...[
-                SizedBox(height: 24.h),
-                _buildPriceTicker(percentageChange, cardColor),
-              ],
-              SizedBox(height: 24.h), // Padding at the bottom
             ],
           ),
         ),
@@ -285,7 +260,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   }
 }
 
-// Internal widgets for cleaner build method (unchanged)
 class _ViewModeSelector extends ConsumerWidget {
   final int selectedIndex; final Function(int) onSelected;
   const _ViewModeSelector({required this.selectedIndex, required this.onSelected});
@@ -329,15 +303,4 @@ class _DateRangeSelector extends StatelessWidget {
       ),
     )).toList(),
   );
-}
-
-class _TickerItem extends StatelessWidget {
-  final String label; final String value; final Color? valueColor;
-  const _TickerItem({required this.label, required this.value, this.valueColor});
-  @override
-  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    Text(label, style: TextStyle(fontSize: 14.sp, color: Colors.white70, fontWeight: FontWeight.w500)),
-    SizedBox(height: 6.h),
-    Text(value, style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: valueColor ?? Colors.white)),
-  ]);
 }

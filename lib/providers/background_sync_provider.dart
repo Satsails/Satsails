@@ -64,19 +64,18 @@ abstract class SyncNotifier<T> extends AsyncNotifier<T> {
 class BitcoinSyncNotifier extends SyncNotifier<BitcoinSyncResult?> {
   @override
   Future<BitcoinSyncResult?> build() async {
-    // Start with no data. The first sync will populate it.
     return null;
   }
 
   @override
-  Future<BitcoinSyncResult?> performSync() async { // FIX 1: Return type changed to Future<BitcoinSyncResult?>
+  Future<BitcoinSyncResult?> performSync() async {
     return await handleSync(
       syncOperation: () async {
         await ref.refresh(syncBitcoinProvider.future);
         final addressIndex = await ref.refresh(lastUsedAddressProvider.future);
         final address = await ref.refresh(lastUsedAddressProviderString.future);
         final balance = await ref.read(getBitcoinBalanceProvider.future);
-        final transactions = await ref.read(getBitcoinTransactionsProvider.future);
+        final transactions = await ref.refresh(getBitcoinTransactionsProvider.future);
         ref.read(addressProvider.notifier).setBitcoinAddress(addressIndex, address);
         ref.read(balanceNotifierProvider.notifier).updateOnChainBtcBalance(balance.total.toInt());
 

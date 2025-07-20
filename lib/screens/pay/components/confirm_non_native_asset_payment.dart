@@ -19,10 +19,12 @@ import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 final nonNativeAddressProvider = StateProvider.autoDispose<String?>((ref) => null);
 
@@ -30,12 +32,10 @@ class ConfirmNonNativeAssetPayment extends ConsumerStatefulWidget {
   const ConfirmNonNativeAssetPayment({super.key});
 
   @override
-  _ConfirmNonNativeAssetPaymentState createState() =>
-      _ConfirmNonNativeAssetPaymentState();
+  _ConfirmNonNativeAssetPaymentState createState() => _ConfirmNonNativeAssetPaymentState();
 }
 
-class _ConfirmNonNativeAssetPaymentState
-    extends ConsumerState<ConfirmNonNativeAssetPayment> {
+class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeAssetPayment> {
   final TextEditingController amountController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   bool isProcessing = false;
@@ -49,6 +49,10 @@ class _ConfirmNonNativeAssetPaymentState
   late double currencyRate;
   late int balance;
   late ShiftPair shiftPair;
+
+  // NEW: State for debouncing amount input to fetch quote
+  Timer? _debounce;
+  String _amountToQuote = "";
 
   @override
   void initState() {
@@ -103,6 +107,7 @@ class _ConfirmNonNativeAssetPaymentState
   void dispose() {
     amountController.dispose();
     addressController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -510,10 +515,7 @@ class _ConfirmNonNativeAssetPaymentState
                       child: TextFormField(
                         controller: amountController,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [
-                          CommaTextInputFormatter(),
-                          DecimalTextInputFormatter(decimalRange: 2)
-                        ],
+                        inputFormatters: [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
                         style: TextStyle(fontSize: 24.sp, color: Colors.white),
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -524,6 +526,15 @@ class _ConfirmNonNativeAssetPaymentState
                         onChanged: (value) {
                           final amount = (double.tryParse(value) ?? 0.0);
                           ref.read(sendTxProvider.notifier).updateAmountFromInput(amount.toString(), 'sats');
+
+                          if (_debounce?.isActive ?? false) _debounce!.cancel();
+                          _debounce = Timer(const Duration(milliseconds: 800), () {
+                            if (mounted) {
+                              setState(() {
+                                _amountToQuote = value.isEmpty ? "" : value;
+                              });
+                            }
+                          });
                         },
                       ),
                     ),
@@ -534,9 +545,11 @@ class _ConfirmNonNativeAssetPaymentState
           ],
         ),
         SizedBox(height: 16.h),
-        Text(
-          "A 1% service fee is applied, excluding network fees.".i18n,
-          style: TextStyle(color: Colors.grey[400], fontSize: 14.sp),
+        _QuoteDisplay(
+          key: ValueKey('${shiftPair.name}$_amountToQuote'),
+          shiftPair: shiftPair,
+          amount: _amountToQuote,
+          isDepositAmount: true,
         ),
       ],
     );
@@ -623,6 +636,18 @@ class _ConfirmNonNativeAssetPaymentState
                           final amountInSats = calculateAmountInSatsToDisplay(value, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
                           ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
                           ref.read(sendTxProvider.notifier).updateDrain(false);
+                          if (_debounce?.isActive ?? false) _debounce!.cancel();
+                          _debounce = Timer(const Duration(milliseconds: 800), () {
+                            if (mounted) {
+                              String amountForQuote = value;
+                              if (ref.read(inputCurrencyProvider) != 'BTC') {
+                                amountForQuote = btcInDenominationFormatted(amountInSats, 'BTC');
+                              }
+                              setState(() {
+                                _amountToQuote = value.isEmpty ? "" : amountForQuote;
+                              });
+                            }
+                          });
                         },
                       ),
                     ),
@@ -634,9 +659,11 @@ class _ConfirmNonNativeAssetPaymentState
           ],
         ),
         SizedBox(height: 16.h),
-        Text(
-          "A 1% service fee is applied, excluding network fees.".i18n,
-          style: TextStyle(color: Colors.grey[400], fontSize: 14.sp),
+        _QuoteDisplay(
+          key: ValueKey('${shiftPair.name}$_amountToQuote'),
+          shiftPair: shiftPair,
+          amount: _amountToQuote,
+          isDepositAmount: true,
         ),
       ],
     );
@@ -671,6 +698,93 @@ class _ConfirmNonNativeAssetPaymentState
             ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+// NEW: A dedicated widget to display the quote details and limits.
+class _QuoteDisplay extends ConsumerWidget {
+  final ShiftPair shiftPair;
+  final String amount;
+  final bool isDepositAmount;
+
+  const _QuoteDisplay({
+    super.key,
+    required this.shiftPair,
+    required this.amount,
+    required this.isDepositAmount,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (amount.isEmpty || double.tryParse(amount.replaceAll(',', '.')) == 0) {
+      return Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: Text(
+            'Enter an amount to see the quote and limits.'.i18n,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+          ));
+    }
+
+    final quoteAsync = ref.watch(sideShiftQuoteProvider((shiftPair, amount, isDepositAmount)));
+
+    return quoteAsync.when(
+      data: (quote) {
+        final rate = double.tryParse(quote.rate) ?? 0;
+        final formattedRate = rate.toStringAsFixed(rate > 100 ? 2 : 8);
+        final settleAmount = double.tryParse(quote.settleAmount) ?? 0;
+        final formattedSettleAmount = settleAmount.toStringAsFixed(settleAmount > 100 ? 2 : 8);
+
+        return Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: Column(
+            children: [
+              _buildDetailRow(
+                'You will receive (approx.)'.i18n,
+                '$formattedSettleAmount ${quote.settleCoin.toUpperCase()}',
+              ),
+              SizedBox(height: 8.h),
+              _buildDetailRow(
+                'Rate'.i18n,
+                '1 ${quote.depositCoin.toUpperCase()} = $formattedRate ${quote.settleCoin.toUpperCase()}',
+              ),
+              SizedBox(height: 12.h),
+            ],
+          ),
+        );
+      },
+      loading: () => Center(child: LoadingAnimationWidget.fourRotatingDots(size: 16.w, color: Colors.white)),
+      error: (err, stack) => Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: Colors.red.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Text(
+          'Amount too big or too small to process swap'.i18n,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.redAccent, fontSize: 14.sp),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: TextStyle(color: Colors.white70, fontSize: 14.sp)),
+        Text(value, style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.bold)),
       ],
     );
   }

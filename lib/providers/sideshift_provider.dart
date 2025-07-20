@@ -33,29 +33,6 @@ final createReceiveSideShiftShiftProvider = FutureProvider.family.autoDispose<Si
   }
 });
 
-final createReceiveSideShiftShiftProviderWithoutSaving = FutureProvider.family.autoDispose<SideShift, ShiftPair>((ref, pair) async {
-  final params = shiftParamsMap[pair]!;
-  final liquidAddress = ref.read(addressProvider).liquidAddress;
-
-  final request = SideShiftShiftRequest(
-    settleAddress: liquidAddress,
-    depositCoin: params.depositCoin,
-    settleCoin: params.settleCoin,
-    depositNetwork: params.depositNetwork,
-    settleNetwork: params.settleNetwork,
-    affiliateId: dotenv.env['SIDESHIFTAFFILIATE']!,
-  );
-
-  final result = await SideShiftService.createShift(request);
-
-  if (result.data != null) {
-    return result.data!;
-  } else {
-    throw result.error ?? 'Unknown error';
-  }
-});
-
-// For sending from Liquid
 final createSendSideShiftShiftProvider = FutureProvider.family.autoDispose<SideShift, (ShiftPair, String)>((ref, args) async {
   final (pair, settleAddress) = args;
   final params = shiftParamsMap[pair]!;

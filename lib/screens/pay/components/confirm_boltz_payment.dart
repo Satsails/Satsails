@@ -14,17 +14,21 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
 
-Future<bool> showConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
+// MODIFIED: Added a 0.1% service fee display to the confirmation modal.
+Future<bool> showConfirmationModal(BuildContext context, String amount, String address, String btcFormat, WidgetRef ref) async {
   final settings = ref.read(settingsProvider);
   final currency = settings.currency;
-  final amountInCurrency = ref.read(bitcoinValueInCurrencyProvider);
+  final amountInSats = ref.read(sendTxProvider).amount;
+  final amountInCurrency = calculateAmountInSelectedCurrency(amountInSats, currency, ref.read(currencyNotifierProvider));
+
+  // NEW: Calculate the 0.1% service fee, rounding up to the nearest satoshi.
+  final serviceFeeInSats = (amountInSats * 0.001).ceil();
 
   String shortenAddress(String value) {
     if (value.length <= 12) return value;
@@ -50,7 +54,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                 children: [
                   Center(
                     child: Text(
-                      'Confirm Transaction'.i18n,
+                      'Confirm Payment'.i18n,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24.sp,
@@ -83,7 +87,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                               ),
                             ),
                             Text(
-                              '${currencyFormat(amountInCurrency, currency)} $currency',
+                              '${currencyFormat(double.parse(amountInCurrency), currency)} $currency',
                               style: TextStyle(
                                 color: Colors.grey[400],
                                 fontSize: 18.sp,
@@ -101,7 +105,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Recipient'.i18n,
+                          'Recipient Invoice'.i18n,
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 20.sp,
@@ -128,20 +132,21 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                     ),
                   ),
                   Divider(color: Colors.grey[700], height: 20.h),
+                  // NEW: Service Fee display
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 8.h),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Fee'.i18n,
+                          'Service Fee'.i18n,
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 20.sp,
                           ),
                         ),
                         Text(
-                          '$fee sats',
+                          '$serviceFeeInSats sats',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20.sp,
@@ -192,7 +197,8 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
         ),
       );
     },
-  ) ?? false;
+  ) ??
+      false;
 }
 
 class ConfirmBoltzPayment extends ConsumerStatefulWidget {
@@ -243,7 +249,7 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
     final sendTxState = ref.read(sendTxProvider);
     _previousAmount = sendTxState.amount;
     updateControllerText(sendTxState.amount);
-    if(isLightningInvoice(sendTxState.address)){
+    if (isLightningInvoice(sendTxState.address)) {
       isInvoice = true;
     }
     addressController.text = sendTxState.address;
@@ -557,6 +563,24 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
 
                       try {
                         final sendTxState = ref.read(sendTxProvider);
+                        final btcFormat = ref.read(settingsProvider).btcFormat;
+
+                        final confirmed = await showConfirmationModal(
+                          context,
+                          btcInDenominationFormatted(sendTxState.amount, btcFormat),
+                          sendTxState.address ?? '',
+                          btcFormat,
+                          ref,
+                        );
+
+                        if (!confirmed) {
+                          controller.reset();
+                          setState(() {
+                            isProcessing = false;
+                          });
+                          return;
+                        }
+
                         final invoice = await getLnInvoiceWithAmount(sendTxState.address, sendTxState.amount);
                         ref.read(sendTxProvider.notifier).updateAddress(invoice);
                         await ref.read(boltzPayProvider.future);
@@ -582,9 +606,11 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
                         );
                         controller.reset();
                       } finally {
-                        setState(() {
-                          isProcessing = false;
-                        });
+                        if (mounted) {
+                          setState(() {
+                            isProcessing = false;
+                          });
+                        }
                       }
                     },
                     child: Text('Slide to send'.i18n, style: const TextStyle(color: Colors.white)),
