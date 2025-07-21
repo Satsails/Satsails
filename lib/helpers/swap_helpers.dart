@@ -61,7 +61,7 @@ const List<SwapType> fiatDisplayAllowedSwapTypes = [
 ];
 
 const List<String> fiatAssets = [
-  'USDT',
+  'Liquid USDT',
   'Eurox',
   'Depix',
 ];
@@ -74,8 +74,8 @@ List<String> getAssets(WidgetRef ref) {
   return [
     'Bitcoin',
     if (lightningAvailable) 'Lightning',
-    'L-BTC',
-    'USDT',
+    'Liquid Bitcoin',
+    'Liquid USDT',
     'Eurox',
     'Depix'
   ];
@@ -87,46 +87,46 @@ final swapTypeProvider = StateProvider.autoDispose<SwapType>((ref) {
   final combinedKey = '$fromAsset-$toAsset';
 
   switch (combinedKey) {
-    case 'Bitcoin-L-BTC':
+    case 'Bitcoin-Liquid Bitcoin':
       return SwapType.sideswapBtcToLbtc;
 
-    case 'L-BTC-Bitcoin':
+    case 'Liquid Bitcoin-Bitcoin':
       return SwapType.sideswapLbtcToBtc;
 
     case 'Lightning-Bitcoin':
       return SwapType.coinosLnToBTC;
 
-    case 'Lightning-L-BTC':
+    case 'Lightning-Liquid Bitcoin':
       return SwapType.coinosLnToLBTC;
 
-    case 'USDT-L-BTC':
+    case 'Liquid USDT-Liquid Bitcoin':
       return SwapType.sideswapUsdtToLbtc;
 
-    case 'Eurox-L-BTC':
+    case 'Eurox-Liquid Bitcoin':
       return SwapType.sideswapEuroxToLbtc;
 
-    case 'Depix-L-BTC':
+    case 'Depix-Liquid Bitcoin':
       return SwapType.sideswapDepixToLbtc;
 
-    case 'L-BTC-USDT':
+    case 'Liquid Bitcoin-Liquid USDT':
       return SwapType.sideswapLbtcToUsdt;
 
-    case 'L-BTC-Eurox':
+    case 'Liquid Bitcoin-Eurox':
       return SwapType.sideswapLbtcToEurox;
 
-    case 'L-BTC-Depix':
+    case 'Liquid Bitcoin-Depix':
       return SwapType.sideswapLbtcToDepix;
 
-    case 'USDT-Depix':
+    case 'Liquid USDT-Depix':
       return SwapType.sideswapUsdtToDepix;
 
-    case 'Depix-USDT':
+    case 'Depix-Liquid USDT':
       return SwapType.sideswapDepixToUsdt;
 
-    case 'Eurox-USDT':
+    case 'Eurox-Liquid USDT':
       return SwapType.sideswapEuroxToUsdt;
 
-    case 'USDT-Eurox':
+    case 'Liquid USDT-Eurox':
       return SwapType.sideswapUsdtToEurox;
 
     default:
@@ -326,17 +326,17 @@ List<String> getAvailableSwaps(String asset, WidgetRef ref) {
 
   switch (asset) {
     case 'Bitcoin':
-      return ['L-BTC'];
-    case 'L-BTC':
-      return ['USDT', 'Depix', 'Eurox', 'Bitcoin'];
+      return ['Liquid Bitcoin'];
+    case 'Liquid Bitcoin':
+      return ['Liquid USDT', 'Depix', 'Eurox', 'Bitcoin'];
     case 'Lightning':
       return [];
-    case 'USDT':
-      return ['Depix', 'Eurox', 'L-BTC'];
+    case 'Liquid USDT':
+      return ['Depix', 'Eurox', 'Liquid Bitcoin'];
     case 'Eurox':
-      return ['USDT', 'L-BTC'];
+      return ['Liquid USDT', 'Liquid Bitcoin'];
     case 'Depix':
-      return ['USDT', 'L-BTC'];
+      return ['Liquid USDT', 'Liquid Bitcoin'];
     default:
       return [];
   }
@@ -349,10 +349,9 @@ Widget getAssetImage(String? asset, {double? width, double? height}) {
     case 'Bitcoin':
       return Image.asset('lib/assets/bitcoin-logo.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
     case 'Liquid Bitcoin':
-    case 'L-BTC':
     case 'LBTC':
       return Image.asset('lib/assets/l-btc.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
-    case 'USDT':
+    case 'Liquid USDT':
       return Image.asset('lib/assets/tether.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
     case 'Eurox':
     case 'EUROX':
@@ -370,7 +369,7 @@ Widget getAssetImage(String? asset, {double? width, double? height}) {
 }
 
 final transactionInProgressProvider = StateProvider.autoDispose<bool>((ref) => false);
-final fromAssetProvider = StateProvider.autoDispose<String>((ref) => 'L-BTC');
+final fromAssetProvider = StateProvider.autoDispose<String>((ref) => 'Liquid Bitcoin');
 final fiatToFiatSwap = StateProvider<bool>((ref) =>  true);
 final toAssetProvider = StateProvider.autoDispose<String>((ref) => 'Bitcoin');
 final inputInFiatProvider = StateProvider.autoDispose<bool>((ref) => false);
