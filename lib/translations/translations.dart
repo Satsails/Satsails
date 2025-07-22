@@ -3390,8 +3390,8 @@ extension Localization on String {
         'pt': 'Dentro da Satsails'
       }+
       {
-        'en': 'To Other Wallets',
-        'pt': 'Para Outras Carteiras'
+        'en': 'To/From Other Wallets',
+        'pt': 'De/Para Outras Carteiras'
       }+
       {
         'en': 'Swap non-native assets from other networks with your Satsails assets.',
@@ -3604,7 +3604,50 @@ extension Localization on String {
       {
         "en": "A 1% service fee is applied, excluding network fees.",
         "pt": "Uma taxa de serviço de 1% é aplicada, excluindo as taxas de rede"
+      }+
+      {
+        "en": "Enter an amount to see the quote and limits.",
+        "pt": "Insira um valor para ver a cotação e os limites."
+      }+
+      {
+        "en": "You will receive (approx.)",
+        "pt": "Você receberá (aprox.)"
+      }+
+      {
+        "en": "Rate",
+        "pt": "Taxa"
+      }+
+      {
+        "en": "Amount too big or too small to process swap",
+        "pt": "Valor muito grande ou muito pequeno para processar a troca"
+      }+
+      {
+        "en": "Bitcoin Price (1 Month)",
+        "pt": "Preço de Bitcoin (1 Mês)"
+      }+
+      {
+        "en": "All Assets",
+        "pt": "Todos os Ativos"
+      }+
+      {
+        "en": "Conversion Rate",
+        "pt": "Taxa de conversão"
+      }+
+      {
+        "en": "Change Asset",
+        "pt": "Trocar Moeda"
+      }+
+      {
+        "en": "Internal Analytics",
+        "pt": "Analíticas Internas"
+      }+
+      {
+        "en": "Market Data",
+        "pt": "Graficos do Mercado"
+      }+
+      {
+        "en": "Swap Initiated",
+        "pt": "Troca Iniciada"
       };
-
   String get i18n => localize(this, _t);
 }

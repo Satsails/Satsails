@@ -14,185 +14,158 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
 
-Future<bool> showConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
+Future<bool> showConfirmationModal(BuildContext context, String amount, String address, String btcFormat, WidgetRef ref) async {
   final settings = ref.read(settingsProvider);
   final currency = settings.currency;
-  final amountInCurrency = ref.read(bitcoinValueInCurrencyProvider);
+  final amountInSats = ref.read(sendTxProvider).amount;
+  // Using the imported helper function as intended
+  final amountInCurrency = calculateAmountInSelectedCurrency(amountInSats, currency, ref.read(currencyNotifierProvider));
+
+  // Calculate the 0.1% service fee, rounding up to the nearest satoshi.
+  final serviceFeeInSats = (amountInSats * 0.001).ceil();
 
   String shortenAddress(String value) {
     if (value.length <= 12) return value;
     return '${value.substring(0, 6)}...${value.substring(value.length - 6)}';
   }
 
+  // A local helper for creating styled detail rows
+  Widget buildDetailRow({required String label, required String value}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 16.sp)),
+          Text(value, style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+
   return await showDialog<bool>(
     context: context,
-    barrierDismissible: false,
+    barrierDismissible: false, // User must explicitly confirm or cancel
     builder: (BuildContext context) {
       return Dialog(
         backgroundColor: Colors.transparent,
-        child: Center(
-          child: Card(
-            color: const Color(0xFF333333),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-            elevation: 8,
-            child: Padding(
-              padding: EdgeInsets.all(24.w),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Text(
-                      'Confirm Transaction'.i18n,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.9,
+          ),
+          child: Container(
+            padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 20.h),
+            decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF2A2A2A), Color(0xFF1C1C1C)],
+                ),
+                borderRadius: BorderRadius.circular(24.r),
+                border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Title
+                Text(
+                  'Confirm Payment'.i18n,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.bold,
                   ),
-                  SizedBox(height: 24.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Amount'.i18n,
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '$amount $btcFormat',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              '${currencyFormat(amountInCurrency, currency)} $currency',
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 18.sp,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                ),
+                SizedBox(height: 24.h),
+
+                // Hero Amount Section
+                Text(
+                  '$amount $btcFormat',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 38.sp,
+                    fontWeight: FontWeight.bold,
                   ),
-                  Divider(color: Colors.grey[700], height: 20.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Recipient'.i18n,
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                        SizedBox(height: 8.h),
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[800],
-                            borderRadius: BorderRadius.circular(6.r),
-                          ),
-                          child: Text(
-                            shortenAddress(address),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  '≈ ${currencyFormat(double.parse(amountInCurrency), currency)} $currency',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 18.sp,
                   ),
-                  Divider(color: Colors.grey[700], height: 20.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Fee'.i18n,
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 20.sp,
-                          ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                  child: Divider(color: Colors.white.withOpacity(0.15)),
+                ),
+
+                // Details Section
+                buildDetailRow(
+                  label: 'Recipient Invoice'.i18n,
+                  value: shortenAddress(address),
+                ),
+                buildDetailRow(
+                  label: 'Service Fee'.i18n,
+                  value: '$serviceFeeInSats sats',
+                ),
+                SizedBox(height: 24.h),
+
+                // Action Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                          side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                         ),
-                        Text(
-                          '$fee sats',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 24.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
                         onPressed: () => Navigator.of(context).pop(false),
                         child: Text(
                           'Cancel'.i18n,
                           style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w600,
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                      SizedBox(width: 16.w),
-                      ElevatedButton(
+                    ),
+                    SizedBox(width: 16.w),
+                    Expanded(
+                      child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
                           backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.r)),
-                          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                         ),
                         onPressed: () => Navigator.of(context).pop(true),
                         child: Text(
                           'Confirm'.i18n,
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
       );
     },
-  ) ?? false;
+  ) ??
+      false; // Default to false if dialog is dismissed
 }
 
 class ConfirmBoltzPayment extends ConsumerStatefulWidget {
@@ -243,7 +216,7 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
     final sendTxState = ref.read(sendTxProvider);
     _previousAmount = sendTxState.amount;
     updateControllerText(sendTxState.amount);
-    if(isLightningInvoice(sendTxState.address)){
+    if (isLightningInvoice(sendTxState.address)) {
       isInvoice = true;
     }
     addressController.text = sendTxState.address;
@@ -548,7 +521,7 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
                     sliderBehavior: SliderBehavior.stretch,
                     width: double.infinity,
                     backgroundColor: Colors.black,
-                    toggleColor: Colors.orange,
+                    toggleColor: const Color(0xFF212121),
                     action: (controller) async {
                       setState(() {
                         isProcessing = true;
@@ -557,6 +530,24 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
 
                       try {
                         final sendTxState = ref.read(sendTxProvider);
+                        final btcFormat = ref.read(settingsProvider).btcFormat;
+
+                        final confirmed = await showConfirmationModal(
+                          context,
+                          btcInDenominationFormatted(sendTxState.amount, btcFormat),
+                          sendTxState.address ?? '',
+                          btcFormat,
+                          ref,
+                        );
+
+                        if (!confirmed) {
+                          controller.reset();
+                          setState(() {
+                            isProcessing = false;
+                          });
+                          return;
+                        }
+
                         final invoice = await getLnInvoiceWithAmount(sendTxState.address, sendTxState.amount);
                         ref.read(sendTxProvider.notifier).updateAddress(invoice);
                         await ref.read(boltzPayProvider.future);
@@ -582,9 +573,11 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
                         );
                         controller.reset();
                       } finally {
-                        setState(() {
-                          isProcessing = false;
-                        });
+                        if (mounted) {
+                          setState(() {
+                            isProcessing = false;
+                          });
+                        }
                       }
                     },
                     child: Text('Slide to send'.i18n, style: const TextStyle(color: Colors.white)),

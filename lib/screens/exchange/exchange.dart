@@ -186,7 +186,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
       child: Row(
         children: [
           _buildPickerOption(SwapSection.internal, 'Within Satsails'),
-          _buildPickerOption(SwapSection.external, 'To Other Wallets'),
+          _buildPickerOption(SwapSection.external, 'To/From Other Wallets'),
         ],
       ),
     );
@@ -385,14 +385,14 @@ class _ExchangeState extends ConsumerState<Exchange> {
     children: [
       Image.asset('lib/assets/l-btc.png', width: 28.sp, height: 28.sp),
       SizedBox(width: 8.w),
-      Text('L-BTC', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+      Text('Liquid Bitcoin', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
     ],
   );
 
   Widget _buildSatsailsAssetStaticDisplay(ShiftPair pair) {
     final bool isLbtcPair = pair.name.contains('Btc');
     final liquidLogo = isLbtcPair ? 'lib/assets/l-btc.png' : 'lib/assets/tether.png';
-    final liquidName = isLbtcPair ? 'L-BTC' : 'Liquid USDT';
+    final liquidName = isLbtcPair ? 'Liquid Bitcoin' : 'Liquid USDT';
 
     return Row(
       children: [

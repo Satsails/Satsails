@@ -34,7 +34,6 @@ import 'package:Satsails/screens/accounts/accounts.dart';
 import 'package:Satsails/screens/creation/set_pin.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/login/open_pin.dart';
-import 'package:Satsails/screens/services/services.dart';
 import 'package:Satsails/screens/creation/recover_wallet.dart';
 import 'package:Satsails/screens/pay/components/confirm_bitcoin_payment.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
@@ -225,14 +224,6 @@ class AppRouter {
           name: 'set_pin',
           pageBuilder: (context, state) => _buildFadeScalePage(
             child: const SetPin(),
-            state: state,
-          ),
-        ),
-        GoRoute(
-          path: '/services',
-          name: 'services',
-          pageBuilder: (context, state) => _buildFadeScalePage(
-            child: const Services(),
             state: state,
           ),
         ),

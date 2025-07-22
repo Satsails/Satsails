@@ -5,10 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
-// The missing DateTime extension has been restored.
 extension DateTimeExtension on DateTime {
-  String formatMD() => DateFormat('MM/dd').format(this);
-  String formatYMD() => DateFormat('yyyy/MM/dd').format(this);
+  String formatMD() => DateFormat('dd/MM').format(this);
+  String formatYMD() => DateFormat('dd/MM/yyyy').format(this);
   DateTime dateOnly() => DateTime(year, month, day);
 }
 

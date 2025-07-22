@@ -3,7 +3,9 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:Satsails/screens/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
@@ -15,116 +17,229 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-final selectedNetworkTypeProvider = StateProvider<String>((ref) => "Bitcoin network");
-final selectedAssetProvider = StateProvider<String>((ref) => 'Bitcoin');
+// This provider is still needed for the "Receive" button's logic.
+final selectedNetworkTypeProvider = StateProvider<String>((ref) => "Bitcoin Network");
 
-class BalanceCard extends ConsumerWidget {
-  final String network;
-  final String selectedAsset;
-  final String iconPath;
-  final Color color;
+class BalanceCard extends ConsumerStatefulWidget {
+  const BalanceCard({super.key});
 
-  const BalanceCard({
-    required this.network,
-    required this.selectedAsset,
-    required this.iconPath,
-    required this.color,
-    super.key,
-  });
+  @override
+  ConsumerState<BalanceCard> createState() => _BalanceCardState();
+}
 
-  Widget _buildHeader(BuildContext context, WidgetRef ref) {
-    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
-    final textColor = network == 'Spark Network' ? Colors.white : Colors.black;
-    final assetNameColor = network == 'Spark Network'
-        ? Colors.grey[400]!
-        : network == 'Liquid Network'
-        ? Colors.grey[600]!
-        : textColor;
+class _BalanceCardState extends ConsumerState<BalanceCard> {
+  static final List<Map<String, String>> _allAssets = [
+    {'name': 'Bitcoin', 'icon': 'lib/assets/bitcoin-logo.png', 'network': 'Bitcoin Network'},
+    {'name': 'Lightning Bitcoin', 'icon': 'lib/assets/Bitcoin_lightning_logo.png', 'network': 'Lightning Network'},
+    {'name': 'Liquid Bitcoin', 'icon': 'lib/assets/l-btc.png', 'network': 'Liquid Network'},
+    {'name': 'USDT', 'icon': 'lib/assets/tether.png', 'network': 'Liquid Network'},
+    {'name': 'EURx', 'icon': 'lib/assets/eurx.png', 'network': 'Liquid Network'},
+    {'name': 'Depix', 'icon': 'lib/assets/depix.png', 'network': 'Liquid Network'},
+  ];
 
-    return Row(
-      children: [
-        if (iconPath.endsWith('.svg'))
-          SvgPicture.asset(
-            iconPath,
-            width: selectedAsset == 'Liquid Bitcoin' ? 40.w : 24.w,
-            height: selectedAsset == 'Liquid Bitcoin' ? 40.w : 24.w,
-            colorFilter: network == 'Spark Network'
-                ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
-                : null,
-          )
-        else
-          Image.asset(iconPath, width: 100.sp),
-        SizedBox(width: 8.w),
-        if (network == 'Spark Network' || network == 'Liquid Network')
-          Text(
-            selectedAsset == 'Lightning Bitcoin'
-                ? 'Lightning'
-                : selectedAsset == 'Liquid Bitcoin'
-                ? 'L-BTC'
-                : selectedAsset,
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.bold,
-              color: assetNameColor,
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    final initialAsset = ref.read(selectedAssetProvider);
+    final initialIndex = _allAssets.indexWhere((asset) => asset['name'] == initialAsset);
+    _pageController = PageController(initialPage: initialIndex >= 0 ? initialIndex : 0);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenheight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenheight < 850;
+
+    ref.listen<String>(selectedAssetProvider, (previous, next) {
+      final newIndex = _allAssets.indexWhere((asset) => asset['name'] == next);
+      if (newIndex != -1 && _pageController.page?.round() != newIndex) {
+        _pageController.animateToPage(
+          newIndex,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF212121),
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildAssetSelectorDropdown(context, ref),
+
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: _allAssets.length,
+                onPageChanged: (index) {
+                  ref.read(selectedAssetProvider.notifier).state = _allAssets[index]['name']!;
+                },
+                itemBuilder: (context, index) {
+                  // Pass the controller and index to each child for the animation
+                  return _AssetDetailsView(
+                    assetData: _allAssets[index],
+                    isSmallScreen: isSmallScreen,
+                    pageController: _pageController,
+                    pageIndex: index,
+                  );
+                },
+              ),
             ),
-          ),
-        const Spacer(),
-        IconButton(
-          onPressed: () => ref
-              .read(settingsProvider.notifier)
-              .setBalanceVisible(!isBalanceVisible),
-          icon: Icon(
-            isBalanceVisible
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined,
-            color: textColor,
-            size: 24.sp,
-          ),
+
+            // The indicators can be removed if the fade is enough, or kept.
+            // For this example, I'll keep them.
+            Center(
+              child: SmoothPageIndicator(
+                controller: _pageController,
+                count: _allAssets.length,
+                effect: WormEffect(
+                  dotColor: Colors.white.withOpacity(0.2),
+                  activeDotColor: Colors.white.withOpacity(0.7),
+                  dotHeight: 8.r,
+                  dotWidth: 8.r,
+                ),
+              ),
+            ),
+
+            SizedBox(height: 8.h),
+            _buildActionButtons(context, ref, isSmallScreen),
+          ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildBalanceDisplay(String nativeBalance, String equivalentBalance, bool isSmallScreen) {
-    final textColor = network == 'Spark Network' ? Colors.white : Colors.black;
-    final primaryBalanceSize = isSmallScreen ? 28.sp : 36.sp;
-    final secondaryBalanceSize = isSmallScreen ? 15.sp : 18.sp;
+  Widget _buildAssetSelectorDropdown(BuildContext context, WidgetRef ref) {
+    final selectedAsset = ref.watch(selectedAssetProvider);
+    final networks = ['Bitcoin Network', 'Lightning Network', 'Liquid Network'];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          nativeBalance,
-          style: TextStyle(
-            fontSize: primaryBalanceSize,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-        SizedBox(height: 2.h),
-        if ([
-          'Bitcoin (Mainnet)',
-          'Lightning Bitcoin',
-          'Liquid Bitcoin'
-        ].contains(selectedAsset))
-          Text(
-            equivalentBalance,
-            style: TextStyle(
-              fontSize: secondaryBalanceSize,
-              color: textColor.withOpacity(0.7),
-              fontWeight: FontWeight.w500,
+    List<DropdownMenuItem<String>> items = [];
+    for (var network in networks) {
+      items.add(
+        DropdownMenuItem(
+          enabled: false,
+          child: Padding(
+            padding: EdgeInsets.only(top: items.isNotEmpty ? 12.h : 0, bottom: 4.h),
+            child: Text(
+              network,
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+                fontSize: 12.sp,
+              ),
             ),
           ),
-      ],
+        ),
+      );
+      final networkAssets = _allAssets.where((asset) => asset['network'] == network);
+      items.addAll(
+        networkAssets.map((asset) {
+          final isSelected = selectedAsset == asset['name'];
+          return DropdownMenuItem<String>(
+            value: asset['name'],
+            child: Row(
+              children: [
+                Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
+                SizedBox(width: 12.w),
+                Text(
+                  asset['name']!,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      );
+    }
+
+    return DropdownButtonHideUnderline(
+      child: DropdownButton<String>(
+        value: selectedAsset,
+        isExpanded: true,
+        dropdownColor: const Color(0xFF2C2C2C),
+        borderRadius: BorderRadius.circular(12.r),
+        icon: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.25),
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Change Asset'.i18n,
+                style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500),
+              ),
+              SizedBox(width: 4.w),
+              Icon(
+                Icons.keyboard_arrow_down,
+                color: Colors.white,
+                size: 20.sp,
+              ),
+            ],
+          ),
+        ),
+        onChanged: (newValue) {
+          if (newValue != null) {
+            ref.read(selectedAssetProvider.notifier).state = newValue;
+          }
+        },
+        items: items,
+        selectedItemBuilder: (BuildContext context) {
+          List<Widget> builderItems = [];
+          for (var network in networks) {
+            builderItems.add(Container());
+
+            final networkAssets = _allAssets.where((asset) => asset['network'] == network);
+            builderItems.addAll(
+              networkAssets.map((asset) {
+                return Row(
+                  children: [
+                    Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
+                    SizedBox(width: 12.w),
+                    Text(
+                      asset['name']!,
+                      style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                );
+              }),
+            );
+          }
+          return builderItems;
+        },
+      ),
     );
   }
 
   Widget _buildActionButtons(BuildContext context, WidgetRef ref, bool isSmallScreen) {
-    final textColor = network == 'Spark Network' ? Colors.white : Colors.black;
-    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
+    const textColor = Colors.white;
+    final buttonColor = Colors.white.withOpacity(0.15);
     final buttonFontSize = isSmallScreen ? 12.sp : 13.sp;
+    final selectedAsset = ref.watch(selectedAssetProvider);
+
+    final network = _allAssets.firstWhere((asset) => asset['name'] == selectedAsset)['network']!;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -135,10 +250,15 @@ class BalanceCard extends ConsumerWidget {
               icon: Icons.arrow_downward,
               label: 'Receive'.i18n,
               onPressed: () {
-                ref.read(selectedNetworkTypeProvider.notifier).state = network;
+                if (network == 'Lightning Network') {
+                  ref.read(selectedNetworkTypeProvider.notifier).state = 'Boltz Network';
+                } else {
+                  ref.read(selectedNetworkTypeProvider.notifier).state = network;
+                }
                 context.push('/home/receive');
               },
               textColor: textColor,
+              buttonColor: buttonColor,
               fontSize: buttonFontSize,
             ),
             SizedBox(width: 8.w),
@@ -147,44 +267,41 @@ class BalanceCard extends ConsumerWidget {
               label: 'Send'.i18n,
               onPressed: () {
                 ref.read(sendTxProvider.notifier).resetToDefault();
-                ref.read(sendBlocksProvider.notifier).state = 1;
-                _handleSendNavigation(context, ref);
+                _handleSendNavigation(context, ref, selectedAsset);
               },
               textColor: textColor,
+              buttonColor: buttonColor,
               fontSize: buttonFontSize,
             ),
           ],
         ),
-        if (isBalanceVisible)
-          GestureDetector(
-            onTap: () {
-              ref.read(selectedAssetProvider.notifier).state = selectedAsset;
-              context.pushNamed('analytics');
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(14.r),
-                border:
-                Border.all(color: textColor.withOpacity(0.5), width: 1.5),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.bar_chart_outlined, size: 16.w, color: textColor),
-                  SizedBox(width: 6.w),
-                  Text(
-                    'Analytics'.i18n,
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: buttonFontSize,
-                      fontWeight: FontWeight.bold,
-                    ),
+        GestureDetector(
+          onTap: () {
+            context.push('/accounts');
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(color: textColor.withOpacity(0.5), width: 1.5),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.wallet, size: 16.w, color: textColor),
+                SizedBox(width: 6.w),
+                Text(
+                  'All Assets'.i18n,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: buttonFontSize,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
+        ),
       ],
     );
   }
@@ -194,6 +311,7 @@ class BalanceCard extends ConsumerWidget {
     required String label,
     required VoidCallback onPressed,
     required Color textColor,
+    required Color buttonColor,
     required double fontSize,
   }) {
     return GestureDetector(
@@ -201,7 +319,7 @@ class BalanceCard extends ConsumerWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.08),
+          color: buttonColor,
           borderRadius: BorderRadius.circular(14.r),
         ),
         child: Row(
@@ -221,9 +339,9 @@ class BalanceCard extends ConsumerWidget {
     );
   }
 
-  void _handleSendNavigation(BuildContext context, WidgetRef ref) {
+  void _handleSendNavigation(BuildContext context, WidgetRef ref, String selectedAsset) {
     switch (selectedAsset) {
-      case 'Bitcoin (Mainnet)':
+      case 'Bitcoin':
         context.push('/home/pay', extra: 'bitcoin');
         break;
       case 'Lightning Bitcoin':
@@ -254,113 +372,185 @@ class BalanceCard extends ConsumerWidget {
         context.push('/home/pay', extra: 'liquid_asset');
     }
   }
+}
+
+class _AssetDetailsView extends ConsumerWidget {
+  final Map<String, String> assetData;
+  final bool isSmallScreen;
+  final PageController pageController;
+  final int pageIndex;
+
+  const _AssetDetailsView({
+    required this.assetData,
+    required this.isSmallScreen,
+    required this.pageController,
+    required this.pageIndex,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenheight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenheight < 850;
+    return AnimatedBuilder(
+      animation: pageController,
+      builder: (context, child) {
+        double opacity = 1.0;
+        if (pageController.position.haveDimensions) {
+          double page = pageController.page ?? 0.0;
+          double pageOffset = page - pageIndex;
+          opacity = (1 - pageOffset.abs()).clamp(0.0, 1.0);
+        }
+        return Opacity(
+          opacity: opacity,
+          child: child,
+        );
+      },
+      child: _buildContentView(ref),
+    );
+  }
 
+  Widget _buildContentView(WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-    final btcFormat = settings.btcFormat;
-    final currency = settings.currency;
     final isBalanceVisible = settings.balanceVisible;
-    final textColor = network == 'Spark Network' ? Colors.white : Colors.black;
+    const textColor = Colors.white;
 
     final balanceProvider = ref.watch(balanceNotifierProvider);
-    final currencyProvider = ref.watch(selectedCurrencyProvider(currency));
+    final currencyProvider = ref.watch(selectedCurrencyProvider(settings.currency));
+
+    final selectedAsset = assetData['name']!;
+    final assetForBalanceDisplay = assetData['network'] == 'Lightning Network' ? 'Liquid Bitcoin' : selectedAsset;
 
     String nativeBalance;
     String equivalentBalance = '';
 
-    switch (selectedAsset) {
-      case 'Bitcoin (Mainnet)':
-        nativeBalance = isBalanceVisible
-            ? btcInDenominationFormatted(
-            balanceProvider.onChainBtcBalance, btcFormat)
-            : '****';
-        equivalentBalance = isBalanceVisible
-            ? currencyFormat(balanceProvider.onChainBtcBalance /
-            100000000 *
-            currencyProvider, currency)
-            : '****';
-        break;
-      case 'Lightning Bitcoin':
-        nativeBalance = isBalanceVisible
-            ? btcInDenominationFormatted(
-            balanceProvider.sparkBitcoinbalance ?? 0, btcFormat)
-            : '****';
-        equivalentBalance = isBalanceVisible
-            ? currencyFormat(
-            (balanceProvider.sparkBitcoinbalance ?? 0) /
-                100000000 *
-                currencyProvider,
-            currency)
-            : '****';
+    switch (assetForBalanceDisplay) {
+      case 'Bitcoin':
+        nativeBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.onChainBtcBalance, settings.btcFormat) : '****';
+        equivalentBalance = isBalanceVisible ? currencyFormat(balanceProvider.onChainBtcBalance / 100000000 * currencyProvider, settings.currency) : '****';
         break;
       case 'Liquid Bitcoin':
-        nativeBalance = isBalanceVisible
-            ? btcInDenominationFormatted(
-            balanceProvider.liquidBtcBalance, btcFormat)
-            : '****';
-        equivalentBalance = isBalanceVisible
-            ? currencyFormat(balanceProvider.liquidBtcBalance /
-            100000000 *
-            currencyProvider, currency)
-            : '****';
+        nativeBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.liquidBtcBalance, settings.btcFormat) : '****';
+        equivalentBalance = isBalanceVisible ? currencyFormat(balanceProvider.liquidBtcBalance / 100000000 * currencyProvider, settings.currency) : '****';
         break;
       case 'USDT':
-        nativeBalance = isBalanceVisible
-            ? fiatInDenominationFormatted(balanceProvider.liquidUsdtBalance)
-            : '****';
+        nativeBalance = isBalanceVisible ? fiatInDenominationFormatted(balanceProvider.liquidUsdtBalance) : '****';
         break;
       case 'EURx':
-        nativeBalance = isBalanceVisible
-            ? fiatInDenominationFormatted(balanceProvider.liquidEuroxBalance)
-            : '****';
+        nativeBalance = isBalanceVisible ? fiatInDenominationFormatted(balanceProvider.liquidEuroxBalance) : '****';
         break;
       case 'Depix':
-        nativeBalance = isBalanceVisible
-            ? fiatInDenominationFormatted(balanceProvider.liquidDepixBalance)
-            : '****';
+        nativeBalance = isBalanceVisible ? fiatInDenominationFormatted(balanceProvider.liquidDepixBalance) : '****';
         break;
       default:
         nativeBalance = '****';
         equivalentBalance = '****';
     }
 
-    return Container(
-      height: isSmallScreen ? 210.h : 260.h,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: Colors.black.withOpacity(0.1), width: 1),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Spacer(),
+        _buildBalanceDisplay(nativeBalance, equivalentBalance, isSmallScreen, ref, selectedAsset),
+        const Spacer(),
+        if (!isSmallScreen)
+          Expanded(
+            flex: 3,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              child: isBalanceVisible
+                  ? MiniExpensesGraph(
+                key: ValueKey(assetForBalanceDisplay),
+                selectedAsset: assetForBalanceDisplay,
+                textColor: textColor,
+              )
+                  : const SizedBox.shrink(),
+            ),
+          )
+      ],
+    );
+  }
+
+  Widget _buildBalanceDisplay(String nativeBalance, String equivalentBalance, bool isSmallScreen, WidgetRef ref, String selectedAsset) {
+    const textColor = Colors.white;
+    final primaryBalanceSize = isSmallScreen ? 28.sp : 36.sp;
+    final secondaryBalanceSize = isSmallScreen ? 15.sp : 18.sp;
+
+    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
+    final isSyncing = ref.watch(backgroundSyncInProgressProvider);
+    final isOnline = ref.watch(settingsProvider).online;
+
+    final Widget syncStatus = GestureDetector(
+      onTap: isSyncing ? null : () => ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate(),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 10.sp,
+            height: 10.sp,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isOnline ? (isSyncing ? Colors.orange : Colors.green) : Colors.red,
+            ),
+          ),
+          SizedBox(width: 8.sp),
+          Text(
+            isOnline ? (isSyncing ? 'Syncing'.i18n : 'Update Balances'.i18n) : 'Offline'.i18n,
+            style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 14.sp),
+          ),
+        ],
       ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
-        child: Column(
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(context, ref),
-            SizedBox(height: isSmallScreen ? 2.h : 4.h),
-            _buildBalanceDisplay(nativeBalance, equivalentBalance, isSmallScreen),
-            // Conditionally display the graph or a spacer
-            if (!isSmallScreen)
-              Expanded(
-                child: Opacity(
-                  opacity: isBalanceVisible ? 1.0 : 0.0,
-                  child: MiniExpensesGraph(
-                    selectedAsset: selectedAsset,
-                    textColor: textColor,
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    nativeBalance,
+                    style: TextStyle(
+                      fontSize: primaryBalanceSize,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              )
-            else
-              const Spacer(), // Pushes buttons down on small screens
-            SizedBox(height: 8.h),
-            _buildActionButtons(context, ref, isSmallScreen),
+                  SizedBox(height: 2.h),
+                  if (['Bitcoin', 'Liquid Bitcoin', 'Lightning Bitcoin'].contains(selectedAsset))
+                    Text(
+                      equivalentBalance,
+                      style: TextStyle(
+                        fontSize: secondaryBalanceSize,
+                        color: textColor.withOpacity(0.7),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
+            ),
+            IconButton(
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: () => ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible),
+              icon: Icon(
+                isBalanceVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                color: textColor,
+                size: 24.sp,
+              ),
+            ),
           ],
         ),
-      ),
+        SizedBox(height: 8.h),
+        syncStatus,
+      ],
     );
   }
 }
@@ -380,7 +570,7 @@ class MiniExpensesGraph extends ConsumerWidget {
     late final AsyncValue<Map<DateTime, num>> asyncData;
 
     switch (selectedAsset) {
-      case 'Bitcoin (Mainnet)':
+      case 'Bitcoin':
       case 'Lightning Bitcoin':
         asyncData =
             AsyncValue.data(ref.watch(bitcoinBalanceInFormatByDayProvider));
@@ -492,18 +682,8 @@ class SimplifiedExpensesGraph extends StatelessWidget {
                 end: Alignment.bottomCenter,
               ),
             ),
-            dotData: FlDotData(
-              show: true,
-              getDotPainter: (spot, percent, barData, index) {
-                if (index == barData.spots.length - 1) {
-                  return FlDotCirclePainter(
-                    radius: 3.5,
-                    color: graphColor,
-                    strokeWidth: 1.5,
-                  );
-                }
-                return FlDotCirclePainter(radius: 0);
-              },
+            dotData: const FlDotData(
+              show: false,
             ),
           ),
         ],

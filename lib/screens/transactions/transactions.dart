@@ -268,14 +268,14 @@ class _TransactionsState extends ConsumerState<Transactions> {
                               });
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orangeAccent,
+                              backgroundColor: Colors.white,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
+                                borderRadius: BorderRadius.circular(10.0),
                               ),
                               minimumSize: const Size(60, 30),
                             ),
-                            child: Text('Reset'.i18n, style: TextStyle(color: Colors.white, fontSize: 16.0.sp)),
+                            child: Text('Reset'.i18n, style: TextStyle(color: Colors.black, fontSize: 16.0.sp)),
                           ),
                         ),
                       ],

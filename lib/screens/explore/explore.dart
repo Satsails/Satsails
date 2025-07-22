@@ -1,67 +1,33 @@
 import 'dart:io';
+
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-final isLoadingProvider = StateProvider<bool>((ref) => false);
-
-class _CashbackDisplay extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
-    final denomination = ref.watch(settingsProvider).btcFormat;
-    final transaction = ref.watch(transactionNotifierProvider);
-    final cashbackToReceive = isBalanceVisible
-        ? btcInDenominationFormatted(
-      transaction.value?.unpaidCashback ?? 0 * 100000000,
-      denomination,
-    )
-        : '***';
-
-    return Card(
-      color: const Color(0x00333333).withOpacity(0.4),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      elevation: 2,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Cashback to receive'.i18n,
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(width: 8.w),
-            Text(
-              cashbackToReceive,
-              style: TextStyle(
-                fontSize: 20.sp,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+// Helper Extension
+extension DateTimeExtension on DateTime {
+  DateTime dateOnly() => DateTime(year, month, day);
+  String formatYMD() => DateFormat('dd/MM/yyyy').format(this);
 }
 
+// Providers
+final isLoadingProvider = StateProvider<bool>((ref) => false);
+
+// Main Explore Widget
 class Explore extends ConsumerWidget {
   const Explore({super.key});
 
@@ -72,18 +38,15 @@ class Explore extends ConsumerWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = ref.read(userProvider);
-      final paymentId = user.paymentId;
-      final hasUploadedLiquidAddress = user.hasUploadedLiquidAddress ?? false;
-
-      if (paymentId.isNotEmpty && !hasUploadedLiquidAddress) {
-        ref.read(addCashbackProvider.future).then((_) {
-          // Successfully added cashback address
-        }).catchError((error) {
-          showMessageSnackBar(
-            message: "Failed to add cashback address: $error".i18n,
-            context: context,
-            error: true,
-          );
+      if (user.paymentId.isNotEmpty && !(user.hasUploadedLiquidAddress ?? false)) {
+        ref.read(addCashbackProvider.future).catchError((error) {
+          if (context.mounted) {
+            showMessageSnackBar(
+              message: "Failed to add cashback address: $error".i18n,
+              context: context,
+              error: true,
+            );
+          }
         });
       }
     });
@@ -94,25 +57,13 @@ class Explore extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.black,
-          centerTitle: false, // Align title to the left
+          centerTitle: false,
           automaticallyImplyLeading: false,
-          title: Text(
-            'Explore'.i18n,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 22.sp,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          title: Text('Explore'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
           actions: [
             IconButton(
-              onPressed: () {
-                ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible);
-              },
-              icon: Icon(
-                isBalanceVisible ? Icons.remove_red_eye : Icons.visibility_off,
-                color: Colors.white,
-              ),
+              onPressed: () => ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible),
+              icon: Icon(isBalanceVisible ? Icons.remove_red_eye : Icons.visibility_off, color: Colors.white),
             ),
           ],
         ),
@@ -121,47 +72,30 @@ class Explore extends ConsumerWidget {
           child: Stack(
             children: [
               const Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                  ),
-                ),
+                child: DecoratedBox(decoration: BoxDecoration(color: Colors.black)),
               ),
               SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.sp,
-                        vertical: 8.h,
-                      ),
-                      child: _BalanceDisplay(),
+                      padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.h),
+                      child: const _BalanceDisplay(),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.sp,
-                        vertical: 8.h,
-                      ),
-                      child: _CashbackDisplay(),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.sp,
-                        vertical: 8.h,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.h),
                       child: const _ActionCards(),
                     ),
-                    SizedBox(height: 50.sp),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.h),
+                      child: const _BitcoinPriceChart(),
+                    ),
                   ],
                 ),
               ),
               if (isLoading)
                 Center(
-                  child: LoadingAnimationWidget.fourRotatingDots(
-                    color: Colors.orangeAccent,
-                    size: 40.sp,
-                  ),
+                  child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orangeAccent, size: 40.sp),
                 ),
             ],
           ),
@@ -171,147 +105,65 @@ class Explore extends ConsumerWidget {
   }
 }
 
+// Balance and Cashback Card
 class _BalanceDisplay extends ConsumerWidget {
+  const _BalanceDisplay();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
-    final denomination = ref.watch(settingsProvider).btcFormat;
+    final settings = ref.watch(settingsProvider);
+    final isBalanceVisible = settings.balanceVisible;
+    final denomination = settings.btcFormat;
 
-    final depixBalance = isBalanceVisible
-        ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidDepixBalance)
-        : '***';
-    final liquidUsdtBalance = isBalanceVisible
-        ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidUsdtBalance)
-        : '***';
-    final euroBalance = isBalanceVisible
-        ? fiatInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidEuroxBalance)
-        : '***';
-    final onChainBtcBalance = isBalanceVisible
-        ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).onChainBtcBalance, denomination)
-        : '***';
-    final liquidBtcBalance = isBalanceVisible
-        ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).liquidBtcBalance, denomination)
-        : '***';
-    final sparkBitcoinbalance = isBalanceVisible
-        ? btcInDenominationFormatted(ref.watch(balanceNotifierProvider).sparkBitcoinbalance ?? 0, denomination)
-        : '***';
+    final balanceProvider = ref.watch(balanceNotifierProvider);
+    final depixBalance = isBalanceVisible ? fiatInDenominationFormatted(balanceProvider.liquidDepixBalance) : '***';
+    final liquidUsdtBalance = isBalanceVisible ? fiatInDenominationFormatted(balanceProvider.liquidUsdtBalance) : '***';
+    final euroBalance = isBalanceVisible ? fiatInDenominationFormatted(balanceProvider.liquidEuroxBalance) : '***';
+    final onChainBtcBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.onChainBtcBalance, denomination) : '***';
+    final liquidBtcBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.liquidBtcBalance, denomination) : '***';
+
+    final transaction = ref.watch(transactionNotifierProvider);
+    final cashbackAmount = transaction.value?.unpaidCashback ?? 0;
+    final cashbackToReceive = isBalanceVisible ? btcInDenominationFormatted(cashbackAmount, denomination) : '***';
+    final hasCashback = cashbackAmount > 0;
 
     return Card(
-      color: const Color(0x00333333).withOpacity(0.4),
+      color: const Color(0xFF333333).withOpacity(0.4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 2,
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Your Balances'.i18n,
-              style: TextStyle(
-                fontSize: 20.sp,
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            Text('Your Balances'.i18n, style: TextStyle(fontSize: 20.sp, color: Colors.grey, fontWeight: FontWeight.w500)),
             SizedBox(height: 16.h),
-            Row(
-              children: [
-                _buildBalanceRow(
-                  imagePath: 'lib/assets/bitcoin-logo.png',
-                  color: const Color(0xFFFF9800),
-                  label: 'Bitcoin'.i18n,
-                  balance: onChainBtcBalance,
-                ),
-                // _buildBalanceRow(
-                //   imagePath: 'lib/assets/Bitcoin_lightning_logo.png',
-                //   color: const Color(0xFFFF9800),
-                //   label: 'Lightning'.i18n,
-                //   balance: sparkBitcoinbalance,
-                // ),
-              ],
-            ),
+            Row(children: [_buildBalanceRow(imagePath: 'lib/assets/bitcoin-logo.png', label: 'Bitcoin'.i18n, balance: onChainBtcBalance), _buildBalanceRow(imagePath: 'lib/assets/l-btc.png', label: 'Liquid Bitcoin', balance: liquidBtcBalance)]),
             SizedBox(height: 12.h),
-            Row(
-              children: [
-                _buildBalanceRow(
-                  imagePath: 'lib/assets/l-btc.png',
-                  color: const Color(0xFFFF9800),
-                  label: 'Liquid'.i18n,
-                  balance: liquidBtcBalance,
-                ),
-                _buildBalanceRow(
-                  imagePath: 'lib/assets/eurx.png',
-                  color: const Color(0xFF003399),
-                  label: 'EURx'.i18n,
-                  balance: euroBalance,
-                ),
-              ],
-            ),
+            Row(children: [_buildBalanceRow(imagePath: 'lib/assets/eurx.png', label: 'Liquid EURx', balance: euroBalance), _buildBalanceRow(imagePath: 'lib/assets/tether.png', label: 'Liquid USDT', balance: liquidUsdtBalance)]),
             SizedBox(height: 12.h),
-            Row(
-              children: [
-                _buildBalanceRow(
-                  imagePath: 'lib/assets/depix.png',
-                  color: const Color(0xFF009C3B),
-                  label: 'Depix'.i18n,
-                  balance: depixBalance,
-                ),
-                _buildBalanceRow(
-                  imagePath: 'lib/assets/tether.png',
-                  color: const Color(0xFF008001),
-                  label: 'USDT'.i18n,
-                  balance: liquidUsdtBalance,
-                ),
-              ],
-            ),
+            Row(children: [_buildBalanceRow(imagePath: 'lib/assets/depix.png', label: 'Liquid Depix', balance: depixBalance), Expanded(child: Container())]),
+            Padding(padding: EdgeInsets.symmetric(vertical: 12.h), child: Divider(color: Colors.grey.withOpacity(0.2))),
+            Text('Cashback to receive'.i18n, style: TextStyle(fontSize: 16.sp, color: Colors.grey, fontWeight: FontWeight.w500)),
+            SizedBox(height: 4.h),
+            Text(cashbackToReceive, style: TextStyle(fontSize: 20.sp, color: Colors.white, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBalanceRow({
-    required String imagePath,
-    required Color color,
-    required String label,
-    required String balance,
-  }) {
+  Widget _buildBalanceRow({required String imagePath, required String label, required String balance}) {
     return Expanded(
       child: Row(
         children: [
-          Container(
-            padding: EdgeInsets.all(6.w),
-            child: ClipOval(
-              child: Image.asset(
-                imagePath,
-                width: 24.sp,
-                height: 24.sp,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-          SizedBox(width: 5.w),
+          Image.asset(imagePath, width: 24.sp, height: 24.sp, fit: BoxFit.contain),
+          SizedBox(width: 8.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                Text(label, style: TextStyle(fontSize: 16.sp, color: Colors.grey, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
                 SizedBox(height: 2.h),
-                Text(
-                  balance,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text(balance, style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
               ],
             ),
           ),
@@ -321,208 +173,234 @@ class _BalanceDisplay extends ConsumerWidget {
   }
 }
 
+// Buy and Sell Buttons
 class _ActionCards extends ConsumerWidget {
   const _ActionCards();
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final paymentId = ref.watch(userProvider).paymentId;
-
-    return Column(
+    return Row(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                color: Colors.green,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: () => _handleOnPress(ref, context, paymentId, true),
-                  child: Container(
-                    height: 80.h,
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Buy'.i18n,
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+        Expanded(
+          child: Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            color: Colors.green,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: () => _handleOnPress(ref, context, paymentId, true),
+              child: Container(height: 80.h, alignment: Alignment.center, child: Text('Buy'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold))),
             ),
-            SizedBox(width: 2.w),
-            Expanded(
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                color: Colors.red,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: () {
-                    showMessageSnackBar(
-                      message: "Coming soon".i18n,
-                      context: context,
-                      error: true,
-                    );
-                  },
-                  child: Container(
-                    height: 80.h,
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Sell'.i18n,
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-        SizedBox(height: 16.h),
-        Row(
-          children: [
-            Expanded(
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                color: const Color(0x00333333).withOpacity(0.4),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: () {
-                    context.push('/services');
-                  },
-                  child: AspectRatio(
-                    aspectRatio: 1.2,
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.asset(
-                            'lib/assets/Ice-Logo.png',
-                            width: 90.sp,
-                            height: 90.sp,
-                            fit: BoxFit.contain,
-                          ),
-                          SizedBox(height: 8.w),
-                          Text(
-                            'Market Graphs'.i18n,
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+        SizedBox(width: 2.w),
+        Expanded(
+          child: Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            color: Colors.red,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: () => showMessageSnackBar(message: "Coming soon".i18n, context: context, error: true),
+              child: Container(height: 80.h, alignment: Alignment.center, child: Text('Sell'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold))),
             ),
-            SizedBox(width: 2.w),
-            Expanded(
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                color: const Color(0x00333333).withOpacity(0.4),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: () {
-                    showMessageSnackBar(
-                      message: "Coming soon".i18n,
-                      context: context,
-                      error: true,
-                    );
-                  },
-                  child: AspectRatio(
-                    aspectRatio: 1.2,
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.asset(
-                            'lib/assets/bitrefill.png',
-                            width: 90.sp,
-                            height: 90.sp,
-                            fit: BoxFit.contain,
-                            color: Colors.white,
-                          ),
-                          SizedBox(height: 8.w),
-                          Text(
-                            'Store'.i18n,
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-        SizedBox(height: 100.sp),
       ],
     );
   }
 }
 
-Future<void> _handleOnPress(
-    WidgetRef ref,
-    BuildContext context,
-    String paymentId,
-    bool buy,
-    ) async {
-  final insertedAffiliateCode = ref.watch(userProvider).affiliateCode ?? '';
-  final hasUploadedAffiliateCode = ref.watch(userProvider).hasUploadedAffiliateCode ?? false;
-  final recoveryCode = ref.watch(userProvider).recoveryCode;
+// Static 1-Month Bitcoin Price Chart
+class _BitcoinPriceChart extends ConsumerWidget {
+  const _BitcoinPriceChart();
 
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    const int days = 30;
+    final now = DateTime.now().dateOnly();
+    final start = now.subtract(const Duration(days: days - 1));
+
+    final selectedDays = <DateTime>[];
+    for (var i = 0; i < days; i++) {
+      selectedDays.add(start.add(Duration(days: i)));
+    }
+
+    final settings = ref.watch(settingsProvider);
+    // CORRECTED: Calling the provider without arguments.
+    final marketDataAsync = ref.watch(bitcoinMarketDataProvider);
+    final cardColor = const Color(0xFF333333).withOpacity(0.4);
+
+    return Card(
+      color: cardColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 2,
+      child: Padding(
+        padding: EdgeInsets.all(16.sp),
+        child: marketDataAsync.when(
+          data: (marketData) {
+            if (marketData.isEmpty) {
+              return Center(heightFactor: 6.5, child: Text('No price data available.'.i18n, style: TextStyle(color: Colors.white70)));
+            }
+            // CORRECTED: Explicitly typing the map.
+            final Map<DateTime, num> priceByDay = {for (var dp in marketData) dp.date.toLocal().dateOnly(): dp.price ?? 0};
+
+            final lastPrice = marketData.last.price ?? 0;
+            final startPrice = marketData.first.price ?? 0;
+            final percentageChange = startPrice != 0 ? ((lastPrice - startPrice) / startPrice * 100) : 0;
+            final currencyFormatter = NumberFormat.simpleCurrency(name: settings.currency, decimalDigits: 2);
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [Text('Bitcoin Price (1 Month)'.i18n, style: TextStyle(fontSize: 16.sp, color: Colors.grey, fontWeight: FontWeight.w500)), Text('${percentageChange >= 0 ? '+' : ''}${percentageChange.toStringAsFixed(2)}%', style: TextStyle(fontSize: 16.sp, color: percentageChange >= 0 ? Colors.greenAccent : Colors.redAccent, fontWeight: FontWeight.w600))],
+                ),
+                SizedBox(height: 4.h),
+                Text(currencyFormatter.format(lastPrice), style: TextStyle(fontSize: 20.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                SizedBox(height: 12.h),
+                AspectRatio(
+                  aspectRatio: 2.5,
+                  child: _PriceSparklineChart(priceData: priceByDay, sortedDays: selectedDays, formatter: currencyFormatter),
+                ),
+              ],
+            );
+          },
+          loading: () => Center(heightFactor: 8, child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orangeAccent, size: 40.sp)),
+          error: (e, s) => Center(heightFactor: 8, child: Text('Could not load price data'.i18n, style: const TextStyle(color: Colors.redAccent))),
+        ),
+      ),
+    );
+  }
+}
+
+// Interactive Sparkline Chart (No Scale)
+class _PriceSparklineChart extends StatelessWidget {
+  final Map<DateTime, num> priceData;
+  final List<DateTime> sortedDays;
+  final NumberFormat formatter;
+
+  const _PriceSparklineChart({required this.priceData, required this.sortedDays, required this.formatter});
+
+  @override
+  Widget build(BuildContext context) {
+    if (sortedDays.isEmpty) return Container();
+    final bounds = _calculateAxisBounds(priceData, sortedDays);
+    return LineChart(
+      LineChartData(
+        lineTouchData: _buildLineTouchData(context, sortedDays),
+        gridData: const FlGridData(show: false),
+        titlesData: const FlTitlesData(show: false),
+        borderData: FlBorderData(show: false),
+        minX: 0,
+        maxX: (sortedDays.length - 1).toDouble(),
+        minY: bounds.minY,
+        maxY: bounds.maxY,
+        lineBarsData: [_buildLineBarData()],
+      ),
+    );
+  }
+
+  LineTouchData _buildLineTouchData(BuildContext context, List<DateTime> sortedDays) {
+    return LineTouchData(
+      handleBuiltInTouches: true,
+      touchTooltipData: LineTouchTooltipData(
+        getTooltipColor: (_) => const Color(0xFF2C2C2E),
+        tooltipBorder: BorderSide(color: Colors.orangeAccent.withOpacity(0.5)),
+        getTooltipItems: (touchedSpots) {
+          if (touchedSpots.isEmpty) return [];
+          final spot = touchedSpots.first;
+          final index = spot.x.toInt();
+          if (index < 0 || index >= sortedDays.length) return [];
+
+          final date = sortedDays[index];
+          final price = spot.y;
+
+          return [
+            LineTooltipItem(
+              '${date.formatYMD()}\n',
+              TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.sp),
+              children: [
+                TextSpan(
+                  text: formatter.format(price),
+                  style: TextStyle(color: Colors.white70, fontSize: 12.sp),
+                ),
+              ],
+              textAlign: TextAlign.start,
+            )
+          ];
+        },
+      ),
+      getTouchedSpotIndicator: (barData, spotIndexes) => spotIndexes
+          .map((index) => TouchedSpotIndicatorData(
+        FlLine(color: Colors.orange.withOpacity(0.7), strokeWidth: 1.5, dashArray: [4, 4]),
+        FlDotData(getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(radius: 6, color: Colors.orange, strokeColor: Colors.black, strokeWidth: 2)),
+      ))
+          .toList(),
+    );
+  }
+
+  LineChartBarData _buildLineBarData() {
+    return LineChartBarData(spots: _createSpots(priceData, sortedDays), isCurved: true, gradient: const LinearGradient(colors: [Colors.orangeAccent, Colors.orange]), barWidth: 2.5, isStrokeCapRound: true, dotData: const FlDotData(show: false), belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [Colors.orange.withOpacity(0.3), Colors.orange.withOpacity(0.0)], begin: Alignment.topCenter, end: Alignment.bottomCenter)));
+  }
+
+  List<FlSpot> _createSpots(Map<DateTime, num> data, List<DateTime> days) {
+    List<FlSpot> spots = [];
+    if (data.isEmpty) return spots;
+    num lastValue = data.values.firstWhere((v) => v > 0, orElse: () => 0.0);
+    final normalizedData = {for (var entry in data.entries) entry.key.dateOnly(): entry.value};
+    for (int i = 0; i < days.length; i++) {
+      final day = days[i].dateOnly();
+      if (normalizedData.containsKey(day) && normalizedData[day]! > 0) {
+        lastValue = normalizedData[day]!;
+      }
+      spots.add(FlSpot(i.toDouble(), lastValue.toDouble()));
+    }
+    return spots;
+  }
+
+  ({double minY, double maxY}) _calculateAxisBounds(Map<DateTime, num> data, List<DateTime> days) {
+    if (data.isEmpty) return (minY: 0, maxY: 1);
+    final spots = _createSpots(data, days);
+    if (spots.isEmpty) return (minY: 0, maxY: 1);
+    double minY = double.maxFinite;
+    double maxY = double.negativeInfinity;
+    for (var spot in spots) {
+      if (spot.y < minY) minY = spot.y;
+      if (spot.y > maxY) maxY = spot.y;
+    }
+
+    final padding = (maxY - minY) * 0.1;
+    minY -= padding;
+    maxY += padding;
+    if (minY < 0) minY = 0;
+
+    return (minY: minY, maxY: maxY);
+  }
+}
+
+// Global Helper Functions
+Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentId, bool buy) async {
+  final userProviderState = ref.watch(userProvider);
   ref.read(isLoadingProvider.notifier).state = true;
-
   try {
     if (paymentId.isEmpty) {
       await ref.watch(createUserProvider.future);
-      await _requestNotificationPermissions();
+      if (context.mounted) await _requestNotificationPermissions();
     } else {
-      if (recoveryCode != null && recoveryCode.isNotEmpty) {
+      if (userProviderState.recoveryCode?.isNotEmpty ?? false) {
         await ref.read(migrateUserToJwtProvider.future);
       }
-      if (insertedAffiliateCode.isNotEmpty && !hasUploadedAffiliateCode) {
-        await ref.read(addAffiliateCodeProvider(insertedAffiliateCode).future);
+      if ((userProviderState.affiliateCode?.isNotEmpty ?? false) && !(userProviderState.hasUploadedAffiliateCode ?? false)) {
+        await ref.read(addAffiliateCodeProvider(userProviderState.affiliateCode!).future);
       }
     }
-    if (buy) {
-      context.push('/home/explore/deposit_type');
-    } else {
-      context.push('/home/explore/sell_type');
+    if (context.mounted) {
+      context.push(buy ? '/home/explore/deposit_type' : '/home/explore/sell_type');
     }
   } catch (e) {
-    showMessageSnackBar(
-      message: e.toString(),
-      context: context,
-      error: true,
-    );
+    if (context.mounted) {
+      showMessageSnackBar(message: e.toString(), context: context, error: true);
+    }
   } finally {
     ref.read(isLoadingProvider.notifier).state = false;
   }
@@ -530,14 +408,11 @@ Future<void> _handleOnPress(
 
 Future<void> _requestNotificationPermissions() async {
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
   if (Platform.isAndroid) {
-    final androidPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     await androidPlugin?.requestNotificationsPermission();
   } else if (Platform.isIOS) {
-    final iosPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>();
+    final iosPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
     await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
   }
 }

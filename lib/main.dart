@@ -122,6 +122,9 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.black,
       systemNavigationBarIconBrightness: Brightness.light,
+      statusBarColor: Colors.black,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
     ));
 
     _branchSubscription = FlutterBranchSdk.listSession().listen((data) async {
@@ -152,7 +155,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
             break;
           }
 
-          final gracePeriod = const Duration(seconds: 30);
+          final gracePeriod = const Duration(seconds: 180);
           if (_pauseTime != null) {
             final elapsed = DateTime.now().difference(_pauseTime!);
             if (elapsed > gracePeriod) {
@@ -213,6 +216,14 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
                 routerConfig: _router,
                 locale: Locale(language),
                 themeMode: ThemeMode.dark,
+                darkTheme: ThemeData(
+                  brightness: Brightness.dark,
+                  scaffoldBackgroundColor: Colors.black,
+                  appBarTheme: const AppBarTheme(
+                    backgroundColor: Colors.black,
+                    elevation: 0,
+                  ),
+                ),
                 debugShowCheckedModeBanner: false,
                 localizationsDelegates: const [
                   GlobalMaterialLocalizations.delegate,

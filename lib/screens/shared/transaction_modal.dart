@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
-import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/helpers/swap_helpers.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
@@ -54,7 +53,7 @@ void showFullscreenTransactionSendModal({
 void showFullscreenExchangeModal({
   required BuildContext context,
   required SwapType swapType,
-  required int amount, // Add amount as a required parameter
+  required int amount,
 }) {
   showModalBottomSheet(
     context: context,
@@ -96,39 +95,29 @@ class ReceiveTransactionOverlay extends ConsumerStatefulWidget {
 }
 
 class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOverlay>
-    with SingleTickerProviderStateMixin {
-  bool checked = false;
-
-  late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
+    with TickerProviderStateMixin {
+  bool _isChecked = false;
+  bool _showContent = false;
+  late final AnimationController _animationController;
+  late final Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    _scaleAnimation = CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack);
 
-    // Set up the animation controller for the checkmark "pop" effect
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-
-    _scaleAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutBack,
-    );
-
-    // Trigger the checkmark animation and vibration after a 500ms delay
-    Future.delayed(const Duration(milliseconds: 500), () {
-      setState(() {
-        checked = true;
-      });
-      _animationController.forward();
-
-      Vibration.hasVibrator().then((bool? hasVibrator) {
-        if (hasVibrator == true) {
-          Vibration.vibrate(duration: 100);
-        }
-      });
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        setState(() => _isChecked = true);
+        _animationController.forward();
+        Vibration.hasVibrator().then((bool? hasVibrator) {
+          if (hasVibrator == true) Vibration.vibrate(duration: 100);
+        });
+      }
+    });
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) setState(() => _showContent = true);
     });
   }
 
@@ -146,98 +135,127 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
     return '\$'; // Default fallback
   }
 
-  String get displayAmount {
-    if (widget.fiat && widget.fiatAmount != null && widget.asset != null) {
-      final symbol = getFiatSymbol(widget.asset!);
-      return '$symbol${widget.fiatAmount}';
-    }
-    return widget.amount;
-  }
   @override
   Widget build(BuildContext context) {
     final assetName = widget.asset ?? '';
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Asset icon and name (only if provided)
-            if (assetName.isNotEmpty)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+    String primaryAmount;
+    String? secondaryAmount;
+
+    if (widget.fiat && widget.fiatAmount != null && widget.asset != null) {
+      primaryAmount = '${getFiatSymbol(widget.asset!)}${widget.fiatAmount}';
+      secondaryAmount = null;
+    } else {
+      primaryAmount = widget.amount;
+      if (widget.fiatAmount != null && widget.asset != null) {
+        secondaryAmount = '${getFiatSymbol(widget.asset!)}${widget.fiatAmount}';
+      }
+    }
+
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
+      child: Scaffold(
+        backgroundColor: Colors.black.withOpacity(0.75),
+        body: Center(
+          child: GestureDetector(
+            onTap: () {}, // Prevents card from closing on tap
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 20.w),
+              padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
+              decoration: BoxDecoration(
+                  color: const Color(0x00333333).withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(24.r),
+                  border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
+                  // Dismiss handle
+                  Container(
+                    width: 40.w,
+                    height: 5.h,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: checked ? Colors.greenAccent.withOpacity(0.3) : Colors.transparent,
-                        width: checked ? 1.5 : 0,
-                      ),
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(100),
                     ),
-                    child: getAssetImage(assetName, width: 24.sp, height: 24.sp),
                   ),
-                  SizedBox(width: 8.w),
-                  AnimatedOpacity(
-                    opacity: checked ? 1.0 : 0.5,
-                    duration: const Duration(milliseconds: 500),
-                    child: Text(
-                      assetName,
-                      style: TextStyle(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        letterSpacing: 0.8,
+                  SizedBox(height: 20.h),
+                  // Animated Checkmark
+                  ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: MSHCheckbox(
+                      size: 90.sp,
+                      value: _isChecked,
+                      colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
+                        checkedColor: Colors.green,
+                        uncheckedColor: Colors.transparent,
                       ),
-                      textAlign: TextAlign.center,
+                      style: MSHCheckboxStyle.stroke,
+                      onChanged: (_) {},
+                    ),
+                  ),
+                  SizedBox(height: 24.h),
+                  // Animated content that fades in
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeIn,
+                    opacity: _showContent ? 1.0 : 0.0,
+                    child: Column(
+                      children: [
+                        // Main Amount Display
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            if (assetName.isNotEmpty)
+                              Padding(
+                                padding: EdgeInsets.only(right: 16.w),
+                                child: getAssetImage(assetName, width: 40.sp, height: 40.sp),
+                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  primaryAmount,
+                                  style: TextStyle(
+                                    fontSize: 38.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                if (secondaryAmount != null)
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 2.h),
+                                    child: Text(
+                                      secondaryAmount,
+                                      style: TextStyle(
+                                        fontSize: 18.sp,
+                                        color: Colors.white.withOpacity(0.7),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 24.h),
+                        // Confirmation Text
+                        Text(
+                          'Payment successfully received'.i18n,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 16.sp,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            if (assetName.isNotEmpty) SizedBox(height: 20.h),
-            // Animated checkmark
-            ScaleTransition(
-              scale: _scaleAnimation,
-              child: MSHCheckbox(
-                size: 100,
-                value: checked,
-                colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
-                  checkedColor: Colors.green,
-                  uncheckedColor: Colors.white,
-                  disabledColor: Colors.grey,
-                ),
-                style: MSHCheckboxStyle.stroke,
-                duration: const Duration(milliseconds: 500),
-                onChanged: (_) {},
-              ),
             ),
-            SizedBox(height: 20.h),
-            // Transaction amount
-            Text(
-              displayAmount,
-              style: TextStyle(
-                fontSize: 40.sp,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 10.h), // Adds spacing between amount and new text
-            // New translatable text
-            Text(
-              'Payment successfully received'.i18n,
-              style: TextStyle(
-                fontSize: 18.sp,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -252,11 +270,6 @@ class PaymentTransactionOverlay extends ConsumerStatefulWidget {
   final String? txid;
   final bool isLiquid;
   final String receiveAddress;
-
-  /// Number of blocks the transaction is confirmed in.
-  /// - null => "Instant"
-  /// - 1    => "1 block"
-  /// - else => "X blocks"
   final int? confirmationBlocks;
 
   const PaymentTransactionOverlay({
@@ -278,297 +291,193 @@ class PaymentTransactionOverlay extends ConsumerStatefulWidget {
 
 class _PaymentTransactionOverlayState
     extends ConsumerState<PaymentTransactionOverlay> with TickerProviderStateMixin {
-  bool checked = false;
-  late AnimationController animationController;
-  late Animation<double> scaleAnimation;
+  bool _checked = false;
+  bool _showContent = false;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-
-    animationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+    _animationController = AnimationController(
       vsync: this,
+      duration: const Duration(milliseconds: 500),
     );
-    scaleAnimation = CurvedAnimation(
-      parent: animationController,
+    _scaleAnimation = CurvedAnimation(
+      parent: _animationController,
       curve: Curves.easeOutBack,
     );
 
-    // Animate checkmark & optional vibration
-    Future.delayed(const Duration(milliseconds: 500), () {
-      animationController.forward();
-      setState(() {
-        checked = true;
-      });
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        setState(() => _checked = true);
+        _animationController.forward();
+        Vibration.hasVibrator().then((bool? hasVibrator) {
+          if (hasVibrator == true) Vibration.vibrate(duration: 100);
+        });
+      }
+    });
 
-      Vibration.hasVibrator().then((bool? hasVibrator) {
-        if (hasVibrator == true) {
-          Vibration.vibrate(duration: 100);
-        }
-      });
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) setState(() => _showContent = true);
     });
   }
 
   @override
   void dispose() {
-    animationController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
-  /// Shorten a long string (like txid or address) to first 6...last 6
   String shortenString(String value) {
     if (value.length <= 12) return value;
     return '${value.substring(0, 6)}...${value.substring(value.length - 6)}';
   }
 
-  /// Return R\$ for DEPIX, € for EUROX/EURX, $ for USDT
-  String getFiatSymbol(String asset) {
-    final upper = asset.toUpperCase();
-    if (upper.contains('DEPIX')) {
-      return 'R\$';
-    } else if (upper.contains('EUROX') || upper.contains('EURX')) {
-      return '€';
-    } else if (upper.contains('USDT')) {
-      return '\$';
-    }
-    // fallback if needed
-    return '\$';
-  }
-
-  /// "Instant", "1 block" or "X blocks"
-  String get confirmationText {
+  String _getConfirmationText() {
     final blocks = widget.confirmationBlocks;
     if (blocks == null) return 'Instant'.i18n;
     if (blocks == 1) return '1 block'.i18n;
     return '$blocks ${'blocks'.i18n}';
   }
 
-  /// Determines how to display the amount
-  String get displayAmount {
-    final assetName = widget.asset ?? '';
-    final upper = assetName.toUpperCase();
-
-    // For certain "fiat-like" assets, interpret the amount as sat-based => /1e8
-    if (upper.contains('DEPIX') ||
-        upper.contains('EUROX') ||
-        upper.contains('EURX') ||
-        upper.contains('USDT')) {
-      final symbol = getFiatSymbol(assetName);
-      final parsed = double.tryParse(widget.amount) ?? 0;
-      final isBtc = ref.read(settingsProvider).btcFormat == 'BTC';
-      // 1) Convert from sat-based => double
-      double converted = isBtc ? parsed : parsed / 1e8;
-      // 2) Display up to 8 decimals, then strip trailing zeros
-      String display = converted.toStringAsFixed(8);
-      display = stripTrailingZeros(display);
-      return '$symbol$display';
-    }
-
-    // Otherwise, fallback to your BTC format logic
-    final btcFormat = ref.read(settingsProvider).btcFormat;
+  String _getDisplayAmount() {
     if (widget.fiat && widget.fiatAmount != null) {
-      return '${widget.fiatAmount} $assetName'.trim();
+      return widget.fiatAmount!;
     } else {
-      switch (btcFormat) {
-        case 'sats':
-          return '${widget.amount} sats';
-        case 'BTC':
-          return '${widget.amount} BTC';
-        default:
-          return widget.amount;
-      }
+      return widget.amount;
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Arrow-down icon
-            Icon(
-              Icons.keyboard_arrow_down,
-              color: Colors.grey[400],
-              size: 24,
-            ),
-            const SizedBox(height: 16),
-
-            // Main Card
-            Container(
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
+      child: Scaffold(
+        backgroundColor: Colors.black.withOpacity(0.75),
+        body: Center(
+          child: GestureDetector(
+            onTap: () {},
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 20.w),
+              padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
               decoration: BoxDecoration(
-                color: const Color(0x00333333).withOpacity(0.4),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                  color: const Color(0x00333333).withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(24.r),
+                  border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Checkmark animation
+                  Container(
+                    width: 40.w,
+                    height: 5.h,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
                   ScaleTransition(
-                    scale: scaleAnimation,
+                    scale: _scaleAnimation,
                     child: MSHCheckbox(
-                      size: 80,
-                      value: checked,
+                      size: 90.sp,
+                      value: _checked,
                       colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
-                        checkedColor: Colors.green,
-                        uncheckedColor: Colors.white,
-                        disabledColor: Colors.grey,
-                      ),
+                          checkedColor: Colors.green),
                       style: MSHCheckboxStyle.stroke,
-                      duration: const Duration(milliseconds: 500),
                       onChanged: (_) {},
                     ),
                   ),
-                  const SizedBox(height: 24),
-
-                  // Bigger Icon + Asset
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      getAssetImage(widget.asset, height: 48.sp, width: 48.sp),
-                      const SizedBox(width: 12),
-                      if (widget.asset != null && widget.asset!.isNotEmpty)
-                        Text(
-                          widget.asset!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  SizedBox(height: 16.h),
+                  Text('Transaction Sent'.i18n,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.bold)),
+                  SizedBox(height: 24.h),
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeIn,
+                    opacity: _showContent ? 1.0 : 0.0,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(right: 12.w),
+                              child: getAssetImage(widget.asset, width: 32.sp, height: 32.sp),
+                            ),
+                            Text(
+                              _getDisplayAmount(),
+                              style: TextStyle(
+                                fontSize: 32.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Amount
-                  _transactionDetailRow(
-                    label: 'Amount'.i18n,
-                    value: displayAmount,
-                  ),
-
-                  // Confirmation
-                  _transactionDetailRow(
-                    label: 'Confirmation'.i18n,
-                    value: confirmationText,
-                  ),
-
-                  // Recipient
-                  _transactionDetailRowMulti(
-                    label: 'Recipient'.i18n,
-                    value: widget.receiveAddress,
-                    isAddressOrTxid: true,
-                  ),
-
-                  // Transaction ID
-                  if (widget.txid != null && widget.txid!.isNotEmpty)
-                    _transactionDetailRowMulti(
-                      label: 'Transaction ID'.i18n,
-                      value: widget.txid!,
-                      isAddressOrTxid: true,
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16.h),
+                          child: Divider(color: Colors.white.withOpacity(0.15)),
+                        ),
+                        _buildDetailRow(
+                          label: 'Confirmation'.i18n,
+                          value: _getConfirmationText(),
+                        ),
+                        _buildDetailRow(
+                          label: 'Recipient'.i18n,
+                          value: shortenString(widget.receiveAddress),
+                          canCopy: true,
+                          copyValue: widget.receiveAddress,
+                        ),
+                        if (widget.txid != null && widget.txid!.isNotEmpty)
+                          _buildDetailRow(
+                            label: 'Transaction ID'.i18n,
+                            value: shortenString(widget.txid!),
+                            canCopy: true,
+                            copyValue: widget.txid!,
+                          ),
+                      ],
                     ),
+                  ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  /// Single-line row for label + value
-  Widget _transactionDetailRow({
-    required String label,
-    required String value,
-  }) {
+  Widget _buildDetailRow(
+      {required String label,
+        required String value,
+        bool canCopy = false,
+        String? copyValue}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: EdgeInsets.symmetric(vertical: 6.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Label
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 16,
-            ),
-          ),
-          // Value
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Multi-line row: label on top, value below in a subtle container
-  Widget _transactionDetailRowMulti({
-    required String label,
-    required String value,
-    bool isAddressOrTxid = false,
-  }) {
-    final displayValue = isAddressOrTxid ? shortenString(value) : value;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top label
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 6),
-          // Value container
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey[800],
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Value
-                Expanded(
-                  child: Text(
-                    displayValue,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+          Text(label, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15.sp)),
+          Row(
+            children: [
+              Text(value, style: TextStyle(color: Colors.white, fontSize: 15.sp, fontWeight: FontWeight.w500)),
+              if (canCopy)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: copyValue ?? value));
+                    showMessageSnackBar(context: context, message: 'Copied'.i18n, error: false);
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 8.w),
+                    child: Icon(Icons.copy, size: 16.sp, color: Colors.white.withOpacity(0.6)),
                   ),
                 ),
-                // Copy button if address/txid
-                if (isAddressOrTxid)
-                  IconButton(
-                    icon: const Icon(Icons.copy, color: Colors.white, size: 16),
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: value));
-                      showMessageSnackBar(
-                        context: context,
-                        message: 'Copied'.i18n,
-                        error: false,
-                      );
-                    },
-                  ),
-              ],
-            ),
+            ],
           ),
         ],
       ),
@@ -578,7 +487,7 @@ class _PaymentTransactionOverlayState
 
 class ExchangeTransactionOverlay extends ConsumerStatefulWidget {
   final SwapType swapType;
-  final int amount; // Amount is now an integer
+  final int amount;
 
   const ExchangeTransactionOverlay({
     super.key,
@@ -590,197 +499,175 @@ class ExchangeTransactionOverlay extends ConsumerStatefulWidget {
   _ExchangeTransactionOverlayState createState() => _ExchangeTransactionOverlayState();
 }
 
-class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransactionOverlay> {
+class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransactionOverlay>
+    with TickerProviderStateMixin {
+  bool _checked = false;
+  bool _showContent = false;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 500));
+    _scaleAnimation =
+        CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack);
+
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        setState(() => _checked = true);
+        _animationController.forward();
+        Vibration.hasVibrator().then((bool? hasVibrator) {
+          if (hasVibrator == true) Vibration.vibrate(duration: 100);
+        });
+      }
+    });
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) setState(() => _showContent = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Get the swap title and parse assets
     final title = _getSwapTitle(widget.swapType);
-    final assets = _parseAssetsFromTitle(title.replaceAll('.i18n', ''));
+    final assets = _parseAssetsFromTitle(title);
     final fromAsset = assets['from']!;
     final toAsset = assets['to']!;
 
-    // Format the amount based on the fromAsset type
     String formattedAmount;
     if (_isBitcoinLikeAsset(fromAsset)) {
-      final denomination = ref
-          .read(settingsProvider)
-          .btcFormat;
-      formattedAmount =
-          btcInDenominationFormatted(widget.amount, denomination, true);
+      final denomination = ref.read(settingsProvider).btcFormat;
+      formattedAmount = btcInDenominationFormatted(widget.amount, denomination, true);
     } else {
       formattedAmount = fiatInDenominationFormatted(widget.amount);
     }
 
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.keyboard_arrow_down,
-              color: Colors.grey[400],
-              size: 24,
-            ),
-            const SizedBox(height: 16),
-            Container(
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
+      child: Scaffold(
+        backgroundColor: Colors.black.withOpacity(0.75),
+        body: Center(
+          child: GestureDetector(
+            onTap: () {},
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 20.w),
+              padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
               decoration: BoxDecoration(
-                color: const Color(0x00333333).withOpacity(0.4),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF212121),
-                    Color(0xFF1A1A1A),
-                  ],
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                  color: const Color(0x00333333).withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(24.r),
+                  border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    title.i18n,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22.sp,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
-                    ),
-                    textAlign: TextAlign.center,
+                  Container(
+                      width: 40.w,
+                      height: 5.h,
+                      decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(100))),
+                  SizedBox(height: 20.h),
+                  ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: MSHCheckbox(
+                        size: 90.sp,
+                        value: _checked,
+                        colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
+                            checkedColor: Colors.green),
+                        style: MSHCheckboxStyle.stroke,
+                        onChanged: (_) {}),
                   ),
-                  const SizedBox(height: 24),
-                  _transactionDetailRow(
-                    label: 'Amount'.i18n,
-                    value: formattedAmount,
-                  ),
-                  const SizedBox(height: 12),
-                  if (fromAsset.isNotEmpty)
-                    _transactionDetailRow(
-                      label: 'From'.i18n,
-                      value: fromAsset,
-                      assetName: fromAsset,
+                  SizedBox(height: 16.h),
+                  Text('Swap Initiated'.i18n,
+                      style: TextStyle(
+                          color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 24.h),
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeIn,
+                    opacity: _showContent ? 1.0 : 0.0,
+                    child: Column(
+                      children: [
+                        Text(formattedAmount,
+                            style: TextStyle(
+                                fontSize: 28.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white.withOpacity(0.9))),
+                        SizedBox(height: 20.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            _buildAssetColumn(fromAsset, 'From'.i18n),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12.w),
+                              child: Icon(Icons.arrow_forward,
+                                  color: Colors.white.withOpacity(0.6), size: 24.sp),
+                            ),
+                            _buildAssetColumn(toAsset, 'To'.i18n),
+                          ],
+                        ),
+                      ],
                     ),
-                  const SizedBox(height: 12),
-                  if (toAsset.isNotEmpty)
-                    _transactionDetailRow(
-                      label: 'To'.i18n,
-                      value: toAsset,
-                      assetName: toAsset,
-                    ),
-                  const SizedBox(height: 24),
+                  )
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  // Helper method to determine the swap title
+  Widget _buildAssetColumn(String assetName, String label) {
+    return Column(
+      children: [
+        getAssetImage(assetName, width: 40.sp, height: 40.sp),
+        SizedBox(height: 8.h),
+        Text(label, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14.sp)),
+        SizedBox(height: 2.h),
+        Text(assetName, style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
   String _getSwapTitle(SwapType swapType) {
     switch (swapType) {
-      case SwapType.sideswapBtcToLbtc:
-        return 'Bitcoin to Liquid Bitcoin Swap';
-      case SwapType.sideswapLbtcToBtc:
-        return 'Liquid Bitcoin to Bitcoin Swap';
-      case SwapType.coinosLnToBTC:
-        return 'Lightning to Bitcoin Swap';
-      case SwapType.coinosLnToLBTC:
-        return 'Lightning to Liquid Bitcoin Swap';
-      case SwapType.coinosBtcToLn:
-        return 'Bitcoin to Lightning Swap';
-      case SwapType.coinosLbtcToLn:
-        return 'Liquid Bitcoin to Lightning Swap';
-      case SwapType.sideswapUsdtToLbtc:
-        return 'USDT to Liquid Bitcoin Swap';
-      case SwapType.sideswapEuroxToLbtc:
-        return 'EUROX to Liquid Bitcoin Swap';
-      case SwapType.sideswapDepixToLbtc:
-        return 'DEPIX to Liquid Bitcoin Swap';
-      case SwapType.sideswapLbtcToUsdt:
-        return 'Liquid Bitcoin to USDT Swap';
-      case SwapType.sideswapLbtcToEurox:
-        return 'Liquid Bitcoin to EUROX Swap';
-      case SwapType.sideswapLbtcToDepix:
-        return 'Liquid Bitcoin to DEPIX Swap';
-      case SwapType.sideswapDepixToUsdt:
-        return 'DEPIX to USDT Swap';
-      case SwapType.sideswapUsdtToEurox:
-        return 'USDT to EUROX Swap';
-      case SwapType.sideswapUsdtToDepix:
-        return 'USDT to DEPIX Swap';
-      case SwapType.sideswapEuroxToUsdt:
-        return 'EUROX to USDT Swap';
-      default:
-        return 'Exchange Transaction';
+      case SwapType.sideswapBtcToLbtc: return 'Bitcoin to Liquid Bitcoin';
+      case SwapType.sideswapLbtcToBtc: return 'Liquid Bitcoin to Bitcoin';
+      case SwapType.coinosLnToBTC: return 'Lightning to Bitcoin';
+      case SwapType.coinosLnToLBTC: return 'Lightning to Liquid Bitcoin';
+      case SwapType.coinosBtcToLn: return 'Bitcoin to Lightning';
+      case SwapType.coinosLbtcToLn: return 'Liquid Bitcoin to Lightning';
+      case SwapType.sideswapUsdtToLbtc: return 'USDT to Liquid Bitcoin';
+      case SwapType.sideswapEuroxToLbtc: return 'EUROX to Liquid Bitcoin';
+      case SwapType.sideswapDepixToLbtc: return 'DEPIX to Liquid Bitcoin';
+      case SwapType.sideswapLbtcToUsdt: return 'Liquid Bitcoin to USDT';
+      case SwapType.sideswapLbtcToEurox: return 'Liquid Bitcoin to EUROX';
+      case SwapType.sideswapLbtcToDepix: return 'Liquid Bitcoin to DEPIX';
+      case SwapType.sideswapDepixToUsdt: return 'DEPIX to USDT';
+      case SwapType.sideswapUsdtToEurox: return 'USDT to EUROX';
+      case SwapType.sideswapUsdtToDepix: return 'USDT to DEPIX';
+      case SwapType.sideswapEuroxToUsdt: return 'EUROX to USDT';
+      default: return 'Exchange';
     }
   }
 
-  // Helper method to parse assets from the title
   Map<String, String> _parseAssetsFromTitle(String title) {
-    final parts = title.replaceAll(' Swap', '').split(' to ');
+    final parts = title.split(' to ');
     if (parts.length == 2) {
-      return {
-        'from': parts[0],
-        'to': parts[1],
-      };
+      return {'from': parts[0], 'to': parts[1]};
     }
     return {'from': '', 'to': ''};
   }
 
-  // Helper method to check if an asset is Bitcoin-like (Liquid Bitcoin or Lightning)
   bool _isBitcoinLikeAsset(String asset) {
     return asset == 'Liquid Bitcoin' || asset == 'Lightning' || asset == 'Bitcoin';
-  }
-
-  // Helper method to build transaction detail rows
-  Widget _transactionDetailRow({
-    required String label,
-    required String value,
-    String? assetName,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          Row(
-            children: [
-              if (assetName != null) ...[
-                getAssetImage(assetName, width: 28.sp, height: 28.sp),
-                SizedBox(width: 12.w),
-              ],
-              Text(
-                value,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 }

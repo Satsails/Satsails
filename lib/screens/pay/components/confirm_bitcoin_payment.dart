@@ -26,6 +26,7 @@ Future<bool> showConfirmationModal(
     BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
   final settings = ref.read(settingsProvider);
   final currency = settings.currency;
+  // Reverted to using the original provider from your code
   final amountInCurrency = ref.read(bitcoinValueInCurrencyProvider);
 
   // Function to shorten the address for display
@@ -34,186 +35,137 @@ Future<bool> showConfirmationModal(
     return '${value.substring(0, 6)}...${value.substring(value.length - 6)}';
   }
 
+  // A local helper for creating styled detail rows
+  Widget buildDetailRow({required String label, required String value}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 16.sp)),
+          Text(value, style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+
   return await showDialog<bool>(
     context: context,
-    barrierDismissible: false, // Prevents dismissal by tapping outside
+    barrierDismissible: false, // User must explicitly confirm or cancel
     builder: (BuildContext context) {
       return Dialog(
-        backgroundColor: Colors.transparent, // Transparent background around the card
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.8, // Limit to 80% of screen width
-            ),
-            child: Card(
-              color: const Color(0xFF333333), // Dark background
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-              elevation: 8, // Shadow effect
-              child: Padding(
-                padding: EdgeInsets.all(24.w), // Scaled padding
-                child: Column(
-                  mainAxisSize: MainAxisSize.min, // Compact size
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        backgroundColor: Colors.transparent,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.9,
+          ),
+          child: Container(
+            padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 20.h),
+            decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF2A2A2A), Color(0xFF1C1C1C)],
+                ),
+                borderRadius: BorderRadius.circular(24.r),
+                border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Title
+                Text(
+                  'Confirm Transaction'.i18n,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 24.h),
+
+                // Hero Amount Section
+                Text(
+                  '$amount $btcFormat',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 38.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  '${currencyFormat(amountInCurrency, currency)} $currency',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 18.sp,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                  child: Divider(color: Colors.white.withOpacity(0.15)),
+                ),
+
+                // Details Section
+                buildDetailRow(
+                  label: 'Recipient'.i18n,
+                  value: shortenAddress(address),
+                ),
+                buildDetailRow(
+                  label: 'Fee'.i18n,
+                  value: '$fee sats',
+                ),
+                SizedBox(height: 24.h),
+
+                // Action Buttons
+                Row(
                   children: [
-                    // Title
-                    Center(
-                      child: Text(
-                        'Confirm Transaction'.i18n,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24.sp, // Scaled font size
-                          fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                          side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                        ),
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text(
+                          'Cancel'.i18n,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 24.h), // Scaled spacing
-
-                    // Amount Section
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.h),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Amount'.i18n,
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 20.sp,
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                '$amount $btcFormat',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Text(
-                                '${currencyFormat(amountInCurrency, currency)} $currency',
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 18.sp,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Divider
-                    Divider(color: Colors.grey[700], height: 20.h),
-
-                    // Recipient Section
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.h),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Recipient'.i18n,
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 20.sp,
-                            ),
-                          ),
-                          SizedBox(height: 8.h),
-                          Container(
-                            width: double.infinity,
-                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[800],
-                              borderRadius: BorderRadius.circular(6.r),
-                            ),
-                            child: Text(
-                              shortenAddress(address),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Divider
-                    Divider(color: Colors.grey[700], height: 20.h),
-
-                    // Fee Section
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.h),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Fee'.i18n,
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 20.sp,
-                            ),
-                          ),
-                          Text(
-                            '$fee sats',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Action Buttons
-                    SizedBox(height: 24.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: Text(
-                            'Cancel'.i18n,
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
+                    SizedBox(width: 16.w),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                        ),
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: Text(
+                          'Confirm'.i18n,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(width: 16.w), // Scaled horizontal spacing
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.r)),
-                            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
-                          ),
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: Text(
-                            'Confirm'.i18n,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
-              ),
+              ],
             ),
           ),
         ),
       );
     },
-  ) ?? false; // Default to false if dialog is dismissed without a result
+  ) ??
+      false; // Default to false if dialog is dismissed
 }
 
 Widget buildTransactionDetailsCard(WidgetRef ref) {
@@ -728,7 +680,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                     sliderBehavior: SliderBehavior.stretch,
                     width: double.infinity,
                     backgroundColor: Colors.black,
-                    toggleColor: Colors.orange,
+                    toggleColor: const Color(0xFF212121),
                     action: (controller) async {
                       setState(() {
                         isProcessing = true;

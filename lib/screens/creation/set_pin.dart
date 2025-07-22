@@ -47,15 +47,6 @@ class _SetPinState extends ConsumerState<SetPin> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 16.h),
-                Text(
-                  'This PIN will be used to unlock your wallet'.i18n,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16.sp,
-                  ),
-                ),
                 SizedBox(height: 50.h), // Replaced Spacer
                 PinProgressIndicator(currentLength: pin.length),
                 SizedBox(height: 50.h), // Replaced Spacer(flex: 2)
