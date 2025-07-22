@@ -204,9 +204,20 @@ class BalanceCard extends ConsumerWidget {
             color: Colors.black.withOpacity(0.25),
             borderRadius: BorderRadius.circular(16.r),
           ),
-          child: Text(
-            'Change Asset or Network'.i18n,
-            style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Change Asset or Network'.i18n,
+                style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500),
+              ),
+              SizedBox(width: 4.w),
+              Icon(
+                Icons.keyboard_arrow_down,
+                color: Colors.white,
+                size: 20.sp,
+              ),
+            ],
           ),
         ),
         onChanged: (newValue) {
