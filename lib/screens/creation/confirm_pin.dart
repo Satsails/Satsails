@@ -128,15 +128,6 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 16.h),
-                    Text(
-                      'Enter the same PIN again to verify'.i18n,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16.sp,
-                      ),
-                    ),
                     SizedBox(height: 50.h), // Replaced Spacer
                     AnimatedBuilder(
                       animation: _animation,
