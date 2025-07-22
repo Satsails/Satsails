@@ -111,83 +111,149 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
     super.dispose();
   }
 
+// Helper function to shorten an address, can be kept inside the modal or moved to a helper file.
   String shortenAddress(String value) {
     if (value.length <= 12) return value;
     return '${value.substring(0, 6)}...${value.substring(value.length - 6)}';
   }
 
   Future<bool> showNonBtcConfirmationModal(BuildContext context, String amount, String address, String fee, WidgetRef ref) async {
+    // A local helper for creating styled detail rows, consistent with other modals
+    Widget buildDetailRow({required String label, required String value}) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 8.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 16.sp)),
+            Text(value, style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w500)),
+          ],
+        ),
+      );
+    }
+
     return await showDialog<bool>(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: false, // User must explicitly confirm or cancel
       builder: (BuildContext context) {
-        double amountDouble = double.parse(amount.replaceAll(',', ''));
-        double serviceFeeDouble = amountDouble * 0.01;
-        String serviceFee = serviceFeeDouble.toStringAsFixed(3);
+        // Local fee calculations
+        double amountDouble = double.tryParse(amount.replaceAll(',', '')) ?? 0.0;
+        double serviceFeeDouble = amountDouble * 0.01; // 1% service fee
+        // Assuming asset has 2 decimal places for this calculation, adjust if needed
+        String serviceFee = serviceFeeDouble.toStringAsFixed(2);
+
+        // Assuming the passed 'fee' is the network fee and we need to add the ticker
+        String networkFee = '$fee USDT';
 
         return Dialog(
           backgroundColor: Colors.transparent,
-          child: Card(
-            color: const Color(0xFF333333),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-            child: Padding(
-              padding: EdgeInsets.all(24.w),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.9,
+            ),
+            child: Container(
+              padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 20.h),
+              decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF2A2A2A), Color(0xFF1C1C1C)],
+                  ),
+                  borderRadius: BorderRadius.circular(24.r),
+                  border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Confirm Transaction'.i18n, style: TextStyle(color: Colors.white, fontSize: 24.sp, fontWeight: FontWeight.bold)),
+                  // Title
+                  Text(
+                    'Confirm Transaction'.i18n,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   SizedBox(height: 24.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Amount'.i18n, style: TextStyle(color: Colors.grey[400], fontSize: 20.sp)),
-                      Text('$amount USDT', style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.w600)),
-                    ],
+
+                  // Hero Amount Section
+                  Text(
+                    '$amount USDT',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 38.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  Divider(color: Colors.grey[700], height: 20.h),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Recipient'.i18n, style: TextStyle(color: Colors.grey[400], fontSize: 20.sp)),
-                      SizedBox(height: 8.h),
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                        decoration: BoxDecoration(color: Colors.grey[800], borderRadius: BorderRadius.circular(6.r)),
-                        child: Text(shortenAddress(address), style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.w600)),
-                      ),
-                    ],
+
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.h),
+                    child: Divider(color: Colors.white.withOpacity(0.15)),
                   ),
-                  SizedBox(height: 8.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Service Fee'.i18n, style: TextStyle(color: Colors.grey[400], fontSize: 20.sp)),
-                      Text('$serviceFee USDT', style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.w600)),
-                    ],
+
+                  // Details Section
+                  buildDetailRow(
+                    label: 'Recipient'.i18n,
+                    value: shortenAddress(address),
                   ),
-                  Divider(color: Colors.grey[700], height: 20.h),
+                  buildDetailRow(
+                    label: 'Network Fee'.i18n,
+                    value: networkFee,
+                  ),
+                  buildDetailRow(
+                    label: 'Service Fee'.i18n,
+                    value: '$serviceFee USDT',
+                  ),
+
+                  // Asynchronous Payjoin Fee
                   ref.watch(payjoinFeeProvider).when(
-                    data: (String fee) => Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Payjoin fee'.i18n, style: TextStyle(color: Colors.grey[400], fontSize: 20.sp)),
-                        Text('$fee USDT', style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.w600)),
-                      ],
+                    data: (payjoinFee) => buildDetailRow(
+                        label: 'Payjoin fee'.i18n,
+                        value: '$payjoinFee USDT'
                     ),
                     loading: () => const SizedBox.shrink(),
                     error: (e, s) => const SizedBox.shrink(),
                   ),
                   SizedBox(height: 24.h),
+
+                  // Action Buttons
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text('Cancel'.i18n, style: TextStyle(color: Colors.grey[400], fontSize: 18.sp, fontWeight: FontWeight.w600))),
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                          ),
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: Text(
+                            'Cancel'.i18n,
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.8),
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                       SizedBox(width: 16.w),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.r))),
-                        onPressed: () => Navigator.of(context).pop(true),
-                        child: Text('Confirm'.i18n, style: TextStyle(color: Colors.black, fontSize: 18.sp, fontWeight: FontWeight.w600)),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                          ),
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: Text(
+                            'Confirm'.i18n,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -198,7 +264,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
         );
       },
     ) ??
-        false;
+        false; // Default to false if dialog is dismissed
   }
 
   Future<bool> showBtcConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {

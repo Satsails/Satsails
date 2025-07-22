@@ -70,6 +70,7 @@ dependencies:
   upgrader: ^11.3.1
   pull_to_refresh_flutter3: ^2.0.2
   rxdart: ^0.28.0
+  smooth_page_indicator: ^1.2.1
   flutter_breez_liquid:
     git:
       url: https://github.com/breez/breez-sdk-liquid-flutter

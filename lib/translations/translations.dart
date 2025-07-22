@@ -3634,8 +3634,8 @@ extension Localization on String {
         "pt": "Taxa de conversão"
       }+
       {
-        "en": "Change Asset or Network",
-        "pt": "Trocar Ativo ou Rede"
+        "en": "Change Asset",
+        "pt": "Trocar Moeda"
       }+
       {
         "en": "Internal Analytics",
@@ -3644,6 +3644,10 @@ extension Localization on String {
       {
         "en": "Market Data",
         "pt": "Graficos do Mercado"
+      }+
+      {
+        "en": "Swap Initiated",
+        "pt": "Troca Iniciada"
       };
   String get i18n => localize(this, _t);
 }

@@ -349,9 +349,11 @@ Widget getAssetImage(String? asset, {double? width, double? height}) {
     case 'Bitcoin':
       return Image.asset('lib/assets/bitcoin-logo.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
     case 'Liquid Bitcoin':
+    case 'L-BTC':
     case 'LBTC':
       return Image.asset('lib/assets/l-btc.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
     case 'Liquid USDT':
+    case 'USDT':
       return Image.asset('lib/assets/tether.png', width: width ?? 28.0.sp, height: height ?? 28.0.sp);
     case 'Eurox':
     case 'EUROX':
@@ -1106,7 +1108,7 @@ Widget buildSideswapInstantSwap(
     switch (quote.status) {
       case 'Success':
         final receiveAmount = assetToSell != quote.baseAsset ? quote.deliverAmount ?? 0 : quote.receiveAmount ?? 0;
-        final formattedAmount = assetToSell != quote.baseAsset ? btcInDenominationFormatted(receiveAmount, btcFormat) : btcInDenominationFormatted(receiveAmount, btcFormat, false);
+        final formattedAmount = assetToSell != quote.baseAsset ? btcInDenominationFormatted(receiveAmount, btcFormat, fiatAssets.contains(toAsset) ? false : true)  : btcInDenominationFormatted(receiveAmount, btcFormat, false);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -1125,7 +1127,7 @@ Widget buildSideswapInstantSwap(
         );
       case 'LowBalance':
         final quoteAmountValue = assetToSell != quote.baseAsset ? quote.baseAmount ?? 0 : quote.quoteAmount ?? 0;
-        final formattedAmount = assetToSell != quote.baseAsset ? btcInDenominationFormatted(quoteAmountValue, btcFormat) : btcInDenominationFormatted(quoteAmountValue, btcFormat, false);
+        final formattedAmount = assetToSell != quote.baseAsset ? btcInDenominationFormatted(quoteAmountValue, btcFormat, fiatAssets.contains(toAsset) ? false : true) : btcInDenominationFormatted(quoteAmountValue, btcFormat, false);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.end,

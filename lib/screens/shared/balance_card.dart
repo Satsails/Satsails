@@ -18,85 +18,63 @@ import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 // This provider is still needed for the "Receive" button's logic.
 final selectedNetworkTypeProvider = StateProvider<String>((ref) => "Bitcoin Network");
 
-class BalanceCard extends ConsumerWidget {
+class BalanceCard extends ConsumerStatefulWidget {
   const BalanceCard({super.key});
 
+  @override
+  ConsumerState<BalanceCard> createState() => _BalanceCardState();
+}
+
+class _BalanceCardState extends ConsumerState<BalanceCard> {
   // A new combined list of all assets from all networks.
   static final List<Map<String, String>> _allAssets = [
     {'name': 'Bitcoin', 'icon': 'lib/assets/bitcoin-logo.png', 'network': 'Bitcoin Network'},
     {'name': 'Lightning Bitcoin', 'icon': 'lib/assets/Bitcoin_lightning_logo.png', 'network': 'Lightning Network'},
     {'name': 'Liquid Bitcoin', 'icon': 'lib/assets/l-btc.png', 'network': 'Liquid Network'},
-    {'name': 'Depix', 'icon': 'lib/assets/depix.png', 'network': 'Liquid Network'},
     {'name': 'USDT', 'icon': 'lib/assets/tether.png', 'network': 'Liquid Network'},
     {'name': 'EURx', 'icon': 'lib/assets/eurx.png', 'network': 'Liquid Network'},
+    {'name': 'Depix', 'icon': 'lib/assets/depix.png', 'network': 'Liquid Network'},
   ];
 
+  late final PageController _pageController;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    // Initialize the PageController with the current asset selected
+    final initialAsset = ref.read(selectedAssetProvider);
+    final initialIndex = _allAssets.indexWhere((asset) => asset['name'] == initialAsset);
+    _pageController = PageController(initialPage: initialIndex >= 0 ? initialIndex : 0);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final screenheight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenheight < 850;
 
-    final selectedAsset = ref.watch(selectedAssetProvider);
-    final settings = ref.watch(settingsProvider);
-    final isBalanceVisible = settings.balanceVisible;
-    const textColor = Colors.white;
-
-    final balanceProvider = ref.watch(balanceNotifierProvider);
-    final currencyProvider = ref.watch(selectedCurrencyProvider(settings.currency));
-
-    final currentAssetData = _allAssets.firstWhere((asset) => asset['name'] == selectedAsset);
-    final assetForBalanceDisplay = currentAssetData['network'] == 'Lightning Network' ? 'Liquid Bitcoin' : selectedAsset;
-
-    String nativeBalance;
-    String equivalentBalance = '';
-
-    switch (assetForBalanceDisplay) {
-      case 'Bitcoin':
-        nativeBalance = isBalanceVisible
-            ? btcInDenominationFormatted(
-            balanceProvider.onChainBtcBalance, settings.btcFormat)
-            : '****';
-        equivalentBalance = isBalanceVisible
-            ? currencyFormat(balanceProvider.onChainBtcBalance /
-            100000000 *
-            currencyProvider, settings.currency)
-            : '****';
-        break;
-      case 'Liquid Bitcoin':
-        nativeBalance = isBalanceVisible
-            ? btcInDenominationFormatted(
-            balanceProvider.liquidBtcBalance, settings.btcFormat)
-            : '****';
-        equivalentBalance = isBalanceVisible
-            ? currencyFormat(balanceProvider.liquidBtcBalance /
-            100000000 *
-            currencyProvider, settings.currency)
-            : '****';
-        break;
-      case 'USDT':
-        nativeBalance = isBalanceVisible
-            ? fiatInDenominationFormatted(balanceProvider.liquidUsdtBalance)
-            : '****';
-        break;
-      case 'EURx':
-        nativeBalance = isBalanceVisible
-            ? fiatInDenominationFormatted(balanceProvider.liquidEuroxBalance)
-            : '****';
-        break;
-      case 'Depix':
-        nativeBalance = isBalanceVisible
-            ? fiatInDenominationFormatted(balanceProvider.liquidDepixBalance)
-            : '****';
-        break;
-      default:
-        nativeBalance = '****';
-        equivalentBalance = '****';
-    }
+    // Listen to changes in the selected asset (e.g., from the dropdown)
+    // and animate the PageView to the correct page.
+    ref.listen<String>(selectedAssetProvider, (previous, next) {
+      final newIndex = _allAssets.indexWhere((asset) => asset['name'] == next);
+      if (newIndex != -1 && _pageController.page?.round() != newIndex) {
+        _pageController.animateToPage(
+          newIndex,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOut,
+        );
+      }
+    });
 
     return Container(
       decoration: BoxDecoration(
@@ -111,30 +89,33 @@ class BalanceCard extends ConsumerWidget {
             _buildAssetSelectorDropdown(context, ref),
 
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Spacer(),
-                  _buildBalanceDisplay(nativeBalance, equivalentBalance, isSmallScreen, ref),
-                  const Spacer(),
-                  if (!isSmallScreen)
-                    Expanded(
-                      flex: 3,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        transitionBuilder: (child, animation) {
-                          return FadeTransition(opacity: animation, child: child);
-                        },
-                        child: isBalanceVisible
-                            ? MiniExpensesGraph(
-                          key: ValueKey(assetForBalanceDisplay),
-                          selectedAsset: assetForBalanceDisplay,
-                          textColor: textColor,
-                        )
-                            : const SizedBox.shrink(),
-                      ),
-                    )
-                ],
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: _allAssets.length,
+                onPageChanged: (index) {
+                  // Update the provider when the user swipes
+                  ref.read(selectedAssetProvider.notifier).state = _allAssets[index]['name']!;
+                },
+                itemBuilder: (context, index) {
+                  return _AssetDetailsView(
+                    assetData: _allAssets[index],
+                    isSmallScreen: isSmallScreen,
+                  );
+                },
+              ),
+            ),
+
+            // Page Indicators
+            Center(
+              child: SmoothPageIndicator(
+                controller: _pageController,
+                count: _allAssets.length,
+                effect: WormEffect(
+                  dotColor: Colors.white.withOpacity(0.2),
+                  activeDotColor: Colors.white.withOpacity(0.7),
+                  dotHeight: 8.r,
+                  dotWidth: 8.r,
+                ),
               ),
             ),
 
@@ -146,6 +127,7 @@ class BalanceCard extends ConsumerWidget {
     );
   }
 
+  // == FIX IS HERE ==
   Widget _buildAssetSelectorDropdown(BuildContext context, WidgetRef ref) {
     final selectedAsset = ref.watch(selectedAssetProvider);
     final networks = ['Bitcoin Network', 'Lightning Network', 'Liquid Network'];
@@ -208,7 +190,7 @@ class BalanceCard extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Change Asset or Network'.i18n,
+                'Change Asset'.i18n,
                 style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500),
               ),
               SizedBox(width: 4.w),
@@ -227,9 +209,13 @@ class BalanceCard extends ConsumerWidget {
         },
         items: items,
         selectedItemBuilder: (BuildContext context) {
+          // This builder now correctly constructs a list of widgets that matches the `items` list structure,
+          // including placeholders for the disabled header items. This ensures correct index mapping.
           List<Widget> builderItems = [];
           for (var network in networks) {
+            // Add a placeholder for the disabled header item to keep indices aligned.
             builderItems.add(Container());
+
             final networkAssets = _allAssets.where((asset) => asset['network'] == network);
             builderItems.addAll(
               networkAssets.map((asset) {
@@ -250,90 +236,6 @@ class BalanceCard extends ConsumerWidget {
           return builderItems;
         },
       ),
-    );
-  }
-
-  Widget _buildBalanceDisplay(String nativeBalance, String equivalentBalance, bool isSmallScreen, WidgetRef ref) {
-    const textColor = Colors.white;
-    final selectedAsset = ref.watch(selectedAssetProvider);
-    final currentAssetData = _allAssets.firstWhere((asset) => asset['name'] == selectedAsset);
-    final selectedNetwork = currentAssetData['network']!;
-
-    final primaryBalanceSize = isSmallScreen ? 28.sp : 36.sp;
-    final secondaryBalanceSize = isSmallScreen ? 15.sp : 18.sp;
-
-    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
-    final isSyncing = ref.watch(backgroundSyncInProgressProvider);
-    final isOnline = ref.watch(settingsProvider).online;
-
-    final Widget syncStatus = GestureDetector(
-      onTap: isSyncing ? null : () => ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate(),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 10.sp,
-            height: 10.sp,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isOnline ? (isSyncing ? Colors.orange : Colors.green) : Colors.red,
-            ),
-          ),
-          SizedBox(width: 8.sp),
-          Text(
-            // FIX: Show "Offline" when not online
-              isOnline ? (isSyncing ? 'Syncing'.i18n : 'Update Balances'.i18n) : 'Offline'.i18n,
-              style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 14.sp)
-          ),
-        ],
-      ),
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  nativeBalance,
-                  style: TextStyle(
-                    fontSize: primaryBalanceSize,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                ),
-                SizedBox(height: 2.h),
-                if (['Bitcoin', 'Liquid Bitcoin', 'Lightning Bitcoin'].contains(selectedAsset) || selectedNetwork == 'Lightning Network')
-                  Text(
-                    equivalentBalance,
-                    style: TextStyle(
-                      fontSize: secondaryBalanceSize,
-                      color: textColor.withOpacity(0.7),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-              ],
-            ),
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              onPressed: () => ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible),
-              icon: Icon(
-                isBalanceVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                color: textColor,
-                size: 24.sp,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 8.h),
-        syncStatus,
-      ],
     );
   }
 
@@ -475,6 +377,181 @@ class BalanceCard extends ConsumerWidget {
         ref.read(sendTxProvider.notifier).updateAssetId(assetId);
         context.push('/home/pay', extra: 'liquid_asset');
     }
+  }
+}
+
+class _AssetDetailsView extends ConsumerWidget {
+  final Map<String, String> assetData;
+  final bool isSmallScreen;
+
+  const _AssetDetailsView({
+    required this.assetData,
+    required this.isSmallScreen,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    final isBalanceVisible = settings.balanceVisible;
+    const textColor = Colors.white;
+
+    final balanceProvider = ref.watch(balanceNotifierProvider);
+    final currencyProvider = ref.watch(selectedCurrencyProvider(settings.currency));
+
+    final selectedAsset = assetData['name']!;
+    final assetForBalanceDisplay = assetData['network'] == 'Lightning Network' ? 'Liquid Bitcoin' : selectedAsset;
+
+    String nativeBalance;
+    String equivalentBalance = '';
+
+    switch (assetForBalanceDisplay) {
+      case 'Bitcoin':
+        nativeBalance = isBalanceVisible
+            ? btcInDenominationFormatted(
+            balanceProvider.onChainBtcBalance, settings.btcFormat)
+            : '****';
+        equivalentBalance = isBalanceVisible
+            ? currencyFormat(balanceProvider.onChainBtcBalance /
+            100000000 *
+            currencyProvider, settings.currency)
+            : '****';
+        break;
+      case 'Liquid Bitcoin':
+        nativeBalance = isBalanceVisible
+            ? btcInDenominationFormatted(
+            balanceProvider.liquidBtcBalance, settings.btcFormat)
+            : '****';
+        equivalentBalance = isBalanceVisible
+            ? currencyFormat(balanceProvider.liquidBtcBalance /
+            100000000 *
+            currencyProvider, settings.currency)
+            : '****';
+        break;
+      case 'USDT':
+        nativeBalance = isBalanceVisible
+            ? fiatInDenominationFormatted(balanceProvider.liquidUsdtBalance)
+            : '****';
+        break;
+      case 'EURx':
+        nativeBalance = isBalanceVisible
+            ? fiatInDenominationFormatted(balanceProvider.liquidEuroxBalance)
+            : '****';
+        break;
+      case 'Depix':
+        nativeBalance = isBalanceVisible
+            ? fiatInDenominationFormatted(balanceProvider.liquidDepixBalance)
+            : '****';
+        break;
+      default:
+        nativeBalance = '****';
+        equivalentBalance = '****';
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Spacer(),
+        _buildBalanceDisplay(nativeBalance, equivalentBalance, isSmallScreen, ref, selectedAsset),
+        const Spacer(),
+        if (!isSmallScreen)
+          Expanded(
+            flex: 3,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              child: isBalanceVisible
+                  ? MiniExpensesGraph(
+                key: ValueKey(assetForBalanceDisplay),
+                selectedAsset: assetForBalanceDisplay,
+                textColor: textColor,
+              )
+                  : const SizedBox.shrink(),
+            ),
+          )
+      ],
+    );
+  }
+
+  Widget _buildBalanceDisplay(String nativeBalance, String equivalentBalance, bool isSmallScreen, WidgetRef ref, String selectedAsset) {
+    const textColor = Colors.white;
+
+    final primaryBalanceSize = isSmallScreen ? 28.sp : 36.sp;
+    final secondaryBalanceSize = isSmallScreen ? 15.sp : 18.sp;
+
+    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
+    final isSyncing = ref.watch(backgroundSyncInProgressProvider);
+    final isOnline = ref.watch(settingsProvider).online;
+
+    final Widget syncStatus = GestureDetector(
+      onTap: isSyncing ? null : () => ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate(),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 10.sp,
+            height: 10.sp,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isOnline ? (isSyncing ? Colors.orange : Colors.green) : Colors.red,
+            ),
+          ),
+          SizedBox(width: 8.sp),
+          Text(
+            isOnline ? (isSyncing ? 'Syncing'.i18n : 'Update Balances'.i18n) : 'Offline'.i18n,
+            style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 14.sp),
+          ),
+        ],
+      ),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  nativeBalance,
+                  style: TextStyle(
+                    fontSize: primaryBalanceSize,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                if (['Bitcoin', 'Liquid Bitcoin', 'Lightning Bitcoin'].contains(selectedAsset))
+                  Text(
+                    equivalentBalance,
+                    style: TextStyle(
+                      fontSize: secondaryBalanceSize,
+                      color: textColor.withOpacity(0.7),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+              ],
+            ),
+            IconButton(
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: () => ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible),
+              icon: Icon(
+                isBalanceVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                color: textColor,
+                size: 24.sp,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 8.h),
+        syncStatus,
+      ],
+    );
   }
 }
 
