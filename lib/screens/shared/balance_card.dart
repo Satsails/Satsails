@@ -16,7 +16,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -31,7 +30,6 @@ class BalanceCard extends ConsumerStatefulWidget {
 }
 
 class _BalanceCardState extends ConsumerState<BalanceCard> {
-  // A new combined list of all assets from all networks.
   static final List<Map<String, String>> _allAssets = [
     {'name': 'Bitcoin', 'icon': 'lib/assets/bitcoin-logo.png', 'network': 'Bitcoin Network'},
     {'name': 'Lightning Bitcoin', 'icon': 'lib/assets/Bitcoin_lightning_logo.png', 'network': 'Lightning Network'},
@@ -46,7 +44,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
   @override
   void initState() {
     super.initState();
-    // Initialize the PageController with the current asset selected
     final initialAsset = ref.read(selectedAssetProvider);
     final initialIndex = _allAssets.indexWhere((asset) => asset['name'] == initialAsset);
     _pageController = PageController(initialPage: initialIndex >= 0 ? initialIndex : 0);
@@ -63,8 +60,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     final screenheight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenheight < 850;
 
-    // Listen to changes in the selected asset (e.g., from the dropdown)
-    // and animate the PageView to the correct page.
     ref.listen<String>(selectedAssetProvider, (previous, next) {
       final newIndex = _allAssets.indexWhere((asset) => asset['name'] == next);
       if (newIndex != -1 && _pageController.page?.round() != newIndex) {
@@ -93,19 +88,22 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                 controller: _pageController,
                 itemCount: _allAssets.length,
                 onPageChanged: (index) {
-                  // Update the provider when the user swipes
                   ref.read(selectedAssetProvider.notifier).state = _allAssets[index]['name']!;
                 },
                 itemBuilder: (context, index) {
+                  // Pass the controller and index to each child for the animation
                   return _AssetDetailsView(
                     assetData: _allAssets[index],
                     isSmallScreen: isSmallScreen,
+                    pageController: _pageController,
+                    pageIndex: index,
                   );
                 },
               ),
             ),
 
-            // Page Indicators
+            // The indicators can be removed if the fade is enough, or kept.
+            // For this example, I'll keep them.
             Center(
               child: SmoothPageIndicator(
                 controller: _pageController,
@@ -127,7 +125,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     );
   }
 
-  // == FIX IS HERE ==
   Widget _buildAssetSelectorDropdown(BuildContext context, WidgetRef ref) {
     final selectedAsset = ref.watch(selectedAssetProvider);
     final networks = ['Bitcoin Network', 'Lightning Network', 'Liquid Network'];
@@ -209,11 +206,8 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         },
         items: items,
         selectedItemBuilder: (BuildContext context) {
-          // This builder now correctly constructs a list of widgets that matches the `items` list structure,
-          // including placeholders for the disabled header items. This ensures correct index mapping.
           List<Widget> builderItems = [];
           for (var network in networks) {
-            // Add a placeholder for the disabled header item to keep indices aligned.
             builderItems.add(Container());
 
             final networkAssets = _allAssets.where((asset) => asset['network'] == network);
@@ -383,14 +377,37 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
 class _AssetDetailsView extends ConsumerWidget {
   final Map<String, String> assetData;
   final bool isSmallScreen;
+  final PageController pageController;
+  final int pageIndex;
 
   const _AssetDetailsView({
     required this.assetData,
     required this.isSmallScreen,
+    required this.pageController,
+    required this.pageIndex,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return AnimatedBuilder(
+      animation: pageController,
+      builder: (context, child) {
+        double opacity = 1.0;
+        if (pageController.position.haveDimensions) {
+          double page = pageController.page ?? 0.0;
+          double pageOffset = page - pageIndex;
+          opacity = (1 - pageOffset.abs()).clamp(0.0, 1.0);
+        }
+        return Opacity(
+          opacity: opacity,
+          child: child,
+        );
+      },
+      child: _buildContentView(ref),
+    );
+  }
+
+  Widget _buildContentView(WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
     final isBalanceVisible = settings.balanceVisible;
     const textColor = Colors.white;
@@ -406,41 +423,21 @@ class _AssetDetailsView extends ConsumerWidget {
 
     switch (assetForBalanceDisplay) {
       case 'Bitcoin':
-        nativeBalance = isBalanceVisible
-            ? btcInDenominationFormatted(
-            balanceProvider.onChainBtcBalance, settings.btcFormat)
-            : '****';
-        equivalentBalance = isBalanceVisible
-            ? currencyFormat(balanceProvider.onChainBtcBalance /
-            100000000 *
-            currencyProvider, settings.currency)
-            : '****';
+        nativeBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.onChainBtcBalance, settings.btcFormat) : '****';
+        equivalentBalance = isBalanceVisible ? currencyFormat(balanceProvider.onChainBtcBalance / 100000000 * currencyProvider, settings.currency) : '****';
         break;
       case 'Liquid Bitcoin':
-        nativeBalance = isBalanceVisible
-            ? btcInDenominationFormatted(
-            balanceProvider.liquidBtcBalance, settings.btcFormat)
-            : '****';
-        equivalentBalance = isBalanceVisible
-            ? currencyFormat(balanceProvider.liquidBtcBalance /
-            100000000 *
-            currencyProvider, settings.currency)
-            : '****';
+        nativeBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.liquidBtcBalance, settings.btcFormat) : '****';
+        equivalentBalance = isBalanceVisible ? currencyFormat(balanceProvider.liquidBtcBalance / 100000000 * currencyProvider, settings.currency) : '****';
         break;
       case 'USDT':
-        nativeBalance = isBalanceVisible
-            ? fiatInDenominationFormatted(balanceProvider.liquidUsdtBalance)
-            : '****';
+        nativeBalance = isBalanceVisible ? fiatInDenominationFormatted(balanceProvider.liquidUsdtBalance) : '****';
         break;
       case 'EURx':
-        nativeBalance = isBalanceVisible
-            ? fiatInDenominationFormatted(balanceProvider.liquidEuroxBalance)
-            : '****';
+        nativeBalance = isBalanceVisible ? fiatInDenominationFormatted(balanceProvider.liquidEuroxBalance) : '****';
         break;
       case 'Depix':
-        nativeBalance = isBalanceVisible
-            ? fiatInDenominationFormatted(balanceProvider.liquidDepixBalance)
-            : '****';
+        nativeBalance = isBalanceVisible ? fiatInDenominationFormatted(balanceProvider.liquidDepixBalance) : '****';
         break;
       default:
         nativeBalance = '****';
@@ -476,7 +473,6 @@ class _AssetDetailsView extends ConsumerWidget {
 
   Widget _buildBalanceDisplay(String nativeBalance, String equivalentBalance, bool isSmallScreen, WidgetRef ref, String selectedAsset) {
     const textColor = Colors.white;
-
     final primaryBalanceSize = isSmallScreen ? 28.sp : 36.sp;
     final secondaryBalanceSize = isSmallScreen ? 15.sp : 18.sp;
 
@@ -513,28 +509,32 @@ class _AssetDetailsView extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  nativeBalance,
-                  style: TextStyle(
-                    fontSize: primaryBalanceSize,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                ),
-                SizedBox(height: 2.h),
-                if (['Bitcoin', 'Liquid Bitcoin', 'Lightning Bitcoin'].contains(selectedAsset))
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    equivalentBalance,
+                    nativeBalance,
                     style: TextStyle(
-                      fontSize: secondaryBalanceSize,
-                      color: textColor.withOpacity(0.7),
-                      fontWeight: FontWeight.w500,
+                      fontSize: primaryBalanceSize,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-              ],
+                  SizedBox(height: 2.h),
+                  if (['Bitcoin', 'Liquid Bitcoin', 'Lightning Bitcoin'].contains(selectedAsset))
+                    Text(
+                      equivalentBalance,
+                      style: TextStyle(
+                        fontSize: secondaryBalanceSize,
+                        color: textColor.withOpacity(0.7),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
             ),
             IconButton(
               padding: EdgeInsets.zero,
@@ -682,18 +682,8 @@ class SimplifiedExpensesGraph extends StatelessWidget {
                 end: Alignment.bottomCenter,
               ),
             ),
-            dotData: FlDotData(
-              show: true,
-              getDotPainter: (spot, percent, barData, index) {
-                if (index == barData.spots.length - 1) {
-                  return FlDotCirclePainter(
-                    radius: 3.5,
-                    color: graphColor,
-                    strokeWidth: 1.5,
-                  );
-                }
-                return FlDotCirclePainter(radius: 0);
-              },
+            dotData: const FlDotData(
+              show: false,
             ),
           ),
         ],

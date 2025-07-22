@@ -142,10 +142,9 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
     String primaryAmount;
     String? secondaryAmount;
 
-    // **FIX IS HERE**: If the transaction is fiat, secondaryAmount is now null.
     if (widget.fiat && widget.fiatAmount != null && widget.asset != null) {
       primaryAmount = '${getFiatSymbol(widget.asset!)}${widget.fiatAmount}';
-      secondaryAmount = null; // Do not show the crypto value below
+      secondaryAmount = null;
     } else {
       primaryAmount = widget.amount;
       if (widget.fiatAmount != null && widget.asset != null) {
@@ -164,14 +163,7 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
               margin: EdgeInsets.symmetric(horizontal: 20.w),
               padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
               decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF2A2A2A),
-                      Color(0xFF1C1C1C),
-                    ],
-                  ),
+                  color: const Color(0x00333333).withOpacity(0.4),
                   borderRadius: BorderRadius.circular(24.r),
                   border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
               child: Column(
@@ -351,8 +343,7 @@ class _PaymentTransactionOverlayState
 
   String _getDisplayAmount() {
     if (widget.fiat && widget.fiatAmount != null) {
-      final int rawAmount = int.tryParse(widget.fiatAmount!) ?? 0;
-      return fiatInDenominationFormatted(rawAmount);
+      return widget.fiatAmount!;
     } else {
       return widget.amount;
     }
@@ -361,7 +352,6 @@ class _PaymentTransactionOverlayState
 
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
       onTap: () => Navigator.of(context).pop(),
       child: Scaffold(
@@ -373,11 +363,7 @@ class _PaymentTransactionOverlayState
               margin: EdgeInsets.symmetric(horizontal: 20.w),
               padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
               decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF2A2A2A), Color(0xFF1C1C1C)],
-                  ),
+                  color: const Color(0x00333333).withOpacity(0.4),
                   borderRadius: BorderRadius.circular(24.r),
                   border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
               child: Column(
@@ -574,10 +560,7 @@ class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransaction
               margin: EdgeInsets.symmetric(horizontal: 20.w),
               padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
               decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF2A2A2A), Color(0xFF1C1C1C)]),
+                  color: const Color(0x00333333).withOpacity(0.4),
                   borderRadius: BorderRadius.circular(24.r),
                   border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
               child: Column(
