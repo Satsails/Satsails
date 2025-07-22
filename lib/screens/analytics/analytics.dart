@@ -189,12 +189,12 @@ class _AnalyticsState extends ConsumerState<Analytics> {
 
     // Data fetching and processing...
     final balanceByDay = switch (_selectedAsset) {
-      'Bitcoin' => ref.watch(bitcoinBalanceInFormatByDayProvider),
-      'Liquid Bitcoin' || 'Depix' || 'USDT' || 'EURx' => ref.watch(liquidBalancePerDayInFormatProvider(_assetIdMap[_selectedAsset!]!)),
+      'Bitcoin' => ref.read(bitcoinBalanceInFormatByDayProvider),
+      'Liquid Bitcoin' || 'Depix' || 'USDT' || 'EURx' => ref.read(liquidBalancePerDayInFormatProvider(_assetIdMap[_selectedAsset!]!)),
       _ => <DateTime, num>{},
     };
 
-    final marketDataAsync = ref.watch(bitcoinMarketDataProvider);
+    final marketDataAsync = ref.read(bitcoinMarketDataProvider);
 
     final (dollarBalanceByDay, priceByDay) = marketDataAsync.when(
       data: (marketData) {
