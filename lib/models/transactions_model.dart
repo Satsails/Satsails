@@ -25,9 +25,10 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
     return _fetchAllTransactions();
   }
 
-  Future<void> refreshAndMergeTransactions() async {
+  Future<void> refreshAndMergeTransactions({List<bdk.TransactionDetails>? btcTxs}) async {
     final previousState = state.value ?? Transaction.empty();
-    final newState = await _fetchAllTransactions();
+    final newState = await _fetchAllTransactions(bitcoinTxs: btcTxs);
+
     final merged = Transaction(
       bitcoinTransactions: _merge(previousState.bitcoinTransactions, newState.bitcoinTransactions),
       liquidTransactions: _merge(previousState.liquidTransactions, newState.liquidTransactions),
@@ -52,11 +53,12 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
     return map.values.toList();
   }
 
-  Future<Transaction> _fetchAllTransactions() async {
+  Future<Transaction> _fetchAllTransactions({List<bdk.TransactionDetails>? bitcoinTxs}) async {
     ref.read(addressProvider);
+    var btcTxsList = [];
 
-    final bitcoinTxs = await ref.refresh(getBitcoinTransactionsProvider.future);
-    final bitcoinTransactions = bitcoinTxs.map((btcTx) {
+    btcTxsList = bitcoinTxs ?? await ref.refresh(getBitcoinTransactionsProvider.future);
+    final bitcoinTransactions = btcTxsList.map((btcTx) {
       return BitcoinTransaction(
         id: btcTx.txid,
         timestamp: btcTx.confirmationTime != null && btcTx.confirmationTime!.timestamp != 0

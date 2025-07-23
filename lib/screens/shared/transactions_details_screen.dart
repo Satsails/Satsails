@@ -300,74 +300,77 @@ class _BumpFeeModalSheetState extends ConsumerState<BumpFeeModalSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16.w,
-          right: 16.w,
-          top: 20.h
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Bump Transaction Fee".i18n,
-              style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            SizedBox(height: 20.h),
-            KeyboardDismissOnTap(
-              child: TextFormField(
-                controller: _feeRateController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: "New Fee Rate (sats/vB)".i18n,
-                  labelStyle: TextStyle(color: Colors.grey[400]),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide(color: Colors.grey.shade700),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                    borderSide: const BorderSide(color: Colors.orange),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter a fee rate.".i18n;
-                  }
-                  if (double.tryParse(value) == null) {
-                    return "Please enter a valid number.".i18n;
-                  }
-                  return null;
-                },
+    return SafeArea(
+      bottom: true,
+      child: Padding(
+        padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16.w,
+            right: 16.w,
+            top: 20.h
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Bump Transaction Fee".i18n,
+                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.white),
               ),
-            ),
-            SizedBox(height: 20.h),
-            _isLoading
-                ? Center(child: LoadingAnimationWidget.fourRotatingDots(size: 16.w, color: Colors.white))
-                : GestureDetector(
-              onTap: _submitBumpFee,
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(12.w),
-                decoration: BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Center(
-                  child: Text(
-                    "Confirm & Bump Fee".i18n,
-                    style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
+              SizedBox(height: 20.h),
+              KeyboardDismissOnTap(
+                child: TextFormField(
+                  controller: _feeRateController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: "New Fee Rate (sats/vB)".i18n,
+                    labelStyle: TextStyle(color: Colors.grey[400]),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide(color: Colors.grey.shade700),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: const BorderSide(color: Colors.orange),
+                    ),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please enter a fee rate.".i18n;
+                    }
+                    if (double.tryParse(value) == null) {
+                      return "Please enter a valid number.".i18n;
+                    }
+                    return null;
+                  },
                 ),
               ),
-            ),
-            SizedBox(height: 16.h),
-          ],
+              SizedBox(height: 20.h),
+              _isLoading
+                  ? Center(child: LoadingAnimationWidget.fourRotatingDots(size: 16.w, color: Colors.white))
+                  : GestureDetector(
+                onTap: _submitBumpFee,
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Confirm & Bump Fee".i18n,
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.h),
+            ],
+          ),
         ),
       ),
     );
