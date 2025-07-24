@@ -363,17 +363,24 @@ class _ExchangeState extends ConsumerState<Exchange> {
     return Row(
       children: [
         const Expanded(child: Divider(color: Colors.grey, thickness: 1)),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: GestureDetector(
-            onTap: isEnabled ? () => setState(() => _isDepositing = !_isDepositing) : null,
-            child: Container(
-              padding: EdgeInsets.all(8.w),
-              decoration: BoxDecoration(
-                color: isEnabled ? Colors.grey.shade800 : Colors.grey.withOpacity(0.1),
-                shape: BoxShape.circle,
+        GestureDetector(
+          onTap: isEnabled ? () => setState(() => _isDepositing = !_isDepositing) : null,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            decoration: BoxDecoration(
+              color: isEnabled ? Colors.grey.shade800 : Colors.black.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(
+                color: isEnabled ? Colors.grey.shade600 : Colors.grey.withOpacity(0.1),
               ),
-              child: Icon(Icons.swap_vert, color: isEnabled ? Colors.white : Colors.white24, size: 24.sp),
+            ),
+            child: Text(
+              'Reverse'.i18n, // "Swap" in Portuguese
+              style: TextStyle(
+                color: isEnabled ? Colors.white : Colors.white24,
+                fontWeight: FontWeight.w500,
+                fontSize: 13.sp,
+              ),
             ),
           ),
         ),
@@ -519,7 +526,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
       ShiftPair.usdcEthToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/eth.svg'},
       ShiftPair.usdcSolToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/sol.svg'},
       ShiftPair.usdcPolygonToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/pol.svg'},
-      ShiftPair.usdtEthToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/eth.svg'},
+      ShiftPair.usdtEthToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets.svg'},
       ShiftPair.usdtTronToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/trx.svg'},
       ShiftPair.usdtSolToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/sol.svg'},
       ShiftPair.usdtPolygonToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/pol.svg'},

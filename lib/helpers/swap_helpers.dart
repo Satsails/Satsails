@@ -683,7 +683,7 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
                     'From Asset'.i18n,
                     style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                   ),
-                  SizedBox(height: 12.h), // Increased from 8.h
+                  SizedBox(height: 12.h),
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: fromAsset,
@@ -711,9 +711,8 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           ref.read(sendBlocksProvider.notifier).state = 1;
                           ref.read(fromAssetProvider.notifier).state = value;
-                          final availableSwaps = getAvailableSwaps(value, ref)
-                              .where((swap) => swap != value)
-                              .toList();
+                          final availableSwaps =
+                          getAvailableSwaps(value, ref).where((swap) => swap != value).toList();
                           if (!availableSwaps.contains(toAsset)) {
                             ref.read(toAssetProvider.notifier).state = availableSwaps.first;
                           }
@@ -736,17 +735,16 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
               ),
             ],
           ),
-          SizedBox(height: 24.h), // Increased from 14.h
+          SizedBox(height: 24.h),
           Row(
             children: [
-              SizedBox(width: 24.w), // Increased from 16.w
               const Expanded(
                 child: Divider(
                   color: Colors.grey,
                   thickness: 1,
                 ),
               ),
-              SizedBox(width: 24.w), // Increased from 16.w
+              SizedBox(width: 16.w),
               GestureDetector(
                 onTap: () {
                   controller.text = '';
@@ -758,22 +756,24 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
                   ref.read(swapTypeNotifierProvider.notifier).updateProviders(ref.watch(swapTypeProvider));
                 },
                 child: Container(
-                  width: 48.w,
-                  height: 48.h,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade800,
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(20.r),
                   ),
-                  child: Icon(
-                    Icons.swap_vert,
-                    color: Colors.white,
-                    size: 24.sp,
+                  child: Text(
+                    'Reverse'.i18n,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13.sp,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 24.h), // Added new spacing
+          SizedBox(height: 24.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -784,7 +784,7 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
                     'To Asset'.i18n,
                     style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                   ),
-                  SizedBox(height: 12.h), // Increased from 8.h
+                  SizedBox(height: 12.h),
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: toAsset,

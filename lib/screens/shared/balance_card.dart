@@ -102,8 +102,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
               ),
             ),
 
-            // The indicators can be removed if the fade is enough, or kept.
-            // For this example, I'll keep them.
             Center(
               child: SmoothPageIndicator(
                 controller: _pageController,
@@ -135,7 +133,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         DropdownMenuItem(
           enabled: false,
           child: Padding(
-            padding: EdgeInsets.only(top: items.isNotEmpty ? 12.h : 0, bottom: 4.h),
+            padding: EdgeInsets.fromLTRB(12.w, 6.h, 12.w, 2.h),
             child: Text(
               network,
               style: TextStyle(
@@ -147,28 +145,57 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
           ),
         ),
       );
+
       final networkAssets = _allAssets.where((asset) => asset['network'] == network);
       items.addAll(
         networkAssets.map((asset) {
           final isSelected = selectedAsset == asset['name'];
           return DropdownMenuItem<String>(
             value: asset['name'],
-            child: Row(
-              children: [
-                Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
-                SizedBox(width: 12.w),
-                Text(
-                  asset['name']!,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            child: Container(
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.white.withOpacity(0.1) : Colors.transparent,
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+              child: Row(
+                children: [
+                  Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Text(
+                      asset['name']!,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15.sp),
+                    ),
                   ),
-                ),
-              ],
+                  if (isSelected)
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.white,
+                      size: 20.sp,
+                    )
+                ],
+              ),
             ),
           );
         }),
       );
+
+      if (network != networks.last) {
+        items.add(
+          DropdownMenuItem(
+            enabled: false,
+            child: Divider(
+              height: 4.h,
+              thickness: 1.h,
+              color: Colors.white.withOpacity(0.1),
+            ),
+          ),
+        );
+      }
     }
 
     return DropdownButtonHideUnderline(
@@ -177,6 +204,8 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         isExpanded: true,
         dropdownColor: const Color(0xFF2C2C2C),
         borderRadius: BorderRadius.circular(12.r),
+        // --- MODIFIED: Removed menuMaxHeight property to prevent scrolling ---
+        itemHeight: null,
         icon: Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
           decoration: BoxDecoration(
@@ -226,6 +255,9 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                 );
               }),
             );
+            if (network != networks.last) {
+              builderItems.add(Container());
+            }
           }
           return builderItems;
         },

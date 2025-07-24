@@ -3648,6 +3648,10 @@ extension Localization on String {
       {
         "en": "Swap Initiated",
         "pt": "Troca Iniciada"
+      }+
+      {
+        "en": "Reverse",
+        "pt": "Inverter"
       };
   String get i18n => localize(this, _t);
 }
