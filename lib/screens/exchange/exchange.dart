@@ -363,6 +363,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
     return Row(
       children: [
         const Expanded(child: Divider(color: Colors.grey, thickness: 1)),
+        SizedBox(width: 16.w),
         GestureDetector(
           onTap: isEnabled ? () => setState(() => _isDepositing = !_isDepositing) : null,
           child: Container(
@@ -370,12 +371,9 @@ class _ExchangeState extends ConsumerState<Exchange> {
             decoration: BoxDecoration(
               color: isEnabled ? Colors.grey.shade800 : Colors.black.withOpacity(0.2),
               borderRadius: BorderRadius.circular(20.r),
-              border: Border.all(
-                color: isEnabled ? Colors.grey.shade600 : Colors.grey.withOpacity(0.1),
-              ),
             ),
             child: Text(
-              'Reverse'.i18n, // "Swap" in Portuguese
+              'Reverse'.i18n,
               style: TextStyle(
                 color: isEnabled ? Colors.white : Colors.white24,
                 fontWeight: FontWeight.w500,

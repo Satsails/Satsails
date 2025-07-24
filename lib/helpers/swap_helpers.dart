@@ -41,7 +41,6 @@ enum SwapType {
   sideswapUsdtToEurox,
   sideswapUsdtToDepix,
   sideswapDepixToUsdt,
-
 }
 
 const List<SwapType> fiatDisplayAllowedSwapTypes = [
@@ -466,7 +465,6 @@ Widget buildBalanceCardWithMaxButton(WidgetRef ref, TextEditingController contro
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Balance Text
               Text(
                 balance,
                 style: TextStyle(
@@ -475,7 +473,6 @@ Widget buildBalanceCardWithMaxButton(WidgetRef ref, TextEditingController contro
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              // Max Button
               TextButton(
                 onPressed: () async {
                   await handleMaxButtonPress(ref, swapType, controller, btcFormat);
@@ -962,7 +959,6 @@ Widget buildCoinosSwap(
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // Dropdown for unit selection
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -1013,7 +1009,6 @@ Widget buildCoinosSwap(
               ],
             ),
             SizedBox(height: 8.h),
-            // Input field
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -1185,7 +1180,7 @@ Widget buildSideswapInstantSwap(
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if (options.isNotEmpty && !fiatToFiat)
+        if (!fiatToFiat)
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -1313,7 +1308,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
   final sideSwapStatus = ref.watch(sideswapStatusProvider);
   final valueToReceive = ref.watch(sendTxProvider).amount * (1 - sideSwapStatus.serverFeePercentPegOut / 100) - ref.watch(pegOutBitcoinCostProvider);
   final btcFormat = ref.watch(settingsProvider).btcFormat;
-  final currency = ref.read(settingsProvider).currency;
+  final currency = ref.watch(settingsProvider).currency;
   final currencyRate = ref.read(selectedCurrencyProvider(currency));
   final formattedValueToReceive = btcInDenominationFormatted(valueToReceive, btcFormat);
   final sideSwapPeg = ref.watch(sideswapPegProvider);
@@ -1362,7 +1357,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
       else
         sideSwapPeg.when(
           data: (peg) {
-            // Define dropdown options (assuming fiat input is always allowed for peg-out)
+            // Define dropdown options
             final options = [currency, btcFormat];
             final currentUnit = ref.watch(inputInFiatProvider) ? currency : btcFormat;
 
@@ -1495,7 +1490,7 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
 Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controller) {
   final sideSwapStatus = ref.watch(sideswapStatusProvider);
   final btcFormat = ref.watch(settingsProvider).btcFormat;
-  final currency = ref.read(settingsProvider).currency;
+  final currency = ref.watch(settingsProvider).currency;
   final currencyRate = ref.read(selectedCurrencyProvider(currency));
   final valueToReceive = ref.watch(sendTxProvider).amount * (1 - sideSwapStatus.serverFeePercentPegIn / 100) - ref.watch(pegOutBitcoinCostProvider);
   final formattedValueInBtc = btcInDenominationFormatted(valueToReceive, 'BTC');
@@ -1545,7 +1540,6 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
       else
         sideSwapPeg.when(
           data: (peg) {
-            // Define dropdown options (assuming fiat input is always allowed for peg-out)
             final options = [currency, btcFormat];
             final currentUnit = ref.watch(inputInFiatProvider) ? currency : btcFormat;
 
@@ -1608,7 +1602,7 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
                       ),
                     ],
                   ),
-                SizedBox(height: 8.h), // Spacing between dropdown and input field
+                SizedBox(height: 8.h),
                 // Input field
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
