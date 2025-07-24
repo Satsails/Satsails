@@ -557,6 +557,34 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                                                         ),
                                                       ),
                                                       DropdownMenuItem(
+                                                        value: 'GBP',
+                                                        child: Padding(
+                                                          padding: EdgeInsets.only(left: 16.w),
+                                                          child: Text(
+                                                            'GBP',
+                                                            style: TextStyle(
+                                                              color: Colors.white,
+                                                              fontSize: 16.sp,
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      DropdownMenuItem(
+                                                        value: 'CHF',
+                                                        child: Padding(
+                                                          padding: EdgeInsets.only(left: 16.w),
+                                                          child: Text(
+                                                            'CHF',
+                                                            style: TextStyle(
+                                                              color: Colors.white,
+                                                              fontSize: 16.sp,
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      DropdownMenuItem(
                                                         value: 'EUR',
                                                         child: Padding(
                                                           padding: EdgeInsets.only(left: 16.w),

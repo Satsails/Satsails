@@ -19,7 +19,7 @@ class AmountInput extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bitcoinInput = ref.watch(isBitcoinInputProvider);
-    final currencies = ['BTC', 'USD', 'EUR', 'BRL', 'Sats'];
+    final currencies = ['BTC', 'USD', 'EUR', 'BRL', 'CHF', "GBP", 'Sats'];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

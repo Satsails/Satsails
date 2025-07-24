@@ -465,7 +465,7 @@ class _ConfirmBoltzPaymentState extends ConsumerState<ConfirmBoltzPayment> {
                                                   child: DropdownButton<String>(
                                                     dropdownColor: const Color(0xFF212121),
                                                     value: ref.watch(inputCurrencyProvider),
-                                                    items: ['BTC', 'USD', 'EUR', 'BRL', 'Sats']
+                                                    items: ['BTC', 'USD', 'EUR', 'BRL','CHF','GBP', 'Sats']
                                                         .map((currency) => DropdownMenuItem(
                                                       value: currency,
                                                       child: Padding(

@@ -744,7 +744,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
             child: DropdownButton<String>(
               dropdownColor: const Color(0xFF212121),
               value: ref.watch(inputCurrencyProvider),
-              items: ['BTC', 'USD', 'EUR', 'BRL', 'Sats'].map((String value) {
+              items: ['BTC', 'USD', 'EUR', 'BRL','GBP','CHF', 'Sats'].map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Padding(

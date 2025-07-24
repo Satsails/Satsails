@@ -25,6 +25,10 @@ String calculateAmountToDisplay(String amount, String currency, currencyConverte
       return double.parse(amount).toStringAsFixed(8);
     case 'USD':
       return (double.parse(amount) * currencyConverter.usdToBtc).toStringAsFixed(8);
+    case 'GBP':
+      return (double.parse(amount) * currencyConverter.gbpToBtc).toStringAsFixed(8);
+    case 'CHF':
+      return (double.parse(amount) * currencyConverter.chfToBtc).toStringAsFixed(8);
     case 'EUR':
       return (double.parse(amount) * currencyConverter.eurToBtc).toStringAsFixed(8);
     case 'BRL':
@@ -48,6 +52,10 @@ int calculateAmountInSatsToDisplay(String amount, String currency, currencyConve
       return (double.parse(amount) * currencyConverter.usdToBtc * 100000000).toInt();
     case 'EUR':
       return (double.parse(amount) * currencyConverter.eurToBtc * 100000000).toInt();
+    case 'GBP':
+      return (double.parse(amount) * currencyConverter.gbpToBtc * 100000000).toInt();
+    case 'CHF':
+      return (double.parse(amount) * currencyConverter.chfToBtc * 100000000).toInt();
     case 'BRL':
       return (double.parse(amount) * currencyConverter.brlToBtc * 100000000).toInt();
     case 'Sats':
@@ -62,7 +70,11 @@ String calculateAmountToDisplayFromFiat(String amount, String currency, currency
     case 'USD':
       return (double.parse(amount) * currencyConverter.usdToBtc).toStringAsFixed(8);
     case 'EUR':
-      return (double.parse(amount) * currencyConverter.usdToBtc).toStringAsFixed(8);
+      return (double.parse(amount) * currencyConverter.eurToBtc).toStringAsFixed(8);
+    case 'GBP':
+      return (double.parse(amount) * currencyConverter.gbpToBtc).toStringAsFixed(8);
+    case 'CHF':
+      return (double.parse(amount) * currencyConverter.chfToBtc).toStringAsFixed(8);
     case 'BRL':
       return (double.parse(amount) * currencyConverter.brlToBtc).toStringAsFixed(8);
     default:
@@ -76,6 +88,10 @@ String calculateAmountToDisplayFromFiatInSats(String amount, String currency, cu
       return (double.parse(amount) * currencyConverter.usdToBtc * 100000000).toStringAsFixed(0);
     case 'EUR':
       return (double.parse(amount) * currencyConverter.eurToBtc * 100000000).toStringAsFixed(0);
+    case 'GBP':
+      return (double.parse(amount) * currencyConverter.gbpToBtc * 100000000).toStringAsFixed(0);
+    case 'CHF':
+      return (double.parse(amount) * currencyConverter.chfToBtc * 100000000).toStringAsFixed(0);
     case 'BRL':
       return (double.parse(amount) * currencyConverter.brlToBtc * 100000000).toStringAsFixed(0);
     default:
@@ -91,6 +107,10 @@ String calculateAmountInSelectedCurrency(int sats, String currency, currencyConv
       return (sats / 100000000 / currencyConverter.usdToBtc).toString();
     case 'EUR':
       return (sats / 100000000 / currencyConverter.eurToBtc).toString();
+    case 'GBP':
+      return (sats / 100000000 / currencyConverter.gbpToBtc).toString();
+    case 'CHF':
+      return (sats / 100000000 / currencyConverter.chfToBtc).toString();
     case 'BRL':
       return (sats / 100000000 / currencyConverter.brlToBtc).toString();
     case 'Sats':
@@ -121,7 +141,7 @@ final liquidReceiveAddressAmountProvider = StateProvider.autoDispose<String>((re
   final currencyConverter = ref.read(currencyNotifierProvider);
 
   if (amount == '' || amount == '0.0') {
-    return address ;
+    return address;
   } else {
     final amountToDisplay = calculateAmountToDisplay(amount, currency, currencyConverter);
     return 'liquidnetwork:$address?amount=$amountToDisplay';
