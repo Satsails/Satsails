@@ -30,9 +30,7 @@ dependencies:
   flutter_riverpod: ^2.5.1
   bdk_flutter: ^0.31.3
   bitcoin_message_signer: ^1.0.2
-  bolt11_decoder: ^1.0.2
-  boltz: ^0.2.0
-  lwk: ^0.2.0
+  lwk: ^0.2.1
   forex_currency_conversion: ^0.9.1
   icons_plus: ^5.0.0
   loading_animation_widget: ^1.2.1

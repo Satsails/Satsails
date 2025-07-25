@@ -110,22 +110,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
-  bolt11_decoder:
-    dependency: "direct main"
-    description:
-      name: bolt11_decoder
-      sha256: ce3c4e4311e84c7b6ceb06ffbf84329bf6bdac1244ecfa1fc157c46038021bbc
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
-  boltz:
-    dependency: "direct main"
-    description:
-      name: boltz
-      sha256: b30f54cdff157422e8969b990e24e0fa9445f9c719f1d4d5869e90b8064471cf
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1"
   boolean_selector:
     dependency: transitive
     description:

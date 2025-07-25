@@ -1,9 +1,7 @@
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
-import 'package:Satsails/screens/pay/components/confirm_boltz_payment.dart';
 import 'package:Satsails/screens/pay/components/confirm_non_native_asset_payment.dart';
-import 'package:Satsails/screens/shared/boltz_transactions_details_screen.dart';
 import 'package:Satsails/screens/shared/nox_transaction_details.dart';
 import 'package:Satsails/screens/shared/peg_details.dart';
 import 'package:Satsails/screens/explore/components/deposit_pix_nox.dart';
@@ -288,14 +286,6 @@ class AppRouter {
                   ),
                 ),
                 GoRoute(
-                  path: 'confirm_boltz_payment', // Corrected to relative path
-                  name: 'pay_boltz',
-                  pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: ConfirmBoltzPayment(key: UniqueKey()),
-                    state: state,
-                  ),
-                ),
-                GoRoute(
                   path: 'confirm_liquid_asset_payment', // Added :assetId parameter
                   name: 'pay_liquid_asset',
                   pageBuilder: (context, state) => _buildFadeScalePage(
@@ -430,14 +420,6 @@ class AppRouter {
           name: 'nox_transaction_details',
           pageBuilder: (context, state) => _buildFadeScalePage(
             child: const NoxTransactionDetails(),
-            state: state,
-          ),
-        ),
-        GoRoute(
-          path: '/boltz_transaction_details',
-          name: 'boltzTransactionDetails',
-          pageBuilder: (context, state) => _buildFadeScalePage(
-            child: const BoltzTransactionDetailsScreen(),
             state: state,
           ),
         ),

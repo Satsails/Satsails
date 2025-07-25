@@ -1,8 +1,6 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
-import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -247,84 +245,4 @@ final liquidBalancePerDayInFormatProvider = StateProvider.autoDispose.family<Map
   }
 
   return balanceInFormatByDay;
-});
-
-// Provider to compute cumulative Lightning balance over time
-final lightningBalanceOverPeriod = FutureProvider.autoDispose<Map<DateTime, num>>((ref) async {
-  final transactions = await ref.read(getTransactionsProvider.future).then(
-        (value) => value as List<CoinosPayment>?,
-  );
-
-  final Map<DateTime, num> balancePerDay = {};
-
-  if (transactions == null || transactions.isEmpty) {
-    return balancePerDay;
-  }
-
-  // Sort transactions by created date
-  transactions.sort((a, b) {
-    if (a.created == null && b.created == null) {
-      return 0;
-    } else if (a.created == null) {
-      return -1;
-    } else if (b.created == null) {
-      return 1;
-    } else {
-      return a.created!.compareTo(b.created!);
-    }
-  });
-
-  num cumulativeBalance = 0;
-
-  for (CoinosPayment transaction in transactions) {
-    if (transaction.created == null) {
-      continue;
-    }
-
-    final DateTime date = normalizeDate(transaction.created!);
-
-    num amount = transaction.amount ?? 0;
-
-    cumulativeBalance += amount;
-
-    balancePerDay[date] = cumulativeBalance;
-  }
-
-  return balancePerDay;
-});
-
-// Provider to map the cumulative balance over selected days
-final lightningBalanceOverPeriodByDayProvider = FutureProvider.autoDispose<Map<DateTime, num>>((ref) async {
-  final balanceOverPeriod = await ref.read(lightningBalanceOverPeriod.future);
-  final selectedDays = ref.watch(selectedDaysDateArrayProvider);
-
-  final Map<DateTime, num> balancePerDay = {};
-  num lastKnownBalance = 0;
-
-  if (balanceOverPeriod.isEmpty) {
-    return balancePerDay;
-  }
-
-  // Get the first day in the balance period and set it to 0 balance one day before
-  DateTime firstDay = balanceOverPeriod.keys.first.subtract(const Duration(days: 2));
-  balancePerDay[normalizeDate(firstDay)] = 0;
-
-  // Create a sorted list of dates
-  List<DateTime> sortedDates = balanceOverPeriod.keys.toList()..sort();
-
-  int dateIndex = 0;
-
-  for (DateTime day in selectedDays) {
-    final normalizedDay = normalizeDate(day);
-
-    // Update lastKnownBalance if the transaction date matches or is before the current day
-    while (dateIndex < sortedDates.length && !sortedDates[dateIndex].isAfter(normalizedDay)) {
-      lastKnownBalance = balanceOverPeriod[sortedDates[dateIndex]]!;
-      dateIndex++;
-    }
-
-    balancePerDay[normalizedDay] = lastKnownBalance;
-  }
-
-  return balancePerDay;
 });

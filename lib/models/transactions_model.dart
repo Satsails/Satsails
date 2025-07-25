@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:Satsails/models/boltz_model.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
@@ -9,7 +8,6 @@ import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
-import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
@@ -36,7 +34,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       sideswapInstantSwapTransactions: _merge(previousState.sideswapInstantSwapTransactions, newState.sideswapInstantSwapTransactions),
       eulenTransactions: _merge(previousState.eulenTransactions, newState.eulenTransactions),
       noxTransactions: _merge(previousState.noxTransactions, newState.noxTransactions),
-      boltzTransactions: _merge(previousState.boltzTransactions, newState.boltzTransactions),
+      // boltzTransactions: _merge(previousState.boltzTransactions, newState.boltzTransactions),
       sideShiftTransactions: _merge(previousState.sideShiftTransactions, newState.sideShiftTransactions),
     );
     state = AsyncData(merged);
@@ -111,15 +109,15 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       );
     }).toList();
 
-    final boltzSwaps = ref.watch(boltzSwapProvider);
-    final boltzTransactions = boltzSwaps.map((swap) {
-      return BoltzTransaction(
-        id: swap.swap.id,
-        timestamp: DateTime.fromMillisecondsSinceEpoch(swap.timestamp),
-        details: swap,
-        isConfirmed: swap.completed ?? false,
-      );
-    }).toList();
+    // final boltzSwaps = ref.watch(boltzSwapProvider);
+    // final boltzTransactions = boltzSwaps.map((swap) {
+    //   return BoltzTransaction(
+    //     id: swap.swap.id,
+    //     timestamp: DateTime.fromMillisecondsSinceEpoch(swap.timestamp),
+    //     details: swap,
+    //     isConfirmed: swap.completed ?? false,
+    //   );
+    // }).toList();
 
     final sideShiftShifts = ref.watch(sideShiftShiftsProvider);
     final sideShiftTransactions = sideShiftShifts.map((shift) {
@@ -138,7 +136,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       sideswapInstantSwapTransactions: [],
       eulenTransactions: eulenTransactions,
       noxTransactions: noxTransactions,
-      boltzTransactions: boltzTransactions,
+      // boltzTransactions: [],
       sideShiftTransactions: sideShiftTransactions,
     );
   }
@@ -222,16 +220,16 @@ class SideswapInstantSwapTransaction extends BaseTransaction {
   });
 }
 
-class BoltzTransaction extends BaseTransaction {
-  final LbtcBoltz details;
-
-  BoltzTransaction({
-    required super.id,
-    required super.timestamp,
-    required this.details,
-    required super.isConfirmed,
-  });
-}
+// class BoltzTransaction extends BaseTransaction {
+//   final LbtcBoltz details;
+//
+//   BoltzTransaction({
+//     required super.id,
+//     required super.timestamp,
+//     required this.details,
+//     required super.isConfirmed,
+//   });
+// }
 
 class SideShiftTransaction extends BaseTransaction {
   final SideShift details;
@@ -251,7 +249,7 @@ class Transaction {
   final List<SideswapInstantSwapTransaction> sideswapInstantSwapTransactions;
   final List<EulenTransaction> eulenTransactions;
   final List<NoxTransaction> noxTransactions;
-  final List<BoltzTransaction> boltzTransactions;
+  // final List<BoltzTransaction> boltzTransactions;
   final List<SideShiftTransaction> sideShiftTransactions;
 
   Transaction({
@@ -261,7 +259,7 @@ class Transaction {
     required this.sideswapInstantSwapTransactions,
     required this.eulenTransactions,
     required this.noxTransactions,
-    required this.boltzTransactions,
+    // required this.boltzTransactions,
     required this.sideShiftTransactions,
   });
 
@@ -272,7 +270,7 @@ class Transaction {
     List<SideswapInstantSwapTransaction>? sideswap,
     List<EulenTransaction>? eulenTransactions,
     List<NoxTransaction>? noxTransactions,
-    List<BoltzTransaction>? boltzTransactions,
+    // List<BoltzTransaction>? boltzTransactions,
     List<SideShiftTransaction>? sideShiftTransactions,
   }) {
     return Transaction(
@@ -282,7 +280,7 @@ class Transaction {
       sideswapInstantSwapTransactions: sideswap ?? this.sideswapInstantSwapTransactions,
       eulenTransactions: eulenTransactions ?? this.eulenTransactions,
       noxTransactions: noxTransactions ?? this.noxTransactions,
-      boltzTransactions: boltzTransactions ?? this.boltzTransactions,
+      // boltzTransactions: boltzTransactions ?? this.boltzTransactions,
       sideShiftTransactions: sideShiftTransactions ?? this.sideShiftTransactions,
     );
   }
@@ -295,7 +293,7 @@ class Transaction {
       ...sideswapInstantSwapTransactions,
       ...eulenTransactions,
       ...noxTransactions,
-      ...boltzTransactions,
+      // ...boltzTransactions,
       ...sideShiftTransactions,
     ];
   }
@@ -353,7 +351,7 @@ class Transaction {
     List<BaseTransaction> swaps = [];
     swaps.addAll(sideswapPegTransactions);
     swaps.addAll(liquidTransactions.where((tx) => tx.lwkDetails.kind == 'unknown'));
-    swaps.addAll(boltzTransactions);
+    // swaps.addAll(boltzTransactions);
     swaps.addAll(sideShiftTransactions);
     swaps.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return swaps;
@@ -400,7 +398,7 @@ class Transaction {
       sideswapInstantSwapTransactions: [],
       eulenTransactions: [],
       noxTransactions: [],
-      boltzTransactions: [],
+      // boltzTransactions: [],
       sideShiftTransactions: [],
     );
   }

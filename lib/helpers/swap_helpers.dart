@@ -8,7 +8,6 @@ import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
-import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
@@ -562,13 +561,6 @@ Future<void> handleMaxButtonPress(
     case SwapType.coinosLnToLBTC:
       await handleLightningToAsset(ref, controller, btcFormat);
       break;
-    case SwapType.coinosBtcToLn:
-      await handleBitcoinToLightning(ref, controller, btcFormat);
-      break;
-    case SwapType.coinosLbtcToLn:
-      await handleLiquidBitcoinToLightning(ref, controller, btcFormat);
-      break;
-
     default:
       throw UnsupportedError('Unsupported SwapType: $swapType');
   }
@@ -623,36 +615,6 @@ Future<void> handleLightningToAsset(WidgetRef ref, TextEditingController control
   final balance = ref.read(balanceNotifierProvider).sparkBitcoinbalance;
   int maxAmount = (balance! * 0.995).toInt();
   controller.text = btcInDenominationFormatted(maxAmount, btcFormat);
-  ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
-}
-
-Future<void> handleBitcoinToLightning(WidgetRef ref, TextEditingController controller, String btcFormat) async {
-  ref.read(inputInFiatProvider.notifier).state = false;
-  final balance = ref.read(balanceNotifierProvider).onChainBtcBalance;
-  final address = await ref.read(createInvoiceForSwapProvider('bitcoin').future);
-  ref.read(sendTxProvider.notifier).updateAddress(address);
-
-  final transactionBuilderParams =
-  await ref.watch(bitcoinTransactionBuilderProvider(balance).future).then((value) => value);
-  final transaction =
-  await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilderParams).future).then((value) => value);
-
-  final fee = (transaction.$1.feeAmount() ?? BigInt.zero).toInt();
-  final amountToSet = (balance - fee);
-  controller.text = btcInDenominationFormatted(amountToSet, btcFormat);
-  ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
-}
-
-Future<void> handleLiquidBitcoinToLightning(WidgetRef ref, TextEditingController controller, String btcFormat) async {
-  ref.read(inputInFiatProvider.notifier).state = false;
-  final address = await ref.read(createInvoiceForSwapProvider('liquid').future);
-  ref.read(sendTxProvider.notifier).updateAddress(address);
-  ref.read(sendTxProvider.notifier).updateDrain(true);
-
-  final pset = await ref.watch(liquidDrainWalletProvider.future);
-  final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
-  final controllerValue = sendingBalance.abs();
-  controller.text = btcInDenominationFormatted(controllerValue, btcFormat);
   ref.read(sendTxProvider.notifier).updateAmountFromInput(controller.text, btcFormat);
 }
 
@@ -2216,123 +2178,6 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
 }
 
 
-Widget _liquidLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
-  return Padding(
-    padding: EdgeInsets.only(bottom: 20.w),
-    child: Align(
-      alignment: Alignment.bottomCenter,
-      child: ActionSlider.standard(
-        width: double.infinity,
-        backgroundColor: Colors.black,
-        toggleColor: const Color(0xFF212121),
-        action: (controller) async {
-          ref.read(transactionInProgressProvider.notifier).state = true;
-          controller.loading();
-          try {
-            if (sendLn) {
-              final liquidAddress = ref.read(addressProvider).liquidAddress;
-              ref.read(sendTxProvider.notifier).updateAddress(liquidAddress);
-              await ref.read(sendCoinosLiquidProvider.future);
-            } else {
-              final addressFromCoinos = await ref.read(createInvoiceForSwapProvider('liquid').future);
-              ref.read(sendTxProvider.notifier).updateAddress(addressFromCoinos);
-              await ref.read(sendLiquidTransactionProvider.future);
-              final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
-              final lnBalance = await ref.read(coinosBalanceProvider.future);
-              balanceNotifier.updateSparkBitcoinbalance(lnBalance);
-            }
-            ref.read(sendBlocksProvider.notifier).state = 1;
-            controller.success();
-            showFullscreenExchangeModal(
-              amount: ref.read(sendTxProvider).amount,
-              context: context,
-              swapType: ref.read(swapTypeProvider)!,
-            );
-            ref.read(transactionInProgressProvider.notifier).state = false;
-            ref.read(sendTxProvider.notifier).resetToDefault();
-          } catch (e) {
-            ref.read(transactionInProgressProvider.notifier).state = false;
-            controller.failure();
-            showMessageSnackBar(
-              message: e.toString().i18n,
-              error: true,
-              context: context,
-            );
-            controller.reset();
-          }
-        },
-        child:  Text(
-          'Slide to Swap'.i18n,
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    ),
-  );
-}
-
-Widget _bitcoinLnSlideToSend(WidgetRef ref, BuildContext context, bool sendLn) {
-  return Padding(
-    padding: EdgeInsets.only(bottom: 10.w),
-    child: Align(
-      alignment: Alignment.bottomCenter,
-      child: ActionSlider.standard(
-        width: double.infinity,
-        backgroundColor: Colors.black,
-        toggleColor: const Color(0xFF212121),
-        action: (controller) async {
-          ref.read(transactionInProgressProvider.notifier).state = true;
-          controller.loading();
-          try {
-            if (sendLn) {
-              final btcAddress = ref.read(addressProvider).bitcoinAddress;
-              ref.read(sendTxProvider.notifier).updateAddress(btcAddress);
-              await ref.read(sendCoinosBitcoinProvider.future);
-            } else {
-              final addressFromCoinos = await ref.read(createInvoiceForSwapProvider('bitcoin').future);
-              ref.read(sendTxProvider.notifier).updateAddress(addressFromCoinos);
-              await ref.read(sendBitcoinTransactionProvider.future);
-              final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
-              final lnBalance = await ref.read(coinosBalanceProvider.future);
-              balanceNotifier.updateSparkBitcoinbalance(lnBalance);
-            }
-            ref.read(sendBlocksProvider.notifier).state = 1;
-            controller.success();
-            showFullscreenExchangeModal(
-              amount: ref.read(sendTxProvider).amount,
-              context: context,
-              swapType: ref.read(swapTypeProvider)!,
-            );
-            ref.read(transactionInProgressProvider.notifier).state = false;
-            ref.read(sendTxProvider.notifier).resetToDefault();
-          } catch (e) {
-            ref.read(transactionInProgressProvider.notifier).state = false;
-            controller.failure();
-            showMessageSnackBar(
-              message: e.toString().i18n,
-              error: true,
-              context: context,
-            );
-            controller.reset();
-          }
-        },
-        child:  Text(
-          'Slide to Swap'.i18n,
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    ),
-  );
-}
 
 Widget slideToSend(WidgetRef ref, BuildContext context) {
   final swapType = ref.watch(swapTypeProvider);
@@ -2342,14 +2187,6 @@ Widget slideToSend(WidgetRef ref, BuildContext context) {
       return _bitcoinPegSlideToSend(ref, context);
     case SwapType.sideswapLbtcToBtc:
       return _liquidPegSlideToSend(ref, context);
-    case SwapType.coinosLnToBTC:
-      return _bitcoinLnSlideToSend(ref, context, true);
-    case SwapType.coinosLnToLBTC:
-      return _liquidLnSlideToSend(ref, context, true);
-    case SwapType.coinosBtcToLn:
-      return _bitcoinLnSlideToSend(ref, context, false);
-    case SwapType.coinosLbtcToLn:
-      return _liquidLnSlideToSend(ref, context, false);
     case SwapType.sideswapUsdtToLbtc:
     case SwapType.sideswapEuroxToLbtc:
     case SwapType.sideswapDepixToLbtc:

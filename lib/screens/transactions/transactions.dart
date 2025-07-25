@@ -24,7 +24,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
 
   bool isPending(BaseTransaction tx) {
     return (tx is SideShiftTransaction && (tx.details.status == 'waiting' || tx.details.status == 'expired')) ||
-        (tx is BoltzTransaction && !(tx.details.completed ?? false)) ||
+        // (tx is BoltzTransaction && !(tx.details.completed ?? false)) ||
         (tx is EulenTransaction &&
             (tx.details.failed ||
                 tx.details.status == 'expired' ||

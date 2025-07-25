@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/transactions_model.dart';
@@ -11,8 +10,6 @@ import 'package:Satsails/providers/nox_transfer_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/shared/backup_warning.dart';
-import 'package:Satsails/screens/shared/boltz_transactions_details_screen.dart';
-import 'package:boltz/boltz.dart' as boltz;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -161,7 +158,7 @@ class _TransactionListState extends ConsumerState<TransactionList> {
         : allTransactions
         .where((tx) =>
     !(tx is SideShiftTransaction && (tx.details.status == 'waiting' || tx.details.status == 'expired')) &&
-        !(tx is BoltzTransaction && !(tx.details.completed ?? false)) &&
+        // !(tx is BoltzTransaction && !(tx.details.completed ?? false)) &&
         !(tx is EulenTransaction &&
             (tx.details.failed ||
                 tx.details.status == 'expired' ||
@@ -280,9 +277,9 @@ Widget _buildUnifiedTransactionItem(BaseTransaction transaction, BuildContext co
   if (transaction is NoxTransaction) {
     return _buildNoxTransactionItem(transaction, context, ref);
   }
-  if (transaction is BoltzTransaction) {
-    return _buildBoltzTransactionItem(transaction, context, ref);
-  }
+  // if (transaction is BoltzTransaction) {
+  //   return _buildBoltzTransactionItem(transaction, context, ref);
+  // }
   if (transaction is SideShiftTransaction) {
     return _buildSideshiftTransactionItem(transaction, context, ref);
   }
@@ -357,44 +354,44 @@ Widget _buildTransactionItemLayout({
   );
 }
 
-Widget _buildBoltzTransactionItem(BoltzTransaction transaction, BuildContext context, WidgetRef ref) {
-  final details = transaction.details;
-  final isCompleted = details.completed ?? false;
-  final isReceiving = details.swap.kind == boltz.SwapType.reverse;
-  final title = isReceiving ? "Lightning → L-BTC" : "L-BTC → Lightning";
-  final locale = I18n.locale.languageCode;
-  final formattedDate = DateFormat('d MMM, HH:mm', locale).format(DateTime.fromMillisecondsSinceEpoch(details.timestamp));
-  final statusText = isCompleted ? formattedDate : "Pending".i18n;
-
-  return _buildTransactionItemLayout(
-    context: context,
-    ref: ref,
-    onTap: () {
-      ref.read(selectedBoltzTransactionProvider.notifier).state = transaction;
-      context.pushNamed('boltzTransactionDetails');
-    },
-    icon: boltzTransactionTypeIcon(),
-    isPending: !isCompleted,
-    title: title,
-    subtitle: statusText,
-    amountContent: isCompleted
-        ? Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Text(
-          "- ${btcInDenominationFormatted(details.swap.outAmount, ref.read(settingsProvider).btcFormat)}",
-          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.normal, color: Colors.white.withOpacity(0.7)),
-        ),
-        SizedBox(height: 2.h),
-        Text(
-          btcInDenominationFormatted(details.swap.outAmount, ref.read(settingsProvider).btcFormat),
-          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-      ],
-    )
-        : null,
-  );
-}
+// Widget _buildBoltzTransactionItem(BoltzTransaction transaction, BuildContext context, WidgetRef ref) {
+//   final details = transaction.details;
+//   final isCompleted = details.completed ?? false;
+//   final isReceiving = details.swap.kind == boltz.SwapType.reverse;
+//   final title = isReceiving ? "Lightning → L-BTC" : "L-BTC → Lightning";
+//   final locale = I18n.locale.languageCode;
+//   final formattedDate = DateFormat('d MMM, HH:mm', locale).format(DateTime.fromMillisecondsSinceEpoch(details.timestamp));
+//   final statusText = isCompleted ? formattedDate : "Pending".i18n;
+//
+//   return _buildTransactionItemLayout(
+//     context: context,
+//     ref: ref,
+//     onTap: () {
+//       ref.read(selectedBoltzTransactionProvider.notifier).state = transaction;
+//       context.pushNamed('boltzTransactionDetails');
+//     },
+//     icon: boltzTransactionTypeIcon(),
+//     isPending: !isCompleted,
+//     title: title,
+//     subtitle: statusText,
+//     amountContent: isCompleted
+//         ? Column(
+//       crossAxisAlignment: CrossAxisAlignment.end,
+//       children: [
+//         Text(
+//           "- ${btcInDenominationFormatted(details.swap.outAmount, ref.read(settingsProvider).btcFormat)}",
+//           style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.normal, color: Colors.white.withOpacity(0.7)),
+//         ),
+//         SizedBox(height: 2.h),
+//         Text(
+//           btcInDenominationFormatted(details.swap.outAmount, ref.read(settingsProvider).btcFormat),
+//           style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white),
+//         ),
+//       ],
+//     )
+//         : null,
+//   );
+// }
 
 Widget _buildSideshiftTransactionItem(SideShiftTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.details;

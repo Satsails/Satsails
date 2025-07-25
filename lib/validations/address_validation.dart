@@ -1,12 +1,10 @@
 import 'dart:convert';
 
-import 'package:boltz/boltz.dart';
 import 'package:decimal/decimal.dart';
 import 'package:lwk/lwk.dart' as lwk;
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/address_model.dart';
-import 'package:bolt11_decoder/bolt11_decoder.dart';
 
 Future<bool> isValidLiquidAddress(String address) async {
   try {
@@ -27,55 +25,7 @@ Future<bool> isValidBitcoinAddress(String address) async {
 }
 
 bool isLightningInvoice(String invoice) {
-  try {
-    Bolt11PaymentRequest(invoice);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-int invoiceAmount(String invoice) {
-  try {
-    return (Bolt11PaymentRequest(invoice).amount * Decimal.fromInt(100000000)).toBigInt().toInt();
-  } catch (e) {
-    throw const FormatException('Invalid LNURL');
-  }
-}
-
-Future<bool> validLnurl(String invoice) async {
-  try {
-    // Create an Lnurl instance and validate it
-    final lnurl = Lnurl(value: invoice);
-    if (await lnurl.validate()) {
-      return true;
-    }
-    return false;
-  } catch (e) {
-    throw FormatException('Error processing LNURL or fetching invoice: $e');
-  }
-}
-
-Future<String> getLnInvoiceWithAmount(String invoice, int amount) async {
-  try {
-    // If it's already a Lightning invoice, return it as is
-    if (isLightningInvoice(invoice)) {
-      return invoice;
-    }
-
-    // Create an Lnurl instance and validate it
-    final lnurl = Lnurl(value: invoice);
-    if (!await lnurl.validate()) {
-      throw 'Address is invalid';
-    }
-
-    // Convert amount to millisatoshis and fetch the invoice
-    final amountInMsats = BigInt.from(amount * 1000);
-    final fetchedInvoice = await lnurl.fetchInvoice(msats: amountInMsats);
-    return fetchedInvoice;
-  } catch (e) {
-    throw 'Address is invalid';
-  }
+  return true;
 }
 
 Future<AddressAndAmount> parseAddressAndAmount(String data) async {
@@ -139,7 +89,6 @@ Future<AddressAndAmount> parseAddressAndAmount(String data) async {
       if (isLightningInvoice(lightningInvoice)) {
         type = PaymentType.Lightning;
         address = lightningInvoice;
-        amount = invoiceAmount(lightningInvoice);
         return AddressAndAmount(address, amount, assetId, type: type);
       } else {
         throw const FormatException('Invalid lightning invoice');
