@@ -52,10 +52,12 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
   }
 
   Future<Transaction> _fetchAllTransactions({List<bdk.TransactionDetails>? bitcoinTxs}) async {
-    ref.read(addressProvider);
-    var btcTxsList = [];
+    final bitcoinModel = await ref.read(bitcoinModelProvider.future);
+    final liquidModel = await ref.read(liquidModelProvider.future);
 
-    btcTxsList = bitcoinTxs ?? await ref.refresh(getBitcoinTransactionsProvider.future);
+    final btcTxsList = bitcoinTxs ?? await bitcoinModel.getTransactions();
+    final liquidTxs = await liquidModel.txs();
+
     final bitcoinTransactions = btcTxsList.map((btcTx) {
       return BitcoinTransaction(
         id: btcTx.txid,
@@ -67,7 +69,6 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       );
     }).toList();
 
-    final liquidTxs = await ref.refresh(liquidTransactionsProvider.future);
     final liquidTransactions = liquidTxs.map((lwkTx) {
       return LiquidTransaction(
         id: lwkTx.txid,
@@ -79,6 +80,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       );
     }).toList();
 
+    // 3. Fetch other transaction types from their respective providers (as these are likely lists from local storage).
     final sideswapPegTxs = ref.watch(sideswapAllPegsProvider);
     final sideswapPegTransactions = sideswapPegTxs.map((pegTx) {
       return SideswapPegTransaction(

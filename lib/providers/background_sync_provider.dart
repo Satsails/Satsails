@@ -70,11 +70,14 @@ class BitcoinSyncNotifier extends SyncNotifier<BitcoinSyncResult?> {
   Future<BitcoinSyncResult?> performSync() async {
     return await handleSync(
       syncOperation: () async {
-        await ref.refresh(syncBitcoinProvider.future);
-        final addressIndex = await ref.refresh(lastUsedAddressProvider.future);
-        final address = await ref.refresh(lastUsedAddressProviderString.future);
-        final balance = await ref.read(getBitcoinBalanceProvider.future);
-        final transactions = await ref.refresh(getBitcoinTransactionsProvider.future);
+        final bitcoinModel = await ref.read(bitcoinModelProvider.future);
+
+        await bitcoinModel.sync();
+        final addressIndex = await bitcoinModel.getAddress();
+        final address = await bitcoinModel.getAddressString();
+        final balance = await bitcoinModel.getBalance();
+        final transactions = await bitcoinModel.getTransactions();
+
         ref.read(addressProvider.notifier).setBitcoinAddress(addressIndex, address);
         ref.read(balanceNotifierProvider.notifier).updateOnChainBtcBalance(balance.total.toInt());
 
@@ -94,20 +97,22 @@ class BitcoinSyncNotifier extends SyncNotifier<BitcoinSyncResult?> {
 class LiquidSyncNotifier extends SyncNotifier<Balances> {
   @override
   Future<Balances> build() async {
-    final balances = await ref.read(liquidBalanceProvider.future);
-    return balances;
+    return [];
   }
 
   @override
   Future<Balances> performSync() async {
     return await handleSync(
       syncOperation: () async {
-        await ref.refresh(syncLiquidProvider.future);
-        final liquidAddressIndex = await ref.refresh(liquidLastUsedAddressProvider.future);
-        final liquidAddress = await ref.refresh(liquidLastUsedAddressStringProvider.future);
+        final liquidModel = await ref.read(liquidModelProvider.future);
+        await liquidModel.sync();
+        final liquidAddressIndex = await liquidModel.getAddress();
+        final liquidAddress = await liquidModel.getLatestAddress();
+        final balances = await liquidModel.balance();
+
         ref.read(addressProvider.notifier).setLiquidAddress(liquidAddressIndex, liquidAddress);
-        final balances = await ref.read(liquidBalanceProvider.future);
         final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
+
         for (var balance in balances) {
           switch (AssetMapper.mapAsset(balance.assetId)) {
             case AssetId.USD:
@@ -155,7 +160,6 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
           debugPrint('Liquid sync failed within background sync: $e');
         }
 
-        // 2. Perform the unified Bitcoin sync which gets balance, address, and txs.
         try {
           final bitcoinResult = await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
           if (bitcoinResult != null) {

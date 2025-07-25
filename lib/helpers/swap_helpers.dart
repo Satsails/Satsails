@@ -4,7 +4,6 @@ import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
-import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
@@ -1065,7 +1064,8 @@ Widget buildSideswapInstantSwap(
     switch (quote.status) {
       case 'Success':
         final receiveAmount = assetToSell != quote.baseAsset ? quote.deliverAmount ?? 0 : quote.receiveAmount ?? 0;
-        final formattedAmount = assetToSell != quote.baseAsset ? btcInDenominationFormatted(receiveAmount, btcFormat, fiatAssets.contains(toAsset) ? false : true)  : btcInDenominationFormatted(receiveAmount, btcFormat, false);
+        final quoteWithoutFees = receiveAmount - (quote.fixedFee ?? 0) - (quote.serverFee ?? 0);
+        final formattedAmount = assetToSell != quote.baseAsset ? btcInDenominationFormatted(quoteWithoutFees, btcFormat, fiatAssets.contains(toAsset) ? false : true) : btcInDenominationFormatted(quoteWithoutFees, btcFormat, false);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -1084,7 +1084,8 @@ Widget buildSideswapInstantSwap(
         );
       case 'LowBalance':
         final quoteAmountValue = assetToSell != quote.baseAsset ? quote.baseAmount ?? 0 : quote.quoteAmount ?? 0;
-        final formattedAmount = assetToSell != quote.baseAsset ? btcInDenominationFormatted(quoteAmountValue, btcFormat, fiatAssets.contains(toAsset) ? false : true) : btcInDenominationFormatted(quoteAmountValue, btcFormat, false);
+        final quoteWithoutFees = quoteAmountValue - (quote.fixedFee ?? 0) - (quote.serverFee ?? 0);
+        final formattedAmount = assetToSell != quote.baseAsset ? btcInDenominationFormatted(quoteWithoutFees, btcFormat, fiatAssets.contains(toAsset) ? false : true) : btcInDenominationFormatted(quoteWithoutFees, btcFormat, false);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -1108,7 +1109,7 @@ Widget buildSideswapInstantSwap(
         );
       case 'Loading':
         return Text(
-          'Loading, please wait...'.i18n,
+          'Loading'.i18n,
           style: TextStyle(color: Colors.grey, fontSize: 16.sp),
         );
       case 'Initial':
@@ -1142,7 +1143,7 @@ Widget buildSideswapInstantSwap(
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if (!fiatToFiat)
+        if (options.isNotEmpty && !fiatToFiat)
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -1825,22 +1826,16 @@ List<Widget> _getFeeRows(WidgetRef ref) {
         },
       );
 
-    case SwapType.sideswapUsdtToLbtc:
-    case SwapType.sideswapEuroxToLbtc:
-    case SwapType.sideswapDepixToLbtc:
     case SwapType.sideswapDepixToUsdt:
     case SwapType.sideswapUsdtToEurox:
     case SwapType.sideswapUsdtToDepix:
     case SwapType.sideswapEuroxToUsdt:
-    case SwapType.sideswapLbtcToUsdt:
-    case SwapType.sideswapLbtcToEurox:
-    case SwapType.sideswapLbtcToDepix:
     final quote = ref.watch(sideswapQuoteProvider);
     switch (quote.status) {
       case 'Success':
         final fixedFee = quote.fixedFee ?? 0;
         final serverFee = quote.serverFee ?? 0;
-        final feeAsset = ref.read(fromAssetProvider);
+        final feeAsset = ref.read(toAssetProvider);
         final btcFormat = ref.read(settingsProvider).btcFormat;
         final fixedFeeStr = formatAssetAmount(feeAsset, fixedFee, btcFormat);
         final serverFeeStr = formatAssetAmount(feeAsset, serverFee, btcFormat);
@@ -1851,7 +1846,7 @@ List<Widget> _getFeeRows(WidgetRef ref) {
       case 'LowBalance':
         final fixedFee = quote.fixedFee ?? 0;
         final serverFee = quote.serverFee ?? 0;
-        final feeAsset = ref.read(fromAssetProvider);
+        final feeAsset = ref.read(toAssetProvider);
         final btcFormat = ref.read(settingsProvider).btcFormat;
         final fixedFeeStr = formatAssetAmount(feeAsset, fixedFee, btcFormat);
         final serverFeeStr = formatAssetAmount(feeAsset, serverFee, btcFormat);
@@ -1874,6 +1869,51 @@ List<Widget> _getFeeRows(WidgetRef ref) {
         return [
           _feeRow('Fixed fee', formatAssetAmount(quote.feeAsset, 0, btcFormat), ref),
           _feeRow('Server fee', formatAssetAmount(quote.feeAsset, 0, btcFormat), ref),
+        ];
+    }
+    case SwapType.sideswapLbtcToUsdt:
+    case SwapType.sideswapLbtcToEurox:
+    case SwapType.sideswapLbtcToDepix:
+    case SwapType.sideswapUsdtToLbtc:
+    case SwapType.sideswapEuroxToLbtc:
+    case SwapType.sideswapDepixToLbtc:
+    final quote = ref.watch(sideswapQuoteProvider);
+    switch (quote.status) {
+      case 'Success':
+        final fixedFee = quote.fixedFee ?? 0;
+        final serverFee = quote.serverFee ?? 0;
+        final btcFormat = ref.read(settingsProvider).btcFormat;
+        final fixedFeeStr = formatAssetAmount('Liquid Bitcoin', fixedFee, btcFormat);
+        final serverFeeStr = formatAssetAmount('Liquid Bitcoin', serverFee, btcFormat);
+        return [
+          _feeRow('Fixed fee', fixedFeeStr, ref),
+          _feeRow('Server fee', serverFeeStr, ref),
+        ];
+      case 'LowBalance':
+        final fixedFee = quote.fixedFee ?? 0;
+        final serverFee = quote.serverFee ?? 0;
+        final btcFormat = ref.read(settingsProvider).btcFormat;
+        final fixedFeeStr = formatAssetAmount('Liquid Bitcoin', fixedFee, btcFormat);
+        final serverFeeStr = formatAssetAmount('Liquid Bitcoin', serverFee, btcFormat);
+        return [
+          _feeRow('Fixed fee', fixedFeeStr, ref),
+          _feeRow('Server fee', serverFeeStr, ref),
+          Text(
+            'Insufficient balance'.i18n,
+            style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+            textAlign: TextAlign.center,
+          ),
+        ];
+      case 'Loading':
+      case 'Initial':
+        return [
+          _feeRow('Fixed fee', 'Loading...', ref),
+          _feeRow('Server fee', 'Loading...', ref),
+        ];
+      default:
+        return [
+          _feeRow('Fixed fee', formatAssetAmount('Liquid Bitcoin', 0, btcFormat), ref),
+          _feeRow('Server fee', formatAssetAmount('Liquid Bitcoin', 0, btcFormat), ref),
         ];
     }
 

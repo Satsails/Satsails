@@ -55,7 +55,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         _syncCount = 0;
       }
 
-      if (previous != next && next != 2) {
+      final isSyncing = ref.read(backgroundSyncInProgressProvider);
+
+      if (previous != next && next != 2 && !isSyncing) {
         _performSync();
       }
     });
