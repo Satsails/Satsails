@@ -3282,8 +3282,8 @@ extension Localization on String {
         'pt': 'Insira um código de afiliado para receber 6,67% de cashback nas compras',
       }+
       {
-        'en': 'Loading, please wait...',
-        'pt': 'Carregando, por favor aguarde...',
+        'en': 'Loading',
+        'pt': 'Carregando',
       }+
       {
         'en': 'Expired and Pending',
@@ -3655,7 +3655,7 @@ extension Localization on String {
       }+
       {
         "en": "Custom Electrum Node",
-        "pt": "No Electrum Customizado"
+        "pt": "Nó Electrum Customizado"
       }+
       {
         "en": "Save & Exit",
@@ -3664,6 +3664,10 @@ extension Localization on String {
       {
         "en": "Make sure the node you write works correctly, otherwise you might see wrong balances and not able to send your coins",
         "pt": "Certifique-se de que o nó que você escreveu funciona corretamente, caso contrário, pode ver balanços incorretos e não ser capaz de enviar suas moedas"
+      }+
+      {
+        "en": "Custom Node",
+        "pt": "Nó Customizado"
       };
   String get i18n => localize(this, _t);
 }

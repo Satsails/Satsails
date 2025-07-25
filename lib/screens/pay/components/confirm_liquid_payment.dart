@@ -3,7 +3,6 @@ import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
@@ -61,11 +60,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
           child: Container(
             padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 20.h),
             decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF2A2A2A), Color(0xFF1C1C1C)],
-                ),
+                color: const Color(0xFF212121),
                 borderRadius: BorderRadius.circular(24.r),
                 border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
             child: Column(

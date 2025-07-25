@@ -1,5 +1,7 @@
 import 'package:Satsails/models/sideshift_model.dart';
+import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
+import 'package:Satsails/screens/receive/components/receive_lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/receive_non_native_asset.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
@@ -55,7 +57,8 @@ class Receive extends ConsumerWidget {
             children: [
               if (selectedType == 'Bitcoin Network') const BitcoinWidget()
               else if (selectedType == 'Liquid Network') const LiquidWidget()
-              else if (selectedType == 'SideShift') const ReceiveNonNativeAsset(),
+              else if (selectedType == 'Boltz Network') const ReceiveLightningWidget()
+                else if (selectedType == 'SideShift') const ReceiveNonNativeAsset(),
             ],
           ),
         ),

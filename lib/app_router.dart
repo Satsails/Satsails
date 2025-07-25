@@ -12,7 +12,7 @@ import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/creation/confirm_pin.dart';
 import 'package:Satsails/screens/login/seed_words_pin.dart';
 import 'package:Satsails/screens/pay/components/camera.dart';
-import 'package:Satsails/screens/pay/components/confirm_spark_bitcoin_payment.dart';
+import 'package:Satsails/screens/pay/components/confirm_lightning_payment.dart';
 import 'package:Satsails/screens/pay/components/confirm_liquid_asset_payment.dart';
 import 'package:Satsails/screens/shared/affiliate_screen.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
@@ -264,7 +264,7 @@ class AppRouter {
                   case 'non_native_asset':
                     return state.namedLocation('pay_non_native_asset');
                   case 'lightning':
-                    return state.namedLocation('pay_boltz');
+                    return state.namedLocation('pay_spark_bitcoin');
                 }
                 return null;
               },
@@ -297,7 +297,7 @@ class AppRouter {
                   path: 'confirm_spark_bitcoin_payment', // Corrected to relative path
                   name: 'pay_spark_bitcoin',
                   pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: ConfirmSparkBitcoinPayment(key: UniqueKey()),
+                    child: ConfirmLightningPayment(key: UniqueKey()),
                     state: state,
                   ),
                 ),

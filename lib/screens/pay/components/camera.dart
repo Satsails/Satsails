@@ -97,7 +97,6 @@ class _CameraState extends ConsumerState<Camera> {
         await ref.refresh(setAddressAndAmountProvider(code).future);
       }
 
-      // 3. Use the safe pop method.
       _popSafely();
       break;
     }

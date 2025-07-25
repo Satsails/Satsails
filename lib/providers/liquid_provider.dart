@@ -22,6 +22,11 @@ final initializeLiquidProvider = FutureProvider<Liquid>((ref) {
   });
 });
 
+final liquidModelProvider = FutureProvider<LiquidModel>((ref) async {
+  final liquid = await ref.watch(initializeLiquidProvider.future);
+  return LiquidModel(liquid);
+});
+
 final syncLiquidProvider = FutureProvider<void>((ref) {
   return ref.watch(initializeLiquidProvider.future).then((liquid) {
     LiquidModel liquidModel = LiquidModel(liquid);
