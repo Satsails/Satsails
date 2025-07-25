@@ -19,7 +19,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:in_app_review/in_app_review.dart';
 
-// Provider to check if biometrics are available on the device
 final biometricsAvailableProvider = FutureProvider<bool>((ref) async {
   try {
     return await LocalAuthentication().canCheckBiometrics;
@@ -91,7 +90,6 @@ class Settings extends ConsumerWidget {
                     _buildChatWithSupportSection(context, ref),
                     _buildRateAppSection(context, ref),
                     _buildSeedSection(context, ref),
-                    // Conditionally display the biometrics section
                     biometricsAvailable.when(
                       data: (isAvailable) => isAvailable ? _buildBiometricsSection(context, ref) : const SizedBox.shrink(),
                       loading: () => const SizedBox.shrink(),
@@ -114,7 +112,6 @@ class Settings extends ConsumerWidget {
     );
   }
 
-  // Updated _buildSection to support a trailing widget
   Widget _buildSection({
     required BuildContext context,
     required WidgetRef ref,
@@ -209,7 +206,7 @@ class Settings extends ConsumerWidget {
       title: 'Search the blockchain'.i18n,
       icon: Clarity.block_solid,
       subtitle: Text(
-        'mempool.com',
+        'mempool.space',
         style: TextStyle(color: Colors.grey, fontSize: 14.sp),
       ),
       onTap: () {
@@ -395,13 +392,16 @@ class Settings extends ConsumerWidget {
   }
 
   Widget _buildElectrumNodeSection(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    final subtitleText = settings.nodeType == 'Custom' ? settings.bitcoinElectrumNode : settings.nodeType;
+
     return _buildSection(
       context: context,
       ref: ref,
       title: 'Select Electrum Node'.i18n,
       icon: Icons.cloud,
       subtitle: Text(
-        ref.watch(settingsProvider).nodeType,
+        subtitleText,
         style: TextStyle(color: Colors.grey, fontSize: 14.sp),
       ),
       onTap: () {
@@ -470,6 +470,31 @@ class Settings extends ConsumerWidget {
                       },
                     ),
                   ),
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
+                    decoration: BoxDecoration(
+                      color: const Color(0x00333333).withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(12.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4.0,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      leading: Icon(Icons.edit, color: Colors.white, size: 24.sp),
+                      title: Text(
+                        'Custom Node'.i18n,
+                        style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      ),
+                      onTap: () {
+                        context.pop();
+                        _showCustomNodeModal(context, ref);
+                      },
+                    ),
+                  ),
                 ],
               ),
             );
@@ -479,36 +504,16 @@ class Settings extends ConsumerWidget {
     );
   }
 
-  // Widget _buildAffiliateSection(BuildContext context, WidgetRef ref) {
-  //   final affiliateCode = ref.watch(userProvider).affiliateCode ?? '';
-  //   return _buildSection(
-  //     context: context,
-  //     ref: ref,
-  //     title: 'Affiliate Section'.i18n,
-  //     icon: Icons.account_circle_sharp,
-  //     subtitle: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         if (affiliateCode.isNotEmpty)
-  //           Text(
-  //             '${'Inserted Code:'.i18n} $affiliateCode',
-  //             style: TextStyle(color: Colors.grey, fontSize: 14.sp),
-  //           )
-  //         else
-  //           GestureDetector(
-  //             onTap: () => _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref),
-  //             child: Text(
-  //               'Insert an affiliate code to get 6.67% cashback on purchases'.i18n,
-  //               style: TextStyle(color: Colors.grey, fontSize: 14.sp),
-  //             ),
-  //           ),
-  //       ],
-  //     ),
-  //     onTap: () {
-  //       if (affiliateCode.isEmpty) _showInsertAffiliateModal(context, 'Insert Affiliate Code', ref);
-  //     },
-  //   );
-  // }
+  void _showCustomNodeModal(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.black,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return const _CustomNodeModalContent();
+      },
+    );
+  }
 
   Widget _buildAffiliateSection(BuildContext context, WidgetRef ref) {
     return _buildSection(
@@ -951,6 +956,186 @@ class DenominationChangeModalBottomSheet extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// This widget encapsulates the UI and logic for the custom node modal.
+class _CustomNodeModalContent extends ConsumerStatefulWidget {
+  const _CustomNodeModalContent();
+
+  @override
+  ConsumerState<_CustomNodeModalContent> createState() =>
+      _CustomNodeModalContentState();
+}
+
+class _CustomNodeModalContentState
+    extends ConsumerState<_CustomNodeModalContent> {
+  late final TextEditingController bitcoinController;
+  late final TextEditingController liquidController;
+
+  @override
+  void initState() {
+    super.initState();
+    final settings = ref.read(settingsProvider);
+    bitcoinController =
+        TextEditingController(text: settings.bitcoinElectrumNode);
+    liquidController =
+        TextEditingController(text: settings.liquidElectrumNode);
+  }
+
+  @override
+  void dispose() {
+    bitcoinController.dispose();
+    liquidController.dispose();
+    super.dispose();
+  }
+
+  // This function now simply saves the user's input without validation.
+  void handleSave() {
+    final settingsNotifier = ref.read(settingsProvider.notifier);
+    final backgroundSync = ref.read(backgroundSyncNotifierProvider.notifier);
+
+    // Get text from controllers and save it directly.
+    final newBitcoinNode = bitcoinController.text.trim();
+    final newLiquidNode = liquidController.text.trim();
+
+    settingsNotifier.setBitcoinElectrumNode(newBitcoinNode);
+    settingsNotifier.setLiquidElectrumNode(newLiquidNode);
+    settingsNotifier.setNodeType('Custom');
+
+    // Trigger a sync with the new node configuration.
+    backgroundSync.performSync();
+
+    // Close the modal.
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      child: SafeArea(
+        bottom: true,
+        child: Padding(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 16.sp,
+              top: 16.sp,
+              left: 16.sp,
+              right: 16.sp),
+          child: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.all(16.sp),
+              decoration: BoxDecoration(
+                color: const Color(0x00333333).withOpacity(0.4),
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Custom Electrum Node'.i18n,
+                    style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                  SizedBox(height: 16.sp),
+                  // Warning Message
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12.sp, vertical: 8.sp),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(8.r),
+                      border: Border.all(color: Colors.orange, width: 1),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20.sp),
+                        SizedBox(width: 10.sp),
+                        Expanded(
+                          child: Text(
+                            'Make sure the node you write works correctly, otherwise you might see wrong balances and not able to send your coins'.i18n,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14.sp,
+                            ),
+                            softWrap: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20.sp),
+                  // Bitcoin Node TextField
+                  TextField(
+                    controller: bitcoinController,
+                    decoration: InputDecoration(
+                      labelText: 'Bitcoin Node (host:port)'.i18n,
+                      labelStyle: TextStyle(
+                          color: Colors.white70, fontSize: 16.sp),
+                      border: const OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide:
+                          BorderSide(color: Colors.grey.shade800)),
+                      fillColor: Colors.black,
+                      filled: true,
+                      focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.orange)),
+                    ),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp),
+                  ),
+                  SizedBox(height: 20.sp),
+                  // Liquid Node TextField
+                  TextField(
+                    controller: liquidController,
+                    decoration: InputDecoration(
+                      labelText: 'Liquid Node (host:port)'.i18n,
+                      labelStyle: TextStyle(
+                          color: Colors.white70, fontSize: 16.sp),
+                      border: const OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide:
+                          BorderSide(color: Colors.grey.shade800)),
+                      fillColor: Colors.black,
+                      filled: true,
+                      focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.orange)),
+                    ),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp),
+                  ),
+                  SizedBox(height: 20.sp),
+                  // Simplified Save & Exit Button
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r)),
+                    ),
+                    onPressed: handleSave,
+                    child: Text(
+                      'Save & Exit'.i18n,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

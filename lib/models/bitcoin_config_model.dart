@@ -41,7 +41,7 @@ class BitcoinConfigModel {
               timeout: 5,
               retry: 5,
               url: "ssl://${config.electrumUrl}",
-              validateDomain: false,
+              validateDomain: true,
             ),
           ),
         );

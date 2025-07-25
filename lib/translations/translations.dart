@@ -3652,6 +3652,18 @@ extension Localization on String {
       {
         "en": "Reverse",
         "pt": "Inverter"
+      }+
+      {
+        "en": "Custom Electrum Node",
+        "pt": "No Electrum Customizado"
+      }+
+      {
+        "en": "Save & Exit",
+        "pt": "Salvar e Sair"
+      }+
+      {
+        "en": "Make sure the node you write works correctly, otherwise you might see wrong balances and not able to send your coins",
+        "pt": "Certifique-se de que o nó que você escreveu funciona corretamente, caso contrário, pode ver balanços incorretos e não ser capaz de enviar suas moedas"
       };
   String get i18n => localize(this, _t);
 }
