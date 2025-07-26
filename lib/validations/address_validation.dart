@@ -25,7 +25,6 @@ Future<bool> isLightningInvoice(WidgetRef ref, String invoice) async {
   }
 }
 
-/// Asynchronously parses a BOLT11 invoice to get the amount in satoshis.
 Future<int> invoiceAmount(WidgetRef ref, String invoice) async {
   try {
     final parsedInput = await ref.read(parseInputProvider(invoice).future);

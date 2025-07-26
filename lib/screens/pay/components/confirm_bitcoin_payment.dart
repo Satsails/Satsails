@@ -485,7 +485,9 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                           inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats'
                                               ? [DecimalTextInputFormatter(decimalRange: 0)]
-                                              : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)],
+                                              : ref.watch(inputCurrencyProvider) == 'BTC'
+                                              ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)]
+                                              : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
                                           style: TextStyle(fontSize: 24.sp, color: Colors.white),
                                           textAlign: TextAlign.left,
                                           decoration: InputDecoration(
