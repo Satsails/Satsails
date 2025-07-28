@@ -82,7 +82,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                   '$amount $btcFormat',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 38.sp,
+                    fontSize: 28.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

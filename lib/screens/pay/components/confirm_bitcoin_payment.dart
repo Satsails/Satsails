@@ -84,7 +84,7 @@ Future<bool> showConfirmationModal(
                   '$amount $btcFormat',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 38.sp,
+                    fontSize: 28.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

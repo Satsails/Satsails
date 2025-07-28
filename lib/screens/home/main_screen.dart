@@ -18,8 +18,7 @@ class MainScreen extends ConsumerStatefulWidget {
 }
 
 class _MainScreenState extends ConsumerState<MainScreen> {
-  int _syncCount = 0;
-  bool _isHomeSyncActive = false;
+  bool _isLoopActive = false;
 
   final List<Widget> _screens = const [
     Home(),
@@ -32,42 +31,36 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   void initState() {
     super.initState();
-    _performSync();
+    _startContinuousSync();
   }
 
-  void _performSync() {
-    if (!mounted) return;
-    if (!ref.read(backgroundSyncInProgressProvider)) {
-      ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
-    }
+  @override
+  void dispose() {
+    _isLoopActive = false;
+    super.dispose();
+  }
+
+  Future<void> _startContinuousSync() async {
+    _isLoopActive = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      while (_isLoopActive) {
+        try {
+          if (mounted && !ref.read(backgroundSyncInProgressProvider)) {
+            await ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
+          }
+        } catch (e) {
+          debugPrint("Sync loop failed, will retry: $e");
+        }
+
+        await Future.delayed(const Duration(seconds: 5));
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final currentIndex = ref.watch(navigationProvider);
-
-    ref.listen<int>(navigationProvider, (previous, next) {
-      if (next == 0) {
-        _isHomeSyncActive = true;
-        _syncCount = 1;
-      } else {
-        _isHomeSyncActive = false;
-        _syncCount = 0;
-      }
-
-      final isSyncing = ref.read(backgroundSyncInProgressProvider);
-
-      if (previous != next && next != 2 && !isSyncing) {
-        _performSync();
-      }
-    });
-
-    ref.listen<bool>(backgroundSyncInProgressProvider, (wasInProgress, isNowInProgress) {
-      if (wasInProgress == true && isNowInProgress == false && _isHomeSyncActive && _syncCount < 2) {
-        _syncCount++;
-        _performSync();
-      }
-    });
 
     return Scaffold(
       extendBody: true,

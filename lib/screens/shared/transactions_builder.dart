@@ -151,8 +151,7 @@ class _TransactionListState extends ConsumerState<TransactionList> {
     final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
     final transactionState = ref.watch(transactionNotifierProvider);
 
-    // Fetch the lists from the provider's state using your getters
-    final settledTransactions = transactionState.value?.settledTransactions ?? [];
+    final settledTransactions = transactionState.value?.settledTransactions.take(6).toList() ?? [];
     final allTransactions = transactionState.value?.allTransactionsSorted ?? [];
 
     final buyButton = GestureDetector(
@@ -350,7 +349,7 @@ Widget _buildLightningConversionTransactionItem(
   final details = transaction.details;
   final isReceiving = details.paymentType == breez.PaymentType.receive;
   final title =
-  isReceiving ? "Lightning → Liquid Bitcoin".i18n : "L-BTC → Lightning".i18n;
+  isReceiving ? "Lightning → Liquid Bitcoin".i18n : "Liquid Bitcoin → Lightning".i18n;
 
   // Determine the subtitle based on the detailed payment state
   String subtitle;

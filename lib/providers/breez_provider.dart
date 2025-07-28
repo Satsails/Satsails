@@ -94,7 +94,7 @@ final lnurlPayProvider = FutureProvider.family<LnUrlPayResult, PrepareLnUrlPayRe
   return await sdk.instance!.lnurlPay(req: req);
 });
 
-final listLightningPaymentsProvider = FutureProvider.family<List<Payment>, ListPaymentsRequest>((ref, req) async {
+final listLightningPaymentsProvider = FutureProvider.family.autoDispose<List<Payment>, ListPaymentsRequest>((ref, req) async {
   final sdk = await ref.watch(breezSDKProvider.future);
   final allPayments = await sdk.instance!.listPayments(req: req);
   final lightningPayments = allPayments.where((p) => p.details is PaymentDetails_Lightning).toList();
@@ -108,7 +108,6 @@ final paymentProvider = FutureProvider.family<Payment?, GetPaymentRequest>((ref,
 
 final listRefundablesProvider = FutureProvider<List<RefundableSwap>>((ref) async {
   final sdk = await ref.watch(breezSDKProvider.future);
-  await sdk.instance!.rescanOnchainSwaps();
   return await sdk.instance!.listRefundables();
 });
 

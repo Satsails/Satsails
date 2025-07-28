@@ -12,7 +12,6 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:Satsails/validations/address_validation.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
@@ -76,7 +75,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                   '$amount $btcFormat',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 38.sp,
+                    fontSize: 28.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

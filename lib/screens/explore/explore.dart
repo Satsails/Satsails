@@ -68,7 +68,7 @@ class Explore extends ConsumerWidget {
           ],
         ),
         body: SafeArea(
-          bottom: false,
+          bottom: true,
           child: Stack(
             children: [
               const Positioned.fill(
@@ -90,7 +90,6 @@ class Explore extends ConsumerWidget {
                       padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.h),
                       child: const _BitcoinPriceChart(),
                     ),
-                    // --- FIX: Added bottom padding to respect safe area ---
                     SizedBox(height: 40.h),
                   ],
                 ),

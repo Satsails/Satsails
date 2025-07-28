@@ -3680,6 +3680,10 @@ extension Localization on String {
       {
         "en": "Refunded",
         "pt": "Estornado"
+      }+
+      {
+        "en": "Error building payjoin asset transaction",
+        "pt": "Erro ao construir transação payjoin",
       };
   String get i18n => localize(this, _t);
 }
