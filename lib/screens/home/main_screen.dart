@@ -1,7 +1,7 @@
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
-import 'package:Satsails/screens/analytics/analytics.dart';
+import 'package:Satsails/screens/accounts/accounts.dart';
 import 'package:Satsails/screens/exchange/exchange.dart';
 import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/home/home.dart';
@@ -22,7 +22,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   final List<Widget> _screens = const [
     Home(),
-    Analytics(),
+    Accounts(),
     Exchange(),
     Explore(),
     Settings(),
