@@ -1,3 +1,4 @@
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/bitcoin_config_provider.dart';
 import 'package:Satsails/providers/liquid_config_provider.dart';
@@ -61,6 +62,7 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
       if (mounted) {
         ref.invalidate(bitcoinConfigProvider);
         ref.invalidate(liquidConfigProvider);
+        ref.read(addressProvider);
         context.go('/home');
       }
     } catch (e) {
