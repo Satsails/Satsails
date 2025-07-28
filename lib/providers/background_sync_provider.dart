@@ -3,6 +3,7 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideshift_provider.dart';
@@ -175,6 +176,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
 
         final latestBalance = ref.read(balanceNotifierProvider);
         await _updateSideShiftShifts();
+        await ref.read(claimAllBoltzProvider.future);
         _compareBalances(previousBalance, latestBalance);
 
         final hiveBox = await Hive.openBox<WalletBalance>('balanceBox');
