@@ -93,3 +93,46 @@ final lnurlPayProvider = FutureProvider.family<LnUrlPayResult, PrepareLnUrlPayRe
   final req = LnUrlPayRequest(prepareResponse: prepareResponse);
   return await sdk.instance!.lnurlPay(req: req);
 });
+
+final listLightningPaymentsProvider = FutureProvider.family<List<Payment>, ListPaymentsRequest>((ref, req) async {
+  final sdk = await ref.watch(breezSDKProvider.future);
+  final allPayments = await sdk.instance!.listPayments(req: req);
+  final lightningPayments = allPayments.where((p) => p.details is PaymentDetails_Lightning).toList();
+  return lightningPayments;
+});
+
+final paymentProvider = FutureProvider.family<Payment?, GetPaymentRequest>((ref, req) async {
+  final sdk = await ref.watch(breezSDKProvider.future);
+  return await sdk.instance!.getPayment(req: req);
+});
+
+final listRefundablesProvider = FutureProvider<List<RefundableSwap>>((ref) async {
+  final sdk = await ref.watch(breezSDKProvider.future);
+  return await sdk.instance!.listRefundables();
+});
+
+final recommendedFeesProvider = FutureProvider<RecommendedFees>((ref) async {
+  final sdk = await ref.watch(breezSDKProvider.future);
+  return await sdk.instance!.recommendedFees();
+});
+
+final prepareRefundProvider =
+    FutureProvider.family<PrepareRefundResponse, ({String swapAddress, String refundAddress, int feeRateSatPerVbyte})>((ref, params) async {
+  final sdk = await ref.watch(breezSDKProvider.future);
+  final req = PrepareRefundRequest(
+    swapAddress: params.swapAddress,
+    refundAddress: params.refundAddress,
+    feeRateSatPerVbyte: params.feeRateSatPerVbyte,
+  );
+  return await sdk.instance!.prepareRefund(req: req);
+});
+
+final refundProvider = FutureProvider.family<RefundResponse, ({String swapAddress, String refundAddress, int feeRateSatPerVbyte})>((ref, params) async {
+  final sdk = await ref.watch(breezSDKProvider.future);
+  final req = RefundRequest(
+    swapAddress: params.swapAddress,
+    refundAddress: params.refundAddress,
+    feeRateSatPerVbyte: params.feeRateSatPerVbyte,
+  );
+  return await sdk.instance!.refund(req: req);
+});

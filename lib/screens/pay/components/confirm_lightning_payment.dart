@@ -21,19 +21,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-/// A restyled dialog to confirm the transaction details before sending.
 Future<bool> showConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
   final settings = ref.read(settingsProvider);
   final currency = settings.currency;
   final amountInCurrency = ref.read(bitcoinValueInCurrencyProvider);
 
-  // Function to shorten the address for display
   String shortenAddress(String value) {
     if (value.length <= 12) return value;
     return '${value.substring(0, 6)}...${value.substring(value.length - 6)}';
   }
 
-  // A local helper for creating styled detail rows
   Widget buildDetailRow({required String label, required String value}) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -49,7 +46,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
 
   return await showDialog<bool>(
     context: context,
-    barrierDismissible: false, // User must explicitly confirm or cancel
+    barrierDismissible: false,
     builder: (BuildContext context) {
       return Dialog(
         backgroundColor: Colors.transparent,
@@ -66,7 +63,6 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Title
                 Text(
                   'Confirm Transaction'.i18n,
                   style: TextStyle(
@@ -76,8 +72,6 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                   ),
                 ),
                 SizedBox(height: 24.h),
-
-                // Hero Amount Section
                 Text(
                   '$amount $btcFormat',
                   style: TextStyle(
@@ -98,8 +92,6 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                   padding: EdgeInsets.symmetric(vertical: 16.h),
                   child: Divider(color: Colors.white.withOpacity(0.15)),
                 ),
-
-                // Details Section
                 buildDetailRow(
                   label: 'Recipient'.i18n,
                   value: shortenAddress(address),
@@ -109,8 +101,6 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                   value: '$fee sats',
                 ),
                 SizedBox(height: 24.h),
-
-                // Action Buttons
                 Row(
                   children: [
                     Expanded(
@@ -159,7 +149,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
       );
     },
   ) ??
-      false; // Default to false if dialog is dismissed
+      false;
 }
 
 class ConfirmLightningPayment extends ConsumerStatefulWidget {
@@ -185,13 +175,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
       controller.text = '';
       return;
     }
-
-    final converted = calculateAmountInSelectedCurrency(
-      satsAmount,
-      selectedCurrency,
-      ref.read(currencyNotifierProvider),
-    );
-
+    final converted = calculateAmountInSelectedCurrency(satsAmount, selectedCurrency, ref.read(currencyNotifierProvider));
     controller.text = selectedCurrency == 'BTC'
         ? converted
         : selectedCurrency == 'Sats'
@@ -206,31 +190,63 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
     btcFormat = settings.btcFormat;
     currency = settings.currency;
     currencyRate = ref.read(selectedCurrencyProvider(currency));
-
     final sendTxState = ref.read(sendTxProvider);
     _previousAmount = sendTxState.amount;
     updateControllerText(sendTxState.amount);
     addressController.text = sendTxState.address;
-
     _checkIfInvoice(sendTxState.address);
   }
 
+  // --- FIX: Refactored invoice checking logic for reliability ---
   Future<void> _checkIfInvoice(String value) async {
-    if (await isLightningInvoice(ref, value)) {
-      try {
-        final amount = await invoiceAmount(ref, value);
+    // If the input is empty, reset to a non-invoice state.
+    if (value.isEmpty) {
+      if (mounted) setState(() => isInvoice = false);
+      return;
+    }
+
+    try {
+      // Parse the input once to determine its type.
+      final parsedInput = await ref.read(parseInputProvider(value).future);
+
+      // Check if the parsed input is a BOLT11 invoice.
+      if (parsedInput is breez.InputType_Bolt11) {
+        final invoice = parsedInput.invoice;
+        // Determine the amount in sats from the invoice.
+        final amount = invoice.amountMsat != null ? (invoice.amountMsat! ~/ BigInt.from(1000)).toInt() : 0;
+
+        // If the invoice has a specific amount, lock the UI.
         if (amount > 0) {
           ref.read(sendTxProvider.notifier).updateAmount(amount);
           ref.read(sendTxProvider.notifier).updatePaymentType(PaymentType.Lightning);
-          if (mounted) setState(() => isInvoice = true);
+          if (mounted) {
+            setState(() {
+              isInvoice = true;
+            });
+          }
         } else {
-          if (mounted) setState(() => isInvoice = false);
+          // If it's a zero-amount invoice, keep the UI unlocked.
+          if (mounted) {
+            setState(() {
+              isInvoice = false;
+            });
+          }
         }
-      } catch (e) {
-        if (mounted) setState(() => isInvoice = false);
+      } else {
+        // If the input is valid but not a BOLT11 invoice (e.g., LNURL), keep UI unlocked.
+        if (mounted) {
+          setState(() {
+            isInvoice = false;
+          });
+        }
       }
-    } else {
-      if (mounted) setState(() => isInvoice = false);
+    } catch (e) {
+      // If parsing fails, it's not a valid invoice, so keep UI unlocked.
+      if (mounted) {
+        setState(() {
+          isInvoice = false;
+        });
+      }
     }
   }
 
@@ -244,7 +260,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
   @override
   Widget build(BuildContext context) {
     final sendTxState = ref.watch(sendTxProvider);
-
     if (sendTxState.amount != _previousAmount) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -253,7 +268,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
         }
       });
     }
-
     final btcBalanceInFormat = ref.read(liquidBalanceInFormatProvider(btcFormat));
     final valueInBtc = ref.watch(liquidBalanceInFormatProvider('BTC')) == '0.00000000' ? 0 : double.parse(ref.watch(liquidBalanceInFormatProvider('BTC')));
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
@@ -382,11 +396,8 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                               if (value.isEmpty) {
                                                 ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
                                               } else {
-                                                final amountInSats = calculateAmountInSatsToDisplay(
-                                                  value,
-                                                  ref.watch(inputCurrencyProvider),
-                                                  ref.watch(currencyNotifierProvider),
-                                                );
+                                                final amountInSats =
+                                                calculateAmountInSatsToDisplay(value, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
                                                 ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
                                               }
                                             }
@@ -434,11 +445,10 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                           },
                                           child: Container(
                                             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                                            decoration: BoxDecoration(
-                                              color: isInvoice ? Colors.grey[700] : Colors.white,
-                                              borderRadius: BorderRadius.circular(8.r),
-                                            ),
-                                            child: Text('Max', style: TextStyle(color: isInvoice ? Colors.white54 : Colors.black, fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                                            decoration:
+                                            BoxDecoration(color: isInvoice ? Colors.grey[700] : Colors.white, borderRadius: BorderRadius.circular(8.r)),
+                                            child: Text('Max',
+                                                style: TextStyle(color: isInvoice ? Colors.white54 : Colors.black, fontSize: 16.sp, fontWeight: FontWeight.bold)),
                                           ),
                                         ),
                                       ),
@@ -460,6 +470,9 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                     action: (sliderController) async {
                       setState(() => isProcessing = true);
                       sliderController.loading();
+                      dynamic prepareResponse;
+                      int networkFee = 0;
+
                       try {
                         final sendTxState = ref.read(sendTxProvider);
                         final input = sendTxState.address;
@@ -468,33 +481,53 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                         final parsedInput = await ref.read(parseInputProvider(input).future);
 
                         if (parsedInput is breez.InputType_Bolt11) {
-                          await ref.read(prepareSendProvider(parsedInput.invoice.bolt11).future);
-                          await ref.read(sendPaymentProvider.future);
+                          prepareResponse = await ref.read(prepareSendProvider(parsedInput.invoice.bolt11).future);
+                          networkFee = prepareResponse.feesSat.toInt();
                         } else if (parsedInput is breez.InputType_LnUrlPay) {
                           if (amount == 0) throw Exception('Please enter an amount for this recipient.');
-                          final prepareResponse = await ref.read(prepareLnurlPayProvider((data: parsedInput.data, amount: BigInt.from(amount))).future);
-                          await ref.read(lnurlPayProvider(prepareResponse).future);
+                          prepareResponse = await ref.read(prepareLnurlPayProvider((data: parsedInput.data, amount: BigInt.from(amount))).future);
+                          networkFee = prepareResponse.feesSat.toInt();
                         } else {
                           throw Exception("Unsupported address or invoice type.");
                         }
 
-                        showFullscreenTransactionSendModal(
-                          context: context,
-                          asset: 'Lightning',
-                          amount: btcInDenominationFormatted(sendTxState.amount, btcFormat),
-                          fiat: false,
-                          receiveAddress: sendTxState.address,
+                        final bool confirmed = await showConfirmationModal(
+                          context,
+                          btcInDenominationFormatted(sendTxState.amount, btcFormat),
+                          sendTxState.address,
+                          networkFee,
+                          btcFormat,
+                          ref,
                         );
 
-                        ref.read(sendTxProvider.notifier).resetToDefault();
-                        ref.read(sendBlocksProvider.notifier).state = 1;
-                        context.replace('/home');
+                        if (confirmed) {
+                          if (prepareResponse is breez.PrepareSendResponse) {
+                            await ref.read(sendPaymentProvider.future);
+                          } else if (prepareResponse is breez.PrepareLnUrlPayResponse) {
+                            await ref.read(lnurlPayProvider(prepareResponse).future);
+                          }
+
+                          showFullscreenTransactionSendModal(
+                            context: context,
+                            asset: 'Lightning',
+                            amount: btcInDenominationFormatted(sendTxState.amount, btcFormat),
+                            fiat: false,
+                            receiveAddress: sendTxState.address,
+                          );
+
+                          ref.read(sendTxProvider.notifier).resetToDefault();
+                          ref.read(sendBlocksProvider.notifier).state = 1;
+                          context.replace('/home');
+
+                        } else {
+                          sliderController.reset();
+                          setState(() => isProcessing = false);
+                        }
                       } catch (e) {
                         sliderController.failure();
                         showMessageSnackBar(message: e.toString(), error: true, context: context);
                         Future.delayed(const Duration(seconds: 2), () => sliderController.reset());
-                      } finally {
-                        if (mounted) setState(() => isProcessing = false);
+                        setState(() => isProcessing = false);
                       }
                     },
                     child: Text('Slide to send'.i18n, style: const TextStyle(color: Colors.white)),

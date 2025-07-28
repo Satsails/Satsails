@@ -40,6 +40,8 @@ import 'package:Satsails/screens/settings/components/backup_wallet.dart';
 
 import 'package:flutter/material.dart';
 
+import 'screens/shared/lightning_conversion_transaction_details.dart';
+
 class AppRouter {
   /// Helper method: returns a [CustomTransitionPage] that
   /// applies a subtle scale+fade effect—ideal for a premium app.
@@ -165,6 +167,16 @@ class AppRouter {
             final transaction = state.extra as SideShiftTransaction;
             return _buildFadeScalePage(
               child: SideShiftTransactionDetailsScreen(transaction: transaction),
+              state: state,
+            );
+          },
+        ),
+        GoRoute(
+          path: '/lightning-conversion-transaction-details',
+          name: 'lightningConversionTransactionDetails',
+          pageBuilder: (context, state) {
+            return _buildFadeScalePage(
+              child: LightningConversionTransactionDetails(),
               state: state,
             );
           },

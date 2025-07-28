@@ -90,6 +90,8 @@ class Explore extends ConsumerWidget {
                       padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.h),
                       child: const _BitcoinPriceChart(),
                     ),
+                    // --- FIX: Added bottom padding to respect safe area ---
+                    SizedBox(height: 40.h),
                   ],
                 ),
               ),
@@ -124,7 +126,6 @@ class _BalanceDisplay extends ConsumerWidget {
     final transaction = ref.watch(transactionNotifierProvider);
     final cashbackAmount = transaction.value?.unpaidCashback ?? 0;
     final cashbackToReceive = isBalanceVisible ? btcInDenominationFormatted(cashbackAmount, denomination) : '***';
-    final hasCashback = cashbackAmount > 0;
 
     return Card(
       color: const Color(0xFF333333).withOpacity(0.4),
@@ -215,40 +216,46 @@ class _BitcoinPriceChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const int days = 30;
-    final now = DateTime.now().dateOnly();
-    final start = now.subtract(const Duration(days: days - 1));
-
-    final selectedDays = <DateTime>[];
-    for (var i = 0; i < days; i++) {
-      selectedDays.add(start.add(Duration(days: i)));
-    }
-
-    final settings = ref.watch(settingsProvider);
-    // CORRECTED: Calling the provider without arguments.
     final marketDataAsync = ref.watch(bitcoinMarketDataProvider);
-    final cardColor = const Color(0xFF333333).withOpacity(0.4);
 
-    return Card(
-      color: cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      elevation: 2,
-      child: Padding(
-        padding: EdgeInsets.all(16.sp),
-        child: marketDataAsync.when(
-          data: (marketData) {
-            if (marketData.isEmpty) {
-              return Center(heightFactor: 6.5, child: Text('No price data available.'.i18n, style: TextStyle(color: Colors.white70)));
-            }
-            // CORRECTED: Explicitly typing the map.
-            final Map<DateTime, num> priceByDay = {for (var dp in marketData) dp.date.toLocal().dateOnly(): dp.price ?? 0};
+    // --- FIX: Moved .when() to be the top-level widget ---
+    // This prevents the Card from being built during loading/error states.
+    return marketDataAsync.when(
+      data: (marketData) {
+        if (marketData.isEmpty) {
+          return SizedBox(
+            height: 200.h, // Give a fixed height to avoid layout collapse
+            child: Card(
+              color: const Color(0xFF333333).withOpacity(0.4),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              elevation: 2,
+              child: Center(child: Text('No price data available.'.i18n, style: TextStyle(color: Colors.white70))),
+            ),
+          );
+        }
 
-            final lastPrice = marketData.last.price ?? 0;
-            final startPrice = marketData.first.price ?? 0;
-            final percentageChange = startPrice != 0 ? ((lastPrice - startPrice) / startPrice * 100) : 0;
-            final currencyFormatter = NumberFormat.simpleCurrency(name: settings.currency, decimalDigits: 2);
+        const int days = 30;
+        final now = DateTime.now().dateOnly();
+        final start = now.subtract(const Duration(days: days - 1));
+        final selectedDays = <DateTime>[];
+        for (var i = 0; i < days; i++) {
+          selectedDays.add(start.add(Duration(days: i)));
+        }
 
-            return Column(
+        final settings = ref.watch(settingsProvider);
+        final Map<DateTime, num> priceByDay = {for (var dp in marketData) dp.date.toLocal().dateOnly(): dp.price ?? 0};
+        final lastPrice = marketData.last.price ?? 0;
+        final startPrice = marketData.first.price ?? 0;
+        final percentageChange = startPrice != 0 ? ((lastPrice - startPrice) / startPrice * 100) : 0;
+        final currencyFormatter = NumberFormat.simpleCurrency(name: settings.currency, decimalDigits: 2);
+
+        return Card(
+          color: const Color(0xFF333333).withOpacity(0.4),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          elevation: 2,
+          child: Padding(
+            padding: EdgeInsets.all(16.sp),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -263,15 +270,24 @@ class _BitcoinPriceChart extends ConsumerWidget {
                   child: _PriceSparklineChart(priceData: priceByDay, sortedDays: selectedDays, formatter: currencyFormatter),
                 ),
               ],
-            );
-          },
-          loading: () => Center(heightFactor: 8, child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orangeAccent, size: 40.sp)),
-          error: (e, s) => Center(heightFactor: 8, child: Text('Could not load price data'.i18n, style: const TextStyle(color: Colors.redAccent))),
-        ),
+            ),
+          ),
+        );
+      },
+      // --- FIX: Return a fixed-height container with only the loading icon ---
+      loading: () => SizedBox(
+        height: 200.h, // Match the approximate height of the final card
+        child: Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orangeAccent, size: 40.sp)),
+      ),
+      // --- FIX: Return a fixed-height container for the error state ---
+      error: (e, s) => SizedBox(
+        height: 200.h,
+        child: Center(child: Text('Could not load price data'.i18n, style: const TextStyle(color: Colors.redAccent))),
       ),
     );
   }
 }
+
 
 // Interactive Sparkline Chart (No Scale)
 class _PriceSparklineChart extends StatelessWidget {

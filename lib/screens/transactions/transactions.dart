@@ -22,16 +22,46 @@ class _TransactionsState extends ConsumerState<Transactions> {
   DateTime? _endDate;
   String _selectedFilter = 'All';
 
+  // 1. Manage the state locally within the widget
+  AsyncValue<Transaction> _transactionState = const AsyncValue.loading();
+
+  @override
+  void initState() {
+    super.initState();
+    // 2. Trigger the one-time fetch when the widget is first created.
+    _fetchInitialTransactions();
+  }
+
+  Future<void> _fetchInitialTransactions() async {
+    try {
+      // Use ref.read to get the future from the provider and await its result.
+      final transactions = await ref.read(transactionNotifierProvider.future);
+      if (mounted) {
+        // Update the local state with the fetched data.
+        setState(() {
+          _transactionState = AsyncValue.data(transactions);
+        });
+      }
+    } catch (e, stackTrace) {
+      if (mounted) {
+        // If an error occurs, update the local state to show the error.
+        setState(() {
+          _transactionState = AsyncValue.error(e, stackTrace);
+        });
+      }
+    }
+  }
+
   bool isPending(BaseTransaction tx) {
     return (tx is SideShiftTransaction && (tx.details.status == 'waiting' || tx.details.status == 'expired')) ||
-        // (tx is BoltzTransaction && !(tx.details.completed ?? false)) ||
         (tx is EulenTransaction &&
             (tx.details.failed ||
                 tx.details.status == 'expired' ||
                 tx.details.status == 'pending')) ||
         (tx is NoxTransaction &&
             (tx.details.status == 'quote' ||
-                tx.details.status == 'failed'));
+                tx.details.status == 'failed')) ||
+        (tx is LightningConversionTransaction && !tx.isConfirmed);
   }
 
   List<BaseTransaction> applyDateFilter(List<BaseTransaction> transactions) {
@@ -48,9 +78,8 @@ class _TransactionsState extends ConsumerState<Transactions> {
 
   @override
   Widget build(BuildContext context) {
-    final transactionStateAsync = ref.read(transactionNotifierProvider);
-
-    return transactionStateAsync.when(
+    // 3. Use the local state variable instead of watching the provider.
+    return _transactionState.when(
       loading: () => const Scaffold(
         backgroundColor: Colors.black,
         body: Center(child: CircularProgressIndicator()),
@@ -60,6 +89,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
         body: Center(child: Text('Error: $err')),
       ),
       data: (transactionData) {
+        // The rest of the build method remains the same...
         final allTransactions = transactionData.allTransactionsSorted;
         final startDate = _startDate ?? DateTime.fromMillisecondsSinceEpoch(0);
         final endDate = _endDate ?? DateTime.now();

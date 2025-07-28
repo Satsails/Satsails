@@ -155,14 +155,16 @@ class _ExchangeState extends ConsumerState<Exchange> {
                       _buildSwapPicker(),
                       SizedBox(height: 16.h),
                       Expanded(
-                        child: ListView(
-                          children: [
-                            if (_selectedSection == SwapSection.internal)
-                              ..._buildInternalSwapWidgets()
-                            else
-                              ..._buildExternalSwapWidgets(),
-                            SizedBox(height: 100.sp),
-                          ],
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              if (_selectedSection == SwapSection.internal)
+                                ..._buildInternalSwapWidgets()
+                              else
+                                ..._buildExternalSwapWidgets(),
+                              SizedBox(height: 100.sp),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -524,7 +526,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
       ShiftPair.usdcEthToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/eth.svg'},
       ShiftPair.usdcSolToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/sol.svg'},
       ShiftPair.usdcPolygonToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/pol.svg'},
-      ShiftPair.usdtEthToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets.svg'},
+      ShiftPair.usdtEthToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/eth.svg'},
       ShiftPair.usdtTronToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/trx.svg'},
       ShiftPair.usdtSolToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/sol.svg'},
       ShiftPair.usdtPolygonToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/pol.svg'},

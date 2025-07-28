@@ -1,5 +1,6 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/string_extension.dart';
+import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/conversion_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
@@ -275,7 +276,6 @@ String valueOfLiquidSubTransaction(AssetId asset, int value, WidgetRef ref) {
 }
 
 Widget sideshiftTransactionTypeIcon() {
-  /// Helper function to create a styled circular icon container.
   Widget circularIcon(IconData icon, Color color) {
     return Container(
       width: 40,
@@ -297,7 +297,7 @@ Widget sideshiftTransactionTypeIcon() {
   return circularIcon(Icons.swap_horiz, Colors.orange);
 }
 
-  Widget boltzTransactionTypeIcon() {
+  Widget lightningTransactionTypeIcon() {
   Widget circularIcon(IconData icon, Color color) {
     return Container(
       width: 40, // Responsive width, matching pegTransactionTypeIcon
@@ -317,3 +317,13 @@ Widget sideshiftTransactionTypeIcon() {
   }
   return circularIcon(Icons.swap_horiz, Colors.orange);
 }
+
+String lightningConversionTransactionAmountInFiat(LightningConversionTransaction transaction, WidgetRef ref) {
+  final amountSat = transaction.details.amountSat.toInt();
+  final fiatValueString = ref.watch(conversionToFiatProvider(amountSat));
+  final fiatValue = double.parse(fiatValueString) / 100000000.0;
+  final currency = ref.watch(settingsProvider).currency;
+  return currencyFormat(fiatValue, currency);
+}
+
+

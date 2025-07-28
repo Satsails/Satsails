@@ -150,7 +150,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   Future<WalletBalance> performSync() async {
     return await handleSync(
       syncOperation: () async {
-        final previousBalance = ref.read(balanceNotifierProvider);
+        final previousBalance = await ref.refresh(balanceFutureProvider.future);
         List<bdk.TransactionDetails>? syncedBitcoinTxs;
 
 
