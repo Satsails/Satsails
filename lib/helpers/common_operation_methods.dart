@@ -7,10 +7,21 @@ import 'package:Satsails/providers/transaction_search_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter/material.dart';
+import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:lwk/lwk.dart' as lwk;
 
+// General utility function
+String shortenValue(String value, [int start = 8, int end = 8]) {
+  if (value.length <= start + end) {
+    return value;
+  }
+  return '${value.substring(0, start)}...${value.substring(value.length - end)}';
+}
+
+// BDK (Bitcoin) Transaction Helpers
 String confirmationStatus(bdk.TransactionDetails transaction, WidgetRef ref) {
   if (transaction.confirmationTime == null || transaction.confirmationTime!.height == 0) {
     return 'Unconfirmed'.i18n;
@@ -30,30 +41,28 @@ String transactionTypeString(bdk.TransactionDetails transaction, WidgetRef ref) 
 }
 
 Widget transactionTypeIcon(bdk.TransactionDetails transaction) {
-  // Helper function to create a circular icon with a dark gray background
   Widget circularIcon(IconData icon, Color color) {
     return Container(
       width: 40,
       height: 40,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        color: Color(0xFF333333), // Dark gray background
+        color: Color(0xFF333333),
       ),
       child: Center(
         child: Icon(
           icon,
           color: color,
-          size: 24, // Consistent icon size
+          size: 24,
         ),
       ),
     );
   }
 
-  // Determine if the transaction is a send or receive
   if (transaction.sent.toInt() - transaction.received.toInt() > 0) {
-    return circularIcon(Icons.arrow_upward, Colors.red); // Send
+    return circularIcon(Icons.arrow_upward, Colors.red);
   } else {
-    return circularIcon(Icons.arrow_downward, Colors.green); // Receive
+    return circularIcon(Icons.arrow_downward, Colors.green);
   }
 }
 
@@ -83,69 +92,26 @@ String transactionAmount(bdk.TransactionDetails transaction, WidgetRef ref) {
   }
 }
 
-Widget pegTransactionTypeIcon() {
-  Widget circularIcon(IconData icon, Color color) {
-    return Container(
-      width: 40,  // Responsive width
-      height: 40, // Responsive height, same as width for a circle
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Color(0xFF333333), // Dark gray background
-      ),
-      child: Center(
-        child: Icon(
-          icon,
-          color: color,
-          size: 24.w, // Responsive icon size
-        ),
-      ),
-    );
-  }
-  return circularIcon(Icons.swap_horiz_outlined, Colors.orange); // Peg Out: outgoing
-}
-
-Widget eulenTransactionTypeIcon() {
-  Widget circularIcon(IconData icon, Color color) {
-    return Container(
-      width: 40,  // Responsive width
-      height: 40, // Responsive height, same as width for a circle
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Color(0xFF333333), // Dark gray background
-      ),
-      child: Center(
-        child: Icon(
-          icon,
-          color: color,
-          size: 24.w, // Responsive icon size
-        ),
-      ),
-    );
-  }
-  return circularIcon(Icons.pix, Colors.green); // Peg Out: outgoing
-}
-
+// LWK (Liquid) Transaction Helpers
 Widget transactionTypeLiquidIcon(String kind) {
-  // Helper function to create a circular icon with a dark gray background
   Widget circularIcon(IconData icon, Color color) {
     return Container(
       width: 40,
       height: 40,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        color: Color(0xFF333333), // Dark gray background as per image
+        color: Color(0xFF333333),
       ),
       child: Center(
         child: Icon(
           icon,
           color: color,
-          size: 24, // Consistent icon size within the circle
+          size: 24,
         ),
       ),
     );
   }
 
-  // Switch case to map transaction types to their icons
   switch (kind) {
     case 'incoming':
       return circularIcon(Icons.arrow_downward, Colors.green);
@@ -169,7 +135,6 @@ Icon confirmationStatusIcon(lwk.Tx transaction) {
       ? const Icon(Icons.check_circle_outlined, color: Colors.green)
       : const Icon(Icons.access_alarm_outlined, color: Colors.red);
 }
-
 
 String liquidTransactionType(lwk.Tx transaction) {
   switch (transaction.kind) {
@@ -198,7 +163,6 @@ String timestampToDateTime(int? timestamp) {
   return "${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute}";
 }
 
-
 void setTransactionSearchProvider(lwk.Tx transaction, WidgetRef ref) {
   ref.read(transactionSearchProvider).isLiquid = true;
   ref.read(transactionSearchProvider).txid = transaction.txid;
@@ -224,7 +188,6 @@ void setTransactionSearchProvider(lwk.Tx transaction, WidgetRef ref) {
 
 Widget subTransactionIndicator(int value, {bool showIcon = true}) {
   if (showIcon) {
-    // Return icons based on the value, same as the original behavior
     if (value > 0) {
       return const Icon(Icons.arrow_downward, color: Colors.green);
     } else if (value < 0) {
@@ -233,7 +196,6 @@ Widget subTransactionIndicator(int value, {bool showIcon = true}) {
       return const Icon(Icons.device_unknown_outlined, color: Colors.grey);
     }
   } else {
-    // Return text instead of icons
     String text;
     Color color;
     if (value > 0) {
@@ -275,6 +237,49 @@ String valueOfLiquidSubTransaction(AssetId asset, int value, WidgetRef ref) {
   }
 }
 
+// General Transaction Icon Helpers
+Widget pegTransactionTypeIcon() {
+  Widget circularIcon(IconData icon, Color color) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xFF333333),
+      ),
+      child: Center(
+        child: Icon(
+          icon,
+          color: color,
+          size: 24.w,
+        ),
+      ),
+    );
+  }
+  return circularIcon(Icons.swap_horiz_outlined, Colors.orange);
+}
+
+Widget eulenTransactionTypeIcon() {
+  Widget circularIcon(IconData icon, Color color) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xFF333333),
+      ),
+      child: Center(
+        child: Icon(
+          icon,
+          color: color,
+          size: 24.w,
+        ),
+      ),
+    );
+  }
+  return circularIcon(Icons.pix, Colors.green);
+}
+
 Widget sideshiftTransactionTypeIcon() {
   Widget circularIcon(IconData icon, Color color) {
     return Container(
@@ -282,35 +287,35 @@ Widget sideshiftTransactionTypeIcon() {
       height: 40,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        color: Color(0xFF333333), // Dark gray background
+        color: Color(0xFF333333),
       ),
       child: Center(
         child: Icon(
           icon,
           color: color,
-          size: 24.w, // Responsive icon size
+          size: 24.w,
         ),
       ),
     );
   }
-
   return circularIcon(Icons.swap_horiz, Colors.orange);
 }
 
-  Widget lightningTransactionTypeIcon() {
+// Breez SDK (Lightning) Transaction Helpers
+Widget lightningTransactionTypeIcon() {
   Widget circularIcon(IconData icon, Color color) {
     return Container(
-      width: 40, // Responsive width, matching pegTransactionTypeIcon
-      height: 40, // Responsive height, same as width for a circle
+      width: 40,
+      height: 40,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        color: Color(0xFF333333), // Dark gray background, matching pegTransactionTypeIcon
+        color: Color(0xFF333333),
       ),
       child: Center(
         child: Icon(
           icon,
           color: color,
-          size: 24.w, // Responsive icon size, matching pegTransactionTypeIcon
+          size: 24.w,
         ),
       ),
     );
@@ -326,4 +331,59 @@ String lightningConversionTransactionAmountInFiat(LightningConversionTransaction
   return currencyFormat(fiatValue, currency);
 }
 
+String getStatusText(breez.PaymentState status) {
+  switch (status) {
+    case breez.PaymentState.created:
+      return 'Created'.i18n;
+    case breez.PaymentState.pending:
+      return 'Pending'.i18n;
+    case breez.PaymentState.complete:
+      return 'Completed'.i18n;
+    case breez.PaymentState.failed:
+      return 'Refunded'.i18n;
+    case breez.PaymentState.timedOut:
+      return 'Timed Out'.i18n;
+    case breez.PaymentState.refundable:
+      return 'Refundable'.i18n;
+    case breez.PaymentState.refundPending:
+      return 'Refund Pending'.i18n;
+    case breez.PaymentState.waitingFeeAcceptance:
+      return 'Awaiting Fee Acceptance'.i18n;
+    default:
+      return 'Unknown'.i18n;
+  }
+}
 
+Widget paymentStatusIcon(breez.PaymentState status) {
+  IconData iconData;
+  Color color;
+  switch (status) {
+    case breez.PaymentState.complete:
+      iconData = Icons.check_circle;
+      color = Colors.green;
+      break;
+    case breez.PaymentState.failed:
+    case breez.PaymentState.refundPending:
+      iconData = Icons.refresh;
+      color = Colors.green;
+      break;
+    case breez.PaymentState.timedOut:
+      iconData = Icons.timer_off;
+      color = Colors.red;
+      break;
+    case breez.PaymentState.created:
+    case breez.PaymentState.pending:
+      iconData = Icons.alarm;
+      color = Colors.orange;
+      break;
+    case breez.PaymentState.refundable:
+    case breez.PaymentState.waitingFeeAcceptance:
+      iconData = Icons.replay_circle_filled;
+      color = Colors.blueAccent;
+      break;
+    default:
+      iconData = Icons.help;
+      color = Colors.grey;
+  }
+  return Icon(iconData, color: color, size: 30.w);
+}

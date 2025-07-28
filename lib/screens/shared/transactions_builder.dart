@@ -343,16 +343,48 @@ Widget _buildTransactionItemLayout({
   );
 }
 
-Widget _buildLightningConversionTransactionItem(LightningConversionTransaction transaction, BuildContext context, WidgetRef ref) {
+Widget _buildLightningConversionTransactionItem(
+    LightningConversionTransaction transaction,
+    BuildContext context,
+    WidgetRef ref) {
   final details = transaction.details;
-  final isCompleted = transaction.isConfirmed;
   final isReceiving = details.paymentType == breez.PaymentType.receive;
-  final title = isReceiving ? "Lightning → Liquid Bitcoin".i18n : "Liquid Bitcoin → Lightning".i18n;
+  final title =
+  isReceiving ? "Lightning → Liquid Bitcoin".i18n : "L-BTC → Lightning".i18n;
 
-  final locale = I18n.locale.languageCode;
-  final formattedDate = DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
-  final statusText = isCompleted ? formattedDate : "Pending".i18n;
-  final subtitle = statusText;
+  // Determine the subtitle based on the detailed payment state
+  String subtitle;
+  switch (details.status) {
+    case breez.PaymentState.complete:
+      final locale = I18n.locale.languageCode;
+      subtitle =
+          DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
+      break;
+    case breez.PaymentState.failed:
+      subtitle = 'Refunded'.i18n;
+      break;
+    case breez.PaymentState.refundPending:
+      subtitle = 'Refund Pending'.i18n;
+      break;
+    case breez.PaymentState.timedOut:
+      subtitle = 'Timed Out'.i18n;
+      break;
+    case breez.PaymentState.refundable:
+      subtitle = 'Refundable'.i18n;
+      break;
+    case breez.PaymentState.created:
+    case breez.PaymentState.pending:
+    default:
+      subtitle = 'Pending'.i18n;
+      break;
+  }
+
+  final isPending = details.status == breez.PaymentState.created ||
+      details.status == breez.PaymentState.pending ||
+      details.status == breez.PaymentState.refundPending;
+
+  final isCompleted = details.status == breez.PaymentState.complete;
+
   final denomination = ref.read(settingsProvider).btcFormat;
   final amountSat = details.amountSat.toInt();
   final amountString = btcInDenominationFormatted(amountSat, denomination);
@@ -362,11 +394,12 @@ Widget _buildLightningConversionTransactionItem(LightningConversionTransaction t
     context: context,
     ref: ref,
     onTap: () {
-      ref.read(selectedLightningTransactionProvider.notifier).state = transaction;
+      ref.read(selectedLightningTransactionProvider.notifier).state =
+          transaction;
       context.pushNamed('lightningConversionTransactionDetails');
     },
     icon: lightningTransactionTypeIcon(),
-    isPending: !isCompleted,
+    isPending: isPending,
     title: title,
     subtitle: subtitle,
     amountContent: isCompleted

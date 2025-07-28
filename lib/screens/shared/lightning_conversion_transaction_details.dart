@@ -16,19 +16,9 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 
-/// Provider to hold the currently selected Lightning transaction for the details view.
 final selectedLightningTransactionProvider =
 StateProvider<LightningConversionTransaction?>((ref) => null);
 
-/// A utility function to shorten a string, typically for addresses or hashes.
-String shortenValue(String value, [int start = 8, int end = 8]) {
-  if (value.length <= start + end) {
-    return value;
-  }
-  return '${value.substring(0, start)}...${value.substring(value.length - end)}';
-}
-
-/// A screen that displays the detailed information of a Lightning swap transaction.
 class LightningConversionTransactionDetails extends ConsumerWidget {
   const LightningConversionTransactionDetails({super.key});
 
@@ -41,10 +31,6 @@ class LightningConversionTransactionDetails extends ConsumerWidget {
         appBar: AppBar(
           title: Text('Transaction Details'.i18n),
           backgroundColor: Colors.black,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-            onPressed: () => context.pop(),
-          ),
         ),
         backgroundColor: Colors.black,
         body: Center(
@@ -59,14 +45,19 @@ class LightningConversionTransactionDetails extends ConsumerWidget {
     final payment = transaction.details;
     final details = payment.details as breez.PaymentDetails_Lightning;
     final isReceiving = payment.paymentType == breez.PaymentType.receive;
-    final isRefundable = payment.status == breez.PaymentState.refundable || payment.status == breez.PaymentState.pending;
+    final isRefundable = payment.status == breez.PaymentState.refundable ||
+        payment.status == breez.PaymentState.waitingFeeAcceptance;
+    final isRefundedOrPending =
+        payment.status == breez.PaymentState.failed ||
+            payment.status == breez.PaymentState.refundPending;
+    final hasTimedOut = payment.status == breez.PaymentState.timedOut;
 
     final title =
     isReceiving ? "Lightning → L-BTC".i18n : "L-BTC → Lightning".i18n;
     final locale = I18n.locale.languageCode;
     final formattedDate = DateFormat('d MMMM, HH:mm', locale)
         .format(DateTime.fromMillisecondsSinceEpoch(payment.timestamp * 1000));
-    final statusText = _getStatusText(payment.status);
+    final statusText = getStatusText(payment.status);
 
     return Scaffold(
       appBar: AppBar(
@@ -100,7 +91,7 @@ class LightningConversionTransactionDetails extends ConsumerWidget {
                       children: [
                         lightningTransactionTypeIcon(),
                         SizedBox(width: 8.w),
-                        _paymentStatusIcon(payment.status),
+                        paymentStatusIcon(payment.status),
                       ],
                     ),
                     SizedBox(height: 8.h),
@@ -151,18 +142,28 @@ class LightningConversionTransactionDetails extends ConsumerWidget {
                     value: shortenValue(details.paymentHash!),
                     fullValue: details.paymentHash,
                     isCopiable: true),
-              if (isRefundable) ...[
-                SizedBox(height: 24.h),
+              SizedBox(height: 24.h),
+              if (isRefundable)
                 _buildRefundAction(context, ref, details.swapId),
-              ],
-              if (payment.status == breez.PaymentState.failed) ...[
-                SizedBox(height: 24.h),
-                Text(
-                  'This transaction has failed and cannot be recovered.'.i18n,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.red, fontSize: 16.sp),
+              if (isRefundedOrPending)
+                Center(
+                  child: Text(
+                    'This transaction has been refunded'
+                        .i18n,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.green, fontSize: 16.sp),
+                  ),
                 ),
-              ],
+              if (hasTimedOut)
+                Center(
+                  child: Text(
+                    'This transaction has timed out and cannot be recovered'
+                        .i18n,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.red, fontSize: 16.sp),
+                  ),
+                ),
             ],
           ),
         ),
@@ -170,35 +171,33 @@ class LightningConversionTransactionDetails extends ConsumerWidget {
     );
   }
 
-// lib/screens/shared/lightning_conversion_transaction_details.dart
-
-  Widget _buildRefundAction(BuildContext context, WidgetRef ref, String swapId) {
-    final String swapAddress = swapId;
-
+  Widget _buildRefundAction(
+      BuildContext context, WidgetRef ref, String swapId) {
     return CustomButton(
       text: 'Refund Transaction'.i18n,
       primaryColor: Colors.red,
       onPressed: () async {
         try {
-          final recommendedFees = await ref.read(recommendedFeesProvider.future);
+          final recommendedFees =
+          await ref.read(recommendedFeesProvider.future);
           final feeRateSatPerVbyte = recommendedFees.economyFee.toInt();
+          final refundAddress = ref.read(addressProvider).liquidAddress;
 
-          final refundAddress = await ref.read(addressProvider).liquidAddress;
-
-          await ref.read(refundProvider(
-            (
-            swapAddress: swapAddress,
-            refundAddress: refundAddress,
-            feeRateSatPerVbyte: feeRateSatPerVbyte,
-            ),
-          ).future);
+          await ref.read(
+            refundProvider(
+              (
+              swapAddress: swapId,
+              refundAddress: refundAddress,
+              feeRateSatPerVbyte: feeRateSatPerVbyte,
+              ),
+            ).future,
+          );
 
           if (context.mounted) {
             showMessageSnackBar(
                 message: 'Refund initiated successfully.'.i18n,
                 context: context,
-                error: false
-            );
+                error: false);
             context.pop();
           }
         } catch (e) {
@@ -214,7 +213,6 @@ class LightningConversionTransactionDetails extends ConsumerWidget {
     );
   }
 
-  /// Builds a styled header for a section.
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16.h),
@@ -226,51 +224,6 @@ class LightningConversionTransactionDetails extends ConsumerWidget {
     );
   }
 
-  /// Returns a display string for the payment status.
-  String _getStatusText(breez.PaymentState status) {
-    switch (status) {
-      case breez.PaymentState.complete:
-        return 'Completed'.i18n;
-      case breez.PaymentState.failed:
-        return 'Failed'.i18n;
-      case breez.PaymentState.pending:
-        return 'Pending'.i18n;
-      case breez.PaymentState.refundable:
-        return 'Refundable'.i18n;
-      default:
-        return 'Unknown'.i18n;
-    }
-  }
-
-  /// Returns a status icon based on the payment status.
-  Widget _paymentStatusIcon(breez.PaymentState status) {
-    IconData iconData;
-    Color color;
-    switch (status) {
-      case breez.PaymentState.complete:
-        iconData = Icons.check_circle;
-        color = Colors.green;
-        break;
-      case breez.PaymentState.failed:
-        iconData = Icons.cancel;
-        color = Colors.red;
-        break;
-      case breez.PaymentState.pending:
-        iconData = Icons.alarm;
-        color = Colors.orange;
-        break;
-      case breez.PaymentState.refundable:
-        iconData = Icons.replay_circle_filled;
-        color = Colors.blueAccent;
-        break;
-      default:
-        iconData = Icons.help;
-        color = Colors.grey;
-    }
-    return Icon(iconData, color: color, size: 30.w);
-  }
-
-  /// Formats a satoshi amount into the user's preferred denomination (BTC/sats).
   String _formatAmount(int satoshis, WidgetRef ref) {
     if (satoshis == 0) return "0 sats";
     final denomination = ref.read(settingsProvider).btcFormat;
@@ -278,7 +231,6 @@ class LightningConversionTransactionDetails extends ConsumerWidget {
   }
 }
 
-/// A reusable row widget for displaying a label and a value in the details screen.
 class TransactionDetailRow extends StatelessWidget {
   final String label;
   final String value;
@@ -323,7 +275,8 @@ class TransactionDetailRow extends StatelessWidget {
                     constraints: const BoxConstraints(),
                     icon: Icon(Icons.copy, color: Colors.orange, size: 18.w),
                     onPressed: () {
-                      Clipboard.setData(ClipboardData(text: fullValue ?? value));
+                      Clipboard.setData(
+                          ClipboardData(text: fullValue ?? value));
                       showMessageSnackBar(
                         message: 'Copied to clipboard'.i18n,
                         context: context,

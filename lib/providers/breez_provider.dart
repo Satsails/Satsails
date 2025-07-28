@@ -108,6 +108,7 @@ final paymentProvider = FutureProvider.family<Payment?, GetPaymentRequest>((ref,
 
 final listRefundablesProvider = FutureProvider<List<RefundableSwap>>((ref) async {
   final sdk = await ref.watch(breezSDKProvider.future);
+  await sdk.instance!.rescanOnchainSwaps();
   return await sdk.instance!.listRefundables();
 });
 

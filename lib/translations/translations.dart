@@ -3668,6 +3668,18 @@ extension Localization on String {
       {
         "en": "Custom Node",
         "pt": "Nó Customizado"
+      }+
+      {
+        "en": "This transaction has been refunded",
+        "pt": "Esta transação foi reembolsada",
+      }+
+      {
+        "en": "This transaction has timed out and cannot be recovered",
+        "pt": "Esta transação expirou e não pode ser recuperada"
+      }+
+      {
+        "en": "Refunded",
+        "pt": "Estornado"
       };
   String get i18n => localize(this, _t);
 }
