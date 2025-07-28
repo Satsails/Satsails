@@ -122,13 +122,8 @@ Widget _buildMonthGroup(
 }
 
 class TransactionList extends ConsumerStatefulWidget {
-  final bool showAll;
-  final List<BaseTransaction>? transactions;
-
   const TransactionList({
     super.key,
-    required this.showAll,
-    this.transactions,
   });
 
   @override
@@ -153,15 +148,12 @@ class _TransactionListState extends ConsumerState<TransactionList> {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
     final transactionState = ref.watch(transactionNotifierProvider);
-    final allTransactions =
-        widget.transactions ?? transactionState.value?.allTransactionsSorted ?? [];
 
-    // Use the `isConfirmed` flag for simpler and more reliable filtering.
-    // This correctly excludes all types of pending transactions.
-    final filteredTransactions = widget.showAll
-        ? allTransactions
-        : allTransactions.where((tx) => tx.isConfirmed).take(4).toList();
+    // Fetch the lists from the provider's state using your getters
+    final settledTransactions = transactionState.value?.settledTransactions ?? [];
+    final allTransactions = transactionState.value?.allTransactionsSorted ?? [];
 
     final buyButton = GestureDetector(
       onTap: () => ref.read(navigationProvider.notifier).state = 3,
@@ -185,22 +177,19 @@ class _TransactionListState extends ConsumerState<TransactionList> {
       ),
     );
 
-    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
-
     return Column(
       children: [
-        if (!widget.showAll)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                child: BackupWarning(),
-              ),
-              buyButton,
-            ],
-          ),
-        if (!widget.showAll) const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: BackupWarning(),
+            ),
+            buyButton,
+          ],
+        ),
+        const SizedBox(height: 8),
         Expanded(
           child: Container(
             decoration: BoxDecoration(
@@ -215,8 +204,9 @@ class _TransactionListState extends ConsumerState<TransactionList> {
                       child: Text('Transactions hidden'.i18n,
                           style: TextStyle(
                               fontSize: 16.sp, color: Colors.grey)))
-                      : filteredTransactions.isEmpty
-                      ? Center(child: buildNoTransactionsFound(screenHeight))
+                      : settledTransactions.isEmpty
+                      ? Center(
+                      child: buildNoTransactionsFound(screenHeight))
                       : SmartRefresher(
                     enablePullDown: true,
                     header: ClassicHeader(
@@ -227,10 +217,10 @@ class _TransactionListState extends ConsumerState<TransactionList> {
                     onRefresh: _onRefresh,
                     child: ListView.separated(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: filteredTransactions.length,
+                      itemCount: settledTransactions.length,
                       itemBuilder: (context, index) =>
                           _buildUnifiedTransactionItem(
-                            filteredTransactions[index],
+                            settledTransactions[index],
                             context,
                             ref,
                           ),
@@ -242,14 +232,13 @@ class _TransactionListState extends ConsumerState<TransactionList> {
                     ),
                   ),
                 ),
-                if (!widget.showAll &&
-                    isBalanceVisible &&
-                    allTransactions.isNotEmpty)
+                if (isBalanceVisible && allTransactions.isNotEmpty)
                   TextButton(
                     onPressed: () => context.pushNamed('transactions'),
                     child: Text(
                       'See all transactions'.i18n,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                      style:
+                      const TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
               ],
@@ -358,7 +347,7 @@ Widget _buildLightningConversionTransactionItem(LightningConversionTransaction t
   final details = transaction.details;
   final isCompleted = transaction.isConfirmed;
   final isReceiving = details.paymentType == breez.PaymentType.receive;
-  final title = isReceiving ? "Lightning → L-BTC".i18n : "L-BTC → Lightning".i18n;
+  final title = isReceiving ? "Lightning → Liquid Bitcoin".i18n : "Liquid Bitcoin → Lightning".i18n;
 
   final locale = I18n.locale.languageCode;
   final formattedDate = DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);

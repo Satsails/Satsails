@@ -142,8 +142,7 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
 class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   @override
   Future<WalletBalance> build() async {
-    final box = await Hive.openBox<WalletBalance>('balanceBox');
-    return box.get('balance') ?? WalletBalance.empty();
+    return WalletBalance.empty();
   }
 
   @override
@@ -153,11 +152,10 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
         final previousBalance = await ref.refresh(balanceFutureProvider.future);
         List<bdk.TransactionDetails>? syncedBitcoinTxs;
 
-
         try {
-          await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+          await ref.read(getFiatPurchasesProvider.future);
         } catch (e) {
-          debugPrint('Liquid sync failed within background sync: $e');
+          // ignore
         }
 
         try {
@@ -169,15 +167,20 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
           debugPrint('Bitcoin sync failed within background sync: $e');
         }
 
-        await ref.read(transactionNotifierProvider.notifier).refreshAndMergeTransactions(btcTxs: syncedBitcoinTxs);
+        try {
+          await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+        } catch (e) {
+          debugPrint('Liquid sync failed within background sync: $e');
+        }
 
         final latestBalance = ref.read(balanceNotifierProvider);
-        _compareBalances(previousBalance, latestBalance);
         await _updateSideShiftShifts();
+        _compareBalances(previousBalance, latestBalance);
 
         final hiveBox = await Hive.openBox<WalletBalance>('balanceBox');
         await hiveBox.put('balance', latestBalance);
 
+        await ref.read(transactionNotifierProvider.notifier).refreshAndMergeTransactions(btcTxs: syncedBitcoinTxs);
         return latestBalance;
       },
       onSuccess: () {
@@ -211,11 +214,6 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
       // ignore
     }
 
-    try {
-      await ref.read(getFiatPurchasesProvider.future);
-    } catch (e) {
-      // ignore
-    }
   }
 
   Future<void> _updateSideShiftShifts() async {

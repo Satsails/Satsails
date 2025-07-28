@@ -35,7 +35,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       sideswapInstantSwapTransactions: _merge(previousState.sideswapInstantSwapTransactions, newState.sideswapInstantSwapTransactions),
       eulenTransactions: _merge(previousState.eulenTransactions, newState.eulenTransactions),
       noxTransactions: _merge(previousState.noxTransactions, newState.noxTransactions),
-      LightningConversionTransactions: _merge(previousState.LightningConversionTransactions, newState.LightningConversionTransactions),
+      lightningConversionTransactions: _merge(previousState.lightningConversionTransactions, newState.lightningConversionTransactions),
       sideShiftTransactions: _merge(previousState.sideShiftTransactions, newState.sideShiftTransactions),
     );
     state = AsyncData(merged);
@@ -81,7 +81,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       );
     }).toList();
 
-    final sideswapPegTxs = ref.watch(sideswapAllPegsProvider);
+    final sideswapPegTxs = ref.read(sideswapAllPegsProvider);
     final sideswapPegTransactions = sideswapPegTxs.map((pegTx) {
       return SideswapPegTransaction(
         id: pegTx.orderId!,
@@ -91,7 +91,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       );
     }).toList();
 
-    final eulenPurchases = ref.watch(eulenTransferProvider);
+    final eulenPurchases = ref.read(eulenTransferProvider);
     final eulenTransactions = eulenPurchases.map((pixTx) {
       return EulenTransaction(
         id: pixTx.id.toString(),
@@ -101,7 +101,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       );
     }).toList();
 
-    final noxPurchases = ref.watch(noxTransferProvider);
+    final noxPurchases = ref.read(noxTransferProvider);
     final noxTransactions = noxPurchases.map((pixTx) {
       return NoxTransaction(
         id: pixTx.id.toString(),
@@ -112,7 +112,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
     }).toList();
 
     final lightningPayments = await ref.read(listLightningPaymentsProvider(const breez.ListPaymentsRequest()).future);
-    final LightningConversionTransactions = lightningPayments.map((payment) {
+    final lightningConversionTransactions = lightningPayments.map((payment) {
       final lightningDetails = payment.details as breez.PaymentDetails_Lightning;
       final String paymentId = lightningDetails.paymentHash ?? lightningDetails.swapId;
 
@@ -124,7 +124,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       );
     }).toList();
 
-    final sideShiftShifts = ref.watch(sideShiftShiftsProvider);
+    final sideShiftShifts = ref.read(sideShiftShiftsProvider);
     final sideShiftTransactions = sideShiftShifts.map((shift) {
       return SideShiftTransaction(
         id: shift.id,
@@ -141,7 +141,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       sideswapInstantSwapTransactions: [],
       eulenTransactions: eulenTransactions,
       noxTransactions: noxTransactions,
-      LightningConversionTransactions: LightningConversionTransactions,
+      lightningConversionTransactions: lightningConversionTransactions,
       sideShiftTransactions: sideShiftTransactions,
     );
   }
@@ -254,7 +254,7 @@ class Transaction {
   final List<SideswapInstantSwapTransaction> sideswapInstantSwapTransactions;
   final List<EulenTransaction> eulenTransactions;
   final List<NoxTransaction> noxTransactions;
-  final List<LightningConversionTransaction> LightningConversionTransactions;
+  final List<LightningConversionTransaction> lightningConversionTransactions;
   final List<SideShiftTransaction> sideShiftTransactions;
 
   Transaction({
@@ -264,7 +264,7 @@ class Transaction {
     required this.sideswapInstantSwapTransactions,
     required this.eulenTransactions,
     required this.noxTransactions,
-    required this.LightningConversionTransactions,
+    required this.lightningConversionTransactions,
     required this.sideShiftTransactions,
   });
 
@@ -275,7 +275,7 @@ class Transaction {
     List<SideswapInstantSwapTransaction>? sideswap,
     List<EulenTransaction>? eulenTransactions,
     List<NoxTransaction>? noxTransactions,
-    List<LightningConversionTransaction>? LightningConversionTransactions,
+    List<LightningConversionTransaction>? lightningConversionTransactions,
     List<SideShiftTransaction>? sideShiftTransactions,
   }) {
     return Transaction(
@@ -285,7 +285,7 @@ class Transaction {
       sideswapInstantSwapTransactions: sideswap ?? this.sideswapInstantSwapTransactions,
       eulenTransactions: eulenTransactions ?? this.eulenTransactions,
       noxTransactions: noxTransactions ?? this.noxTransactions,
-      LightningConversionTransactions: LightningConversionTransactions ?? this.LightningConversionTransactions,
+      lightningConversionTransactions: lightningConversionTransactions ?? this.lightningConversionTransactions,
       sideShiftTransactions: sideShiftTransactions ?? this.sideShiftTransactions,
     );
   }
@@ -298,7 +298,7 @@ class Transaction {
       ...sideswapInstantSwapTransactions,
       ...eulenTransactions,
       ...noxTransactions,
-      ...LightningConversionTransactions,
+      ...lightningConversionTransactions,
       ...sideShiftTransactions,
     ];
   }
@@ -356,10 +356,27 @@ class Transaction {
     List<BaseTransaction> swaps = [];
     swaps.addAll(sideswapPegTransactions);
     swaps.addAll(liquidTransactions.where((tx) => tx.lwkDetails.kind == 'unknown'));
-    swaps.addAll(LightningConversionTransactions); // Add lightning swaps/payments
+    swaps.addAll(lightningConversionTransactions); // Add lightning swaps/payments
     swaps.addAll(sideShiftTransactions);
     swaps.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return swaps;
+  }
+
+  List<BaseTransaction> get unsettledSwapsAndPurchases {
+    final List<BaseTransaction> unsettled = [];
+    unsettled.addAll(sideShiftTransactions.where((tx) =>
+    tx.details.status == 'waiting' || tx.details.status == 'expired'));
+    unsettled.addAll(eulenTransactions.where((tx) =>
+    tx.details.failed || tx.details.status == 'expired' || tx.details.status == 'pending'));
+    unsettled.addAll(noxTransactions.where((tx) =>
+    tx.details.status == 'quote' || tx.details.status == 'failed'));
+    unsettled.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    return unsettled;
+  }
+
+  List<BaseTransaction> get settledTransactions {
+    final unsettledIds = unsettledSwapsAndPurchases.map((tx) => tx.id).toSet();
+    return allTransactionsSorted.where((tx) => !unsettledIds.contains(tx.id)).toList();
   }
 
   DateTime? get earliestTimestamp {
@@ -403,7 +420,7 @@ class Transaction {
       sideswapInstantSwapTransactions: [],
       eulenTransactions: [],
       noxTransactions: [],
-      LightningConversionTransactions: [],
+      lightningConversionTransactions: [],
       sideShiftTransactions: [],
     );
   }

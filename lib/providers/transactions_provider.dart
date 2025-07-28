@@ -8,9 +8,6 @@ AsyncNotifierProvider<TransactionNotifier, Transaction>(
   TransactionNotifier.new,
 );
 
-
-
-
 final getFiatPurchasesProvider = FutureProvider.autoDispose<void>((ref) async {
   await Future.wait([
     ref.read(getNoxUserPurchasesProvider.future).catchError((e) {
