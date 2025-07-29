@@ -1,4 +1,5 @@
 import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/bitcoin_config_provider.dart';
 import 'package:Satsails/providers/liquid_config_provider.dart';
@@ -128,6 +129,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
       ref.read(appLockedProvider.notifier).state = false;
       ref.read(sendTxProvider.notifier).resetToDefault();
       ref.read(sendBlocksProvider.notifier).state = 1;
+      ref.read(addressProvider);
       context.go('/home');
     } finally {
       if (mounted) {

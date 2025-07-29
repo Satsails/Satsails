@@ -7,7 +7,6 @@ import 'package:Satsails/models/nox_transfer_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/sideshift_model.dart';
-import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
@@ -54,10 +53,12 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
   }
 
   Future<Transaction> _fetchAllTransactions({List<bdk.TransactionDetails>? bitcoinTxs}) async {
-    ref.read(addressProvider);
-    var btcTxsList = [];
+    final bitcoinModel = await ref.read(bitcoinModelProvider.future);
+    final liquidModel = await ref.read(liquidModelProvider.future);
 
-    btcTxsList = bitcoinTxs ?? await ref.refresh(getBitcoinTransactionsProvider.future);
+    final btcTxsList = bitcoinTxs ?? await bitcoinModel.getTransactions();
+    final liquidTxs = await liquidModel.txs();
+
     final bitcoinTransactions = btcTxsList.map((btcTx) {
       return BitcoinTransaction(
         id: btcTx.txid,
@@ -69,7 +70,6 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       );
     }).toList();
 
-    final liquidTxs = await ref.refresh(liquidTransactionsProvider.future);
     final liquidTransactions = liquidTxs.map((lwkTx) {
       return LiquidTransaction(
         id: lwkTx.txid,
@@ -81,7 +81,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       );
     }).toList();
 
-    final sideswapPegTxs = ref.watch(sideswapAllPegsProvider);
+    final sideswapPegTxs = ref.read(sideswapAllPegsProvider);
     final sideswapPegTransactions = sideswapPegTxs.map((pegTx) {
       return SideswapPegTransaction(
         id: pegTx.orderId!,
@@ -91,7 +91,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       );
     }).toList();
 
-    final eulenPurchases = ref.watch(eulenTransferProvider);
+    final eulenPurchases = ref.read(eulenTransferProvider);
     final eulenTransactions = eulenPurchases.map((pixTx) {
       return EulenTransaction(
         id: pixTx.id.toString(),
@@ -101,7 +101,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       );
     }).toList();
 
-    final noxPurchases = ref.watch(noxTransferProvider);
+    final noxPurchases = ref.read(noxTransferProvider);
     final noxTransactions = noxPurchases.map((pixTx) {
       return NoxTransaction(
         id: pixTx.id.toString(),
@@ -121,7 +121,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       );
     }).toList();
 
-    final sideShiftShifts = ref.watch(sideShiftShiftsProvider);
+    final sideShiftShifts = ref.read(sideShiftShiftsProvider);
     final sideShiftTransactions = sideShiftShifts.map((shift) {
       return SideShiftTransaction(
         id: shift.id,
