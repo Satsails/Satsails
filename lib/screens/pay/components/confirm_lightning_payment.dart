@@ -161,12 +161,14 @@ class ConfirmLightningPayment extends ConsumerStatefulWidget {
 class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPayment> {
   final TextEditingController controller = TextEditingController();
   final TextEditingController addressController = TextEditingController();
+  final TextEditingController commentController = TextEditingController();
   bool isProcessing = false;
   late String btcFormat;
   bool isInvoice = false;
   late String currency;
   late double currencyRate;
   int _previousAmount = 0;
+  bool _isDraining = false;
 
   void updateControllerText(int satsAmount) {
     final selectedCurrency = ref.read(inputCurrencyProvider);
@@ -196,25 +198,19 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
     _checkIfInvoice(sendTxState.address);
   }
 
-  // --- FIX: Refactored invoice checking logic for reliability ---
   Future<void> _checkIfInvoice(String value) async {
-    // If the input is empty, reset to a non-invoice state.
     if (value.isEmpty) {
       if (mounted) setState(() => isInvoice = false);
       return;
     }
 
     try {
-      // Parse the input once to determine its type.
       final parsedInput = await ref.read(parseInputProvider(value).future);
 
-      // Check if the parsed input is a BOLT11 invoice.
       if (parsedInput is breez.InputType_Bolt11) {
         final invoice = parsedInput.invoice;
-        // Determine the amount in sats from the invoice.
         final amount = invoice.amountMsat != null ? (invoice.amountMsat! ~/ BigInt.from(1000)).toInt() : 0;
 
-        // If the invoice has a specific amount, lock the UI.
         if (amount > 0) {
           ref.read(sendTxProvider.notifier).updateAmount(amount);
           ref.read(sendTxProvider.notifier).updatePaymentType(PaymentType.Lightning);
@@ -224,7 +220,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
             });
           }
         } else {
-          // If it's a zero-amount invoice, keep the UI unlocked.
           if (mounted) {
             setState(() {
               isInvoice = false;
@@ -232,7 +227,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
           }
         }
       } else {
-        // If the input is valid but not a BOLT11 invoice (e.g., LNURL), keep UI unlocked.
         if (mounted) {
           setState(() {
             isInvoice = false;
@@ -240,7 +234,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
         }
       }
     } catch (e) {
-      // If parsing fails, it's not a valid invoice, so keep UI unlocked.
       if (mounted) {
         setState(() {
           isInvoice = false;
@@ -253,6 +246,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
   void dispose() {
     controller.dispose();
     addressController.dispose();
+    commentController.dispose();
     super.dispose();
   }
 
@@ -390,15 +384,19 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                             contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                                           ),
                                           onChanged: (value) {
-                                            if (!isInvoice) {
-                                              ref.read(inputAmountProvider.notifier).state = controller.text.isEmpty ? '0.0' : controller.text;
-                                              if (value.isEmpty) {
-                                                ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
-                                              } else {
-                                                final amountInSats =
-                                                calculateAmountInSatsToDisplay(value, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
-                                                ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
-                                              }
+                                            if (isInvoice) return;
+                                            if (_isDraining) {
+                                              setState(() {
+                                                _isDraining = false;
+                                              });
+                                            }
+                                            ref.read(inputAmountProvider.notifier).state = controller.text.isEmpty ? '0.0' : controller.text;
+                                            if (value.isEmpty) {
+                                              ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                                            } else {
+                                              final amountInSats =
+                                              calculateAmountInSatsToDisplay(value, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
+                                              ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
                                             }
                                           },
                                         ),
@@ -409,7 +407,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                           child: DropdownButton<String>(
                                             dropdownColor: const Color(0xFF212121),
                                             value: ref.watch(inputCurrencyProvider),
-                                            items: ['BTC', 'USD', 'EUR', 'BRL', 'Sats']
+                                            items: ['BTC', 'USD', 'EUR', 'BRL','CHF','GBP', 'Sats']
                                                 .map((currency) => DropdownMenuItem(
                                               value: currency,
                                               child: Padding(
@@ -434,10 +432,21 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                         child: GestureDetector(
                                           onTap: isInvoice
                                               ? null
-                                              : () {
+                                              : () async {
                                             try {
-                                              final liquidBalance = ref.read(balanceNotifierProvider).liquidBtcBalance;
-                                              ref.read(sendTxProvider.notifier).updateAmountFromInput(liquidBalance.toString(), 'sats');
+                                              final input = addressController.text;
+                                              if (input.isEmpty) {
+                                                showMessageSnackBar(message: "Please enter a recipient address first.".i18n, error: true, context: context);
+                                                return;
+                                              }
+                                              final parsedInput = await ref.read(parseInputProvider(input).future);
+
+                                              if (parsedInput is breez.InputType_LnUrlPay) {
+                                                ref.read(sendTxProvider.notifier).updateAmount(ref.read(balanceNotifierProvider).liquidBtcBalance);
+                                                setState(() {
+                                                  _isDraining = true;
+                                                });
+                                              }
                                             } catch (e) {
                                               showMessageSnackBar(message: e.toString(), error: true, context: context);
                                             }
@@ -457,6 +466,33 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                               ),
                             ],
                           ),
+                          if (!isInvoice) ...[
+                            SizedBox(height: 24.h),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(bottom: 8.h),
+                                  child: Text('Comment (Optional)'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 8.h),
+                                  decoration: BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
+                                  child: TextFormField(
+                                    controller: commentController,
+                                    style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                                    cursorColor: Colors.white,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: 'Enter a comment'.i18n,
+                                      hintStyle: const TextStyle(color: Colors.white70),
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -476,6 +512,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                         final sendTxState = ref.read(sendTxProvider);
                         final input = sendTxState.address;
                         final amount = sendTxState.amount;
+                        final comment = commentController.text.isNotEmpty ? commentController.text : null;
 
                         final parsedInput = await ref.read(parseInputProvider(input).future);
 
@@ -483,8 +520,13 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                           prepareResponse = await ref.read(prepareSendProvider(parsedInput.invoice.bolt11).future);
                           networkFee = prepareResponse.feesSat.toInt();
                         } else if (parsedInput is breez.InputType_LnUrlPay) {
-                          if (amount == 0) throw Exception('Please enter an amount for this recipient.');
-                          prepareResponse = await ref.read(prepareLnurlPayProvider((data: parsedInput.data, amount: BigInt.from(amount))).future);
+                          final bip353Address = parsedInput.bip353Address;
+                          if (_isDraining) {
+                            prepareResponse = await ref.read(prepareDrainLnurlProvider((data: parsedInput.data, comment: comment, bip353Address: bip353Address)).future);
+                          } else {
+                            if (amount == 0) throw Exception('Please enter an amount for this recipient.');
+                            prepareResponse = await ref.read(prepareLnurlPayProvider((data: parsedInput.data, amount: BigInt.from(amount), comment: comment, bip353Address: bip353Address)).future);
+                          }
                           networkFee = prepareResponse.feesSat.toInt();
                         } else {
                           throw Exception("Unsupported address or invoice type.");

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -11,7 +10,6 @@ import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
-import 'package:msh_checkbox/msh_checkbox.dart';
 
 class DepositDepixPixEulen extends ConsumerStatefulWidget {
   const DepositDepixPixEulen({super.key});
@@ -28,8 +26,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
   double feePercentage = 0;
   double cashBack = 0;
   String amountPurchasedToday = '0';
-  bool pixPayed = false;
-  Timer? _paymentCheckTimer;
 
   @override
   void initState() {
@@ -46,30 +42,9 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
     }
   }
 
-  Future<void> _checkPixPayment(String transactionId) async {
-    _paymentCheckTimer = Timer.periodic(const Duration(seconds: 6), (timer) async {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      try {
-        final result = await ref.read(getEulenPixPaymentStateProvider(transactionId).future);
-        if (mounted) {
-          setState(() => pixPayed = result);
-        }
-        if (pixPayed) timer.cancel();
-      } catch (e) {
-        if (mounted) {
-          setState(() => pixPayed = false);
-        }
-      }
-    });
-  }
-
   @override
   void dispose() {
     _amountController.dispose();
-    _paymentCheckTimer?.cancel();
     super.dispose();
   }
 
@@ -99,7 +74,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
       final purchase = await ref.read(
         createEulenTransferRequestProvider(amountInInt).future,
       );
-      _checkPixPayment(purchase.transactionId);
 
       setState(() {
         _pixQRCode = purchase.pixKey;
@@ -221,31 +195,13 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                     ),
                   ),
                 ],
-                if (_pixQRCode.isNotEmpty && !pixPayed) ...[
+                if (_pixQRCode.isNotEmpty) ...[
                   SizedBox(height: 24.h),
                   Center(
                     child: buildQrCode(_pixQRCode, context),
                   ),
                   SizedBox(height: 16.h),
                   buildAddressText(_pixQRCode, context, ref),
-                  SizedBox(height: 24.h),
-                ],
-                if (pixPayed) ...[
-                  SizedBox(height: 24.h),
-                  Center(
-                    child: MSHCheckbox(
-                      size: 100,
-                      value: pixPayed,
-                      colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
-                        checkedColor: Colors.green,
-                        uncheckedColor: Colors.white,
-                        disabledColor: Colors.grey,
-                      ),
-                      style: MSHCheckboxStyle.stroke,
-                      duration: const Duration(milliseconds: 500),
-                      onChanged: (_) {},
-                    ),
-                  ),
                   SizedBox(height: 24.h),
                 ],
                 if (_pixQRCode.isNotEmpty)
@@ -280,10 +236,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                           _buildDetailRow('Total fee'.i18n, '${feePercentage.toStringAsFixed(2)} %'),
                           SizedBox(height: 12.h),
                           _buildDetailRow('Cashback in bitcoin'.i18n, cashBack.toString()),
-                          if (!pixPayed) ...[
-                            SizedBox(height: 16.h),
-                            _buildDetailRow('Payment Status'.i18n, 'Pending'.i18n, valueColor: Colors.orange),
-                          ],
                         ],
                       ),
                     ),

@@ -313,13 +313,15 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
                                     contentPadding: const EdgeInsets.only(
                                       top: 8,
                                       bottom: 8,
-                                      left: 24, // Increased left padding
+                                      left: 24,
                                       right: 10,
                                     ),
-                                    border: OutlineInputBorder(
+                                    // Use enabledBorder for the non-focused state with a subtle color
+                                    enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8.0),
-                                      borderSide: const BorderSide(color: Color(0xFF6D6D6D), width: 1.0),
+                                      borderSide: BorderSide(color: Colors.grey.shade800, width: 1.0),
                                     ),
+                                    // The focusedBorder remains unchanged, as requested
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8.0),
                                       borderSide: const BorderSide(color: Colors.orangeAccent, width: 2.0),

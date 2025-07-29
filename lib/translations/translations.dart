@@ -2620,8 +2620,8 @@ extension Localization on String {
         'pt': 'Erro ao construir transação, tente um valor mais baixo',
       } +
       {
-        'en': 'Insufficient funds, try a lower amount',
-        'pt': 'Saldo insuficiente, tente um valor mais baixo',
+        'en': 'Insufficient funds to pay fees, try a lower amount to cover network fees',
+        'pt': 'Saldo insuficiente para pagar as taxas, tente um valor mais baixo para cobrir as taxas de rede',
       } +
       {
         'en': 'Your Balances',

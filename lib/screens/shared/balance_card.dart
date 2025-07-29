@@ -58,7 +58,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
   @override
   Widget build(BuildContext context) {
     final screenheight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenheight < 850;
+    final isSmallScreen = screenheight < 750;
 
     ref.listen<String>(selectedAssetProvider, (previous, next) {
       final newIndex = _allAssets.indexWhere((asset) => asset['name'] == next);
@@ -91,7 +91,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                   ref.read(selectedAssetProvider.notifier).state = _allAssets[index]['name']!;
                 },
                 itemBuilder: (context, index) {
-                  // Pass the controller and index to each child for the animation
                   return _AssetDetailsView(
                     assetData: _allAssets[index],
                     isSmallScreen: isSmallScreen,
@@ -127,19 +126,24 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     final selectedAsset = ref.watch(selectedAssetProvider);
     final networks = ['Bitcoin Network', 'Lightning Network', 'Liquid Network'];
 
+    final balanceState = ref.watch(balanceNotifierProvider);
+    final settings = ref.watch(settingsProvider);
+    final isBalanceVisible = settings.balanceVisible;
+
     List<DropdownMenuItem<String>> items = [];
     for (var network in networks) {
       items.add(
         DropdownMenuItem(
           enabled: false,
           child: Padding(
-            padding: EdgeInsets.fromLTRB(12.w, 6.h, 12.w, 2.h),
+            // NOTE: Restoring previous padding for a better look
+            padding: EdgeInsets.fromLTRB(12.w, 4.h, 12.w, 4.h),
             child: Text(
               network,
               style: TextStyle(
                 color: Colors.grey,
                 fontWeight: FontWeight.bold,
-                fontSize: 12.sp,
+                fontSize: 14.sp,
               ),
             ),
           ),
@@ -149,53 +153,79 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
       final networkAssets = _allAssets.where((asset) => asset['network'] == network);
       items.addAll(
         networkAssets.map((asset) {
-          final isSelected = selectedAsset == asset['name'];
+          final assetName = asset['name']!;
+          final isSelected = selectedAsset == assetName;
+
+          String balanceString;
+          final assetForBalance = asset['network'] == 'Lightning Network' ? 'Liquid Bitcoin' : assetName;
+
+          switch (assetForBalance) {
+            case 'Bitcoin':
+              balanceString = btcInDenominationFormatted(balanceState.onChainBtcBalance, settings.btcFormat);
+              break;
+            case 'Liquid Bitcoin':
+              balanceString = btcInDenominationFormatted(balanceState.liquidBtcBalance, settings.btcFormat);
+              break;
+            case 'USDT':
+              balanceString = fiatInDenominationFormatted(balanceState.liquidUsdtBalance);
+              break;
+            case 'EURx':
+              balanceString = fiatInDenominationFormatted(balanceState.liquidEuroxBalance);
+              break;
+            case 'Depix':
+              balanceString = fiatInDenominationFormatted(balanceState.liquidDepixBalance);
+              break;
+            default:
+              balanceString = '';
+          }
+
+          if (!isBalanceVisible) {
+            balanceString = '****';
+          }
+
           return DropdownMenuItem<String>(
-            value: asset['name'],
+            value: asset['name'], // Ensure this uses the asset name
             child: Container(
               decoration: BoxDecoration(
                 color: isSelected ? Colors.white.withOpacity(0.1) : Colors.transparent,
                 borderRadius: BorderRadius.circular(8.r),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
               child: Row(
                 children: [
                   Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
                   SizedBox(width: 12.w),
-                  Expanded(
-                    child: Text(
-                      asset['name']!,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15.sp),
+                  Text(
+                    assetName,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16.sp),
+                  ),
+                  const Spacer(),
+                  Text(
+                    balanceString,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15.sp,
                     ),
                   ),
+                  SizedBox(width: 8.w),
                   if (isSelected)
                     Icon(
                       Icons.check_circle,
                       color: Colors.white,
                       size: 20.sp,
                     )
+                  else
+                    SizedBox(width: 20.sp),
                 ],
               ),
             ),
           );
         }),
       );
-
-      if (network != networks.last) {
-        items.add(
-          DropdownMenuItem(
-            enabled: false,
-            child: Divider(
-              height: 4.h,
-              thickness: 1.h,
-              color: Colors.white.withOpacity(0.1),
-            ),
-          ),
-        );
-      }
     }
 
     return DropdownButtonHideUnderline(
@@ -204,7 +234,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         isExpanded: true,
         dropdownColor: const Color(0xFF2C2C2C),
         borderRadius: BorderRadius.circular(12.r),
-        // --- MODIFIED: Removed menuMaxHeight property to prevent scrolling ---
         itemHeight: null,
         icon: Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
@@ -235,31 +264,28 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         },
         items: items,
         selectedItemBuilder: (BuildContext context) {
-          List<Widget> builderItems = [];
-          for (var network in networks) {
-            builderItems.add(Container());
-
-            final networkAssets = _allAssets.where((asset) => asset['network'] == network);
-            builderItems.addAll(
-              networkAssets.map((asset) {
-                return Row(
-                  children: [
-                    Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
-                    SizedBox(width: 12.w),
-                    Text(
-                      asset['name']!,
-                      style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                );
-              }),
+          return items.map((DropdownMenuItem<String> item) {
+            final selectedValue = ref.watch(selectedAssetProvider);
+            final asset = _allAssets.firstWhere(
+                  (a) => a['name'] == selectedValue,
+              orElse: () => _allAssets.first, // Fallback
             );
-            if (network != networks.last) {
-              builderItems.add(Container());
+
+            if (item.value == selectedValue) {
+              return Row(
+                children: [
+                  Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
+                  SizedBox(width: 12.w),
+                  Text(
+                    asset['name']!,
+                    style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              );
             }
-          }
-          return builderItems;
+            return Container();
+          }).toList();
         },
       ),
     );

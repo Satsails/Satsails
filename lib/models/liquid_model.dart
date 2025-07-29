@@ -117,7 +117,7 @@ class LiquidModel {
       return pset;
     } catch (e) {
       if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount") || (e as dynamic).msg.toString().contains("insufficient funds")) {
-        throw "Insufficient funds, try a lower amount";
+        throw "Insufficient funds to pay fees, try a lower amount to cover network fees";
       } else if ((e as dynamic).msg.toString().contains("Base58(TooShort(TooShortError { length: 0 }))") || (e as dynamic).msg.toString().contains("InvalidChecksum") || (e as dynamic).msg.toString().contains("InvalidLength")){
         throw "Address is invalid";
       }

@@ -1,9 +1,11 @@
 import 'package:Satsails/models/auth_model.dart';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/bitcoin_config_provider.dart';
 import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/custom_keypad.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -128,6 +130,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
       ref.read(appLockedProvider.notifier).state = false;
       ref.read(sendTxProvider.notifier).resetToDefault();
       ref.read(sendBlocksProvider.notifier).state = 1;
+      ref.read(addressProvider);
       context.go('/home');
     } finally {
       if (mounted) {
@@ -142,7 +145,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
     ref.read(appLockedProvider.notifier).state = true;
     ref.invalidate(bitcoinConfigProvider);
     ref.invalidate(liquidConfigProvider);
-    context.go('/splash');
+    RestartWidget.restartApp(context);
   }
 
   Future<void> _showConfirmationDialog(

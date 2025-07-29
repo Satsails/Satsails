@@ -70,20 +70,24 @@ final sendPaymentProvider = FutureProvider<SendPaymentResponse>((ref) async {
   return await sdk.instance!.sendPayment(req: req);
 });
 
-final prepareLnurlPayProvider = FutureProvider.family<PrepareLnUrlPayResponse, ({LnUrlPayRequestData data, BigInt amount})>((ref, params) async {
+final prepareLnurlPayProvider = FutureProvider.family<PrepareLnUrlPayResponse, ({LnUrlPayRequestData data, BigInt amount, String? comment, String? bip353Address})>((ref, params) async {
   final sdk = await ref.watch(breezSDKProvider.future);
   final req = PrepareLnUrlPayRequest(
     data: params.data,
     amount: PayAmount_Bitcoin(receiverAmountSat: params.amount),
+    comment: params.comment,
+    bip353Address: params.bip353Address,
   );
   return await sdk.instance!.prepareLnurlPay(req: req);
 });
 
-final prepareDrainLnurlProvider = FutureProvider.family<PrepareLnUrlPayResponse, LnUrlPayRequestData>((ref, data) async {
+final prepareDrainLnurlProvider = FutureProvider.family<PrepareLnUrlPayResponse, ({LnUrlPayRequestData data, String? comment, String? bip353Address})>((ref, params) async {
   final sdk = await ref.watch(breezSDKProvider.future);
   final req = PrepareLnUrlPayRequest(
-    data: data,
+    data: params.data,
     amount: PayAmount_Drain(),
+    comment: params.comment,
+    bip353Address: params.bip353Address,
   );
   return await sdk.instance!.prepareLnurlPay(req: req);
 });
@@ -117,7 +121,7 @@ final recommendedFeesProvider = FutureProvider<RecommendedFees>((ref) async {
 });
 
 final prepareRefundProvider =
-    FutureProvider.family<PrepareRefundResponse, ({String swapAddress, String refundAddress, int feeRateSatPerVbyte})>((ref, params) async {
+FutureProvider.family<PrepareRefundResponse, ({String swapAddress, String refundAddress, int feeRateSatPerVbyte})>((ref, params) async {
   final sdk = await ref.watch(breezSDKProvider.future);
   final req = PrepareRefundRequest(
     swapAddress: params.swapAddress,
