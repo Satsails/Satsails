@@ -69,27 +69,30 @@ class BitcoinSyncNotifier extends SyncNotifier<BitcoinSyncResult?> {
   @override
   Future<BitcoinSyncResult?> performSync() async {
     return await handleSync(
-      syncOperation: () async {
-        final bitcoinModel = await ref.read(bitcoinModelProvider.future);
+        syncOperation: () async {
+          final bitcoinModel = await ref.read(bitcoinModelProvider.future);
 
-        await bitcoinModel.sync();
-        final addressIndex = await bitcoinModel.getAddress();
-        final address = await bitcoinModel.getAddressString();
-        final balance = await bitcoinModel.getBalance();
-        final transactions = await bitcoinModel.getTransactions();
+          await bitcoinModel.sync();
+          final addressIndex = bitcoinModel.getAddress();
+          final address = bitcoinModel.getAddressString();
+          final balance = bitcoinModel.getBalance();
+          final transactions = bitcoinModel.getTransactions();
 
-        ref.read(addressProvider.notifier).setBitcoinAddress(addressIndex, address);
-        ref.read(balanceNotifierProvider.notifier).updateOnChainBtcBalance(balance.total.toInt());
+          ref.read(addressProvider.notifier).setBitcoinAddress(addressIndex, address);
+          ref.read(balanceNotifierProvider.notifier).updateOnChainBtcBalance(balance.total.toInt());
 
-        return BitcoinSyncResult(
-          balance: balance.total.toInt(),
-          address: address,
-          addressIndex: addressIndex,
-          transactions: transactions,
-        );
-      },
-      onSuccess: () => debugPrint('Bitcoin sync successful.'),
-      onFailure: () => debugPrint('Bitcoin sync failed.'),
+          return BitcoinSyncResult(
+            balance: balance.total.toInt(),
+            address: address,
+            addressIndex: addressIndex,
+            transactions: transactions,
+          );
+        },
+        onSuccess: () => debugPrint('Bitcoin sync successful.'),
+        onFailure: () {
+          debugPrint('Bitcoin sync failed after all retries. Refreshing provider.');
+          ref.refresh(bitcoinProvider);
+        }
     );
   }
 }
@@ -161,19 +164,19 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
         }
 
         try {
+          await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+        } catch (e) {
+          debugPrint('Liquid sync failed within background sync: $e');
+          anySyncFailed = true;
+        }
+
+        try {
           final bitcoinResult = await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
           if (bitcoinResult != null) {
             syncedBitcoinTxs = bitcoinResult.transactions;
           }
         } catch (e) {
           debugPrint('Bitcoin sync failed within background sync: $e');
-          anySyncFailed = true;
-        }
-
-        try {
-          await ref.read(liquidSyncNotifierProvider.notifier).performSync();
-        } catch (e) {
-          debugPrint('Liquid sync failed within background sync: $e');
           anySyncFailed = true;
         }
 

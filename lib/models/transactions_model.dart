@@ -56,7 +56,7 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
     final bitcoinModel = await ref.read(bitcoinModelProvider.future);
     final liquidModel = await ref.read(liquidModelProvider.future);
 
-    final btcTxsList = bitcoinTxs ?? await bitcoinModel.getTransactions();
+    final btcTxsList = bitcoinTxs ?? bitcoinModel.getTransactions();
     final liquidTxs = await liquidModel.txs();
 
     final bitcoinTransactions = btcTxsList.map((btcTx) {

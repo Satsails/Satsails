@@ -16,50 +16,49 @@ class BitcoinModel {
     }
   }
 
-  Future<int> getAddress() async {
-    final address = await config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
+  int getAddress() {
+    final address = config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
     return address.index;
   }
 
-  Future<String> getAddressString() async {
-    final address = await config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
+  String getAddressString() {
+    final address = config.wallet.getAddress(addressIndex: const AddressIndex.lastUnused());
     return address.address.asString();
   }
 
-  Future<String> getCurrentAddress(int index) async {
-    final address = await config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
+  String getCurrentAddress(int index) {
+    final address = config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
     return address.address.asString();
   }
 
-  Future<AddressInfo> getAddressInfo(int index) async {
-    final address = await config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
+  AddressInfo getAddressInfo(int index) {
+    final address = config.wallet.getAddress(addressIndex: AddressIndex.peek(index: index));
     return address;
   }
 
-  Future<Input> getPsbtInput(LocalUtxo utxo, bool onlyWitnessUtxo) async {
-    final input = await config.wallet.getPsbtInput(utxo: utxo, onlyWitnessUtxo: onlyWitnessUtxo);
+  Input getPsbtInput(LocalUtxo utxo, bool onlyWitnessUtxo) {
+    final input = config.wallet.getPsbtInput(utxo: utxo, onlyWitnessUtxo: onlyWitnessUtxo);
     return input;
   }
 
-  Future<List<TransactionDetails>> getTransactions() async {
-    final res = await config.wallet.listTransactions(includeRaw: true);
+  List<TransactionDetails> getTransactions() {
+    final res = config.wallet.listTransactions(includeRaw: true);
     return res;
   }
 
-  Future<Balance> getBalance() async {
-    final res = await config.wallet.getBalance();
+  Balance getBalance() {
+    final res = config.wallet.getBalance();
     return res;
   }
 
-  Future<List<LocalUtxo>> listUnspent() async {
-    final res = await config.wallet.listUnspent();
+  List<LocalUtxo> listUnspent() {
+    final res = config.wallet.listUnspent();
     return res;
   }
 
-  Future<bool> signBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) txBuilderResult) async {
+  bool signBitcoinTransaction((PartiallySignedTransaction, TransactionDetails) txBuilderResult) {
     return config.wallet.sign(psbt: txBuilderResult.$1);
   }
-
 
   Future<BitcoinFeeModel> estimateFeeRate() async {
     try {
@@ -137,12 +136,9 @@ class BitcoinModel {
         feeRate: transaction.fee,
       );
 
-      final txBuilderResult = await txBuilder
-          .enableRbf()
-          .finish(config.wallet);
+      final txBuilderResult = await txBuilder.enableRbf().finish(config.wallet);
 
       return txBuilderResult;
-
     } on GenericException catch (e) {
       // Handle specific BDK errors
       if (e.message!.contains("Transaction not found")) {
