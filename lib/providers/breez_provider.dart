@@ -41,7 +41,7 @@ final parseInputProvider = FutureProvider.family<InputType, String>((ref, input)
   try {
     return await sdk.instance!.parse(input: input);
   } catch (e) {
-    throw Exception("Failed to parse input: $e");
+    throw 'Invalid input address or invoice';
   }
 });
 

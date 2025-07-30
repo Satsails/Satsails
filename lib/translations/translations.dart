@@ -3684,6 +3684,30 @@ extension Localization on String {
       {
         "en": "Error building payjoin asset transaction",
         "pt": "Erro ao construir transação payjoin",
+      }+
+      {
+        "en": "Comment (Optional)",
+        "pt": "Comentário (Opcional)"
+      }+
+      {
+        "en": "Enter a comment",
+        "pt": "Insira um comentário"
+      }+
+      {
+        "en": "Please enter a recipient address first",
+        "pt": "Por favor, insira um endereço de destinatário primeiro"
+      }+
+      {
+        "en": "Please enter an amount for this recipient",
+        "pt": "Por favor, insira um valor para este destinatário"
+      }+
+      {
+        "en": "Unsupported address or invoice type",
+        "pt": "Endereço ou tipo de fatura não suportado"
+      }+
+      {
+        "en": "Invalid input address or invoice",
+        "pt": "Endereco ou fatura invalida"
       };
   String get i18n => localize(this, _t);
 }

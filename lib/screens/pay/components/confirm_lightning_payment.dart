@@ -436,7 +436,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                             try {
                                               final input = addressController.text;
                                               if (input.isEmpty) {
-                                                showMessageSnackBar(message: "Please enter a recipient address first.".i18n, error: true, context: context);
+                                                showMessageSnackBar(message: "Please enter a recipient address first".i18n, error: true, context: context);
                                                 return;
                                               }
                                               final parsedInput = await ref.read(parseInputProvider(input).future);
@@ -524,12 +524,12 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                           if (_isDraining) {
                             prepareResponse = await ref.read(prepareDrainLnurlProvider((data: parsedInput.data, comment: comment, bip353Address: bip353Address)).future);
                           } else {
-                            if (amount == 0) throw Exception('Please enter an amount for this recipient.');
+                            if (amount == 0) throw 'Please enter an amount for this recipient';
                             prepareResponse = await ref.read(prepareLnurlPayProvider((data: parsedInput.data, amount: BigInt.from(amount), comment: comment, bip353Address: bip353Address)).future);
                           }
                           networkFee = prepareResponse.feesSat.toInt();
                         } else {
-                          throw Exception("Unsupported address or invoice type.");
+                          throw "Unsupported address or invoice type";
                         }
 
                         final bool confirmed = await showConfirmationModal(
@@ -566,7 +566,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                         }
                       } catch (e) {
                         sliderController.failure();
-                        showMessageSnackBar(message: e.toString(), error: true, context: context);
+                        showMessageSnackBar(message: e.toString().i18n, error: true, context: context);
                         Future.delayed(const Duration(seconds: 2), () => sliderController.reset());
                         setState(() => isProcessing = false);
                       }
