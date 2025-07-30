@@ -537,43 +537,56 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                                           },
                                         ),
                                       ),
-                                      // Conditionally display the "Max" button
-                                      if (!isPayjoinTx)
-                                        Padding(
-                                          padding: EdgeInsets.only(right: 8.sp),
-                                          child: GestureDetector(
-                                            onTap: () async {
-                                              try {
-                                                final amount = double.parse(balanceText);
-                                                // Adjusted amount logic remains the same
-                                                final adjustedAmount = isPayjoinTx ? amount * 0.95 : amount;
-                                                ref.read(sendTxProvider.notifier).updateAmountFromInput(adjustedAmount.toString(), btcFormat);
-                                                controller.text = adjustedAmount.toStringAsFixed(2);
-                                              } catch (e) {
-                                                showMessageSnackBar(
-                                                  message: e.toString().i18n,
-                                                  error: true,
-                                                  context: context,
-                                                );
+                                      // Always display the "Max" button, with logic dependent on isPayjoinTx
+                                      Padding(
+                                        padding: EdgeInsets.only(right: 8.sp),
+                                        child: GestureDetector(
+                                          onTap: () async {
+                                            try {
+                                              final amount = double.parse(balanceText);
+                                              double adjustedAmount;
+
+                                              if (isPayjoinTx) {
+                                                double percentage;
+                                                if (amount > 500) {
+                                                  percentage = 0.99;
+                                                } else if (amount > 100) {
+                                                  percentage = 0.98;
+                                                } else {
+                                                  percentage = 0.95;
+                                                }
+                                                adjustedAmount = amount * percentage;
+                                              } else {
+                                                adjustedAmount = amount;
                                               }
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: BorderRadius.circular(8.r),
-                                              ),
-                                              child: Text(
-                                                'Max',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 16.sp,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
+
+                                              ref.read(sendTxProvider.notifier).updateAmountFromInput(adjustedAmount.toString(), btcFormat);
+                                              controller.text = adjustedAmount.toStringAsFixed(2);
+                                            } catch (e) {
+                                              showMessageSnackBar(
+                                                message: e.toString().i18n,
+                                                error: true,
+                                                context: context,
+                                              );
+                                            }
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(8.r),
+                                            ),
+                                            child: Text(
+                                              'Max',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16.sp,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                           ),
                                         ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -657,7 +670,7 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                             asset: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).name,
                             amount: btcInDenominationFormatted(ref.watch(sendTxProvider).amount, btcFormat),
                             fiat: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).isFiat,
-                            fiatAmount: ref.watch(sendTxProvider).amount.toString(),
+                            fiatAmount: fiatInDenominationFormatted(ref.watch(sendTxProvider).amount),
                             txid: tx,
                             isLiquid: true,
                             receiveAddress: ref.read(sendTxProvider).address,

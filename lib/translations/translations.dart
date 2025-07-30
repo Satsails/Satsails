@@ -3708,6 +3708,15 @@ extension Localization on String {
       {
         "en": "Invalid input address or invoice",
         "pt": "Endereco ou fatura invalida"
+      } +
+      {
+        'en': 'Amount too low. Minimum deposit amount: ',
+        'pt': 'Valor muito baixo. O valor mínimo do depósito é de: ',
+      } +
+      {
+        'en': 'Amount too high. Maximum deposit amount: ',
+        'pt': 'Valor muito alto. O valor máximo do depósito é de: ',
       };
   String get i18n => localize(this, _t);
+
 }

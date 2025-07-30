@@ -463,7 +463,7 @@ Widget _buildSideshiftTransactionItem(SideShiftTransaction transaction, BuildCon
 
 Widget _buildSideswapPegTransactionItem(SideswapPegTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.sideswapPegDetails;
-  final title = details.pegIn == true ? 'BTC → L-BTC' : 'L-BTC → BTC';
+  final title = details.pegIn == true ? 'Bitcoin → Liquid Bitcoin' : 'Liquid Bitcoin → Bitcoin';
   final date = details.list?.firstOrNull?.createdAt != null
       ? DateTime.fromMillisecondsSinceEpoch(details.list!.first.createdAt!)
       : transaction.timestamp;
