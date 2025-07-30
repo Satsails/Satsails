@@ -3716,6 +3716,14 @@ extension Localization on String {
       {
         'en': 'Amount too high. Maximum deposit amount: ',
         'pt': 'Valor muito alto. O valor máximo do depósito é de: ',
+      } +
+      {
+        'en': 'Receive from a different network',
+        'pt': 'Receber de outras redes'
+      }+
+      {
+        'en': 'Send to another network?',
+        'pt': 'Enviar para outras redes?',
       };
   String get i18n => localize(this, _t);
 

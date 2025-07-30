@@ -24,6 +24,8 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:action_slider/action_slider.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
+import 'package:Satsails/screens/exchange/exchange.dart'; // For SwapSection enum
 
 Future<bool> showConfirmationModal(
     BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref, bool isPayjoinTx, String asset) async {
@@ -486,9 +488,10 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                                   },
                                 ),
                               ),
+                              _buildSendToDifferentNetworkButton(context, ref),
                             ],
                           ),
-                          SizedBox(height: 24.h),
+                          SizedBox(height: 16.h),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -702,6 +705,33 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSendToDifferentNetworkButton(BuildContext context, WidgetRef ref) {
+    return Container(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        onPressed: () {
+          ref.read(sendTxProvider.notifier).resetToDefault();
+          ref.read(sendBlocksProvider.notifier).state = 1;
+          ref.read(navigationProvider.notifier).state = 2;
+          ref.read(swapSectionProvider.notifier).state = SwapSection.external;
+          context.replace('/home');
+        },
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.grey.shade400, // Splash color
+        ),
+        child: Text(
+          'Send to another network?'.i18n,
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 14.sp,
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.white70,
           ),
         ),
       ),
