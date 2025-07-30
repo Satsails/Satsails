@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:i18n_extension/i18n_extension.dart';
 import 'package:lwk/lwk.dart' as lwk;
 
 // General utility function

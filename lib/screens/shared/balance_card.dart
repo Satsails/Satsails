@@ -19,7 +19,6 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-// This provider is still needed for the "Receive" button's logic.
 final selectedNetworkTypeProvider = StateProvider<String>((ref) => "Bitcoin Network");
 
 class BalanceCard extends ConsumerStatefulWidget {
@@ -81,8 +80,14 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildAssetSelectorDropdown(context, ref),
-
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(child: _buildAssetSelectorDropdown(context, ref)),
+                SizedBox(width: 8.w),
+                _buildSyncStatusIndicator(ref),
+              ],
+            ),
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
@@ -100,7 +105,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                 },
               ),
             ),
-
             Center(
               child: SmoothPageIndicator(
                 controller: _pageController,
@@ -113,10 +117,26 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                 ),
               ),
             ),
-
             SizedBox(height: 8.h),
             _buildActionButtons(context, ref, isSmallScreen),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSyncStatusIndicator(WidgetRef ref) {
+    final isSyncing = ref.watch(backgroundSyncInProgressProvider);
+    final isOnline = ref.watch(settingsProvider).online;
+
+    return GestureDetector(
+      onTap: isSyncing ? null : () => ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate(),
+      child: Container(
+        width: 10.sp,
+        height: 10.sp,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isOnline ? (isSyncing ? Colors.orange : Colors.green) : Colors.red,
         ),
       ),
     );
@@ -136,7 +156,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         DropdownMenuItem(
           enabled: false,
           child: Padding(
-            // NOTE: Restoring previous padding for a better look
             padding: EdgeInsets.fromLTRB(12.w, 4.h, 12.w, 4.h),
             child: Text(
               network,
@@ -184,7 +203,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
           }
 
           return DropdownMenuItem<String>(
-            value: asset['name'], // Ensure this uses the asset name
+            value: asset['name'],
             child: Container(
               decoration: BoxDecoration(
                 color: isSelected ? Colors.white.withOpacity(0.1) : Colors.transparent,
@@ -268,7 +287,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
             final selectedValue = ref.watch(selectedAssetProvider);
             final asset = _allAssets.firstWhere(
                   (a) => a['name'] == selectedValue,
-              orElse: () => _allAssets.first, // Fallback
+              orElse: () => _allAssets.first,
             );
 
             if (item.value == selectedValue) {
@@ -294,70 +313,41 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
   Widget _buildActionButtons(BuildContext context, WidgetRef ref, bool isSmallScreen) {
     const textColor = Colors.white;
     final buttonColor = Colors.white.withOpacity(0.15);
-    final buttonFontSize = isSmallScreen ? 12.sp : 13.sp;
+    final buttonFontSize = isSmallScreen ? 14.sp : 15.sp;
     final selectedAsset = ref.watch(selectedAssetProvider);
-
     final network = _allAssets.firstWhere((asset) => asset['name'] == selectedAsset)['network']!;
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            _buildActionButton(
-              icon: Icons.arrow_downward,
-              label: 'Receive'.i18n,
-              onPressed: () {
-                if (network == 'Lightning Network') {
-                  ref.read(selectedNetworkTypeProvider.notifier).state = 'Boltz Network';
-                } else {
-                  ref.read(selectedNetworkTypeProvider.notifier).state = network;
-                }
-                context.push('/home/receive');
-              },
-              textColor: textColor,
-              buttonColor: buttonColor,
-              fontSize: buttonFontSize,
-            ),
-            SizedBox(width: 8.w),
-            _buildActionButton(
-              icon: Icons.arrow_upward,
-              label: 'Send'.i18n,
-              onPressed: () {
-                ref.read(sendTxProvider.notifier).resetToDefault();
-                _handleSendNavigation(context, ref, selectedAsset);
-              },
-              textColor: textColor,
-              buttonColor: buttonColor,
-              fontSize: buttonFontSize,
-            ),
-          ],
+        Expanded(
+          child: _buildActionButton(
+            icon: Icons.arrow_downward,
+            label: 'Receive'.i18n,
+            onPressed: () {
+              if (network == 'Lightning Network') {
+                ref.read(selectedNetworkTypeProvider.notifier).state = 'Boltz Network';
+              } else {
+                ref.read(selectedNetworkTypeProvider.notifier).state = network;
+              }
+              context.push('/home/receive');
+            },
+            textColor: textColor,
+            buttonColor: buttonColor,
+            fontSize: buttonFontSize,
+          ),
         ),
-        GestureDetector(
-          onTap: () {
-            context.push('/accounts');
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(14.r),
-              border: Border.all(color: textColor.withOpacity(0.5), width: 1.5),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.wallet, size: 16.w, color: textColor),
-                SizedBox(width: 6.w),
-                Text(
-                  'All Assets'.i18n,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: buttonFontSize,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: _buildActionButton(
+            icon: Icons.arrow_upward,
+            label: 'Send'.i18n,
+            onPressed: () {
+              ref.read(sendTxProvider.notifier).resetToDefault();
+              _handleSendNavigation(context, ref, selectedAsset);
+            },
+            textColor: textColor,
+            buttonColor: buttonColor,
+            fontSize: buttonFontSize,
           ),
         ),
       ],
@@ -375,15 +365,16 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: buttonColor,
           borderRadius: BorderRadius.circular(14.r),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: textColor, size: 16.w, weight: 700),
-            SizedBox(width: 6.w),
+            Icon(icon, color: textColor, size: 18.w, weight: 700),
+            SizedBox(width: 8.w),
             Text(
               label,
               style: TextStyle(
@@ -535,30 +526,6 @@ class _AssetDetailsView extends ConsumerWidget {
     final secondaryBalanceSize = isSmallScreen ? 15.sp : 18.sp;
 
     final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
-    final isSyncing = ref.watch(backgroundSyncInProgressProvider);
-    final isOnline = ref.watch(settingsProvider).online;
-
-    final Widget syncStatus = GestureDetector(
-      onTap: isSyncing ? null : () => ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate(),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 10.sp,
-            height: 10.sp,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isOnline ? (isSyncing ? Colors.orange : Colors.green) : Colors.red,
-            ),
-          ),
-          SizedBox(width: 8.sp),
-          Text(
-            isOnline ? (isSyncing ? 'Syncing'.i18n : 'Update Balances'.i18n) : 'Offline'.i18n,
-            style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 14.sp),
-          ),
-        ],
-      ),
-    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -606,8 +573,6 @@ class _AssetDetailsView extends ConsumerWidget {
             ),
           ],
         ),
-        SizedBox(height: 8.h),
-        syncStatus,
       ],
     );
   }

@@ -28,7 +28,6 @@ import 'package:Satsails/screens/pay/components/confirm_liquid_payment.dart';
 import 'package:Satsails/screens/settings/components/seed_words.dart';
 import 'package:Satsails/screens/settings/settings.dart';
 import 'package:Satsails/screens/receive/receive.dart';
-import 'package:Satsails/screens/accounts/accounts.dart';
 import 'package:Satsails/screens/creation/set_pin.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
 import 'package:Satsails/screens/login/open_pin.dart';
@@ -202,14 +201,6 @@ class AppRouter {
           name: 'open_seed_words_pin',
           pageBuilder: (context, state) => _buildFadeScalePage(
             child: const SeedWordsPin(),
-            state: state,
-          ),
-        ),
-        GoRoute(
-          path: '/accounts',
-          name: 'accounts',
-          pageBuilder: (context, state) => _buildFadeScalePage(
-            child: const Accounts(),
             state: state,
           ),
         ),

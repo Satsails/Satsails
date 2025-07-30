@@ -147,6 +147,8 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
 
   @override
   Future<WalletBalance> performSync() async {
+    bool anySyncFailed = false;
+
     return await handleSync(
       syncOperation: () async {
         final previousBalance = await ref.refresh(balanceFutureProvider.future);
@@ -165,12 +167,14 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
           }
         } catch (e) {
           debugPrint('Bitcoin sync failed within background sync: $e');
+          anySyncFailed = true;
         }
 
         try {
           await ref.read(liquidSyncNotifierProvider.notifier).performSync();
         } catch (e) {
           debugPrint('Liquid sync failed within background sync: $e');
+          anySyncFailed = true;
         }
 
         final latestBalance = ref.read(balanceNotifierProvider);
@@ -184,12 +188,17 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
         return latestBalance;
       },
       onSuccess: () {
-        ref.read(settingsProvider.notifier).setOnline(true);
-        debugPrint('Background sync successful.');
+        if (anySyncFailed) {
+          ref.read(settingsProvider.notifier).setOnline(false);
+          debugPrint('Background sync completed, but with failures. App is offline.');
+        } else {
+          ref.read(settingsProvider.notifier).setOnline(true);
+          debugPrint('Background sync successful. App is online.');
+        }
       },
       onFailure: () {
         ref.read(settingsProvider.notifier).setOnline(false);
-        debugPrint('Background sync failed.');
+        debugPrint('Background sync failed critically.');
       },
     );
   }
@@ -213,7 +222,6 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
     } catch (e) {
       // ignore
     }
-
   }
 
   Future<void> _updateSideShiftShifts() async {
@@ -253,7 +261,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
     }
   }
 
-  void _checkAndNotify({ required String assetName, required int previousAmount, required int currentAmount}) {
+  void _checkAndNotify({required String assetName, required int previousAmount, required int currentAmount}) {
     if (previousAmount < currentAmount) {
       final Map<String, String> assetTickerMap = {
         'USD': 'USDT',
@@ -276,7 +284,6 @@ final liquidSyncNotifierProvider =
 AsyncNotifierProvider<LiquidSyncNotifier, Balances>(LiquidSyncNotifier.new);
 
 final backgroundSyncNotifierProvider =
-AsyncNotifierProvider<BackgroundSyncNotifier, WalletBalance>(
-    BackgroundSyncNotifier.new);
+AsyncNotifierProvider<BackgroundSyncNotifier, WalletBalance>(BackgroundSyncNotifier.new);
 
 final backgroundSyncInProgressProvider = StateProvider<bool>((ref) => false);
