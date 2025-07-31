@@ -1,6 +1,6 @@
-import 'package:Satsails/models/breez/init.dart';
-import 'package:Satsails/models/breez/sdk_instance.dart';
 import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/services/breez/init.dart';
+import 'package:Satsails/services/breez/sdk_instance.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final breezSDKProvider = FutureProvider<BreezSDKLiquid>((ref) async {

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:Satsails/models/breez/sdk_instance.dart';
+import 'package:Satsails/services/breez/sdk_instance.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:path_provider/path_provider.dart';
