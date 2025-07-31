@@ -1,15 +1,16 @@
+import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/breez_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
+import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ReceiveLightningWidget extends ConsumerStatefulWidget {
   const ReceiveLightningWidget({super.key});
@@ -23,10 +24,8 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
   final _amountController = TextEditingController();
   bool _isLoading = false;
 
-  // State to hold the generated Bolt11 invoice
   ReceivePaymentResponse? _paymentResponse;
 
-  // The default LNURL to display initially
   final String _defaultLnurl = "joao@satsails.com";
 
   @override
@@ -35,21 +34,19 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
     super.dispose();
   }
 
-  // Function to generate a Bolt11 invoice for a specific amount
   Future<void> _createInvoice() async {
-    final amountText = _amountController.text.trim();
-    if (amountText.isEmpty) {
-      // If no amount is entered, reset to show the default LNURL
-      setState(() {
-        _paymentResponse = null;
-      });
-      return;
-    }
+    // Hide keyboard
+    FocusScope.of(context).unfocus();
 
-    final amountSat = BigInt.tryParse(amountText);
-    if (amountSat == null || amountSat.isNegative) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter a valid amount")),
+    ref.read(inputAmountProvider.notifier).state =
+    _amountController.text.isEmpty ? '0.0' : _amountController.text;
+    final amountSat = ref.read(lnAmountProvider);
+
+    if (amountSat <= 0) {
+      showMessageSnackBar(
+        context: context,
+        message: 'Please enter a valid amount'.i18n,
+        error: true,
       );
       return;
     }
@@ -57,8 +54,7 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
     setState(() => _isLoading = true);
 
     try {
-      // Prepare and then create the invoice in one go
-      final prepareResponse = await ref.read(prepareReceiveProvider(amountSat).future);
+      final prepareResponse = await ref.read(prepareReceiveProvider(BigInt.from(amountSat)).future);
       ref.read(prepareReceiveResponseProvider.notifier).state = prepareResponse;
 
       final response = await ref.read(receivePaymentProvider(null).future);
@@ -66,9 +62,14 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
         _paymentResponse = response;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error creating invoice: $e")),
+      showMessageSnackBar(
+        context: context,
+        message: 'An error occurred: $e'.i18n,
+        error: true,
       );
+      setState(() {
+        _paymentResponse = null;
+      });
     } finally {
       setState(() => _isLoading = false);
     }
@@ -76,25 +77,22 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
 
   @override
   Widget build(BuildContext context) {
-    // Determine which content to display: the default LNURL or the generated invoice
     final displayContent = _paymentResponse?.destination ?? _defaultLnurl;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SizedBox(height: 24.h),
-        _buildQrDisplay(displayContent),
+        _isLoading ? _buildShimmerEffect() : _buildQrDisplay(displayContent),
         Padding(
           padding: EdgeInsets.all(16.h),
           child: AmountInput(controller: _amountController),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator(color: Colors.orange))
-              : CustomButton(
+          child: CustomButton(
             onPressed: _createInvoice,
-            text: 'Create Invoice'.i18n,
+            text: 'Generate Invoice'.i18n,
             primaryColor: Colors.green,
             secondaryColor: Colors.green,
           ),
@@ -103,12 +101,50 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
     );
   }
 
-  // A single method to build the QR code and address display
+  Widget _buildShimmerEffect() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDarkMode ? Colors.grey[800]! : Colors.grey[300]!;
+    final highlightColor = isDarkMode ? Colors.grey[700]! : Colors.grey[100]!;
+    final qrSize = 250.w;
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: Center(
+        child: Column(
+          children: [
+            // QR Code Placeholder
+            Container(
+              width: qrSize,
+              height: qrSize,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            // Address Text Placeholder
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.w),
+              child: Container(
+                height: 24.h,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4.r),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildQrDisplay(String content) {
     return Center(
       child: Column(
         children: [
-          buildQrCode(content.toUpperCase(), context), // Use uppercase for better QR scanning
+          buildQrCode(content, context),
           SizedBox(height: 16.h),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 12.w),
