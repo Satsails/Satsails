@@ -7,9 +7,9 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/screens/shared/copy_text.dart';
+import 'package:shimmer/shimmer.dart';
 
 class DepositDepixPixEulen extends ConsumerStatefulWidget {
   const DepositDepixPixEulen({super.key});
@@ -98,6 +98,58 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
     );
   }
 
+  Widget _buildShimmerEffect() {
+    final baseColor = Colors.grey[850]!;
+    final highlightColor = Colors.grey[700]!;
+
+    Widget shimmerBox({double? width, required double height, double radius = 8.0}) {
+      return Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(radius.r),
+        ),
+      );
+    }
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: Column(
+        children: [
+          SizedBox(height: 24.h),
+          shimmerBox(width: 250.w, height: 250.w, radius: 16),
+          SizedBox(height: 16.h),
+          shimmerBox(height: 48.h, radius: 12),
+          SizedBox(height: 24.h),
+          Card(
+            color: Colors.black,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+            child: Padding(
+              padding: EdgeInsets.all(16.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  shimmerBox(width: 200.w, height: 24.h), // Title
+                  SizedBox(height: 12.h),
+                  shimmerBox(height: 60.h, radius: 12), // Amount display
+                  SizedBox(height: 16.h),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [shimmerBox(width: 80.w, height: 16.h), shimmerBox(width: 60.w, height: 16.h)]),
+                  SizedBox(height: 12.h),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [shimmerBox(width: 100.w, height: 16.h), shimmerBox(width: 80.w, height: 16.h)]),
+                  SizedBox(height: 12.h),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [shimmerBox(width: 150.w, height: 16.h), shimmerBox(width: 50.w, height: 16.h)]),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,7 +173,9 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (_pixQRCode.isEmpty) ...[
+                if (_isLoading)
+                  _buildShimmerEffect()
+                else if (_pixQRCode.isEmpty) ...[
                   Text(
                     'Amount'.i18n,
                     style: TextStyle(color: Colors.grey, fontSize: 14.sp),
@@ -194,8 +248,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                       ),
                     ),
                   ),
-                ],
-                if (_pixQRCode.isNotEmpty) ...[
+                ] else ...[
                   SizedBox(height: 24.h),
                   Center(
                     child: buildQrCode(_pixQRCode, context),
@@ -203,8 +256,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                   SizedBox(height: 16.h),
                   buildAddressText(_pixQRCode, context, ref),
                   SizedBox(height: 24.h),
-                ],
-                if (_pixQRCode.isNotEmpty)
                   Card(
                     color: const Color(0x00333333).withOpacity(0.4),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
@@ -220,9 +271,10 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                           SizedBox(height: 12.h),
                           Container(
                             width: double.infinity,
+                            alignment: Alignment.center,
                             padding: EdgeInsets.symmetric(vertical: 16.h),
                             decoration: BoxDecoration(
-                              color: const Color(0x00333333).withOpacity(0.4),
+                              color: const Color(0xFF212121),
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Text(
@@ -240,16 +292,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                       ),
                     ),
                   ),
-                if (_isLoading)
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24.h),
-                    child: Center(
-                      child: LoadingAnimationWidget.fourRotatingDots(
-                        size: 0.1.sh,
-                        color: Colors.orange,
-                      ),
-                    ),
-                  ),
+                ],
                 SizedBox(height: 24.h),
                 Center(
                   child: TextButton(
