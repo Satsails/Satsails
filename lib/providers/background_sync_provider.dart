@@ -112,26 +112,24 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
         final balances = await liquidModel.balance();
 
         ref.read(addressProvider.notifier).setLiquidAddress(liquidAddressIndex, liquidAddress);
-        final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
 
-        for (var balance in balances) {
-          switch (AssetMapper.mapAsset(balance.assetId)) {
-            case AssetId.USD:
-              balanceNotifier.updateLiquidUsdtBalance(balance.value);
-              break;
-            case AssetId.EUR:
-              balanceNotifier.updateLiquidEuroxBalance(balance.value);
-              break;
-            case AssetId.BRL:
-              balanceNotifier.updateLiquidDepixBalance(balance.value);
-              break;
-            case AssetId.LBTC:
-              balanceNotifier.updateLiquidBtcBalance(balance.value);
-              break;
-            default:
-              break;
-          }
-        }
+        final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
+        final currentBalance = ref.read(balanceNotifierProvider);
+
+        final newBalancesMap = {
+          for (var balance in balances)
+            AssetMapper.mapAsset(balance.assetId): balance.value
+        };
+
+        final newWalletState = currentBalance.copyWith(
+          liquidBtcBalance: newBalancesMap[AssetId.LBTC] ?? 0,
+          liquidUsdtBalance: newBalancesMap[AssetId.USD] ?? 0,
+          liquidEuroxBalance: newBalancesMap[AssetId.EUR] ?? 0,
+          liquidDepixBalance: newBalancesMap[AssetId.BRL] ?? 0,
+        );
+
+        balanceNotifier.updateBalance(newWalletState);
+
         return balances;
       },
       onSuccess: () => debugPrint('Liquid sync successful.'),
@@ -160,18 +158,18 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
         }
 
         try {
+          await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+        } catch (e) {
+          debugPrint('Liquid sync failed within background sync: $e');
+        }
+
+        try {
           final bitcoinResult = await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
           if (bitcoinResult != null) {
             syncedBitcoinTxs = bitcoinResult.transactions;
           }
         } catch (e) {
           debugPrint('Bitcoin sync failed within background sync: $e');
-        }
-
-        try {
-          await ref.read(liquidSyncNotifierProvider.notifier).performSync();
-        } catch (e) {
-          debugPrint('Liquid sync failed within background sync: $e');
         }
 
         final latestBalance = ref.read(balanceNotifierProvider);
