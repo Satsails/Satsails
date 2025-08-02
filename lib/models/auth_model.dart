@@ -11,6 +11,28 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+Future<void> migrateMnemonicStorage() async {
+  const migrationBoxName = 'appState';
+  const migrationFlagKey = 'isMnemonicMigratedV2';
+
+  final box = await Hive.openBox(migrationBoxName);
+
+  if (box.get(migrationFlagKey) == true) {
+    return;
+  }
+
+  final authModel = AuthModel();
+
+  final existingMnemonic = await authModel.getMnemonic();
+
+  if (existingMnemonic != null && existingMnemonic.isNotEmpty) {
+    await authModel.setMnemonic(existingMnemonic);
+  }
+
+  await box.put(migrationFlagKey, true);
+}
+
+
 class BackendAuth {
   static Future<String?> signChallengeWithPrivateKey(
       String challengeResponse) async {
@@ -24,8 +46,8 @@ class BackendAuth {
       final privateKeyBytes = descriptorSecretKey.secretBytes();
 
       final signer = BitcoinMessageSigner(
-        privateKey: Uint8List.fromList(privateKeyBytes),
-        scriptType: P2PKH(compressed: true)
+          privateKey: Uint8List.fromList(privateKeyBytes),
+          scriptType: P2PKH(compressed: true)
       );
 
       final signature = signer.signMessage(message: challengeResponse);
@@ -51,20 +73,17 @@ class BackendAuth {
         return Result(error: 'Backend URL is not configured');
       }
 
-      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
-
       final response = await http.get(
         Uri.parse('$backendUrl/auth/challenge'),
         headers: {
           'Content-Type': 'application/json',
-          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
-        final dynamic jsonResponse = json.decode(response.body);
-        final challenge = jsonResponse['challenge'] as String?;
+      final dynamic jsonResponse = json.decode(response.body);
+      final challenge = jsonResponse['challenge'] as String?;
 
-        return Result(data: challenge);
+      return Result(data: challenge);
     } catch (e) {
       return Result(error: 'An error has occurred. Please try again later');
     }
@@ -72,16 +91,25 @@ class BackendAuth {
 
 }
 
-
-
 class AuthModel {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
+  /// Returns the required security options for iOS, including the App Group.
+  IOSOptions _getIOSOptions() => const IOSOptions(
+    // Ensure the keychain item is only accessible after the first device unlock.
+    accessibility: KeychainAccessibility.first_unlock,
+    // Assign the keychain item to an App Group.
+    // Replace with your actual App Group ID from Xcode.
+    groupId: 'group.com.satsails.satsails',
+  );
+
+  /// Saves the mnemonic to secure storage with the correct iOS options.
   Future<void> setMnemonic(String mnemonic) async {
     if (!bip39.validateMnemonic(mnemonic)) {
       throw Exception('Invalid mnemonic');
     }
-    await _storage.write(key: 'mnemonic', value: mnemonic);
+    await _storage.write(
+        key: 'mnemonic', value: mnemonic, iOptions: _getIOSOptions());
   }
 
   Future<bool> validateMnemonic(String mnemonic) async {
@@ -93,7 +121,8 @@ class AuthModel {
   }
 
   Future<void> setPin(String pin) async {
-    await _storage.write(key: 'pin', value: pin);
+    // PIN storage can also be secured with the same options if needed.
+    await _storage.write(key: 'pin', value: pin, iOptions: _getIOSOptions());
   }
 
   Future<String?> getMnemonic() async {
@@ -103,6 +132,8 @@ class AuthModel {
   // New method with retry logic
   Future<String?> getMnemonicWithRetry() async {
     for (int i = 0; i < 3; i++) {
+      // The read operation doesn't need special options, it will find the key
+      // regardless of its accessibility or group.
       final mnemonic = await _storage.read(key: 'mnemonic');
       if (mnemonic != null) {
         return mnemonic;
@@ -160,11 +191,11 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('affiliate');
     await Hive.deleteBoxFromDisk('addresses');
     await Hive.deleteBoxFromDisk('coinosPayments');
+    await Hive.deleteBoxFromDisk('lightningBox');
+    await Hive.deleteBoxFromDisk('appState');
     final appDocDir = await getApplicationDocumentsDirectory();
     final bitcoinDBPath = '${appDocDir.path}/bdk_wallet.sqlite';
     final dbFile = File(bitcoinDBPath);
     await dbFile.delete();
   }
 }
-
-

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -21,6 +22,14 @@ class FirebaseService {
     );
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  static Future<String> getTokenAndRefresh() async {
+    String? token = await _firebaseMessaging.getToken();
+    if (token == null) {
+      throw Exception("FCM Token is null");
+    }
+    return token;
   }
 
   static Future<void> storeTokenOnbackend() async {
@@ -126,7 +135,6 @@ class FirebaseService {
             iOS: iosNotificationDetails,
           );
 
-          // Show the local notification
           await flutterLocalNotificationsPlugin.show(
             0, // Notification ID
             message.notification!.title, // Notification title

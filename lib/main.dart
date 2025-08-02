@@ -29,6 +29,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import './app_router.dart';
+import 'models/auth_model.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,6 +63,7 @@ Future<void> main() async {
   Hive.registerAdapter(NoxTransferAdapter());
   Hive.registerAdapter(SideShiftAdapter());
 
+  await migrateMnemonicStorage();
 
   await LibLwk.init();
   await initialize();

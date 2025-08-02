@@ -80,7 +80,6 @@ flutter:
     - lib/assets/satsails.png
     - lib/assets/arbitrum-logo.png
     - lib/assets/initialLogo.png
-    - lib/assets/nox.svg
     - lib/assets/satsails.svg
     - lib/assets/logo-spark.svg
     - lib/assets/depix.png

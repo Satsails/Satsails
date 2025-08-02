@@ -26,7 +26,7 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
 
   ReceivePaymentResponse? _paymentResponse;
 
-  final String _defaultLnurl = "joao@satsails.com";
+  final String _defaultLnurl = "joao@lnurl.satsails.com";
 
   @override
   void dispose() {
@@ -35,7 +35,7 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
   }
 
   Future<void> _createInvoice() async {
-    // Hide keyboard
+    final test = await ref.read(setupLnAddressProvider((username: 'joao', isRecover: false)).future);
     FocusScope.of(context).unfocus();
 
     ref.read(inputAmountProvider.notifier).state =
