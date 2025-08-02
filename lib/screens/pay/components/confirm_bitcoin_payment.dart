@@ -62,11 +62,7 @@ Future<bool> showConfirmationModal(
           child: Container(
             padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 20.h),
             decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF2A2A2A), Color(0xFF1C1C1C)],
-                ),
+                color: const Color(0xFF212121),
                 borderRadius: BorderRadius.circular(24.r),
                 border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
             child: Column(
@@ -88,7 +84,7 @@ Future<bool> showConfirmationModal(
                   '$amount $btcFormat',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 38.sp,
+                    fontSize: 28.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -489,7 +485,9 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                           inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats'
                                               ? [DecimalTextInputFormatter(decimalRange: 0)]
-                                              : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)],
+                                              : ref.watch(inputCurrencyProvider) == 'BTC'
+                                              ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)]
+                                              : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
                                           style: TextStyle(fontSize: 24.sp, color: Colors.white),
                                           textAlign: TextAlign.left,
                                           decoration: InputDecoration(

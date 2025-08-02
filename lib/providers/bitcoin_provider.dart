@@ -28,39 +28,39 @@ final syncBitcoinProvider = FutureProvider<void>((ref) async {
 
 final lastUsedAddressProvider = FutureProvider.autoDispose<int>((ref) async {
   final bitcoinModel = await ref.watch(bitcoinModelProvider.future);
-  return await bitcoinModel.getAddress();
+  return bitcoinModel.getAddress();
 });
 
 final lastUsedAddressProviderString = FutureProvider.autoDispose<String>((ref) async {
   final bitcoinModel = await ref.watch(bitcoinModelProvider.future);
-  return await bitcoinModel.getAddressString();
+  return bitcoinModel.getAddressString();
 });
 
 final bitcoinAddressProvider = FutureProvider.autoDispose<String>((ref) async {
   final bitcoinModel = await ref.watch(bitcoinModelProvider.future);
   final addressIndex = ref.watch(addressProvider).bitcoinAddressIndex;
-  return await bitcoinModel.getCurrentAddress(addressIndex);
+  return bitcoinModel.getCurrentAddress(addressIndex);
 });
 
 final getBitcoinTransactionsProvider = FutureProvider<List<TransactionDetails>>((ref) async {
   final bitcoinModel = await ref.watch(bitcoinModelProvider.future);
-  return await bitcoinModel.getTransactions();
+  return bitcoinModel.getTransactions();
 });
 
 final getBitcoinBalanceProvider = FutureProvider.autoDispose<Balance>((ref) async {
   final bitcoinModel = await ref.watch(bitcoinModelProvider.future);
-  return await bitcoinModel.getBalance();
+  return bitcoinModel.getBalance();
 });
 
 final unspentUtxosProvider = FutureProvider.autoDispose<List<LocalUtxo>>((ref) async {
   final bitcoinModel = await ref.watch(bitcoinModelProvider.future);
-  return await bitcoinModel.listUnspent();
+  return bitcoinModel.listUnspent();
 });
 
 final getPsbtInputProvider = FutureProvider.autoDispose<Input>((ref) async {
   final bitcoinModel = await ref.watch(bitcoinModelProvider.future);
   final unspentUtxos = await ref.watch(unspentUtxosProvider.future);
-  return await bitcoinModel.getPsbtInput(unspentUtxos.first, true);
+  return bitcoinModel.getPsbtInput(unspentUtxos.first, true);
 });
 
 final bitcoinFeeRatePerBlockProvider = FutureProvider<BitcoinFeeModel>((ref) async {
@@ -99,7 +99,7 @@ final buildDrainWalletBitcoinTransactionProvider = FutureProvider.autoDispose.fa
 
 final signBitcoinPsbtProvider = FutureProvider.autoDispose.family<(PartiallySignedTransaction, TransactionDetails), (PartiallySignedTransaction, TransactionDetails)>((ref, psbt) async {
   final bitcoinModel = await ref.watch(bitcoinModelProvider.future);
-  await bitcoinModel.signBitcoinTransaction(psbt);
+  bitcoinModel.signBitcoinTransaction(psbt);
   return psbt;
 });
 

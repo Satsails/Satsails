@@ -3,7 +3,6 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
-import 'package:Satsails/providers/boltz_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideshift_provider.dart';
@@ -70,24 +69,30 @@ class BitcoinSyncNotifier extends SyncNotifier<BitcoinSyncResult?> {
   @override
   Future<BitcoinSyncResult?> performSync() async {
     return await handleSync(
-      syncOperation: () async {
-        await ref.refresh(syncBitcoinProvider.future);
-        final addressIndex = await ref.refresh(lastUsedAddressProvider.future);
-        final address = await ref.refresh(lastUsedAddressProviderString.future);
-        final balance = await ref.read(getBitcoinBalanceProvider.future);
-        final transactions = await ref.refresh(getBitcoinTransactionsProvider.future);
-        ref.read(addressProvider.notifier).setBitcoinAddress(addressIndex, address);
-        ref.read(balanceNotifierProvider.notifier).updateOnChainBtcBalance(balance.total.toInt());
+        syncOperation: () async {
+          final bitcoinModel = await ref.read(bitcoinModelProvider.future);
 
-        return BitcoinSyncResult(
-          balance: balance.total.toInt(),
-          address: address,
-          addressIndex: addressIndex,
-          transactions: transactions,
-        );
-      },
-      onSuccess: () => debugPrint('Bitcoin sync successful.'),
-      onFailure: () => debugPrint('Bitcoin sync failed.'),
+          await bitcoinModel.sync();
+          final addressIndex = bitcoinModel.getAddress();
+          final address = bitcoinModel.getAddressString();
+          final balance = bitcoinModel.getBalance();
+          final transactions = bitcoinModel.getTransactions();
+
+          ref.read(addressProvider.notifier).setBitcoinAddress(addressIndex, address);
+          ref.read(balanceNotifierProvider.notifier).updateOnChainBtcBalance(balance.total.toInt());
+
+          return BitcoinSyncResult(
+            balance: balance.total.toInt(),
+            address: address,
+            addressIndex: addressIndex,
+            transactions: transactions,
+          );
+        },
+        onSuccess: () => debugPrint('Bitcoin sync successful.'),
+        onFailure: () {
+          debugPrint('Bitcoin sync failed after all retries. Refreshing provider.');
+          ref.refresh(bitcoinProvider);
+        }
     );
   }
 }
@@ -95,38 +100,38 @@ class BitcoinSyncNotifier extends SyncNotifier<BitcoinSyncResult?> {
 class LiquidSyncNotifier extends SyncNotifier<Balances> {
   @override
   Future<Balances> build() async {
-    final balances = await ref.read(liquidBalanceProvider.future);
-    return balances;
+    return [];
   }
 
   @override
   Future<Balances> performSync() async {
     return await handleSync(
       syncOperation: () async {
-        await ref.refresh(syncLiquidProvider.future);
-        final liquidAddressIndex = await ref.refresh(liquidLastUsedAddressProvider.future);
-        final liquidAddress = await ref.refresh(liquidLastUsedAddressStringProvider.future);
+        final liquidModel = await ref.read(liquidModelProvider.future);
+        await liquidModel.sync();
+        final liquidAddressIndex = await liquidModel.getAddress();
+        final liquidAddress = await liquidModel.getLatestAddress();
+        final balances = await liquidModel.balance();
+
         ref.read(addressProvider.notifier).setLiquidAddress(liquidAddressIndex, liquidAddress);
-        final balances = await ref.read(liquidBalanceProvider.future);
+
         final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
-        for (var balance in balances) {
-          switch (AssetMapper.mapAsset(balance.assetId)) {
-            case AssetId.USD:
-              balanceNotifier.updateLiquidUsdtBalance(balance.value);
-              break;
-            case AssetId.EUR:
-              balanceNotifier.updateLiquidEuroxBalance(balance.value);
-              break;
-            case AssetId.BRL:
-              balanceNotifier.updateLiquidDepixBalance(balance.value);
-              break;
-            case AssetId.LBTC:
-              balanceNotifier.updateLiquidBtcBalance(balance.value);
-              break;
-            default:
-              break;
-          }
-        }
+        final currentBalance = ref.read(balanceNotifierProvider);
+
+        final newBalancesMap = {
+          for (var balance in balances)
+            AssetMapper.mapAsset(balance.assetId): balance.value
+        };
+
+        final newWalletState = currentBalance.copyWith(
+          liquidBtcBalance: newBalancesMap[AssetId.LBTC] ?? 0,
+          liquidUsdtBalance: newBalancesMap[AssetId.USD] ?? 0,
+          liquidEuroxBalance: newBalancesMap[AssetId.EUR] ?? 0,
+          liquidDepixBalance: newBalancesMap[AssetId.BRL] ?? 0,
+        );
+
+        balanceNotifier.updateBalance(newWalletState);
+
         return balances;
       },
       onSuccess: () => debugPrint('Liquid sync successful.'),
@@ -138,25 +143,31 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
 class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   @override
   Future<WalletBalance> build() async {
-    final box = await Hive.openBox<WalletBalance>('balanceBox');
-    return box.get('balance') ?? WalletBalance.empty();
+    return WalletBalance.empty();
   }
 
   @override
   Future<WalletBalance> performSync() async {
+    bool anySyncFailed = false;
+
     return await handleSync(
       syncOperation: () async {
-        final previousBalance = ref.read(balanceNotifierProvider);
+        final previousBalance = await ref.refresh(balanceFutureProvider.future);
         List<bdk.TransactionDetails>? syncedBitcoinTxs;
 
+        try {
+          await ref.read(getFiatPurchasesProvider.future);
+        } catch (e) {
+          // ignore
+        }
 
         try {
           await ref.read(liquidSyncNotifierProvider.notifier).performSync();
         } catch (e) {
           debugPrint('Liquid sync failed within background sync: $e');
+          anySyncFailed = true;
         }
 
-        // 2. Perform the unified Bitcoin sync which gets balance, address, and txs.
         try {
           final bitcoinResult = await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
           if (bitcoinResult != null) {
@@ -164,27 +175,31 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
           }
         } catch (e) {
           debugPrint('Bitcoin sync failed within background sync: $e');
+          anySyncFailed = true;
         }
 
-        await ref.read(transactionNotifierProvider.notifier).refreshAndMergeTransactions(btcTxs: syncedBitcoinTxs);
-
         final latestBalance = ref.read(balanceNotifierProvider);
-        _compareBalances(previousBalance, latestBalance);
         await _updateSideShiftShifts();
-        await ref.read(claimAllBoltzProvider.future);
+        _compareBalances(previousBalance, latestBalance);
 
         final hiveBox = await Hive.openBox<WalletBalance>('balanceBox');
         await hiveBox.put('balance', latestBalance);
 
+        await ref.read(transactionNotifierProvider.notifier).refreshAndMergeTransactions(btcTxs: syncedBitcoinTxs);
         return latestBalance;
       },
       onSuccess: () {
-        ref.read(settingsProvider.notifier).setOnline(true);
-        debugPrint('Background sync successful.');
+        if (anySyncFailed) {
+          ref.read(settingsProvider.notifier).setOnline(false);
+          debugPrint('Background sync completed, but with failures. App is offline.');
+        } else {
+          ref.read(settingsProvider.notifier).setOnline(true);
+          debugPrint('Background sync successful. App is online.');
+        }
       },
       onFailure: () {
         ref.read(settingsProvider.notifier).setOnline(false);
-        debugPrint('Background sync failed.');
+        debugPrint('Background sync failed critically.');
       },
     );
   }
@@ -205,12 +220,6 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
 
     try {
       await ref.read(updateCurrencyProvider.future);
-    } catch (e) {
-      // ignore
-    }
-
-    try {
-      await ref.read(getFiatPurchasesProvider.future);
     } catch (e) {
       // ignore
     }
@@ -253,7 +262,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
     }
   }
 
-  void _checkAndNotify({ required String assetName, required int previousAmount, required int currentAmount}) {
+  void _checkAndNotify({required String assetName, required int previousAmount, required int currentAmount}) {
     if (previousAmount < currentAmount) {
       final Map<String, String> assetTickerMap = {
         'USD': 'USDT',
@@ -276,7 +285,6 @@ final liquidSyncNotifierProvider =
 AsyncNotifierProvider<LiquidSyncNotifier, Balances>(LiquidSyncNotifier.new);
 
 final backgroundSyncNotifierProvider =
-AsyncNotifierProvider<BackgroundSyncNotifier, WalletBalance>(
-    BackgroundSyncNotifier.new);
+AsyncNotifierProvider<BackgroundSyncNotifier, WalletBalance>(BackgroundSyncNotifier.new);
 
 final backgroundSyncInProgressProvider = StateProvider<bool>((ref) => false);

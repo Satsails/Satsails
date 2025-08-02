@@ -5,17 +5,16 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PegDetails extends ConsumerWidget {
   final SideswapPegStatus swap;
 
   const PegDetails({super.key, required this.swap});
 
-  // Helper function to shorten strings
   String shortenString(String input, {int prefixLength = 5, int suffixLength = 5}) {
     if (input.length <= prefixLength + suffixLength) {
       return input;
@@ -44,12 +43,7 @@ class PegDetails extends ConsumerWidget {
       ),
       body: status.when(
         data: (status) => _buildDataView(context, status, btcFormat, ref),
-        loading: () => Center(
-          child: LoadingAnimationWidget.fourRotatingDots(
-            size: 70.w,
-            color: Colors.orange,
-          ),
-        ),
+        loading: () => _buildShimmerView(),
         error: (error, stackTrace) => Center(
           child: Text(
             'Error: $error Contact the developer (in the settings) about this'.i18n,
@@ -59,6 +53,83 @@ class PegDetails extends ConsumerWidget {
       ),
     );
   }
+
+  Widget _buildShimmerView() {
+    final baseColor = Colors.grey[850]!;
+    final highlightColor = Colors.grey[700]!;
+
+    Widget shimmerBox({double? width, required double height, bool isCircle = false}) {
+      return Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.black,
+          shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
+          borderRadius: isCircle ? null : BorderRadius.circular(8.r),
+        ),
+      );
+    }
+
+    Widget shimmerRow({double labelWidth = 100, double valueWidth = 150}) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 12.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            shimmerBox(width: labelWidth.w, height: 16.h),
+            shimmerBox(width: valueWidth.w, height: 16.h),
+          ],
+        ),
+      );
+    }
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: SingleChildScrollView(
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header placeholder
+              Center(
+                child: Column(
+                  children: [
+                    shimmerBox(width: 40.w, height: 40.h, isCircle: true),
+                    SizedBox(height: 12.h),
+                    shimmerBox(width: 120.w, height: 20.h),
+                    SizedBox(height: 20.h),
+                    shimmerBox(width: 250.w, height: 18.h),
+                    SizedBox(height: 12.h),
+                    shimmerBox(width: 250.w, height: 18.h),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16.h),
+              Divider(color: Colors.grey.shade700),
+              SizedBox(height: 16.h),
+              // Transaction Details Title placeholder
+              shimmerBox(width: 200.w, height: 22.h),
+              SizedBox(height: 16.h),
+              // Transaction Card placeholder
+              shimmerRow(),
+              shimmerRow(),
+              shimmerRow(),
+              shimmerRow(),
+              shimmerRow(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 
   Widget _buildDataView(BuildContext context, SideswapPegStatus status, String btcFormat, WidgetRef ref) {
     return SingleChildScrollView(
@@ -100,7 +171,6 @@ class PegDetails extends ConsumerWidget {
   }
 
   Widget _buildHeader(BuildContext context, SideswapPegStatus status, WidgetRef ref) {
-    // Determine overall status based on the first transaction or fallback to "Pending"
     final firstTransaction = status.list?.isNotEmpty == true ? status.list!.first : null;
     String statusText;
     IconData statusIcon;
@@ -218,6 +288,7 @@ class PegDetails extends ConsumerWidget {
   }
 
   Widget _buildTransactionsList(SideswapPegStatus status, String btcFormat, WidgetRef ref) {
+    // ... (this method remains the same)
     if (status.list == null || status.list!.isEmpty) {
       return Text(
         'No transactions found. Check back later.'.i18n,
@@ -262,6 +333,7 @@ class PegDetails extends ConsumerWidget {
   }
 
   Widget _buildStatusRow(SideswapPegStatusTransaction status, WidgetRef ref) {
+    // ... (this method remains the same)
     String statusText;
     IconData icon;
     Color color;

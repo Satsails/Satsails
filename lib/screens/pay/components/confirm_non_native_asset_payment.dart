@@ -50,9 +50,12 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
   late int balance;
   late ShiftPair shiftPair;
 
-  // NEW: State for debouncing amount input to fetch quote
   Timer? _debounce;
   String _amountToQuote = "";
+
+  // State for the prepared shift and max calculation
+  SideShift? _preparedShift;
+  bool _isFetchingMax = false;
 
   @override
   void initState() {
@@ -62,7 +65,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
     depositCoin = params.depositCoin;
     settleCoin = params.settleCoin;
     depositNetwork = params.depositNetwork;
-    settleNetwork = params.settleNetwork;
+    settleNetwork = params.settleNetwork.capitalize();
 
     final settings = ref.read(settingsProvider);
     btcFormat = settings.btcFormat;
@@ -111,14 +114,12 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
     super.dispose();
   }
 
-// Helper function to shorten an address, can be kept inside the modal or moved to a helper file.
   String shortenAddress(String value) {
     if (value.length <= 12) return value;
     return '${value.substring(0, 6)}...${value.substring(value.length - 6)}';
   }
 
   Future<bool> showNonBtcConfirmationModal(BuildContext context, String amount, String address, String fee, WidgetRef ref) async {
-    // A local helper for creating styled detail rows, consistent with other modals
     Widget buildDetailRow({required String label, required String value}) {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -134,15 +135,11 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
 
     return await showDialog<bool>(
       context: context,
-      barrierDismissible: false, // User must explicitly confirm or cancel
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        // Local fee calculations
         double amountDouble = double.tryParse(amount.replaceAll(',', '')) ?? 0.0;
-        double serviceFeeDouble = amountDouble * 0.01; // 1% service fee
-        // Assuming asset has 2 decimal places for this calculation, adjust if needed
+        double serviceFeeDouble = amountDouble * 0.01;
         String serviceFee = serviceFeeDouble.toStringAsFixed(2);
-
-        // Assuming the passed 'fee' is the network fee and we need to add the ticker
         String networkFee = '$fee USDT';
 
         return Dialog(
@@ -154,68 +151,23 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
             child: Container(
               padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 20.h),
               decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF2A2A2A), Color(0xFF1C1C1C)],
-                  ),
+                  color: const Color(0xFF212121),
                   borderRadius: BorderRadius.circular(24.r),
                   border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Title
-                  Text(
-                    'Confirm Transaction'.i18n,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  Text('Confirm Transaction'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
                   SizedBox(height: 24.h),
-
-                  // Hero Amount Section
-                  Text(
-                    '$amount USDT',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 38.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
+                  Text('$amount USDT', style: TextStyle(color: Colors.white, fontSize: 28.sp, fontWeight: FontWeight.bold)),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 16.h),
                     child: Divider(color: Colors.white.withOpacity(0.15)),
                   ),
-
-                  // Details Section
-                  buildDetailRow(
-                    label: 'Recipient'.i18n,
-                    value: shortenAddress(address),
-                  ),
-                  buildDetailRow(
-                    label: 'Network Fee'.i18n,
-                    value: networkFee,
-                  ),
-                  buildDetailRow(
-                    label: 'Service Fee'.i18n,
-                    value: '$serviceFee USDT',
-                  ),
-
-                  // Asynchronous Payjoin Fee
-                  ref.watch(payjoinFeeProvider).when(
-                    data: (payjoinFee) => buildDetailRow(
-                        label: 'Payjoin fee'.i18n,
-                        value: '$payjoinFee USDT'
-                    ),
-                    loading: () => const SizedBox.shrink(),
-                    error: (e, s) => const SizedBox.shrink(),
-                  ),
+                  buildDetailRow(label: 'Recipient'.i18n, value: shortenAddress(address)),
+                  buildDetailRow(label: 'Network Fee'.i18n, value: networkFee),
+                  buildDetailRow(label: 'Service Fee'.i18n, value: '$serviceFee USDT'),
                   SizedBox(height: 24.h),
-
-                  // Action Buttons
                   Row(
                     children: [
                       Expanded(
@@ -226,33 +178,19 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                           ),
                           onPressed: () => Navigator.of(context).pop(false),
-                          child: Text(
-                            'Cancel'.i18n,
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: Text('Cancel'.i18n,
+                              style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 16.sp, fontWeight: FontWeight.bold)),
                         ),
                       ),
                       SizedBox(width: 16.w),
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 12.h),
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                          ),
+                              padding: EdgeInsets.symmetric(vertical: 12.h),
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r))),
                           onPressed: () => Navigator.of(context).pop(true),
-                          child: Text(
-                            'Confirm'.i18n,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: Text('Confirm'.i18n, style: TextStyle(color: Colors.black, fontSize: 16.sp, fontWeight: FontWeight.bold)),
                         ),
                       ),
                     ],
@@ -264,14 +202,14 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
         );
       },
     ) ??
-        false; // Default to false if dialog is dismissed
+        false;
   }
 
   Future<bool> showBtcConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
     final settings = ref.read(settingsProvider);
     final currency = settings.currency;
-    final amountInCurrency = ref.read(bitcoinValueInCurrencyProvider);
     final amountInSats = ref.read(sendTxProvider).amount;
+    final amountInCurrency = (amountInSats / 100000000) * ref.read(selectedCurrencyProvider(currency));
     final serviceFeeInSats = (amountInSats * 0.01).toInt();
 
     return await showDialog<bool>(
@@ -281,72 +219,65 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
         return Dialog(
           backgroundColor: Colors.transparent,
           child: Card(
-            color: const Color(0xFF333333),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+            color: const Color(0xFF212121),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24.r),
+                side: BorderSide(color: Colors.white.withOpacity(0.1), width: 1.5)),
             child: Padding(
               padding: EdgeInsets.all(24.w),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(child: Text('Confirm Transaction'.i18n, style: TextStyle(color: Colors.white, fontSize: 24.sp, fontWeight: FontWeight.bold))),
+                  Center(child: Text('Confirm Transaction'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold))),
                   SizedBox(height: 24.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Amount'.i18n, style: TextStyle(color: Colors.grey[400], fontSize: 20.sp)),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text('$amount $btcFormat', style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.w600)),
-                          Text('${currencyFormat(amountInCurrency, currency)} $currency', style: TextStyle(color: Colors.grey[400], fontSize: 18.sp)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Divider(color: Colors.grey[700], height: 20.h),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Recipient'.i18n, style: TextStyle(color: Colors.grey[400], fontSize: 20.sp)),
-                      SizedBox(height: 8.h),
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                        decoration: BoxDecoration(color: Colors.grey[800], borderRadius: BorderRadius.circular(6.r)),
-                        child: Text(shortenAddress(address), style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.w600)),
-                      ),
-                    ],
-                  ),
-                  Divider(color: Colors.grey[700], height: 20.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Service Fee'.i18n, style: TextStyle(color: Colors.grey[400], fontSize: 20.sp)),
-                      Text('$serviceFeeInSats sats', style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.w600)),
-                    ],
-                  ),
-                  Divider(color: Colors.grey[700], height: 20.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Network Fee'.i18n, style: TextStyle(color: Colors.grey[400], fontSize: 20.sp)),
-                      Text('$fee sats', style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.w600)),
-                    ],
-                  ),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    Text('Amount'.i18n, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 16.sp)),
+                    Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                      Text('$amount $btcFormat', style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w500)),
+                      SizedBox(height: 4.h),
+                      Text('${currencyFormat(amountInCurrency, currency)} $currency',
+                          style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14.sp)),
+                    ]),
+                  ]),
+                  Divider(color: Colors.white.withOpacity(0.15), height: 32.h),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    Text('Recipient'.i18n, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 16.sp)),
+                    Text(shortenAddress(address), style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w500)),
+                  ]),
+                  Divider(color: Colors.white.withOpacity(0.15), height: 32.h),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    Text('Service Fee'.i18n, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 16.sp)),
+                    Text('$serviceFeeInSats sats', style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w500)),
+                  ]),
+                  Divider(color: Colors.white.withOpacity(0.15), height: 32.h),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    Text('Network Fee'.i18n, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 16.sp)),
+                    Text('$fee sats', style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w500)),
+                  ]),
                   SizedBox(height: 24.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text('Cancel'.i18n, style: TextStyle(color: Colors.grey[400], fontSize: 18.sp, fontWeight: FontWeight.w600))),
-                      SizedBox(width: 16.w),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.r))),
-                        onPressed: () => Navigator.of(context).pop(true),
-                        child: Text('Confirm'.i18n, style: TextStyle(color: Colors.black, fontSize: 18.sp, fontWeight: FontWeight.w600)),
-                      ),
-                    ],
-                  ),
+                  Row(children: [
+                    Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(vertical: 12.h),
+                              side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r))),
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: Text('Cancel'.i18n,
+                              style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                        )),
+                    SizedBox(width: 16.w),
+                    Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(vertical: 12.h),
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r))),
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: Text('Confirm'.i18n, style: TextStyle(color: Colors.black, fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                        )),
+                  ]),
                 ],
               ),
             ),
@@ -405,9 +336,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                 children: [
                   Expanded(
                     child: SingleChildScrollView(
-                      child: shiftPair == ShiftPair.liquidBtcToBtc
-                          ? _buildLiquidBtcUi()
-                          : _buildNonNativeUi(),
+                      child: shiftPair == ShiftPair.liquidBtcToBtc ? _buildLiquidBtcUi() : _buildNonNativeUi(),
                     ),
                   ),
                   ActionSlider.standard(
@@ -433,20 +362,38 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
     });
     controller.loading();
 
-    SideShift? shift;
-    try {
-      shift = await ref.read(createSendSideShiftShiftProvider((ref.read(selectedSendShiftPairProvider), addressController.text)).future);
+    if (shiftPair == ShiftPair.liquidBtcToBtc && _preparedShift == null) {
+      showMessageSnackBar(message: "Please prepare the swap by entering an address and amount.".i18n, error: true, context: context);
+      controller.reset();
+      setState(() {
+        isProcessing = false;
+      });
+      return;
+    }
 
-      ref.read(sendTxProvider.notifier).updateAddress(shift!.depositAddress);
+    SideShift? shiftToExecute = _preparedShift;
+
+    try {
+      if (shiftToExecute == null) {
+        shiftToExecute = await ref.read(createSendSideShiftShiftProvider((ref.read(selectedSendShiftPairProvider), addressController.text)).future);
+      }
+
+      final shift = shiftToExecute!;
+      final depositMin;
+      final depositMax;
+
+      ref.read(sendTxProvider.notifier).updateAddress(shift.depositAddress);
       if (shiftPair == ShiftPair.liquidBtcToBtc) {
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+        depositMin = (double.parse(shift.depositMin) * 100000000);
+        depositMax = (double.parse(shift.depositMax) * 100000000);
       } else {
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.USD));
+        depositMin = (double.parse(shift.depositMin) * 100000000);
+        depositMax = (double.parse(shift.depositMax) * 100000000);
       }
 
       final amount = ref.read(sendTxProvider).amount;
-      final depositMin = (double.parse(shift.depositMin) * 100000000).toInt();
-      final depositMax = (double.parse(shift.depositMax) * 100000000).toInt();
 
       if (amount < depositMin) {
         throw "${"Amount is too small. Minimum amount is".i18n} ${shift.depositMin} $depositCoin";
@@ -478,6 +425,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
 
       if (!confirmed) {
         ref.read(deleteSideShiftProvider(shift.id));
+        setState(() => _preparedShift = null);
         controller.reset();
         setState(() {
           isProcessing = false;
@@ -496,7 +444,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
             ? btcInDenominationFormatted(ref.watch(sendTxProvider).amount, btcFormat)
             : fiatInDenominationFormatted(ref.watch(sendTxProvider).amount),
         fiat: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).isFiat,
-        fiatAmount: ref.watch(sendTxProvider).amount.toString(),
+        fiatAmount: fiatInDenominationFormatted(ref.watch(sendTxProvider).amount),
         txid: tx,
         isLiquid: true,
         receiveAddress: shift.settleAddress,
@@ -506,9 +454,10 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
       ref.read(sendTxProvider.notifier).resetToDefault();
       context.replace('/home');
     } catch (e) {
-      if (shift != null) {
-        ref.read(deleteSideShiftProvider(shift.id));
+      if (shiftToExecute != null) {
+        ref.read(deleteSideShiftProvider(shiftToExecute.id));
       }
+      setState(() => _preparedShift = null);
       controller.failure();
       showMessageSnackBar(message: e.toString().i18n, error: true, context: context);
       controller.reset();
@@ -542,7 +491,8 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
           children: [
             Padding(
               padding: EdgeInsets.only(bottom: 8.h),
-              child: Text('Recipient Address'.i18n + ' ($settleNetwork $settleCoin)', style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+              child: Text('Recipient Address'.i18n + ' ($settleNetwork $settleCoin)',
+                  style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
             ),
             Container(
               padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -570,7 +520,9 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(padding: EdgeInsets.only(bottom: 8.h), child: Text('Amount'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+            Padding(
+                padding: EdgeInsets.only(bottom: 8.h),
+                child: Text('Amount'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold))),
             Container(
               decoration: BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
               child: Padding(
@@ -590,8 +542,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                           contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                         ),
                         onChanged: (value) {
-                          final amount = (double.tryParse(value) ?? 0.0);
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput(amount.toString(), 'sats');
+                          ref.read(sendTxProvider.notifier).updateAmountFromInput(value, 'fiat');
 
                           if (_debounce?.isActive ?? false) _debounce!.cancel();
                           _debounce = Timer(const Duration(milliseconds: 800), () {
@@ -602,6 +553,50 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                             }
                           });
                         },
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(right: 8.sp),
+                      child: GestureDetector(
+                        onTap: () {
+                          double dollarValue = balance / 100000000;
+                          double percentage;
+
+                          if (dollarValue > 500) {
+                            percentage = 0.99;
+                          } else if (dollarValue > 100) {
+                            percentage = 0.98;
+                          } else {
+                            percentage = 0.95;
+                          }
+                          double maxAmount = dollarValue * percentage;
+                          amountController.text = maxAmount.toStringAsFixed(2);
+                          ref.read(sendTxProvider.notifier).updateAmountFromInput(amountController.text, 'fiat');
+
+                          if (_debounce?.isActive ?? false) _debounce!.cancel();
+                          _debounce = Timer(const Duration(milliseconds: 100), () {
+                            if (mounted) {
+                              setState(() {
+                                _amountToQuote = amountController.text;
+                              });
+                            }
+                          });
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Text(
+                            'Max',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -623,7 +618,8 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
 
   Widget _buildLiquidBtcUi() {
     final btcBalanceInFormat = ref.watch(liquidBalanceInFormatProvider(btcFormat));
-    final valueInBtc = ref.watch(liquidBalanceInFormatProvider('BTC')) == '0.00000000' ? 0 : double.parse(ref.watch(liquidBalanceInFormatProvider('BTC')));
+    final valueInBtc =
+    ref.watch(liquidBalanceInFormatProvider('BTC')) == '0.00000000' ? 0 : double.parse(ref.watch(liquidBalanceInFormatProvider('BTC')));
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
 
     return Column(
@@ -646,7 +642,8 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
           children: [
             Padding(
               padding: EdgeInsets.only(bottom: 8.h),
-              child: Text('Recipient Address'.i18n + ' ($settleNetwork $settleCoin)', style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+              child: Text('Recipient Address'.i18n + ' ($settleNetwork $settleCoin)',
+                  style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
             ),
             Container(
               padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -665,7 +662,9 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                     onPressed: () => context.pushNamed('camera', extra: {'paymentType': PaymentType.NonNative}),
                   ),
                 ),
-                onChanged: (value) {},
+                onChanged: (value) {
+                  setState(() => _preparedShift = null);
+                },
               ),
             ),
           ],
@@ -674,7 +673,9 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(padding: EdgeInsets.only(bottom: 8.h), child: Text('Amount'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+            Padding(
+                padding: EdgeInsets.only(bottom: 8.h),
+                child: Text('Amount'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold))),
             Container(
               decoration: BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
               child: Padding(
@@ -685,7 +686,9 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                       child: TextFormField(
                         controller: amountController,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats' ? [DecimalTextInputFormatter(decimalRange: 0)] : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)],
+                        inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats'
+                            ? [DecimalTextInputFormatter(decimalRange: 0)]
+                            : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)],
                         style: TextStyle(fontSize: 24.sp, color: Colors.white),
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -694,14 +697,14 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                           contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                         ),
                         onChanged: (value) {
+                          setState(() => _preparedShift = null);
                           ref.read(inputAmountProvider.notifier).state = amountController.text.isEmpty ? '0.0' : amountController.text;
-                          if (value.isEmpty) {
-                            ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
-                            ref.read(sendTxProvider.notifier).updateDrain(false);
-                          }
-                          final amountInSats = calculateAmountInSatsToDisplay(value, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
+
+                          final amountInSats =
+                          calculateAmountInSatsToDisplay(value, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
                           ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
                           ref.read(sendTxProvider.notifier).updateDrain(false);
+
                           if (_debounce?.isActive ?? false) _debounce!.cancel();
                           _debounce = Timer(const Duration(milliseconds: 800), () {
                             if (mounted) {
@@ -744,7 +747,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
             child: DropdownButton<String>(
               dropdownColor: const Color(0xFF212121),
               value: ref.watch(inputCurrencyProvider),
-              items: ['BTC', 'USD', 'EUR', 'BRL','GBP','CHF', 'Sats'].map((String value) {
+              items: ['BTC', 'USD', 'EUR', 'BRL', 'GBP', 'CHF', 'Sats'].map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Padding(
@@ -761,6 +764,81 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
               },
               icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
               borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(right: 8.sp),
+          child: GestureDetector(
+            onTap: () async {
+              if (addressController.text.isEmpty) {
+                showMessageSnackBar(message: "Please enter a recipient address first".i18n, error: true, context: context);
+                return;
+              }
+              setState(() => _isFetchingMax = true);
+              try {
+                final shift = await ref.read(createSendSideShiftShiftProvider((shiftPair, addressController.text)).future);
+                setState(() => _preparedShift = shift);
+
+                ref.read(sendTxProvider.notifier).updateAddress(shift.depositAddress);
+
+                final pset = await ref.read(liquidDrainWalletProvider.future);
+                final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
+                final controllerValue = sendingBalance.abs();
+                final selectedCurrency = ref.watch(inputCurrencyProvider);
+                final amountToSetInSelectedCurrency =
+                calculateAmountInSelectedCurrency(controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
+
+                amountController.text = selectedCurrency == 'BTC'
+                    ? amountToSetInSelectedCurrency
+                    : selectedCurrency == 'Sats'
+                    ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
+                    : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
+
+                ref.read(sendTxProvider.notifier).updateAmountFromInput(controllerValue.toString(), 'sats');
+                ref.read(sendTxProvider.notifier).updateDrain(true);
+
+                if (_debounce?.isActive ?? false) _debounce!.cancel();
+                _debounce = Timer(const Duration(milliseconds: 100), () {
+                  if (mounted) {
+                    setState(() {
+                      _amountToQuote = btcInDenominationFormatted(controllerValue, 'BTC');
+                    });
+                  }
+                });
+              } catch (e) {
+                showMessageSnackBar(
+                  message: e.toString().i18n,
+                  error: true,
+                  context: context,
+                );
+              } finally {
+                setState(() => _isFetchingMax = false);
+              }
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: _isFetchingMax
+                  ? SizedBox(
+                width: 24.w,
+                height: 24.w,
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                ),
+              )
+                  : Text(
+                'Max',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ),
@@ -830,18 +908,39 @@ class _QuoteDisplay extends ConsumerWidget {
         );
       },
       loading: () => Center(child: LoadingAnimationWidget.fourRotatingDots(size: 16.w, color: Colors.white)),
-      error: (err, stack) => Container(
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: Colors.red.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8.r),
-        ),
-        child: Text(
-          'Amount too big or too small to process swap'.i18n,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.redAccent, fontSize: 14.sp),
-        ),
-      ),
+      error: (err, stack) {
+        String errorMessage = err.toString();
+        String displayMessage;
+
+        if (errorMessage.contains("Amount")) {
+          final numberRegex = RegExp(r'[0-9.,]*[0-9][0-9.,]*');
+          final match = numberRegex.firstMatch(errorMessage);
+
+          if (match != null) {
+            final numberStr = match.group(0)!;
+            final template = errorMessage.replaceFirst(numberStr, '');
+            final translatedTemplate = template.i18n;
+            displayMessage = translatedTemplate + numberStr;
+          } else {
+            displayMessage = errorMessage.i18n;
+          }
+        } else {
+          displayMessage = errorMessage.i18n;
+        }
+
+        return Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: Colors.red.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: Text(
+            displayMessage, // Use the processed message
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.redAccent, fontSize: 14.sp),
+          ),
+        );
+      },
     );
   }
 

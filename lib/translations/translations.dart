@@ -2620,8 +2620,8 @@ extension Localization on String {
         'pt': 'Erro ao construir transação, tente um valor mais baixo',
       } +
       {
-        'en': 'Insufficient funds, try a lower amount',
-        'pt': 'Saldo insuficiente, tente um valor mais baixo',
+        'en': 'Insufficient funds to pay fees, try a lower amount to cover network fees',
+        'pt': 'Saldo insuficiente para pagar as taxas, tente um valor mais baixo para cobrir as taxas de rede',
       } +
       {
         'en': 'Your Balances',
@@ -3282,8 +3282,8 @@ extension Localization on String {
         'pt': 'Insira um código de afiliado para receber 6,67% de cashback nas compras',
       }+
       {
-        'en': 'Loading, please wait...',
-        'pt': 'Carregando, por favor aguarde...',
+        'en': 'Loading',
+        'pt': 'Carregando',
       }+
       {
         'en': 'Expired and Pending',
@@ -3655,7 +3655,7 @@ extension Localization on String {
       }+
       {
         "en": "Custom Electrum Node",
-        "pt": "No Electrum Customizado"
+        "pt": "Nó Electrum Customizado"
       }+
       {
         "en": "Save & Exit",
@@ -3664,6 +3664,67 @@ extension Localization on String {
       {
         "en": "Make sure the node you write works correctly, otherwise you might see wrong balances and not able to send your coins",
         "pt": "Certifique-se de que o nó que você escreveu funciona corretamente, caso contrário, pode ver balanços incorretos e não ser capaz de enviar suas moedas"
+      }+
+      {
+        "en": "Custom Node",
+        "pt": "Nó Customizado"
+      }+
+      {
+        "en": "This transaction has been refunded",
+        "pt": "Esta transação foi reembolsada",
+      }+
+      {
+        "en": "This transaction has timed out and cannot be recovered",
+        "pt": "Esta transação expirou e não pode ser recuperada"
+      }+
+      {
+        "en": "Refunded",
+        "pt": "Estornado"
+      }+
+      {
+        "en": "Error building payjoin asset transaction",
+        "pt": "Erro ao construir transação payjoin",
+      }+
+      {
+        "en": "Comment (Optional)",
+        "pt": "Comentário (Opcional)"
+      }+
+      {
+        "en": "Enter a comment",
+        "pt": "Insira um comentário"
+      }+
+      {
+        "en": "Please enter a recipient address first",
+        "pt": "Por favor, insira um endereço de destinatário primeiro"
+      }+
+      {
+        "en": "Please enter an amount for this recipient",
+        "pt": "Por favor, insira um valor para este destinatário"
+      }+
+      {
+        "en": "Unsupported address or invoice type",
+        "pt": "Endereço ou tipo de fatura não suportado"
+      }+
+      {
+        "en": "Invalid input address or invoice",
+        "pt": "Endereco ou fatura invalida"
+      } +
+      {
+        'en': 'Amount too low. Minimum deposit amount: ',
+        'pt': 'Valor muito baixo. O valor mínimo do depósito é de: ',
+      } +
+      {
+        'en': 'Amount too high. Maximum deposit amount: ',
+        'pt': 'Valor muito alto. O valor máximo do depósito é de: ',
+      } +
+      {
+        'en': 'Receive from a different network',
+        'pt': 'Receber de outras redes'
+      }+
+      {
+        'en': 'Send to another network?',
+        'pt': 'Enviar para outras redes?',
       };
   String get i18n => localize(this, _t);
+
 }

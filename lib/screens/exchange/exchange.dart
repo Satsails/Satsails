@@ -1,16 +1,19 @@
-import 'package:Satsails/helpers/asset_mapper.dart';
-import 'package:Satsails/helpers/swap_helpers.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/sideshift_provider.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
+import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/helpers/swap_helpers.dart';
+
+
+enum SwapSection { internal, external }
 
 abstract class BridgeOption {
   const BridgeOption();
@@ -26,7 +29,10 @@ class LightningBridgeOption extends BridgeOption {
 }
 
 
-enum SwapSection { internal, external }
+
+final swapSectionProvider = StateProvider<SwapSection>((ref) {
+  return SwapSection.internal;
+});
 
 class Exchange extends ConsumerStatefulWidget {
   const Exchange({super.key});
@@ -36,13 +42,11 @@ class Exchange extends ConsumerStatefulWidget {
 }
 
 class _ExchangeState extends ConsumerState<Exchange> {
-  final TextEditingController controller = TextEditingController();
-  SwapSection _selectedSection = SwapSection.internal;
-
   BridgeOption? _selectedBridgeOption;
   bool _isDepositing = false;
-
   late final List<BridgeOption> _allBridgeOptions;
+
+  final TextEditingController controller = TextEditingController();
 
   final Map<ShiftPair, ShiftPair> receiveToSendMap = {
     ShiftPair.usdcEthToLiquidUsdt: ShiftPair.liquidUsdtToUsdcEth,
@@ -78,6 +82,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
       orElse: () => _allBridgeOptions.first,
     );
 
+    // Placeholder for existing logic
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final swapType = ref.read(swapTypeProvider);
       if (swapType != null) {
@@ -117,12 +122,13 @@ class _ExchangeState extends ConsumerState<Exchange> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedSection = ref.watch(swapSectionProvider);
+
     return WillPopScope(
       onWillPop: () async {
         final FocusScopeNode currentFocus = FocusScope.of(context);
         if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
           currentFocus.unfocus();
-          return false;
         }
         return false;
       },
@@ -155,14 +161,16 @@ class _ExchangeState extends ConsumerState<Exchange> {
                       _buildSwapPicker(),
                       SizedBox(height: 16.h),
                       Expanded(
-                        child: ListView(
-                          children: [
-                            if (_selectedSection == SwapSection.internal)
-                              ..._buildInternalSwapWidgets()
-                            else
-                              ..._buildExternalSwapWidgets(),
-                            SizedBox(height: 100.sp),
-                          ],
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              if (selectedSection == SwapSection.internal)
+                                ..._buildInternalSwapWidgets()
+                              else
+                                ..._buildExternalSwapWidgets(),
+                              SizedBox(height: 100.sp),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -193,14 +201,13 @@ class _ExchangeState extends ConsumerState<Exchange> {
   }
 
   Widget _buildPickerOption(SwapSection section, String text) {
-    final bool isSelected = _selectedSection == section;
+    final bool isSelected = ref.watch(swapSectionProvider) == section;
+
     return Expanded(
       child: GestureDetector(
         onTap: () {
+          ref.read(swapSectionProvider.notifier).state = section;
           ref.read(sendTxProvider.notifier).resetToDefault();
-          setState(() {
-            _selectedSection = section;
-          });
         },
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 10.h),
@@ -247,19 +254,12 @@ class _ExchangeState extends ConsumerState<Exchange> {
     final selectedOption = _selectedBridgeOption;
 
     final Widget externalAssetWidget = _buildBridgeOptionDropdown();
-    Widget nativeAssetWidget;
-
-    const bool isSwapEnabled = true;
-
-    if (selectedOption is SideShiftBridgeOption) {
-      nativeAssetWidget = _buildSatsailsAssetStaticDisplay(selectedOption.pair);
-    } else {
-      nativeAssetWidget = _buildLbtcStaticDisplay();
-    }
+    final Widget nativeAssetWidget = selectedOption is SideShiftBridgeOption
+        ? _buildSatsailsAssetStaticDisplay(selectedOption.pair)
+        : _buildLbtcStaticDisplay();
 
     final Widget fromContent = _isDepositing ? externalAssetWidget : nativeAssetWidget;
     final Widget toContent = _isDepositing ? nativeAssetWidget : externalAssetWidget;
-
     final bool isFromNative = fromContent == nativeAssetWidget;
 
     return Card(
@@ -272,7 +272,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
           children: [
             _buildAssetRow("From Asset", fromContent, isNative: isFromNative),
             SizedBox(height: 24.h),
-            _buildSwapDivider(isEnabled: isSwapEnabled),
+            _buildSwapDivider(isEnabled: true),
             SizedBox(height: 24.h),
             _buildAssetRow("To Asset", toContent, isNative: !isFromNative),
           ],
@@ -524,7 +524,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
       ShiftPair.usdcEthToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/eth.svg'},
       ShiftPair.usdcSolToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/sol.svg'},
       ShiftPair.usdcPolygonToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/pol.svg'},
-      ShiftPair.usdtEthToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets.svg'},
+      ShiftPair.usdtEthToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/eth.svg'},
       ShiftPair.usdtTronToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/trx.svg'},
       ShiftPair.usdtSolToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/sol.svg'},
       ShiftPair.usdtPolygonToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/pol.svg'},

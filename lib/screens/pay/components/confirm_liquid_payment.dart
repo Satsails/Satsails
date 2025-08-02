@@ -3,7 +3,6 @@ import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
@@ -21,8 +20,8 @@ import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.d
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:action_slider/action_slider.dart';
-
-
+import 'package:Satsails/providers/navigation_provider.dart';
+import 'package:Satsails/screens/exchange/exchange.dart'; // For SwapSection enum
 Future<bool> showConfirmationModal(BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref) async {
   final settings = ref.read(settingsProvider);
   final currency = settings.currency;
@@ -61,11 +60,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
           child: Container(
             padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 20.h),
             decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF2A2A2A), Color(0xFF1C1C1C)],
-                ),
+                color: const Color(0xFF212121),
                 borderRadius: BorderRadius.circular(24.r),
                 border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
             child: Column(
@@ -87,7 +82,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
                   '$amount $btcFormat',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 38.sp,
+                    fontSize: 28.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -167,6 +162,7 @@ Future<bool> showConfirmationModal(BuildContext context, String amount, String a
       false; // Default to false if dialog is dismissed
 }
 
+// This is the transaction details card from the original file, unchanged.
 Widget buildTransactionDetailsCard(WidgetRef ref) {
   return Card(
     color: const Color(0x00333333).withOpacity(0.4),
@@ -316,7 +312,7 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
     updateControllerText(sendTxState.amount);
     final address = sendTxState.address;
     addressController.text = address;
-    }
+  }
 
   @override
   void dispose() {
@@ -457,9 +453,10 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                                   },
                                 ),
                               ),
+                              _buildSendToDifferentNetworkButton(context, ref),
                             ],
                           ),
-                          SizedBox(height: 24.h),
+                          SizedBox(height: 16.h),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -490,7 +487,9 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                           inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats'
                                               ? [DecimalTextInputFormatter(decimalRange: 0)]
-                                              : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)],
+                                              : ref.watch(inputCurrencyProvider) == 'BTC'
+                                              ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)]
+                                              : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
                                           style: TextStyle(fontSize: 24.sp, color: Colors.white),
                                           textAlign: TextAlign.left,
                                           decoration: InputDecoration(
@@ -500,19 +499,19 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                                             contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                                           ),
                                           onChanged: (value) async {
-                                              ref.read(inputAmountProvider.notifier).state =
-                                              controller.text.isEmpty ? '0.0' : controller.text;
-                                              if (value.isEmpty) {
-                                                ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
-                                                ref.read(sendTxProvider.notifier).updateDrain(false);
-                                              }
-                                              final amountInSats = calculateAmountInSatsToDisplay(
-                                                value,
-                                                ref.watch(inputCurrencyProvider),
-                                                ref.watch(currencyNotifierProvider),
-                                              );
-                                              ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
+                                            ref.read(inputAmountProvider.notifier).state =
+                                            controller.text.isEmpty ? '0.0' : controller.text;
+                                            if (value.isEmpty) {
+                                              ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
                                               ref.read(sendTxProvider.notifier).updateDrain(false);
+                                            }
+                                            final amountInSats = calculateAmountInSatsToDisplay(
+                                              value,
+                                              ref.watch(inputCurrencyProvider),
+                                              ref.watch(currencyNotifierProvider),
+                                            );
+                                            ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
+                                            ref.read(sendTxProvider.notifier).updateDrain(false);
                                           },
                                         ),
                                       ),
@@ -645,20 +644,20 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                                             child: GestureDetector(
                                               onTap: () async {
                                                 try {
-                                                    final pset = await ref.watch(liquidDrainWalletProvider.future);
-                                                    final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
-                                                    final controllerValue = sendingBalance.abs();
-                                                    final selectedCurrency = ref.watch(inputCurrencyProvider);
-                                                    final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(
-                                                        controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
-                                                    controller.text = selectedCurrency == 'BTC'
-                                                        ? amountToSetInSelectedCurrency
-                                                        : selectedCurrency == 'Sats'
-                                                        ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
-                                                        : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
-                                                    ref.read(sendTxProvider.notifier).updateAmountFromInput(
-                                                        controllerValue.toString(), 'sats');
-                                                    ref.read(sendTxProvider.notifier).updateDrain(true);
+                                                  final pset = await ref.watch(liquidDrainWalletProvider.future);
+                                                  final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
+                                                  final controllerValue = sendingBalance.abs();
+                                                  final selectedCurrency = ref.watch(inputCurrencyProvider);
+                                                  final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(
+                                                      controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
+                                                  controller.text = selectedCurrency == 'BTC'
+                                                      ? amountToSetInSelectedCurrency
+                                                      : selectedCurrency == 'Sats'
+                                                      ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
+                                                      : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
+                                                  ref.read(sendTxProvider.notifier).updateAmountFromInput(
+                                                      controllerValue.toString(), 'sats');
+                                                  ref.read(sendTxProvider.notifier).updateDrain(true);
                                                 } catch (e) {
                                                   showMessageSnackBar(
                                                     message: e.toString().i18n,
@@ -716,16 +715,15 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
 
                         // Show confirmation modal
                         final confirmed = await showConfirmationModal(
-                          context,
-                          btcInDenominationFormatted(sendTxState.amount, btcFormat),
-                          sendTxState.address ?? '',
-                          fee,
-                          btcFormat,
-                          ref
+                            context,
+                            btcInDenominationFormatted(sendTxState.amount, btcFormat),
+                            sendTxState.address ?? '',
+                            fee,
+                            btcFormat,
+                            ref
                         );
 
                         if (confirmed) {
-                          // Proceed with transaction only if user confirms
                           final tx = await ref.watch(sendLiquidTransactionProvider.future);
 
                           showFullscreenTransactionSendModal(
@@ -765,6 +763,34 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds a subtle button to navigate to the Exchange screen for external sends.
+  Widget _buildSendToDifferentNetworkButton(BuildContext context, WidgetRef ref) {
+    return Container(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        onPressed: () {
+          ref.read(sendTxProvider.notifier).resetToDefault();
+          ref.read(sendBlocksProvider.notifier).state = 1;
+          ref.read(navigationProvider.notifier).state = 2;
+          ref.read(swapSectionProvider.notifier).state = SwapSection.external;
+          context.replace('/home');
+        },
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.grey.shade400,
+        ),
+        child: Text(
+          'Send to another network?'.i18n,
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 14.sp,
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.white70,
           ),
         ),
       ),

@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:ui'; // Required for ImageFilter
+import 'dart:ui';
 import 'package:Satsails/models/balance_model.dart';
-import 'package:Satsails/models/boltz_model.dart';
-import 'package:Satsails/models/coinos_ln_model.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
@@ -11,13 +9,13 @@ import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
-import 'package:boltz/boltz.dart';
 // import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
@@ -31,6 +29,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import './app_router.dart';
+import 'models/auth_model.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,20 +59,14 @@ Future<void> main() async {
   Hive.registerAdapter(WalletBalanceAdapter());
   Hive.registerAdapter(SideswapPegStatusAdapter());
   Hive.registerAdapter(SideswapCompletedSwapAdapter());
-  Hive.registerAdapter(CoinosPaymentAdapter());
   Hive.registerAdapter(EulenTransferAdapter());
   Hive.registerAdapter(NoxTransferAdapter());
   Hive.registerAdapter(SideShiftAdapter());
-  Hive.registerAdapter(LbtcBoltzAdapter());
-  Hive.registerAdapter(ExtendedLbtcLnV2SwapAdapter());
-  Hive.registerAdapter(SwapTypeAdapter());
-  Hive.registerAdapter(ChainAdapter());
-  Hive.registerAdapter(PreImageAdapter());
-  Hive.registerAdapter(KeyPairAdapter());
-  Hive.registerAdapter(LBtcSwapScriptV2StrAdapter());
+
+  await migrateMnemonicStorage();
 
   await LibLwk.init();
-  await BoltzCore.init();
+  await initialize();
 
   try {
     await FlutterBranchSdk.init(

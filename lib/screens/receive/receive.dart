@@ -1,10 +1,8 @@
 import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
-import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:Satsails/screens/receive/components/bitcoin_widget.dart';
-import 'package:Satsails/screens/receive/components/receive_boltz.dart';
+import 'package:Satsails/screens/receive/components/receive_lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/receive_non_native_asset.dart';
-import 'package:Satsails/screens/receive/components/receive_spark_lightning_widget.dart';
 import 'package:Satsails/screens/receive/components/liquid_widget.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +26,6 @@ class Receive extends ConsumerWidget {
       onWillPop: () async {
         try {
           ref.read(inputAmountProvider.notifier).state = '0.0';
-          ref.invalidate(initialCoinosProvider);
           return true;
         } catch (e) {
           return false;
@@ -51,7 +48,6 @@ class Receive extends ConsumerWidget {
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
             onPressed: () {
               ref.read(inputAmountProvider.notifier).state = '0.0';
-              ref.invalidate(initialCoinosProvider);
               context.pop();
             },
           ),
@@ -61,7 +57,7 @@ class Receive extends ConsumerWidget {
             children: [
               if (selectedType == 'Bitcoin Network') const BitcoinWidget()
               else if (selectedType == 'Liquid Network') const LiquidWidget()
-              else if (selectedType == 'Boltz Network') const ReceiveBoltz()
+              else if (selectedType == 'Boltz Network') const ReceiveLightningWidget()
                 else if (selectedType == 'SideShift') const ReceiveNonNativeAsset(),
             ],
           ),
