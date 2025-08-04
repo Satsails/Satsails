@@ -176,6 +176,7 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('liquid');
     await Hive.deleteBoxFromDisk('coinosLn');
     await Hive.deleteBoxFromDisk('affiliateCode');
+    await Hive.deleteBoxFromDisk('breez_prefs');
     await Hive.deleteBoxFromDisk('balanceBox');
     await Hive.deleteBoxFromDisk('settings');
     await Hive.deleteBoxFromDisk('bitcoinTransactions');

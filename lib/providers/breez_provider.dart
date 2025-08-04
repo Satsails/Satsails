@@ -2,6 +2,7 @@ import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/models/breez/lnurl_model.dart';
 import 'package:Satsails/models/breez/lnurl_service.dart';
 import 'package:Satsails/models/breez/lnurl_webhook_manager.dart';
+import 'package:Satsails/models/breez/username_utilities.dart';
 import 'package:Satsails/providers/breez_config_provider.dart';
 import 'package:Satsails/services/breez/sdk_instance.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
@@ -167,32 +168,57 @@ final refundProvider = FutureProvider.family<RefundResponse, ({String swapAddres
   return await sdk.instance!.refund(req: req);
 });
 
-final lnAddressProvider = AsyncNotifierProvider<LnAddressNotifier, String?>(() {
-  return LnAddressNotifier();
+final breezPreferencesProvider = Provider((ref) => BreezPreferences());
+final messageSignerProvider = Provider((ref) => BreezMessageSigner(ref));
+final webhookServiceProvider = Provider((ref) => WebhookService(ref));
+final lnurlPayServiceProvider = Provider((ref) => LnUrlPayService());
+final usernameResolverProvider = Provider((ref) => UsernameResolver(ref.watch(breezPreferencesProvider)));
+final webhookRequestBuilderProvider = Provider((ref) => WebhookRequestBuilder(ref.watch(messageSignerProvider)));
+
+final lnurlRegistrationManagerProvider = Provider((ref) {
+  return LnUrlRegistrationManager(
+    lnAddressService: ref.watch(lnurlPayServiceProvider),
+    breezPreferences: ref.watch(breezPreferencesProvider),
+    requestBuilder: ref.watch(webhookRequestBuilderProvider),
+    usernameResolver: ref.watch(usernameResolverProvider),
+    webhookService: ref.watch(webhookServiceProvider),
+  );
 });
 
-final _lnurlCommonDepsProvider = FutureProvider<({
-BreezSDKLiquid sdk,
-LnurlService service,
-String webhookUrl,
-String pubkey,
-String? offer,
-int timestamp,
-})>((ref) async {
-  final sdk = await ref.watch(breezSDKProvider.future);
-  if (sdk.instance == null) {
-    throw Exception('Breez SDK not initialized.');
+final lnAddressProvider = StateNotifierProvider<LnAddressNotifier, AsyncValue<String?>>((ref) {
+  return LnAddressNotifier(ref.watch(breezPreferencesProvider));
+});
+
+class LnAddressNotifier extends StateNotifier<AsyncValue<String?>> {
+  final BreezPreferences _preferences;
+  LnAddressNotifier(this._preferences) : super(const AsyncValue.loading()) {
+    _loadInitialAddress();
   }
 
-  final webhookManager = LnurlWebhookManager(sdk);
-  final webhookUrl = await webhookManager.generateAndCacheWebhookUrl();
-  await webhookManager.registerWebhook(webhookUrl);
+  Future<void> _loadInitialAddress() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _preferences.getLnAddress());
+  }
 
-  // Get node info for the pubkey.
-  final nodeInfo = await sdk.instance!.getInfo();
-  final pubkey = nodeInfo.walletInfo.pubkey;
+  Future<void> updateLnAddress(String? address) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await _preferences.setLnAddress(address);
+      return address;
+    });
+  }
+}
 
-  // Attempt to get a Bolt12 offer, but don't fail if it doesn't work.
+
+final editOrCreateLnurlProvider = FutureProvider.family<Lnurl, String>((ref, username) async {
+  final manager = ref.watch(lnurlRegistrationManagerProvider);
+  final sdk = await ref.watch(breezSDKProvider.future);
+  final pubkey = (await sdk.instance!.getInfo()).walletInfo.pubkey;
+
+  final webhookUrl = await manager.setupWebhook(pubkey);
+
+  final isUpdate = await ref.read(breezPreferencesProvider).isLnUrlWebhookRegistered();
+
   String? offer;
   try {
     const prepareReq = PrepareReceiveRequest(paymentMethod: PaymentMethod.bolt12Offer);
@@ -204,109 +230,37 @@ int timestamp,
     // No-op, continue if the offer can't be generated
   }
 
-  // Use a single timestamp for all signed messages.
-  final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-
-  return (
-  sdk: sdk,
-  service: LnurlService(),
-  webhookUrl: webhookUrl,
-  pubkey: pubkey,
-  offer: offer,
-  timestamp: timestamp,
-  );
-});
-
-// Provider to create a new LNURL or update an existing one.
-final editOrCreateLnurlProvider = FutureProvider.family<Result<Lnurl>, String>((ref, username) async {
-  final deps = await ref.watch(_lnurlCommonDepsProvider.future);
-  final isNewRegistration = ref.read(lnAddressProvider) == null;
-
-  final messageToSign = deps.service.constructSignedMessage(
-    time: deps.timestamp,
-    webhookUrl: deps.webhookUrl,
-    username: username, // Username is required for editing or new registration
-    offer: deps.offer,
+  final result = await manager.performRegistration(
+    pubKey: pubkey,
+    webhookUrl: webhookUrl,
+    registrationType: isUpdate ? RegistrationType.update : RegistrationType.newRegistration,
+    baseUsername: username,
+    offer: offer,
   );
 
-  final signRequest = SignMessageRequest(message: messageToSign);
-  final signResponse = await deps.sdk.instance!.signMessage(req: signRequest);
-  final signature = signResponse.signature;
-
-  final registrationType = isNewRegistration ? RegistrationType.newRegistration : RegistrationType.update;
-
-  final registrationResult = await deps.service.performRegistration(
-    pubkey: deps.pubkey,
-    signature: signature,
-    webhookUrl: deps.webhookUrl,
-    offer: deps.offer,
-    registrationType: registrationType,
-    username: username,
-  );
-
-  if (registrationResult.isSuccess && registrationResult.data?.lightningAddress != null) {
-    ref.read(lnAddressProvider.notifier).updateLnAddress(registrationResult.data!.lightningAddress);
+  if (result.lightningAddress != null) {
+    await ref.read(lnAddressProvider.notifier).updateLnAddress(result.lightningAddress);
   }
-
-  return registrationResult;
+  return result;
 });
 
 // Provider for recovering a previously registered LNURL.
-final recoverLnurlProvider = FutureProvider<Result<Lnurl>>((ref) async {
-  final deps = await ref.watch(_lnurlCommonDepsProvider.future);
+final recoverLnurlProvider = FutureProvider<Lnurl>((ref) async {
+  final manager = ref.watch(lnurlRegistrationManagerProvider);
+  final sdk = await ref.watch(breezSDKProvider.future);
+  final pubkey = (await sdk.instance!.getInfo()).walletInfo.pubkey;
 
-  // STEP 1: Sign the message for the recovery request
-  final recoveryMessageToSign = deps.service.constructSignedMessage(
-    time: deps.timestamp,
-    webhookUrl: deps.webhookUrl,
-    // Note: username and offer are intentionally null for recovery
-    username: null,
-    offer: null,
+  final webhookUrl = await manager.setupWebhook(pubkey);
+
+  final result = await manager.performRegistration(
+    pubKey: pubkey,
+    webhookUrl: webhookUrl,
+    registrationType: RegistrationType.recovery,
   );
 
-  final recoverySignRequest = SignMessageRequest(message: recoveryMessageToSign);
-  final recoverySignResponse = deps.sdk.instance!.signMessage(req: recoverySignRequest);
-  final recoverySignature = recoverySignResponse.signature;
-
-  // STEP 2: Perform the recovery call using the dedicated signature.
-  final recoveryResult = await deps.service.recoverLnurl(
-    pubkey: deps.pubkey,
-    signature: recoverySignature,
-    webhookUrl: deps.webhookUrl,
-  );
-
-  // STEP 3: Handle a successful recovery by re-registering to transfer ownership.
-  if (recoveryResult.isSuccess && recoveryResult.data?.lightningAddress != null) {
-
-    // Generate a new, unique username for ownership transfer.
-    final recoveredUsername = recoveryResult.data!.lightningAddress!.split('@').first;
-
-    // Sign a NEW message for the registration with the recovered username.
-    final registrationMessageToSign = deps.service.constructSignedMessage(
-      time: deps.timestamp,
-      webhookUrl: deps.webhookUrl,
-      username: recoveredUsername,
-      offer: deps.offer,
-    );
-
-    final registrationSignRequest = SignMessageRequest(message: registrationMessageToSign);
-    final registrationSignResponse = await deps.sdk.instance!.signMessage(req: registrationSignRequest);
-    final registrationSignature = registrationSignResponse.signature;
-
-    // STEP 4: Perform the ownership transfer (re-registration) with the new signature.
-    final ownershipTransferResult = await deps.service.performRegistration(
-      pubkey: deps.pubkey,
-      signature: registrationSignature,
-      webhookUrl: deps.webhookUrl,
-      username: recoveredUsername,
-      offer: deps.offer,
-      registrationType: RegistrationType.ownershipTransfer,
-    );
-
-    if (ownershipTransferResult.isSuccess && ownershipTransferResult.data?.lightningAddress != null) {
-      ref.read(lnAddressProvider.notifier).updateLnAddress(ownershipTransferResult.data!.lightningAddress!);
-    }
-    return ownershipTransferResult;
-  };
+  if (result.lightningAddress != null) {
+    await ref.read(lnAddressProvider.notifier).updateLnAddress(result.lightningAddress);
+  }
+  return result;
 });
 

@@ -1,6 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
-
 class Lnurl {
   final String pubkey;
   final String? username;
@@ -25,41 +22,73 @@ class Lnurl {
       username: data['username'],
       webhookUrl: data['webhook_url'],
       offer: data['offer'],
-      registeredAt:
-      DateTime.tryParse(data['registered_at']?.toString() ?? '')?.toLocal() ?? DateTime.now(),
+      registeredAt: DateTime.tryParse(data['registered_at']?.toString() ?? '')?.toLocal() ?? DateTime.now(),
       lightningAddress: data['lightning_address'],
     );
   }
 }
 
-const _lnAddressStorageKey = 'lnurl';
-const _storageBoxName = 'lightningBox';
+// lnurl_pay_request.dart
 
+/// A request to register a new LNURL-pay webhook.
+class RegisterLnurlPayRequest {
+  final int time;
+  final String webhookUrl;
+  final String signature;
+  final String? username;
+  final String? offer;
 
-class LnAddressNotifier extends AsyncNotifier<String?> {
-  @override
-  Future<String?> build() async {
-    final storageBox = await Hive.openBox(_storageBoxName);
-    return storageBox.get(_lnAddressStorageKey);
-  }
+  RegisterLnurlPayRequest({
+    required this.time,
+    required this.webhookUrl,
+    required this.signature,
+    this.username,
+    this.offer,
+  });
 
-  Future<void> updateLnAddress(String? address) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final storageBox = await Hive.openBox(_storageBoxName);
+  Map<String, dynamic> toJson() => {
+    'time': time,
+    'webhook_url': webhookUrl,
+    'signature': signature,
+    if (username != null) 'username': username,
+    if (offer != null) 'offer': offer,
+  };
+}
 
-      if (address == null || address.isEmpty) {
-        await storageBox.delete(_lnAddressStorageKey);
-        return null;
-      } else {
-        await storageBox.put(_lnAddressStorageKey, address);
-        return address;
-      }
-    });
-  }
+/// A request to unregister or recover an LNURL-pay webhook.
+class UnregisterRecoverLnurlPayRequest {
+  final int time;
+  final String webhookUrl;
+  final String signature;
+
+  UnregisterRecoverLnurlPayRequest({
+    required this.time,
+    required this.webhookUrl,
+    required this.signature,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'time': time,
+    'webhook_url': webhookUrl,
+    'signature': signature,
+  };
 }
 
 
+// signed_request_data.dart
+
+/// A container for the timestamp and signature of a signed request.
+class SignedRequestData {
+  final int timestamp;
+  final String signature;
+
+  SignedRequestData({required this.timestamp, required this.signature});
+}
+
+
+// lnurl_exceptions.dart
+
+/// Thrown when a requested username is already taken.
 class UsernameConflictException implements Exception {
   final String message;
   UsernameConflictException(this.message);
@@ -68,9 +97,47 @@ class UsernameConflictException implements Exception {
   String toString() => 'UsernameConflictException: $message';
 }
 
-enum RegistrationType {
-  update,
-  newRegistration,
-  recovery,
-  ownershipTransfer
+/// Thrown when a webhook is not found during a recovery attempt.
+class WebhookNotFoundException implements Exception {
+  final String message;
+  WebhookNotFoundException(this.message);
+
+  @override
+  String toString() => 'WebhookNotFoundException: $message';
+}
+
+/// Thrown when an operation fails after the maximum number of retries.
+class MaxRetriesExceededException implements Exception {
+  @override
+  String toString() => 'MaxRetriesExceededException: The operation failed after the maximum number of retries.';
+}
+
+/// A generic exception for webhook registration failures.
+class RegisterWebhookException implements Exception {
+  final String message;
+  RegisterWebhookException(this.message);
+  @override
+  String toString() => 'RegisterWebhookException: $message';
+}
+
+/// A generic exception for webhook URL generation failures.
+class GenerateWebhookUrlException implements Exception {
+  final String message;
+  GenerateWebhookUrlException(this.message);
+  @override
+  String toString() => 'GenerateWebhookUrlException: $message';
+}
+
+class RegistrationType {
+  static const String newRegistration = 'newRegistration';
+  static const String update = 'update';
+  static const String recovery = 'recovery';
+  static const String ownershipTransfer = 'ownershipTransfer';
+}
+
+class EditLnurlParams {
+  final String username;
+  final RegistrationType registrationType;
+
+  EditLnurlParams({required this.username, required this.registrationType});
 }

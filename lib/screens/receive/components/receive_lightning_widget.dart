@@ -105,19 +105,19 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
             final setupLnAddressAsync = ref.watch(recoverLnurlProvider);
             return setupLnAddressAsync.when(
               data: (result) {
-                if (result.isSuccess) {
-                  final address = result.data?.lightningAddress;
-                  if (address != null) {
-                    return _buildQrDisplay(address);
-                  } else {
-                    return _buildErrorDisplay('Failed to get address');
-                  }
+                final address = result.lightningAddress;
+                if (address != null) {
+                  return _buildQrDisplay(address);
                 } else {
-                  return _buildErrorDisplay(result.error?.toString() ?? 'Unknown error');
+                  return _buildErrorDisplay('Failed to get address');
                 }
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => _buildErrorDisplay(error.toString()),
+              error: (error, stackTrace) {
+                return _buildErrorDisplay('Error: ${error.toString()}');
+              },
+              loading: () {
+                return _buildShimmerEffect();
+              },
             );
           },
         )
