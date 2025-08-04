@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -24,7 +24,34 @@ class FirebaseService {
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
-  static Future<String> getTokenAndRefresh() async {
+  static Future<void> requestNotificationPermissions() async {
+    if (Platform.isIOS) {
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    } else if (Platform.isAndroid) {
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+    }
+
+    await FirebaseMessaging.instance.requestPermission();
+  }
+
+  static Future<bool> checkNotificationPermissionStatus() async {
+    final settings = await FirebaseMessaging.instance.getNotificationSettings();
+
+    return settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional;
+  }
+
+  static Future<String> getToken() async {
     String? token = await _firebaseMessaging.getToken();
     if (token == null) {
       throw Exception("FCM Token is null");

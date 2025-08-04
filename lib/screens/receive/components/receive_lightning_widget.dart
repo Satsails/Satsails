@@ -1,7 +1,9 @@
+import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/breez_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,10 +25,14 @@ class ReceiveLightningWidget extends ConsumerStatefulWidget {
 class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget> {
   final _amountController = TextEditingController();
   bool _isLoading = false;
-
+  bool? _notificationsAllowed;
   ReceivePaymentResponse? _paymentResponse;
 
-  final String _defaultLnurl = "joao@lnurl.satsails.com";
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => _checkNotificationPermissions());
+  }
 
   @override
   void dispose() {
@@ -34,8 +40,14 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
     super.dispose();
   }
 
+  Future<void> _checkNotificationPermissions() async {
+    final allowed = await FirebaseService.checkNotificationPermissionStatus();
+    setState(() {
+      _notificationsAllowed = allowed;
+    });
+  }
+
   Future<void> _createInvoice() async {
-    final test = await ref.read(setupLnAddressProvider((username: 'joao', isRecover: false)).future);
     FocusScope.of(context).unfocus();
 
     ref.read(inputAmountProvider.notifier).state =
@@ -77,15 +89,41 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
 
   @override
   Widget build(BuildContext context) {
-    final displayContent = _paymentResponse?.destination ?? _defaultLnurl;
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SizedBox(height: 24.h),
-        _isLoading ? _buildShimmerEffect() : _buildQrDisplay(displayContent),
+        _isLoading
+            ? _buildShimmerEffect()
+            : (_paymentResponse != null
+            ? _buildQrDisplay(_paymentResponse!.destination)
+            : (_notificationsAllowed == null
+            ? const Center(child: CircularProgressIndicator())
+            : (_notificationsAllowed!
+            ? Consumer(
+          builder: (context, ref, child) {
+            final setupLnAddressAsync = ref.watch(recoverLnurlProvider);
+            return setupLnAddressAsync.when(
+              data: (result) {
+                if (result.isSuccess) {
+                  final address = result.data?.lightningAddress;
+                  if (address != null) {
+                    return _buildQrDisplay(address);
+                  } else {
+                    return _buildErrorDisplay('Failed to get address');
+                  }
+                } else {
+                  return _buildErrorDisplay(result.error?.toString() ?? 'Unknown error');
+                }
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => _buildErrorDisplay(error.toString()),
+            );
+          },
+        )
+            : _buildNotificationPrompt()))),
         Padding(
-          padding: EdgeInsets.all(16.h),
+          padding: EdgeInsets.all(16.w),
           child: AmountInput(controller: _amountController),
         ),
         Padding(
@@ -113,7 +151,6 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
       child: Center(
         child: Column(
           children: [
-            // QR Code Placeholder
             Container(
               width: qrSize,
               height: qrSize,
@@ -123,7 +160,6 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
               ),
             ),
             SizedBox(height: 16.h),
-            // Address Text Placeholder
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 12.w),
               child: Container(
@@ -151,6 +187,61 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
             child: buildAddressText(content, context, ref),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationPrompt() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDarkMode ? Colors.white70 : Colors.black87;
+    final buttonColor = isDarkMode ? Colors.grey[700]! : Colors.grey[300]!;
+
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.w),
+            child: Text(
+              'You have to allow notifications to receive payments via LNURL.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: textColor,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          TextButton(
+            onPressed: () async {
+              await FirebaseService.requestNotificationPermissions();
+              final allowed = await FirebaseService.checkNotificationPermissionStatus();
+              if (!allowed) {
+                await AppSettings.openAppSettings(type: AppSettingsType.notification);
+              } else {
+                setState(() {
+                  _notificationsAllowed = true;
+                });
+              }
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: buttonColor,
+              textStyle: TextStyle(fontSize: 12.sp),
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+            ),
+            child: const Text('Allow Notifications'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorDisplay(String message) {
+    return Center(
+      child: Text(
+        message,
+        style: TextStyle(color: Colors.red, fontSize: 16.sp),
       ),
     );
   }

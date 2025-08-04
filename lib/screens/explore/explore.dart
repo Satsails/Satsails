@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -11,7 +12,6 @@ import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -400,7 +400,7 @@ Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentI
   try {
     if (paymentId.isEmpty) {
       await ref.watch(createUserProvider.future);
-      if (context.mounted) await _requestNotificationPermissions();
+      if (context.mounted) await FirebaseService.requestNotificationPermissions();
     } else {
       if (userProviderState.recoveryCode?.isNotEmpty ?? false) {
         await ref.read(migrateUserToJwtProvider.future);
@@ -418,16 +418,5 @@ Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentI
     }
   } finally {
     ref.read(isLoadingProvider.notifier).state = false;
-  }
-}
-
-Future<void> _requestNotificationPermissions() async {
-  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  if (Platform.isAndroid) {
-    final androidPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-    await androidPlugin?.requestNotificationsPermission();
-  } else if (Platform.isIOS) {
-    final iosPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
-    await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
   }
 }
