@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:Satsails/models/breez/lnurl_model.dart';
-import 'package:Satsails/models/firebase_model.dart';
+import 'package:Satsails/notifications/firebase.dart';
 import 'package:Satsails/providers/breez_config_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';

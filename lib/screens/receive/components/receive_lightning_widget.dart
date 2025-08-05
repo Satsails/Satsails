@@ -1,5 +1,5 @@
 import 'package:Satsails/models/breez/lnurl_webhook_manager.dart';
-import 'package:Satsails/models/firebase_model.dart';
+import 'package:Satsails/notifications/firebase.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/breez_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';

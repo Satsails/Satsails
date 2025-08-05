@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:Satsails/services/breez/sdk_instance.dart';
+import 'package:Satsails/models/breez/sdk_instance.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 

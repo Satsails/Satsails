@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
-import 'package:Satsails/models/firebase_model.dart';
+import 'package:Satsails/notifications/firebase.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';

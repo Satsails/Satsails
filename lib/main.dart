@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
-import 'package:Satsails/models/firebase_model.dart';
+import 'package:Satsails/notifications/firebase.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
 import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
@@ -42,7 +42,8 @@ Future<void> main() async {
 
   await Firebase.initializeApp();
   await FirebaseService.getAndRefreshFCMToken();
-  await FirebaseService.listenForForegroundPushNotifications();
+  final container = ProviderContainer();
+  await FirebaseService.listenForForegroundPushNotifications(container);
 
   // await FirebaseAppCheck.instance.activate(
   //   androidProvider: AndroidProvider.playIntegrity,
