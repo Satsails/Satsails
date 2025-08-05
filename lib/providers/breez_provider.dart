@@ -3,6 +3,7 @@ import 'package:Satsails/models/breez/lnurl_model.dart';
 import 'package:Satsails/models/breez/lnurl_service.dart';
 import 'package:Satsails/models/breez/lnurl_webhook_manager.dart';
 import 'package:Satsails/models/breez/username_utilities.dart';
+import 'package:Satsails/models/firebase_model.dart';
 import 'package:Satsails/providers/breez_config_provider.dart';
 import 'package:Satsails/services/breez/sdk_instance.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
@@ -209,15 +210,12 @@ class LnAddressNotifier extends StateNotifier<AsyncValue<String?>> {
   }
 }
 
-
-final editOrCreateLnurlProvider = FutureProvider.family<Lnurl, String>((ref, username) async {
+final createOrEditLnurlProvider = FutureProvider.family<Lnurl, String?>((ref, username) async {
   final manager = ref.watch(lnurlRegistrationManagerProvider);
   final sdk = await ref.watch(breezSDKProvider.future);
   final pubkey = (await sdk.instance!.getInfo()).walletInfo.pubkey;
 
   final webhookUrl = await manager.setupWebhook(pubkey);
-
-  final isUpdate = await ref.read(breezPreferencesProvider).isLnUrlWebhookRegistered();
 
   String? offer;
   try {
@@ -226,14 +224,13 @@ final editOrCreateLnurlProvider = FutureProvider.family<Lnurl, String>((ref, use
     final receiveReq = ReceivePaymentRequest(prepareResponse: prepareRes);
     final receiveRes = await sdk.instance!.receivePayment(req: receiveReq);
     offer = receiveRes.destination;
-  } on Exception {
-    // No-op, continue if the offer can't be generated
+  } on Exception catch (e) {
   }
 
   final result = await manager.performRegistration(
     pubKey: pubkey,
     webhookUrl: webhookUrl,
-    registrationType: isUpdate ? RegistrationType.update : RegistrationType.newRegistration,
+    registrationType: RegistrationType.newRegistration,
     baseUsername: username,
     offer: offer,
   );
@@ -244,14 +241,17 @@ final editOrCreateLnurlProvider = FutureProvider.family<Lnurl, String>((ref, use
   return result;
 });
 
-// Provider for recovering a previously registered LNURL.
+
+// This provider is now solely focused on recovery.
 final recoverLnurlProvider = FutureProvider<Lnurl>((ref) async {
   final manager = ref.watch(lnurlRegistrationManagerProvider);
   final sdk = await ref.watch(breezSDKProvider.future);
   final pubkey = (await sdk.instance!.getInfo()).walletInfo.pubkey;
 
+  // The webhook must be set up on the new device for recovery to work.
   final webhookUrl = await manager.setupWebhook(pubkey);
 
+  // Perform the recovery. The manager handles the subsequent re-registration.
   final result = await manager.performRegistration(
     pubKey: pubkey,
     webhookUrl: webhookUrl,
@@ -262,5 +262,47 @@ final recoverLnurlProvider = FutureProvider<Lnurl>((ref) async {
     await ref.read(lnAddressProvider.notifier).updateLnAddress(result.lightningAddress);
   }
   return result;
+});
+
+
+final setupLnAddressProvider = FutureProvider<Lnurl>((ref) async {
+  final bool allowed = await FirebaseService.checkNotificationPermissionStatus();
+
+  if (!allowed) {
+    throw NotificationPermissionException(
+      "Notification permissions are required to set up a Lightning Address.",
+    );
+  }
+
+
+  final preferences = ref.read(breezPreferencesProvider);
+  final sdk = await ref.watch(breezSDKProvider.future);
+  final pubkey = (await sdk.instance!.getInfo()).walletInfo.pubkey;
+
+  final isRegistered = await preferences.isLnUrlWebhookRegistered();
+
+  if (isRegistered) {
+    final manager = ref.watch(lnurlRegistrationManagerProvider);
+    await manager.setupWebhook(pubkey);
+
+    final username = await preferences.getLnAddressUsername();
+    final domain = ref.read(lnurlPayServiceProvider).getDomain();
+    return Lnurl(
+      pubkey: pubkey,
+      username: username,
+      lightningAddress: (username != null && domain != null) ? '$username@$domain' : null,
+      registeredAt: DateTime.now(),
+    );
+  } else {
+    try {
+      print("No LNURL registered. Attempting to recover...");
+      return await ref.watch(recoverLnurlProvider.future);
+    } on WebhookNotFoundException {
+      print("Recovery failed. Creating a new random LNURL address...");
+      return await ref.watch(createOrEditLnurlProvider(null).future);
+    } catch (e) {
+      throw Exception("Initial setup failed: ${e.toString()}");
+    }
+  }
 });
 

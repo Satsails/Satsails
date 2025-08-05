@@ -70,7 +70,7 @@ class UsernameResolver {
 
   UsernameResolver(this.breezPreferences);
 
-  Future<String?> resolveUsername({
+  Future<String> resolveUsername({
     String? recoveredLightningAddress,
     String? baseUsername,
   }) async {
@@ -80,13 +80,45 @@ class UsernameResolver {
     }
     // Priority 2: From explicit parameter
     if (baseUsername?.isNotEmpty ?? false) {
-      return baseUsername;
+      return baseUsername!;
     }
     // Priority 3: From stored preferences
     final storedUsername = await breezPreferences.getLnAddressUsername();
     if (storedUsername?.isNotEmpty ?? false) {
-      return storedUsername;
+      return storedUsername!;
     }
-    return null;
+    // Priority 4 (NEW): Generate a random username as a fallback
+    return RandomUsernameGenerator.generate();
+  }
+}
+
+class RandomUsernameGenerator {
+  static final _random = Random.secure();
+
+  static const _adjectives = [
+    'agile', 'azure', 'bold', 'brave', 'bright', 'brisk', 'calm', 'chief',
+    'clear', 'clever', 'cobalt', 'cool', 'dapper', 'deft', 'eager', 'epic',
+    'fabled', 'fast', 'fierce', 'fine', 'firm', 'fresh', 'gentle', 'golden',
+    'grand', 'great', 'happy', 'honest', 'humble', 'jolly', 'keen', 'kind',
+    'lively', 'loyal', 'lucid', 'major', 'merry', 'neat', 'noble', 'placid',
+    'prime', 'proud', 'quick', 'quiet', 'regal', 'sage', 'sharp', 'sleek',
+    'sound', 'swift'
+  ]; // 50 adjectives
+
+  static const _nouns = [
+    'admiral', 'anchor', 'beacon', 'boat', 'captain', 'clipper', 'coast', 'compass',
+    'coral', 'cove', 'crew', 'current', 'dawn', 'deck', 'dock', 'expedition',
+    'fleet', 'fluke', 'galleon', 'gulf', 'harbor', 'haven', 'horizon', 'island',
+    'jetty', 'journey', 'knot', 'lagoon', 'launch', 'marina', 'mariner', 'mast',
+    'navigator', 'ocean', 'pier', 'pilot', 'port', 'quest', 'raft', 'reef',
+    'rudder', 'sailor', 'schooner', 'sea', 'ship', 'shore', 'tide', 'voyage',
+    'whale', 'yacht'
+  ]; // 50 nouns
+
+  static String generate() {
+    final adj = _adjectives[_random.nextInt(_adjectives.length)];
+    final noun = _nouns[_random.nextInt(_nouns.length)];
+    final number = _random.nextInt(9000) + 1000;
+    return '$adj$noun$number';
   }
 }

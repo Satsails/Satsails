@@ -123,6 +123,7 @@ class WebhookService {
 
 class LnUrlPayService {
   final String? _baseUrl = dotenv.env['LNURL_SERVICE_URL'];
+  String getDomain() => _baseUrl!.replaceFirst('https://', '');
 
   Future<Lnurl> register({required String pubKey, required RegisterLnurlPayRequest request}) async {
     return _handleRequest(
@@ -142,6 +143,22 @@ class LnUrlPayService {
         body: jsonEncode(request.toJson()),
       ),
     );
+  }
+
+  Future<void> unregister({required String pubKey, required UnregisterRecoverLnurlPayRequest request}) async {
+    if (_baseUrl == null) throw Exception('Backend URL not configured.');
+
+    final response = await http.delete(
+      Uri.parse('$_baseUrl/lnurlpay/$pubKey'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(request.toJson()),
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return;
+    } else {
+      throw Exception('Failed to unregister with status ${response.statusCode}: ${response.body}');
+    }
   }
 
   Future<Lnurl> _handleRequest(Future<http.Response> Function() request) async {

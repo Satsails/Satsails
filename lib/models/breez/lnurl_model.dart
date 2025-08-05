@@ -134,10 +134,3 @@ class RegistrationType {
   static const String recovery = 'recovery';
   static const String ownershipTransfer = 'ownershipTransfer';
 }
-
-class EditLnurlParams {
-  final String username;
-  final RegistrationType registrationType;
-
-  EditLnurlParams({required this.username, required this.registrationType});
-}

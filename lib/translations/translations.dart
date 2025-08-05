@@ -3707,23 +3707,87 @@ extension Localization on String {
       }+
       {
         "en": "Invalid input address or invoice",
-        "pt": "Endereco ou fatura invalida"
+        "pt": "Endereço ou fatura inválida"
       } +
       {
-        'en': 'Amount too low. Minimum deposit amount: ',
-        'pt': 'Valor muito baixo. O valor mínimo do depósito é de: ',
+        "en": "Amount too low. Minimum deposit amount: ",
+        "pt": "Valor muito baixo. O valor mínimo do depósito é de: "
       } +
       {
-        'en': 'Amount too high. Maximum deposit amount: ',
-        'pt': 'Valor muito alto. O valor máximo do depósito é de: ',
+        "en": "Amount too high. Maximum deposit amount: ",
+        "pt": "Valor muito alto. O valor máximo do depósito é de: "
       } +
       {
-        'en': 'Receive from a different network',
-        'pt': 'Receber de outras redes'
+        "en": "Receive from a different network",
+        "pt": "Receber de outras redes"
       }+
       {
-        'en': 'Send to another network?',
-        'pt': 'Enviar para outras redes?',
+        "en": "Send to another network?",
+        "pt": "Enviar para outras redes?"
+      }+
+      {
+        "en": "Please enter a valid amount",
+        "pt": "Por favor, insira um valor válido"
+      }+
+      {
+        "en": "An error occurred: %s",
+        "pt": "Ocorreu um erro: %s"
+      }+
+      {
+        "en": "Username updated successfully!",
+        "pt": "Nome de utilizador atualizado com sucesso!"
+      }+
+      {
+        "en": "Failed to get a Lightning Address.",
+        "pt": "Falha ao obter um Endereço Lightning."
+      }+
+      {
+        "en": "Error: %s",
+        "pt": "Erro: %s"
+      }+
+      {
+        "en": "Edit Username",
+        "pt": "Editar Nome de Utilizador"
+      }+
+      {
+        "en": "Enable notifications to get a permanent Lightning Address.",
+        "pt": "Ative as notificações para obter um Endereço Lightning permanente."
+      }+
+      {
+        "en": "You can still generate one-time invoices to receive payments while the app is open.",
+        "pt": "Ainda pode gerar faturas únicas para receber pagamentos enquanto a aplicação está aberta."
+      }+
+      {
+        "en": "Allow Notifications",
+        "pt": "Permitir Notificações"
+      }+
+      {
+        "en": "Edit Lightning Address",
+        "pt": "Editar Endereço Lightning"
+      }+
+      {
+        "en": "Username",
+        "pt": "Nome de Utilizador"
+      }+
+      {
+        "en": "Please enter a username.",
+        "pt": "Por favor, insira um nome de utilizador."
+      }+
+      {
+        "en": "Only lowercase letters, numbers, and \"._-\" are allowed.",
+        "pt": "Apenas são permitidas letras minúsculas, números e \"._-\"."
+      }+
+      {
+        "en": "Save Changes",
+        "pt": "Guardar Alterações"
+      }+
+      {
+        "en": "Generate One-Time Invoice",
+        "pt": "Gerar Fatura Única"
+      }+
+      {
+        "en": "Change address",
+        "pt": "Alterar endereço"
       };
   String get i18n => localize(this, _t);
 

@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/balance_model.dart';
+import 'package:Satsails/models/breez/lnurl_webhook_manager.dart';
 import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/providers/breez_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideshift_provider.dart';
@@ -186,6 +188,15 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
         await hiveBox.put('balance', latestBalance);
 
         await ref.read(transactionNotifierProvider.notifier).refreshAndMergeTransactions(btcTxs: syncedBitcoinTxs);
+
+        try{
+          await ref.read(setupLnAddressProvider.future);
+        } on NotificationPermissionException catch (e) {
+          debugPrint('Notification permission error: $e');
+        } catch (e) {
+          debugPrint('Error setting up LN address: $e');
+        }
+
         return latestBalance;
       },
       onSuccess: () {

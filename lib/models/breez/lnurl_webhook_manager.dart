@@ -1,4 +1,3 @@
-// registration_manager.dart
 import 'package:Satsails/models/breez/lnurl_model.dart';
 import 'package:Satsails/models/breez/lnurl_service.dart';
 import 'package:Satsails/models/breez/username_utilities.dart';
@@ -23,11 +22,23 @@ class LnUrlRegistrationManager {
   });
 
   Future<String> setupWebhook(String pubKey) async {
-    final webhookUrl = await webhookService.generateWebhookUrl();
-    // In a real app, you might unregister an old webhook here
-    await webhookService.register(webhookUrl);
-    await breezPreferences.setWebhookUrl(webhookUrl);
-    return webhookUrl;
+    final oldWebhookUrl = await breezPreferences.getWebhookUrl();
+
+    final newWebhookUrl = await webhookService.generateWebhookUrl();
+
+    if (oldWebhookUrl != null && oldWebhookUrl != newWebhookUrl) {
+      try {
+        final unregisterRequest = await requestBuilder.buildUnregisterRecoverRequest(webhookUrl: oldWebhookUrl);
+        await lnAddressService.unregister(pubKey: pubKey, request: unregisterRequest);
+      } catch (e) {
+        print('Failed to unregister old webhook, continuing with new registration. Error: $e');
+      }
+    }
+
+    await webhookService.register(newWebhookUrl);
+    await breezPreferences.setWebhookUrl(newWebhookUrl);
+
+    return newWebhookUrl;
   }
 
   Future<Lnurl> performRegistration({
@@ -44,7 +55,6 @@ class LnUrlRegistrationManager {
       case RegistrationType.update:
       default:
         final username = await usernameResolver.resolveUsername(baseUsername: baseUsername);
-        if (username == null) throw Exception("Username could not be resolved.");
         return _registerWithRetries(
           pubKey: pubKey,
           webhookUrl: webhookUrl,
@@ -55,27 +65,21 @@ class LnUrlRegistrationManager {
   }
 
   Future<Lnurl> _handleRecovery({required String pubKey, required String webhookUrl, String? offer}) async {
-    try {
-      final request = await requestBuilder.buildUnregisterRecoverRequest(webhookUrl: webhookUrl);
-      final response = await lnAddressService.recover(pubKey: pubKey, request: request);
+    final request = await requestBuilder.buildUnregisterRecoverRequest(webhookUrl: webhookUrl);
+    final response = await lnAddressService.recover(pubKey: pubKey, request: request);
 
-      // If recovery is successful, transfer ownership
-      final recoveredUsername = response.lightningAddress?.split('@').first;
-      if (recoveredUsername != null) {
-        return _attemptRegistration(
-          pubKey: pubKey,
-          webhookUrl: webhookUrl,
-          username: recoveredUsername,
-          offer: offer,
-        );
-      }
-      throw Exception("Recovery failed to return a lightning address.");
-    } on WebhookNotFoundException {
-      // If not found, treat as a new registration
-      final username = await usernameResolver.resolveUsername();
-      if (username == null) throw Exception("Username could not be resolved for new registration.");
-      return _registerWithRetries(pubKey: pubKey, webhookUrl: webhookUrl, username: username, offer: offer);
+    final recoveredUsername = response.lightningAddress?.split('@').first;
+    if (recoveredUsername != null) {
+      // After successful recovery, we must re-register with the recovered username.
+      // This ensures the webhook URL is updated on the backend if it has changed (e.g., new device).
+      return _attemptRegistration(
+        pubKey: pubKey,
+        webhookUrl: webhookUrl,
+        username: recoveredUsername,
+        offer: offer,
+      );
     }
+    throw Exception("Recovery failed to return a lightning address.");
   }
 
   Future<Lnurl> _registerWithRetries({
@@ -141,4 +145,12 @@ class BreezPreferences {
 
   Future<bool> isLnUrlWebhookRegistered() async => (await _box).get(_isRegisteredKey) ?? false;
   Future<void> setLnUrlWebhookRegistered() async => (await _box).put(_isRegisteredKey, true);
+}
+
+class NotificationPermissionException implements Exception {
+  final String message;
+  NotificationPermissionException(this.message);
+
+  @override
+  String toString() => message;
 }
