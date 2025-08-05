@@ -1,26 +1,22 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:Satsails/main.dart';
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/models/breez/init.dart';
 import 'package:Satsails/models/breez/sdk_instance.dart';
 import 'package:Satsails/notifications/breez/job.dart';
 import 'package:Satsails/notifications/breez/notification.dart';
 import 'package:Satsails/providers/breez_config_provider.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
   debugPrint("Handling a background message: ${message.messageId}");
 
   final type = message.data[NotificationType.type];
@@ -31,6 +27,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     if (job != null) {
       debugPrint("Starting background job: ${job.runtimeType}");
       try {
+        await dotenv.load(fileName: ".env");
+        await initialize();
         final connectRequest = await getConnectRequestFromStorage();
 
         await breezSDKLiquid.connect(req: connectRequest);

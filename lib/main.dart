@@ -31,8 +31,12 @@ import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import './app_router.dart';
 import 'models/auth_model.dart';
 
+late final ProviderContainer providerContainer;
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  providerContainer = ProviderContainer();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -41,9 +45,7 @@ Future<void> main() async {
   await dotenv.load(fileName: ".env");
 
   await Firebase.initializeApp();
-  await FirebaseService.getAndRefreshFCMToken();
-  final container = ProviderContainer();
-  await FirebaseService.listenForForegroundPushNotifications(container);
+  await FirebaseService.initialize(providerContainer);
 
   // await FirebaseAppCheck.instance.activate(
   //   androidProvider: AndroidProvider.playIntegrity,
@@ -78,9 +80,10 @@ Future<void> main() async {
   }
 
   runApp(
-    const OverlaySupport.global(
+     OverlaySupport.global(
       child: RestartWidget(
-        child: ProviderScope(
+        child: UncontrolledProviderScope(
+          container: providerContainer,
           child: TransactionNotificationsListener(
             child: MainApp(),
           ),

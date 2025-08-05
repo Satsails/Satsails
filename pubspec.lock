@@ -39,7 +39,7 @@ packages:
     source: hosted
     version: "6.11.0"
   android_notification_icons:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: android_notification_icons
       sha256: c9975a74196293d332a3e993f45daabaee1319c187e413b30142ef36c40a07fb

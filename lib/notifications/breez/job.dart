@@ -5,9 +5,10 @@ import 'package:Satsails/notifications/breez/notification.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
-// --- Abstract Base Class & Helpers ---
+// --- Abstract Base Class & Helpers (No changes needed here) ---
 abstract class Job {
   final String payload;
   Job(this.payload);
@@ -28,8 +29,6 @@ abstract class Job {
     await replyToServer(replyUrl, {'status': 'ERROR', 'reason': reason});
   }
 }
-
-// --- Data Models ---
 class LnurlPayInfoRequest {
   final String callbackUrl;
   final String replyUrl;
@@ -37,17 +36,18 @@ class LnurlPayInfoRequest {
       : callbackUrl = json['callback_url'],
         replyUrl = json['reply_url'];
 }
-
 class LnurlPayInvoiceRequest {
   final int amount; // This is in millisatoshis
   final String? comment;
   final String replyUrl;
+  // This field is sent by the payer's wallet if they support LUD-21
+  final String? verifyUrl;
   LnurlPayInvoiceRequest.fromJson(Map<String, dynamic> json)
       : amount = json['amount'],
         comment = json['comment'],
-        replyUrl = json['reply_url'];
+        replyUrl = json['reply_url'],
+        verifyUrl = json['verify_url'];
 }
-
 class LnurlPayVerifyRequest {
   final String paymentHash;
   final String replyUrl;
@@ -55,12 +55,10 @@ class LnurlPayVerifyRequest {
       : paymentHash = json['payment_hash'],
         replyUrl = json['reply_url'];
 }
-
 class SwapUpdatedRequest {
   final String id;
   SwapUpdatedRequest.fromJson(Map<String, dynamic> json) : id = json['id'];
 }
-
 class InvoiceRequestRequest {
   final String offer;
   final String invoiceRequest;
@@ -70,7 +68,6 @@ class InvoiceRequestRequest {
         invoiceRequest = json['invoice_request'],
         replyUrl = json['reply_url'];
 }
-
 
 // --- Concrete Job Implementations ---
 
@@ -92,15 +89,16 @@ class LnurlPayInfoJob extends Job {
       if (minSat < BigInt.one || (minSat * BigInt.from(1000)) > (maxSat * BigInt.from(1000))) {
         throw Exception("Invalid min-sendable amount in limits.");
       }
-      const plainTextMetadata = "LNURL-pay to user";
+      const String plainTextMetadata = "Payment to satsails";
+
       final response = {
+        'tag': 'payRequest',
+        'minSendable': (minSat * BigInt.from(1000)).toInt(),
         'callback': request.callbackUrl,
         'maxSendable': (maxSat * BigInt.from(1000)).toInt(),
-        'minSendable': (minSat * BigInt.from(1000)).toInt(),
         'metadata': jsonEncode([['text/plain', plainTextMetadata]]),
-        'commentAllowed': 256,
-        'tag': 'payRequest',
       };
+
       await replyToServer(request.replyUrl, response, maxAge: 86400);
       success = true;
     } catch (e) {
@@ -132,7 +130,7 @@ class LnurlPayInvoiceJob extends Job {
       if (amountSatBigInt < limits.receive.minSat || amountSatBigInt > limits.receive.maxSat) {
         throw Exception("Invalid amount requested: ${request.amount}");
       }
-      const plainTextMetadata = "LNURL-pay to user";
+      const plainTextMetadata = "Pay to satsails";
       final prepareRes = await sdk.prepareReceivePayment(
         req: PrepareReceiveRequest(
           paymentMethod: PaymentMethod.lightning,
@@ -143,11 +141,30 @@ class LnurlPayInvoiceJob extends Job {
         req: ReceivePaymentRequest(
           prepareResponse: prepareRes,
           description: jsonEncode([['text/plain', plainTextMetadata]]),
-          useDescriptionHash: true,
+          useDescriptionHash: false,
           payerNote: request.comment,
         ),
       );
-      final response = {'pr': receiveRes.destination, 'routes': []};
+
+      String? verificationUrl;
+      if (request.verifyUrl != null) {
+        try {
+          final inputType = await sdk.parse(input: receiveRes.destination);
+          if (inputType is InputType_Bolt11) {
+            verificationUrl = request.verifyUrl!.replaceAll('{payment_hash}', inputType.invoice.paymentHash);
+          }
+        } catch (e) {
+          debugPrint('$tag: Failed to parse invoice to build verify URL: $e');
+        }
+      }
+
+      final response = {
+        'pr': receiveRes.destination,
+        'routes': [],
+        if (verificationUrl != null) 'verify': verificationUrl,
+      };
+      // --- END OF FIX ---
+
       await replyToServer(request.replyUrl, response);
       success = true;
     } catch (e) {
@@ -162,6 +179,7 @@ class LnurlPayInvoiceJob extends Job {
   }
 }
 
+// ... (The rest of your jobs and the factory function remain the same)
 class LnurlPayVerifyJob extends Job {
   LnurlPayVerifyJob(super.payload);
 
@@ -188,10 +206,9 @@ class LnurlPayVerifyJob extends Job {
           (payment.status == PaymentState.pending && details.claimTxId != null);
 
       final response = {
-        'status': 'OK',
-        'settled': settled,
-        'preimage': settled ? details.preimage : null,
         'pr': details.invoice,
+        'settled': settled,
+        'status': 'OK',
       };
 
       final maxAge = settled ? (60 * 60 * 24 * 7) : 3; // 1 week or 3 seconds
