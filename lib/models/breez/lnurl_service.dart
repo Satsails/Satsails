@@ -90,9 +90,9 @@ class WebhookService {
 
   WebhookService(this._ref);
 
-  Future<String> generateWebhookUrl() async {
+  Future<String> generateWebhookUrl({bool forceRefresh = false}) async {
     final platform = defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
-    final token = await _getToken();
+    final token = await _getToken(forceRefresh: forceRefresh);
     final baseUrl = dotenv.env['LNURL_SERVICE_URL'];
     if (baseUrl == null) throw GenerateWebhookUrlException('LNURL_SERVICE_URL not configured.');
     return '$baseUrl/notify-lnurl/api/v1/notify?platform=$platform&token=$token';
@@ -105,13 +105,12 @@ class WebhookService {
     await sdk.instance!.registerWebhook(webhookUrl: webhookUrl);
   }
 
-  Future<String> _getToken() async {
-    if (_cachedToken != null && _tokenCacheTime != null) {
+  Future<String> _getToken({bool forceRefresh = false}) async {
+    if (!forceRefresh && _cachedToken != null && _tokenCacheTime != null) {
       if (DateTime.now().difference(_tokenCacheTime!) < _tokenCacheDuration) {
         return _cachedToken!;
       }
     }
-    // Mocked Firebase interaction
     final token = await FirebaseService.getToken();
     await FirebaseService.requestNotificationPermissions();
     if (token == null) throw GenerateWebhookUrlException('Failed to get notification token.');
@@ -119,9 +118,7 @@ class WebhookService {
     _tokenCacheTime = DateTime.now();
     return token;
   }
-}
-
-class LnUrlPayService {
+}class LnUrlPayService {
   final String? _baseUrl = dotenv.env['LNURL_SERVICE_URL'];
   String getDomain() => _baseUrl!.replaceFirst('https://', '');
 

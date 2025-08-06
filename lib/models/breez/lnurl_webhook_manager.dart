@@ -21,10 +21,10 @@ class LnUrlRegistrationManager {
     required this.webhookService,
   });
 
-  Future<String> setupWebhook(String pubKey) async {
+  Future<String> setupWebhook(String pubKey, {bool forceRefresh = false}) async {
     final oldWebhookUrl = await breezPreferences.getWebhookUrl();
 
-    final newWebhookUrl = await webhookService.generateWebhookUrl();
+    final newWebhookUrl = await webhookService.generateWebhookUrl(forceRefresh: forceRefresh);
 
     if (oldWebhookUrl != null && oldWebhookUrl != newWebhookUrl) {
       try {
@@ -88,22 +88,16 @@ class LnUrlRegistrationManager {
     required String username,
     String? offer,
   }) async {
-    String currentUsername = username;
-    for (int i = 0; i < maxRetries; i++) {
-      try {
-        return await _attemptRegistration(
-          pubKey: pubKey,
-          webhookUrl: webhookUrl,
-          username: currentUsername,
-          offer: offer,
-        );
-      } on UsernameConflictException {
-        if (i == maxRetries - 1) throw MaxRetriesExceededException();
-        currentUsername = UsernameGenerator.generateUsername(username, i + 1);
-        await Future.delayed(_retryBackoff * (1 << i));
-      }
+    try {
+      return await _attemptRegistration(
+        pubKey: pubKey,
+        webhookUrl: webhookUrl,
+        username: username,
+        offer: offer,
+      );
+    } on UsernameConflictException {
+      rethrow;
     }
-    throw MaxRetriesExceededException();
   }
 
   Future<Lnurl> _attemptRegistration({

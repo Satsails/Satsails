@@ -1,8 +1,9 @@
 PODS:
+  - app_settings (5.1.1):
+    - Flutter
   - bdk_flutter (0.31.3):
     - Flutter
-  - boltz (0.1.6)
-  - BranchSDK (3.12.1)
+  - BranchSDK (3.12.2)
   - Crisp (2.8.2):
     - Crisp/Crisp (= 2.8.2)
   - Crisp/Crisp (2.8.2)
@@ -19,14 +20,14 @@ PODS:
   - Firebase/Messaging (11.15.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 11.15.0)
-  - firebase_core (3.15.1):
+  - firebase_core (3.15.2):
     - Firebase/CoreOnly (= 11.15.0)
     - Flutter
-  - firebase_crashlytics (4.3.9):
+  - firebase_crashlytics (4.3.10):
     - Firebase/Crashlytics (= 11.15.0)
     - firebase_core
     - Flutter
-  - firebase_messaging (15.2.9):
+  - firebase_messaging (15.2.10):
     - Firebase/Messaging (= 11.15.0)
     - firebase_core
     - Flutter
@@ -72,8 +73,10 @@ PODS:
     - nanopb (~> 3.30910.0)
     - PromisesSwift (~> 2.1)
   - Flutter (1.0.0)
-  - flutter_branch_sdk (8.5.0):
+  - flutter_branch_sdk (8.6.0):
     - BranchSDK (~> 3.12.0)
+    - Flutter
+  - flutter_breez_liquid (0.11.1):
     - Flutter
   - flutter_keyboard_visibility (0.0.1):
     - Flutter
@@ -146,8 +149,8 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - app_settings (from `.symlinks/plugins/app_settings/ios`)
   - bdk_flutter (from `.symlinks/plugins/bdk_flutter/ios`)
-  - boltz (from `.symlinks/plugins/boltz/ios`)
   - crisp_chat (from `.symlinks/plugins/crisp_chat/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
@@ -155,6 +158,7 @@ DEPENDENCIES:
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
   - flutter_branch_sdk (from `.symlinks/plugins/flutter_branch_sdk/ios`)
+  - flutter_breez_liquid (from `.symlinks/plugins/flutter_breez_liquid/ios`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
@@ -191,10 +195,10 @@ SPEC REPOS:
     - PromisesSwift
 
 EXTERNAL SOURCES:
+  app_settings:
+    :path: ".symlinks/plugins/app_settings/ios"
   bdk_flutter:
     :path: ".symlinks/plugins/bdk_flutter/ios"
-  boltz:
-    :path: ".symlinks/plugins/boltz/ios"
   crisp_chat:
     :path: ".symlinks/plugins/crisp_chat/ios"
   device_info_plus:
@@ -209,6 +213,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_branch_sdk:
     :path: ".symlinks/plugins/flutter_branch_sdk/ios"
+  flutter_breez_liquid:
+    :path: ".symlinks/plugins/flutter_breez_liquid/ios"
   flutter_keyboard_visibility:
     :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
   flutter_local_notifications:
@@ -241,16 +247,16 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
+  app_settings: 5127ae0678de1dcc19f2293271c51d37c89428b2
   bdk_flutter: cef9180019b4c6b67a3e3dfb74611683fe140107
-  boltz: 6388ec2412f3753b63a9e65c97f87ea26f43bddc
-  BranchSDK: 7135af6602a105fa6be3ad6c606a7f78b0131b5d
+  BranchSDK: db2c2ffa5b85ad3e202f73393ca794878afd3c52
   Crisp: 6747c96b2b2c2a81babf1eaecd1688a65d98edd4
   crisp_chat: 7cfa883efa81a122430f3605a7d8b44be3db8a60
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   Firebase: d99ac19b909cd2c548339c2241ecd0d1599ab02e
-  firebase_core: ece862f94b2bc72ee0edbeec7ab5c7cb09fe1ab5
-  firebase_crashlytics: f89f5137e667ba1733ca5d7ab1b7af3390572520
-  firebase_messaging: e1a5fae495603115be1d0183bc849da748734e2b
+  firebase_core: 995454a784ff288be5689b796deb9e9fa3601818
+  firebase_crashlytics: 30dcd6dfd2fe895c0848af46722a4227346c19aa
+  firebase_messaging: f4a41dd102ac18b840eba3f39d67e77922d3f707
   FirebaseCore: efb3893e5b94f32b86e331e3bd6dadf18b66568e
   FirebaseCoreExtension: edbd30474b5ccf04e5f001470bdf6ea616af2435
   FirebaseCoreInternal: 9afa45b1159304c963da48addb78275ef701c6b4
@@ -260,7 +266,8 @@ SPEC CHECKSUMS:
   FirebaseRemoteConfigInterop: 1c6135e8a094cc6368949f5faeeca7ee8948b8aa
   FirebaseSessions: b9a92c1c51bbb81e78fc3142cda6d925d700f8e7
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_branch_sdk: 9c9ec6d44145b4fc5168e011bfce824b2c1fe506
+  flutter_branch_sdk: a87d7e10a30e891371ed3b464859e7797b07d5f0
+  flutter_breez_liquid: bb06f55150e293edd08fc424fe4e5982f46015cc
   flutter_keyboard_visibility: 4625131e43015dbbe759d9b20daaf77e0e3f6619
   flutter_local_notifications: ad39620c743ea4c15127860f4b5641649a988100
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13

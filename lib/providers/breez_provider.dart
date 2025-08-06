@@ -214,7 +214,7 @@ final createOrEditLnurlProvider = FutureProvider.family<Lnurl, String?>((ref, us
   final sdk = await ref.watch(breezSDKProvider.future);
   final pubkey = (await sdk.instance!.getInfo()).walletInfo.pubkey;
 
-  final webhookUrl = await manager.setupWebhook(pubkey);
+  final webhookUrl = await manager.setupWebhook(pubkey, forceRefresh: true);
 
   String? offer;
   try {
@@ -241,16 +241,13 @@ final createOrEditLnurlProvider = FutureProvider.family<Lnurl, String?>((ref, us
 });
 
 
-// This provider is now solely focused on recovery.
 final recoverLnurlProvider = FutureProvider<Lnurl>((ref) async {
   final manager = ref.watch(lnurlRegistrationManagerProvider);
   final sdk = await ref.watch(breezSDKProvider.future);
   final pubkey = (await sdk.instance!.getInfo()).walletInfo.pubkey;
 
-  // The webhook must be set up on the new device for recovery to work.
-  final webhookUrl = await manager.setupWebhook(pubkey);
+  final webhookUrl = await manager.setupWebhook(pubkey, forceRefresh: true);
 
-  // Perform the recovery. The manager handles the subsequent re-registration.
   final result = await manager.performRegistration(
     pubKey: pubkey,
     webhookUrl: webhookUrl,

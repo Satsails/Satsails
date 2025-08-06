@@ -96,11 +96,7 @@ class AuthModel {
 
   /// Returns the required security options for iOS, including the App Group.
   IOSOptions _getIOSOptions() => const IOSOptions(
-    // Ensure the keychain item is only accessible after the first device unlock.
     accessibility: KeychainAccessibility.first_unlock,
-    // Assign the keychain item to an App Group.
-    // Replace with your actual App Group ID from Xcode.
-    groupId: 'group.com.satsails.satsails',
   );
 
   /// Saves the mnemonic to secure storage with the correct iOS options.
@@ -134,7 +130,7 @@ class AuthModel {
     for (int i = 0; i < 3; i++) {
       // The read operation doesn't need special options, it will find the key
       // regardless of its accessibility or group.
-      final mnemonic = await _storage.read(key: 'mnemonic');
+      final mnemonic = await _storage.read(key: 'mnemonic', iOptions: _getIOSOptions());
       if (mnemonic != null) {
         return mnemonic;
       }
@@ -163,8 +159,8 @@ class AuthModel {
   }
 
   Future<void> deleteAuthentication() async {
-    await _storage.delete(key: 'mnemonic');
-    await _storage.delete(key: 'pin');
+    await _storage.delete(key: 'mnemonic', iOptions: _getIOSOptions());
+    await _storage.delete(key: 'pin', iOptions: _getIOSOptions());
     await _storage.delete(key: 'pixPaymentCode');
     await _storage.delete(key: 'coinosToken');
     await _storage.delete(key: 'coinosUsername');
