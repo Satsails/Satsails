@@ -5,7 +5,6 @@ import 'package:Satsails/notifications/breez/notification.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 // --- Abstract Base Class & Helpers (No changes needed here) ---
@@ -37,10 +36,9 @@ class LnurlPayInfoRequest {
         replyUrl = json['reply_url'];
 }
 class LnurlPayInvoiceRequest {
-  final int amount; // This is in millisatoshis
+  final int amount;
   final String? comment;
   final String replyUrl;
-  // This field is sent by the payer's wallet if they support LUD-21
   final String? verifyUrl;
   LnurlPayInvoiceRequest.fromJson(Map<String, dynamic> json)
       : amount = json['amount'],
@@ -69,8 +67,6 @@ class InvoiceRequestRequest {
         replyUrl = json['reply_url'];
 }
 
-// --- Concrete Job Implementations ---
-
 class LnurlPayInfoJob extends Job {
   LnurlPayInfoJob(super.payload);
 
@@ -89,7 +85,7 @@ class LnurlPayInfoJob extends Job {
       if (minSat < BigInt.one || (minSat * BigInt.from(1000)) > (maxSat * BigInt.from(1000))) {
         throw Exception("Invalid min-sendable amount in limits.");
       }
-      const String plainTextMetadata = "Payment to satsails";
+      const String plainTextMetadata = "Pay to satsails";
 
       final response = {
         'tag': 'payRequest',
@@ -141,7 +137,7 @@ class LnurlPayInvoiceJob extends Job {
         req: ReceivePaymentRequest(
           prepareResponse: prepareRes,
           description: jsonEncode([['text/plain', plainTextMetadata]]),
-          useDescriptionHash: false,
+          useDescriptionHash: true,
           payerNote: request.comment,
         ),
       );
@@ -163,7 +159,6 @@ class LnurlPayInvoiceJob extends Job {
         'routes': [],
         if (verificationUrl != null) 'verify': verificationUrl,
       };
-      // --- END OF FIX ---
 
       await replyToServer(request.replyUrl, response);
       success = true;
