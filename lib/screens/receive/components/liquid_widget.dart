@@ -59,10 +59,9 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
         Center(
           child: Column(
             children: [
-              _buildReceiveFromDifferentNetworkButton(context, ref),
-              SizedBox(height: 16.h),
               buildQrCode(addressToShow, context),
-              SizedBox(height: 16.h),
+              _buildReceiveFromDifferentNetworkButton(context, ref),
+              SizedBox(height: 5.h),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: buildAddressText(addressToShow, context, ref),
@@ -79,7 +78,7 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: CustomButton(
             onPressed: _onCreateAddress,
-            text: 'Create Address with Amount'.i18n,
+            text: 'Create Address'.i18n,
             primaryColor: Colors.green,
             secondaryColor: Colors.green,
           ),
@@ -88,25 +87,28 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
     );
   }
 
+  /// Builds a subtle button to navigate to the Exchange screen for receiving from another network.
   Widget _buildReceiveFromDifferentNetworkButton(BuildContext context, WidgetRef ref) {
-    return OutlinedButton.icon(
-      onPressed: () {
-        context.pop();
-        ref.read(navigationProvider.notifier).state = 2;
-        ref.read(swapSectionProvider.notifier).state = SwapSection.external;
-      },
-      icon: Icon(Icons.swap_horiz, size: 20.sp),
-      label: Text('Receive from a different network'.i18n),
-      style: OutlinedButton.styleFrom(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-        foregroundColor: Colors.white70, // Text and icon color
-        side: BorderSide(color: Colors.white.withOpacity(0.3)), // Border color
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.r),
+    return Container(
+      alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: TextButton(
+        onPressed: () {
+          context.pop();
+          ref.read(navigationProvider.notifier).state = 2;
+          ref.read(swapSectionProvider.notifier).state = SwapSection.external;
+        },
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.grey.shade400,
         ),
-        textStyle: TextStyle(
-          fontSize: 14.sp,
-          fontWeight: FontWeight.w500,
+        child: Text(
+          'Receive from a different network'.i18n,
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 14.sp,
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.white70,
+          ),
         ),
       ),
     );
