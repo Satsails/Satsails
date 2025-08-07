@@ -1,4 +1,3 @@
-import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/models/breez/lnurl_model.dart';
 import 'package:Satsails/models/breez/lnurl_service.dart';
 import 'package:Satsails/models/breez/lnurl_webhook_manager.dart';
@@ -7,6 +6,119 @@ import 'package:Satsails/notifications/firebase.dart';
 import 'package:Satsails/providers/breez_config_provider.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+/// A data class to hold the unified response from preparing any lightning payment.
+class PrepareLightningPaymentResponse {
+  final dynamic prepareResponse;
+  final int networkFee;
+
+  PrepareLightningPaymentResponse({
+    required this.prepareResponse,
+    required this.networkFee,
+  });
+}
+
+/// A new provider that abstracts the entire lightning payment process.
+/// It handles parsing, preparing, and sending payments for BOLT11, BOLT12, and LNURL-Pay.
+final sendLightningPaymentProvider = FutureProvider.family<void,
+    ({String address, int amount, String? comment, bool isDraining})>((ref, params) async {
+  final sdk = await ref.watch(breezSDKProvider.future);
+  final parsedInput = await sdk.instance!.parse(input: params.address);
+
+  dynamic prepareResponse;
+
+  // Prepare the payment based on the input type
+  if (parsedInput is InputType_Bolt11) {
+    prepareResponse = await sdk.instance!.prepareSendPayment(req: PrepareSendRequest(destination: parsedInput.invoice.bolt11));
+  } else if (parsedInput is InputType_Bolt12Offer) {
+    final req = PrepareSendRequest(
+      destination: parsedInput.offer.offer,
+      amount: params.amount > 0 ? PayAmount_Bitcoin(receiverAmountSat: BigInt.from(params.amount)) : null,
+    );
+    prepareResponse = await sdk.instance!.prepareSendPayment(req: req);
+  } else if (parsedInput is InputType_LnUrlPay) {
+    final lnurlPayData = parsedInput.data;
+    if (params.isDraining) {
+      prepareResponse = await sdk.instance!.prepareLnurlPay(
+        req: PrepareLnUrlPayRequest(
+          data: lnurlPayData,
+          amount: PayAmount_Drain(),
+          comment: params.comment,
+          bip353Address: parsedInput.bip353Address,
+        ),
+      );
+    } else {
+      if (params.amount == 0) throw 'Please enter an amount for this recipient';
+      prepareResponse = await sdk.instance!.prepareLnurlPay(
+        req: PrepareLnUrlPayRequest(
+          data: lnurlPayData,
+          amount: PayAmount_Bitcoin(receiverAmountSat: BigInt.from(params.amount)),
+          comment: params.comment,
+          bip353Address: parsedInput.bip353Address,
+        ),
+      );
+    }
+  } else {
+    throw "Unsupported address or invoice type";
+  }
+
+  // Execute the payment
+  if (prepareResponse is PrepareSendResponse) {
+    await sdk.instance!.sendPayment(req: SendPaymentRequest(prepareResponse: prepareResponse));
+  } else if (prepareResponse is PrepareLnUrlPayResponse) {
+    await sdk.instance!.lnurlPay(req: LnUrlPayRequest(prepareResponse: prepareResponse));
+  }
+});
+
+/// This provider now only prepares the payment and returns a unified response.
+/// The actual sending is handled by `sendLightningPaymentProvider`.
+final prepareLightningPaymentProvider = FutureProvider.family<PrepareLightningPaymentResponse,
+    ({String address, int amount, String? comment, bool isDraining})>((ref, params) async {
+  final sdk = await ref.watch(breezSDKProvider.future);
+  final parsedInput = await sdk.instance!.parse(input: params.address);
+
+  dynamic prepareResponse;
+  int networkFee = 0;
+
+  if (parsedInput is InputType_Bolt11) {
+    prepareResponse = await sdk.instance!.prepareSendPayment(req: PrepareSendRequest(destination: parsedInput.invoice.bolt11));
+    networkFee = prepareResponse.feesSat.toInt();
+  } else if (parsedInput is InputType_Bolt12Offer) {
+    final req = PrepareSendRequest(
+      destination: parsedInput.offer.offer,
+      amount: params.amount > 0 ? PayAmount_Bitcoin(receiverAmountSat: BigInt.from(params.amount)) : null,
+    );
+    prepareResponse = await sdk.instance!.prepareSendPayment(req: req);
+    networkFee = prepareResponse.feesSat.toInt();
+  } else if (parsedInput is InputType_LnUrlPay) {
+    final lnurlPayData = parsedInput.data;
+    if (params.isDraining) {
+      prepareResponse = await sdk.instance!.prepareLnurlPay(
+        req: PrepareLnUrlPayRequest(
+          data: lnurlPayData,
+          amount: PayAmount_Drain(),
+          comment: params.comment,
+          bip353Address: parsedInput.bip353Address,
+        ),
+      );
+    } else {
+      if (params.amount == 0) throw 'Please enter an amount for this recipient';
+      prepareResponse = await sdk.instance!.prepareLnurlPay(
+        req: PrepareLnUrlPayRequest(
+          data: lnurlPayData,
+          amount: PayAmount_Bitcoin(receiverAmountSat: BigInt.from(params.amount)),
+          comment: params.comment,
+          bip353Address: parsedInput.bip353Address,
+        ),
+      );
+    }
+    networkFee = prepareResponse.feesSat.toInt();
+  } else {
+    throw "Unsupported address or invoice type";
+  }
+
+  return PrepareLightningPaymentResponse(prepareResponse: prepareResponse, networkFee: networkFee);
+});
 
 
 final lightningLimitsProvider = FutureProvider<LightningPaymentLimitsResponse>((ref) async {
@@ -301,4 +413,3 @@ final setupLnAddressProvider = FutureProvider<Lnurl>((ref) async {
     }
   }
 });
-

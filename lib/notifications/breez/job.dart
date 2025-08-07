@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:Satsails/notifications/breez/notification.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
@@ -102,7 +103,7 @@ class LnurlPayInfoJob extends Job {
       if (request != null) await fail(e.toString(), request.replyUrl);
     } finally {
       await NotificationHelper.showNotification(
-        title: success ? 'Retrieving Payment Information' : 'Receive Payment Failed',
+        title: success ? 'Retrieving Payment Information'.i18n : 'Receive Payment Failed'.i18n,
         channelId: NotificationHelper.replaceableChannelId,
       );
     }
@@ -167,7 +168,7 @@ class LnurlPayInvoiceJob extends Job {
       if (request != null) await fail(e.toString(), request.replyUrl);
     } finally {
       await NotificationHelper.showNotification(
-        title: success ? 'Fetching Invoice' : 'Receive Payment Failed',
+        title: success ? 'Fetching Invoice'.i18n : 'Receive Payment Failed'.i18n,
         channelId: NotificationHelper.replaceableChannelId,
       );
     }
@@ -214,7 +215,7 @@ class LnurlPayVerifyJob extends Job {
       if (request != null) await fail(e.toString(), request.replyUrl);
     } finally {
       await NotificationHelper.showNotification(
-        title: success ? 'Verifying Payment' : 'Payment Verification Failed',
+        title: success ? 'Verifying Payment'.i18n : 'Payment Verification Failed'.i18n,
         channelId: NotificationHelper.replaceableChannelId,
       );
     }
@@ -257,24 +258,24 @@ class SwapUpdatedJob extends Job {
   void _handlePaymentSuccess(Payment payment) {
     final received = payment.paymentType == PaymentType.receive;
     NotificationHelper.showNotification(
-      title: received ? 'Payment Received' : 'Payment Sent',
-      body: 'Amount: ${payment.amountSat} sats',
+      title: received ? 'Payment Received'.i18n : 'Payment Sent'.i18n,
+      body: '${payment.amountSat} sats',
       channelId: NotificationHelper.dismissibleChannelId,
     );
   }
 
   void _handlePaymentWaitingFeeAcceptance() {
     NotificationHelper.showNotification(
-      title: 'Payment requires fee acceptance',
-      body: 'Tap to review updated fees',
+      title: 'Payment requires fee acceptance'.i18n,
+      body: 'Tap to review updated fees'.i18n,
       channelId: NotificationHelper.dismissibleChannelId,
     );
   }
 
   void _handleFailure() {
     NotificationHelper.showNotification(
-      title: 'Payment Pending',
-      body: 'Tap to complete payment',
+      title: 'Payment Pending'.i18n,
+      body: 'Tap to complete payment'.i18n,
       channelId: NotificationHelper.dismissibleChannelId,
     );
   }
@@ -309,7 +310,7 @@ class InvoiceRequestJob extends Job {
       }
     } finally {
       await NotificationHelper.showNotification(
-        title: success ? 'Fetching Invoice' : 'Invoice Request Failed',
+        title: success ? 'Fetching Invoice'.i18n : 'Invoice Request Failed'.i18n,
         channelId: NotificationHelper.replaceableChannelId,
       );
     }

@@ -1,3 +1,4 @@
+import 'package:Satsails/models/breez/lnurl_model.dart';
 import 'package:Satsails/models/breez/lnurl_webhook_manager.dart';
 import 'package:Satsails/notifications/firebase.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
@@ -83,7 +84,6 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      // Set the background color to match the BumpFeeModalSheet's dark theme
       backgroundColor: Colors.grey[900],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
@@ -167,14 +167,13 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
             padding: EdgeInsets.symmetric(horizontal: 12.w),
             child: buildAddressText(content, context, ref),
           ),
-          // Replaced the icon with a TextButton below the address
         ],
       ),
     );
   }
 
   Widget _buildNotificationPrompt() {
-    return Center(child: Padding(padding: EdgeInsets.symmetric(horizontal: 24.w), child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.notifications_off_outlined, size: 48.sp, color: Colors.grey), SizedBox(height: 16.h), Text('Enable notifications to get a permanent Lightning Address.'.i18n, textAlign: TextAlign.center, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)), SizedBox(height: 8.h), Text('You can still generate one-time invoices to receive payments while the app is open.'.i18n, textAlign: TextAlign.center, style: TextStyle(fontSize: 14.sp, color: Colors.grey[600])), SizedBox(height: 16.h), TextButton(onPressed: () async { setState(() => _isCheckingPermissions = true); await FirebaseService.requestNotificationPermissions(); final bool granted = await FirebaseService.checkNotificationPermissionStatus(); if (!granted && mounted) { await AppSettings.openAppSettings(type: AppSettingsType.notification); } ref.invalidate(setupLnAddressProvider); }, style: TextButton.styleFrom(foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black), child: Text('Allow Notifications'.i18n))])));
+    return Center(child: Padding(padding: EdgeInsets.symmetric(horizontal: 24.w), child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.notifications_off_outlined, size: 48.sp, color: Colors.grey), SizedBox(height: 16.h), Text('Enable notifications to get a permanent Lightning Address.'.i18n, textAlign: TextAlign.center, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)), SizedBox(height: 8.h), Text('You can still generate one-time invoices to receive payments while the app is open.'.i18n, textAlign: TextAlign.center, style: TextStyle(fontSize: 14.sp, color: Colors.grey[600])), SizedBox(height: 16.h), TextButton(onPressed: () async { setState(() => _isCheckingPermissions = true); try { await FirebaseService.requestNotificationPermissions(); final bool granted = await FirebaseService.checkNotificationPermissionStatus(); if (!granted && mounted) { await AppSettings.openAppSettings(type: AppSettingsType.notification); } ref.invalidate(setupLnAddressProvider); } finally { if (mounted) { setState(() => _isCheckingPermissions = false); } } }, style: TextButton.styleFrom(foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black), child: Text('Allow Notifications'.i18n))])));
   }
 
   Widget _buildErrorDisplay(String message) {
@@ -194,6 +193,7 @@ class _EditUsernameModalSheetState extends ConsumerState<EditUsernameModalSheet>
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _usernameController;
   bool _isLoading = false;
+  String? _errorMessage; // Holds the error message to display in the modal
 
   @override
   void initState() {
@@ -209,32 +209,43 @@ class _EditUsernameModalSheetState extends ConsumerState<EditUsernameModalSheet>
 
   Future<void> _submitEditUsername() async {
     FocusScope.of(context).unfocus();
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      final newUsername = _usernameController.text;
-      try {
-        await ref.read(createOrEditLnurlProvider(newUsername).future);
-        if (mounted) {
-          ref.invalidate(setupLnAddressProvider);
-          showMessageSnackBar(
-            message: "Username updated successfully!".i18n,
-            error: false,
-            context: context,
-          );
-          Navigator.of(context).pop();
-        }
-      } catch (e) {
-        if (mounted) {
-          showMessageSnackBar(
-            message: e.toString().i18n,
-            error: true,
-            context: context,
-          );
-        }
-      } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null; // Clear previous errors on a new attempt
+    });
+
+    final newUsername = _usernameController.text;
+    try {
+      await ref.read(createOrEditLnurlProvider(newUsername).future);
+      if (mounted) {
+        ref.invalidate(setupLnAddressProvider);
+        showMessageSnackBar(
+          message: "Username updated successfully!".i18n,
+          error: false,
+          context: context,
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        // Instead of showing a snackbar, set the error message state
+        setState(() {
+          if (e is UsernameConflictException) {
+            _errorMessage = "Username already exists".i18n;
+          } else {
+            _errorMessage = "An error occurred. Please try again.".i18n;
+          }
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -290,6 +301,16 @@ class _EditUsernameModalSheetState extends ConsumerState<EditUsernameModalSheet>
                   return null;
                 },
               ),
+              // Conditionally display the error message widget
+              if (_errorMessage != null)
+                Padding(
+                  padding: EdgeInsets.only(top: 12.h, bottom: 4.h),
+                  child: Text(
+                    _errorMessage!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.redAccent, fontSize: 14.sp),
+                  ),
+                ),
               SizedBox(height: 20.h),
               GestureDetector(
                 onTap: _isLoading ? null : _submitEditUsername,
@@ -297,7 +318,6 @@ class _EditUsernameModalSheetState extends ConsumerState<EditUsernameModalSheet>
                   width: double.infinity,
                   padding: EdgeInsets.all(12.w),
                   decoration: BoxDecoration(
-                    // Changed color to green and removed border radius
                     color: Colors.green,
                     borderRadius: BorderRadius.zero,
                   ),

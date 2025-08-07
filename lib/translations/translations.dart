@@ -2987,181 +2987,6 @@ extension Localization on String {
     'pt': 'Expirado',
   } +
       {
-        'en': 'Expires in %1 days',
-        'pt': 'Expira em %1 dias',
-      } +
-      {
-        'en': 'Expires in %1 hours',
-        'pt': 'Expira em %1 horas',
-      } +
-      {
-        'en': 'Expires in %1 minutes',
-        'pt': 'Expira em %1 minutos',
-      } +
-      {
-        'en': 'Expires soon',
-        'pt': 'Expira em breve',
-      } +
-      {
-        'en': 'Invalid date',
-        'pt': 'Data inválida',
-      } +{
-    'en': '%1 seconds',
-    'pt': '%1 segundos',
-  } +
-      {
-        'en': '%1 minutes',
-        'pt': '%1 minutos',
-      } +
-      {
-        'en': '%1 hours',
-        'pt': '%1 horas',
-      } +
-      {
-        'en': 'N/A',
-        'pt': 'N/D',
-      } +{
-    'en': 'No ShiftPair selected',
-    'pt': 'Nenhum ShiftPair selecionado',
-  } +
-      {
-        'en': 'Receive Liquid USDT from USDT on Tron',
-        'pt': 'Receber Liquid USDT de USDT em Tron',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDT on BSC',
-        'pt': 'Receber Liquid USDT de USDT em BSC',
-      } +
-      {
-        'en': 'Receive Liquid BTC from Bitcoin',
-        'pt': 'Receber Liquid BTC de Bitcoin',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDT on Arbitrum',
-        'pt': 'Receber Liquid USDT de USDT em Arbitrum',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDT on Ethereum',
-        'pt': 'Receber Liquid USDT de USDT em Ethereum',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDT on Solana',
-        'pt': 'Receber Liquid USDT de USDT em Solana',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDT on Polygon',
-        'pt': 'Receber Liquid USDT de USDT em Polygon',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDC on Ethereum',
-        'pt': 'Receber Liquid USDT de USDC em Ethereum',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDC on Tron',
-        'pt': 'Receber Liquid USDT de USDC em Tron',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDC on BSC',
-        'pt': 'Receber Liquid USDT de USDC em BSC',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDC on Solana',
-        'pt': 'Receber Liquid USDT de USDC em Solana',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDC on Polygon',
-        'pt': 'Receber Liquid USDT de USDC em Polygon',
-      } +
-      {
-        'en': 'Receive Liquid BTC from ETH',
-        'pt': 'Receber Liquid BTC de ETH',
-      } +
-      {
-        'en': 'Receive Liquid BTC from TRX',
-        'pt': 'Receber Liquid BTC de TRX',
-      } +
-      {
-        'en': 'Receive Liquid BTC from BNB',
-        'pt': 'Receber Liquid BTC de BNB',
-      } +
-      {
-        'en': 'Receive Liquid BTC from SOL',
-        'pt': 'Receber Liquid BTC de SOL',
-      } +{
-    'en': 'Confirm Non-Native Payment',
-    'pt': 'Confirmar Pagamento Não Nativo',
-  } +
-      {
-        'en': 'Recipient Address (%1 %2)',
-        'pt': 'Endereço do Destinatário (%1 %2)',
-      } +
-      {
-        'en': 'Enter recipient address',
-        'pt': 'Insira o endereço do destinatário',
-      } +
-      {
-        'en': 'Amount',
-        'pt': 'Quantia',
-      } +
-      {
-        'en': 'Max',
-        'pt': 'Máx',
-      } +
-      {
-        'en': 'Slide to send',
-        'pt': 'Deslize para enviar',
-      } +
-      {
-        'en': 'Transaction in progress, please wait.',
-        'pt': 'Transação em progresso, por favor aguarde.',
-      } +
-      {
-        'en': 'Amount is too small',
-        'pt': 'Quantia demasiado pequena',
-      } +
-      {
-        'en': 'Amount is too large',
-        'pt': 'Quantia demasiado grande',
-      } +{
-    'en': 'Confirm Transaction',
-    'pt': 'Confirmar Transação',
-  } +
-      {
-        'en': 'Amount',
-        'pt': 'Quantia',
-      } +
-      {
-        'en': 'Recipient',
-        'pt': 'Destinatário',
-      } +
-      {
-        'en': 'Service Fee',
-        'pt': 'Taxa de Serviço',
-      } +
-      {
-        'en': 'Payjoin fee',
-        'pt': 'Taxa Payjoin',
-      } +
-      {
-        'en': 'Cancel',
-        'pt': 'Cancelar',
-      } +
-      {
-        'en': 'Confirm',
-        'pt': 'Confirmar',
-      } +
-      {
-        'en': 'Warning: Sending from any other network might result in loss of funds.',
-        'pt': 'Aviso: Enviar de qualquer outra rede pode resultar na perda de fundos.',
-      } +
-      {
-        'en': 'variable',
-        'pt': 'variavel',
-      } +{
-    'en': 'Expired',
-    'pt': 'Expirado',
-  } +
-      {
         'en': '%1 days',
         'pt': '%1 dias',
       } +
@@ -3788,6 +3613,82 @@ extension Localization on String {
       {
         "en": "Change address",
         "pt": "Alterar endereço"
+      }+
+      {
+        "en": "Username already exists",
+        'pt': 'Nome de utilizador já existe',
+      } +
+      {
+        'en': 'Back to Lightning Address',
+        'pt': 'Voltar para o Endereço Lightning',
+      } +
+      {
+        'en': 'Failed to generate QR Code: %s',
+        'pt': 'Falha ao gerar o Código QR: %s',
+      } +
+      {
+        'en': 'An error occurred. Please try again.',
+        'pt': 'Ocorreu um erro. Por favor, tente novamente.',
+      } +
+      {
+        'en': 'Retrieving Payment Information',
+        'pt': 'A obter informações de pagamento',
+      } +
+      {
+        'en': 'Receive Payment Failed',
+        'pt': 'Falha ao receber pagamento',
+      } +
+      {
+        'en': 'Fetching Invoice',
+        'pt': 'A obter fatura',
+      } +
+      {
+        'en': 'Verifying Payment',
+        'pt': 'A verificar pagamento',
+      } +
+      {
+        'en': 'Payment Verification Failed',
+        'pt': 'Falha na verificação do pagamento',
+      } +
+      {
+        'en': 'Payment Received',
+        'pt': 'Pagamento Recebido',
+      } +
+      {
+        'en': 'Payment Sent',
+        'pt': 'Pagamento Enviado',
+      } +
+      {
+        'en': 'Amount: %s sats',
+        'pt': 'Valor: %s sats',
+      } +
+      {
+        'en': 'Payment requires fee acceptance',
+        'pt': 'Pagamento requer aceitação de taxa',
+      } +
+      {
+        'en': 'Tap to review updated fees',
+        'pt': 'Toque para rever as taxas atualizadas',
+      } +
+      {
+        'en': 'Payment Pending',
+        'pt': 'Pagamento Pendente',
+      } +
+      {
+        'en': 'Tap to complete payment',
+        'pt': 'Toque para concluir o pagamento',
+      } +
+      {
+        'en': 'Invoice Request Failed',
+        'pt': 'Falha no pedido de fatura',
+      } +
+      {
+        'en': 'Amount is below minimum',
+        'pt': 'Quantidade demasiado Pequena'
+      } +
+      {
+        'en': 'Amount is above maximum',
+        'pt': 'Quantidade demasiado grande',
       };
   String get i18n => localize(this, _t);
 

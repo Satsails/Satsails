@@ -74,6 +74,7 @@ class FirebaseService {
     await NotificationHelper.initialize();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     await listenForForegroundPushNotifications(container);
+    await getAndRefreshFCMToken();
   }
 
   static Future<void> requestNotificationPermissions() async {
@@ -116,8 +117,8 @@ class FirebaseService {
       String? jwt = await _storage.read(key: 'backendJwt');
       if (jwt == null || jwt.isEmpty) return;
 
-      String? storedToken = await getFCMToken();
-      String? currentToken = await _firebaseMessaging.getToken();
+      String? storedToken = await _storage.read(key: 'fcmToken');
+      String? currentToken = await getToken();
 
       if (currentToken != null && currentToken.isNotEmpty && currentToken != storedToken) {
         await sendTokenToBackend(jwt, currentToken);
@@ -137,10 +138,6 @@ class FirebaseService {
 
   static Future<void> storeFCMToken(String token) async {
     await _storage.write(key: 'fcmToken', value: token);
-  }
-
-  static Future<String?> getFCMToken() async {
-    return await _storage.read(key: 'fcmToken');
   }
 
   static Future<void> sendTokenToBackend(String jwt, String token) async {

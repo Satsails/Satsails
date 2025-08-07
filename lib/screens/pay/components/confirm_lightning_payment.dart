@@ -170,6 +170,10 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
   int _previousAmount = 0;
   bool _isDraining = false;
 
+  // State for variable amount invoices
+  int? _minAmountSats;
+  int? _maxAmountSats;
+
   void updateControllerText(int satsAmount) {
     final selectedCurrency = ref.read(inputCurrencyProvider);
     if (satsAmount == 0) {
@@ -195,50 +199,59 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
     _previousAmount = sendTxState.amount;
     updateControllerText(sendTxState.amount);
     addressController.text = sendTxState.address;
-    _checkIfInvoice(sendTxState.address);
+
+    // FIX: Delay the initial check to prevent modifying a provider during build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && addressController.text.isNotEmpty) {
+        _checkIfInvoice(addressController.text);
+      }
+    });
   }
 
   Future<void> _checkIfInvoice(String value) async {
-    if (value.isEmpty) {
-      if (mounted) setState(() => isInvoice = false);
-      return;
+    // Local variables to hold the new state before applying it
+    int? newMinSats;
+    int? newMaxSats;
+    bool newIsFixedInvoice = false;
+    int newAmount = 0;
+
+    if (value.isNotEmpty) {
+      try {
+        final parsedInput = await ref.read(parseInputProvider(value).future);
+
+        if (parsedInput is breez.InputType_Bolt11) {
+          final invoice = parsedInput.invoice;
+          final amount = invoice.amountMsat != null ? (invoice.amountMsat! ~/ BigInt.from(1000)).toInt() : 0;
+          if (amount > 0) {
+            newAmount = amount;
+            newIsFixedInvoice = true;
+          }
+        } else if (parsedInput is breez.InputType_Bolt12Offer) {
+          final offer = parsedInput.offer;
+          newMinSats = offer.minAmount != null && offer.minAmount is breez.Amount_Bitcoin
+              ? ((offer.minAmount as breez.Amount_Bitcoin).amountMsat ~/ BigInt.from(1000)).toInt()
+              : 0;
+        } else if (parsedInput is breez.InputType_LnUrlPay) {
+          newMinSats = (parsedInput.data.minSendable ~/ BigInt.from(1000)).toInt();
+          newMaxSats = (parsedInput.data.maxSendable ~/ BigInt.from(1000)).toInt();
+        }
+      } catch (e) {
+        // Ignore parsing errors, state will be reset
+      }
     }
 
-    try {
-      final parsedInput = await ref.read(parseInputProvider(value).future);
+    // Now, safely update the provider and state
+    ref.read(sendTxProvider.notifier).updateAmount(newAmount);
+    if (newIsFixedInvoice) {
+      ref.read(sendTxProvider.notifier).updatePaymentType(PaymentType.Lightning);
+    }
 
-      if (parsedInput is breez.InputType_Bolt11) {
-        final invoice = parsedInput.invoice;
-        final amount = invoice.amountMsat != null ? (invoice.amountMsat! ~/ BigInt.from(1000)).toInt() : 0;
-
-        if (amount > 0) {
-          ref.read(sendTxProvider.notifier).updateAmount(amount);
-          ref.read(sendTxProvider.notifier).updatePaymentType(PaymentType.Lightning);
-          if (mounted) {
-            setState(() {
-              isInvoice = true;
-            });
-          }
-        } else {
-          if (mounted) {
-            setState(() {
-              isInvoice = false;
-            });
-          }
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            isInvoice = false;
-          });
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          isInvoice = false;
-        });
-      }
+    if (mounted) {
+      setState(() {
+        isInvoice = newIsFixedInvoice;
+        _minAmountSats = newMinSats;
+        _maxAmountSats = newMaxSats;
+      });
     }
   }
 
@@ -464,6 +477,8 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                   ),
                                 ),
                               ),
+                              // Widget to display min/max amounts
+                              _buildAmountLimitsInfo(),
                             ],
                           ),
                           if (!isInvoice) ...[
@@ -505,48 +520,41 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                     action: (sliderController) async {
                       setState(() => isProcessing = true);
                       sliderController.loading();
-                      dynamic prepareResponse;
-                      int networkFee = 0;
 
                       try {
                         final sendTxState = ref.read(sendTxProvider);
-                        final input = sendTxState.address;
                         final amount = sendTxState.amount;
-                        final comment = commentController.text.isNotEmpty ? commentController.text : null;
 
-                        final parsedInput = await ref.read(parseInputProvider(input).future);
-
-                        if (parsedInput is breez.InputType_Bolt11) {
-                          prepareResponse = await ref.read(prepareSendProvider(parsedInput.invoice.bolt11).future);
-                          networkFee = prepareResponse.feesSat.toInt();
-                        } else if (parsedInput is breez.InputType_LnUrlPay) {
-                          final bip353Address = parsedInput.bip353Address;
-                          if (_isDraining) {
-                            prepareResponse = await ref.read(prepareDrainLnurlProvider((data: parsedInput.data, comment: comment, bip353Address: bip353Address)).future);
-                          } else {
-                            if (amount == 0) throw 'Please enter an amount for this recipient';
-                            prepareResponse = await ref.read(prepareLnurlPayProvider((data: parsedInput.data, amount: BigInt.from(amount), comment: comment, bip353Address: bip353Address)).future);
-                          }
-                          networkFee = prepareResponse.feesSat.toInt();
-                        } else {
-                          throw "Unsupported address or invoice type";
+                        // Validation for variable amounts
+                        if (_minAmountSats != null && amount < _minAmountSats!) {
+                          throw "Amount is below minimum";
                         }
+                        if (_maxAmountSats != null && amount > _maxAmountSats!) {
+                          throw "Amount is above maximum";
+                        }
+
+                        final paymentArgs = (
+                        address: sendTxState.address,
+                        amount: amount,
+                        comment: commentController.text.isNotEmpty ? commentController.text : null,
+                        isDraining: _isDraining,
+                        );
+
+                        // First, prepare the payment to get the fee
+                        final prepResponse = await ref.read(prepareLightningPaymentProvider(paymentArgs).future);
 
                         final bool confirmed = await showConfirmationModal(
                           context,
                           btcInDenominationFormatted(sendTxState.amount, btcFormat),
                           sendTxState.address,
-                          networkFee,
+                          prepResponse.networkFee,
                           btcFormat,
                           ref,
                         );
 
                         if (confirmed) {
-                          if (prepareResponse is breez.PrepareSendResponse) {
-                            await ref.read(sendPaymentProvider.future);
-                          } else if (prepareResponse is breez.PrepareLnUrlPayResponse) {
-                            await ref.read(lnurlPayProvider(prepareResponse).future);
-                          }
+                          // Now, execute the payment using the abstracted provider
+                          await ref.read(sendLightningPaymentProvider(paymentArgs).future);
 
                           showFullscreenTransactionSendModal(
                             context: context,
@@ -559,7 +567,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                           ref.read(sendTxProvider.notifier).resetToDefault();
                           ref.read(sendBlocksProvider.notifier).state = 1;
                           context.replace('/home');
-
                         } else {
                           sliderController.reset();
                           setState(() => isProcessing = false);
@@ -578,6 +585,47 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAmountLimitsInfo() {
+    if (_minAmountSats == null) {
+      return const SizedBox.shrink();
+    }
+
+    final selectedCurrency = ref.watch(inputCurrencyProvider);
+
+    String formatFiat(int sats) {
+      if (selectedCurrency == 'Sats' || selectedCurrency == 'BTC') {
+        return calculateAmountInSelectedCurrency(sats, selectedCurrency, ref.read(currencyNotifierProvider));
+      }
+      // Special handling for fiat
+      final converted = double.parse(calculateAmountInSelectedCurrency(sats, selectedCurrency, ref.read(currencyNotifierProvider)));
+      if (converted < 0.01) {
+        return '0.01';
+      }
+      return converted.toStringAsFixed(2);
+    }
+
+    final minFormatted = formatFiat(_minAmountSats!);
+    final maxFormatted = _maxAmountSats != null ? formatFiat(_maxAmountSats!) : null;
+
+    return Padding(
+      padding: EdgeInsets.only(top: 8.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "Min: $minFormatted $selectedCurrency",
+            style: TextStyle(color: Colors.white70, fontSize: 14.sp),
+          ),
+          if (maxFormatted != null)
+            Text(
+              "Max: $maxFormatted $selectedCurrency",
+              style: TextStyle(color: Colors.white70, fontSize: 14.sp),
+            ),
+        ],
       ),
     );
   }
