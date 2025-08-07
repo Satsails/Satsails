@@ -14,7 +14,6 @@ import 'package:go_router/go_router.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
 
-// This function is specific to this screen's needs and remains here.
 String shortenAddress(String address, [int start = 6, int end = 6]) {
   if (address.length <= start + end) {
     return address;
