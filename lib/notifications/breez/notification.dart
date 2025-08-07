@@ -81,9 +81,8 @@ class NotificationHelper {
         channelDescription: channelId == replaceableChannelId ? replaceableChannelDescription : dismissibleChannelDescription,
         importance: channelId == dismissibleChannelId ? Importance.high : Importance.defaultImportance,
         priority: channelId == dismissibleChannelId ? Priority.high : Priority.defaultPriority,
-        color: const Color(0xFF0089F9), // Matches Kotlin default
+        color: Colors.orange,
       ),
-      // FIX: Use DarwinNotificationDetails here, not DarwinInitializationSettings
       iOS: const DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,

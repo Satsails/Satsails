@@ -2267,8 +2267,8 @@ extension Localization on String {
         'pt': 'Taxa fixa',
       } +
       {
-        'en': 'Total fee',
-        'pt': 'Taxa total',
+        'en': 'Satsails fee',
+        'pt': 'Taxa Satsails',
       } +
       {
         'en': 'The maximum allowed transfer amount is 5000 BRL',
@@ -2319,8 +2319,8 @@ extension Localization on String {
         'pt': 'Compras são relatadas à Receita Federal brasileira em nome do pagador',
       } +
       {
-        'en': '(Purchase)',
-        'pt': '(Compra)',
+        'en': 'Purchase',
+        'pt': 'Compra',
       } +
       {
         'en': 'Depix token purchases are returned to the sender bank if CPF/CNPJ diverges for the one registered',
@@ -3360,7 +3360,7 @@ extension Localization on String {
       }+
       {
         "en": "Bump Fee",
-        "pt": "Acelerar transferência"
+        "pt": "Acelerar"
       }+
       {
         "en": "Bump Transaction Fee",
@@ -3689,6 +3689,78 @@ extension Localization on String {
       {
         'en': 'Amount is above maximum',
         'pt': 'Quantidade demasiado grande',
+      } +
+      {
+        'en': 'Confirmation Block',
+        'pt': 'Bloco de confirmação'
+      } +
+      {
+        'en': 'Expires',
+        'pt': 'Expira',
+      } +
+      {
+        'en': '6 days',
+        'pt': '6 dias',
+      } +
+      {
+        'en': 'Avg. Shift Time',
+        'pt': 'Tempo Médio de Shift',
+      } +
+      {
+        'en': 'Provide Refund Address',
+        'pt': 'Fornecer Endereço de Reembolso',
+      } +
+      {
+        'en': 'If this shift fails, the funds will be returned to this address.',
+        'pt': 'Se esta troca falhar, os fundos serão devolvidos para este endereço.',
+      } +
+      {
+        'en': 'Enter refund address',
+        'pt': 'Insira o endereço de reembolso',
+      } +
+      {
+        'en': 'Save Address',
+        'pt': 'Salvar Endereço',
+      } +
+      {
+        'en': 'Save Address',
+        'pt': 'Salvar Endereço',
+      } +
+      {
+        'en': 'Payment Details',
+        'pt': 'Detalhes do Pagamento',
+      } +
+      {
+        'en': 'Description',
+        'pt': 'Descrição',
+      } +
+      {
+        'en': 'On-chain TXID',
+        'pt': 'TXID On-chain',
+      } +
+      {
+        'en': 'Swap ID',
+        'pt': 'ID da Troca',
+      } +
+      {
+        'en': 'Payment Hash',
+        'pt': 'Hash do Pagamento',
+      } +
+      {
+        'en': 'Send TX',
+        'pt': 'TX de Envio',
+      } +
+      {
+        'en': 'Payout TX',
+        'pt': 'TX de Pagamento',
+      } +
+      {
+        'en': 'Amount Sent',
+        'pt': 'Valor Enviado',
+      } +
+      {
+        'en': 'Amount Received',
+        'pt': 'Valor Recebido',
       };
   String get i18n => localize(this, _t);
 

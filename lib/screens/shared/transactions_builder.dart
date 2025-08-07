@@ -514,13 +514,13 @@ Widget _buildEulenTransactionItem(EulenTransaction transaction, BuildContext con
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          "${isBuy ? '-' : ''}${details.price} USD",
-          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.normal, color: Colors.white.withOpacity(0.7)),
+          "${isBuy ? '' : ''}${details.receivedAmount} ${details.from_currency}",
+          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         SizedBox(height: 2.h),
         Text(
-          "${isBuy ? '' : '-'}${details.receivedAmount} ${details.from_currency}",
-          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white),
+          "${isBuy ? '' : ''}${details.price?.toStringAsFixed(2)} USD",
+          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.normal, color: Colors.white.withOpacity(0.7)),
         ),
       ],
     )

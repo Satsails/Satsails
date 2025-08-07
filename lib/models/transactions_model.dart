@@ -111,8 +111,10 @@ class TransactionNotifier extends AsyncNotifier<Transaction> {
       );
     }).toList();
 
-    final lightningPayments = await ref.read(listLightningPaymentsProvider(const breez.ListPaymentsRequest()).future);
-    final lightningConversionTransactions = lightningPayments.map((payment) {
+    final allLightningPayments = await ref.read(listLightningPaymentsProvider(const breez.ListPaymentsRequest()).future);
+    final lightningConversionTransactions = allLightningPayments
+        .where((payment) => payment.details is breez.PaymentDetails_Lightning)
+        .map((payment) {
       final lightningDetails = payment.details as breez.PaymentDetails_Lightning;
       final String paymentId = lightningDetails.paymentHash ?? lightningDetails.swapId;
 

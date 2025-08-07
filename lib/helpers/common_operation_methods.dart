@@ -129,12 +129,6 @@ Widget transactionTypeLiquidIcon(String kind) {
   }
 }
 
-Icon confirmationStatusIcon(lwk.Tx transaction) {
-  return transaction.outputs.isNotEmpty && transaction.outputs[0].height != null || transaction.inputs.isNotEmpty && transaction.inputs[0].height != null
-      ? const Icon(Icons.check_circle_outlined, color: Colors.green)
-      : const Icon(Icons.access_alarm_outlined, color: Colors.red);
-}
-
 String liquidTransactionType(lwk.Tx transaction) {
   switch (transaction.kind) {
     case 'incoming':
@@ -350,6 +344,24 @@ String getStatusText(breez.PaymentState status) {
       return 'Awaiting Fee Acceptance'.i18n;
     default:
       return 'Unknown'.i18n;
+  }
+}
+
+Color getStatusColor(breez.PaymentState status) {
+  switch (status) {
+    case breez.PaymentState.complete:
+      return Colors.green;
+    case breez.PaymentState.failed:
+    case breez.PaymentState.timedOut:
+      return Colors.red;
+    case breez.PaymentState.created:
+    case breez.PaymentState.pending:
+    case breez.PaymentState.refundable:
+    case breez.PaymentState.refundPending:
+    case breez.PaymentState.waitingFeeAcceptance:
+      return Colors.orange;
+    default:
+      return Colors.grey;
   }
 }
 

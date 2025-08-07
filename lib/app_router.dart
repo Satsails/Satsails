@@ -17,7 +17,7 @@ import 'package:Satsails/screens/pay/components/confirm_liquid_asset_payment.dar
 import 'package:Satsails/screens/shared/affiliate_screen.dart';
 import 'package:Satsails/screens/shared/liquid_transaction_details_screen.dart';
 import 'package:Satsails/screens/shared/sideshift_transaction_details_screen.dart';
-import 'package:Satsails/screens/shared/transactions_details_screen.dart';
+import 'package:Satsails/screens/shared/bitcoin_transactions_details_screen.dart';
 import 'package:Satsails/screens/spash/splash.dart';
 import 'package:Satsails/screens/transactions/transactions.dart';
 import 'package:go_router/go_router.dart';
@@ -132,7 +132,7 @@ class AppRouter {
           pageBuilder: (context, state) {
             final transaction = state.extra as BitcoinTransaction;
             return _buildFadeScalePage(
-              child: TransactionDetailsScreen(transaction: transaction),
+              child: BitcoinTransactionDetailsScreen(transaction: transaction),
               state: state,
             );
           },

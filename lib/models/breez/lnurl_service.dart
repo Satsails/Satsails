@@ -20,11 +20,10 @@ class BreezMessageSigner implements MessageSigner {
 
   @override
   Future<String> signMessage(String message) async {
-    // Resolve the FutureProvider dependency here
     final sdk = await _ref.watch(breezSDKProvider.future);
     if (sdk.instance == null) throw Exception("Breez SDK not initialized");
     final req = SignMessageRequest(message: message);
-    final res = await sdk.instance!.signMessage(req: req);
+    final res = sdk.instance!.signMessage(req: req);
     return res.signature;
   }
 }
@@ -99,7 +98,6 @@ class WebhookService {
   }
 
   Future<void> register(String webhookUrl) async {
-    // Resolve the FutureProvider dependency here
     final sdk = await _ref.watch(breezSDKProvider.future);
     if (sdk.instance == null) throw RegisterWebhookException('Breez SDK not initialized.');
     await sdk.instance!.registerWebhook(webhookUrl: webhookUrl);
