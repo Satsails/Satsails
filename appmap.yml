@@ -1,4 +1,0 @@
-appmap_dir: tmp/appmap
-language: python
-name: satsails
-packages: []
