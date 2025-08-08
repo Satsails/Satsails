@@ -3761,6 +3761,14 @@ extension Localization on String {
       {
         'en': 'Amount Received',
         'pt': 'Valor Recebido',
+      } +
+      {
+        'en': 'Shop With Bitcoin',
+        'pt': 'Faça compras com Bitcoin',
+      } +
+      {
+        'en': 'See cashback to receive',
+        'pt': 'Ver cashback a receber'
       };
   String get i18n => localize(this, _t);
 
